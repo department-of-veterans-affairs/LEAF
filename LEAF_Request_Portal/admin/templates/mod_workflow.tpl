@@ -161,11 +161,25 @@ function listEvents() {
  */
 function groupListContent(groups) {
     let content = 'Notify Group: <select id="groupID">' +
+        '<optgroup label="User Groups">'+
         '<option value="None">None</option>';
+
     for (let i in groups) {
-        content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+        if (groups[i].parentGroupID === null) {
+            content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+        }
     }
-    content += '</select><br /><br />';
+
+    content += '</optgroup>';
+    content += '<optgroup label="Service Groups">';
+
+    for (let i in groups) {
+        if (groups[i].parentGroupID !== null) {
+            content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+        }
+    }
+
+    content += '</optgroup></select><br /><br />';
 
     return content;
 }
@@ -347,11 +361,25 @@ function editEventContent(event, groups) {
         '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />';
 
     content += 'Notify Group: <select id="groupID">' +
+        '<optgroup label="User Groups">'+
         '<option value="None">None</option>';
+
     for (let i in groups) {
-        content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+        if (groups[i].parentGroupID === null) {
+            content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+        }
     }
-    content += '</select><br /><br />';
+
+    content += '</optgroup>';
+    content += '<optgroup label="Service Groups">';
+
+    for (let i in groups) {
+        if (groups[i].parentGroupID !== null) {
+            content += '<option value="' + groups[i].groupID + '">' + groups[i].name + '</option>';
+        }
+    }
+
+    content += '</optgroup></select><br /><br />';
     content += 'You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a></div>';
 
     return content;
@@ -618,11 +646,26 @@ function dependencyGrantAccess(dependencyID, stepID) {
     	type: 'GET',
     	url: '../api/?a=system/groups',
     	success: function(res) {
-    		var buffer = 'Grant Privileges to Group:<br /><select id="groupID">';
-    		for(var i in res) {
-    			buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
-    		}
-    		buffer += '</select>';
+    		let buffer = 'Grant Privileges to Group:<br /><select id="groupID">' +
+                '<optgroup label="User Groups">';
+
+            for (let i in res) {
+                if (res[i].parentGroupID === null) {
+                    buffer += '<option value="' + res[i].groupID + '">' + res[i].name + '</option>';
+                }
+            }
+
+            buffer += '</optgroup>';
+            buffer += '<optgroup label="Service Groups">';
+
+            for (let i in res) {
+                if (res[i].parentGroupID !== null) {
+                    buffer += '<option value="' + res[i].groupID + '">' + res[i].name + '</option>';
+                }
+            }
+
+            buffer += '</optgroup></select>';
+
     		dialog.setContent(buffer);
     		dialog.indicateIdle();
     	},
@@ -682,7 +725,7 @@ function linkDependencyDialog(stepID) {
     	type: 'GET',
     	url: '../api/?a=workflow/dependencies',
     	success: function(res) {
-            var buffer = '';
+            let buffer = '';
             buffer = 'Select an existing requirement ';
             buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
 
@@ -690,7 +733,7 @@ function linkDependencyDialog(stepID) {
             var maskedDependencies = ['5'];
 
             buffer += '<optgroup label="Custom Requirements">';
-            for(var i in res) {
+            for(let i in res) {
             	if(reservedDependencies.indexOf(res[i].dependencyID) == -1
             		&& maskedDependencies.indexOf(res[i].dependencyID) == -1) {
             		buffer += '<option value="'+ res[i].dependencyID +'">'+ res[i].description +'</option>';
@@ -699,7 +742,7 @@ function linkDependencyDialog(stepID) {
             buffer += '</optgroup>';
 
             buffer += '<optgroup label="&quot;Smart&quot; Requirements">';
-            for(var i in res) {
+            for(let i in res) {
                 if(reservedDependencies.indexOf(res[i].dependencyID) != -1) {
                     buffer += '<option value="'+ res[i].dependencyID +'">'+ res[i].description +'</option>';
                 }
@@ -768,7 +811,7 @@ function setInitialStep(stepID) {
                 type: 'GET',
                 url: '../api/?a=workflow',
                 success: function(res) {
-                    for(var i in res) {
+                    for(let i in res) {
                         workflows[res[i].workflowID] = res[i];
                     }
                     loadWorkflow(currentWorkflow);
@@ -783,59 +826,58 @@ function setInitialStep(stepID) {
 function listActionType() {
     $('.workflowStepInfo').css('display', 'none');
 	dialog.hide();
-  $("#button_save").hide();
+    $("#button_save").hide();
 	dialog.setTitle('List of Actions');
 	dialog.show();
-  $.ajax({
+    $.ajax({
 		type: 'GET',
 		url: '../api/?a=workflow/userActions',
 		success: function(res) {
-			var buffer = '';
+            let buffer = '';
 			buffer += '<table id="actions" class="table" border="1"><caption><h2>List of Actions</h2></caption><thead><th scope="col">Action</th><th scope="col">Action (Past Tense)</th><th scope="col"></th></thead>';
 
-			for(var i in res) {
-        buffer +='<tr>';
+			for(let i in res) {
+                buffer +='<tr>';
 				buffer += '<td width="300px" id="'+ res[i].actionType +'">'+ res[i].actionText +'</td>';
 				buffer += '<td width="300px" id="'+ res[i].actionTextPasttense +'">'+ res[i].actionTextPasttense +'</td>';
-        buffer += '<td width="150px" id="'+ res[i].actionType +'"><button class="buttonNorm" onclick="editActionType(\'' + res[i].actionType + '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteActionType(\'' + res[i].actionType + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
-        buffer += '</tr>';
+                buffer += '<td width="150px" id="'+ res[i].actionType +'"><button class="buttonNorm" onclick="editActionType(\'' + res[i].actionType + '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteActionType(\'' + res[i].actionType + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
+                buffer += '</tr>';
 			}
 
 			buffer += '</table><br /> <br />';
-      buffer += '<span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>';
+            buffer += '<span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>';
 
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
 
-      $("#create-action-type").click(function() {
-        $("#button_save").show();
-        newAction();
-      });
-
+            $("#create-action-type").click(function() {
+                $("#button_save").show();
+                newAction();
+            });
 		},
 		cache: false
 	});
-  //shows the save button for other dialogs
-  $('div#xhrDialog').on('dialogclose', function(event) {
-     $("#button_save").show();
-     $('div#xhrDialog').off();
- });
+    //shows the save button for other dialogs
+    $('div#xhrDialog').on('dialogclose', function(event) {
+        $("#button_save").show();
+        $('div#xhrDialog').off();
+    });
 }
 
 //edit action type
 function editActionType(actionType) {
-	dialog.hide();
-  $("#button_save").show();
-	dialog.setTitle('Edit Action ' + actionType);
-	dialog.show();
+    dialog.hide();
+    $("#button_save").show();
+    dialog.setTitle('Edit Action ' + actionType);
+    dialog.show();
 
-  $.ajax({
+    $.ajax({
 		type: 'GET',
 		url: '../api/?a=workflow/action/_' + actionType,
 		success: function(res) {
-			var buffer = '';
+            let buffer = '';
 
-      buffer += '<table>\
+            buffer += '<table>\
     		              <tr>\
     		                  <td>Action <span style="color: red">*Required</span></td>\
     		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="'+res[0].actionText+'"></input></td>\
@@ -853,17 +895,18 @@ function editActionType(actionType) {
                           </tr>\
     		          </table>\
     		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
+
 			dialog.indicateIdle();
 			dialog.setContent(buffer);
-      $('#fillDependency').val(res[0].fillDependency);
+            $('#fillDependency').val(res[0].fillDependency);
 			dialog.setSaveHandler(function() {
 				$.ajax({
 					type: 'POST',
 					url: '../api/?a=workflow/editAction/_' + actionType ,
 					data: {actionText: $('#actionText').val(),
-                 actionTextPasttense: $('#actionTextPasttense').val(),
-                 actionIcon: $('#actionIcon').val(),
-                 fillDependency: $('#fillDependency').val(),
+                             actionTextPasttense: $('#actionTextPasttense').val(),
+                             actionIcon: $('#actionIcon').val(),
+                             fillDependency: $('#fillDependency').val(),
 						     CSRFToken: CSRFToken},
 					success: function() {
 						listActionType();
@@ -900,7 +943,7 @@ function newAction() {
 	dialog.setTitle('Create New Action Type');
 	dialog.show();
 
-	var buffer = '<table>\
+    let buffer = '<table>\
 		              <tr>\
 		                  <td>Action <span style="color: red">*Required</span></td>\
 		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red"></input></td>\
@@ -1003,12 +1046,12 @@ function createAction(params) {
 		type: 'GET',
 		url: '../api/?a=workflow/actions',
 		success: function(res) {
-			var buffer = '';
+            let buffer = '';
 			buffer = 'Select action for ';
 			buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
 			buffer += '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
 
-			for(var i in res) {
+			for(let i in res) {
 				buffer += '<option value="'+ res[i].actionType +'">'+ res[i].actionText +'</option>';
 			}
 
@@ -1064,12 +1107,12 @@ function showActionInfo(params, evt) {
     $('.workflowStepInfo').css('display', 'none');
     $('#stepInfo_' + params.stepID).html('Loading...');
 
-    var stepID = params.stepID;
+    let stepID = params.stepID;
     $.ajax({
         type: 'GET',
         url: '../api/?a=workflow/'+ currentWorkflow +'/step/' + stepID + '/_' + params.action + '/events',
         success: function(res) {
-            var output = '';
+            let output = '';
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = '<h2>Action: '+ stepTitle +' clicks '+ params.action +'</h2>';
             output += '<br /><div>Triggers these events:<ul>';
@@ -1077,7 +1120,7 @@ function showActionInfo(params, evt) {
             if(params.action == 'sendback') {
             	output += '<li><b>Email - Notify the requestor</b></li>';
             }
-            for(var i in res) {
+            for(let i in res) {
                 output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
             }
             output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_'+ currentWorkflow + '_' + stepID + '_'+ params.action +'">Add Event</span>';
@@ -1107,8 +1150,8 @@ function setDynamicApprover(stepID) {
     	type: 'GET',
     	url: '../api/form/indicator/list',
     	success: function(res) {
-    		var indicatorList = '';
-    		for(var i in res) {
+            let indicatorList = '';
+    		for(let i in res) {
     			if(res[i]['format'] == 'orgchart_employee'
     				|| res[i]['format'] == 'raw_data') {
     				indicatorList += '<option value="'+ res[i].indicatorID +'">'+ res[i].categoryName +': '+ res[i].name +' (id: '+ res[i].indicatorID +')</option>';
@@ -1146,7 +1189,7 @@ function setDynamicGroupApprover(stepID) {
         url: '../api/form/indicator/list',
         success: function(res) {
             var indicatorList = '';
-            for(var i in res) {
+            for(let i in res) {
                 if(res[i]['format'] == 'orgchart_group'
                 	|| res[i]['format'] == 'raw_data') {
                     indicatorList += '<option value="'+ res[i].indicatorID +'">'+ res[i].categoryName +': '+ res[i].name +' (id: '+ res[i].indicatorID +')</option>';
@@ -1220,7 +1263,7 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
     })
     .then(function(associatedCategories) {
         var formList = '';
-        for(var i in associatedCategories) {
+        for(let i in associatedCategories) {
             formList += associatedCategories[i].categoryID + ',';
         }
         formList = formList.replace(/,$/, '');
@@ -1231,15 +1274,15 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
         })
         .then(function(indicatorList) {
             var stapledInternalIndicators;
-            for(var i in associatedCategories) {
-                for(var j in indicatorList) {
+            for(let i in associatedCategories) {
+                for(let j in indicatorList) {
                     if((associatedCategories[i].categoryID == indicatorList[j].categoryID
                         || associatedCategories[i].categoryID == indicatorList[j].parentCategoryID)
                         && indicatorList[j].parentIndicatorID == null) {
                         $('#workflowIndicator_' + stepID).append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
                     }
                     else if(indicatorList[j].parentStaples != null) {
-                        for(var k in indicatorList[j].parentStaples) {
+                        for(let k in indicatorList[j].parentStaples) {
                             if(indicatorList[j].parentStaples[k] == associatedCategories[i].categoryID) {
                                 $('#workflowIndicator_' + stepID).append('<option value="'+ indicatorList[j].indicatorID +'">'+ indicatorList[j].categoryName + ': ' + indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID + ')</option>');
                             }
@@ -1248,7 +1291,7 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
                 }
             }
             if(steps[stepID].stepModules != undefined) {
-                for(var i in steps[stepID].stepModules) {
+                for(let i in steps[stepID].stepModules) {
                     if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
                         var config = JSON.parse(steps[stepID].stepModules[i].moduleConfig);
                         $('#workflowIndicator_' + stepID).val(config.indicatorID);
@@ -1259,7 +1302,7 @@ function buildWorkflowIndicatorDropdown(stepID, steps) {
     });
 
     $('#workflowIndicator_' + stepID).on('change', function() {
-        for(var i in steps[stepID].stepModules) {
+        for(let i in steps[stepID].stepModules) {
             if(steps[stepID].stepModules[i].moduleName == 'LEAF_workflow_indicator') {
                 steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator_' + stepID).val()});
             }
@@ -1296,11 +1339,11 @@ function showStepInfo(stepID) {
                 url: '../api/?a=workflow/step/' + stepID + '/dependencies',
                 success: function(res) {
                     var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
-                    var output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
+                    let output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
 
                     output += '<br /><br /><div>Requirements:<ul>';
                     var tDeps = {};
-                    for(var i in res) {
+                    for(let i in res) {
                     	control_editDependency = '<img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editRequirement('+ res[i].dependencyID +')" alt="Edit Requirement" />';
                     	control_unlinkDependency = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="unlinkDependency('+ stepID +', '+ res[i].dependencyID +')" alt="Remove" />';
                         if(res[i].dependencyID == 1) { // special case for service chief and quadrad
@@ -1354,16 +1397,16 @@ function showStepInfo(stepID) {
 
                     // TODO: clean everything here up
                     var counter = 0;
-                    for(var i in res) {
+                    for(let i in res) {
                         group = '';
                         if(res[i].groupID != null) {
                             $('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><span style="white-space: nowrap"><b title="groupID: '+ res[i].groupID +'">'+ res[i].name +'</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess('+ res[i].dependencyID +', '+ res[i].groupID +')" alt="Remove" /></span></li>');
                             counter++;
                         }
-                    }
-                    if(counter == 0
-                        && res[i] != undefined) {
-                    	$('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><span style="color: red; font-weight: bold">A group must be added.</span></li>');
+                        if(counter == 0
+                            && res[i] != undefined) {
+                            $('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><span style="color: red; font-weight: bold">A group must be added.</span></li>');
+                        }
                     }
                 },
                 cache: false
@@ -1397,7 +1440,7 @@ function drawRoutes(workflowID) {
             }
 
             // draw connector
-            for(var i in res) {
+            for(let i in res) {
                 var loc = 0.5;
                 switch(res[i].actionType) {
                     case 'sendback':
@@ -1553,7 +1596,7 @@ function loadWorkflow(workflowID) {
         success: function(res) {
         	var minY = 80;
         	var maxY = 80;
-            for(var i in res) {
+            for(let i in res) {
             	steps[res[i].stepID] = res[i];
             	posY = parseFloat(res[i].posY)
             	if(posY < minY) {
@@ -1626,10 +1669,10 @@ function loadWorkflowList(workflowID)
         type: 'GET',
         url: '../api/?a=workflow',
         success: function(res) {
-            var output = '<select id="workflows" style="width: 100%">';
+            let output = '<select id="workflows" style="width: 100%">';
             var count = 0;
             var firstWorkflowID = 0;
-            for(var i in res) {
+            for(let i in res) {
                 if(count == 0) {
                     firstWorkflowID = res[i].workflowID;
                 }
@@ -1685,13 +1728,13 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         var emailTemplates = data[0];
         var dateIndicators = data[1];
         var formFields = data[2];
-        
+
         var indicatorList = '';
-        for(var i in dateIndicators) {
+        for(let i in dateIndicators) {
             indicatorList += '<option value="' + dateIndicators[i].indicatorID + '">' + dateIndicators[i].categoryName + ': ' + dateIndicators[i].name + ' (id: ' + dateIndicators[i].indicatorID + ')</option>';
         }
         var emailTemplateList = '';
-        for(var i in emailTemplates) {
+        for(let i in emailTemplates) {
             emailTemplate = emailTemplates[i].fileName;
             emailTemplateList += '<option value="' + emailTemplate + '">' + emailTemplate + '</option>';
         }
@@ -1789,7 +1832,7 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
 function getEmailTemplates(){
 	return new Promise(function(resolve,reject){
 		$.ajax({
-            url: '../api/system/emailtemplates/',
+            url: '../api/emailTemplates/',
             type: 'GET',
             success: function (res) {
                 resolve(res);
@@ -1809,7 +1852,7 @@ function getDateIndicators(){
             type: 'GET',
             success: function (res) {
                 var data = []
-                for(var i in res) {
+                for(let i in res) {
     			    if(res[i]['format'] == 'date') {
                         data.push(res[i]);
                     }
