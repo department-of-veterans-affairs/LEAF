@@ -13,12 +13,6 @@
     padding: 0.4rem 0.7rem 0.4rem 0.7rem;
     color: #f0f0ec;
   }
-  
-  .leaf-header-right {
-    position: absolute;
-    top:0;
-    right:0;
-  }
   // Submenu
   a + ul {position: absolute;}
   a + ul:not(.js-showElement) {display: none;}
