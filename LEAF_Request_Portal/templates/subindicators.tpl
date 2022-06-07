@@ -231,6 +231,7 @@
                     <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
                         <option value="<!--{$option|sanitize}-->" selected="selected"><!--{$option|sanitize}--></option>
                         <!--{assign var='found' value=true}-->
+                        <!--{break}-->
                     <!--{/if}-->
                 <!--{/foreach}-->
                 <!--{if !$found}-->
@@ -245,22 +246,12 @@
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices').css('border-radius', '6px');
                     // Hidden Value for array of items in _selected to export to POST
                     let hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                    const arrOptionEls = Array.from($('#'+'<!--{$indicator.indicatorID|strip_tags}--> option'));
-                    const arrOptionValues = arrOptionEls.map(el => el.innerText);
-                    const arrHiddenValues =  hiddenValue.split("\n") || [];
-
-                    const valueSelectionInfo = arrOptionValues.map(optVal => arrHiddenValues.some(v => v === optVal) ? optVal : 'no');
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(valueSelectionInfo);
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
                     // Change function for updating array on each selection or deselection
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
                         setTimeout(function() {
                             hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                            const arrOptionEls = Array.from($('#'+'<!--{$indicator.indicatorID|strip_tags}--> option'));
-                            const arrOptionValues = arrOptionEls.map(el => el.innerText);
-                            const arrHiddenValues =  hiddenValue.split("\n") || [];
-
-                            const valueSelectionInfo = arrOptionValues.map(optVal => arrHiddenValues.some(v => v === optVal) ? optVal : 'no');
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(valueSelectionInfo); 
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
                         }, 500);
                     });
                 });
@@ -574,20 +565,29 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'checkboxes' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <span id="parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}-->">
+            <span id="parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}-->">
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.options item=option}-->
-                    <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" />
-                    <!--{if $option|sanitize|escape == $indicator.value[$idx]|sanitize|escape}-->
-                        <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                        <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
-                        <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
-                    <!--{else}-->
-                        <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                        <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
-                        <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
+                <!--{assign var='found' value=false}-->
+                <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" />
+                <!--{foreach from=$indicator.value item=val}-->
+                    <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
+                        <!--{assign var='found' value=true}-->
+                        <!--{break}-->
                     <!--{/if}-->
-                    <!--{assign var='idx' value=$idx+1}-->
+                <!--{/foreach}-->
+
+                <!--{if $found}-->
+                    <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
+                <!--{else}-->
+                    <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
+                    <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
+                <!--{/if}-->
+                
+                <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
                 </span>
                 <script>
