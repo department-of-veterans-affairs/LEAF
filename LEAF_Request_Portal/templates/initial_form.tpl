@@ -27,9 +27,6 @@ $(function() {
     $('#service').chosen();
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5});
-    <!--{foreach from=$categories item=category}-->
-    $('#num<!--{$category.categoryID|strip_tags|escape}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-    <!--{/foreach}-->
 
     $('#record').on('submit', function() {
         if(checkForm() == true) {
@@ -42,8 +39,8 @@ $(function() {
 
     // comment out to allow more than one form to be submitted simultaneously
     $('.ischecked').on('change', function() {
-        $('.ischecked').icheck('unchecked');
-        $(this).icheck('checked');
+        $('.ischecked').prop('checked', false);
+        $(this).prop('checked', true);
     });
 });
 
@@ -112,13 +109,13 @@ $(function() {
         <div style="text-align: left; padding: 8px"><span>
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{foreach from=$categories item=category}-->
-        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}-->style="font-family: Courier; font-size: 24px; font-weight: bold; margin: 4px" />
-        <label class="checkable" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->"> <!--{$category.categoryName|sanitize}-->
+        <label class="checkable leaf_check" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->">
+        <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked leaf_check" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}--> />
+        <span class="leaf_check"> </span><!--{$category.categoryName|sanitize}-->
             <!--{if $category.categoryDescription != ''}-->
             &nbsp;(<!--{$category.categoryDescription|sanitize}-->)
             <!--{/if}-->
         </label>
-        <br />
     <!--{/foreach}-->
     <!--{if count($categories) == 0}-->
         <span style="color: red">Your forms must have an associated workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span>
