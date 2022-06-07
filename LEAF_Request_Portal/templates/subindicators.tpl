@@ -245,7 +245,12 @@
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices').css('border-radius', '6px');
                     // Hidden Value for array of items in _selected to export to POST
                     let hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
+                    const arrOptionEls = Array.from($('#'+'<!--{$indicator.indicatorID|strip_tags}--> option'));
+                    const arrOptionValues = arrOptionEls.map(el => el.innerText);
+                    const arrHiddenValues =  hiddenValue.split("\n") || [];
+
+                    const valueSelectionInfo = arrOptionValues.map(optVal => arrHiddenValues.some(v => v === optVal) ? optVal : 'no');
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(valueSelectionInfo);
                     // Change function for updating array on each selection or deselection
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
                         setTimeout(function() {
