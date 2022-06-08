@@ -1,4 +1,6 @@
 <style>
+    .employeeSelectorInput {
+        border: 1px solid #bbb;
     table, th, td{
         text-align: left;
         border-left: 0px solid;
