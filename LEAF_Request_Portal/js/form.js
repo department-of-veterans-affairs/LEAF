@@ -45,28 +45,38 @@ var LeafForm = function(containerID) {
 	}
 	
 	function handleConditionalIndicators(formConditions){
+		
 		const conditions = formConditions.conditions;
-		const format = formConditions.format;
+		const format = formConditions.format;  //current format set in form editor
+		const chosenShouldUpdate = format === 'dropdown';
+		const allowedChildFormats = ['dropdown', 'text'];
+		console.log('f', format, 'c', conditions);
+
 		for (let i in conditions) {
 			const elParentInd = document.getElementById(conditions[i].parentIndID);
 			const elChildInd = document.getElementById(conditions[i].childIndID);
 			const elJQParentID = $('#' + conditions[i].parentIndID);
 			const elJQChildID = $('#' + conditions[i].childIndID);
+			const childFormatIsEnabled = allowedChildFormats.some(f => f === format);
+			
 			let comparison = false;
-			if (format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
+			//parent questions are still dropdown only
+			if (childFormatIsEnabled && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
 				//*NOTE: need format for various plugins (icheck, chosen, etc)
-				//NOTE: needs initial runthrough in case first option is chosen (since user does not need to change val)
-				//can get validator, but doesn't seem like backend progress check can be done here
+				
 				let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
-
 				let currChildVal = elChildInd.value;
-				elJQChildID.chosen({width: '80%'}).on('change', function () {
-					currChildVal = elChildInd.value;
-				});
-
+				
+				if (chosenShouldUpdate) {
+					elJQChildID.chosen({width: '80%'}).on('change', function () {
+						currChildVal = elChildInd.value;
+					});
+			 	} 
+				//NOTE: FIX: needs to run once initially, since initial value can be trigger value
 				elJQParentID.chosen({width: '80%'}).on('change', function () {
 					const val = elParentInd.value;
 					const compVal = conditions[i].selectedParentValue;
+					
 					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
 					switch (conditions[i].selectedOp) {
 						case '==':
@@ -91,8 +101,10 @@ var LeafForm = function(containerID) {
 					case 'Hide':
 						elJQParentID.chosen().on('change', function () {
 							if (comparison) {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
+								if (chosenShouldUpdate) {
+									elJQChildID.chosen().val('');
+									elJQChildID.trigger('chosen:updated');
+								}
 								$('.blockIndicator_' + conditions[i].childIndID).hide();
 
 								if (currChildValidator !== undefined){
@@ -104,7 +116,7 @@ var LeafForm = function(containerID) {
 								if (currChildValidator !== undefined){
 									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
 								}
-								if (currChildVal) { //updates with prev selection if there had been one
+								if (currChildVal && chosenShouldUpdate) { //updates with prev dd selection if there had been one
 									elJQChildID.chosen().val(currChildVal);
 									elJQChildID.trigger('chosen:updated');
 								}
@@ -115,7 +127,7 @@ var LeafForm = function(containerID) {
 						elJQParentID.chosen().on('change', function () {
 							if (comparison) {
 								$('.blockIndicator_' + conditions[i].childIndID).show();
-								if (currChildVal) {
+								if (currChildVal && chosenShouldUpdate) {
 									elJQChildID.chosen().val(currChildVal);
 									elJQChildID.trigger('chosen:updated');
 								}
@@ -124,8 +136,10 @@ var LeafForm = function(containerID) {
 									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
 								}
 							} else {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
+								if (chosenShouldUpdate) {
+									elJQChildID.chosen().val('');
+									elJQChildID.trigger('chosen:updated');
+								}
 								$('.blockIndicator_' + conditions[i].childIndID).hide();
 
 								if (currChildValidator !== undefined){
@@ -138,19 +152,23 @@ var LeafForm = function(containerID) {
 						elJQParentID.chosen().on('change', function () {
 							if (comparison) {
 								elJQChildID.attr('disabled', 'disabled');
-								elJQChildID.chosen().val(conditions[i].selectedChildValue);
-								elJQChildID.trigger('chosen:updated');
+								if (chosenShouldUpdate) {
+									elJQChildID.chosen().val(conditions[i].selectedChildValue);
+									elJQChildID.trigger('chosen:updated');
+								}
 							} else {
 								elJQChildID.removeAttr('disabled');
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
+								if (chosenShouldUpdate) {
+									elJQChildID.chosen().val('');
+									elJQChildID.trigger('chosen:updated');
+								}
 							}
 						});
-						break;
+						break; 
 					default:
 						console.log(conditions[i].selectedOutcome);
 						break;
-				}
+				} 
 				elJQParentID.chosen().trigger('change');
 			}
 		}

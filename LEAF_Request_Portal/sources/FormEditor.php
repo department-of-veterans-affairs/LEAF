@@ -354,10 +354,10 @@ class FormEditor
     public function setCondition($indicatorID, $input)
     {
         $inputArr = json_decode($input);
-    
-        $inputArr[0]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[0]->selectedParentValue);
-        $inputArr[0]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[0]->selectedChildValue);
-        
+        foreach($inputArr as $i=>$inp) {
+            $inputArr[$i]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
+            $inputArr[$i]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
+        }
         $inputArr = json_encode($inputArr);
 
         $vars = array(
