@@ -35,6 +35,15 @@ var LeafForm = function(containerID) {
 		postModifyCallback = func;
 	}
 
+	function sanitize(input){
+		input = input.replace(/&/g, '&amp;');
+        input = input.replace(/</g, '&lt;');
+        input = input.replace(/>/g, '&gt;');
+        input = input.replace(/"/g, '&quot;');
+        input = input.replace(/'/g, '&#039;');
+		return input;
+	}
+	
 	function handleConditionalIndicators(formConditions){
 		const conditions = formConditions.conditions;
 		const format = formConditions.format;
@@ -43,10 +52,10 @@ var LeafForm = function(containerID) {
 			const elChildInd = document.getElementById(conditions[i].childIndID);
 			const elJQParentID = $('#' + conditions[i].parentIndID);
 			const elJQChildID = $('#' + conditions[i].childIndID);
-
+			let comparison = false;
 			if (format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
 				//*NOTE: need format for various plugins (icheck, chosen, etc)
-
+				//NOTE: needs initial runthrough in case first option is chosen (since user does not need to change val)
 				//can get validator, but doesn't seem like backend progress check can be done here
 				let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
 
@@ -55,23 +64,22 @@ var LeafForm = function(containerID) {
 					currChildVal = elChildInd.value;
 				});
 
-				let comparison = false;
 				elJQParentID.chosen({width: '80%'}).on('change', function () {
 					const val = elParentInd.value;
 					const compVal = conditions[i].selectedParentValue;
 					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
 					switch (conditions[i].selectedOp) {
 						case '==':
-							comparison = val === compVal;
+							comparison = sanitize(val) === compVal;
 							break;
 						case '!=':
-							comparison = val !== compVal;
+							comparison = sanitize(val) !== compVal;
 							break;
 						case '>':
-							comparison = val > compVal;
+							comparison = sanitize(val) > compVal;
 							break;
 						case '<':
-							comparison = val < compVal;
+							comparison = sanitize(val) < compVal;
 							break;
 						default:
 							console.log(conditions[i].selectedOp);
