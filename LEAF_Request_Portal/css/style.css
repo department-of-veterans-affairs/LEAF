@@ -780,7 +780,9 @@ div#maincontent {
     padding: 4px;
     background-color: white;
 }
-
+div[id*="xhrDialog"] {
+    max-width: 800px;
+}
 #comments {
     background-color: #e6e4b9;
     padding: 2px;
