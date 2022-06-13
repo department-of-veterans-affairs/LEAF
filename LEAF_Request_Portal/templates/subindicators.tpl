@@ -242,16 +242,18 @@
                 <input type="hidden" id="<!--{$indicator.indicatorID|strip_tags}-->_selected" name="<!--{$indicator.indicatorID|strip_tags}-->_selected" value="" />
                 <script>
                 $(function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({width: '80%'});
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices').css('border-radius', '6px');
-                    // Hidden Value for array of items in _selected to export to POST
-                    let hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
+                    const elSelectionContainer = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->');
+                    let selectedOptions = Array.from(elSelectionContainer.querySelectorAll('option[selected="selected"'));
+                    selectedOptions = selectedOptions.map(o => o.innerText); //value for array of items in _selected to export to POST
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(selectedOptions);
                     // Change function for updating array on each selection or deselection
                     $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
                         setTimeout(function() {
-                            hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
+                            const elSelectionContainer = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->');
+                            const selectionOptions = Array.from(elSelectionContainer.querySelectorAll('option'));
+                            let selectedOptions = selectionOptions.filter(o => o.selected === true);
+                            selectedOptions = selectedOptions.map(o => o.innerText);       
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(selectedOptions);
                         }, 500);
                     });
                 });
