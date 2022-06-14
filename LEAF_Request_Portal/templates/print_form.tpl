@@ -622,11 +622,11 @@ function admin_changeForm() {
         success: function(res) {
             var categories = '';
             for(var i in res) {
-            	categories += '<input type="checkbox" class="admin_changeForm" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
-                categories += '<label class="checkable" for="category_'+ res[i].categoryID +'">'+ res[i].categoryName +'</label><br />';
+            	categories += '<label class="checkable leaf_check" for="category_'+ res[i].categoryID +'">';
+                categories += '<input type="checkbox" class="icheck admin_changeForm leaf_check" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
+                categories += '<span class="leaf_check"></span>'+ res[i].categoryName +'</label>';
             }
             $('#changeForm').html(categories);
-            $('.admin_changeForm').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
             	var data = {'categories[]' : [], CSRFToken: CSRFToken};
@@ -655,12 +655,11 @@ function admin_changeForm() {
                 	var temp = res[<!--{$recordID|strip_tags|escape}-->].categoryNamesUnabridged;
                 	$('label.checkable').each(function() {
                 		for(var i in temp) {
-                            if($(this).html() == temp[i]) {
+                            if($(this).text() === temp[i]) {
                                 $('#' + $(this).attr('for')).prop('checked', true);
                             }
                 		}
                 	});
-                	$('.admin_changeForm').icheck('updated');
                 },
                 cache: false
             });
