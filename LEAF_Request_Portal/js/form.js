@@ -75,15 +75,23 @@ var LeafForm = function(containerID) {
 				//NOTE: FIX: needs to run once initially, since initial value can be trigger value
 				elJQParentID.chosen({width: '80%'}).on('change', function () {
 					const val = elParentInd.value;
-					const compVal = conditions[i].selectedParentValue;
+					let compVal = conditions.map(c => {
+						if (conditions[i].parentIndID === c.parentIndID
+							//&& conditions[i].selectedParentValue === c.selectedParentValue
+							&& conditions[i].selectedOutcome === c.selectedOutcome)
+							return c.selectedParentValue
+					});//conditions[i].selectedParentValue;
+					compVal = new Set(compVal);
+					compVal = Array.from(compVal);
+					console.log('CompVal: ', compVal, 'Val: ', val);
 					
 					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
 					switch (conditions[i].selectedOp) {
 						case '==':
-							comparison = sanitize(val) === compVal;
+							comparison = compVal.some(v => v === sanitize(val));
 							break;
 						case '!=':
-							comparison = sanitize(val) !== compVal;
+							comparison = compVal.every(v => v !== sanitize(val));
 							break;
 						case '>':
 							comparison = sanitize(val) > compVal;
