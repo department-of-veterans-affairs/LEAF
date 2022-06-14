@@ -224,7 +224,7 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <span><select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
+                <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -234,11 +234,23 @@
                         <!--{break}-->
                     <!--{/if}-->
                 <!--{/foreach}-->
-                <!--{if !$found}-->
+                <!--{if !$found && $option != ""}-->
                     <option value="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></option>
                 <!--{/if}-->
             <!--{/foreach}-->
-                </select></span>
+                </select>
+
+                <div id="multiselect_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_container">
+                <!--{foreach from=$indicator.options item=option}-->
+                    <!--{foreach from=$indicator.value item=val}-->
+                        <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
+                            <div tabindex="0" class="selected"><!--{$option|sanitize}--></div>
+                            <!--{break}-->
+                        <!--{/if}-->
+                    <!--{/foreach}-->
+                <!--{/foreach}-->
+                </div>
+
                 <input type="hidden" id="<!--{$indicator.indicatorID|strip_tags}-->_selected" name="<!--{$indicator.indicatorID|strip_tags}-->_selected" value="" />
                 <script>
                 $(function() {

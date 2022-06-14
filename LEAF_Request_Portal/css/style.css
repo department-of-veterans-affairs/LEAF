@@ -87,6 +87,21 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     display: block;
 }
 
+.leaf_multiselect_container {
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+}
+.leaf_multiselect_container div {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    background-color: #e8f2ff;
+    border: 1px outset #a4bfe2;
+    margin: 0.2em 0.3em 0.1em 0;
+    border-radius: 3px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 100, 0.4);
+}
+
 textarea {
     border: 1px solid gray;
     padding: 4px;
