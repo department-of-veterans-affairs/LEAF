@@ -120,12 +120,12 @@ var printer = function() {
                 var title = typeof (indicator.description) !== "undefined"
                 && indicator.description !== null
                 && indicator.description.length > 0
-                    ? number + ': ' + decodeHTMLEntities(indicator.description) + ' ' + required
+                    ? number + ': ' + decodeHTMLEntities(indicator.description) + ' - ' + decodeHTMLEntities(indicator.name) + ' ' + required
                     : number + ': ' + decodeHTMLEntities(indicator.name) + ' ' + required;
                 var titleContinued = typeof (indicator.description) !== "undefined"
                 && indicator.description !== null
                 && indicator.description.length > 0
-                    ? decodeHTMLEntities(indicator.description) + ' continued ' + required
+                    ? decodeHTMLEntities(indicator.description) + ' - ' + decodeHTMLEntities(indicator.name) + ' continued ' + required
                     : decodeHTMLEntities(indicator.name) + ' continued ' + required;
                 var storedSubCount = subCount;
                 var sizeOfBox = 0;
