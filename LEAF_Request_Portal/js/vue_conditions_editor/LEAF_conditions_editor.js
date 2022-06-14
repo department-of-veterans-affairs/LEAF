@@ -165,8 +165,7 @@ const ConditionsEditor = Vue.createApp({
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                         i.indicatorID !== this.childIndicator.indicatorID &&
-                        (i.format.indexOf('dropdown') === 0 ||
-                         i.format.indexOf('text') === 0);  //TEST dropdowns and single text only
+                        i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
                 });
                 /*if(indicator.conditions !== null && indicator.conditions !== ''){
                     const conditionObj = JSON.parse(indicator.conditions);
