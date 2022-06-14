@@ -224,7 +224,7 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
+                <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="width: 80%">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -251,24 +251,7 @@
                 <!--{/foreach}-->
                 </div>
 
-                <input type="hidden" id="<!--{$indicator.indicatorID|strip_tags}-->_selected" name="<!--{$indicator.indicatorID|strip_tags}-->_selected" value="" />
                 <script>
-                $(function() {
-                    const elSelectionContainer = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->');
-                    let selectedOptions = Array.from(elSelectionContainer.querySelectorAll('option[selected="selected"'));
-                    selectedOptions = selectedOptions.map(o => o.innerText); //value for array of items in _selected to export to POST
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(selectedOptions);
-                    // Change function for updating array on each selection or deselection
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
-                        setTimeout(function() {
-                            const elSelectionContainer = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->');
-                            const selectionOptions = Array.from(elSelectionContainer.querySelectorAll('option'));
-                            let selectedOptions = selectionOptions.filter(o => o.selected === true);
-                            selectedOptions = selectedOptions.map(o => o.innerText);       
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(selectedOptions);
-                        }, 500);
-                    });
-                });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {

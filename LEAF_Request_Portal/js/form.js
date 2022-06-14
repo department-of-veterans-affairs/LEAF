@@ -46,12 +46,10 @@ var LeafForm = function(containerID) {
 		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
 		var data = {recordID: recordID};
 		$('#' + htmlFormID).serializeArray().map(function(x) {
-			data[x.name] = x.value;
-			//allows non-required multiselect deselection
-			if (x.name.includes('_selected') && x.value === '') {
-				const name = x.name.slice(0, x.name.indexOf('_selected'));
-				data[name] = x.value;
-			}
+			if (x.name.includes('_multiselect')) {
+				const i = x.name.indexOf('_multiselect');
+				data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
+			} else data[x.name] = x.value;
 		});
 
 		if(hasTable){

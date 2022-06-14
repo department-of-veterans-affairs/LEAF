@@ -1738,12 +1738,6 @@ function formatIndicatorMultiAnswer(multiAnswerValue){
       if(el === "no") {
            uniqueNames[i] = "No";
         }
-        //if the option has commas, make sure there are spaces after them, and rm potential trailing commas
-        el = el.replaceAll(/,(?!\s)/ig, ', ').trim();
-        while(el[el.length-1] === ',') {
-            el = el.slice(0, el.length-1).trim();
-        }
-        uniqueNames[i] = el;
     });
 
     multiAnswerValue = uniqueNames.join("\n");
