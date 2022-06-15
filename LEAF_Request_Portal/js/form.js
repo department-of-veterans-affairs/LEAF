@@ -50,7 +50,6 @@ var LeafForm = function(containerID) {
 		const format = formConditions.format;  //current format set in form editor
 		const chosenShouldUpdate = format === 'dropdown';
 		const allowedChildFormats = ['dropdown', 'text'];
-		console.log('f', format, 'c', conditions);
 
 		for (let i in conditions) {
 			const elParentInd = document.getElementById(conditions[i].parentIndID);
@@ -59,7 +58,6 @@ var LeafForm = function(containerID) {
 			const elJQChildID = $('#' + conditions[i].childIndID);
 			const childFormatIsEnabled = allowedChildFormats.some(f => f === format);
 			
-			let comparison = false;
 			//parent questions are still dropdown only
 			if (childFormatIsEnabled && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
 				//*NOTE: need format for various plugins (icheck, chosen, etc)
@@ -72,32 +70,50 @@ var LeafForm = function(containerID) {
 						currChildVal = elChildInd.value;
 					});
 			 	} 
+				let comparison = false;
+				let prefillValue = '';
 				//NOTE: FIX: needs to run once initially, since initial value can be trigger value
 				elJQParentID.chosen({width: '80%'}).on('change', function () {
 					const val = elParentInd.value;
-					let compVal = conditions.map(c => {
-						if (conditions[i].parentIndID === c.parentIndID
-							//&& conditions[i].selectedParentValue === c.selectedParentValue
-							&& conditions[i].selectedOutcome === c.selectedOutcome)
-							return c.selectedParentValue
-					});//conditions[i].selectedParentValue;
-					compVal = new Set(compVal);
-					compVal = Array.from(compVal);
-					console.log('CompVal: ', compVal, 'Val: ', val);
+
+					//get vals of all possible parents elements, because they can also control the outcome
+					const allParentIDs = Array.from(new Set(conditions.map(c => c.parentIndID)));
+					const allParentElValues = allParentIDs.map(id => ({parentElID: id, parentElValue: document.getElementById(id).value}));
+					console.log(allParentIDs, allParentElValues);
+
+					let arrCompVals = []; //NOTE: will rm,  keeping to avoid other errors
+					conditions.map(c => {
+						//multiple choices from the same parent can trigger hide show or prefill, get all of them
+						//TODO: make this easier to enter from the editor
+						if (conditions[i].parentIndID === c.parentIndID &&
+							conditions[i].selectedOutcome === c.selectedOutcome &&
+							((conditions[i].selectedOutcome === "Pre-fill" && conditions[i].selectedChildValue === c.selectedChildValue) ||
+							  conditions[i].selectedOutcome !== "Pre-fill"
+							)
+						) arrCompVals.push(c.selectedParentValue);
+					});
 					
 					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
 					switch (conditions[i].selectedOp) {
 						case '==':
-							comparison = compVal.some(v => v === sanitize(val));
+							const conditionSearch = conditions.filter(c => {
+								return c.selectedOp === conditions[i].selectedOp && 
+									   c.selectedParentValue === val 
+							});
+							if (conditionSearch.length > 0 && conditionSearch.selectedChildValue){
+								prefillValue = conditionSearch.selectedChildValue;
+							}
+							console.log(conditionSearch);
+							comparison = conditionSearch.length > 0; //arrCompVals.some(v => v === sanitize(val));
 							break;
 						case '!=':
-							comparison = compVal.every(v => v !== sanitize(val));
+							comparison = arrCompVals.every(v => v !== sanitize(val));
 							break;
 						case '>':
-							comparison = sanitize(val) > compVal;
+							comparison = arrCompVals.some(v => v > sanitize(val));
 							break;
 						case '<':
-							comparison = sanitize(val) < compVal;
+							comparison = arrCompVals.some(v => v < sanitize(val));
 							break;
 						default:
 							console.log(conditions[i].selectedOp);
@@ -161,7 +177,7 @@ var LeafForm = function(containerID) {
 							if (comparison) {
 								elJQChildID.attr('disabled', 'disabled');
 								if (chosenShouldUpdate) {
-									elJQChildID.chosen().val(conditions[i].selectedChildValue);
+									elJQChildID.chosen().val(prefillValue);
 									elJQChildID.trigger('chosen:updated');
 								}
 							} else {
