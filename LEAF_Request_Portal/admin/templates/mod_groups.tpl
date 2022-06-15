@@ -319,6 +319,9 @@ function addNexusMember(groupID, empUID) {
             CSRFToken: '<!--{$CSRFToken}-->',
             empUID: empUID
         },
+	fail: function(err) {
+	    console.log(err);
+	}
         cache: false
     });
 }
