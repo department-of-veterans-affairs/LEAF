@@ -321,7 +321,7 @@ function addNexusMember(groupID, empUID) {
         },
 	fail: function(err) {
 	    console.log(err);
-	}
+	},
         cache: false
     });
 }
