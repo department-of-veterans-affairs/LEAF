@@ -224,7 +224,45 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="width: 80%">
+            
+            <!-- flex box to display selections -->
+            <div tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }" id="multiselect_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selections">
+            <!--{foreach from=$indicator.options item=option}-->
+                <!--{assign var='found' value=false}-->
+                    <!--{foreach from=$indicator.value item=val}-->
+                    <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
+                        <!--{assign var='found' value=true}-->
+                        <!--{break}-->
+                    <!--{/if}-->
+                <!--{/foreach}-->
+                <!--{if $found}-->
+                    <div><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }" title="remove <!--{$option|sanitize}-->">X</span></div>
+                <!--{else}-->
+                    <div class="notselected"><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }">X</span></div>
+                <!--{/if}-->
+            <!--{/foreach}-->
+            </div>
+
+            <!-- flex box to pick selections -->
+            <div id="multiselector_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selector">
+            <!--{foreach from=$indicator.options item=option}-->
+                <!--{assign var='found' value=false}-->
+                <!--{foreach from=$indicator.value item=val}-->
+                    <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
+                        <!--{assign var='found' value=true}-->
+                        <!--{break}-->
+                    <!--{/if}-->
+                <!--{/foreach}-->
+                <!--{if $found}-->
+                <div class="selected" tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }"><!--{$option|sanitize}--></div>
+                <!--{else}-->
+                <div tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }"><!--{$option|sanitize}--></div>
+                <!--{/if}-->
+            <!--{/foreach}-->
+            </div>
+            
+            <!-- actual select element and options (hidden) -->
+            <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="display:none">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -238,40 +276,79 @@
                     <option value="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></option>
                 <!--{/if}-->
             <!--{/foreach}-->
-                </select>
+            </select>
 
-                <div id="multiselect_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_container">
-                <!--{foreach from=$indicator.options item=option}-->
-                    <!--{foreach from=$indicator.value item=val}-->
-                        <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
-                            <div tabindex="0" class="selected"><!--{$option|sanitize}--></div>
-                            <!--{break}-->
-                        <!--{/if}-->
-                    <!--{/foreach}-->
-                <!--{/foreach}-->
-                </div>
-
-                <script>
-                <!--{if $indicator.required == 1}-->
-                formRequired["id<!--{$indicator.indicatorID}-->"] = {
-                    setRequired: function() {
-                        return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
-                    },
-                    setSubmitError: function() {
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700).clearQueue();
-                    },
-                    setRequiredError: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
-                    },
-                    setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
+            <script>
+            $(function() {
+                const animationTimer = 150;
+                $('#multiselect_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function(e) {
+                    const targetOption = e.target.getAttribute('data-option');
+                
+                    if (targetOption !== null) {
+                        let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
+                        let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                        selectOptions.forEach(o => {
+                            if (o.value === targetOption) {
+                                o.selected = false;
+                                e.target.parentNode.style.opacity = 0;
+                                setTimeout(() => e.target.parentNode.classList.add('notselected'),animationTimer);
+                            }
+                        });
+                        pickerOptions.forEach(o => {
+                            if (o.innerText === targetOption) {
+                                o.classList.remove('selected');
+                            }
+                        });
+                    } else {
+                        elSelector = document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->')
+                        elSelector.style.visibility = elSelector.style.visibility === 'hidden' ? 'visible' : 'hidden';
+                        elSelector.style.height = elSelector.style.height === '0px' ? '100px' : '0px';
+                        elSelector.style.overflowY = elSelector.style.overflowY === 'hidden' ? 'scroll' : 'hidden';
                     }
-                };
-                <!--{/if}-->
-                </script>
-                <!--{$indicator.html}-->
+                });
+                $('#multiselector_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function(e) {
+                    const targetOption = e.target.innerText;
+                    if (targetOption) {
+                        let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
+                        let displayOptions = Array.from(document.querySelectorAll('#multiselect_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                        
+                        selectOptions.forEach(o => {
+                            if (o.value === targetOption) {
+                                o.selected = true;
+                                e.target.classList.add('selected');
+                            }
+                        });
+                        displayOptions.forEach(d => {
+                            const dataOption = d.querySelector('span')?.getAttribute('data-option');
+                            if (dataOption === targetOption) {
+                                d.classList.remove('notselected');
+                                d.style.opacity = 0;
+                                setTimeout(() => d.style.opacity = 1, animationTimer);
+                            }
+                        });
+                    }
+                });
+            });
+            <!--{if $indicator.required == 1}-->
+            formRequired["id<!--{$indicator.indicatorID}-->"] = {
+                setRequired: function() {
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                },
+                setSubmitError: function() {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                    }, 700).clearQueue();
+                },
+                setRequiredError: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
+                },
+                setRequiredOk: function() {
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
+                }
+            };
+            <!--{/if}-->
+            </script>
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
                 <span><select id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 50%">
