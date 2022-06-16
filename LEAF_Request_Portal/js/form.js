@@ -43,10 +43,12 @@ var LeafForm = function(containerID) {
         input = input.replace(/'/g, '&#039;');
 		return input;
 	}
+
 	
 	function handleConditionalIndicators(formConditions) {
 		const allowedChildFormats = ['dropdown', 'text'];
 		const formConditionsByChild = formConditions;
+		let currentChildInfo = {};
 		
 		const checkConditions = (event, selected, parID=0)=> {
 			const parentElID = event !== null ? event.target.id : parID;
@@ -73,14 +75,11 @@ var LeafForm = function(containerID) {
 			console.log('all conditions linked to event: ', allConditions);*/
 			console.log('conditions org by child', conditionsByChild);
 
-			for (let child in conditionsByChild) {
-				makeComparisons(conditionsByChild[child]);
+			for (let childID in conditionsByChild) {
+				makeComparisons(childID, conditionsByChild[childID]);
 			}
 		}
-		/*
-		const getCurrentParentValues = (parentIDs)=> {
-			return parentIDs.map(id => ({[id]: document.getElementById(id).value}));
-		}*/
+
 		const getConditionsLinkedToParent = (parentID)=> {
 			let conditionsLinkedToParent = [];
 			for (let entry in formConditionsByChild) {
@@ -113,35 +112,44 @@ var LeafForm = function(containerID) {
 			}
 			return conditionsLinkedToChild;
 		}
+		//need this as a ref for comparisons so that the validators can be reset
+		const hideShowValidator = function(){return false};
 
 		//conditions to assess per child
-		const makeComparisons = (arrConditions)=> {
+		const makeComparisons = (childID, arrConditions)=> {
 			let prefillValue = '';
+
+			//store values in case they need to be changed back
+			const elJQChildID = $('#' + childID);
+			
+			let currChildVal = elJQChildID.val();
+			if (currentChildInfo[childID]) {  //check prop rather than specific values bc value can be empty
+				currentChildInfo[childID].value = currChildVal;
+			} else {
+				currentChildInfo[childID] = {
+					value: currChildVal
+				}
+			}
+	
+			//reset the validator if it had been stored, otherwise store it
+			if (currentChildInfo[childID]?.validator) {
+				form.dialog().requirements[childID] = currentChildInfo[childID]?.validator;
+			} else {
+				currentChildInfo[childID].validator = form.dialog().requirements[childID];
+			}
 
 			arrConditions.forEach(cond => {
 				const chosenShouldUpdate = cond.childFormat === 'dropdown';
 				let comparisonResult = false;
 
 				let arrCompVals = [];
-				arrConditions.map(c => {  //cond.parentIndID === c.parentIndID &&
+				arrConditions.map(c => {
 					if (cond.selectedOutcome === c.selectedOutcome &&
 						((cond.selectedOutcome === "Pre-fill" && cond.selectedChildValue === c.selectedChildValue) ||
 						cond.selectedOutcome !== "Pre-fill"
 						)
 					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue});
 				});
-				
-				//FIX: TODO: child values and validation updates. might just need object for all child values
-				const elJQChildID = $('#' + cond.childIndID);
-				let currChildVal = elJQChildID.val();
-				console.log(currChildVal);
-				let currChildValidator = form.dialog().requirements[cond.childIndID];
-				if (chosenShouldUpdate) {
-					elJQChildID.chosen({width: '80%'}).on('change', function () {
-						currChildVal = elJQChildID.val();
-					});
-				}
-				/////////////////////////////////////////////////////////////////////////////////////////////
 
 				switch (cond.selectedOp) {
 					case '==':
@@ -184,45 +192,29 @@ var LeafForm = function(containerID) {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
 							}
-							$('.blockIndicator_' + cond.childIndID).hide();
-
-							if (currChildValidator !== undefined){
-								form.dialog().requirements[cond.childIndID] = function(){return false};
+							//if this is a required question, re-point validator
+							$('.blockIndicator_' + childID).hide();
+							if (currentChildInfo[childID].validator !== undefined) {
+								form.dialog().requirements[childID] = hideShowValidator;
 							}
 						} else {
-							$('.blockIndicator_' + cond.childIndID).show();
+							$('.blockIndicator_' + childID).show();
 
-							if (currChildValidator !== undefined){
-								form.dialog().requirements[cond.childIndID] = currChildValidator;
-							}
-							if (currChildVal && chosenShouldUpdate) { //updates with prev dd selection if there had been one
-								elJQChildID.chosen().val(currChildVal);
-								elJQChildID.trigger('chosen:updated');
-							}
 						}
 						break;
 					case 'Show':
-							if (comparisonResult === true) {
-								$('.blockIndicator_' + cond.childIndID).show();
-								if (currChildVal && chosenShouldUpdate) {
-									elJQChildID.chosen().val(currChildVal);
-									elJQChildID.trigger('chosen:updated');
-								}
-
-								if (currChildValidator !== undefined){
-									form.dialog().requirements[cond.childIndID] = currChildValidator;
-								}
-							} else {
-								if (chosenShouldUpdate) {
-									elJQChildID.chosen().val('');
-									elJQChildID.trigger('chosen:updated');
-								}
-								$('.blockIndicator_' + cond.childIndID).hide();
-
-								if (currChildValidator !== undefined){
-									form.dialog().requirements[cond.childIndID] = function(){return false};
-								}
+						if (comparisonResult === true) {
+							$('.blockIndicator_' + childID).show();
+						} else {
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
 							}
+							$('.blockIndicator_' + childID).hide();
+							if (currentChildInfo[childID].validator !== undefined){
+								form.dialog().requirements[childID] = hideShowValidator;
+							}
+						}
 						break;
 					case 'Pre-fill':
 						if (prefillValue !== '') {
