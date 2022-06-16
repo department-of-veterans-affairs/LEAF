@@ -44,13 +44,79 @@ var LeafForm = function(containerID) {
 		return input;
 	}
 	
-	function handleConditionalIndicators(formConditions){
-		
-		const conditions = formConditions.conditions;
-		const format = formConditions.format;  //current format set in form editor
-		const chosenShouldUpdate = format === 'dropdown';
+	function handleConditionalIndicators(formConditions) {
 		const allowedChildFormats = ['dropdown', 'text'];
+		const formConditionsByChild = formConditions;
+		
+		const checkConditions = (event)=> {
+			const currentParentValues = getCurrentParentValues(parentQuestionIDs);
+			const linkedParentConditions = getConditionsLinkedToParent(event.target.id);
+			let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
+			uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
 
+			let linkedChildConditions = [];
+			uniqueChildIDs.forEach(id => {
+				linkedChildConditions.push(...getConditionsLinkedToChild(id, event.target.id));
+			});
+
+			console.log('event', event);
+			console.log('all curr parent vals:', currentParentValues);
+			console.log('children controlled by this parent', linkedParentConditions);
+			console.log('other parents controlling these children', linkedChildConditions);
+
+		}
+
+		const getCurrentParentValues = (parentIDs)=> {
+			return parentIDs.map(id => ({[id]: document.getElementById(id).value}));
+		}
+		const getConditionsLinkedToParent = (parentID)=> {
+			let conditionsLinkedToParent = [];
+			for (let entry in formConditionsByChild) {
+				formConditionsByChild[entry].conditions.forEach(c => {
+					//do not include conditions if the recorded condition format (condition.childFormat) does not
+					//match the current format, as this would have unpredictable results
+					if (formConditionsByChild[entry].format === c.childFormat && c.parentIndID === parentID) {
+						conditionsLinkedToParent.push({...c});
+					}
+				})
+			}
+			return conditionsLinkedToParent;
+		}
+		const getConditionsLinkedToChild = (childID, currParentID)=> {
+			let conditionsLinkedToChild = [];
+			for (let entry in formConditionsByChild) {
+				if (entry.slice(2) === childID) {
+					formConditionsByChild[entry].conditions.map(c => {
+						if (formConditionsByChild[entry].format === c.childFormat && currParentID !== c.parentIndID) {
+							conditionsLinkedToChild.push({...c});
+						}
+					});
+				}
+			}
+			return conditionsLinkedToChild;
+		}
+
+		//get the IDs of the questions that need listeners, make obj to store their values
+		let parentQuestionIDs = [];
+		for (let entry in formConditionsByChild) {
+			formConditionsByChild[entry].conditions.forEach(c => {
+				parentQuestionIDs.push(c.parentIndID);
+			});
+		}
+		parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
+		//does not call with addEventListener.  Chosen??
+		//parentQuestionIDs.forEach(id => document.getElementById(id).addEventListener('change', checkConditions));
+		parentQuestionIDs.forEach(id => $('#'+id).on('change', checkConditions));
+
+		//[{<ID>:<currVal>]
+		//let currentParentValues = getCurrentParentValues(parentQuestionIDs);
+		
+		
+		//const conditions = formConditions.conditions;
+		//const format = formConditions.format;  //current format set in form editor
+		//const chosenShouldUpdate = format === 'dropdown';
+		
+		/*
 		for (let i in conditions) {
 			const elParentInd = document.getElementById(conditions[i].parentIndID);
 			const elChildInd = document.getElementById(conditions[i].childIndID);
@@ -196,6 +262,7 @@ var LeafForm = function(containerID) {
 				elJQParentID.chosen().trigger('change');
 			}
 		}
+		*/
 	}
 
 	function doModify() {
@@ -310,9 +377,9 @@ var LeafForm = function(containerID) {
 
 	            dialog.enableLiveValidation();
 
-				for (let c in formConditions) {
-					handleConditionalIndicators(formConditions[c]);
-				}
+				//for (let c in formConditions) {
+					handleConditionalIndicators(formConditions); //[c]
+				//}
 				
 	        },
 	        error: function(response) {
