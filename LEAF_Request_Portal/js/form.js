@@ -48,14 +48,16 @@ var LeafForm = function(containerID) {
 		const allowedChildFormats = ['dropdown', 'text'];
 		const formConditionsByChild = formConditions;
 		
-		const checkConditions = (event)=> {
-			const linkedParentConditions = getConditionsLinkedToParent(event.target.id);
+		const checkConditions = (event, selected, parID=0)=> {
+			const parentElID = event !== null ? event.target.id : parID;
+
+			const linkedParentConditions = getConditionsLinkedToParent(parentElID);
 			let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
 			uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
 
 			let linkedChildConditions = [];
 			uniqueChildIDs.forEach(id => {
-				linkedChildConditions.push(...getConditionsLinkedToChild(id, event.target.id));
+				linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID));
 			});
 
 			const allConditions = [...linkedParentConditions, ...linkedChildConditions];
@@ -75,10 +77,10 @@ var LeafForm = function(containerID) {
 				makeComparisons(conditionsByChild[child]);
 			}
 		}
-
+		/*
 		const getCurrentParentValues = (parentIDs)=> {
 			return parentIDs.map(id => ({[id]: document.getElementById(id).value}));
-		}
+		}*/
 		const getConditionsLinkedToParent = (parentID)=> {
 			let conditionsLinkedToParent = [];
 			for (let entry in formConditionsByChild) {
@@ -129,15 +131,17 @@ var LeafForm = function(containerID) {
 					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue});
 				});
 				
-				//TODO: child values and validation. might just need object for all child values
+				//FIX: TODO: child values and validation updates. might just need object for all child values
 				const elJQChildID = $('#' + cond.childIndID);
 				let currChildVal = elJQChildID.val();
+				console.log(currChildVal);
 				let currChildValidator = form.dialog().requirements[cond.childIndID];
 				if (chosenShouldUpdate) {
 					elJQChildID.chosen({width: '80%'}).on('change', function () {
 						currChildVal = elJQChildID.val();
 					});
 				}
+				/////////////////////////////////////////////////////////////////////////////////////////////
 
 				switch (cond.selectedOp) {
 					case '==':
@@ -240,7 +244,6 @@ var LeafForm = function(containerID) {
 						break;
 				} 
 			});
-			
 		}
 
 		//get the IDs of the questions that need listeners
@@ -251,10 +254,10 @@ var LeafForm = function(containerID) {
 			});
 		}
 		parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
-		//does not call with addEventListener (Chosen plugin??)
-		parentQuestionIDs.forEach(id => $('#'+id).on('change', checkConditions));
-
-		//NOTE: FIX: needs to run once initially, since initial value can be trigger value
+		parentQuestionIDs.forEach(id => {
+			checkConditions(null, null, id);
+			$('#'+id).on('change', checkConditions); //does not call with addEventListener (Chosen plugin?)
+		});
 		
 	}
 
