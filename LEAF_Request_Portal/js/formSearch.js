@@ -700,23 +700,6 @@ var LeafFormSearch = function(containerID) {
 											chosenOptions();
 											createGroupSelectorWidget(widgetID);
 											break;
-										case 'multiselect':
-										case 'checkboxes':
-											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
-												<option value="LIKE">CONTAINS</option>\
-												<option value="NOT LIKE">DOES NOT CONTAIN</option>\
-											</select>');
-											var resOptions = res[i].format.split("\n");
-											resOptions.shift();
-											var options = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="options" style="width: 250px">';
-											for(let i in resOptions) {
-												var currOption = resOptions[i].indexOf("default:") == -1 ? resOptions[i].trim() : resOptions[i].substr(8).trim();
-												options += '<option value="'+ currOption +'">'+ currOption +'</option>';
-											}
-											options += '</select>';
-											$('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
-											chosenOptions();
-											break;
 										case 'dropdown':
 										case 'radio':
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
