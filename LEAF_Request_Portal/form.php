@@ -1140,7 +1140,6 @@ class Form
 
         foreach ($keys as $key)
         {
-            // If form has _selected key use over initial key (Multi-Select Dropdown)
             if (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
