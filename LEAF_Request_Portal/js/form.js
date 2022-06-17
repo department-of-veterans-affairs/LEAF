@@ -112,31 +112,28 @@ var LeafForm = function(containerID) {
 			}
 			return conditionsLinkedToChild;
 		}
-		//need this as a ref for comparisons so that the validators can be reset
+		//use as ref for comparisons so that the validators can be reset
 		const hideShowValidator = function(){return false};
+
+
+		const handleChildValidators = (childID)=> {
+			if (!currentChildInfo[childID]) { //if it is new define key and store validator
+				currentChildInfo[childID] = {
+					validator: form.dialog().requirements[childID]
+				}
+			} 
+			//reset the validator if there is one from the stored value
+			if (currentChildInfo[childID].validator !== undefined) {
+				form.dialog().requirements[childID] = currentChildInfo[childID].validator;
+			}
+		}
 
 		//conditions to assess per child
 		const makeComparisons = (childID, arrConditions)=> {
 			let prefillValue = '';
-
-			//store values in case they need to be changed back
 			const elJQChildID = $('#' + childID);
 			
-			let currChildVal = elJQChildID.val();
-			if (currentChildInfo[childID]) {  //check prop rather than specific values bc value can be empty
-				currentChildInfo[childID].value = currChildVal;
-			} else {
-				currentChildInfo[childID] = {
-					value: currChildVal
-				}
-			}
-	
-			//reset the validator if it had been stored, otherwise store it
-			if (currentChildInfo[childID]?.validator) {
-				form.dialog().requirements[childID] = currentChildInfo[childID]?.validator;
-			} else {
-				currentChildInfo[childID].validator = form.dialog().requirements[childID];
-			}
+			handleChildValidators(childID);
 
 			arrConditions.forEach(cond => {
 				const chosenShouldUpdate = cond.childFormat === 'dropdown';
@@ -188,6 +185,7 @@ var LeafForm = function(containerID) {
 				switch (cond.selectedOutcome) {
 					case 'Hide':
 						if (comparisonResult === true) {
+							elJQChildID.val('');
 							if (chosenShouldUpdate) {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
@@ -199,19 +197,19 @@ var LeafForm = function(containerID) {
 							}
 						} else {
 							$('.blockIndicator_' + childID).show();
-
 						}
 						break;
 					case 'Show':
 						if (comparisonResult === true) {
 							$('.blockIndicator_' + childID).show();
 						} else {
+							elJQChildID.val('');
 							if (chosenShouldUpdate) {
 								elJQChildID.chosen().val('');
 								elJQChildID.trigger('chosen:updated');
 							}
 							$('.blockIndicator_' + childID).hide();
-							if (currentChildInfo[childID].validator !== undefined){
+							if (currentChildInfo[childID].validator !== undefined) {
 								form.dialog().requirements[childID] = hideShowValidator;
 							}
 						}
@@ -236,6 +234,7 @@ var LeafForm = function(containerID) {
 						break;
 				} 
 			});
+			console.log(currentChildInfo);
 		}
 
 		//get the IDs of the questions that need listeners
