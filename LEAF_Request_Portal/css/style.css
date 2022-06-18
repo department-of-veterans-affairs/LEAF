@@ -98,18 +98,18 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
 }
 .leaf_multiselect_selections div {
     position: relative;
-    display: inline-block;
+    display: none;
     padding: 0.25em 1.75em 0.25em 0.5em;
     background-color: #e8f2ff;
     border: 1px outset #a4bfe2;
     margin: 0.25em 0.4em 0.25em 0;
     border-radius: 3px;
     box-shadow: 1px 1px 3px rgba(0, 0, 100, 0.4);
-    color: rgb(20, 47, 109);
+    color: #333;
     transition: all 0.12s ease;
 }
-.leaf_multiselect_selections div.notselected {
-    display: none;
+.leaf_multiselect_selections div.selected {
+    display: inline-block;
 }
 span[id$="multi_input_instructions"] {
     display: flex;
@@ -120,12 +120,12 @@ span[id$="multi_input_instructions"] {
     position: absolute;
     right: 0.5em;
     top: 14%;
-    color: rgb(90, 90, 90);
+    color: rgb(75, 75, 75);
     cursor: pointer;
     font-weight: bold;
 }
 .leaf_multiselect_selections div span:hover, .leaf_multiselect_selections div span:focus {
-    color:rgb(20, 20, 20);
+    color:rgb(0,0,0);
 }
 .leaf_multiselect_selector {
     visibility: hidden;
@@ -148,9 +148,8 @@ span[id$="multi_input_instructions"] {
     color: white;
 }
 .leaf_multiselect_selector div.selected {
-    font-weight: lighter;
-    color: rgb(150, 150, 150);
-    cursor: auto;
+    color: #111;
+    background-color: #dfedff;
 }
 
 textarea {

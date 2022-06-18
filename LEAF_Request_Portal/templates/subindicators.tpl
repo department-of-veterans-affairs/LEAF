@@ -226,7 +226,7 @@
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             
             <!-- flex box to display selections -->
-            <div tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }" id="multiselect_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selections">
+            <div tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();click(); }" id="multiselect_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selections">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                     <!--{foreach from=$indicator.value item=val}-->
@@ -236,9 +236,9 @@
                     <!--{/if}-->
                 <!--{/foreach}-->
                 <!--{if $found}-->
-                    <div><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }" title="remove <!--{$option|sanitize}-->">X</span></div>
+                    <div class="selected"><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></div>
                 <!--{else}-->
-                    <div class="notselected"><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();this.click(); }">X</span></div>
+                    <div><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></div>
                 <!--{/if}-->
             <!--{/foreach}-->
             <span id="<!--{$indicator.indicatorID|strip_tags}-->_multi_input_instructions">Please choose some selections</span>
@@ -289,15 +289,14 @@
                 let elInstr = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_multi_input_instructions');
                 elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
                 
-                $('#multiselect_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function(e) {
-                    const targetOption = e.target.getAttribute('data-option');
-                
+                document.getElementById('multiselect_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
+                    const targetOption = e.target?.getAttribute('data-option');
                     if (targetOption !== null) {
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 o.selected = false;
                                 e.target.parentNode.style.opacity = 0;
-                                setTimeout(() => e.target.parentNode.classList.add('notselected'),animationTimer);
+                                setTimeout(() => e.target.parentNode.classList.remove('selected'), animationTimer);
                             }
                         });
                         pickerOptions.forEach(o => {
@@ -315,21 +314,38 @@
                     }
                     elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
                 });
-                $('#multiselector_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function(e) {
-                    const targetOption = e.target.innerText;
+                document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') { 
+                        elSelector.style.visibility = 'hidden';
+                        elSelector.style.height = '0px';
+                        elSelector.style.overflowY = 'hidden';
+                    } 
+                });
+                document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
+                    const targetOption = e.target?.getAttribute('data-option');
                     if (targetOption) {
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
-                                o.selected = true;
-                                e.target.classList.add('selected');
+                                if (!o.selected) {
+                                    o.selected = true; //select element option
+                                    e.target.classList.add('selected'); //div in the dropdown
+                                } else {
+                                    o.selected = false;
+                                    e.target.classList.remove('selected'); 
+                                }
                             }
                         });
                         displayOptions.forEach(d => {
                             const dataOption = d.querySelector('span')?.getAttribute('data-option');
                             if (dataOption === targetOption) {
-                                d.classList.remove('notselected');
-                                d.style.opacity = 0;
-                                setTimeout(() => d.style.opacity = 1, animationTimer);
+                                const selected = d.classList.contains('selected');
+                                if (selected) {
+                                    d.classList.remove('selected');
+                                } else {
+                                    d.classList.add('selected');
+                                    d.style.opacity = 0;
+                                    setTimeout(() => d.style.opacity = 1, animationTimer);
+                                }
                             }
                         });
                     }
