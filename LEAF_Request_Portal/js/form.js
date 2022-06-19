@@ -48,7 +48,11 @@ var LeafForm = function(containerID) {
 		$('#' + htmlFormID).serializeArray().map(function(x) {
 			if (x.name.includes('_multiselect')) {
 				const i = x.name.indexOf('_multiselect');
-				data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
+				if (x.value === '') { //selected if no options are chosen
+					data[x.name.slice(0, i)] = x.value;
+				} else {
+					data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
+				}
 			} else data[x.name] = x.value;
 		});
 

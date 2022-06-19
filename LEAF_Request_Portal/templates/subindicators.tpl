@@ -264,6 +264,7 @@
             
             <!-- actual select element and options (hidden) -->
             <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="display:none">
+            <option id="<!--{$indicator.indicatorID|strip_tags}-->_empty_value" value="" style="display:none;"></option>
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -286,6 +287,8 @@
                 let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
                 let displayOptions = Array.from(document.querySelectorAll('#multiselect_<!--{$indicator.indicatorID|strip_tags}--> div'));
                 let elSelector = document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->');
+                let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
+                elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
                 let elInstr = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_multi_input_instructions');
                 elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
                 
@@ -313,6 +316,7 @@
                         elSelector.style.overflowY = selO === 'hidden' ? 'scroll' : 'hidden';
                     }
                     elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
+                    elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
                 });
                 document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('keydown', function(e) {
                     if (e.key === 'Escape') { 
@@ -350,6 +354,7 @@
                         });
                     }
                     elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
+                    elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
                 });
             });
             <!--{if $indicator.required == 1}-->
