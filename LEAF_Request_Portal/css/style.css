@@ -131,6 +131,7 @@ span[id$="multi_input_instructions"] {
     visibility: hidden;
     width: 80%;
     height: 0px;
+    max-height: 100px;
     overflow: hidden;
     flex-direction: column;
     padding: 0.2em 0.2em 0.2em 0.3em;
