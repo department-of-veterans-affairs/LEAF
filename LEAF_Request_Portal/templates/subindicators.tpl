@@ -255,9 +255,9 @@
                     <!--{/if}-->
                 <!--{/foreach}-->
                 <!--{if $found}-->
-                <div class="selected" tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></div>
+                <div class="selected" tabindex="0" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></div>
                 <!--{else}-->
-                <div tabindex="0" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></div>
+                <div tabindex="0" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></div>
                 <!--{/if}-->
             <!--{/foreach}-->
             </div>
@@ -307,6 +307,10 @@
                                 o.classList.remove('selected');
                             }
                         });
+                        if (!pickerOptions.some(p => p.classList.contains('selected'))) {
+                            elEmptyOption.selected = true;
+                            setTimeout(()=> elInstr.style.display = 'flex', animationTimer);
+                        }
                     } else {
                         const selV = elSelector.style.visibility || 'hidden';
                         const selH = elSelector.style.height || '0px';
@@ -315,17 +319,37 @@
                         elSelector.style.height = selH === '0px' ? 'auto' : '0px';
                         elSelector.style.overflowY = selO === 'hidden' ? 'scroll' : 'hidden';
                     }
-                    elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
-                    elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
+                    
                 });
                 document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        e.stopPropagation(); //prevents close of modal editing view
-                        elSelector.style.visibility = 'hidden';
-                        elSelector.style.height = '0px';
-                        elSelector.style.overflowY = 'hidden';
-                        document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->').focus();
-                    } 
+                    e.stopPropagation();
+                    const keyPressed = e.key;
+                    switch(keyPressed) {
+                        case 'Escape':
+                            elSelector.style.visibility = 'hidden';
+                            elSelector.style.height = '0px';
+                            elSelector.style.overflowY = 'hidden';
+                            document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->').focus();
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            if (e.target.nextElementSibling !== null) {
+                                e.target.nextElementSibling.focus();
+                            }
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            if (e.target.previousElementSibling !== null) {
+                                e.target.previousElementSibling.focus();   
+                            }
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.target.click();
+                            break;
+                        default:
+                            break;
+                    }
                 });
                 document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
                     const targetOption = e.target?.getAttribute('data-option');
@@ -354,9 +378,9 @@
                                 }
                             }
                         });
+                        elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
+                        elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
                     }
-                    elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
-                    elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
                 });
             });
             <!--{if $indicator.required == 1}-->

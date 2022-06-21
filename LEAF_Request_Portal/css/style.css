@@ -144,13 +144,13 @@ span[id$="multi_input_instructions"] {
     cursor: pointer;
     padding: 0.2em 0.4em;
 }
-.leaf_multiselect_selector div:not(.selected):hover, .leaf_multiselect_selector div:not(.selected):focus {
-    background-color: #47e;
-    color: white;
-}
 .leaf_multiselect_selector div.selected {
     color: #111;
     background-color: #dfedff;
+}
+.leaf_multiselect_selector div:hover, .leaf_multiselect_selector div:focus {
+    background-color: #47e;
+    color: white;
 }
 
 textarea {
