@@ -121,6 +121,11 @@ var LeafFormGrid = function(containerID, options) {
                         month: "2-digit",
                         day: "2-digit",
                     });
+                } else {
+                    //wrap non dates that would be interpreted as dates by excel in quotes
+                    if(/^\d+[\/-]\d+([\/-]\d+)?$/.test(data)){
+                        data = "'" + data + "'"
+                    }
                 }
                 $('#' + prefixID+recordID+'_'+indicatorID).empty().html(data);
                 $('#' + prefixID+recordID+'_'+indicatorID).fadeOut(250, function() {
