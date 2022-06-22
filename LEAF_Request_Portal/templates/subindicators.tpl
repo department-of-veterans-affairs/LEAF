@@ -226,7 +226,7 @@
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             
             <!-- flex box to display selections -->
-            <div tabindex="0" id="multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selections" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();click(); }">
+            <div tabindex="0" id="multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ click(); }">
             <input id="search_options_<!--{$indicator.indicatorID|strip_tags}-->" type="text" placeholder="Please select some options (type here to search)"/>
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
@@ -326,13 +326,17 @@
                     
                 });
                 document.getElementById('search_options_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('input', function(e) {
+                    elSelector.style.visibility = 'visible';
+                    elSelector.style.height = 'auto';
+                    elSelector.style.overflowY = 'scroll';
                     let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
                     if (e.target.value === "") {
                         pickerOptions.forEach(p => p.style.display = 'block'); 
                     } else {
                         pickerOptions.forEach(p => {
-                            let containsInputVal = p.getAttribute('data-option').includes(e.target.value);
-                            p.style.display = containsInputVal ? 'block' : 'none';
+                            const searchVal = e.target.value.toLowerCase();
+                            const optionContainsInputVal = p.getAttribute('data-option').toLowerCase().includes(searchVal);
+                            p.style.display = optionContainsInputVal ? 'block' : 'none';
                         });
                     }
                 });

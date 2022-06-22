@@ -87,7 +87,7 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     display: block;
 }
 
-.leaf_multiselect_selections {
+div[id^="multiselect_display_"] {
     width: 80%;
     display: flex;
     flex-wrap: wrap;
@@ -96,7 +96,7 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     min-height: 30px;
     min-width: 300px;
 }
-.leaf_multiselect_selections div {
+div[id^="multiselect_display_"] div {
     position: relative;
     display: none;
     padding: 0.25em 1.75em 0.25em 0.5em;
@@ -108,19 +108,21 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     color: #333;
     transition: all 0.12s ease;
 }
-.leaf_multiselect_selections div.selected {
+div[id^="multiselect_display_"] div.selected {
     display: inline-block;
 }
-.leaf_multiselect_selections div span {
+div[id^="multiselect_display_"] div span {
     position: absolute;
-    right: 0.5em;
+    padding: 0 0.2em;
+    right: 0.2em;
     top: 14%;
-    color: rgb(75, 75, 75);
+    color: rgb(65, 65, 65);
     cursor: pointer;
     font-weight: bold;
 }
-.leaf_multiselect_selections div span:hover, .leaf_multiselect_selections div span:focus {
+div[id^="multiselect_display_"] div span:hover, div[id^="multiselect_display_"] div span:focus {
     color:rgb(0,0,0);
+    text-shadow: 1px 1px #556;
 }
 .leaf_multiselect_selector {
     visibility: hidden;
