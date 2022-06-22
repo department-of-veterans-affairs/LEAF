@@ -283,9 +283,7 @@
             <script>
             $(function() {
                 const animationTimer = 120;
-                let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
                 let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
-                let displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
                 let elSelector = document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->');
                 let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                 elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
@@ -295,6 +293,11 @@
                 document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
                     const targetOption = e.target?.getAttribute('data-option');
                     if (targetOption !== null) {
+                        //define here too, in case Advanced Options are used to create the options
+                        let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
+                        let displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                        let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                        let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 o.selected = false;
@@ -353,7 +356,12 @@
                 });
                 document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
                     const targetOption = e.target?.getAttribute('data-option');
-                    if (targetOption) {
+                    if (targetOption !== null) {
+                        //define here too, in case Advanced Options are used to create the options
+                        let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
+                        let displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                        let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                        let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 if (!o.selected) {
