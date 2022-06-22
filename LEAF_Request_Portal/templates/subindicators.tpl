@@ -227,10 +227,11 @@
             
             <!-- flex box to display selections -->
             <div tabindex="0" id="multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selections" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();click(); }">
+            <input id="search_options_<!--{$indicator.indicatorID|strip_tags}-->" type="text" placeholder="Please select some options (type here to search)"/>
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                     <!--{foreach from=$indicator.value item=val}-->
-                    <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
+                    <!--{if $option|sanitize|escape == $val|sanitize|escape && $option|sanitize|escape !== ''}-->
                         <!--{assign var='found' value=true}-->
                         <!--{break}-->
                     <!--{/if}-->
@@ -241,7 +242,6 @@
                     <div><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></div>
                 <!--{/if}-->
             <!--{/foreach}-->
-            <span id="<!--{$indicator.indicatorID|strip_tags}-->_multi_input_instructions">Please choose some selections</span>
             </div>
 
             <!-- flex box to pick selections -->
@@ -287,8 +287,6 @@
                 let elSelector = document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->');
                 let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                 elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
-                let elInstr = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_multi_input_instructions');
-                elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
                 
                 document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
                     const targetOption = e.target?.getAttribute('data-option');
@@ -312,8 +310,11 @@
                         });
                         if (!pickerOptions.some(p => p.classList.contains('selected'))) {
                             elEmptyOption.selected = true;
-                            setTimeout(()=> elInstr.style.display = 'flex', animationTimer);
                         }
+                    } else if (e.target.id === 'search_options_<!--{$indicator.indicatorID|strip_tags}-->') {
+                        elSelector.style.visibility = 'visible';
+                        elSelector.style.height = 'auto';
+                        elSelector.style.overflowY = 'scroll';
                     } else {
                         const selV = elSelector.style.visibility || 'hidden';
                         const selH = elSelector.style.height || '0px';
@@ -323,6 +324,17 @@
                         elSelector.style.overflowY = selO === 'hidden' ? 'scroll' : 'hidden';
                     }
                     
+                });
+                document.getElementById('search_options_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('input', function(e) {
+                    let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                    if (e.target.value === "") {
+                        pickerOptions.forEach(p => p.style.display = 'block'); 
+                    } else {
+                        pickerOptions.forEach(p => {
+                            let containsInputVal = p.getAttribute('data-option').includes(e.target.value);
+                            p.style.display = containsInputVal ? 'block' : 'none';
+                        });
+                    }
                 });
                 document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('keydown', function(e) {
                     e.stopPropagation();
@@ -348,6 +360,7 @@
                             break;
                         case 'Enter':
                         case ' ':
+                            e.preventDefault();
                             e.target.click();
                             break;
                         default:
@@ -386,7 +399,6 @@
                                 }
                             }
                         });
-                        elInstr.style.display = pickerOptions.some(p => p.classList.contains('selected')) ? 'none' : 'flex';
                         elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
                     }
                 });

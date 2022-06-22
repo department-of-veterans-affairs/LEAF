@@ -111,11 +111,6 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
 .leaf_multiselect_selections div.selected {
     display: inline-block;
 }
-span[id$="multi_input_instructions"] {
-    display: flex;
-    align-items: center;
-    color: rgb(90, 90, 90);
-}
 .leaf_multiselect_selections div span {
     position: absolute;
     right: 0.5em;
@@ -151,6 +146,12 @@ span[id$="multi_input_instructions"] {
 .leaf_multiselect_selector div:hover, .leaf_multiselect_selector div:focus {
     background-color: #47e;
     color: white;
+}
+input[id*="search_options_"] {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid #99a;
+    margin-bottom: 0.25em;
 }
 
 textarea {
