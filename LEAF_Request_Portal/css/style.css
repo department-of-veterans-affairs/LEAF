@@ -101,11 +101,12 @@ div[id^="multiselect_display_"] div {
     display: none;
     padding: 0.25em 1.75em 0.25em 0.5em;
     background-color: #e8f2ff;
-    border: 1px outset #a4bfe2;
-    margin: 0.25em 0.4em 0.25em 0;
+    border: 1px outset #859fc2;
+    margin: 0.3em 0.5em 0.2em 0;
     border-radius: 3px;
     box-shadow: 1px 1px 3px rgba(0, 0, 100, 0.4);
-    color: #333;
+    color: #000;
+    font-size: 110%;
     transition: all 0.12s ease;
 }
 div[id^="multiselect_display_"] div.selected {
@@ -132,7 +133,7 @@ div[id^="multiselect_display_"] div span:hover, div[id^="multiselect_display_"] 
     overflow: hidden;
     flex-direction: column;
     padding: 0.2em 0.2em 0.2em 0.3em;
-    line-height: 1.5;
+    line-height: 1.6;
     font-size: 110%;
     border: 1px solid #a4bfe2;
     transition: all 0.12s ease;
@@ -146,7 +147,7 @@ div[id^="multiselect_display_"] div span:hover, div[id^="multiselect_display_"] 
     background-color: #dfedff;
 }
 .leaf_multiselect_selector div:hover, .leaf_multiselect_selector div:focus {
-    background-color: #47e;
+    background-color: #25b;
     color: white;
 }
 input[id*="search_options_"] {
