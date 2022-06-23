@@ -1,4 +1,6 @@
 <style>
+    .employeeSelectorInput {
+        border: 1px solid #bbb;
     table, th, td{
         text-align: left;
         border-left: 0px solid;
@@ -319,9 +321,9 @@ function addNexusMember(groupID, empUID) {
             CSRFToken: '<!--{$CSRFToken}-->',
             empUID: empUID
         },
-	fail: function(err) {
-	    console.log(err);
-	},
+	      fail: function(err) {
+	          console.log(err);
+	      },
         cache: false
     });
 }

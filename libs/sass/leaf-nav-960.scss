@@ -1,4 +1,4 @@
-/* ############# STYLES TO MAX WIDTH OF 50 REM (800px) ################# */
+/* ############# STYLES TO MAX WIDTH OF 60 REM (960px) ################# */
 
 @media screen and (min-width: 60rem) {
   #nav {
@@ -12,6 +12,12 @@
     display: block;
     padding: 0.4rem 0.7rem 0.4rem 0.7rem;
     color: #f0f0ec;
+  }
+  
+  .leaf-header-right {
+    position: absolute;
+    top:0;
+    right:0;
   }
   // Submenu
   a + ul {position: absolute;}
