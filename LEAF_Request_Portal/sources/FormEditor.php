@@ -13,6 +13,10 @@ if(!class_exists('DataActionLogger'))
 {
     require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
 }
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 class FormEditor
 {
@@ -349,10 +353,18 @@ class FormEditor
 
     public function setCondition($indicatorID, $input)
     {
+        $inputArr = json_decode($input);
+        foreach($inputArr as $i=>$inp) {
+            $inputArr[$i]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
+            $inputArr[$i]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
+        }
+        $inputArr = json_encode($inputArr);
+
         $vars = array(
             ':indicatorID' => $indicatorID,
-            ':input' => $input
+            ':input' => $inputArr
         );
+        //var_dump($vars);
 
         $result =  $this->db->prepared_query('UPDATE indicators
     								SET conditions=:input

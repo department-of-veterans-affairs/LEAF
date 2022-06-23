@@ -35,117 +35,221 @@ var LeafForm = function(containerID) {
 		postModifyCallback = func;
 	}
 
-	function handleConditionalIndicators(formConditions){
-		const conditions = formConditions.conditions;
-		const format = formConditions.format;
-		for (let i in conditions) {
-			const elParentInd = document.getElementById(conditions[i].parentIndID);
-			const elChildInd = document.getElementById(conditions[i].childIndID);
-			const elJQParentID = $('#' + conditions[i].parentIndID);
-			const elJQChildID = $('#' + conditions[i].childIndID);
+	function sanitize(input){
+		input = input.replace(/&/g, '&amp;');
+        input = input.replace(/</g, '&lt;');
+        input = input.replace(/>/g, '&gt;');
+        input = input.replace(/"/g, '&quot;');
+        input = input.replace(/'/g, '&#039;');
+		return input;
+	}
 
-			if (format === 'dropdown' && elParentInd !== null && elParentInd.nodeName === 'SELECT') {
-				//*NOTE: need format for various plugins (icheck, chosen, etc)
+	
+	function handleConditionalIndicators(formConditions) {
+		const allowedChildFormats = ['dropdown', 'text'];
+		const formConditionsByChild = formConditions;
+		let currentChildInfo = {};
+		
+		const checkConditions = (event, selected, parID=0)=> {
+			const parentElID = event !== null ? event.target.id : parID;
 
-				//can get validator, but doesn't seem like backend progress check can be done here
-				let currChildValidator = form.dialog().requirements[conditions[i].childIndID];
+			const linkedParentConditions = getConditionsLinkedToParent(parentElID);
+			let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
+			uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
 
-				let currChildVal = elChildInd.value;
-				elJQChildID.chosen({width: '80%'}).on('change', function () {
-					currChildVal = elChildInd.value;
-				});
+			let linkedChildConditions = [];
+			uniqueChildIDs.forEach(id => {
+				linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID));
+			});
 
-				let comparison = false;
-				elJQParentID.chosen({width: '80%'}).on('change', function () {
-					const val = elParentInd.value;
-					const compVal = conditions[i].selectedParentValue;
-					//TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
-					switch (conditions[i].selectedOp) {
-						case '==':
-							comparison = val === compVal;
-							break;
-						case '!=':
-							comparison = val !== compVal;
-							break;
-						case '>':
-							comparison = val > compVal;
-							break;
-						case '<':
-							comparison = val < compVal;
-							break;
-						default:
-							console.log(conditions[i].selectedOp);
-							break;
-					}
-				});
-				
-				switch (conditions[i].selectedOutcome) {
-					case 'Hide':
-						elJQParentID.chosen().on('change', function () {
-							if (comparison) {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
-								$('.blockIndicator_' + conditions[i].childIndID).hide();
+			const allConditions = [...linkedParentConditions, ...linkedChildConditions];
 
-								if (currChildValidator !== undefined){
-									form.dialog().requirements[conditions[i].childIndID] = function(){return false};
-								}
-							} else {
-								$('.blockIndicator_' + conditions[i].childIndID).show();
+			const conditionsByChild = {}
+			allConditions.map(c => {
+				conditionsByChild[c.childIndID] ? conditionsByChild[c.childIndID].push(c) : conditionsByChild[c.childIndID] = [c];
+			})
+			/*
+			console.log('event', event);
+			console.log('children controlled by this parent', linkedParentConditions);
+			console.log('other parents controlling these children', linkedChildConditions);
+			console.log('all conditions linked to event: ', allConditions);*/
+			console.log('conditions org by child', conditionsByChild);
 
-								if (currChildValidator !== undefined){
-									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
-								}
-								if (currChildVal) { //updates with prev selection if there had been one
-									elJQChildID.chosen().val(currChildVal);
-									elJQChildID.trigger('chosen:updated');
-								}
-							}
-						});
-						break;
-					case 'Show':
-						elJQParentID.chosen().on('change', function () {
-							if (comparison) {
-								$('.blockIndicator_' + conditions[i].childIndID).show();
-								if (currChildVal) {
-									elJQChildID.chosen().val(currChildVal);
-									elJQChildID.trigger('chosen:updated');
-								}
-
-								if (currChildValidator !== undefined){
-									form.dialog().requirements[conditions[i].childIndID] = currChildValidator;
-								}
-							} else {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
-								$('.blockIndicator_' + conditions[i].childIndID).hide();
-
-								if (currChildValidator !== undefined){
-									form.dialog().requirements[conditions[i].childIndID] = function(){return false};
-								}
-							}
-						});
-						break;
-					case 'Pre-fill':
-						elJQParentID.chosen().on('change', function () {
-							if (comparison) {
-								elJQChildID.attr('disabled', 'disabled');
-								elJQChildID.chosen().val(conditions[i].selectedChildValue);
-								elJQChildID.trigger('chosen:updated');
-							} else {
-								elJQChildID.removeAttr('disabled');
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
-							}
-						});
-						break;
-					default:
-						console.log(conditions[i].selectedOutcome);
-						break;
-				}
-				elJQParentID.chosen().trigger('change');
+			for (let childID in conditionsByChild) {
+				makeComparisons(childID, conditionsByChild[childID]);
 			}
 		}
+
+		const getConditionsLinkedToParent = (parentID)=> {
+			let conditionsLinkedToParent = [];
+			for (let entry in formConditionsByChild) {
+				formConditionsByChild[entry].conditions.forEach(c => {
+					const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+					//do not include conditions if the recorded condition format (condition.childFormat) does not
+					//match the current format, as this would have unpredictable results
+					if (formConditionsByChild[entry].format === c.childFormat && 
+						formatIsEnabled &&
+						c.parentIndID === parentID) {
+						conditionsLinkedToParent.push({...c});
+					}
+				})
+			}
+			return conditionsLinkedToParent;
+		}
+		const getConditionsLinkedToChild = (childID, currParentID)=> {
+			let conditionsLinkedToChild = [];
+			for (let entry in formConditionsByChild) {
+				if (entry.slice(2) === childID) {
+					formConditionsByChild[entry].conditions.map(c => {
+						const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+						if (formConditionsByChild[entry].format === c.childFormat && 
+							formatIsEnabled &&
+							currParentID !== c.parentIndID) {
+							conditionsLinkedToChild.push({...c});
+						}
+					});
+				}
+			}
+			return conditionsLinkedToChild;
+		}
+		//use as ref for comparisons so that the validators can be reset
+		const hideShowValidator = function(){return false};
+
+
+		const handleChildValidators = (childID)=> {
+			if (!currentChildInfo[childID]) { //if it is new define key and store validator
+				currentChildInfo[childID] = {
+					validator: form.dialog().requirements[childID]
+				}
+			} 
+			//reset the validator if there is one from the stored value
+			if (currentChildInfo[childID].validator !== undefined) {
+				form.dialog().requirements[childID] = currentChildInfo[childID].validator;
+			}
+		}
+
+		//conditions to assess per child
+		const makeComparisons = (childID, arrConditions)=> {
+			let prefillValue = '';
+			const elJQChildID = $('#' + childID);
+			
+			handleChildValidators(childID);
+
+			arrConditions.forEach(cond => {
+				const chosenShouldUpdate = cond.childFormat === 'dropdown';
+				let comparisonResult = false;
+
+				let arrCompVals = [];
+				arrConditions.map(c => {
+					if (cond.selectedOutcome === c.selectedOutcome &&
+						((cond.selectedOutcome === "Pre-fill" && cond.selectedChildValue === c.selectedChildValue) ||
+						cond.selectedOutcome !== "Pre-fill"
+						)
+					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue});
+				});
+
+				switch (cond.selectedOp) {
+					case '==':
+						arrCompVals.forEach(entry => {
+							let id = Object.keys(entry)[0];
+							let val = document.getElementById(id).value;
+							if (sanitize(val) === entry[id]) {
+								comparisonResult = true;
+								if (cond.selectedOutcome === "Pre-fill") {
+									prefillValue = cond.selectedChildValue;
+								}
+							}
+						});
+						break;
+					case '!=':  //TODO: SOME or EVERY?
+						arrCompVals.forEach(entry => {
+							let id = Object.keys(entry)[0];
+							let val = document.getElementById(id).value;
+							if (sanitize(val) !== entry[id]) {
+								comparisonResult = true;
+							}
+						});
+						break;
+					case '>':  
+						//comparisonResult = arrCompVals.some(v => v > sanitize(val));
+						break;
+					case '<':
+						//comparisonResult = arrCompVals.some(v => v < sanitize(val));
+						break;
+					default:
+						console.log(cond.selectedOp);
+						break;
+				}
+
+				//update child states and/or values
+				switch (cond.selectedOutcome) {
+					case 'Hide':
+						if (comparisonResult === true) {
+							elJQChildID.val('');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+							//if this is a required question, re-point validator
+							$('.blockIndicator_' + childID).hide();
+							if (currentChildInfo[childID].validator !== undefined) {
+								form.dialog().requirements[childID] = hideShowValidator;
+							}
+						} else {
+							$('.blockIndicator_' + childID).show();
+						}
+						break;
+					case 'Show':
+						if (comparisonResult === true) {
+							$('.blockIndicator_' + childID).show();
+						} else {
+							elJQChildID.val('');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+							$('.blockIndicator_' + childID).hide();
+							if (currentChildInfo[childID].validator !== undefined) {
+								form.dialog().requirements[childID] = hideShowValidator;
+							}
+						}
+						break;
+					case 'Pre-fill':
+						if (prefillValue !== '') {
+							elJQChildID.attr('disabled', 'disabled');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val(prefillValue);
+								elJQChildID.trigger('chosen:updated');
+							}
+						} else {
+							elJQChildID.removeAttr('disabled');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+						}
+						break; 
+					default:
+						console.log(cond.selectedOutcome);
+						break;
+				} 
+			});
+			console.log(currentChildInfo);
+		}
+
+		//get the IDs of the questions that need listeners
+		let parentQuestionIDs = [];
+		for (let entry in formConditionsByChild) {
+			formConditionsByChild[entry].conditions.forEach(c => {
+				parentQuestionIDs.push(c.parentIndID);
+			});
+		}
+		parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
+		parentQuestionIDs.forEach(id => {
+			checkConditions(null, null, id);
+			$('#'+id).on('change', checkConditions); //does not call with addEventListener (Chosen plugin?)
+		});
+		
 	}
 
 	function doModify() {
@@ -260,9 +364,9 @@ var LeafForm = function(containerID) {
 
 	            dialog.enableLiveValidation();
 
-				for (let c in formConditions) {
-					handleConditionalIndicators(formConditions[c]);
-				}
+				//for (let c in formConditions) {
+					handleConditionalIndicators(formConditions); //[c]
+				//}
 				
 	        },
 	        error: function(response) {

@@ -165,7 +165,7 @@ const ConditionsEditor = Vue.createApp({
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                         i.indicatorID !== this.childIndicator.indicatorID &&
-                        i.format.indexOf('dropdown') === 0;  //TEST  Dropdowns only, for testing
+                        i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
                 });
                 /*if(indicator.conditions !== null && indicator.conditions !== ''){
                     const conditionObj = JSON.parse(indicator.conditions);
@@ -519,7 +519,7 @@ ConditionsEditor.component('editor-main', {
                 are added, the outcome must be the same for all.  You will be able to specify whether any or all of these
                 conditions must be met in order for the outcome to occur</p>-->
                 <div v-if="conditionTypes.show.length > 0">
-                    <p style="margin-top: 1em"><b>Show under these Conditions (Hidden by default):</b></p>
+                    <p style="margin-top: 1em"><b>Show under these Conditions (hide otherwise):</b></p>
                     <li v-for="c in conditionTypes.show" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
@@ -534,7 +534,7 @@ ConditionsEditor.component('editor-main', {
                     </li>
                 </div>
                 <div v-if="conditionTypes.hide.length > 0">
-                    <p style="margin-top: 1em"><b>Hide under these Conditions (Shown by default):</b></p>
+                    <p style="margin-top: 1em"><b>Hide under these Conditions (show otherwise):</b></p>
                     <li v-for="c in conditionTypes.hide" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
@@ -583,8 +583,8 @@ ConditionsEditor.component('editor-main', {
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
-                    <option value="Show" :selected="conditions.selectedOutcome==='Show'">Show this Question (Hidden by deafult)</option>
-                    <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Hide this Question (Shown by default)</option>
+                    <option value="Show" :selected="conditions.selectedOutcome==='Show'">Show this Question (hide otherwise)</option>
+                    <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Hide this Question (show otherwise)</option>
                     <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
@@ -616,6 +616,7 @@ ConditionsEditor.component('editor-main', {
             </select>
             <div v-if="selectedParentOperators.length > 0">
                 <span class="input-info">Choose a comparison</span>
+                <!-- OPERATOR SELECTION -->
                 <select
                     @change="$emit('update-selected-operator', $event.target.value)">
                     <option v-if="conditions.selectedOp===''" value="" selected>Select a condition</option>
@@ -626,6 +627,7 @@ ConditionsEditor.component('editor-main', {
                     </option>
                 </select>
                 <span class="input-info">Enter a value</span>
+                <!-- COMPARED VALUE SELECTION -->
                 <input v-if="parentFormat==='date'" type="date"
                     :value="conditions.selectedParentValue"
                     @change="$emit('update-selected-parent-value', $event.target.value)"/>
