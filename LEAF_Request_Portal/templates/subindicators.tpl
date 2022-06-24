@@ -264,7 +264,6 @@
             
             <!-- actual select element and options (hidden) -->
             <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="display:none">
-            <option id="<!--{$indicator.indicatorID|strip_tags}-->_empty_value" value="" style="display:none;"></option>
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -278,6 +277,7 @@
                     <option value="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></option>
                 <!--{/if}-->
             <!--{/foreach}-->
+            <option id="<!--{$indicator.indicatorID|strip_tags}-->_empty_value" value="" style="display:none;"></option>
             </select>
 
             <script>
@@ -301,6 +301,7 @@
                     const hasSelections = pickerOptions.some(p => p.classList.contains('selected'));
                     elEmptyOption.selected = hasSelections ? false : true;
                     elSearch.placeholder = hasSelections ? '' : placeholderMsg;
+                    elSearch.style.width = hasSelections ? 3 + elSearch.value.length + 'ch' : '170px';
                 }
                 elDisplay.updateSelectionElements();
                 
@@ -310,16 +311,15 @@
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 o.selected = false;
-                                e.target.parentNode.style.opacity = 0;
-                                setTimeout(() => e.target.parentNode.classList.remove('selected'), animationTimer);
+                                e.target.parentNode.classList.remove('selected');
                             }
                         });
                         pickerOptions.forEach(o => {
                             if (o.getAttribute('data-option') === targetOption) {
                                 o.classList.remove('selected');
-                                checkIfNoSelections();
                             }
                         });
+                        checkIfNoSelections();
                     } else { 
                         elSelector.style.visibility = 'visible';
                         elSelector.style.height = 'auto';
@@ -328,21 +328,23 @@
                     }
                 });
                 elSearch.addEventListener('keydown', (e)=> {
-                    elSelector.style.visibility = 'visible';
-                    elSelector.style.height = 'auto';
-                    elSelector.style.overflowY = 'scroll';
-                    const indexLastSelected = pickerOptions.map(p => p.classList.contains('selected')).lastIndexOf(true);
-
+                    if (e.key !== 'Tab') {
+                        elSelector.style.visibility = 'visible';
+                        elSelector.style.height = 'auto';
+                        elSelector.style.overflowY = 'scroll';
+                    }
+                    
                     if (e.target.value === "") {
                         pickerOptions.forEach(p => p.style.display = 'block');
-
+                        const indexLastSelected = pickerOptions.map(p => p.classList.contains('selected')).lastIndexOf(true);
                         if (e.key === 'Backspace' && indexLastSelected > -1) {
                             displayOptions[indexLastSelected].classList.remove('selected');
                             pickerOptions[indexLastSelected].classList.remove('selected');
                             selectOptions[indexLastSelected].selected = false;
-                            checkIfNoSelections();
                         }
+                        checkIfNoSelections();
                     } else {
+                        elSearch.style.width = 3 + e.target.value.length + 'ch';
                         pickerOptions.forEach(p => {
                             const searchVal = e.target.value.toLowerCase();
                             const optionContainsInputVal = p.getAttribute('data-option').toLowerCase().includes(searchVal);
@@ -352,8 +354,7 @@
                 });
                 elSelector.addEventListener('keydown', (e)=> {
                     e.stopPropagation();
-                    const keyPressed = e.key;
-                    switch(keyPressed) {
+                    switch(e.key) {
                         case 'Escape':
                             elSelector.style.visibility = 'hidden';
                             elSelector.style.height = '0px';
@@ -387,19 +388,18 @@
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 if (!o.selected) {
-                                    o.selected = true; //select element option
-                                    e.target.classList.add('selected'); //div in the dropdown
+                                    o.selected = true;
+                                    e.target.classList.add('selected');
                                 } else {
                                     o.selected = false;
-                                    e.target.classList.remove('selected'); 
+                                    e.target.classList.remove('selected');
                                 }
                             }
                         });
                         displayOptions.forEach(d => {
                             const dataOption = d.querySelector('span')?.getAttribute('data-option');
                             if (dataOption === targetOption) {
-                                const selected = d.classList.contains('selected');
-                                if (selected) {
+                                if (d.classList.contains('selected')) {
                                     d.classList.remove('selected');
                                 } else {
                                     d.classList.add('selected');
