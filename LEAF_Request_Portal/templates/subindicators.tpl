@@ -226,7 +226,7 @@
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             
             <!-- flex box to display selections -->
-            <div tabindex="0" id="multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ click(); }">
+            <ul tabindex="0" id="multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ click(); }">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                     <!--{foreach from=$indicator.value item=val}-->
@@ -236,16 +236,16 @@
                     <!--{/if}-->
                 <!--{/foreach}-->
                 <!--{if $found}-->
-                    <div class="selected"><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></div>
+                    <li class="selected"><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></li>
                 <!--{else}-->
-                    <div><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></div>
+                    <li><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></li>
                 <!--{/if}-->
             <!--{/foreach}-->
-            <input id="search_options_<!--{$indicator.indicatorID|strip_tags}-->" type="text" title="Search Options" placeholder=""/>
-            </div>
+            <input id="search_options_<!--{$indicator.indicatorID|strip_tags}-->" type="text" title="Search Options" placeholder="" />
+            </ul>
 
             <!-- flex box to pick selections -->
-            <div id="multiselector_<!--{$indicator.indicatorID|strip_tags}-->" class="leaf_multiselect_selector">
+            <ul id="multiselect_picker_<!--{$indicator.indicatorID|strip_tags}-->">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -255,12 +255,12 @@
                     <!--{/if}-->
                 <!--{/foreach}-->
                 <!--{if $found}-->
-                <div class="selected" tabindex="0" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></div>
+                <li class="selected" tabindex="0" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></li>
                 <!--{else}-->
-                <div tabindex="0" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></div>
+                <li tabindex="0" data-option="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></li>
                 <!--{/if}-->
             <!--{/foreach}-->
-            </div>
+            </ul>
             
             <!-- actual select element and options (hidden) -->
             <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="display:none">
@@ -284,16 +284,16 @@
             $(function() {
                 const animationTimer = 120;
                 const placeholderMsg = 'Please select some options';
-                let elSelector = document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->');
+                let elSelector = document.getElementById('multiselect_picker_<!--{$indicator.indicatorID|strip_tags}-->');
                 let elSearch = document.getElementById('search_options_<!--{$indicator.indicatorID|strip_tags}-->');
                 let elDisplay = document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->');
                 
                 let pickerOptions, displayOptions, selectOptions, elEmptyOption;
                 //if options are loaded by file these will be new objects.  Variables need to be updated in Advanced Options with this method
                 elDisplay.updateSelectionElements = ()=> {
-                    pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                    pickerOptions = Array.from(document.querySelectorAll('#multiselect_picker_<!--{$indicator.indicatorID|strip_tags}--> li'));
                     selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
-                    displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                    displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> li'));
                     elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                     checkIfNoSelections();
                 }

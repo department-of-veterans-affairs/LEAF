@@ -87,16 +87,18 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     display: block;
 }
 
-div[id^="multiselect_display_"] {
+ul[id^="multiselect_display"] {
     width: 80%;
     display: flex;
     flex-wrap: wrap;
-    border: 1px inset #a4bfe2;
+    border: 1px inset #556;
+    border-radius: 2px;
+    margin: 0.25em 0;
     padding: 0.2em 0.2em 0.2em 0.4em;
     min-height: 30px;
     min-width: 300px;
 }
-div[id^="multiselect_display_"] div {
+ul[id^="multiselect_display"] li {
     position: relative;
     display: none;
     padding: 0.25em 1.75em 0.25em 0.5em;
@@ -109,10 +111,10 @@ div[id^="multiselect_display_"] div {
     font-size: 110%;
     transition: all 0.12s ease;
 }
-div[id^="multiselect_display_"] div.selected {
+ul[id^="multiselect_display"] li.selected {
     display: inline-block;
 }
-div[id^="multiselect_display_"] div span {
+ul[id^="multiselect_display"] li span {
     position: absolute;
     padding: 0 0.2em;
     right: 0.2em;
@@ -121,32 +123,34 @@ div[id^="multiselect_display_"] div span {
     cursor: pointer;
     font-weight: bold;
 }
-div[id^="multiselect_display_"] div span:hover, div[id^="multiselect_display_"] div span:focus {
+ul[id^="multiselect_display"] li span:hover, ul[id^="multiselect_display"] li span:focus {
     color:rgb(0,0,0);
     text-shadow: 1px 1px #556;
 }
-.leaf_multiselect_selector {
+ul[id^="multiselect_picker"] {
     visibility: hidden;
     width: 80%;
     height: 0px;
     max-height: 125px;
     overflow: hidden;
     flex-direction: column;
+    margin-top: 0.25em;
     padding: 0.2em 0.2em 0.2em 0.3em;
     line-height: 1.6;
     font-size: 110%;
-    border: 1px solid #a4bfe2;
+    border: 1px inset #556;
     transition: all 0.12s ease;
 }
-.leaf_multiselect_selector div {
+ul[id^="multiselect_picker"] li {
     cursor: pointer;
     padding: 0.2em 0.4em;
+    border-bottom: 1px solid #a4bfe2;
 }
-.leaf_multiselect_selector div.selected {
+ul[id^="multiselect_picker"] li.selected {
     color: #111;
     background-color: #dfedff;
 }
-.leaf_multiselect_selector div:hover, .leaf_multiselect_selector div:focus {
+ul[id^="multiselect_picker"] li:hover, ul[id^="multiselect_picker"] li:focus {
     background-color: #25b;
     color: white;
 }
