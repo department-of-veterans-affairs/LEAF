@@ -227,7 +227,6 @@
             
             <!-- flex box to display selections -->
             <div tabindex="0" id="multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ click(); }">
-            <input id="search_options_<!--{$indicator.indicatorID|strip_tags}-->" type="text" placeholder="Please select some options (type here to search)"/>
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                     <!--{foreach from=$indicator.value item=val}-->
@@ -242,6 +241,7 @@
                     <div><!--{$option|sanitize}--><span tabindex="0" data-option="<!--{$option|sanitize}-->" onkeydown="if (event.key=='Enter' || event.key==' '){ event.preventDefault();event.stopPropagation();click(); }">X</span></div>
                 <!--{/if}-->
             <!--{/foreach}-->
+            <input id="search_options_<!--{$indicator.indicatorID|strip_tags}-->" type="text" title="Search Options" placeholder=""/>
             </div>
 
             <!-- flex box to pick selections -->
@@ -283,19 +283,30 @@
             <script>
             $(function() {
                 const animationTimer = 120;
-                let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                const placeholderMsg = 'Please select some options';
                 let elSelector = document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->');
-                let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
-                elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
+                let elSearch = document.getElementById('search_options_<!--{$indicator.indicatorID|strip_tags}-->');
+                let elDisplay = document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->');
                 
-                document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
+                let pickerOptions, displayOptions, selectOptions, elEmptyOption;
+                //if options are loaded by file these will be new objects.  Variables need to be updated in Advanced Options with this method
+                elDisplay.updateSelectionElements = ()=> {
+                    pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                    selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
+                    displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                    elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
+                    checkIfNoSelections();
+                }
+                const checkIfNoSelections = ()=> {
+                    const hasSelections = pickerOptions.some(p => p.classList.contains('selected'));
+                    elEmptyOption.selected = hasSelections ? false : true;
+                    elSearch.placeholder = hasSelections ? '' : placeholderMsg;
+                }
+                elDisplay.updateSelectionElements();
+                
+                elDisplay.addEventListener('click', (e)=> {
                     const targetOption = e.target?.getAttribute('data-option');
                     if (targetOption !== null) {
-                        //define here too, in case Advanced Options are used to create the options
-                        let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
-                        let displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
-                        let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
-                        let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 o.selected = false;
@@ -306,32 +317,31 @@
                         pickerOptions.forEach(o => {
                             if (o.getAttribute('data-option') === targetOption) {
                                 o.classList.remove('selected');
+                                checkIfNoSelections();
                             }
                         });
-                        if (!pickerOptions.some(p => p.classList.contains('selected'))) {
-                            elEmptyOption.selected = true;
-                        }
-                    } else if (e.target.id === 'search_options_<!--{$indicator.indicatorID|strip_tags}-->') {
+                    } else { 
                         elSelector.style.visibility = 'visible';
                         elSelector.style.height = 'auto';
                         elSelector.style.overflowY = 'scroll';
-                    } else {
-                        const selV = elSelector.style.visibility || 'hidden';
-                        const selH = elSelector.style.height || '0px';
-                        const selO = elSelector.style.overflowY || 'hidden';
-                        elSelector.style.visibility = selV === 'hidden' ? 'visible' : 'hidden';
-                        elSelector.style.height = selH === '0px' ? 'auto' : '0px';
-                        elSelector.style.overflowY = selO === 'hidden' ? 'scroll' : 'hidden';
+                        elSearch.focus();
                     }
-                    
                 });
-                document.getElementById('search_options_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('input', function(e) {
+                elSearch.addEventListener('keydown', (e)=> {
                     elSelector.style.visibility = 'visible';
                     elSelector.style.height = 'auto';
                     elSelector.style.overflowY = 'scroll';
-                    let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
+                    const indexLastSelected = pickerOptions.map(p => p.classList.contains('selected')).lastIndexOf(true);
+
                     if (e.target.value === "") {
-                        pickerOptions.forEach(p => p.style.display = 'block'); 
+                        pickerOptions.forEach(p => p.style.display = 'block');
+
+                        if (e.key === 'Backspace' && indexLastSelected > -1) {
+                            displayOptions[indexLastSelected].classList.remove('selected');
+                            pickerOptions[indexLastSelected].classList.remove('selected');
+                            selectOptions[indexLastSelected].selected = false;
+                            checkIfNoSelections();
+                        }
                     } else {
                         pickerOptions.forEach(p => {
                             const searchVal = e.target.value.toLowerCase();
@@ -340,7 +350,7 @@
                         });
                     }
                 });
-                document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('keydown', function(e) {
+                elSelector.addEventListener('keydown', (e)=> {
                     e.stopPropagation();
                     const keyPressed = e.key;
                     switch(keyPressed) {
@@ -348,7 +358,7 @@
                             elSelector.style.visibility = 'hidden';
                             elSelector.style.height = '0px';
                             elSelector.style.overflowY = 'hidden';
-                            document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->').focus();
+                            elSearch.focus();
                             break;
                         case 'ArrowDown':
                             e.preventDefault();
@@ -371,14 +381,9 @@
                             break;
                     }
                 });
-                document.getElementById('multiselector_<!--{$indicator.indicatorID|strip_tags}-->').addEventListener('click', function(e) {
+                elSelector.addEventListener('click', function(e) {
                     const targetOption = e.target?.getAttribute('data-option');
                     if (targetOption !== null) {
-                        //define here too, in case Advanced Options are used to create the options
-                        let selectOptions = Array.from(document.querySelectorAll('select[id="<!--{$indicator.indicatorID|strip_tags}-->"] option'));
-                        let displayOptions = Array.from(document.querySelectorAll('#multiselect_display_<!--{$indicator.indicatorID|strip_tags}--> div'));
-                        let pickerOptions = Array.from(document.querySelectorAll('#multiselector_<!--{$indicator.indicatorID|strip_tags}--> div'));
-                        let elEmptyOption = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->_empty_value');
                         selectOptions.forEach(o => {
                             if (o.value === targetOption) {
                                 if (!o.selected) {
@@ -403,7 +408,7 @@
                                 }
                             }
                         });
-                        elEmptyOption.selected = pickerOptions.some(p => p.classList.contains('selected')) ? false : true;
+                        checkIfNoSelections();
                     }
                 });
             });

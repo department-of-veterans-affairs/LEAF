@@ -129,7 +129,7 @@ div[id^="multiselect_display_"] div span:hover, div[id^="multiselect_display_"] 
     visibility: hidden;
     width: 80%;
     height: 0px;
-    max-height: 100px;
+    max-height: 125px;
     overflow: hidden;
     flex-direction: column;
     padding: 0.2em 0.2em 0.2em 0.3em;
@@ -150,11 +150,10 @@ div[id^="multiselect_display_"] div span:hover, div[id^="multiselect_display_"] 
     background-color: #25b;
     color: white;
 }
-input[id*="search_options_"] {
-    width: 100%;
+input[id*="search_options_"], input[id*="search_options_"]:focus, input[id*="search_options_"]:active {
     border: 0;
-    border-bottom: 1px solid #99a;
-    margin-bottom: 0.25em;
+    outline: none;
+    min-height: 20px;
 }
 
 textarea {
