@@ -299,9 +299,9 @@
                 }
                 const checkIfNoSelections = ()=> {
                     const hasSelections = pickerOptions.some(p => p.classList.contains('selected'));
-                    elEmptyOption.selected = hasSelections ? false : true;
+                    elEmptyOption.selected = !hasSelections;
                     elSearch.placeholder = hasSelections ? '' : placeholderMsg;
-                    elSearch.style.width = hasSelections ? 3 + elSearch.value.length + 'ch' : '170px';
+                    elSearch.style.width = !hasSelections && elSearch.value.trim() === '' ? '170px' : 3 + elSearch.value.length + 'ch';
                 }
                 elDisplay.updateSelectionElements();
                 
@@ -327,28 +327,20 @@
                         elSearch.focus();
                     }
                 });
-                elSearch.addEventListener('keydown', (e)=> {
-                    if (e.key !== 'Tab') {
-                        elSelector.style.visibility = 'visible';
-                        elSelector.style.height = 'auto';
-                        elSelector.style.overflowY = 'scroll';
-                    }
-                    
-                    if (e.key === 'Backspace' && e.target.value.length <= 1) {
+                elSearch.addEventListener('input', (e)=> {
+                    elSelector.style.visibility = 'visible';
+                    elSelector.style.height = 'auto';
+                    elSelector.style.overflowY = 'scroll';
+                    const searchVal = e.target.value.toLowerCase().trim();
+
+                    if (searchVal === '') {
                         pickerOptions.forEach(p => p.style.display = 'block');
-                        const indexLastSelected = pickerOptions.map(p => p.classList.contains('selected')).lastIndexOf(true);
-                        if (e.key === 'Backspace' && e.target.value === "" && indexLastSelected > -1) {
-                            displayOptions[indexLastSelected].classList.remove('selected');
-                            pickerOptions[indexLastSelected].classList.remove('selected');
-                            selectOptions[indexLastSelected].selected = false;
-                        }
                         checkIfNoSelections();
                     } else {
-                        elSearch.style.width = 3 + e.target.value.length + 'ch';
+                        elSearch.style.width = 3 + elSearch.value.length + 'ch';
                         pickerOptions.forEach(p => {
-                            const searchVal = e.target.value.toLowerCase() + e.key.toLowerCase();
-                            const optionContainsInputVal = p.getAttribute('data-option').toLowerCase().includes(searchVal);
-                            p.style.display = optionContainsInputVal ? 'block' : 'none';
+                            const optionContainsSearchVal = p.getAttribute('data-option').toLowerCase().includes(searchVal);
+                            p.style.display = optionContainsSearchVal ? 'block' : 'none';
                         });
                     }
                 });
