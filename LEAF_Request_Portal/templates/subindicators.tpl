@@ -334,10 +334,10 @@
                         elSelector.style.overflowY = 'scroll';
                     }
                     
-                    if (e.target.value === "") {
+                    if (e.key === 'Backspace' && e.target.value.length <= 1) {
                         pickerOptions.forEach(p => p.style.display = 'block');
                         const indexLastSelected = pickerOptions.map(p => p.classList.contains('selected')).lastIndexOf(true);
-                        if (e.key === 'Backspace' && indexLastSelected > -1) {
+                        if (e.key === 'Backspace' && e.target.value === "" && indexLastSelected > -1) {
                             displayOptions[indexLastSelected].classList.remove('selected');
                             pickerOptions[indexLastSelected].classList.remove('selected');
                             selectOptions[indexLastSelected].selected = false;
@@ -346,7 +346,7 @@
                     } else {
                         elSearch.style.width = 3 + e.target.value.length + 'ch';
                         pickerOptions.forEach(p => {
-                            const searchVal = e.target.value.toLowerCase();
+                            const searchVal = e.target.value.toLowerCase() + e.key.toLowerCase();
                             const optionContainsInputVal = p.getAttribute('data-option').toLowerCase().includes(searchVal);
                             p.style.display = optionContainsInputVal ? 'block' : 'none';
                         });
