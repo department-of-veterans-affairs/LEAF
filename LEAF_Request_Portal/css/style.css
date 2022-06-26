@@ -103,8 +103,11 @@ ul[id^="multiselect_display"] li {
     display: none;
     padding: 0.25em 1.75em 0.25em 0.5em;
     background-color: #e8f2ff;
-    background-image: linear-gradient(0deg, #e8f2ff 0%, #fff 50%, #e8f2ff 100%);
-    border: 1px outset #859fc2;
+    background-image: linear-gradient(0deg,
+     #fff 0%,
+     #e2eaf5 45%,
+     #fff 52%);
+    border: 1px outset #9fb4cf;
     margin: 0.3em 0.5em 0.2em 0;
     border-radius: 3px;
     box-shadow: 1px 1px 3px rgba(0, 0, 100, 0.4);
@@ -140,6 +143,7 @@ ul[id^="multiselect_picker"] {
     line-height: 1.6;
     font-size: 110%;
     border: 1px inset #556;
+    border-radius: 2px;
     transition: all 0.12s ease;
 }
 ul[id^="multiselect_picker"] li {
