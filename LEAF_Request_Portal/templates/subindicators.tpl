@@ -263,7 +263,7 @@
             </ul>
             
             <!-- actual select element and options (hidden) -->
-            <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect" style="display:none">
+            <select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect[]" style="display:none">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{assign var='found' value=false}-->
                 <!--{foreach from=$indicator.value item=val}-->
@@ -287,6 +287,7 @@
                 let elSelector = document.getElementById('multiselect_picker_<!--{$indicator.indicatorID|strip_tags}-->');
                 let elSearch = document.getElementById('search_options_<!--{$indicator.indicatorID|strip_tags}-->');
                 let elDisplay = document.getElementById('multiselect_display_<!--{$indicator.indicatorID|strip_tags}-->');
+                let elSelectInput = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->');
                 
                 let pickerOptions, displayOptions, selectOptions, elEmptyOption;
                 //if options are loaded by file these will be new objects.  Variables need to be updated in Advanced Options with this method
@@ -312,6 +313,7 @@
                             if (o.value === targetOption) {
                                 o.selected = false;
                                 e.target.parentNode.classList.remove('selected');
+                                elSelectInput.dispatchEvent(new Event('change'));
                             }
                         });
                         pickerOptions.forEach(o => {
@@ -382,9 +384,11 @@
                                 if (!o.selected) {
                                     o.selected = true;
                                     e.target.classList.add('selected');
+                                    elSelectInput.dispatchEvent(new Event('change'));
                                 } else {
                                     o.selected = false;
                                     e.target.classList.remove('selected');
+                                    elSelectInput.dispatchEvent(new Event('change'));
                                 }
                             }
                         });
