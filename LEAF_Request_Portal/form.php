@@ -2189,9 +2189,6 @@ class Form
                                 {
                                     if ($tItem != 'no')
                                     {
-                                        if (preg_match('/^\d+[\/-]\d+([\/-]\d+)?$/', $tItem)) {
-                                            $tItem = "'".$tItem."'";
-                                        }
                                         $item['data'] .= "{$tItem}, ";
                                         $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
                                     }
@@ -2205,11 +2202,6 @@ class Form
                             $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
                             $item['gridInput'] = array_merge($values, array("format" => $format));
                             $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
-                        }
-                        //avoid problems with excel auto formatting for non date items 
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 4) !== 'date'
-                            && preg_match('/^\d+[\/-]\d+([\/-]\d+)?$/', $item['data'])) {
-                                $item['data'] = "'".trim($item['data'])."'";
                         }
                         break;
                 }
