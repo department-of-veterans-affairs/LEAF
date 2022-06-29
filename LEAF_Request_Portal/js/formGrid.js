@@ -716,6 +716,9 @@ var LeafFormGrid = function(containerID, options) {
 
                 var trimmedText = val.innerText.trim();
                 line[i] = trimmedText;
+                //wrap text that could be interpretted as dates by excel in quotes
+                const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+                line[i] = testDateFormat.test(line[i]) ? line[i] + '\t' : line[i];
                 if(i == 0 && headers[i] == 'UID') {
                     line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + trimmedText +'", "'+ trimmedText +'")';
                 }
@@ -740,7 +743,8 @@ var LeafFormGrid = function(containerID, options) {
 
             var download = document.createElement('a');
             var now = new Date().getTime();
-            download.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows));
+            let encodedURI = encodeURI('data:text/csv;charset=utf-8,' + rows);
+            download.setAttribute('href', encodedURI);
             download.setAttribute('download', 'Exported_' + now + '.csv');
             download.style.display = 'none';
 
