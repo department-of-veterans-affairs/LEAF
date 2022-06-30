@@ -323,10 +323,16 @@
                         });
                         checkIfNoSelections();
                     } else { 
-                        elSelector.style.visibility = 'visible';
-                        elSelector.style.height = 'auto';
-                        elSelector.style.overflowY = 'scroll';
-                        elSearch.focus();
+                        if (e.target === elSearch) {
+                            elSelector.style.visibility = 'visible';
+                            elSelector.style.height = 'auto';
+                            elSelector.style.overflowY = 'scroll';
+                        } else {
+                            elSelector.style.visibility = elSelector.style.visibility === 'visible' ? 'hidden' : 'visible';
+                            elSelector.style.height = elSelector.style.height === 'auto' ? '0px' : 'auto';
+                            elSelector.style.overflowY = elSelector.style.overflowY === 'scroll' ? 'hidden' : 'scroll';
+                            elSearch.focus();
+                        }
                     }
                 });
                 elSearch.addEventListener('input', (e)=> {
@@ -334,7 +340,6 @@
                     elSelector.style.height = 'auto';
                     elSelector.style.overflowY = 'scroll';
                     const searchVal = e.target.value.toLowerCase().trim();
-
                     if (searchVal === '') {
                         pickerOptions.forEach(p => p.style.display = 'block');
                         checkIfNoSelections();
