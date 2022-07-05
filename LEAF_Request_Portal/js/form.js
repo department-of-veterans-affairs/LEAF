@@ -68,12 +68,6 @@ var LeafForm = function(containerID) {
 			allConditions.map(c => {
 				conditionsByChild[c.childIndID] ? conditionsByChild[c.childIndID].push(c) : conditionsByChild[c.childIndID] = [c];
 			})
-			/*
-			console.log('event', event);
-			console.log('children controlled by this parent', linkedParentConditions);
-			console.log('other parents controlling these children', linkedChildConditions);
-			console.log('all conditions linked to event: ', allConditions);*/
-			console.log('conditions org by child', conditionsByChild);
 
 			for (let childID in conditionsByChild) {
 				makeComparisons(childID, conditionsByChild[childID]);
@@ -234,7 +228,6 @@ var LeafForm = function(containerID) {
 						break;
 				} 
 			});
-			console.log(currentChildInfo);
 		}
 
 		//get the IDs of the questions that need listeners
