@@ -224,55 +224,7 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <span><select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
-            <!--{foreach from=$indicator.options item=option}-->
-                <!--{assign var='found' value=false}-->
-                <!--{foreach from=","|explode:$indicator.value item=val}-->
-                    <!--{if $option|escape == $val|escape}-->
-                        <option value="<!--{$option|sanitize}-->" selected="selected"><!--{$option|sanitize}--></option>
-                        <!--{assign var='found' value=true}-->
-                    <!--{/if}-->
-                <!--{/foreach}-->
-                <!--{if !$found}-->
-                    <option value="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></option>
-                <!--{/if}-->
-            <!--{/foreach}-->
-                </select></span>
-                <input type="hidden" id="<!--{$indicator.indicatorID|strip_tags}-->_selected" name="<!--{$indicator.indicatorID|strip_tags}-->_selected" value="" />
-                <script>
-                $(function() {
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({width: '80%'});
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices').css('border-radius', '6px');
-                    // Hidden Value for array of items in _selected to export to POST
-                    let hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
-                    // Change function for updating array on each selection or deselection
-                    $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
-                        setTimeout(function() {
-                            hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
-                        }, 500);
-                    });
-                });
-                <!--{if $indicator.required == 1}-->
-                formRequired["id<!--{$indicator.indicatorID}-->"] = {
-                    setRequired: function() {
-                        return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
-                    },
-                    setSubmitError: function() {
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700).clearQueue();
-                    },
-                    setRequiredError: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
-                    },
-                    setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
-                    }
-                };
-                <!--{/if}-->
-                </script>
+
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
