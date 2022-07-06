@@ -224,57 +224,50 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <span><select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
-            <!--{foreach from=$indicator.options item=option}-->
-                <!--{assign var='found' value=false}-->
-                <!--{foreach from=","|explode:$indicator.value item=val}-->
-                    <!--{if $option|escape == $val|escape}-->
-                        <option value="<!--{$option|sanitize}-->" selected="selected"><!--{$option|sanitize}--></option>
-                        <!--{assign var='found' value=true}-->
-                    <!--{/if}-->
-                <!--{/foreach}-->
-                <!--{if !$found}-->
-                    <option value="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></option>
-                <!--{/if}-->
-            <!--{/foreach}-->
-                </select></span>
-                <input type="hidden" id="<!--{$indicator.indicatorID|strip_tags}-->_selected" name="<!--{$indicator.indicatorID|strip_tags}-->_selected" value="" />
-                <script>
+            <select multiple
+                id="<!--{$indicator.indicatorID|strip_tags}-->"
+                name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect[]"
+                style="display:none">
+            </select>
+
+            <script>
+                if (typeof indicatorInfo === 'undefined') {
+                    var indicatorInfo = {}; //needs to be var.
+                }
+                indicatorInfo[<!--{$indicator.indicatorID|strip_tags}-->] = {
+                    indOptions: <!--{$indicator.options|json_encode}--> || [],
+                    indValues: <!--{$indicator.value|json_encode}--> || [],
+                }
                 $(function() {
-                    const elSelect = document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->');
-                    const choices = new Choices(elSelect, {
-                        allowHTML: true,
-                        //removeItems: true,
-                        removeItemButton: true,
-                        items: [{
-                                value: 'Value 1',
-                                label: 'Label 1',
-                                id: 1
-                            },
-                            {
-                                value: 'Value 2',
-                                label: 'Label 2',
-                                id: 2
-                            }],
-                        choices: [{
-                                value: 'Option 1',
-                                label: 'Option 1',
-                                selected: true,
-                                disabled: false
-                            },
-                            {
-                                value: 'Option 2',
-                                label: 'Option 2',
-                                selected: true,
-                                disabled: false 
-                            },
-                            {
-                                value: 'Option 3',
-                                label: 'Option 3',
-                                selected: true,
-                                disabled: false 
-                            }]
-                    });
+                    for (let i in indicatorInfo) {
+                        if (!isNaN(i)) {
+                            const elSelect = document.getElementById(i);
+                            if (elSelect.getAttribute('data-choice') !== 'active') {
+                                const options = indicatorInfo[i].indOptions.map(o =>({
+                                    value: o, 
+                                    label: o,
+                                    selected: indicatorInfo[i].indValues.some(v => v === o)
+                                }));
+                                const choices = new Choices(elSelect, {
+                                    allowHTML: false,
+                                    removeItemButton: true,
+                                    editItems: true,
+                                    choices: options
+                                }); 
+                                elSelect.addEventListener('change', ()=> {
+                                    let elEmptyOption = document.getElementById(`${i}_empty_value`);
+                                    if (elEmptyOption === null) {
+                                        let opt = document.createElement('option');
+                                        opt.id = `${i}_empty_value`;
+                                        opt.value = "";
+                                        elSelect.appendChild(opt);
+                                        elEmptyOption = document.getElementById(`${i}_empty_value`);
+                                    }
+                                    elEmptyOption.selected = elSelect.value === ''; 
+                                });
+                            }
+                        }
+                    }
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
