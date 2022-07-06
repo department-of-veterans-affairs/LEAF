@@ -87,6 +87,84 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     display: block;
 }
 
+ul[id^="multiselect_display"] {
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px inset #556;
+    border-radius: 2px;
+    margin: 0.25em 0;
+    padding: 0.2em 0.2em 0.2em 0.4em;
+    min-height: 30px;
+    min-width: 300px;
+}
+ul[id^="multiselect_display"] li {
+    position: relative;
+    display: none;
+    padding: 0.25em 1.75em 0.25em 0.5em;
+    background-color: #e8f2ff;
+    background-image: linear-gradient(0deg,
+     #fff 0%,
+     #e2eaf5 45%,
+     #fff 52%);
+    border: 1px outset #9fb4cf;
+    margin: 0.3em 0.5em 0.2em 0;
+    border-radius: 3px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 100, 0.4);
+    color: #000;
+    font-size: 110%;
+    transition: all 0.12s ease;
+}
+ul[id^="multiselect_display"] li.selected {
+    display: inline-block;
+}
+ul[id^="multiselect_display"] li span {
+    position: absolute;
+    padding: 0 0.2em;
+    right: 0.2em;
+    top: 14%;
+    color: rgb(65, 65, 65);
+    cursor: pointer;
+    font-weight: bold;
+}
+ul[id^="multiselect_display"] li span:hover, ul[id^="multiselect_display"] li span:focus {
+    color:rgb(0,0,0);
+    text-shadow: 1px 1px #556;
+}
+ul[id^="multiselect_picker"] {
+    visibility: hidden;
+    width: 80%;
+    height: 0px;
+    max-height: 125px;
+    overflow: hidden;
+    flex-direction: column;
+    margin-top: 0.25em;
+    padding: 0.2em 0.2em 0.2em 0.3em;
+    line-height: 1.6;
+    font-size: 110%;
+    border: 1px inset #556;
+    border-radius: 2px;
+    transition: all 0.12s ease;
+}
+ul[id^="multiselect_picker"] li {
+    cursor: pointer;
+    padding: 0.2em 0.4em;
+    border-bottom: 1px solid #a4bfe2;
+}
+ul[id^="multiselect_picker"] li.selected {
+    color: #111;
+    background-color: #dfedff;
+}
+ul[id^="multiselect_picker"] li:hover, ul[id^="multiselect_picker"] li:focus {
+    background-color: #25b;
+    color: white;
+}
+input[id*="search_options_"], input[id*="search_options_"]:focus, input[id*="search_options_"]:active {
+    border: 0;
+    outline: none;
+    min-height: 20px;
+}
+
 textarea {
     border: 1px solid gray;
     padding: 4px;

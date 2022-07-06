@@ -970,9 +970,12 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        if (is_array($_POST[$key]))
+        if (is_array($_POST[$key])) // multiselect and checkbox items
         {
-            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+            foreach ($_POST[$key] as $i => $sel) {
+                $_POST[$key][$i] = XSSHelpers::sanitizeHTML($sel);
+            }
+            $_POST[$key] = serialize($_POST[$key]);
         }
         else
         {
@@ -1136,20 +1139,13 @@ class Form
 
         foreach ($keys as $key)
         {
-            // If form has _selected key use over initial key (Multi-Select Dropdown)
-            if (is_numeric($key) && $_POST[$key . '_selected']) {
-                $_POST[$key] = $_POST[$key . '_selected'];
-                if (!$this->writeDataField($recordID, $key, $series)) {
-                    return 0;
-                }
-            }
-            elseif (is_numeric($key))
+            if (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
                 }
             }
-            elseif (!strpos($key, '_selected')) // Check for keys that don't include _selected
+            else // Check for keys
             {
                 list($tRecordID, $tIndicatorID) = explode('_', $key);
                 if ($tRecordID == $recordID
@@ -2178,7 +2174,8 @@ class Form
                         }
                         break;
                     default:
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
+                            substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
                         {
                             $tData = @unserialize($item['data']);
                             $item['data'] = '';
