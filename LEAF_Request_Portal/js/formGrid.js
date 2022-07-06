@@ -743,8 +743,7 @@ var LeafFormGrid = function(containerID, options) {
 
             var download = document.createElement('a');
             var now = new Date().getTime();
-            let encodedURI = encodeURI('data:text/csv;charset=utf-8,' + rows);
-            download.setAttribute('href', encodedURI);
+            download.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows));
             download.setAttribute('download', 'Exported_' + now + '.csv');
             download.style.display = 'none';
 
