@@ -106,8 +106,8 @@ const ConditionsEditor = Vue.createApp({
                 case 'dropdown':
                 case 'radio':
                     this.selectedParentOperators = [
-                        {val:"==", text: "selected value(s) is"}, 
-                        {val:"!=", text: "selected value(s) is not"}
+                        {val:"==", text: "is"}, 
+                        {val:"!=", text: "is not"}
                     ];
                     break;
                 case 'checkbox':
@@ -397,6 +397,7 @@ const ConditionsEditor = Vue.createApp({
                 :showConditionEditor="showConditionEditor"
                 :showRemoveConditionModal="showRemoveConditionModal"
                 :editingCondition="editingCondition"
+                :conditionInputComplete="conditionComplete"
                 @new-condition="newCondition"
                 @update-indicator-list="getAllIndicators"
                 @update-selected-parent="updateSelectedParentIndicator"
@@ -439,7 +440,8 @@ ConditionsEditor.component('editor-main', {
         conditions: Object,
         showConditionEditor: Boolean,
         showRemoveConditionModal: Boolean,
-        editingCondition: String
+        editingCondition: String,
+        conditionInputComplete: Boolean,
     },
     methods: {
         validateCurrency(event) {
@@ -466,11 +468,14 @@ ConditionsEditor.component('editor-main', {
                 }*/
             }
         },
-        getIndicatorName(id){
-            let indicatorName = '';
-            indicatorName = this.indicators.find(indicator => indicator.indicatorID === id)?.name;
-            indicatorName = indicatorName.length > 50 ? indicatorName.slice(0,50) + '... ' : indicatorName;
-            return indicatorName;
+        getIndicatorName(id) {
+            if (id !== 0) {
+                let maxTextLength = 40;
+                let indicatorName = '';
+                indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
+                indicatorName = indicatorName && indicatorName.length > maxTextLength ? indicatorName.slice(0,maxTextLength) + '... ' : indicatorName;
+                return indicatorName;
+            }
         },
         getOperatorText(op){
             switch(op){
@@ -502,24 +507,15 @@ ConditionsEditor.component('editor-main', {
     template: `<div id="condition_editor_inputs">
         <button id="btn-vue-update-trigger" @click="forceUpdate" style="display:none;"></button>
         <div v-if="vueData.formID!==0" id="condition_editor_center_panel_header" class="editor-card-header">
-            <h3 style="color:black;">Conditions Editor<span class="form-name">
-                &nbsp;<i class="fas fa-caret-right"></i>&nbsp;
-                {{ vueData.formTitle }}
+            <h3 style="color:black;">Conditions For <span style="color: #c00;">
+            {{getIndicatorName(vueData.indicatorID)}} ({{vueData.indicatorID}})
             </span></h3>
         </div>
         <div>
-            <span class="input-info">Controlled Question</span>
-            <i><p style="color: #900; font-weight:bold">{{selectedChild.name }} (indicator {{selectedChild.indicatorID}})</p></i>
-            <button v-if="!showRemoveConditionModal" @click="$emit('new-condition')" 
-                class="btnNewCondition">+ New Condition</button>
             <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
                 id="savedConditionsList">
-                <!--<p>The following controllers are attached to this question.&nbsp;  Select from this list to edit 
-                or remove an existing condition, or enter a new condition in the area below.&nbsp; If multiple controllers
-                are added, the outcome must be the same for all.  You will be able to specify whether any or all of these
-                conditions must be met in order for the outcome to occur</p>-->
                 <div v-if="conditionTypes.show.length > 0">
-                    <p style="margin-top: 1em"><b>Show under these Conditions (hide otherwise):</b></p>
+                    <p><b>This field will be hidden except:</b></p>
                     <li v-for="c in conditionTypes.show" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
@@ -534,7 +530,7 @@ ConditionsEditor.component('editor-main', {
                     </li>
                 </div>
                 <div v-if="conditionTypes.hide.length > 0">
-                    <p style="margin-top: 1em"><b>Hide under these Conditions (show otherwise):</b></p>
+                    <p style="margin-top: 1em"><b>This field will be shown except:</b></p>
                     <li v-for="c in conditionTypes.hide" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
@@ -549,7 +545,7 @@ ConditionsEditor.component('editor-main', {
                     </li>
                 </div>
                 <div v-if="conditionTypes.prefill.length > 0">
-                    <p style="margin-top: 1em"><b>Pre-fill under these Conditions:</b></p>
+                    <p style="margin-top: 1em"><b>This field will be pre-filled:</b></p>
                     <li v-for="c in conditionTypes.prefill" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
@@ -564,6 +560,8 @@ ConditionsEditor.component('editor-main', {
                     </li>
                 </div>
             </ul>
+            <button v-if="!showRemoveConditionModal" @click="$emit('new-condition')" 
+                class="btnNewCondition">+ New Condition</button>
             <div v-if="showRemoveConditionModal">
                 <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                 <ul style="display: flex; justify-content: space-between; margin-top: 1em">
@@ -583,8 +581,8 @@ ConditionsEditor.component('editor-main', {
                     name="child-outcome-selector"
                     @change="$emit('update-selected-outcome', $event.target.value)">
                     <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
-                    <option value="Show" :selected="conditions.selectedOutcome==='Show'">Show this Question (hide otherwise)</option>
-                    <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Hide this Question (show otherwise)</option>
+                    <option value="Show" :selected="conditions.selectedOutcome==='Show'">Hide this question except ...</option>
+                    <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Show this question except ...</option>
                     <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
@@ -598,24 +596,27 @@ ConditionsEditor.component('editor-main', {
                 {{ val }} 
                 </option>
             </select>
+            <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
+                @change="$emit('update-selected-child-value', $event.target.value)" />
         </div>
-        <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0">
-            <h4>WHEN</h4>
-            <span class="input-info">Select a question to control the outcome</span>
-            <select title="select an indicator" 
-                    name="indicator-selector" 
-                    @change="$emit('update-selected-parent', $event.target.value)">
-                <option v-if="!conditions.parentIndID" value="" selected>Select an Indicator</option>        
-                <option v-for="i in selectableParents" 
-                :title="i.name" 
-                :value="i.indicatorID"
-                :selected="conditions.parentIndID===i.indicatorID"
-                key="i.indicatorID">
-                {{getIndicatorName(i.indicatorID) }} (indicator {{i.indicatorID}})
-                </option>
-            </select>
-            <div v-if="selectedParentOperators.length > 0">
-                <span class="input-info">Choose a comparison</span>
+        <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0"
+            class="if-then-setup">
+            <h4 style="margin: 0;">IF</h4>
+            <div>
+                <select title="select an indicator" 
+                        name="indicator-selector" 
+                        @change="$emit('update-selected-parent', $event.target.value)">
+                    <option v-if="!conditions.parentIndID" value="" selected>Select an Indicator</option>        
+                    <option v-for="i in selectableParents" 
+                    :title="i.name" 
+                    :value="i.indicatorID"
+                    :selected="conditions.parentIndID===i.indicatorID"
+                    key="i.indicatorID">
+                    {{getIndicatorName(i.indicatorID) }} (indicator {{i.indicatorID}})
+                    </option>
+                </select>
+            </div>
+            <div>
                 <!-- OPERATOR SELECTION -->
                 <select
                     @change="$emit('update-selected-operator', $event.target.value)">
@@ -626,7 +627,8 @@ ConditionsEditor.component('editor-main', {
                     {{ o.text }}
                     </option>
                 </select>
-                <span class="input-info">Enter a value</span>
+            </div>
+            <div>    
                 <!-- COMPARED VALUE SELECTION -->
                 <input v-if="parentFormat==='date'" type="date"
                     :value="conditions.selectedParentValue"
@@ -653,6 +655,16 @@ ConditionsEditor.component('editor-main', {
                 </select>
                 <p v-else class="TEST">value selection still in progress for some formats</p>
             </div>
+        </div>
+        <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
+            <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
+                <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
+            </span>
+            <span v-else>will 
+                <span style="color: #00A91C; font-weight: bold;">
+                be {{conditions.selectedOutcome==="Show" ? 'shown' : 'hidden'}}
+                </span>
+            </span>
         </div>
         <div v-if="selectableParents.length < 1">No options are currently available for the indicators on this form</div>
     </div>`
@@ -689,35 +701,11 @@ ConditionsEditor.component('editor-actions', {
         }
     },
     template: `<div v-if="!showRemoveConditionModal" id="condition_editor_actions">
-            <div v-if="conditionInputComplete===true" class="editor-card-header">Click save to store this condition, or cancel to close
-            </div>
-            <div v-if="conditionInputComplete">
-                <div><b>IF</b> '{{parentIndicator.name}}'  
-                    <span style="color: #00A91C; font-weight: bold;">
-                    {{operatorText}} {{conditions.selectedParentValue}}
-                    </span>
-                    <br/>
-                </div>
-                <div> 
-                    <b>THEN</b> '{{childIndicator.name}}'  
-                    <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
-                        <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
-                    </span>
-                    <span v-else>will 
-                        <span style="color: #00A91C; font-weight: bold;">
-                        be {{conditions.selectedOutcome==="Show" ? 'shown' : 'hidden'}}
-                        </span>
-                    </span>
-                </div>
-            </div>
             <div>
                 <ul style="display: flex; justify-content: space-between;">
                     <li style="width: 30%;">
                         <button v-if="conditionInputComplete" id="btn_add_condition" @click="$emit('save-condition')">Save</button>
                     </li>
-                    <!--<li style="width: 30%;">
-                        <button v-if="conditionInputComplete" id="btn_remove_condition" @click="$emit('remove-condition')">Remove</button>
-                    </li>-->
                     <li style="width: 30%;">
                         <button id="btn_cancel" @click="$emit('cancel-entry','')">Cancel</button>
                     </li>
