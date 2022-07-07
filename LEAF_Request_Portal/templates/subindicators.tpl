@@ -240,32 +240,31 @@
                 }
                 $(function() {
                     for (let i in indicatorInfo) {
-                        if (!isNaN(i)) {
-                            const elSelect = document.getElementById(i);
-                            if (elSelect.getAttribute('data-choice') !== 'active') {
-                                const options = indicatorInfo[i].indOptions.map(o =>({
-                                    value: o, 
-                                    label: o,
-                                    selected: indicatorInfo[i].indValues.some(v => v === o)
-                                }));
-                                const choices = new Choices(elSelect, {
-                                    allowHTML: false,
-                                    removeItemButton: true,
-                                    editItems: true,
-                                    choices: options.filter(o => o.value !== "")
-                                }); 
-                                elSelect.addEventListener('change', ()=> {
-                                    let elEmptyOption = document.getElementById(`${i}_empty_value`);
-                                    if (elEmptyOption === null) {
-                                        let opt = document.createElement('option');
-                                        opt.id = `${i}_empty_value`;
-                                        opt.value = "";
-                                        elSelect.appendChild(opt);
-                                        elEmptyOption = document.getElementById(`${i}_empty_value`);
-                                    }
-                                    elEmptyOption.selected = elSelect.value === ''; 
-                                });
-                            }
+                        const elSelect = document.getElementById(i);
+                        if (elSelect.getAttribute('data-choice') !== 'active') {
+                            const options = indicatorInfo[i].indOptions.map(o =>({
+                                value: o,
+                                label: o,
+                                selected: indicatorInfo[i].indValues.some(v => v === o)
+                            }));
+                            const choices = new Choices(elSelect, {
+                                allowHTML: false,
+                                removeItemButton: true,
+                                editItems: true,
+                                choices: options.filter(o => o.value !== "")
+                            });
+                            elSelect.choicesjs = choices;
+                            elSelect.addEventListener('change', ()=> {
+                                let elEmptyOption = document.getElementById(`${i}_empty_value`);
+                                if (elEmptyOption === null) {
+                                    let opt = document.createElement('option');
+                                    opt.id = `${i}_empty_value`;
+                                    opt.value = "";
+                                    elSelect.appendChild(opt);
+                                    elEmptyOption = document.getElementById(`${i}_empty_value`);
+                                }
+                                elEmptyOption.selected = elSelect.value === '';
+                            });
                         }
                     }
                 });
