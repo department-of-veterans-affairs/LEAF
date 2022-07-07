@@ -252,7 +252,7 @@
                                     allowHTML: false,
                                     removeItemButton: true,
                                     editItems: true,
-                                    choices: options
+                                    choices: options.filter(o => o.value !== "")
                                 }); 
                                 elSelect.addEventListener('change', ()=> {
                                     let elEmptyOption = document.getElementById(`${i}_empty_value`);
