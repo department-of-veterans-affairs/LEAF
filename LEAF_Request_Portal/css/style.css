@@ -89,10 +89,15 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
 
 /** modifications to choicesjs styles **/
 .choices__inner div.choices__item.choices__item--selectable {
-    background-color: #149;
+    background-color: #E8F2FF;
+    color:black;
+}
+button.choices__button {
+    filter: brightness(25%); 
 }
 button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
-    filter: drop-shadow(1px 1px 0px black);
+    filter: brightness(0);
+    transform: scale(1.05);
 }
 .choices__list.choices__list--dropdown div.choices__list {
     max-height: 200px;

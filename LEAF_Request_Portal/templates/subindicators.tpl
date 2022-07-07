@@ -242,10 +242,13 @@
                     for (let i in indicatorInfo) {
                         const elSelect = document.getElementById(i);
                         if (elSelect.getAttribute('data-choice') !== 'active') {
+                            function decodeHTMLEntities(str) {
+                                return $("<div/>").html(str).text();
+                            }
                             const options = indicatorInfo[i].indOptions.map(o =>({
                                 value: o,
                                 label: o,
-                                selected: indicatorInfo[i].indValues.some(v => v === o)
+                                selected: indicatorInfo[i].indValues.some(v => decodeHTMLEntities(v) === o)
                             }));
                             const choices = new Choices(elSelect, {
                                 allowHTML: false,
