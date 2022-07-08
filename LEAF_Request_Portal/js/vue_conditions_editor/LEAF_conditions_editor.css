@@ -55,7 +55,7 @@ body {
     position: absolute;
     left: 50%;
     transform: translate(-50%,0);
-    width: 60%;
+    width: 70%;
     min-width: 450px;
     max-width: 800px;
     margin: auto;
@@ -89,6 +89,18 @@ body {
 #condition_editor_content select:not(:last-child), 
 #condition_editor_content input:not(:last-child) {
     margin-bottom: 1em;
+}
+#condition_editor_content div.if-then-setup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#condition_editor_content div.if-then-setup div {
+    display: inline-block;
+    width: 30%;
+}
+.hidden {
+    visibility: hidden;
 }
 
 button {
