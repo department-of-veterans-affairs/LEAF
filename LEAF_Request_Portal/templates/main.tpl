@@ -26,7 +26,6 @@
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
-    <script src="../libs/js/choicesjs/choices.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/jquery.min.js"></script>
     {if $useUI == true}
     <script type="text/javascript" src="../libs/js/jquery/jquery-ui.custom.min.js"></script>
@@ -49,7 +48,6 @@
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="../libs/js/choicesjs/choices.min.css" />
 </head>
 <body>
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}

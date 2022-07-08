@@ -236,7 +236,9 @@
                 }
                 indicatorInfo[<!--{$indicator.indicatorID|strip_tags}-->] = {
                     indOptions: <!--{$indicator.options|json_encode}--> || [],
-                    indValues: <!--{$indicator.value|json_encode}--> || [],
+                    indValues: Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
+                               <!--{$indicator.value|json_encode}--> :      //new serialized array format
+                               '<!--{$indicator.value}-->'.split(/,(?!\s)/) //old concat string format compatible
                 }
                 $(function() {
                     for (let i in indicatorInfo) {
