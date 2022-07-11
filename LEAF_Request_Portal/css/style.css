@@ -99,9 +99,6 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     filter: brightness(0);
     transform: scale(1.05);
 }
-.choices__list.choices__list--dropdown div.choices__list {
-    max-height: 200px;
-}
 /** ********************************* **/
 
 textarea {
@@ -1409,7 +1406,7 @@ fieldset iframe {
 }
 #progressArea {
     position: sticky;
-    z-index: 50;
+    z-index: 1;
     top: 0;
 }
 /* sticky top of dialog box */

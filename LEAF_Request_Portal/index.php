@@ -163,6 +163,7 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
+        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array(
             'js/form.js',
             'js/gridInput.js',
@@ -177,6 +178,7 @@ switch ($action) {
             '../libs/js/es6-promise/es6-promise.auto.min.js',
             '../libs/js/jspdf/jspdf.min.js',
             '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
+            '../libs/js/choicesjs/choices.min.js',
             'js/titleValidator.js'
         ));
 
