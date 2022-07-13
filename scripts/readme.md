@@ -1,0 +1,1 @@
+- ../scripts:/var/www/html/scripts wherever php is run
