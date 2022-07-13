@@ -2177,7 +2177,7 @@ class Form
                         if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
                             substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
                         {
-                            $tData = @unserialize($item['data']);
+                            $tData = @unserialize($item['data']) !== false ? @unserialize($item['data']) : preg_split('/,(?!\s)/', $item['data']);
                             $item['data'] = '';
                             if (is_array($tData))
                             {

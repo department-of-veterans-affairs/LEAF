@@ -88,7 +88,8 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
 }
 
 /** modifications to choicesjs styles **/
-.choices__inner div.choices__item.choices__item--selectable {
+.choices__inner div.choices__item.choices__item--selectable,
+.choices__inner div.choices__item.is-highlighted  {
     background-color: #E8F2FF;
     color:black;
 }
@@ -98,6 +99,13 @@ button.choices__button {
 button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
     filter: brightness(0);
     transform: scale(1.05);
+}
+.choices__list.choices__list--dropdown.is-active .is-highlighted {
+    background-color: #E8F2FF;
+    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
+}
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
+    opacity: 0.75;
 }
 /** ********************************* **/
 

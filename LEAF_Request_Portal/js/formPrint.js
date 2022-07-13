@@ -112,6 +112,19 @@ var printer = function() {
                 horizontalShift = 10;
                 maxWidth = 190;
             }
+            //make selected values consistently arrays for checkboxes, multisel, radio, checkbox, dropdown
+            function toArrayFormat(indicator) {
+                let selectedVals = '';
+                if (indicator.format === 'checkboxes') {
+                    selectedVals = indicator.value.slice() || [];
+                } else if (indicator.format === 'multiselect') {  //old and new multisel data formats
+                    selectedVals = Array.isArray(indicator.value) ?
+                        indicator.value.slice() : indicator.value.split(/,(?!\s)/) || [];
+                } else selectedVals = [indicator.value];
+                selectedVals = selectedVals.filter(v => v !== '');
+                selectedVals = selectedVals.map(v => decodeHTMLEntities(v));
+                return selectedVals;
+            }
 
             //Create an indicator entry based on information passed through for PDF
             function makeEntry(indicator, parentIndex, depth, numAtLevel, index) {
@@ -484,11 +497,8 @@ var printer = function() {
                                         horizontalShift += 5;
                                     }
                                     doc.rect(horizontalShift, verticalShift + 6, 5, 5);
-                                    //make selected values consistently arrays for checkboxes, multisel, radio, checkbox, dropdown
-                                    let selectedVals = indicator.format === 'checkboxes' || indicator.format === 'multiselect' ? indicator.value.slice() || [] : [indicator.value];
-                                    selectedVals = selectedVals.filter(v => v !== '');
-                                    selectedVals = selectedVals.map(v => decodeHTMLEntities(v));
 
+                                    let selectedVals = toArrayFormat(indicator);
                                     if (!blank && selectedVals.indexOf(indicator.options[i]) > -1) {
                                         doc.text('x', horizontalShift + 1.5, verticalShift + 9.5);
                                     }
@@ -726,11 +736,8 @@ var printer = function() {
                                     doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
                                     doc.setTextColor(0);
                                     doc.setFont("helvetica");
-                                    //make selected values consistently arrays for checkboxes, multisel, radio, checkbox, dropdown
-                                    let selectedVals = indicator.format === 'checkboxes' || indicator.format === 'multiselect' ? indicator.value.slice() || [] : [indicator.value];
-                                    selectedVals = selectedVals.filter(v => v !== '');
-                                    selectedVals = selectedVals.map(v => decodeHTMLEntities(v));
 
+                                    let selectedVals = toArrayFormat(indicator);
                                     if (!blank && selectedVals.indexOf(indicator.options[i]) > -1) {
                                         doc.text('x', horizontalShift - 3.5, verticalShift + 9.5);
                                     }
