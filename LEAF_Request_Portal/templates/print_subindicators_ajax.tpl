@@ -45,15 +45,24 @@
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
-                <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                <!--{foreach from=$indicator.value item=option}-->
-                    <!--{if $option != 'no'}-->    
-                    &bull;&nbsp;<!--{$option|sanitize}-->
-                    </br>
+            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
+            <!--{assign var='vals' value=$indicator.value}-->
+            <!--{assign var='toString' value=','|implode:$vals}-->
+
+            <!--{if isset($toString.0)}-->  <!--if this is set, value is in new array format-->
+                <!--{foreach from=$indicator.value item=val}-->
+                    <!--{if $val !== 'no' && $val !== ''}-->    
+                        &bull;&nbsp;<!--{$val|sanitize}-->
+                        </br>
                     <!--{/if}-->
                 <!--{/foreach}-->
-                </span>
-                <!--{$indicator.htmlPrint}-->
+            <!--{else}-->       <!--handle possible string concatenated values-->
+                <!--{if $indicator.value !== 'no' && $indicator.value !== ''}-->
+                &bull;&nbsp;<!--{$indicator.value|regex_replace:'/,(?!\s)/':'<br/>&bull;&nbsp;'|sanitize}-->
+                <!--{/if}-->
+            <!--{/if}-->
+            </span>
+            <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
