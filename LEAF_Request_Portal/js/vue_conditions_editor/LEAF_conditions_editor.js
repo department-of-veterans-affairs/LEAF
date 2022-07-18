@@ -190,11 +190,11 @@ const ConditionsEditor = Vue.createApp({
             xhttpForm.open("GET", `../api/form/_${this.vueData.formID}`, false);
             xhttpForm.send();
         },
-        crawlParents(indicator, initialIndicator) {
+        crawlParents(indicator, initialIndicator) { //ind to get parentID from, 
             const parentIndicatorID = indicator.parentIndicatorID;
             const parent = this.indicators.find(i => i.indicatorID === parentIndicatorID);
 
-            if (parent.parentIndicatorID === null) {
+            if (!parent || !parent.parentIndicatorID) {
                 //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
                 //add information about the headerIndicatorID to the indicators
                 let indToUpdate = this.indicators.find(i => i.indicatorID===initialIndicator.indicatorID);
