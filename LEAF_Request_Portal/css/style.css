@@ -90,7 +90,10 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
 /** modifications to choicesjs styles **/
 .choices__inner div.choices__item.choices__item--selectable,
 .choices__inner div.choices__item.is-highlighted  {
-    background-color: #E8F2FF;
+    background-color: #f6faff;
+    background-image: linear-gradient(0, #eee 50%, #fff 53%);
+    border: 1px solid #aaa;
+    border-radius: 4px;
     color:black;
 }
 button.choices__button {
