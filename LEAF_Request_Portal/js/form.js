@@ -77,7 +77,7 @@ var LeafForm = function(containerID) {
 		const getConditionsLinkedToParent = (parentID)=> {
 			let conditionsLinkedToParent = [];
 			for (let entry in formConditionsByChild) {
-				const formConditions = formConditionsByChild[entry] || [];
+				const formConditions = formConditionsByChild[entry].conditions || [];
 				formConditions.forEach(c => {
 					const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
 					//do not include conditions if the recorded condition format (condition.childFormat) does not
