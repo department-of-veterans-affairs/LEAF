@@ -1080,8 +1080,7 @@ class Form
                         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
                         if (!is_dir($uploadDir))
                         {
-                            mkdir($uploadDir);
-                            chmod($uploadDir, 0755);
+                            mkdir($uploadDir, 0755, true);
                         }
 
                         $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
