@@ -358,13 +358,12 @@ class FormEditor
             $inputArr[$i]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
             $inputArr[$i]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
         }
-        $inputArr = json_encode($inputArr);
+        if ($inputArr !== null) $inputArr = json_encode($inputArr);
 
         $vars = array(
             ':indicatorID' => $indicatorID,
             ':input' => $inputArr
         );
-        //var_dump($vars);
 
         $result =  $this->db->prepared_query('UPDATE indicators
     								SET conditions=:input
