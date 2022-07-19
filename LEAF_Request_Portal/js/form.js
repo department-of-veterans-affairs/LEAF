@@ -77,7 +77,8 @@ var LeafForm = function(containerID) {
 		const getConditionsLinkedToParent = (parentID)=> {
 			let conditionsLinkedToParent = [];
 			for (let entry in formConditionsByChild) {
-				formConditionsByChild[entry].conditions.forEach(c => {
+				const formConditions = formConditionsByChild[entry].conditions || [];
+				formConditions.forEach(c => {
 					const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
 					//do not include conditions if the recorded condition format (condition.childFormat) does not
 					//match the current format, as this would have unpredictable results
@@ -94,7 +95,8 @@ var LeafForm = function(containerID) {
 			let conditionsLinkedToChild = [];
 			for (let entry in formConditionsByChild) {
 				if (entry.slice(2) === childID) {
-					formConditionsByChild[entry].conditions.map(c => {
+					const formConditions = formConditionsByChild[entry].conditions || [];
+					formConditions.map(c => {
 						const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
 						if (formConditionsByChild[entry].format === c.childFormat && 
 							formatIsEnabled &&
@@ -235,7 +237,8 @@ var LeafForm = function(containerID) {
 		//get the IDs of the questions that need listeners
 		let parentQuestionIDs = [];
 		for (let entry in formConditionsByChild) {
-			formConditionsByChild[entry].conditions.forEach(c => {
+			const formConditions = formConditionsByChild[entry].conditions || [];
+			formConditions.forEach(c => {
 				parentQuestionIDs.push(c.parentIndID);
 			});
 		}

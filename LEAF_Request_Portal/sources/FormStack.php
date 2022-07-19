@@ -139,9 +139,10 @@ class FormStack
         $formName = mb_strimwidth($formPacket['name'], 0, 50, '...');
         $formCategoryID = $this->formEditor->createForm($formName, $formPacket['description'], '', (int)$_POST['formLibraryID'], $categoryID, $workflowID);
 
+        $formIndicatorsAdded = array();
         foreach ($formPacket['packet']['form'] as $indicator)
         {
-            $this->importIndicator($indicator, $formCategoryID, null, $overwiteExisting);
+            $formIndicatorsAdded = $this->importIndicator($indicator, $formCategoryID, null, $overwiteExisting, $formIndicatorsAdded);
         }
 
         foreach ($formPacket['packet']['subforms'] as $key => $subform)
@@ -155,14 +156,15 @@ class FormStack
 
             foreach ($subform['packet'] as $indicator)
             {
-                $this->importIndicator($indicator, $subformCategoryID, null, $overwiteExisting);
+                $formIndicatorsAdded = $this->importIndicator($indicator, $subformCategoryID, null, $overwiteExisting);
             }
         }
 
+        $this->updateConditionRelations($formIndicatorsAdded);
         return true;
     }
 
-    private function importIndicator($indicatorPackage, $categoryID, $parentID = null, $overwriteExisting = false)
+    private function importIndicator($indicatorPackage, $categoryID, $parentID = null, $overwriteExisting = false, $formIndicatorsAdded = null)
     {
         $indicatorPackage['categoryID'] = $categoryID;
         $indicatorPackage['parentID'] = $parentID;
@@ -176,11 +178,41 @@ class FormStack
         }
 
         $indicatorID = $this->formEditor->addIndicator($indicatorPackage, $overwriteExisting);
+        $formIndicatorsAdded[$indicatorPackage['indicatorID']] = $indicatorID;
         if (is_array($indicatorPackage['child']))
         {
             foreach ($indicatorPackage['child'] as $child)
             {
-                $this->importIndicator($child, $categoryID, $indicatorID, $overwriteExisting);
+                $formIndicatorsAdded = $this->importIndicator($child, $categoryID, $indicatorID, $overwriteExisting, $formIndicatorsAdded);
+            }
+        }
+        return $formIndicatorsAdded;
+    }
+
+    private function updateConditionRelations($formIndicatorsAdded)
+    {
+        $indicatorList = (implode(',', $formIndicatorsAdded));
+        $strSQL = "SELECT indicatorID, conditions FROM indicators WHERE indicatorID IN ({$indicatorList})";
+        $records = $this->db->query($strSQL);
+
+        foreach($records as $rec) {
+            if($rec['conditions'] !== '')
+            {
+                $conditions = json_decode($rec['conditions']);
+                foreach($conditions as $c)
+                {
+                    $currParentID = $c->parentIndID;
+                    $c->childIndID = $rec['indicatorID'];
+                    $c->parentIndID = $formIndicatorsAdded[$currParentID];
+                }
+                $updatedConditions = json_encode($conditions);
+
+                $vars = array(
+                    ':indicatorID' => $rec['indicatorID'],
+                    ':updatedConditions'=> $updatedConditions
+                );
+                $strSQL = 'UPDATE indicators SET indicators.conditions = :updatedConditions WHERE indicatorID=:indicatorID';
+                $this->db->prepared_query($strSQL, $vars);
             }
         }
     }
