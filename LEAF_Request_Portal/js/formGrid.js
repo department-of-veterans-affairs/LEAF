@@ -721,7 +721,7 @@ var LeafFormGrid = function(containerID, options) {
 
                 var trimmedText = val.innerText.trim();
                 line[i] = trimmedText;
-                //add \t to data that could be interpretted as dates by excel
+                //add quotes to data that could be interpretted as dates by excel
                 const dataFormat = val.getAttribute('data-format');
                 const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
                 line[i] = dataFormat !== 'date' && testDateFormat.test(line[i]) ? `'${line[i]}'` : line[i];
