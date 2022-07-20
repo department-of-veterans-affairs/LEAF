@@ -724,7 +724,7 @@ var LeafFormGrid = function(containerID, options) {
                 //prevent some values from being interpretted as dates by excel
                 const dataFormat = val.getAttribute('data-format');
                 const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
-                line[i] = dataFormat !== 'date' && testDateFormat.test(line[i]) ? `=VALUETOTEXT("${line[i]}")` : line[i];
+                line[i] = dataFormat !== 'date' && testDateFormat.test(line[i]) ? `="${line[i]}"` : line[i];
                 if(i == 0 && headers[i] == 'UID') {
                     line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + trimmedText +'", "'+ trimmedText +'")';
                 }
