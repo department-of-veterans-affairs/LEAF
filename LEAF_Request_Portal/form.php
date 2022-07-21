@@ -970,11 +970,9 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        if (is_array($_POST[$key])) // multiselect and checkbox items
+        if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
-            foreach ($_POST[$key] as $i => $sel) {
-                $_POST[$key][$i] = XSSHelpers::sanitizeHTML($sel);
-            }
+            $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
             $_POST[$key] = serialize($_POST[$key]);
         }
         else
