@@ -111,8 +111,8 @@ switch ($action) {
         break;
     case 'view':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('css/view.css', '../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array('css/view.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
@@ -163,7 +163,6 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array(
             'js/form.js',
             'js/gridInput.js',
@@ -178,7 +177,6 @@ switch ($action) {
             '../libs/js/es6-promise/es6-promise.auto.min.js',
             '../libs/js/jspdf/jspdf.min.js',
             '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
-            '../libs/js/choicesjs/choices.min.js',
             'js/titleValidator.js'
         ));
 
@@ -270,8 +268,7 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', '../libs/js/choicesjs/choices.min.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -467,8 +464,8 @@ switch ($action) {
 //        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
         $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
 
-        $main->assign('stylesheets', array('css/report.css', '../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js',
+        $main->assign('stylesheets', array('css/report.css'));
+           $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
                'js/formQuery.js',
                'js/formSearch.js',
@@ -477,7 +474,6 @@ switch ($action) {
                'js/lz-string/lz-string.min.js',
                '../libs/jsapi/portal/LEAFPortalAPI.js',
                '../libs/js/LEAF/XSSHelpers.js',
-               '../libs/js/choicesjs/choices.min.js'
            ));
            $main->assign('useUI', true);
 

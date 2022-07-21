@@ -9,6 +9,8 @@
     <main class="main-content">
 
         <h2>Site Settings</h2>
+        
+        <h2 id="progress" style="color: red;"></h2>
 
         <form class="usa-form">
         
@@ -64,8 +66,7 @@
                 <input id="national_linkedPrimary" type="text" class="usa-input" size="48" />
             </div>
 
-            <h3 id="progress" style="color: red;"></h3>
-            <button class="usa-button" id="btn_save" type="button" onclick="saveSettings();">Save</button>
+            <button class="usa-button" onclick="saveSettings();">Save</button>
 
         </form>
 
@@ -88,8 +89,6 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 
 function saveSettings()
 {
-    let origSaveText = $('#btn_save').html();
-    $('#btn_save').html('Saving...')
     $.when(
             $.ajax({
                 type: 'POST',
@@ -148,7 +147,6 @@ function saveSettings()
                 }
             })
          ).then(function() {
-            $('#btn_save').html(origSaveText);
         	 $('#progress').html('Settings saved.');
         	 $('#progress').fadeIn(10, function() {
                  $('#progress').fadeOut(2000);

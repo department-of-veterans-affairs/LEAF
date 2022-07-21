@@ -970,12 +970,9 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        if (is_array($_POST[$key])) // multiselect and checkbox items
+        if (is_array($_POST[$key]))
         {
-            foreach ($_POST[$key] as $i => $sel) {
-                $_POST[$key][$i] = XSSHelpers::sanitizeHTML($sel);
-            }
-            $_POST[$key] = serialize($_POST[$key]);
+            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
         }
         else
         {
@@ -1139,13 +1136,20 @@ class Form
 
         foreach ($keys as $key)
         {
-            if (is_numeric($key))
+            // If form has _selected key use over initial key (Multi-Select Dropdown)
+            if (is_numeric($key) && $_POST[$key . '_selected']) {
+                $_POST[$key] = $_POST[$key . '_selected'];
+                if (!$this->writeDataField($recordID, $key, $series)) {
+                    return 0;
+                }
+            }
+            elseif (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
                 }
             }
-            else // Check for keys
+            elseif (!strpos($key, '_selected')) // Check for keys that don't include _selected
             {
                 list($tRecordID, $tIndicatorID) = explode('_', $key);
                 if ($tRecordID == $recordID
@@ -2174,10 +2178,9 @@ class Form
                         }
                         break;
                     default:
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
-                            substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
                         {
-                            $tData = @unserialize($item['data']) !== false ? @unserialize($item['data']) : preg_split('/,(?!\s)/', $item['data']);
+                            $tData = @unserialize($item['data']);
                             $item['data'] = '';
                             if (is_array($tData))
                             {

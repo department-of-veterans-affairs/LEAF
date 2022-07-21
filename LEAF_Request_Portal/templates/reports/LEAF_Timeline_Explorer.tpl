@@ -1284,11 +1284,10 @@ $(function() {
     $('#filterStart, #filterEnd').on('change', function() {
         let startVal = $('#filterStart').val();
         let endVal = $('#filterEnd').val();
-        let filterStart = new Date(startVal);
-        let filterEnd = new Date(endVal);
+        let filterStart = new Date($('#filterStart').val());
+        let filterEnd = new Date($('#filterEnd').val());
         if(filterStart < filterEnd) {
-            chart_workload_timescale.filterAll().filter(dc.filters.RangedFilter(filterStart, filterEnd));
-            dc.renderAll();
+            chart_workload_timescale.filter(dc.filters.RangedFilter(filterStart, filterEnd));
         }
         $('#filterStart').val(startVal)
         $('#filterEnd').val(endVal)
@@ -1333,7 +1332,7 @@ $(function() {
 
     <div style="float: right">
     	<button id="btn_exportData" class="buttonNorm">Export JSON data</button>
-    	<button class="buttonNorm" onclick="dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</button>
+    	<button class="buttonNorm" onclick="dc.filterAll(); dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</button>
     </div>
 
     <div>

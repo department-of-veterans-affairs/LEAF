@@ -224,54 +224,35 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <select multiple
-                id="<!--{$indicator.indicatorID|strip_tags}-->"
-                name="<!--{$indicator.indicatorID|strip_tags}-->_multiselect[]"
-                style="display:none">
-            </select>
-
-            <script>
-                if (typeof indicatorInfo === 'undefined') {
-                    var indicatorInfo = {}; //needs to be var.
-                }
-                indicatorInfo[<!--{$indicator.indicatorID|strip_tags}-->] = {
-                    indOptions: <!--{$indicator.options|json_encode}--> || [],
-                    indValues: Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
-                               <!--{$indicator.value|json_encode}--> :      //new serialized array format
-                               '<!--{$indicator.value}-->'.split(/,(?!\s)/) //old concat string format compatible
-                }
+                <span><select multiple id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 80%">
+            <!--{foreach from=$indicator.options item=option}-->
+                <!--{assign var='found' value=false}-->
+                <!--{foreach from=","|explode:$indicator.value item=val}-->
+                    <!--{if $option|escape == $val|escape}-->
+                        <option value="<!--{$option|sanitize}-->" selected="selected"><!--{$option|sanitize}--></option>
+                        <!--{assign var='found' value=true}-->
+                    <!--{/if}-->
+                <!--{/foreach}-->
+                <!--{if !$found}-->
+                    <option value="<!--{$option|sanitize}-->"><!--{$option|sanitize}--></option>
+                <!--{/if}-->
+            <!--{/foreach}-->
+                </select></span>
+                <input type="hidden" id="<!--{$indicator.indicatorID|strip_tags}-->_selected" name="<!--{$indicator.indicatorID|strip_tags}-->_selected" value="" />
+                <script>
                 $(function() {
-                    for (let i in indicatorInfo) {
-                        const elSelect = document.getElementById(i);
-                        if (elSelect.getAttribute('data-choice') !== 'active') {
-                            function decodeHTMLEntities(str) {
-                                return $("<div/>").html(str).text();
-                            }
-                            const options = indicatorInfo[i].indOptions.map(o =>({
-                                value: o,
-                                label: o,
-                                selected: indicatorInfo[i].indValues.some(v => decodeHTMLEntities(v) === o)
-                            }));
-                            const choices = new Choices(elSelect, {
-                                allowHTML: false,
-                                removeItemButton: true,
-                                editItems: true,
-                                choices: options.filter(o => o.value !== "")
-                            });
-                            elSelect.choicesjs = choices;
-                            elSelect.addEventListener('change', ()=> {
-                                let elEmptyOption = document.getElementById(`${i}_empty_value`);
-                                if (elEmptyOption === null) {
-                                    let opt = document.createElement('option');
-                                    opt.id = `${i}_empty_value`;
-                                    opt.value = "";
-                                    elSelect.appendChild(opt);
-                                    elEmptyOption = document.getElementById(`${i}_empty_value`);
-                                }
-                                elEmptyOption.selected = elSelect.value === '';
-                            });
-                        }
-                    }
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({width: '80%'});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices').css('border-radius', '6px');
+                    // Hidden Value for array of items in _selected to export to POST
+                    let hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
+                    // Change function for updating array on each selection or deselection
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->').on('change', function() {
+                        setTimeout(function() {
+                            hiddenValue = $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen .chosen-choices')[0].innerText;
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->_selected').val(hiddenValue.split("\n"));
+                        }, 500);
+                    });
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -583,29 +564,20 @@
                 <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'checkboxes' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <span id="parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}-->">
+                <span id="parentID_<!--{$indicator.parentID|strip_tags}-->_indicatorID_<!--{$indicator.indicatorID|strip_tags}-->">
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.options item=option}-->
-                <!--{assign var='found' value=false}-->
-                <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" />
-                <!--{foreach from=$indicator.value item=val}-->
-                    <!--{if $option|sanitize|escape == $val|sanitize|escape}-->
-                        <!--{assign var='found' value=true}-->
-                        <!--{break}-->
+                    <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" />
+                    <!--{if $option == $indicator.value[$idx]}-->
+                        <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
+                        <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
+                        <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
+                    <!--{else}-->
+                        <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
+                        <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
+                        <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                     <!--{/if}-->
-                <!--{/foreach}-->
-
-                <!--{if $found}-->
-                    <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
-                    <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
-                <!--{else}-->
-                    <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
-                    <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
-                <!--{/if}-->
-                
-                <!--{assign var='idx' value=$idx+1}-->
+                    <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
                 </span>
                 <script>
