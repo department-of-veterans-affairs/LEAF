@@ -972,9 +972,7 @@ class Form
     {
         if (is_array($_POST[$key])) // multiselect and checkbox items
         {
-            foreach ($_POST[$key] as $i => $sel) {
-                $_POST[$key][$i] = XSSHelpers::sanitizeHTML($sel);
-            }
+            $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]); // BLOCKER: need to figure out how to avoid cascading sanitization
             $_POST[$key] = serialize($_POST[$key]);
         }
         else
