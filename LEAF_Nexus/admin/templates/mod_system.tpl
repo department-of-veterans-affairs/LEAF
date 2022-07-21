@@ -11,6 +11,11 @@
         </div>
 
         <div class="item">
+            <label for="primaryAdmin">Primary Admin:</label>
+            <div id="primaryAdmin"></div>
+        </div>
+
+        <div class="item">
         <label for="leadershipName">Leadership Nomenclature:&nbsp;</label>
         <select id="leadershipName" style="width: 300px" title="">
             <option value="quadrad" <!--{if $serviceParent == 'quadrad'}-->selected<!--{/if}--> >Quadrad</option>
@@ -83,15 +88,71 @@ function saveSettings()
                 }
             })
          ).then(function() {
-             location.reload();
+            $.ajax({
+                type: 'POST',
+                url: '../api/system/setPrimaryadmin',
+                data: {userID: $('#primaryAdmin').val(),
+                CSRFToken: CSRFToken},
+                success: function(res) {
+                    if(res['success'] !== true) {
+                        alert('Primary Admin must be a System Administrator');
+                    } else {
+                        location.reload();
+                    }
+                }
+            })
          });
 }
 
+// convert to title case
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
 var dialog, dialog_confirm;
+var empSel;
+let primarySet = false;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
+    $.ajax({
+        type: 'GET',
+        async: false,
+        url: '../api/system/primaryadmin',
+        success: function(res) {
+            $('.employeeSelectorInput').val('userName:'+res['userName']);
+            primarySet = res;
+        }
+    })
+
+    if (primarySet === false) {
+        empSel = new employeeSelector('primaryAdmin');
+        empSel.apiPath = '../api/?a=';
+        empSel.rootPath = '../';
+        empSel.initialize();
+        empSel.enableNoLimit();
+
+        empSel.setSelectHandler(function () {
+            $('#primaryAdmin').val(empSel.selectionData[empSel.selection].userName);
+            $('.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
+        });
+    } else {
+        let firstName = toTitleCase(primarySet['firstName']);
+        let lastName = toTitleCase(primarySet['lastName']);
+        let userName = primarySet['userName'].toUpperCase();
+        let adminContent = `<span style="white-space: pre;"> ${firstName} ${lastName} (${userName}) <a tabindex="0" title="Remove Primary Admin from ${firstName} ${lastName}" aria-label="Unset ${firstName} ${lastName}" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></span>`;
+        $('#primaryAdmin').html(adminContent);
+        $('#unsetPrimaryAdmin').on('click', function() {
+            $.ajax({
+                type: 'DELETE',
+                url: '../api/system/unsetPrimaryadmin&CSRFToken=<!--{$CSRFToken}-->',
+                success: function() {
+                    location.reload();
+                }
+            })
+        });
+    }
 });
 
 </script>

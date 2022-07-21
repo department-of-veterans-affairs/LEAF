@@ -563,6 +563,9 @@ $(function() {
 	    case 'services':
             setupServices();
             break;
+        case 'primaryAdmin':
+            setupPrimaryAdmin();
+            break;
 	    default:
 		    setupAdmins();
 		    break;
