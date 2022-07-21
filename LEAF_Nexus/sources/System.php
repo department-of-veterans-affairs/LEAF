@@ -273,6 +273,7 @@ class System
         if(count($primaryAdminRes))
         {
             $user = $employee->lookupLogin($primaryAdminRes[0]['data']);
+            $user = $employee->lookupEmpUID($user[0]['empUID']);
             return isset($user[0]) ? $user[0] : $primaryAdminRes[0]['data'];
         } else {
             return false;
