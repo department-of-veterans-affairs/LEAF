@@ -89,6 +89,31 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     display: block;
 }
 
+/** modifications to choicesjs styles **/
+.choices__inner div.choices__item.choices__item--selectable,
+.choices__inner div.choices__item.is-highlighted  {
+    background-color: #f6faff;
+    background-image: linear-gradient(0, #eee 50%, #fff 53%);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color:black;
+}
+button.choices__button {
+    filter: brightness(25%); 
+}
+button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
+    filter: brightness(0);
+    transform: scale(1.05);
+}
+.choices__list.choices__list--dropdown.is-active .is-highlighted {
+    background-color: #E8F2FF;
+    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
+}
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
+    opacity: 0.75;
+}
+/** ********************************* **/
+
 textarea {
     border: 1px solid gray;
     padding: 4px;
@@ -1395,7 +1420,7 @@ fieldset iframe {
 }
 #progressArea {
     position: sticky;
-    z-index: 50;
+    z-index: 1;
     top: 0;
 }
 /* sticky top of dialog box */
