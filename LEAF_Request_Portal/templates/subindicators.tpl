@@ -55,20 +55,21 @@
             </div>
             <button type="button" class="buttonNorm" id="addRowBtn" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
-                function decodeCellHTMLEntities(obj) {
-                    let gridInfo = { ...obj };
-                    if (gridInfo?.cells) {
-                        gridInfo.cells.forEach(arrRowVals => {
-                            arrRowVals = arrRowVals.map((v, i) => {
-                                arrRowVals[i] = $("<div/>").html(v).text();
-                            });
-                        });
-                    }
-                    return gridInfo;
-                }
                 var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
-
                 $(function() {
+                    function decodeCellHTMLEntities(obj) {
+                        let gridInfo = { ...obj };
+                        if (gridInfo?.cells) {
+                            gridInfo.cells.forEach(arrRowVals => {
+                                arrRowVals = arrRowVals.map((v, i) => {
+                                    let elDiv = document.createElement('div');
+                                    elDiv.innerHTML = v;
+                                    arrRowVals[i] = elDiv.innerText;
+                                });
+                            });
+                        }
+                        return gridInfo;
+                    }
                     gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(decodeCellHTMLEntities(<!--{$indicator.value|json_encode}-->));
                     if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
                         gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
@@ -256,7 +257,9 @@
                         const elSelect = document.getElementById(i);
                         if (elSelect.getAttribute('data-choice') !== 'active') {
                             function decodeHTMLEntities(str) {
-                                return $("<div/>").html(str).text();
+                                let elDiv = document.createElement('div');
+                                elDiv.innerHTML = str;
+                                return elDiv.innerText;
                             }
                             const options = indicatorInfo[i].indOptions.map(o =>({
                                 value: o,
