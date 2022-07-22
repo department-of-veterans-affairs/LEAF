@@ -57,20 +57,7 @@
             <script>
                 var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
                 $(function() {
-                    function decodeCellHTMLEntities(obj) {
-                        let gridInfo = { ...obj };
-                        if (gridInfo?.cells) {
-                            gridInfo.cells.forEach(arrRowVals => {
-                                arrRowVals = arrRowVals.map((v, i) => {
-                                    let elDiv = document.createElement('div');
-                                    elDiv.innerHTML = v;
-                                    arrRowVals[i] = elDiv.innerText;
-                                });
-                            });
-                        }
-                        return gridInfo;
-                    }
-                    gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(decodeCellHTMLEntities(<!--{$indicator.value|json_encode}-->));
+                    gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
                     if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
                         gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
                     }

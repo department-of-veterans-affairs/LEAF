@@ -1,4 +1,22 @@
 var gridInput = function(gridParameters, indicatorID, series, recordID) {
+    function decodeCellHTMLEntities(obj, displayScriptTags=false) {
+        let gridInfo = { ...obj };
+        if (gridInfo?.cells) {
+            let cells = gridInfo.cells.slice();
+            cells.forEach((arrRowVals, ci) => {
+                arrRowVals = arrRowVals.map((v) => {
+                    let elDiv = document.createElement('div');
+                    elDiv.innerHTML = v;
+                    let text = displayScriptTags === false ?
+                        elDiv.innerText.replaceAll(/(<script>)|(<\/script>)/g, '') : elDiv.innerText;
+                    return text;
+                });
+                cells[ci] = arrRowVals.slice();
+            });
+            gridInfo.cells = cells;
+        }
+        return gridInfo;
+    }
     function makeDropdown(options, selected){
         var dropdownElement = '<select role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
         for(var i = 0; i < options.length; i++){
@@ -26,6 +44,7 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         }
     }
     function printTableInput(values){
+        values = decodeCellHTMLEntities(values, true);
         var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
         var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
         var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
@@ -248,6 +267,7 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         $('#tableStatus').attr('aria-label', 'Moved up to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
     }
     function printTableOutput(values) {
+        values = decodeCellHTMLEntities(values);
         var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > tbody';
         var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > thead';
         var rows = values.cells === undefined ? 0 : values.cells.length;
