@@ -1,5 +1,5 @@
 {strip}<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <script>
     if(navigator.userAgent.indexOf("Trident") != -1) {
