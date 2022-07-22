@@ -260,24 +260,21 @@ class System
     /**
      * Get primary admin.
      *
-     * @return array|false array with primary admin's info
+     * @return array array with primary admin's info
      */
-    public function getPrimaryAdmin()
+    public function getPrimaryAdmin(): array
     {
         $strSQL = "SELECT `data` FROM `settings` WHERE `setting` = 'primaryAdmin'";
         $primaryAdminRes = $this->db->query($strSQL);
 
-        include_once 'Employee.php';
-        $employee = new Orgchart\Employee($this->db, $this->login);
-
-        if(count($primaryAdminRes))
+        if(count($primaryAdminRes) > 0)
         {
+            include_once 'Employee.php';
+            $employee = new Orgchart\Employee($this->db, $this->login);
             $user = $employee->lookupLogin($primaryAdminRes[0]['data']);
-            $user = $employee->lookupEmpUID($user[0]['empUID']);
-            return isset($user[0]) ? $user[0] : $primaryAdminRes[0]['data'];
-        } else {
-            return false;
         }
+
+        return isset($user[0]) ? $user[0] : [];
     }
 
     /**
@@ -285,7 +282,7 @@ class System
      *
      * @return array array with response array
      */
-    public function setPrimaryAdmin()
+    public function setPrimaryAdmin(): array
     {
         $userID = XSSHelpers::xscrub($_POST['userID']);
 
@@ -299,7 +296,9 @@ class System
                     "WHERE `groupID` = 1 AND empUID = :empUID";
         $res = $this->db->prepared_query($strSQL, $sqlVars);
 
-        if(count($res))
+        $resultArray = array('success' => false, 'response' => $res);
+
+        if(count($res) > 0)
         {
             $sqlVars = array(':userID' => $user[0]['userName']);
             $strSQL = "INSERT INTO `settings` (`setting`, `data`) VALUES ('primaryAdmin', :userID) ".
@@ -315,10 +314,6 @@ class System
                 new \LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
             ]);
         }
-        else
-        {
-            $resultArray = array('success' => false, 'response' => $res);
-        }
 
         return $resultArray;
     }
@@ -328,7 +323,7 @@ class System
      *
      * @return array array with query response
      */
-    public function unsetPrimaryAdmin()
+    public function unsetPrimaryAdmin(): array
     {
         $primary = $this->getPrimaryAdmin();
 

@@ -87,19 +87,17 @@ class NationalEmployee extends NationalData
 
     public function lookupLogin($login)
     {
-        $login = str_replace('userName:', '', $login);
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
         {
             return $this->cache[$cacheHash];
         }
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE userName = :login
-                    	AND deleted = 0
-                    {$this->limit}";
 
-        $vars = array(':login' => $login);
-        $result = $this->db->prepared_query($sql, $vars);
+        $sqlVars = array(':login' => $login);
+        $strSQL = "SELECT {$this->tableName}.*, {$this->dataTable}.data AS email FROM {$this->tableName} ".
+            "INNER JOIN {$this->dataTable} ON {$this->tableName}.empUID = {$this->dataTable}.empUID ".
+            "WHERE {$this->tableName}.userName = :login AND indicatorID = 6 AND deleted = 0 {$this->limit}";
+        $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         $this->cache[$cacheHash] = $result;
 
@@ -108,12 +106,22 @@ class NationalEmployee extends NationalData
 
     public function lookupEmpUID($empUID)
     {
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE empUID = :empUID
-                    	AND deleted = 0";
+        if (!is_numeric($empUID))
+        {
+            return array();
+        }
+        if (isset($this->cache["lookupEmpUID_{$empUID}"]))
+        {
+            return $this->cache["lookupEmpUID_{$empUID}"];
+        }
 
-        $vars = array(':empUID' => $empUID);
-        $result = $this->db->prepared_query($sql, $vars);
+        $sqlVars = array(':empUID' => $empUID);
+        $strSQL = "SELECT {$this->tableName}.*, {$this->dataTable}.data AS email FROM {$this->tableName} ".
+            "INNER JOIN {$this->dataTable} ON {$this->tableName}.empUID = {$this->dataTable}.empUID ".
+            "WHERE {$this->tableName}.empUID = :empUID AND indicatorID = 6 AND deleted = 0 {$this->limit}";
+        $result = $this->db->prepared_query($strSQL, $sqlVars);
+
+        $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;
     }
@@ -295,9 +303,9 @@ class NationalEmployee extends NationalData
 
     /**
      * Runs additional search lookup by AD title to filter on larger sets of employees
-     * 
+     *
      * @param string $input text of employee name to search
-     * @return list of results from active directory query 
+     * @return list of results from active directory query
      */
     private function searchDeeper($input)
     {
@@ -378,40 +386,40 @@ class NationalEmployee extends NationalData
                 $searchResult = $res;
 
                 break;
-            // Format: Loginname
-            case strpos(strtolower($input), 'vha') !== false:
-            case strpos(strtolower($input), 'vaco') !== false:
-	    case strpos(strtolower($input), 'vba') !== false:
-	    case strpos(strtolower($input), 'cem') !== false:
-	    case strpos(strtolower($input), 'oit') !== false:
-            case strpos(strtolower($input), 'username:') !== false:
-                   if ($this->debug)
-                   {
-                       $this->log[] = 'Format Detected: Loginname';
-                   }
-	           $input = str_replace('username:', '', strtolower($input));
-                   $searchResult = $this->lookupLogin($input);
-
-                   break;
             // Format: Email
             case ($idx = strpos($input, '@')) > 0:
-                   if ($this->debug)
-                   {
-                       $this->log[] = 'Format Detected: Email';
-                   }
-                   $searchResult = $this->lookupEmail($input);
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Email';
+                }
+                $searchResult = $this->lookupEmail($input);
 
-                   break;
+                break;
+            // Format: Loginname
+            case substr(strtolower($input), 0, 3) === 'vha':
+            case substr(strtolower($input), 0, 4) === 'vaco':
+            case substr(strtolower($input), 0, 3) === 'vba':
+            case substr(strtolower($input), 0, 3) === 'cem':
+            case substr(strtolower($input), 0, 3) === 'oit':
+            case substr(strtolower($input), 0, 9) === 'username:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('username:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input);
+
+                break;
             // Format: ID number
             case (substr($input, 0, 1) == '#') && is_numeric(substr($input, 1)):
                 $searchResult = $this->lookupEmpUID(substr($input, 1));
 
                 break;
             // Format: Phone number
-               case is_numeric($input):
-                   $searchResult = $this->lookupPhone($input);
+            case is_numeric($input):
+                $searchResult = $this->lookupPhone($input);
 
-                   break;
+                break;
             // Format: Last or First
             default:
                 if ($this->debug)

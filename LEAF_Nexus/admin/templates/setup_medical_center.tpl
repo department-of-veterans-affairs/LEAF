@@ -553,7 +553,7 @@ $(function() {
     dialog_large = new dialogController('plainDialogLarge', 'plainLarge', 'loadIndicatorplainLarge', 'button_saveplainLarge', 'button_cancelchangeplainLarge');
 
 	var hash = window.location.hash.substr(1);
-	switch(hash) {
+	switch(hash.toLowerCase()) {
    	    case 'director':
             setupDirector();
             break;
@@ -562,9 +562,6 @@ $(function() {
 		    break;
 	    case 'services':
             setupServices();
-            break;
-        case 'primaryAdmin':
-            setupPrimaryAdmin();
             break;
 	    default:
 		    setupAdmins();

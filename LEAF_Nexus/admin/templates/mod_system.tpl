@@ -60,7 +60,8 @@
                 url: '../api/?a=system/settings/heading',
                 data: {heading: $('#heading').val(),
                 CSRFToken: CSRFToken},
-                success: function(res) {
+                fail: function(err) {
+                    console.log(err);
                 }
             }),
             $.ajax({
@@ -68,7 +69,8 @@
                 url: '../api/?a=system/settings/subHeading',
                 data: {subHeading: $('#subHeading').val(),
                 CSRFToken: CSRFToken},
-                success: function(res) {
+                fail: function(err) {
+                    console.log(err);
                 }
             }),
             $.ajax({
@@ -76,7 +78,8 @@
                 url: '../api/?a=system/settings/timeZone',
                 data: {timeZone: $('#timeZone').val(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
-                success: function(res) {
+                fail: function(err) {
+                    console.log(err);
                 }
             }),
             $.ajax({
@@ -84,11 +87,12 @@
                 url: '../api/?a=tag/_service/parent',
                 data: {parentTag: $('#leadershipName').val(),
                 CSRFToken: CSRFToken},
-                success: function(res) {
+                fail: function(err) {
+                    console.log(err);
                 }
             })
         ).then(function() {
-            if (primarySet === false) {
+            if (primarySet.length === 0) {
                 $.ajax({
                     type: 'POST',
                     url: '../api/system/setPrimaryadmin',
@@ -99,7 +103,13 @@
                             alert('Primary Admin must be a System Administrator');
                         } else {
                             location.reload();
+                            alert('Settings Saved.');
                         }
+                    },
+                    fail: function(err) {
+                        console.log(err);
+                        location.reload();
+                        alert('An error has occurred, please try again.');
                     }
                 })
             } else {
@@ -128,10 +138,13 @@
             success: function(res) {
                 $('.employeeSelectorInput').val('userName:'+res['userName']);
                 primarySet = res;
+            },
+            fail: function(err) {
+                console.log(err);
             }
         })
 
-        if (primarySet === false) {
+        if (primarySet.length === 0) {
             empSel = new employeeSelector('primaryAdmin');
             empSel.apiPath = '../api/?a=';
             empSel.rootPath = '../';
@@ -154,6 +167,9 @@
                     url: '../api/system/unsetPrimaryadmin&CSRFToken=<!--{$CSRFToken}-->',
                     success: function() {
                         location.reload();
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 })
             });

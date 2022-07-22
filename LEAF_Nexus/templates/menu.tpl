@@ -24,7 +24,9 @@
                             {
                                 $('#help-primary-admin').html('Primary Admin has not been set.');
                             }
-
+                        },
+                        fail: function(err) {
+                            console.log(err);
                         }
                     });
                 </script>
