@@ -41,9 +41,35 @@ var LeafFormGrid = function(containerID, options) {
     /**
      * @param values (required) object of cells and names to generate grid
      * @memberOf LeafFormGrid
+     * Returns copy of values with cells propery html entities decoded, without script tags
+     */
+    function decodeCellHTMLEntities(obj) {
+        let gridInfo = { ...obj };
+        if (gridInfo?.cells) {
+            let cells = gridInfo.cells.slice();
+            cells.forEach((arrRowVals, ci) => {
+                arrRowVals = arrRowVals.map((v) => {
+                    v = v.replaceAll('<', '&lt;');  //handle old data values
+                    v = v.replaceAll('>', '&gt;');
+                    let elDiv = document.createElement('div');
+                    elDiv.innerHTML = v;
+                    const text = elDiv.innerText.replaceAll(/(<script>)|(<\/script>)/g, '');
+                    return text;
+                });
+                cells[ci] = arrRowVals.slice();
+            });
+            gridInfo.cells = cells;
+        }
+        return gridInfo;
+    }
+
+    /**
+     * @param values (required) object of cells and names to generate grid
+     * @memberOf LeafFormGrid
      */
     function printTableReportBuilder(values, columnValues) {
         // remove unused columns
+        values = decodeCellHTMLEntities(values);
         if (columnValues !== null && columnValues !== undefined) {
             values.format = values.format.filter(function (value) {
                 return columnValues.includes(value.id);
