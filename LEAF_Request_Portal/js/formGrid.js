@@ -40,11 +40,12 @@ var LeafFormGrid = function(containerID, options) {
 
     /**
      * @param values (required) object of cells and names to generate grid
+     * @param showScriptTags (default false) whether to display script tags
      * @memberOf LeafFormGrid
-     * Returns copy of values with cells propery html entities decoded, without script tags
+     * Returns copy of values with cells property html entities decoded
      */
-    function decodeCellHTMLEntities(obj) {
-        let gridInfo = { ...obj };
+    function decodeCellHTMLEntities(values, showScriptTags=false) {
+        let gridInfo = { ...values };
         if (gridInfo?.cells) {
             let cells = gridInfo.cells.slice();
             cells.forEach((arrRowVals, ci) => {
@@ -53,7 +54,8 @@ var LeafFormGrid = function(containerID, options) {
                     v = v.replaceAll('>', '&gt;');
                     let elDiv = document.createElement('div');
                     elDiv.innerHTML = v;
-                    const text = elDiv.innerText.replaceAll(/(<script>)|(<\/script>)/g, '');
+                    let text = elDiv.innerText;
+                    if (showScriptTags !== true) text = text.replaceAll(/(<script>)|(<\/script>)/g, '');
                     return text;
                 });
                 cells[ci] = arrRowVals.slice();

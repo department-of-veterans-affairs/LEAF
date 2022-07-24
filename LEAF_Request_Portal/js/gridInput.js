@@ -1,6 +1,6 @@
 var gridInput = function(gridParameters, indicatorID, series, recordID) {
-    function decodeCellHTMLEntities(obj) {
-        let gridInfo = { ...obj };
+    function decodeCellHTMLEntities(values, showScriptTags=false) {
+        let gridInfo = { ...values };
         if (gridInfo?.cells) {
             let cells = gridInfo.cells.slice();
             cells.forEach((arrRowVals, ci) => {
@@ -9,7 +9,8 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
                     v = v.replaceAll('>', '&gt;');
                     let elDiv = document.createElement('div');
                     elDiv.innerHTML = v;
-                    const text = elDiv.innerText.replaceAll(/(<script>)|(<\/script>)/g, '');
+                    let text = elDiv.innerText;
+                    if (showScriptTags !== true) text = text.replaceAll(/(<script>)|(<\/script>)/g, '');
                     return text;
                 });
                 cells[ci] = arrRowVals.slice();
@@ -45,7 +46,7 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         }
     }
     function printTableInput(values){
-        values = decodeCellHTMLEntities(values);
+        values = decodeCellHTMLEntities(values, true);
         var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
         var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
         var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
