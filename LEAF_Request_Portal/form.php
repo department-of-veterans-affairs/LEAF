@@ -533,6 +533,13 @@ class Form
             $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
         }
 
+        // handle multiselect format (new serialized arrays and old string concat values)
+        if (isset($data[0]['data']) && $data[0]['data'] != ''
+            && (substr($data[0]['format'], 0, 11) == 'multiselect'))
+        {
+            $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
+        }
+
         // prevent masked data from being output
         if ($form[$idx]['isMasked'])
         {
