@@ -237,12 +237,12 @@
                     indOptions: <!--{$indicator.options|json_encode}--> || [],
                     indValues: Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
                                <!--{$indicator.value|json_encode}--> :      //new serialized array format
-                               '<!--{$indicator.value}-->'.split(/,(?!\s)/) //old concat string format compatible
+                               '<!--{$indicator.value}-->'.split(/,(?!\s)/) //old concat string format compatible (needed for default vals)
                 }
                 $(function() {
                     for (let i in indicatorInfo) {
                         const elSelect = document.getElementById(i);
-                        if (elSelect.getAttribute('data-choice') !== 'active') {
+                        if (elSelect !== null && elSelect.multiple === true && elSelect.getAttribute('data-choice') !== 'active') {
                             function decodeHTMLEntities(str) {
                                 let elDiv = document.createElement('div');
                                 elDiv.innerHTML = str;
