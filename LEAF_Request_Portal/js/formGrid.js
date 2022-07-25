@@ -716,6 +716,9 @@ var LeafFormGrid = function(containerID, options) {
 
                 var trimmedText = val.innerText.trim();
                 line[i] = trimmedText;
+                //wrap text that could be interpretted as dates by excel in quotes
+                const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+                line[i] = testDateFormat.test(line[i]) ? line[i] + '\t' : line[i];
                 if(i == 0 && headers[i] == 'UID') {
                     line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + trimmedText +'", "'+ trimmedText +'")';
                 }
