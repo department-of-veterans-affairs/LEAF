@@ -597,7 +597,8 @@ ConditionsEditor.component('editor-main', {
                 </option>
             </select>
             <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
-                @change="$emit('update-selected-child-value', $event.target.value)" />
+                @change="$emit('update-selected-child-value', $event.target.value)"
+                :value="conditions.selectedChildValue" />
         </div>
         <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0"
             class="if-then-setup">
