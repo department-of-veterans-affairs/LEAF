@@ -100,13 +100,12 @@ $db->prepared_query('DELETE FROM service_chiefs WHERE serviceID > 0 AND locallyM
 // import services
 foreach ($res as $service)
 {
-    $quadID = null;
     $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($service['groupID']), $tag->getParent('service'));
     if (!is_array($leader))
     {
         return 'invalid service';
     }
-    $quadID = $leader[0]['groupID'];
+    $quadID = (isset($leader[0]['groupID'])) ? $leader[0]['groupID'] : null;
 
     echo "Synching Service: {$service['groupTitle']}<br />";
     $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
@@ -245,18 +244,20 @@ foreach (Config::$orgchartImportTags as $tag)
         foreach ($resEmp as $emp)
         {
             $empID = $employee->lookupLogin($emp['userID']);
-            $backups = $employee->getBackups($empID[0]['empUID']);
-            foreach ($backups as $backup)
-            {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $tgroup['groupID'],
-                    ':backupID' => $emp['userID'], );
+	    if (isset($empID[0]['empUID'])) {
+	        $backups = $employee->getBackups($empID[0]['empUID']);
+	        foreach ($backups as $backup)
+	        {
+		    $sql_vars = array(':userID' => $backup['userName'],
+		        ':groupID' => $tgroup['groupID'],
+		        ':backupID' => $emp['userID'], );
 
-                // Add backupID check for updates
-                $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
-            }
+		    // Add backupID check for updates
+		    $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+						    VALUES (:userID, :groupID, :backupID)
+						    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
+	        }
+	    }
         }
     }
 }
