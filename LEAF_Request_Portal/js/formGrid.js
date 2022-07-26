@@ -55,7 +55,7 @@ var LeafFormGrid = function(containerID, options) {
                     let elDiv = document.createElement('div');
                     elDiv.innerHTML = v;
                     let text = elDiv.innerText;
-                    if (showScriptTags !== true) text = text.replaceAll(/(<script>)|(<\/script>)/ig, '');
+                    if (showScriptTags !== true) text = text.replaceAll(/(<script[\s\S]*?>)|(<\/script[\s\S]*?>)/ig, '');
                     return text;
                 });
                 cells[ci] = arrRowVals.slice();
