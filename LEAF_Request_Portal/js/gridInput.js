@@ -10,7 +10,7 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
                     let elDiv = document.createElement('div');
                     elDiv.innerHTML = v;
                     let text = elDiv.innerText;
-                    if (showScriptTags !== true) text = text.replaceAll(/(<script>)|(<\/script>)/g, '');
+                    if (showScriptTags !== true) text = text.replaceAll(/(<script>)|(<\/script>)/ig, '');
                     return text;
                 });
                 cells[ci] = arrRowVals.slice();
