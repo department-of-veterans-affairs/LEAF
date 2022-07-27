@@ -230,48 +230,42 @@
             </select>
 
             <script>
-                if (typeof indicatorInfo === 'undefined') {
-                    var indicatorInfo = {}; //needs to be var.
-                }
-                indicatorInfo[<!--{$indicator.indicatorID|strip_tags}-->] = {
-                    indOptions: <!--{$indicator.options|json_encode}--> || [],
-                    indValues: Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
-                               <!--{$indicator.value|json_encode}--> :      //new serialized array format
-                               '<!--{$indicator.value}-->'.split(/,(?!\s)/) //old concat string format compatible (needed for default vals)
-                }
                 $(function() {
-                    for (let i in indicatorInfo) {
-                        const elSelect = document.getElementById(i);
-                        if (elSelect !== null && elSelect.multiple === true && elSelect.getAttribute('data-choice') !== 'active') {
-                            function decodeHTMLEntities(str) {
-                                let elDiv = document.createElement('div');
-                                elDiv.innerHTML = str;
-                                return elDiv.innerText;
-                            }
-                            const options = indicatorInfo[i].indOptions.map(o =>({
-                                value: o,
-                                label: o,
-                                selected: indicatorInfo[i].indValues.some(v => decodeHTMLEntities(v) === o)
-                            }));
-                            const choices = new Choices(elSelect, {
-                                allowHTML: false,
-                                removeItemButton: true,
-                                editItems: true,
-                                choices: options.filter(o => o.value !== "")
-                            });
-                            elSelect.choicesjs = choices;
-                            elSelect.addEventListener('change', ()=> {
-                                let elEmptyOption = document.getElementById(`${i}_empty_value`);
-                                if (elEmptyOption === null) {
-                                    let opt = document.createElement('option');
-                                    opt.id = `${i}_empty_value`;
-                                    opt.value = "";
-                                    elSelect.appendChild(opt);
-                                    elEmptyOption = document.getElementById(`${i}_empty_value`);
-                                }
-                                elEmptyOption.selected = elSelect.value === '';
-                            });
+                    const elSelect = document.getElementById(<!--{$indicator.indicatorID|strip_tags}-->);
+                    if (elSelect !== null && elSelect.multiple === true && elSelect.getAttribute('data-choice') !== 'active') {
+                        function decodeHTMLEntities(str) {
+                            let elDiv = document.createElement('div');
+                            elDiv.innerHTML = str;
+                            return elDiv.innerText;
                         }
+                        const values = Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
+                            <!--{$indicator.value|json_encode}--> :       //new serialized array format
+                            '<!--{$indicator.value}-->'.split(/,(?!\s)/); //old concat string format compatible (needed for default vals)
+                        
+                        let options = <!--{$indicator.options|json_encode}--> || [];
+                        options = options.map(o =>({
+                            value: o,
+                            label: o,
+                            selected: values.some(v => decodeHTMLEntities(v) === o)
+                        }));
+                        const choices = new Choices(elSelect, {
+                            allowHTML: false,
+                            removeItemButton: true,
+                            editItems: true,
+                            choices: options.filter(o => o.value !== "")
+                        });
+                        elSelect.choicesjs = choices;
+                        elSelect.addEventListener('change', ()=> {
+                            let elEmptyOption = document.getElementById(`<!--{$indicator.indicatorID|strip_tags}-->_empty_value`);
+                            if (elEmptyOption === null) {
+                                let opt = document.createElement('option');
+                                opt.id = `<!--{$indicator.indicatorID|strip_tags}-->_empty_value`;
+                                opt.value = "";
+                                elSelect.appendChild(opt);
+                                elEmptyOption = document.getElementById(`<!--{$indicator.indicatorID|strip_tags}-->_empty_value`);
+                            }
+                            elEmptyOption.selected = elSelect.value === '';
+                        });
                     }
                 });
                 <!--{if $indicator.required == 1}-->
