@@ -1,0 +1,18 @@
+.employeeSelectorInput {
+    max-width: 289px;
+    min-width: 289px;
+}
+
+.item label {
+    float: none;
+    display: inline-block;
+    width: 165px;
+}
+
+.item label[for=primaryAdmin] {
+    float: left;
+}
+
+#primaryAdmin {
+    font-size: 1.1em;
+}

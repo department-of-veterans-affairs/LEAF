@@ -317,13 +317,12 @@ class Employee extends Data
         {
             return $this->cache[$cacheHash];
         }
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE userName = :login
-                    	AND deleted = 0
-                    {$this->limit}";
 
-        $vars = array(':login' => $login);
-        $result = $this->db->prepared_query($sql, $vars);
+        $sqlVars = array(':login' => $login);
+        $strSQL = "SELECT {$this->tableName}.*, {$this->dataTable}.data AS email FROM {$this->tableName} ".
+            "INNER JOIN {$this->dataTable} ON {$this->tableName}.empUID = {$this->dataTable}.empUID ".
+            "WHERE {$this->tableName}.userName = :login AND indicatorID = 6 AND deleted = 0 {$this->limit}";
+        $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         $this->cache[$cacheHash] = $result;
 
@@ -341,18 +340,11 @@ class Employee extends Data
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
 
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE empUID = :empUID
-                    	AND deleted = 0";
-
-        $vars = array(':empUID' => $empUID);
-        $result = $this->db->prepared_query($sql, $vars);
-        $resEmail = $this->db->prepared_query("SELECT data as email FROM {$this->dataTable}
-                                                WHERE empUID=:empUID
-                                                    AND indicatorID=6", $vars);
-        if(isset($result[0]) && isset($resEmail[0])) {
-            $result[0] = array_merge($result[0], $resEmail[0]);
-        }
+        $sqlVars = array(':empUID' => $empUID);
+        $strSQL = "SELECT {$this->tableName}.*, {$this->dataTable}.data AS email FROM {$this->tableName} ".
+            "INNER JOIN {$this->dataTable} ON {$this->tableName}.empUID = {$this->dataTable}.empUID ".
+            "WHERE {$this->tableName}.empUID = :empUID AND indicatorID = 6 AND deleted = 0 {$this->limit}";
+        $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
@@ -733,13 +725,13 @@ class Employee extends Data
                 break;
             // Format: Email
             case ($idx = strpos($input, '@')) > 0:
-                   if ($this->debug)
-                   {
-                       $this->log[] = 'Format Detected: Email';
-                   }
-                   $searchResult = $this->lookupEmail($input);
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Email';
+                }
+                $searchResult = $this->lookupEmail($input);
 
-                   break;
+                break;
             // Format: Loginname
             case substr(strtolower($input), 0, 3) === 'vha':
             case substr(strtolower($input), 0, 4) === 'vaco':
@@ -761,10 +753,10 @@ class Employee extends Data
 
                 break;
             // Format: Phone number
-               case is_numeric($input):
-                   $searchResult = $this->lookupPhone($input);
+            case is_numeric($input):
+                $searchResult = $this->lookupPhone($input);
 
-                   break;
+                break;
             // Format: Last or First
             default:
                 if ($this->debug)
