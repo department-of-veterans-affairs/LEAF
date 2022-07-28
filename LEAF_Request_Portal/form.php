@@ -485,6 +485,7 @@ class Form
         $form[$idx]['parentID'] = $data[0]['parentID'];
         $form[$idx]['html'] = $data[0]['html'];
         $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
+        $form[$idx]['conditions'] = $data[0]['conditions'];
         $form[$idx]['required'] = $data[0]['required'];
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
@@ -1347,7 +1348,7 @@ class Form
         														AND indicators.disabled = 0
                                                                 AND data != ""', $vars);
 
-        $resCount = $this->db->prepared_query('SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 GROUP BY categoryID', array());
+        $resCount = $this->db->prepared_query("SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 AND (conditions IS NULL OR conditions = '') GROUP BY categoryID", array());
         $countData = array();
         $sum = 0;
         foreach ($resCount as $cat)
@@ -2206,6 +2207,8 @@ class Form
                 }
 
                 $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
+                $indFormat = explode("\n", $indicators[$item['indicatorID']]['format'])[0];
+                $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_format'] = $indFormat;
                 if (isset($item['dataOrgchart']))
                 {
                     $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
@@ -3237,9 +3240,10 @@ class Form
      * @param string $sort
      * @param boolean $includeHeadings
      * @param string $formsFilter - csv list of forms to search for
+     * @param boolean $unabridged
      * @return array list of indicators
      */
-    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '')
+    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '', $unabridged = false)
     {
         $forms = [];
         if($formsFilter != '') {
@@ -3271,6 +3275,12 @@ class Form
                             "AND name != '' ".
                             "AND categories.disabled = 0" . $orderBy;
         }
+        if($unabridged) {
+            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
+                "LEFT JOIN categories USING (categoryID) ".
+                "WHERE indicators.disabled <= 1 ".
+                "AND categories.disabled = 0" . $orderBy;
+        }
         $res = $this->db->prepared_query($strSQL, $vars);
 
         $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
@@ -3300,6 +3310,7 @@ class Form
             $temp['indicatorID'] = $item['indicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
+            $temp['conditions'] = $item['conditions'];
             $temp['description'] = $item['description'];
             $temp['isDisabled'] = (int)$item['isDisabled'];
             $temp['categoryName'] = $item['categoryName'];
@@ -3324,6 +3335,7 @@ class Form
                     $temp['indicatorID'] = $item['indicatorID'];
                     $temp['name'] = $item['name'];
                     $temp['format'] = $item['format'];
+                    $temp['conditions'] = $item['conditions'];
                     $temp['description'] = $item['description'];
                     $temp['isDisabled'] = (int)$item['isDisabled'];
                     $temp['categoryName'] = $item['categoryName'];
@@ -3529,6 +3541,7 @@ class Form
                 $child[$idx]['description'] = $field['description'];
                 $child[$idx]['html'] = $field['html'];
                 $child[$idx]['htmlPrint'] = $field['htmlPrint'];
+                $child[$idx]['conditions'] = $field['conditions'];
                 $child[$idx]['required'] = $field['required'];
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
