@@ -1,0 +1,246 @@
+.TEST {
+    margin: 20px auto;
+    color: #b00;
+    font-style: italic;
+    font-size: 80%;
+    background-color: rgb(255, 255, 255);
+    padding: 0.75em;
+    max-width: 1200px;
+}
+
+body {
+    position: relative;
+    --charcoal: #252F3E;
+    --dark-navy: #162E51;
+    --base-navy: #005EA2;
+    --cyan: #4BDFFD;
+    --lt-cyan: #E0F4FA;
+}
+#LEAF_conditions_editor {
+    position: absolute;
+    background-color: rgba(0,0,30,0.4);
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+#condition_editor_content {
+    padding: 40px 10px;
+    margin: auto;
+    width: 100vw;
+    min-height: 100vh;
+}
+#condition_editor_content h3 {
+    margin: 0;
+}
+#condition_editor_content h4 {
+    margin: 0 0 0.5em;
+}
+#condition_editor_content hr {
+    margin: 1em auto;
+}
+#condition_editor_content ul {
+    padding: 0;
+    margin: 0;
+}
+#condition_editor_content li {
+    list-style-type: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+}
+
+
+#condition_editor_center_panel {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%,0);
+    width: 70%;
+    min-width: 450px;
+    max-width: 800px;
+    margin: auto;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid var(--lt-cyan, #E0F4FA);
+    box-shadow: 1px 1px 4px rgba(0,0,30,0.2);
+}
+#condition_editor_center_panel_header {
+    cursor: move;
+}
+
+#condition_editor_inputs > div, 
+#condition_editor_actions > div {
+    padding: 1em;
+    border-bottom: 3px solid var(--lt-cyan, #E0F4FA);
+}
+#condition_editor_content .editor-card-header {
+    background-color: var(--lt-cyan, #E0F4FA);
+    font-weight: bold;
+}
+
+/* option tags cannot be styled easily  */
+#condition_editor_content select, #condition_editor_content input {
+    font-size: 85%;
+    padding: 0.15em;
+    text-overflow: ellipsis;
+    width: 100%;
+    border: 1px inset gray;
+}
+#condition_editor_content select:not(:last-child), 
+#condition_editor_content input:not(:last-child) {
+    margin-bottom: 1em;
+}
+#condition_editor_content div.if-then-setup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#condition_editor_content div.if-then-setup div {
+    display: inline-block;
+    width: 30%;
+}
+.hidden {
+    visibility: hidden;
+}
+
+button {
+    cursor: pointer;
+}
+.btnNewCondition {
+    display: flex;
+    align-items: center;
+    margin: 0.3em 0;
+}
+button.btnNewCondition {
+    width: fit-content;
+    color: white;
+    background-color: var(--base-navy);
+    padding: 0.4em 0.92em;
+    box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+    border: 1px solid var(--base-navy);
+    border-radius: 3px;
+    margin-right: 1em;
+    transition: box-shadow 0.1s ease;
+}
+button.btnNewCondition:hover, button.btnNewCondition:focus, button.btnNewCondition:active {
+    color: white;
+    background-color: var(--dark-navy);
+    border: 1px solid var(--dark-navy) !important;
+    box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+}
+
+ul#savedConditionsList {
+    padding-bottom: 0.5em;
+}
+#condition_editor_content li.savedConditionsCard {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4em;
+}
+button.btnSavedConditions {
+    text-align: left;
+    background-color: white;
+    padding: 0.4em;
+    border: 1px outset var(--base-navy, #E0F4FA);
+    box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+    border-radius: 3px;
+    margin-right: 1em;
+    transition: box-shadow 0.1s ease;
+}
+button.btnSavedConditions:hover, button.btnSavedConditions:focus, button.btnSavedConditions:active {
+    color: white;
+    border: 1px outset var(--base-navy, #E0F4FA) !important;
+    background-color: var(--base-navy);
+    box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+}
+button.selectedConditionEdit {
+    color: white;
+    border: 1px outset var(--base-navy, #E0F4FA) !important;
+    background-color: var(--base-navy);
+    box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+}
+
+#condition_editor_content li button {
+    padding: 0.3em;
+    width: 100%;
+    cursor: pointer;
+}
+button.btn-condition-select {
+    margin: 0;
+    padding: 0.4em;
+    border: 0;
+    text-align: left;
+    background-color: white;
+    color: var(--dark-navy, #162E51);
+    border-left:3px solid transparent;
+    border-bottom: 1px solid rgb(203, 213, 218);
+}
+.btn-condition-select:hover, .btn-condition-select:active, .btn-condition-select:focus {
+    border-left:3px solid #005EA2 !important;
+    border-bottom: 1px solid rgb(172, 181, 185) !important;
+    background-color: var(--lt-cyan, #E0F4FA);
+}
+
+#btn_add_condition, #btn_form_editor, #btn_cancel, .btn_remove_condition {
+    border-radius: 3px;
+    font-weight: bolder;
+}
+
+#btn_add_condition {
+    background-color: #10A020;
+    border: 1px solid #10A020;
+    color: white;
+}
+#btn_cancel {
+    background-color: white;
+    color: var(--dark-navy, #162E51);
+    border: 1px solid #005EA2;
+}
+#btn_cancel:hover, #btn_cancel:active, #btn_cancel:focus {
+    border: 1px solid #000 !important;
+    background-color: #005EA2;
+    color: white;
+}
+#btn_add_condition:hover, #btn_add_condition:active, #btn_add_condition:focus {
+    border: 1px solid black !important;
+    background-color: #005f20;  
+}
+.btn_remove_condition {
+    background-color: #922;
+    border: 1px solid #922;
+    color: white;
+}
+.btn_remove_condition:hover, .btn_remove_condition:active, .btn_remove_condition:focus {
+    border: 1px solid black !important;
+    background-color: #600;
+}
+
+.form-name {
+    color: var(--dark-navy, #162E51);
+}
+.input-info {
+    padding: 0.4em 0;
+    font-weight: bolder;
+    color: var(--base-navy, #005EA2);
+}
+
+#remove-condition-modal {
+    position: absolute;
+    width: 400px;
+    height: 250px;
+    background-color: white;
+    box-shadow: 1px 1px 6px 2px rgba(0,0,25,0.5);
+}
+
+@media only screen and (max-width: 768px) {
+    #condition_editor_content {
+        padding: 0;
+        margin-top:90px;
+    }
+    #condition_editor_center_panel {
+        width: 100%;
+        min-width: 350px;
+        border: 0;
+        padding-right: 1em;
+    }
+}

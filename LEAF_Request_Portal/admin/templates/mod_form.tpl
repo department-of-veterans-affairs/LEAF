@@ -3,6 +3,24 @@
     <div id="menu" style="float: left; width: 180px"></div>
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>
 </div>
+<div id="LEAF_conditions_editor"></div><!-- vue mount -->
+
+<script>
+var CSRFToken = '<!--{$CSRFToken}-->';
+const vueData = {
+    formID: 0,
+    formTitle: '',
+    indicatorID: 0,
+    required: 0,
+    icons: [],
+    updateIndicatorList: false
+}
+</script>
+
+<!--<script src="https://unpkg.com/vue@3"></script> DEV -->
+<script src="../../libs/js/vue3/vue.global.prod.js"></script>
+<script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
+<link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
@@ -249,6 +267,7 @@ function openContent(url) {
 	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	let workflow = '';
+
 	if(categories[currCategoryID].workflowID != 0) {
 		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
 	}
@@ -282,6 +301,14 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
+            const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
+
+            vueData.formID = currCategoryID;
+            vueData.formTitle = formTitle;
+            vueData.indicatorID = 0;
+            vueData.required = 0;
+            vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
+            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         error: function(res) {
             $('#formEditor_form').empty().html(res);
@@ -770,6 +797,8 @@ function newQuestion(parentIndicatorID) {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
+                    vueData.updateIndicatorList = true; 
+                    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
                     if($('#sort').val() != '') {
                         $.ajax({
                             type: 'POST',
@@ -1552,7 +1581,16 @@ function getForm(indicatorID, series) {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
                     }
-                })
+                })/*,
+                // TODO: Handle Format Changes for Conditions
+                $.ajax({
+                    type: 'POST',
+                    url: `../api/formEditor/${indicatorID}/conditions`,
+                    data: {
+                        conditions: "",
+                        CSRFToken: '<!--{$CSRFToken}-->'
+                    }
+                })*/
             );
         }
 
@@ -1579,13 +1617,18 @@ function getForm(indicatorID, series) {
         }
 
         if(requiredChanged){
-            calls.push(   	        
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/required',
-                    data: {required: requiredIndicator,
+            /*if (hasCondition && requiredIndicator === 1 && indicatorEditing.format === 'dropdown') {
+                alert('This question has Conditions on it, currently questions with conditions are not supported for required questions. ' +
+                    'Please remove your conditions and set the question to required again.');
+            } else { */
+                calls.push(
+                    $.ajax({
+                        type: 'POST',
+                        url: '../api/?a=formEditor/' + indicatorID + '/required',
+                        data: {required: requiredIndicator,
                         CSRFToken: '<!--{$CSRFToken}-->'}
-                }));
+                    }));
+            /*}*/
         }
 
         if(sensitiveChanged){
@@ -1617,7 +1660,7 @@ function getForm(indicatorID, series) {
                 }));
         }
 
-            if(parentIDChanged){
+        if(parentIDChanged){
             calls.push(
                 $.ajax({
                     type: 'POST',
@@ -1664,6 +1707,8 @@ function getForm(indicatorID, series) {
         }
 
     	$.when.apply(undefined, calls).then(function() {
+            vueData.updateIndicatorList = true;
+            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
    	    	openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
    	    	dialog.hide();
    	     });
@@ -1999,8 +2044,7 @@ function buildMenu(categoryID) {
     
     
 	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
-
-	$('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Export Form" /> Delete this form</div>');
+    $('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
     $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
@@ -2311,6 +2355,7 @@ $(function() {
         .animate({'background-color': 'yellow'}, 1000);
     };
     <!--{/if}-->
+    var CSRFToken = '<!--{$CSRFToken}-->';
 });
 
 

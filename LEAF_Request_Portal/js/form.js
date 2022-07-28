@@ -3,6 +3,8 @@
 */
 var form;
 var formValidator = {};
+var formRequired = {};
+var formConditions = {};
 var LeafForm = function(containerID) {
 	var containerID = containerID;
 	var prefixID = 'LeafForm' + Math.floor(Math.random()*1000) + '_';
@@ -31,6 +33,221 @@ var LeafForm = function(containerID) {
 	
 	function setPostModifyCallback(func) {
 		postModifyCallback = func;
+	}
+
+	function sanitize(input){
+		input = input.replace(/&/g, '&amp;');
+        input = input.replace(/</g, '&lt;');
+        input = input.replace(/>/g, '&gt;');
+        input = input.replace(/"/g, '&quot;');
+        input = input.replace(/'/g, '&#039;');
+		return input;
+	}
+
+	
+	function handleConditionalIndicators(formConditions) {
+		const allowedChildFormats = ['dropdown', 'text'];
+		const formConditionsByChild = formConditions;
+		let currentChildInfo = {};
+		
+		const checkConditions = (event, selected, parID=0)=> {
+			const parentElID = event !== null ? event.target.id : parID;
+
+			const linkedParentConditions = getConditionsLinkedToParent(parentElID);
+			let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
+			uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
+
+			let linkedChildConditions = [];
+			uniqueChildIDs.forEach(id => {
+				linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID));
+			});
+
+			const allConditions = [...linkedParentConditions, ...linkedChildConditions];
+
+			const conditionsByChild = {}
+			allConditions.map(c => {
+				conditionsByChild[c.childIndID] ? conditionsByChild[c.childIndID].push(c) : conditionsByChild[c.childIndID] = [c];
+			})
+
+			for (let childID in conditionsByChild) {
+				makeComparisons(childID, conditionsByChild[childID]);
+			}
+		}
+
+		const getConditionsLinkedToParent = (parentID)=> {
+			let conditionsLinkedToParent = [];
+			for (let entry in formConditionsByChild) {
+				const formConditions = formConditionsByChild[entry].conditions || [];
+				formConditions.forEach(c => {
+					const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+					//do not include conditions if the recorded condition format (condition.childFormat) does not
+					//match the current format, as this would have unpredictable results
+					if (formConditionsByChild[entry].format === c.childFormat && 
+						formatIsEnabled &&
+						c.parentIndID === parentID) {
+						conditionsLinkedToParent.push({...c});
+					}
+				})
+			}
+			return conditionsLinkedToParent;
+		}
+		const getConditionsLinkedToChild = (childID, currParentID)=> {
+			let conditionsLinkedToChild = [];
+			for (let entry in formConditionsByChild) {
+				if (entry.slice(2) === childID) {
+					const formConditions = formConditionsByChild[entry].conditions || [];
+					formConditions.map(c => {
+						const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+						if (formConditionsByChild[entry].format === c.childFormat && 
+							formatIsEnabled &&
+							currParentID !== c.parentIndID) {
+							conditionsLinkedToChild.push({...c});
+						}
+					});
+				}
+			}
+			return conditionsLinkedToChild;
+		}
+		//use as ref for comparisons so that the validators can be reset
+		const hideShowValidator = function(){return false};
+
+
+		const handleChildValidators = (childID)=> {
+			if (!currentChildInfo[childID]) { //if it is new define key and store validator
+				currentChildInfo[childID] = {
+					validator: form.dialog().requirements[childID]
+				}
+			} 
+			//reset the validator if there is one from the stored value
+			if (currentChildInfo[childID].validator !== undefined) {
+				form.dialog().requirements[childID] = currentChildInfo[childID].validator;
+			}
+		}
+
+		//conditions to assess per child
+		const makeComparisons = (childID, arrConditions)=> {
+			let prefillValue = '';
+			const elJQChildID = $('#' + childID);
+			
+			handleChildValidators(childID);
+
+			arrConditions.forEach(cond => {
+				const chosenShouldUpdate = cond.childFormat === 'dropdown';
+				let comparisonResult = false;
+
+				let arrCompVals = [];
+				arrConditions.map(c => {
+					if (cond.selectedOutcome === c.selectedOutcome &&
+						((cond.selectedOutcome === "Pre-fill" && cond.selectedChildValue === c.selectedChildValue) ||
+						cond.selectedOutcome !== "Pre-fill"
+						)
+					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue});
+				});
+
+				switch (cond.selectedOp) {
+					case '==':
+						arrCompVals.forEach(entry => {
+							let id = Object.keys(entry)[0];
+							let val = document.getElementById(id).value;
+							if (sanitize(val) === entry[id]) {
+								comparisonResult = true;
+								if (cond.selectedOutcome === "Pre-fill") {
+									prefillValue = cond.selectedChildValue;
+								}
+							}
+						});
+						break;
+					case '!=':  //TODO: SOME or EVERY?
+						arrCompVals.forEach(entry => {
+							let id = Object.keys(entry)[0];
+							let val = document.getElementById(id).value;
+							if (sanitize(val) !== entry[id]) {
+								comparisonResult = true;
+							}
+						});
+						break;
+					case '>':  
+						//comparisonResult = arrCompVals.some(v => v > sanitize(val));
+						break;
+					case '<':
+						//comparisonResult = arrCompVals.some(v => v < sanitize(val));
+						break;
+					default:
+						console.log(cond.selectedOp);
+						break;
+				}
+
+				//update child states and/or values
+				switch (cond.selectedOutcome) {
+					case 'Hide':
+						if (comparisonResult === true) {
+							elJQChildID.val('');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+							//if this is a required question, re-point validator
+							$('.blockIndicator_' + childID).hide();
+							if (currentChildInfo[childID].validator !== undefined) {
+								form.dialog().requirements[childID] = hideShowValidator;
+							}
+						} else {
+							$('.blockIndicator_' + childID).show();
+						}
+						break;
+					case 'Show':
+						if (comparisonResult === true) {
+							$('.blockIndicator_' + childID).show();
+						} else {
+							elJQChildID.val('');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+							$('.blockIndicator_' + childID).hide();
+							if (currentChildInfo[childID].validator !== undefined) {
+								form.dialog().requirements[childID] = hideShowValidator;
+							}
+						}
+						break;
+					case 'Pre-fill':
+						if (prefillValue !== '') {
+							elJQChildID.val(prefillValue);
+							elJQChildID.attr('disabled', 'disabled');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val(prefillValue);
+								elJQChildID.trigger('chosen:updated');
+							}
+						} else {
+							elJQChildID.removeAttr('disabled');
+							elJQChildID.val('');
+							if (chosenShouldUpdate) {
+								elJQChildID.chosen().val('');
+								elJQChildID.trigger('chosen:updated');
+							}
+						}
+						break; 
+					default:
+						console.log(cond.selectedOutcome);
+						break;
+				} 
+			});
+		}
+
+		//get the IDs of the questions that need listeners
+		let parentQuestionIDs = [];
+		for (let entry in formConditionsByChild) {
+			const formConditions = formConditionsByChild[entry].conditions || [];
+			formConditions.forEach(c => {
+				parentQuestionIDs.push(c.parentIndID);
+			});
+		}
+		parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
+		parentQuestionIDs.forEach(id => {
+			checkConditions(null, null, id);
+			$('#'+id).on('change', checkConditions); //does not call with addEventListener (Chosen plugin?)
+		});
+		
 	}
 
 	function doModify() {
@@ -118,6 +335,7 @@ var LeafForm = function(containerID) {
 
 	    formValidator = new Object();
 	    formRequired = new Object();
+	    formConditions = new Object();
 	    $.ajax({
 	        type: 'GET',
 	        url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
@@ -143,6 +361,11 @@ var LeafForm = function(containerID) {
 	            }
 
 	            dialog.enableLiveValidation();
+
+				//for (let c in formConditions) {
+					handleConditionalIndicators(formConditions); //[c]
+				//}
+				
 	        },
 	        error: function(response) {
 	        	dialog.setContent("Error: " + response);

@@ -13,6 +13,10 @@ if(!class_exists('DataActionLogger'))
 {
     require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
 }
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 class FormEditor
 {
@@ -59,12 +63,13 @@ class FormEditor
     	        ':categoryID' => $package['categoryID'],
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
+                ':conditions' => $package['conditions'],
     	        ':required' => $package['required'],
                 ':is_sensitive' => $package['is_sensitive'] ?? 0,
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
-                                            VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
+                                            VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
     	}
         else 
         {
@@ -77,13 +82,14 @@ class FormEditor
     	        ':categoryID' => $package['categoryID'],
     	        ':html' => $package['html'],
     	        ':htmlPrint' => $package['htmlPrint'],
+                ':conditions' => $package['conditions'],
     	        ':required' => $package['required'],
     	        ':is_sensitive' => $package['is_sensitive'] ?? 0,
     	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, required, is_sensitive, sort, timeAdded, disabled)
-            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
+    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
+            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
+                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, conditions=:conditions, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
         }
         
         $newIndicatorID = $this->db->getLastInsertID();
@@ -341,6 +347,32 @@ class FormEditor
             new LogItem("indicators", "htmlPrint", $input)
         ]);
 
+
+        return $result;
+    }
+
+    public function setCondition($indicatorID, $input)
+    {
+        $inputArr = json_decode($input);
+        foreach($inputArr as $i=>$inp) {
+            $inputArr[$i]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
+            $inputArr[$i]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
+        }
+        if ($inputArr !== null) $inputArr = json_encode($inputArr);
+
+        $vars = array(
+            ':indicatorID' => $indicatorID,
+            ':input' => $inputArr
+        );
+
+        $result =  $this->db->prepared_query('UPDATE indicators
+    								SET conditions=:input
+                                    WHERE indicatorID=:indicatorID', $vars);
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
+            new LogItem("indicators", "indicatorID", $indicatorID),
+            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+            new LogItem("indicators", "conditions", $input)
+        ]);
 
         return $result;
     }
