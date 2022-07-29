@@ -94,10 +94,16 @@ class NationalEmployee extends NationalData
         }
 
         $sqlVars = array(':login' => $login);
-        $strSQL = "SELECT {$this->tableName}.*, {$this->dataTable}.data AS email FROM {$this->tableName} ".
-            "INNER JOIN {$this->dataTable} ON {$this->tableName}.empUID = {$this->dataTable}.empUID ".
-            "WHERE {$this->tableName}.userName = :login AND indicatorID = 6 AND deleted = 0 {$this->limit}";
+	$strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
         $result = $this->db->prepared_query($strSQL, $sqlVars);
+	    
+	$sqlVars = array(':empUID' => $result[0]['empUID']);
+	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
+        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
+	    
+        if(isset($result[0]) && isset($resEmail[0])) {
+            $result[0] = array_merge($result[0], $resEmail[0]);
+        }
 
         $this->cache[$cacheHash] = $result;
 
@@ -115,12 +121,17 @@ class NationalEmployee extends NationalData
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
 
+        $strSQL = "SELECT * FROM {$this->tableName} WHERE empUID = :empUID AND deleted = 0";
         $sqlVars = array(':empUID' => $empUID);
-        $strSQL = "SELECT {$this->tableName}.*, {$this->dataTable}.data AS email FROM {$this->tableName} ".
-            "INNER JOIN {$this->dataTable} ON {$this->tableName}.empUID = {$this->dataTable}.empUID ".
-            "WHERE {$this->tableName}.empUID = :empUID AND indicatorID = 6 AND deleted = 0 {$this->limit}";
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-
+	    
+	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
+        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
+	    
+        if(isset($result[0]) && isset($resEmail[0])) {
+            $result[0] = array_merge($result[0], $resEmail[0]);
+        }
+	
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;
