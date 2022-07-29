@@ -468,14 +468,18 @@ ConditionsEditor.component('editor-main', {
                 }*/
             }
         },
+		applyMaxTextLength(text) {
+            let maxTextLength = 40;
+            return text.length > maxTextLength ? text.slice(0,maxTextLength) + '... ' : text;
+        },
         getIndicatorName(id) {
             if (id !== 0) {
-                let maxTextLength = 40;
-                let indicatorName = '';
-                indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
-                indicatorName = indicatorName && indicatorName.length > maxTextLength ? indicatorName.slice(0,maxTextLength) + '... ' : indicatorName;
-                return indicatorName;
+                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
+                return this.applyMaxTextLength(indicatorName);
             }
+        },
+		textValueDisplay(str) {
+            return $('<div/>').html(str).text();
         },
         getOperatorText(op){
             switch(op){
@@ -551,7 +555,7 @@ ConditionsEditor.component('editor-main', {
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
                         {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
-                        then this question will be <strong>{{c.selectedChildValue}}</strong>
+                        then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
                         </button>
                         <button style="width: 1.75em;"
                         class="btn_remove_condition"
@@ -586,19 +590,19 @@ ConditionsEditor.component('editor-main', {
                     <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
-            <!-- TODO: FIX: other formats - only testing dropdown for now -->
+            <!-- TODO: other formats - only testing dropdown for now -->
             <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
                 @change="$emit('update-selected-child-value', $event.target.value)">
                 <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="conditions.selectedChildValue===val"> 
+                :selected="textValueDisplay(conditions.selectedChildValue)===val"> 
                 {{ val }} 
                 </option>
             </select>
             <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
                 @change="$emit('update-selected-child-value', $event.target.value)"
-                :value="conditions.selectedChildValue" />
+                :value="textValueDisplay(conditions.selectedChildValue)" />
         </div>
         <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0"
             class="if-then-setup">
@@ -659,7 +663,7 @@ ConditionsEditor.component('editor-main', {
         </div>
         <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
             <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
-                <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
+            <span style="color: #00A91C; font-weight: bold;"> have the value '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
             </span>
             <span v-else>will 
                 <span style="color: #00A91C; font-weight: bold;">
