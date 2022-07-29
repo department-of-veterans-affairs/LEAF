@@ -1360,8 +1360,8 @@
                 chart_workload_timescale.filterAll().filter(dc.filters.RangedFilter(filterStart, filterEnd));
                 dc.renderAll();
             }
-            $('#filterStart').val(startVal)
-            $('#filterEnd').val(endVal)
+            $('#filterStart').val(startVal);
+            $('#filterEnd').val(endVal);
         });
 
         let historicalDataOptions = '';
