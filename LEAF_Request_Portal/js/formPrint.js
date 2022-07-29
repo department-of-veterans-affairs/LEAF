@@ -484,7 +484,11 @@ var printer = function() {
                                         horizontalShift += 5;
                                     }
                                     doc.rect(horizontalShift, verticalShift + 6, 5, 5);
-                                    if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
+                                    //make selected values consistently arrays for checkboxes, multisel, radio, checkbox, dropdown
+                                    let selectedVals = indicator.format === 'checkboxes' ? indicator.value.slice() || []
+                                        : indicator.format === 'multiselect' ? indicator.value.split(/,(?!\s)/) || [] : [indicator.value];
+                                    selectedVals = selectedVals.filter(v => v !== '');
+                                    if (!blank && selectedVals.indexOf(indicator.options[i]) > -1) {
                                         doc.text('x', horizontalShift + 1.5, verticalShift + 9.5);
                                     }
                                     sizeOfOption = indicator.options[i].length * 2.5;
@@ -721,7 +725,11 @@ var printer = function() {
                                     doc.rect(horizontalShift - 5, verticalShift + 6, 5, 5);
                                     doc.setTextColor(0);
                                     doc.setFont("helvetica");
-                                    if (!blank && indicator.value.indexOf(indicator.options[i]) > -1) {
+                                    //make selected values consistently arrays for checkboxes, multisel, radio, checkbox, dropdown
+                                    let selectedVals = indicator.format === 'checkboxes' ? indicator.value.slice() || []
+                                        : indicator.format === 'multiselect' ? indicator.value.split(/,(?!\s)/) || [] : [indicator.value];
+                                    selectedVals = selectedVals.filter(v => v !== '');
+                                    if (!blank && selectedVals.indexOf(indicator.options[i]) > -1) {
                                         doc.text('x', horizontalShift - 3.5, verticalShift + 9.5);
                                     }
                                     doc.setFont("times");

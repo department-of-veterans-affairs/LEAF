@@ -45,10 +45,9 @@
 </style>
 
 <script>
-    /*
- * Timeline Explorer
- */
-
+    /**
+      * Timeline Explorer
+    */
     $('#body').addClass("loading");
     let CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -58,25 +57,25 @@
     let SearchTerms = {};
 
     /**
- * Purpose: Get Site URL
- * @param $site
- */
+      * Purpose: Get Site URL
+      * @param $site
+    */
     function getSiteURL(site) {
         return site;
     }
 
     /**
- * Purpose: Parse request data
- * @param site
- * @param service
- * @param label
- * @param recordID
- * @param categoryID
- * @param stepID
- * @param days
- * @param timestamp
- * @param data
- */
+      * Purpose: Parse request data
+      * @param site
+      * @param service
+      * @param label
+      * @param recordID
+      * @param categoryID
+      * @param stepID
+      * @param days
+      * @param timestamp
+      * @param data
+    */
     function prepCrossfilter(site, service, label, recordID, categoryID, stepID, days, timestamp, isFinal, data) {
         if(isExcludedStep(stepID)) {
             return;
@@ -124,19 +123,19 @@
     let facts;
 
     /**
- * Purpose: Round inputted number
- * @param input
- * @returns {number}
- */
+      * Purpose: Round inputted number
+      * @param input
+      * @returns {number}
+    */
     function round(input) {
         return Math.round(input * 10) / 10;
     }
 
     /**
- * Purpose: Check if stepID is excluded from parse
- * @param stepID
- * @returns {boolean}
- */
+      * Purpose: Check if stepID is excluded from parse
+      * @param stepID
+      * @returns {boolean}
+    */
     function isExcludedStep(stepID) {
         if(excludedSteps.indexOf(Number(stepID)) != -1) {
             return true;
@@ -145,11 +144,11 @@
     }
 
     /**
- * Purpose: Given 2 timestamps, return the number of seconds that count as "business hours"
- * @param startTime
- * @param endTime
- * @returns {number}
- */
+      * Purpose: Given 2 timestamps, return the number of seconds that count as "business hours"
+      * @param startTime
+      * @param endTime
+      * @returns {number}
+    */
     function diffBusinessTime(startTime, endTime) {
         startTime = Number(startTime);
         endTime = Number(endTime);
@@ -179,11 +178,11 @@
     let minTimestamp = Infinity;
 
     /**
- * Purpose: Processes workflow data from query on requests
- * @param queryResult
- * @param workflowData
- * @param site
- */
+      * Purpose: Processes workflow data from query on requests
+      * @param queryResult
+      * @param workflowData
+      * @param site
+    */
     function processData(queryResult, workflowData, site) {
         let workflow = {};
         for(let i in workflowData) {
@@ -306,11 +305,11 @@
     }
 
     /**
- * Purpose: Random number generation
- * @param min
- * @param max
- * @returns {number}
- */
+      * Purpose: Random number generation
+      * @param min
+      * @param max
+      * @returns {number}
+    */
     function randInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -320,10 +319,10 @@
     let niceColors = ['#0071bc', '#fad980', '#2e8540', '#e31c3d', '#00AEE8', '#92F098', '#FFF700', '#e59393', '#1EE7FD', '#B31EFD', '#b9ccb5', '#8ba6ca', '#6800E8', '#4DE800', '#FFDBDB', '#112e51', '#fdb81e', '#E800D9', '#FFFEDB', '#140DD6'];
 
     /**
- * Purpose: Return label color for service/form
- * @param label
- * @returns {string|*}
- */
+      * Purpose: Return label color for service/form
+      * @param label
+      * @returns {string|*}
+    */
     function getLabelColor(label) {
         let idx = labels.indexOf(label);
         if(idx >= 0) {
@@ -338,11 +337,11 @@
     }
 
     /**
- * Purpose: Time Conversion
- * @param time
- * @param count
- * @returns {number}
- */
+      * Purpose: Time Conversion
+      * @param time
+      * @param count
+      * @returns {number}
+    */
     function timeConvert(time, count) {
         let res = Math.round((time / count) /60 /60 /8 *10) / 10; // to days
         return isNaN(res) ? 0 : res;
@@ -351,15 +350,10 @@
     let queryFirstDateSubmitted = '';
 
     /**
- * Purpose: Query for workflow data
- * @param site
- * @param categoryID
- */
-
-
-
-
-
+      * Purpose: Query for workflow data
+      * @param site
+      * @param categoryID
+    */
     function loadData(site, categoryID) {
         let siteURL = getSiteURL(site);
         let promise = new Promise((resolve, reject) => {
@@ -377,11 +371,8 @@
             debugger;
             query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');
 
-            //----------------------------------------------------------------------------------------------
-
             document.getElementById("searchTerms").innerHTML = "searchTerms :" + SearchTerms;
             console.log("searchTerms :" + SearchTerms)
-
 
             var isJSON = true;
             var advSearch = {};
@@ -432,22 +423,6 @@
             if(!hasDeleteQuery) {
                 query.addTerm('deleted', '=', 0);
             }
-
-
-
-            //---------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
 
             query.setLimit(batchLimit);
             query.onSuccess(function(res) {
@@ -1363,7 +1338,6 @@
             });
         });
 
-
         $('#btn_exportData').on('click', function() {
             let uploadPacket = JSON.stringify(facts.all());
 
@@ -1380,10 +1354,11 @@
         $('#filterStart, #filterEnd').on('change', function() {
             let startVal = $('#filterStart').val();
             let endVal = $('#filterEnd').val();
-            let filterStart = new Date($('#filterStart').val());
-            let filterEnd = new Date($('#filterEnd').val());
+            let filterStart = new Date(startVal);
+            let filterEnd = new Date(endVal);
             if(filterStart < filterEnd) {
-                chart_workload_timescale.filter(dc.filters.RangedFilter(filterStart, filterEnd));
+                chart_workload_timescale.filterAll().filter(dc.filters.RangedFilter(filterStart, filterEnd));
+                dc.renderAll();
             }
             $('#filterStart').val(startVal)
             $('#filterEnd').val(endVal)
@@ -1429,8 +1404,8 @@
     </h3>
 
     <div style="float: right">
-        <button id="btn_exportData" class="buttonNorm">Export JSON data</button>
-        <button class="buttonNorm" onclick="dc.filterAll(); dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</button>
+    	  <button id="btn_exportData" class="buttonNorm">Export JSON data</button>
+    	  <button class="buttonNorm" onclick="dc.filterAll(); dc.renderAll(); resetFilters();">Reset Filters</button>
     </div>
 
     <div>

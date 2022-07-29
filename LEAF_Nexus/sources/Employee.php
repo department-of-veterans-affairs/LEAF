@@ -35,6 +35,8 @@ class Employee extends Data
 
     private $tableName = 'employee';    // Table of employee contact info
 
+    private $groupTableName = 'relation_group_employee';
+
     private $limit = 'LIMIT 3';       // Limit number of returned results "TOP 100"
 
     private $sortBy = 'lastName';          // Sort by... ?
@@ -729,17 +731,6 @@ class Employee extends Data
                 $searchResult = $res;
 
                 break;
-            // Format: Loginname
-            case strpos(strtolower($input), 'vha') !== false:
-            case strpos(strtolower($input), 'vaco') !== false:
-            case strpos(strtolower($input), 'username:') !== false:
-                   if ($this->debug)
-                   {
-                       $this->log[] = 'Format Detected: Loginname';
-                   }
-                   $searchResult = $this->lookupLogin($input);
-
-                   break;
             // Format: Email
             case ($idx = strpos($input, '@')) > 0:
                    if ($this->debug)
@@ -749,6 +740,21 @@ class Employee extends Data
                    $searchResult = $this->lookupEmail($input);
 
                    break;
+            // Format: Loginname
+            case substr(strtolower($input), 0, 3) === 'vha':
+            case substr(strtolower($input), 0, 4) === 'vaco':
+            case substr(strtolower($input), 0, 3) === 'vba':
+            case substr(strtolower($input), 0, 3) === 'cem':
+            case substr(strtolower($input), 0, 3) === 'oit':
+            case substr(strtolower($input), 0, 9) === 'username:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('username:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input);
+
+                break;
             // Format: ID number
             case (substr($input, 0, 1) == '#') && is_numeric(substr($input, 1)):
                 $searchResult = $this->lookupEmpUID(substr($input, 1));

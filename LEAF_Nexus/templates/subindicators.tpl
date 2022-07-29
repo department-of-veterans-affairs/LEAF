@@ -70,11 +70,6 @@
                 <!--{counter print=false}-->
             <!--{/foreach}-->
                 </span>
-                <script>
-                $(function() {
-//                    $('.icheck<!--{$indicator.indicatorID|strip_tags}-->').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
-                });
-                </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
                 <span><select id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 50%">

@@ -37,6 +37,9 @@
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
+{if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
+    <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
+{/if}
 <div id="header">
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>

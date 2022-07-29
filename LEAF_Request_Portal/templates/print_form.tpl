@@ -111,6 +111,7 @@ var currSeries;
 var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
 var CSRFToken = '<!--{$CSRFToken}-->';
+var formPrintConditions = {};
 function doSubmit(recordID) {
 	$('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
 	$.ajax({
@@ -218,6 +219,9 @@ function getIndicator(indicatorID, series) {
             $("#xhrIndicator_" + indicatorID + "_" + series).fadeOut(250, function() {
                 $("#xhrIndicator_" + indicatorID + "_" + series).fadeIn(250);
             });
+            for (let c in formPrintConditions) {
+                handlePrintConditionalIndicators(formPrintConditions[c]);
+            }
         },
         cache: false
     });
@@ -318,6 +322,54 @@ function removeBookmark() {
     });
 }
 
+function handlePrintConditionalIndicators(formPrintConditions) {
+    const conditions = formPrintConditions.conditions;
+    const format = formPrintConditions.format;
+    for (let i in conditions) {
+        const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
+        const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+
+        if ((format === 'dropdown' || format === 'text')
+            && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
+            //*NOTE: need format for various plugins (icheck, chosen, etc)
+
+            let comparison = false;
+            const val = elParentInd.innerHTML.trim();
+            const compVal = conditions[i].selectedParentValue;
+            //TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
+            switch (conditions[i].selectedOp) {
+                case '==':
+                    comparison = val === compVal;
+                    break;
+                case '!=':
+                    comparison = val !== compVal;
+                    break;
+                case '>':
+                    comparison = val > compVal;
+                    break;
+                case '<':
+                    comparison = val < compVal;
+                    break;
+                default:
+                    console.log(conditions[i].selectedOp);
+                    break;
+            }
+
+            switch (conditions[i].selectedOutcome) {
+                case 'Hide':
+                    comparison ? elChildInd.style.display = "none" : elChildInd.style.display = "block";
+                    break;
+                case 'Show':
+                    comparison ? elChildInd.style.display = "block" : elChildInd.style.display = "none";
+                    break;
+                default:
+                    console.log(conditions[i].selectedOutcome);
+                    break;
+            }
+        }
+    }
+}
+
 function openContent(url) {
     $("#formcontent").html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>');
     $.ajax({
@@ -346,6 +398,9 @@ function openContent(url) {
     				}
                 });
     		});
+            for (let c in formPrintConditions) {
+                handlePrintConditionalIndicators(formPrintConditions[c]);
+            }
     	},
     	error: function(res) {
     		$('#formcontent').empty().html(res);
@@ -568,11 +623,11 @@ function admin_changeForm() {
         success: function(res) {
             var categories = '';
             for(var i in res) {
-            	categories += '<input type="checkbox" class="admin_changeForm" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
-                categories += '<label class="checkable" for="category_'+ res[i].categoryID +'">'+ res[i].categoryName +'</label><br />';
+            	categories += '<label class="checkable leaf_check" for="category_'+ res[i].categoryID +'">';
+                categories += '<input type="checkbox" class="icheck admin_changeForm leaf_check" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
+                categories += '<span class="leaf_check"></span>'+ res[i].categoryName +'</label>';
             }
             $('#changeForm').html(categories);
-            $('.admin_changeForm').icheck({checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue'});
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
             	var data = {'categories[]' : [], CSRFToken: CSRFToken};
@@ -601,12 +656,11 @@ function admin_changeForm() {
                 	var temp = res[<!--{$recordID|strip_tags|escape}-->].categoryNamesUnabridged;
                 	$('label.checkable').each(function() {
                 		for(var i in temp) {
-                            if($(this).html() == temp[i]) {
+                            if($(this).text() === temp[i]) {
                                 $('#' + $(this).attr('for')).prop('checked', true);
                             }
                 		}
                 	});
-                	$('.admin_changeForm').icheck('updated');
                 },
                 cache: false
             });
