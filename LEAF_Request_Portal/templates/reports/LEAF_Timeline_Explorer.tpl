@@ -368,11 +368,11 @@
             query.setRootURL(siteURL);
             query.join('action_history');
             query.join('service');
-            debugger;
+
             query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');
 
             document.getElementById("searchTerms").innerHTML = "searchTerms :" + SearchTerms;
-            console.log("searchTerms :" + SearchTerms)
+            //console.log("searchTerms :" + SearchTerms)
 
             var isJSON = true;
             var advSearch = {};
@@ -489,7 +489,10 @@
         let siteURL = getSiteURL(site);
         return $.ajax({
             type: 'GET',
-            url: siteURL + 'api/formStack/categoryList/all'
+            url: siteURL + 'api/formStack/categoryList/all',
+            error: function(err) {
+                console.log(err);
+            }
         })
             .then(function(categories) {
             for(let i in categories) {
@@ -760,6 +763,7 @@
                 return p;
             }
         );
+
         let groupRequests = dimRequests.group().reduceCount();
         let groupUniqueRequestsByTime = dimRequestsTime.group().reduce(
             function(p, v) {
@@ -875,8 +879,8 @@
             .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -895,10 +899,12 @@
 
         //  let minDate = new Date(today.getFullYear(), today.getMonth() - 4);
 
-        let minDate = new Date(dimRequestsTime.bottom(1)[0].timestamp);
+
+        let minDate = new Date(dimRequestsTime.bottom(1)[0]?.timestamp);
+
         minDate.setDate(minDate.getDate() - 1);
         let lastMonth = new Date(today).setMonth(today.getMonth() - 1);
-        let maxDate = new Date(dimRequestsTime.top(1)[0].timestamp);
+        let maxDate = new Date(dimRequestsTime.top(1)[0]?.timestamp);
         minDate.setDate(minDate.getDate() + 1);
 
         chart_workload_timescale
@@ -908,8 +914,8 @@
             .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1042,8 +1048,8 @@
             .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1053,8 +1059,8 @@
             .title(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1064,8 +1070,8 @@
             .ordering(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1089,8 +1095,8 @@
             .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1100,8 +1106,8 @@
             .title(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1111,8 +1117,8 @@
             .ordering(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1187,6 +1193,7 @@
     }
 
     function saveCache() {
+
         let uploadPacket = {};
         let today = new Date();
         uploadPacket.generateDate = today.toLocaleDateString();
@@ -1221,6 +1228,7 @@
         let siteURL = './';
         getCategories(siteURL)
             .then(function(data) {
+
             $('#progressbar').progressbar('option', 'max', Object.keys(data).length);
 
             let queue = new intervalQueue();
@@ -1233,13 +1241,17 @@
                 });
             });
             queue.onComplete(function() {
+
                 $('#progressContainer').slideUp();
                 $('#chartBody').fadeIn();
+
                 setupChart();
+
                 dc.renderAll();
                 renderGrid();
 
                 saveCache();
+
             });
 
             for(var i in data) {
@@ -1262,7 +1274,7 @@
         var extendedQueryState = 0; // 0 = not run, 1 = need to process, 2 = processed
         var foundOwnRequest = false;
         var firstResult = {};
-        
+
         leafSearch.setSearchFunc(function(txt) {
             SearchTerms = txt;
             RefreshData();
@@ -1316,9 +1328,8 @@
             parsedData = [];
             $('#chartBody').slideUp();
             $('#progressContainer').fadeIn();
-            start();   
+            start();
         }
-
 
         $('#refreshData').on('click', function() {
             RefreshData();
@@ -1384,13 +1395,13 @@
 
 <div id="chartBody" style="display: none">
     <h1 style="text-align: center">Timeline Data Explorer <span style="background-color: white; color: red; border: 2px solid black; padding: 8px; font-style: italic">BETA 2</span></h1>
-    <h2 style="text-align: center">Requests submitted 
+    <h2 style="text-align: center">Requests submitted
         <select id="reportTimeUnit">
             <option value="day">daily</option>
             <option value="week">weekly</option>
             <option value="month" selected="selected">monthly</option>
             <option value="year">yearly</option>
-        </select> from 
+        </select> from
         <select id="showDateSubmitted">
             <option value="1 month ago">1 month ago</option>
             <option value="3 months ago" selected="selected">3 months ago</option>
