@@ -524,7 +524,7 @@ ConditionsEditor.component('editor-main', {
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                         then show this question.
                         </button>
                         <button style="width: 1.75em;"
@@ -539,7 +539,7 @@ ConditionsEditor.component('editor-main', {
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                         then hide this question.
                         </button>
                         <button style="width: 1.75em;"
@@ -554,7 +554,7 @@ ConditionsEditor.component('editor-main', {
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                         then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
                         </button>
                         <button style="width: 1.75em;"
@@ -650,7 +650,7 @@ ConditionsEditor.component('editor-main', {
                     @change="$emit('update-selected-parent-value', $event.target.value)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                     <option v-for="val in selectedParentValueOptions"
-                        :selected="conditions.selectedParentValue===val"> {{ val }}
+                        :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                     </option>
                 </select>
                 <select v-else-if="parentFormat==='radio'"
