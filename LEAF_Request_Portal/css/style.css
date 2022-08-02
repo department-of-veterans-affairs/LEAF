@@ -88,7 +88,9 @@ input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
 input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
     display: block;
 }
-
+div.is-archived {
+    background-color: #e8e8eb;
+}
 textarea {
     border: 1px solid gray;
     padding: 4px;
