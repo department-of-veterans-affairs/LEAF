@@ -92,12 +92,6 @@ class DB
         }
         
         try {
-            $this->db->query('KILL CONNECTION_ID()');
-        } catch (Exception $e) {
-            logError('Connection force closed: '.$e);
-        }
-        
-        try {
             $this->db = null;
         } catch (Exception $e) {
             logError('Connection normal closed: '.$e);

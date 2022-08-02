@@ -90,12 +90,6 @@ class DB
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
         }
-        
-        try {
-            $this->db->query('KILL CONNECTION_ID()');
-        } catch (Exception $e) {
-            logError('Connection force closed: '.$e);
-        }
 
         try {
             $this->db = null;
