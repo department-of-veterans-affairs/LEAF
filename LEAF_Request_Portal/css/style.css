@@ -213,6 +213,7 @@ span#headerMenu {
     border: 1px solid black;
     right: 0px;
     z-index: 100;
+    width: max-content;
 }
 
 #headerMenu_container:hover #headerMenu_links, #headerMenuHelp_container:hover #headerMenu_help  {
