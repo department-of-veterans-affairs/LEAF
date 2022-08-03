@@ -429,7 +429,9 @@ div#maincontent {
     padding: 4px;
     background-color: white;
 }
-
+div[id*="xhrDialog"] {
+    max-width: 800px;
+}
 #comments {
     background-color: #e6e4b9;
     padding: 2px;
@@ -577,7 +579,12 @@ fieldset > legend.foldable :link, fieldset > legend.foldable :visited {
  font-size: 110%;
 }
 
-fieldset { border: 1px solid #d7d7d7; padding: .5em; margin: 1em 0 }
+fieldset { 
+    border: 1px solid #d7d7d7; 
+    padding: 0.5em; 
+    margin: 1em 0;
+    min-width: 0; /* will otherwise default to fit content, which would disable horizontal scroll */
+}
 p.hint, span.hint { color: #666; font-size: 85%; font-style: italic; margin: .5em 0;
   padding-left: 1em;
 }
@@ -718,7 +725,7 @@ div#emailReminder .groupSelectorInput {
 }
 
 @media(max-width: 520px) {
-    #header {
+    #header:not(.usa-header) {
         height: 120px;
         border-bottom: 2px solid #5A79A5;
         margin-bottom: 4px;
@@ -747,3 +754,4 @@ div#emailReminder .groupSelectorInput {
         margin-left: 2px;
         color: black;
     }
+}

@@ -368,26 +368,26 @@ function loadSearchPrereqs() {
 
             // special columns
             buffer += '<div class="col span_1_of_3">';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_title">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_title" name="indicators[title]" value="title" /><span class="leaf_check"></span> Title of Request</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_service">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_service" name="indicators[service]" value="service" /><span class="leaf_check"></span> Service</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_type">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_type" name="indicators[type]" value="type" /><span class="leaf_check"></span> Type of Request</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_status">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_status" name="indicators[status]" value="status" /><span class="leaf_check"></span> Current Status</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_initiator">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_initiator" name="indicators[initiator]" value="initiator" /><span class="leaf_check"></span> Initiator</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_actionButton">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" /><span class="leaf_check"></span> Action Button</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_action_history">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_action_history" name="indicators[action_history]" value="action_history" /><span class="leaf_check"></span> Comment History</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_approval_history">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" /><span class="leaf_check"></span> Approval History</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_days_since_last_action">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_days_since_last_step_movement">';
-            buffer += '<input type="checkbox" class="leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_title">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_title" name="indicators[title]" value="title" /><span class="leaf_check"></span> Title of Request</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_service">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_service" name="indicators[service]" value="service" /><span class="leaf_check"></span> Service</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_type">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_type" name="indicators[type]" value="type" /><span class="leaf_check"></span> Type of Request</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_status">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_status" name="indicators[status]" value="status" /><span class="leaf_check"></span> Current Status</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_initiator">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_initiator" name="indicators[initiator]" value="initiator" /><span class="leaf_check"></span> Initiator</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_actionButton">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" /><span class="leaf_check"></span> Action Button</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_action_history">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_action_history" name="indicators[action_history]" value="action_history" /><span class="leaf_check"></span> Comment History</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_approval_history">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" /><span class="leaf_check"></span> Approval History</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_action">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_step_movement">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
             
             var groupList = {};
@@ -454,8 +454,8 @@ function loadSearchPrereqs() {
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(let j in groupList[i]) {
                     const indID = groupList[i][j];
-                    buffer += `<div class="indicatorOption" id="indicatorOption_${indID}" style="display: none"><label class="checkable" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}" alt="indicatorID: ${indID}">`;
-                    buffer += `<input type="checkbox" class="leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
+                    buffer += `<div class="indicatorOption" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}" alt="indicatorID: ${indID}">`;
+                    buffer += `<input type="checkbox" class="icheck leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
                     buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}</label>`;
                     // sub checklist for case of grid indicator
                     const format = res.find(i => i.indicatorID === indID)?.format;
@@ -463,8 +463,8 @@ function loadSearchPrereqs() {
                         const cols = JSON.parse(format.slice(format.indexOf('\n')));
                         for (let c in cols) {
                             const col = cols[c];
-                            buffer += `<div class="subIndicatorOption" style="display: none"><label class="checkable" for="indicators_${indID}_columns_${col.id}" title="columnID: ${col.id}\n${col.name}">`;
-                            buffer += `<input type="checkbox" class="leaf_check parent-indicators_${indID}" id="indicators_${indID}_columns_${col.id}" name="indicators[${indID}].columns[${col.name}]" value="${col.id}" gridParent="${indID}" />`;
+                            buffer += `<div class="subIndicatorOption" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}_columns_${col.id}" title="columnID: ${col.id}\n${col.name}">`;
+                            buffer += `<input type="checkbox" class="icheck leaf_check parent-indicators_${indID}" id="indicators_${indID}_columns_${col.id}" name="indicators[${indID}].columns[${col.name}]" value="${col.id}" gridParent="${indID}" />`;
                             buffer += `<span class="leaf_check"></span> ${col.name}</label></div>`;
                         }
                     }
@@ -511,8 +511,8 @@ function loadSearchPrereqs() {
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(let i in res) {
-                        buffer += '<div class="indicatorOption"><label class="checkable" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'">';
-                        buffer += '<input type="checkbox" class="leaf_check" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />'
+                        buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'">';
+                        buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />'
                         buffer += '<span class="leaf_check"></span> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
@@ -529,18 +529,18 @@ function loadSearchPrereqs() {
                             buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
 
                             // Option to retrieve Date Request Initiated / Resolved
-                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><label class="checkable" for="indicators_dateCancelled" title="Date request Cancelled">';
-                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" /><span class="leaf_check"></span> Date Request Cancelled</label></div>';
-                            buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_dateInitiated" title="Date request initiated">';
-                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" /><span class="leaf_check"></span> Date Request Initiated</label></div>';
-                            buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_dateResolved" title="Date request resolved">';
-                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
-                            buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_resolvedBy" title="Resolved By">';
-                            buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
+                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateCancelled" title="Date request Cancelled">';
+                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" /><span class="leaf_check"></span> Date Request Cancelled</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateInitiated" title="Date request initiated">';
+                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" /><span class="leaf_check"></span> Date Request Initiated</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateResolved" title="Date request resolved">';
+                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_resolvedBy" title="Resolved By">';
+                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
 
                             for(let i in res) {
-                                buffer2 += '<div class="indicatorOption"><label class="checkable" for="indicators_depID_'+ res[i].dependencyID +'">';
-                                buffer2 += '<input type="checkbox" class="leaf_check" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" /><span class="leaf_check"></span> ' + res[i].description +'</label></div>';
+                                buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_depID_'+ res[i].dependencyID +'">';
+                                buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" /><span class="leaf_check"></span> ' + res[i].description +'</label></div>';
                             }
                             buffer2 += '</div>';
 
@@ -642,7 +642,7 @@ function editLabels() {
             buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
             buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
             buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
-            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 16px; margin: 0 2px;" /></td></tr>';
+            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 26px;" /></td></tr>';
         }
     }
     buffer += '</table>';

@@ -90,9 +90,12 @@ class DB
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
         }
-        //  This was dying with PHP 8.  Not sure why but will need to be looked into.
-        // $this->db->query('KILL CONNECTION_ID()');
-        $this->db = null;
+
+        try {
+            $this->db = null;
+        } catch (Exception $e) {
+            logError('Connection normal closed: '.$e);
+        }
     }
 
     // Log errors from the database

@@ -403,8 +403,7 @@ abstract class Data
                         // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
-                            mkdir(Config::$uploadDir);
-                            chmod(Config::$uploadDir, 0755);
+                            mkdir(Config::$uploadDir, 0755, true);
                         }
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], Config::$uploadDir . $sanitizedFileName);
                     }

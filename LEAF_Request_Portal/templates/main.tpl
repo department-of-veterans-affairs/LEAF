@@ -20,6 +20,7 @@
         @import "css/style.css";
         @import "../libs/js/jquery/chosen/chosen.min.css";
         @import "../libs/js/jquery/trumbowyg/ui/trumbowyg.min.css";
+        /* backwards compat */
         @import "../libs/js/jquery/icheck/skins/square/blue.css";
     </style>
     <style type="text/css" media="print">
@@ -31,11 +32,13 @@
     <script type="text/javascript" src="js/dialogController.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+    <!--backwards compat -->
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
     {else if $useLiteUI == true}
     <script type="text/javascript" src="js/dialogController.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+    <!--backwards compat -->
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
     {if $leafSecure >= 1}
@@ -47,6 +50,9 @@
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
+{if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
+    <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
+{/if}
 <div id="header">
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
