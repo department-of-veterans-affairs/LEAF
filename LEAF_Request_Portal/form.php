@@ -2138,7 +2138,7 @@ class Form
                 foreach ($res as $item)
                 {
                     // handle special data types
-                    switch($indicators[$item['indicatorID']]['format']) {
+                    switch(strtolower($indicators[$item['indicatorID']]['format'])) {
                         case 'date':
                             if ($item['data'] != '' && !is_numeric($item['data']))
                             {
@@ -2192,7 +2192,7 @@ class Form
                                 {
                                     foreach ($tData as $tItem)
                                     {
-                                        if ($tItem != 'no')
+                                        if (strtolower($tItem) != 'no')
                                         {
                                             $item['data'] .= "{$tItem}, ";
                                             $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
@@ -3063,11 +3063,14 @@ class Form
 
             if ($joinCategoryID)
             {
-                $res2 = $this->db->prepared_query('SELECT recordID,categoryName,categoryID FROM category_count
-                                                    LEFT JOIN categories USING (categoryID)
-                                                    WHERE recordID IN (' . $recordIDs . ')
-                                                        AND disabled = 0
-                                                        AND count > 0', array());
+                $categorySQL = 'SELECT recordID,categoryName,categoryID 
+                FROM category_count
+                LEFT JOIN categories USING (categoryID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND disabled = 0
+                AND count > 0';
+
+                $res2 = $this->db->prepared_query($categorySQL, array());
                 foreach ($res2 as $item)
                 {
                     $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
@@ -3077,10 +3080,14 @@ class Form
 
             if ($joinAllCategoryID)
             {
-                $res2 = $this->db->prepared_query('SELECT recordID,categoryName,categoryID FROM category_count
-                                                    LEFT JOIN categories USING (categoryID)
-                                                    WHERE recordID IN (' . $recordIDs . ')
-                                                        AND count > 0', array());
+
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID 
+                FROM category_count
+                LEFT JOIN categories USING (categoryID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND count > 0';
+
+                $res2 = $this->db->prepared_query($allCategorySQL, array());
                 foreach ($res2 as $item)
                 {
                     $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
@@ -3090,10 +3097,13 @@ class Form
 
             if ($joinRecordsDependencies)
             {
-                $res2 = $this->db->prepared_query('SELECT recordID,dependencyID,time,description FROM records_dependencies
-                                                    LEFT JOIN dependencies USING (dependencyID)
-                                                    WHERE recordID IN (' . $recordIDs . ')
-                                                        AND filled != 0', array());
+                $recordDependenciesSQL = 'SELECT recordID,dependencyID,time,description 
+                FROM records_dependencies
+                LEFT JOIN dependencies USING (dependencyID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND filled != 0';
+
+                $res2 = $this->db->prepared_query($recordDependenciesSQL, array());
                 foreach ($res2 as $item)
                 {
                     $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['time'] = $item['time'];
@@ -3106,11 +3116,14 @@ class Form
                 require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
-                                                    LEFT JOIN dependencies USING (dependencyID)
-                                                    LEFT JOIN actions USING (actionType)
-                                                    WHERE recordID IN (' . $recordIDs . ')
-                                                    ORDER BY time', array());
+                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment 
+                FROM action_history
+                LEFT JOIN dependencies USING (dependencyID)
+                LEFT JOIN actions USING (actionType)
+                WHERE recordID IN (' . $recordIDs . ')
+                ORDER BY time';
+
+                $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
                 {
                     $user = $dir->lookupLogin($item['userID'], true);
@@ -3123,19 +3136,30 @@ class Form
 
             if($joinRecordResolutionData)
             {
-                $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
-                        LEFT JOIN records_step_fulfillment USING (recordID)
-                        LEFT JOIN records_workflow_state USING (recordID)
-                        WHERE recordID IN (' . $recordIDs . ')
-                            AND records_workflow_state.stepID IS NULL
-                            AND submitted > 0
-                            AND deleted = 0', array());
+
+                $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime 
+                FROM records
+                LEFT JOIN records_step_fulfillment USING (recordID)
+                LEFT JOIN records_workflow_state USING (recordID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND records_workflow_state.stepID IS NULL
+                AND submitted > 0
+                AND deleted = 0';
+
+                $res2 = $this->db->prepared_query($recordResolutionSQL, array());
                 foreach ($res2 as $item)
                 {
-                    if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
-                        || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
-                        $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
-                        $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
+                    // resolution data to be checked and updated.
+                    $recordResolutionData = $data[$item['recordID']]['recordResolutionData'];
+                    if(
+                        $recordResolutionData['fulfillmentTime'] == null ||
+                        $recordResolutionData['fulfillmentTime'] < $item['fulfillmentTime']
+                    ) {
+                        $recordResolutionData['lastStatus'] = $item['lastStatus'];
+                        $recordResolutionData['fulfillmentTime'] = $item['fulfillmentTime'];
+
+                        // set our resolution data back to the main array since we have changes.
+                        $data[$item['recordID']]['recordResolutionData'] = $recordResolutionData;
                     }
                 }
             }
@@ -3144,18 +3168,19 @@ class Form
                 require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $strSQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType FROM action_history ".
-                          "LEFT JOIN records USING (recordID) ".
-                          "INNER JOIN workflow_routes USING (stepID) ".
-                          "LEFT JOIN records_workflow_state USING (recordID) ".
-                          "WHERE recordID IN ($recordIDs) ".
-                            "AND action_history.actionType = workflow_routes.actionType ".
-                            "AND records_workflow_state.stepID IS NULL ".
-                            "AND nextStepID = 0 ".
-                            "AND submitted > 0 ".
-                            "AND deleted = 0";
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType 
+                FROM action_history
+                LEFT JOIN records USING (recordID) 
+                INNER JOIN workflow_routes USING (stepID) 
+                LEFT JOIN records_workflow_state USING (recordID)
+                WHERE recordID IN ($recordIDs) 
+                AND action_history.actionType = workflow_routes.actionType 
+                AND records_workflow_state.stepID IS NULL 
+                AND nextStepID = 0 
+                AND submitted > 0 
+                AND deleted = 0";
 
-                $res2 = $this->db->prepared_query($strSQL, array());
+                $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
 
                 foreach ($res2 as $item) {
                     $user = $dir->lookupLogin($item['resolvedBy'], true);
