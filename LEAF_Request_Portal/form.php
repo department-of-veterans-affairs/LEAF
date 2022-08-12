@@ -2212,6 +2212,8 @@ class Form
                     }
 
                     $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
+                    $indFormat = explode("\n", $indicators[$item['indicatorID']]['format'])[0];
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_format'] = $indFormat;
                     if (isset($item['dataOrgchart']))
                     {
                         $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
