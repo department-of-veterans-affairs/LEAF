@@ -1821,23 +1821,24 @@ class Form
             }
             $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
 
-            $catsInGroups = $this->db->prepared_query(
-                "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
-                array()
-            );
-            if (count($catsInGroups) > 0)
-            {
-                $groups = $this->login->getMembership();
-                foreach ($catsInGroups as $cat)
+            if(!empty($uniqueCategoryIDs)){
+                $catsInGroups = $this->db->prepared_query(
+                    "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
+                    array()
+                );
+                if (count($catsInGroups) > 0)
                 {
-                    if (isset($groups['groupID'][$cat['groupID']])
-                        && $groups['groupID'][$cat['groupID']] == 1)
+                    $groups = $this->login->getMembership();
+                    foreach ($catsInGroups as $cat)
                     {
-                        $hasCategoryAccess[$cat['categoryID']] = 1;
+                        if (isset($groups['groupID'][$cat['groupID']])
+                            && $groups['groupID'][$cat['groupID']] == 1)
+                        {
+                            $hasCategoryAccess[$cat['categoryID']] = 1;
+                        }
                     }
                 }
             }
-
             $this->cache["checkReadAccess_{$recordIDsHash}"] = $res;
         }
 
@@ -2128,15 +2129,18 @@ class Form
         // if we do not have record IDs then lets not run go any further with this logic
         if (!empty($recordIDs))
         {
+            $this->db->enableDebug();
             // updated this from "Select * from to this
-            $res = $this->db->prepared_query("SELECT indicatorID,data,dataHtmlPrint,recordID,series FROM data
+            $res = $this->db->prepared_query("SELECT recordID,indicatorID,series,data,timestamp,userID
+                                        FROM data
                                         WHERE indicatorID IN ({$indicatorID_list})
-                                            AND recordID IN ({$recordIDs})", $vars2);
+                                        AND recordID IN ({$recordIDs})", $vars2);
 
             if (is_array($res) && count($res) > 0)
             {
                 foreach ($res as $item)
                 {
+
                     // handle special data types
                     switch(strtolower($indicators[$item['indicatorID']]['format'])) {
                         case 'date':
@@ -2192,7 +2196,8 @@ class Form
                                 {
                                     foreach ($tData as $tItem)
                                     {
-                                        if (strtolower($tItem) != 'no')
+                                        // Forcing this to lower case caused the data to not show properly for JSON and exported data. Lower case 'no' is reserved, try putting no as a checkbox item and this no will become No.
+                                        if ($tItem != 'no')
                                         {
                                             $item['data'] .= "{$tItem}, ";
                                             $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
