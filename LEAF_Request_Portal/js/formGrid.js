@@ -515,7 +515,12 @@ var LeafFormGrid = function(containerID, options) {
                                     data.data = printTableReportBuilder(currentData[i].s1[data.data], null);
                                 }
                             }
-                            buffer += '<td id="'+prefixID+currentData[i].recordID+'_'+headers[j].indicatorID+'" data-editable="'+ editable +'" data-record-id="'+currentData[i].recordID+'" data-indicator-id="'+headers[j].indicatorID+'">' + data.data + '</td>';
+                            buffer += `<td id="${prefixID+currentData[i].recordID}_${headers[j].indicatorID}" 
+                                           data-editable="${editable}" 
+                                           data-record-id="${currentData[i].recordID}" 
+                                           data-indicator-id="${headers[j].indicatorID}"
+                                           data-format="${currentData[i].s1['id'+headers[j].indicatorID+'_format']}">
+                                            ${data.data}</td>`;
                         }
                     }
                     else if(headers[j].callback != undefined) {
@@ -716,9 +721,10 @@ var LeafFormGrid = function(containerID, options) {
 
                 var trimmedText = val.innerText.trim();
                 line[i] = trimmedText;
-                //wrap text that could be interpretted as dates by excel in quotes
+                //prevent some values from being interpretted as dates by excel
+                const dataFormat = val.getAttribute('data-format');
                 const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
-                line[i] = testDateFormat.test(line[i]) ? line[i] + '\t' : line[i];
+                line[i] = dataFormat !== null && dataFormat !== 'date' && testDateFormat.test(line[i]) ? `="${line[i]}"` : line[i];
                 if(i == 0 && headers[i] == 'UID') {
                     line[i] = '=HYPERLINK("'+ window.location.origin + window.location.pathname + '?a=printview&recordID=' + trimmedText +'", "'+ trimmedText +'")';
                 }
