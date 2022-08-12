@@ -61,6 +61,10 @@ class SystemController extends RESTfulResponse
             return $system->refreshOrgchartEmployees();
         });
 
+        $this->index['GET']->register('system/primaryadmin', function ($args) use ($system) {
+            return $system->getPrimaryAdmin();
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -98,6 +102,11 @@ class SystemController extends RESTfulResponse
             return $system->setTimeZone();
         });
 
+        $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
+            $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
+            return $system->setPrimaryAdmin();
+        });
+
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 
@@ -117,6 +126,10 @@ class SystemController extends RESTfulResponse
 
         $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {
             return $system->removeReportTemplate($args[0]);
+        });
+
+        $this->index['DELETE']->register('system/unsetPrimaryadmin', function () use ($system) {
+            return $system->unsetPrimaryAdmin();
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

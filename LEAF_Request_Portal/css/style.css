@@ -56,7 +56,9 @@ span.leaf_check {
     background-color: transparent;
     border: 1px solid rgb(151, 150, 149);
 }
-span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active {
+span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active,
+input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check,
+input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check {
     border: 2px solid #47e;
 }
 input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
@@ -86,7 +88,9 @@ input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
 input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
     display: block;
 }
-
+div.is-archived {
+    background-color: #e8e8eb;
+}
 textarea {
     border: 1px solid gray;
     padding: 4px;
@@ -211,6 +215,7 @@ span#headerMenu {
     border: 1px solid black;
     right: 0px;
     z-index: 100;
+    width: max-content;
 }
 
 #headerMenu_container:hover #headerMenu_links, #headerMenuHelp_container:hover #headerMenu_help  {
@@ -780,7 +785,9 @@ div#maincontent {
     padding: 4px;
     background-color: white;
 }
-
+div[id*="xhrDialog"] {
+    max-width: 800px;
+}
 #comments {
     background-color: #e6e4b9;
     padding: 2px;
@@ -1117,6 +1124,7 @@ button.buttonNorm {
     width: -moz-fit-content;
     width: fit-content;
     max-width: 600px;
+    margin-bottom: 0.2em;
 }
 
 .ui-datepicker {

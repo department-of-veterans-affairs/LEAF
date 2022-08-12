@@ -115,7 +115,8 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js'));
+           $main->assign('stylesheets', array('css/employeeSelector.css', 'css/mod_system.css'));
+           $main->assign('javascripts', array('js/dialogController.js', 'js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 

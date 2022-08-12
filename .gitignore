@@ -14,6 +14,8 @@ test_logins.txt
 */admin/templates_c/
 LEAF_Request_Portal/templates/email/custom_override/*
 LEAF_Request_Portal/templates_c/email/custom_override/*
+LEAF_Request_Portal/templates/reports/custom_dev*
+LEAF_Request_Portal/files/custom_dev*
 
 db_config.php
 config.php

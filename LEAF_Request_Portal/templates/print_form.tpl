@@ -111,6 +111,7 @@ var currSeries;
 var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
 var CSRFToken = '<!--{$CSRFToken}-->';
+var formPrintConditions = {};
 function doSubmit(recordID) {
 	$('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
 	$.ajax({
@@ -218,6 +219,9 @@ function getIndicator(indicatorID, series) {
             $("#xhrIndicator_" + indicatorID + "_" + series).fadeOut(250, function() {
                 $("#xhrIndicator_" + indicatorID + "_" + series).fadeIn(250);
             });
+            for (let c in formPrintConditions) {
+                handlePrintConditionalIndicators(formPrintConditions[c]);
+            }
         },
         cache: false
     });
@@ -318,6 +322,54 @@ function removeBookmark() {
     });
 }
 
+function handlePrintConditionalIndicators(formPrintConditions) {
+    const conditions = formPrintConditions.conditions;
+    const format = formPrintConditions.format;
+    for (let i in conditions) {
+        const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
+        const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+
+        if ((format === 'dropdown' || format === 'text')
+            && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
+            //*NOTE: need format for various plugins (icheck, chosen, etc)
+
+            let comparison = false;
+            const val = elParentInd.innerHTML.trim();
+            const compVal = conditions[i].selectedParentValue;
+            //TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
+            switch (conditions[i].selectedOp) {
+                case '==':
+                    comparison = val === compVal;
+                    break;
+                case '!=':
+                    comparison = val !== compVal;
+                    break;
+                case '>':
+                    comparison = val > compVal;
+                    break;
+                case '<':
+                    comparison = val < compVal;
+                    break;
+                default:
+                    console.log(conditions[i].selectedOp);
+                    break;
+            }
+
+            switch (conditions[i].selectedOutcome) {
+                case 'Hide':
+                    comparison ? elChildInd.style.display = "none" : elChildInd.style.display = "block";
+                    break;
+                case 'Show':
+                    comparison ? elChildInd.style.display = "block" : elChildInd.style.display = "none";
+                    break;
+                default:
+                    console.log(conditions[i].selectedOutcome);
+                    break;
+            }
+        }
+    }
+}
+
 function openContent(url) {
     $("#formcontent").html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>');
     $.ajax({
@@ -346,6 +398,9 @@ function openContent(url) {
     				}
                 });
     		});
+            for (let c in formPrintConditions) {
+                handlePrintConditionalIndicators(formPrintConditions[c]);
+            }
     	},
     	error: function(res) {
     		$('#formcontent').empty().html(res);
