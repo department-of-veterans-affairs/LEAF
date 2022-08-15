@@ -1,4 +1,5 @@
 <!--{if $empMembership['groupID'][1]}-->
+<script src="../libs/js/LEAF/intervalQueue.js"></script>
 <style>
 li {
     padding: 8px;
@@ -40,11 +41,12 @@ $(function() {
     });
 
     $('#test').on('click', function() {
+        $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to test site...");
         $.ajax({
             url: sites[0] + 'utils/LEAF_importStandardConfig.php',
             dataType: 'text',
             success: function(res) {
-                $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to test site..." + res);
+                $('#outputLog').val($('#outputLog').val() + "\r\nDistributed to test site.");
                 $('#distribute').attr('disabled', false);
                 $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
             }
@@ -52,27 +54,45 @@ $(function() {
     });
 
     $('#distribute').on('click', function() {
-        for(var i in sites) {
-            $.ajax({
-                url: sites[i] + 'utils/LEAF_importStandardConfig.php',
+        let totalCount = 0;
+        let currCount = 0;
+        let queue = new intervalQueue();
+        queue.setWorker(function(item) {
+            return $.ajax({
+                url: item + 'utils/LEAF_importStandardConfig.php',
                 dataType: 'text',
-                async: false,
                 success: function(res) {
-                    $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites..." + res);
-                    $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
+                    currCount++;
                     if(res.indexOf('ERROR') == -1) {
-                        $('#prodStatus').append('Pushed to ' + sites[i] + '.<br />');
+                        $('#prodStatus').append(`${currCount} of ${totalCount} - Pushed to ` + item + '.<br />');
                     }
                     else {
-                        $('#prodStatus').append('Error Pushing to ' + sites[i]);
+                        $('#prodStatus').append('Error Pushing to ' + item);
                     }
-                    
+
                 },
                 error: function(xhr, error, errorThrown) {
                     $('#prodStatus').append('Error Pushing to ' + sites[i] + ' ('+ errorThrown +'). ');
                 }
             });
+        });
+    
+        queue.setOnWorkerError(function(item, reason) { // Errors can be logged here
+            console.log(`Error processing: ${item}`);
+        });
+    
+        queue.onComplete(function() {
+            return 'Complete';
+        });
+    
+        for(var i in sites) {
+            queue.push(sites[i]);
+            totalCount++;
         }
+    
+    	queue.start();
+        $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites...");
+        $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
     });
 
 
