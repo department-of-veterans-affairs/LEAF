@@ -17,7 +17,6 @@ const vueData = {
 }
 </script>
 
-<!--<script src="https://unpkg.com/vue@3"></script> DEV -->
 <script src="../../libs/js/vue3/vue.global.prod.js"></script>
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
@@ -83,180 +82,181 @@ function editProperties(isSubForm) {
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                            	 <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
-                            	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
+                                <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
+                                <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
-        $.ajax({
-            type: 'GET',
-            url: '../api/form/_' + currCategoryID,
-            success: function(res) {
-                if(res.length > 0) {
-                    if(checkSensitive(res) === 1) {
-                        $("#needToKnow option[value='0']").remove();
-                        $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
-                    }
+    $.ajax({
+        type: 'GET',
+        url: '../api/form/_' + currCategoryID,
+        success: function(res) {
+            if(res.length > 0) {
+                if(checkSensitive(res) === 1) {
+                    $("#needToKnow option[value='0']").remove();
+                    $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
                 }
             }
-        });
-        $('#name').val(categories[currCategoryID].categoryName);
-        $('#description').val(categories[currCategoryID].categoryDescription);
-        $('#workflowID').val(categories[currCategoryID].workflowID);
-        $('#needToKnow').val(categories[currCategoryID].needToKnow);
-        $('#visible').val(categories[currCategoryID].visible);
-        $('#sort').val(categories[currCategoryID].sort);
-        $('#formType').val(categories[currCategoryID].type);if(isSubForm) {
-        	$('.isSubForm').css('display', 'none');
         }
-        //ie11 fix
-		setTimeout(function () {dialog.show();}, 0);
+    });
+    $('#name').val(categories[currCategoryID].categoryName);
+    $('#description').val(categories[currCategoryID].categoryDescription);
+    $('#workflowID').val(categories[currCategoryID].workflowID);
+    $('#needToKnow').val(categories[currCategoryID].needToKnow);
+    $('#visible').val(categories[currCategoryID].visible);
+    $('#sort').val(categories[currCategoryID].sort);
+    $('#formType').val(categories[currCategoryID].type);
+    if(isSubForm) {
+        $('.isSubForm').css('display', 'none');
+    }
+    //ie11 fix
+    setTimeout(function () {dialog.show();}, 0);
 
-        // load workflow data
-        dialog.indicateBusy();
-        $.ajax({
-        	type: 'GET',
-        	url: '../api/?a=workflow',
-        	success: function(res) {
-        		if(res.length > 0) {
-                    var buffer = '<select id="workflowID">';
-                    buffer += '<option value="0">No Workflow</option>';
-                    for(let i in res) {
-                        if(res[i].workflowID > 0) {
-                            buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
-                        }
+    // load workflow data
+    dialog.indicateBusy();
+    $.ajax({
+        type: 'GET',
+        url: '../api/?a=workflow',
+        success: function(res) {
+            if(res.length > 0) {
+                var buffer = '<select id="workflowID">';
+                buffer += '<option value="0">No Workflow</option>';
+                for(let i in res) {
+                    if(res[i].workflowID > 0) {
+                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
                     }
-                    buffer += '</select>';
-                    $('#container_workflowID').html(buffer);
-                    $('#workflowID').val(categories[currCategoryID].workflowID);
-        		}
-        		else {
-        			$('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
-        		}
-        		dialog.indicateIdle();
-        	},
-        	cache: false
+                }
+                buffer += '</select>';
+                $('#container_workflowID').html(buffer);
+                $('#workflowID').val(categories[currCategoryID].workflowID);
+            }
+            else {
+                $('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
+            }
+            dialog.indicateIdle();
+        },
+        cache: false
+    });
+
+    dialog.setSaveHandler(function() {
+        let calls = [];
+        let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
+        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
+        let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
+        let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
+        let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
+        let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
+        let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+
+        if(nameChanged){
+            calls.push($.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formName',
+                data: {name: $('#name').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].name = $('#name').val();
+                }
+            }));
+        }
+
+        if(descriptionChanged){
+            calls.push($.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formDescription',
+                data: {description: $('#description').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].description = $('#description').val();
+                }
+            }));
+        }
+
+        if(workflowChanged){
+            calls.push(
+                $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formWorkflow',
+                data: {workflowID: $('#workflowID').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res == false) {
+                        alert('Workflow cannot be set because this form has been merged into another form');
+                    }
+                    categories[currCategoryID].workflowID = $('#workflowID').val();
+                }
+            }));
+        }
+
+        if(needToKnowChanged){
+            calls.push(
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formNeedToKnow',
+                data: {needToKnow: $('#needToKnow').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].needToKnow = $('#needToKnow').val();
+                }
+            }));
+        }
+
+        if(sortChanged){
+            calls.push(
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formSort',
+                data: {sort: $('#sort').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].sort = $('#sort').val();
+                }
+            }));
+        }
+
+        if(visibleChanged){
+            $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formVisible',
+                data: {visible: $('#visible').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].visible= $('#visible').val();
+                }
+            });
+        }
+
+        if(typeChanged){
+            calls.push(
+                $.ajax({
+                type: 'POST',
+                url: '../api/?a=formEditor/formType',
+                data: {type: $('#formType').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].formType = $('#formType').val();
+                }
+            }));
+        }
+        $.when.apply(undefined, calls).then(function() {
+            categories[currCategoryID].categoryName = $('#name').val();
+            categories[currCategoryID].categoryDescription = $('#description').val();
+            categories[currCategoryID].description = '';
+            categories[currCategoryID].workflowID = $('#workflowID').val();
+            categories[currCategoryID].needToKnow = $('#needToKnow').val();
+            categories[currCategoryID].visible = $('#visible').val();categories[currCategoryID].type = $('#formType').val();
+            categories[currCategoryID].sort = $('#sort').val();
+            openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
+            dialog.hide();
         });
-
-        dialog.setSaveHandler(function() {
-            let calls = [];
-            
-            let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
-            let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
-            let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
-            let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
-            let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
-            let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-            let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
-
-            if(nameChanged){
-                calls.push($.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formName',
-                    data: {name: $('#name').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].name = $('#name').val();
-                    }
-                }));
-            }
-
-            if(descriptionChanged){
-                calls.push($.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formDescription',
-                    data: {description: $('#description').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].description = $('#description').val();
-                    }
-                }));
-            }
-
-            if(workflowChanged){
-                calls.push(
-                    $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formWorkflow',
-                    data: {workflowID: $('#workflowID').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res == false) {
-                        	alert('Workflow cannot be set because this form has been merged into another form');
-                        }
-                        categories[currCategoryID].workflowID = $('#workflowID').val();
-                    }
-                }));
-            }
-
-            if(needToKnowChanged){
-                calls.push(
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formNeedToKnow',
-                    data: {needToKnow: $('#needToKnow').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].needToKnow = $('#needToKnow').val();
-                    }
-                }));
-            }
-
-            if(sortChanged){
-                calls.push(                
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formSort',
-                    data: {sort: $('#sort').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].sort = $('#sort').val();
-                    }
-                }));
-            }
-
-            if(visibleChanged){
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formVisible',
-                    data: {visible: $('#visible').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].visible= $('#visible').val();
-                    }
-                });
-            }
-
-            if(typeChanged){
-                calls.push( 
-                    $.ajax({
-                    type: 'POST',
-                    url: '../api/?a=formEditor/formType',
-                    data: {type: $('#formType').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].formType = $('#formType').val();
-                    }
-                }));
-            }
-            $.when.apply(undefined, calls).then(function() {
-                categories[currCategoryID].categoryName = $('#name').val();
-                categories[currCategoryID].categoryDescription = $('#description').val();
-                categories[currCategoryID].description = '';
-                categories[currCategoryID].workflowID = $('#workflowID').val();
-                categories[currCategoryID].needToKnow = $('#needToKnow').val();
-                categories[currCategoryID].visible = $('#visible').val();categories[currCategoryID].type = $('#formType').val();
-                categories[currCategoryID].sort = $('#sort').val();
-                openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
-                dialog.hide();
-             });
-        });}
+    });
+}
 var currCategoryID = '';
 
 /**
@@ -358,10 +358,10 @@ function addPermission(categoryID, group) {
         });
     });
 
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+    //ie11 fix
+    setTimeout(function () {
+        dialog.show();
+    }, 0);
 
 }
 
@@ -466,18 +466,11 @@ function addIndicatorPrivilege(indicatorID) {
             indicatorID,
             [$('#groupID').val()],
             function(results) {
-                console.log(results);
-                if (results == true) {
-
-                    console.log('it worked!');
-                } else {
-                    console.log('it NO work: ' + results);
-                }
                 dialog.hide();
                 editIndicatorPrivileges(indicatorID);
             },
             function (error) {
-                console.log('it no work!: ' + error);
+                console.log('an error has occurred: ', error);
                 dialog.hide();
                 editIndicatorPrivileges(indicatorID);
             }
@@ -647,17 +640,17 @@ function onKeyPressClick(event){
                 <option value="orgchart_employee">Orgchart Employee</option>
                 <option value="raw_data">Raw Data (for programmers)</option>
             </select>
-            <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: 
+            <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox:<br/>
                 <input type="text" id="indicatorSingleAnswer" />
             </div>
-            <div id="container_indicatorMultiAnswer" style="display: none">One option per line:
+            <div id="container_indicatorMultiAnswer" style="display: none">One option per line:<br/>
                 <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea>
                 <textarea style="display: none" id="format"></textarea>
             </div>
             <div id="container_indicatorGrid" style="display: none">
-                <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
-                <br/><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>
-                <br/><br/>Columns:
+                <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span><br/>
+                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button><br/><br/>
+                Columns:
                 <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>
             <fieldset><legend>Default Answer</legend>
@@ -689,7 +682,7 @@ function onKeyPressClick(event){
  * @param indFormat - indicator's format type
  * @formatOptionsStr - option values as string (when loading saved options)
  * @gridCols - number of grid columns (when loading saved options)
- */         
+ */
  function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
@@ -716,7 +709,7 @@ function onKeyPressClick(event){
 }
 
 /**
- * Purpose: adds listeners to indicator modal.  
+ * Purpose: adds listeners to indicator modal.
  * adds archive, del and advanced options if editing (vs new question)
  */
  function addIndicatorModalListeners(isEditingModal = false) {
@@ -1407,16 +1400,7 @@ function getForm(indicatorID, series) {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
                     }
-                })/*,
-                // TODO: Handle Format Changes for Conditions
-                $.ajax({
-                    type: 'POST',
-                    url: `../api/formEditor/${indicatorID}/conditions`,
-                    data: {
-                        conditions: "",
-                        CSRFToken: '<!--{$CSRFToken}-->'
-                    }
-                })*/
+                })
             );
         }
 
@@ -1443,18 +1427,13 @@ function getForm(indicatorID, series) {
         }
 
         if(requiredChanged){
-            /*if (hasCondition && requiredIndicator === 1 && indicatorEditing.format === 'dropdown') {
-                alert('This question has Conditions on it, currently questions with conditions are not supported for required questions. ' +
-                    'Please remove your conditions and set the question to required again.');
-            } else { */
-                calls.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/?a=formEditor/' + indicatorID + '/required',
-                        data: {required: requiredIndicator,
-                        CSRFToken: '<!--{$CSRFToken}-->'}
-                    }));
-            /*}*/
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/?a=formEditor/' + indicatorID + '/required',
+                    data: {required: requiredIndicator,
+                    CSRFToken: '<!--{$CSRFToken}-->'}
+                }));
         }
 
         if(sensitiveChanged){
