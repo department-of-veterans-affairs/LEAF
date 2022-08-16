@@ -5,7 +5,9 @@ li {
     padding: 8px;
 }
 </style>
-<div id="loadingIndicator"><h1>Loading...</h1></div>
+<div id="loadingIndicator"><h1>Loading...</h1>
+    <h2 id="loadingStatus"></h2>
+</div>
 <div id="errors"></div>
 <div id="ui_container" style="display: none">
     <h2>
@@ -113,35 +115,35 @@ $(function() {
             sites = res.national_linkedSubordinateList.split(/\n/).filter(function(site) {
                 return site != "" ? true : false;
             });
-            sites.forEach(function(site, i) {
-                site = site.trim();
-                sites[i] = site.trim();
-                $.ajax({
+            
+			let queue = new intervalQueue();
+            queue.setWorker(function(site) {
+               return $.ajax({
                     type: 'GET',
                     url: site + 'api/form/version',
-                    success: function() {
-                        sitesLoaded++;
-                    },
                     error: function(xhr, status, errMsg) {
-                        sitesLoaded++;
                         siteErrors++;
                         $('#errors').append('<span style="font-size: 140%; color: red">Error. ' + errMsg + ': '+ site + '</span><br />');
                     },
                     cache: false
-                });
+                }).then(function() {
+					$('#loadingStatus').html(`Checking ${queue.getLoaded()} of ${sites.length} sites`);
+               });
+            });
+            
+            sites.forEach(function(site, i) {
+ 				queue.push(site);
+            });
+            
+            queue.start().then(function() {
+                $('#loadingIndicator').slideUp();
+                if(siteErrors == 0) {
+                    $('#ui_container').fadeIn();
+                }
             });
 
             $('#testURL').html(sites[0]);
             $('#testURL').attr('href', sites[0]);
-            var checkLoaded = setInterval(function() {
-                if(sitesLoaded == sites.length) {
-                    clearInterval(checkLoaded);
-                    $('#loadingIndicator').slideUp();
-                    if(siteErrors == 0) {
-                        $('#ui_container').fadeIn();
-                    }
-                }
-            }, 500);
         }
     });
 });
