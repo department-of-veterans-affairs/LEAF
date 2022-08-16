@@ -59,6 +59,7 @@ $(function() {
         let totalCount = 0;
         let currCount = 0;
         let queue = new intervalQueue();
+        queue.setConcurrency(3);
         queue.setWorker(function(item) {
             return $.ajax({
                 url: item + 'utils/LEAF_importStandardConfig.php',
@@ -92,7 +93,10 @@ $(function() {
             totalCount++;
         }
     
-    	queue.start();
+    	queue.start().then(function() {
+			$('#outputLog').val($('#outputLog').val() + "\r\nDistribution complete!");
+            $('#prodStatus').append('Distribution complete!<br />');
+        });
         $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites...");
         $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
     });
@@ -117,6 +121,7 @@ $(function() {
             });
             
 			let queue = new intervalQueue();
+            queue.setConcurrency(3);
             queue.setWorker(function(site) {
                return $.ajax({
                     type: 'GET',
