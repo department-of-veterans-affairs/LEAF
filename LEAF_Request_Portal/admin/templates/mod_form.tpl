@@ -593,8 +593,7 @@ function onKeyPressClick(event){
         </tr>`;
     const advancedOptions = `<span id="button_advanced" class="buttonNorm" tabindex="0" onkeypress="onKeyPressClick(event)">Advanced Options</span>
         <div>
-            <fieldset id="advanced" style="visibility: collapse; height: 0;">
-                <legend>Advanced Options</legend>
+            <fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>
                 Template Variables:<br />
                 <table class="table" style="border-collapse: inherit">
                     <tr>
@@ -619,18 +618,15 @@ function onKeyPressClick(event){
             </fieldset>
         </div>`;
 
-    return `<fieldset>
-            <legend>Field Name</legend>
+    return `<fieldset><legend>Field Name</legend>
             <textarea id="name" style="width: 99%"></textarea>
             <button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor">Advanced Formatting</button>
         </fieldset>
-        <fieldset>
-            <legend>Short Label (Describe this field in 1-2 words)</legend>
+        <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>
             <input type="text" id="description" maxlength="50" />
         </fieldset>
-        <fieldset>
-            <legend>Input Format</legend>
+        <fieldset><legend>Input Format</legend>
             <select id="indicatorType" style="margin-bottom:1em;">
                 <option value="">None</option>
                 <option value="text">Single line text</option>
@@ -660,12 +656,11 @@ function onKeyPressClick(event){
             </div>
             <div id="container_indicatorGrid" style="display: none">
                 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
-                <br/><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;
+                <br/><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>
                 <br/><br/>Columns:
-                <div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div>
+                <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>
-            <fieldset>
-                <legend>Default Answer</legend>
+            <fieldset><legend>Default Answer</legend>
                 <textarea id="default" style="width: 50%;"></textarea>
             </fieldset>
         </fieldset>
