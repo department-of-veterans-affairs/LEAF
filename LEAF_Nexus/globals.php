@@ -1,6 +1,6 @@
 <?php
 if (!defined('PRODUCT_NAME')) define('PRODUCT_NAME', getenv('PRODUCT_NAME'));
-if (!defined('VERSION_NUMBER')) define('VERSION_NUMBER', getenv('NEXUS_VERSION_NUMBER'));
+if (!defined('NEXUS_VERSION_NUMBER')) define('NEXUS_VERSION_NUMBER', getenv('NEXUS_VERSION_NUMBER'));
 
 if (!defined('DATABASE_DB_ADMIN')) define('DATABASE_DB_ADMIN', getenv('DATABASE_DB_ADMIN'));
 
