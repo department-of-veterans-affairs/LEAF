@@ -454,9 +454,12 @@ function loadSearchPrereqs() {
                 buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(let j in groupList[i]) {
                     const indID = groupList[i][j];
-                    buffer += `<div class="indicatorOption" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}" alt="indicatorID: ${indID}">`;
+                    const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
+                    const isArchivedClass = isDisabled > 0 ? ' is-archived' : '';
+                    const isArchivedText = isDisabled > 0 ? ' (Archived)' : '';
+                    buffer += `<div class="indicatorOption${isArchivedClass}" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}${isArchivedText}" alt="indicatorID: ${indID}${isArchivedText}">`;
                     buffer += `<input type="checkbox" class="icheck leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
-                    buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}</label>`;
+                    buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}${isArchivedText}</label>`;
                     // sub checklist for case of grid indicator
                     const format = res.find(i => i.indicatorID === indID)?.format;
                     if (format && format.indexOf('grid')===0) {
