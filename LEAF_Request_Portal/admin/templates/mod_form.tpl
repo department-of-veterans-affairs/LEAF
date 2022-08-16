@@ -3,7 +3,7 @@
     <div id="menu" style="float: left; width: 180px"></div>
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>
 </div>
-<div id="LEAF_conditions_editor"></div><!-- vue mount -->
+<div id="LEAF_conditions_editor"></div><!-- vue IFTHEN app mount -->
 
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
@@ -14,6 +14,18 @@ const vueData = {
     required: 0,
     icons: [],
     updateIndicatorList: false
+}
+
+const gridBodyElement = 'div#container_indicatorGrid > div';
+var indicatorEditing;
+var currCategoryID = '';
+var gridJSON = [];
+var postRenderFormBrowser;
+var categories = {};
+var dialog, dialog_confirm, dialog_simple;
+var portalAPI;
+if(columns === undefined) {
+    var columns = 0;
 }
 </script>
 
@@ -26,7 +38,6 @@ const vueData = {
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <script>
 
-var indicatorEditing;
 
 /**
  * Purpose: Check if an indicator is sensitive (needs to be masked)
@@ -118,7 +129,7 @@ function editProperties(isSubForm) {
         url: '../api/?a=workflow',
         success: function(res) {
             if(res.length > 0) {
-                var buffer = '<select id="workflowID">';
+                let buffer = '<select id="workflowID">';
                 buffer += '<option value="0">No Workflow</option>';
                 for(let i in res) {
                     if(res[i].workflowID > 0) {
@@ -257,7 +268,6 @@ function editProperties(isSubForm) {
         });
     });
 }
-var currCategoryID = '';
 
 /**
  * Purpose: Opens form content
@@ -331,7 +341,7 @@ function addPermission(categoryID, group) {
         type: 'GET',
         url: '../api/?a=system/groups',
         success: function(res) {
-            var buffer = '<select id="groupID">';
+            let buffer = '<select id="groupID">';
             for(let i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
@@ -399,7 +409,7 @@ function editPermissions() {
 		type: 'GET',
 		url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
 		success: function(res) {
-			var buffer = '<ul>';
+			let buffer = '<ul>';
 			for(let i in res) {
 				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
@@ -440,16 +450,16 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
  * Purpose: Add specific Indicator Privileges
  * @param indicatorID
  */
-function addIndicatorPrivilege(indicatorID) {
+function addIndicatorPrivilege(indicatorID, indicatorName = '') {
     dialog.setTitle('Edit Privileges');
-    dialog.setContent('Add privileges to the <b>'+ currentIndicator.name +'</b> form:<div id="groups"></div>');
+    dialog.setContent('Add privileges to the <b>'+ indicatorName +'</b> form:<div id="groups"></div>');
     dialog.indicateBusy();
 
     $.ajax({
         type: 'GET',
         url: '../api/?a=system/groups',
         success: function(res) {
-            var buffer = '<select id="groupID">';
+            let buffer = '<select id="groupID">';
             buffer += '<option value="1">System Administrators</option>';
             for(let i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
@@ -480,7 +490,6 @@ function addIndicatorPrivilege(indicatorID) {
     dialog.show();
 }
 
-var currentIndicator = {};
 
 /**
  * Purpose: Edit exisitng Indicator Privileges
@@ -497,13 +506,13 @@ function editIndicatorPrivileges(indicatorID) {
     portalAPI.FormEditor.getIndicator(
         indicatorID,
         function(indicator) {
-            currentIndicator = indicator[indicatorID];
+            const indicatorName= indicator[indicatorID]?.name;
 
             dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicatorID);
 
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
-                    var buffer = '<ul>';
+                    let buffer = '<ul>';
                     let count = 0;
                     for (let group in groups) {
                         if (groups[group].id !== undefined) {
@@ -512,7 +521,7 @@ function editIndicatorPrivileges(indicatorID) {
                         }
                     }
                     buffer += '</ul>';
-                    buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
+                    buffer += `<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(${indicatorID},'${indicatorName}');">Add Group</span>`;
                     let statusMessage = "Special access restrictions are not enabled. Normal access rules apply.";
                     if(count > 0) {
                         statusMessage = "Special access restrictions are enabled!";
@@ -533,11 +542,6 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
-var gridJSON = [];
-var gridBodyElement = 'div#container_indicatorGrid > div';
-if(columns === undefined) {
-    var columns = 0;
-}
 
 /**
  * Purpose: Generates Unique ID to track columns to update user input with grid format
@@ -550,7 +554,7 @@ function makeColumnID(){
 /**
  * Purpose: common listener methods
  */
- function preventEnterDefault(event) {
+function preventEnterDefault(event) {
     if(event.keyCode === 13) {
         event.preventDefault();
     }
@@ -565,7 +569,7 @@ function onKeyPressClick(event){
  * Purpose: returns template for the indicator modal
  * @param isEditingModal adds content associated with editing to the template
  */
- function getIndicatorModalTemplate(isEditingModal = false) {
+function getIndicatorModalTemplate(isEditingModal = false) {
     const parentArchDel = `<tr>
             <td>Parent Question ID</td>
             <td colspan="2"><div id="container_parentID"></div></td>
@@ -607,10 +611,16 @@ function onKeyPressClick(event){
                     </tr>
                 </table><br />
                 html (for pages where the user can edit data): 
-                <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button>
+                <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
+                    <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    Save Code<span id="codeSaveStatus_html"></span>
+                </button>
                 <textarea id="html"></textarea><br />
                 htmlPrint (for pages where the user can only read data): 
-                <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button>
+                <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
+                    <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    Save Code<span id="codeSaveStatus_htmlPrint"></span>
+                </button>
                 <textarea id="htmlPrint"></textarea>
             </fieldset>
         </div>`;
@@ -687,7 +697,7 @@ function onKeyPressClick(event){
  * @formatOptionsStr - option values as string (when loading saved options)
  * @gridCols - number of grid columns (when loading saved options)
  */
- function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
+function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
     $('#container_indicatorSingleAnswer').css('display', 'none');
@@ -716,7 +726,7 @@ function onKeyPressClick(event){
  * Purpose: adds listeners to indicator modal.
  * adds archive, del and advanced options if editing (vs new question)
  */
- function addIndicatorModalListeners(isEditingModal = false) {
+function addIndicatorModalListeners(isEditingModal = false) {
     //all indicator modals have format render, description, required, sensitive and raw/adv (text formatter)
     $('#indicatorType').on('change', event => renderFormatEntryUI(event.target.value));
 
@@ -912,7 +922,7 @@ function newQuestion(parentIndicatorID) {
 }
 
 /**
- * Purpose: Update Input Name
+ * Purpose: Update Input Name for grid formats
  */
 function updateNames(){
     $(gridBodyElement).children('div').each(function(i) {
@@ -1231,7 +1241,7 @@ function getForm(indicatorID, series) {
     	        type: 'GET',
     	        url: '../api/form/_' + currCategoryID + '/flat',
     	        success: function(res) {
-    	            var buffer = '<select id="parentID" style="width: 300px">';
+    	            let buffer = '<select id="parentID" style="width: 300px">';
     	            buffer += '<option value="">None</option>';
     	            for(let i in res) {
     	                if(indicatorID != i) {
@@ -1559,7 +1569,7 @@ function mergeForm(categoryID) {
         type: 'GET',
         url: '../api/formStack/categoryList/all',
         success: function(res) {
-            var buffer = '<select id="stapledCategoryID">';
+            let buffer = '<select id="stapledCategoryID">';
             for(let i in res) {
             	if(res[i].workflowID == 0
             		&& res[i].categoryID != categoryID
@@ -1628,7 +1638,7 @@ function mergeFormDialog(categoryID) {
         type: 'GET',
         url: '../api/?a=formEditor/_'+ categoryID +'/stapled',
         success: function(res) {
-            var buffer = '<ul>';
+            let buffer = '<ul>';
             for(let i in res) {
                 buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="onKeyPressClick(event)" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
@@ -1774,7 +1784,7 @@ function buildMenu(categoryID) {
                           <div id="stapledArea"></div><br />');
 
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
-                        <div id="stapledArea"></div><br />');
+                        <div id="viewHistory"></div><br />');
 
 
     // show stapled forms in the menu area
@@ -1782,7 +1792,7 @@ function buildMenu(categoryID) {
         type: 'GET',
         url: '../api/formEditor/_'+ categoryID + '/stapled',
         success: function(res) {
-            var buffer = '<ul>';
+            let buffer = '<ul>';
             for(let i in res) {
                 buffer += '<li>'+ res[i].categoryName +'</li>';
             }
@@ -1796,7 +1806,7 @@ function buildMenu(categoryID) {
     
 	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
     $('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -1810,9 +1820,6 @@ function selectForm(categoryID) {
     openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
 }
 
-var postRenderFormBrowser;
-
-var categories = {};
 
 /**
  * Purpose: Show Form Nav
@@ -1822,12 +1829,12 @@ function showFormBrowser() {
 	$('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
 	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
         success: function(res) {
-            var buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
+            let buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
             for(let i in res) {
             	categories[res[i].categoryID] = res[i];
@@ -2080,8 +2087,6 @@ function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
 
-var dialog, dialog_confirm, dialog_simple;
-var portalAPI;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
@@ -2106,7 +2111,6 @@ $(function() {
         .animate({'background-color': 'yellow'}, 1000);
     };
     <!--{/if}-->
-    var CSRFToken = '<!--{$CSRFToken}-->';
 });
 
 </script>
