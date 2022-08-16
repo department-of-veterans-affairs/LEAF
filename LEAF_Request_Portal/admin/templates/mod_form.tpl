@@ -574,14 +574,18 @@ function onKeyPressClick(event){
             <td>Archive</td>
             <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" onkeypress="onKeyPressClick(event)" /></td>
             <td style="width: 275px;">
-                <span id="archived-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>
+                <span id="archived-warning" style="color: red; visibility: hidden;">
+                This field will be archived.  It can be<br/>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
+                </span>
             </td>
         </tr>
         <tr>
             <td>Delete</td>
             <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" onkeypress="onKeyPressClick(event)" /></td>
             <td style="width: 275px;">
-                <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>
+                <span id="deletion-warning" style="color: red; visibility: hidden;">
+                Deleted items can only be re-enabled<br/>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
+                </span>
             </td>
         </tr>`;
     const advancedOptions = `<span id="button_advanced" class="buttonNorm" tabindex="0" onkeypress="onKeyPressClick(event)">Advanced Options</span>
