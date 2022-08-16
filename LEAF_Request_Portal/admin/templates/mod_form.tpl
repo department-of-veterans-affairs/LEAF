@@ -796,6 +796,54 @@ function onKeyPressClick(event){
 }
 
 /**
+ * Purpose: called in save handler callback for indicator modal.  uses #indicatorType val,
+ * and option values from respective elements to update #format value for subsequent POST
+ */
+function setFormatElementValue() {
+	const formatName = $('#indicatorType').val();
+
+	let fullFormat = formatName;
+	switch(formatName) {
+		case 'grid':
+			let gridJSON = [];
+			//gather column names and column types
+			//if column type is dropdown, adds property.options
+			$(gridBodyElement).find('div.cell').each(function() {
+				let properties = new Object();
+				if($(this).children('input:eq(0)').val() === 'undefined'){
+					properties.name = 'No title';
+				} else {
+					properties.name = $(this).children('input:eq(0)').val();
+				}
+				properties.id = $(this).attr('id');
+				properties.type = $(this).find('select').val();
+				if(properties.type !== undefined){
+					if(properties.type === 'dropdown'){
+						properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+					}
+				} else {
+					properties.type = 'textarea';
+				}
+				gridJSON.push(properties);
+			});
+			fullFormat += "\n" + JSON.stringify(gridJSON);
+			break;
+		case 'radio':
+		case 'checkboxes':
+		case 'multiselect':
+		case 'dropdown':
+			fullFormat += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+			break;
+		case 'checkbox':
+			fullFormat += "\n" + $('#indicatorSingleAnswer').val();
+			break;
+		default:
+			break;
+	}
+	$('#format').val(fullFormat);
+}
+
+/**
  * Purpose: Add a new question to Form
  * @param parentIndicatorID
  */
@@ -825,57 +873,7 @@ function newQuestion(parentIndicatorID) {
             categories[currCategoryID].needToKnow = 1;
         }
 
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                let gridJSON = [];
-
-                //gather column names and column types
-                //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('div.cell').each(function() {
-                    let properties = new Object();
-                    if($(this).children('input:eq(0)').val() === 'undefined'){
-                        properties.name = 'No title';
-                    } else {
-                        properties.name = $(this).children('input:eq(0)').val();
-                    }
-                    properties.id = $(this).attr('id');
-                    properties.type = $(this).find('select').val();
-                    if(properties.type !== undefined){
-                        if(properties.type === 'dropdown'){
-                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                        }
-                    } else {
-                        properties.type = 'textarea';
-                    }
-                    gridJSON.push(properties);
-                });
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + JSON.stringify(gridJSON);
-                $('#format').val(buffer);
-                break;
-            case 'radio':
-            case 'checkboxes':
-            case 'multiselect':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'dropdown':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'checkbox':
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + $('#indicatorSingleAnswer').val();
-                $('#format').val(buffer);
-            	break;
-            default:
-                $('#format').val($('#indicatorType').val());
-                break;
-        }
+        setFormatElementValue();
 
         $.ajax({
             type: 'POST',
@@ -1303,57 +1301,7 @@ function getForm(indicatorID, series) {
             categories[currCategoryID].needToKnow = 1;
         }
 
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                let gridJSON = [];
-
-                //gather column names and column types
-                //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('div.cell').each(function() {
-                    let properties = new Object();
-                    if($(this).children('input:eq(0)').val() === 'undefined'){
-                        properties.name = 'No title';
-                    } else {
-                        properties.name = $(this).children('input:eq(0)').val();
-                    }
-                    properties.id = $(this).attr('id');
-                    properties.type = $(this).find('select').val();
-                    if(properties.type !== undefined){
-                        if(properties.type === 'dropdown'){
-                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                        }
-                    } else {
-                        properties.type = 'textarea';
-                    }
-                    gridJSON.push(properties);
-                });
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + JSON.stringify(gridJSON);
-                $('#format').val(buffer);
-                break;
-            case 'radio':
-            case 'checkboxes':
-            case 'multiselect':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'dropdown':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'checkbox':
-            	var buffer = $('#indicatorType').val();
-                buffer += "\n" + $('#indicatorSingleAnswer').val();
-                $('#format').val(buffer);
-            	break;
-            default:
-                $('#format').val($('#indicatorType').val());
-                break;
-        }
+        setFormatElementValue();
     	dialog.indicateBusy();
 
         // check if the user is trying to set an invalid parent ID
