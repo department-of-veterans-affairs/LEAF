@@ -555,6 +555,141 @@ function makeColumnID(){
 }
 
 /**
+ * Purpose: common listener methods
+ */
+ function preventEnterDefault(event) {
+    if(event.keyCode === 13) {
+        event.preventDefault();
+    }
+}
+function onKeyPressClick(event){
+    if(event.keyCode === 13) {
+        $(event.target).trigger('click');
+    }
+}
+
+/**
+ * Purpose: returns template for the indicator modal
+ * @param isEditingModal adds content associated with editing to the template
+ */
+ function getIndicatorModalTemplate(isEditingModal = false) {
+    const parentArchDel = `<tr>
+            <td>Parent Question ID</td>
+            <td colspan="2"><div id="container_parentID"></div></td>
+        </tr>
+        <tr>
+            <td>Archive</td>
+            <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" /></td>
+            <td style="width: 275px;">
+                <span id="archived-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Delete</td>
+            <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" /></td>
+            <td style="width: 275px;">
+                <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>
+            </td>
+        </tr>`;
+    const advancedOptions = `<span id="button_advanced" class="buttonNorm" tabindex="0" onkeypress="onKeyPressClick(event)">Advanced Options</span>
+        <div>
+            <fieldset id="advanced" style="visibility: collapse; height: 0;">
+                <legend>Advanced Options</legend>
+                Template Variables:<br />
+                <table class="table" style="border-collapse: inherit">
+                    <tr>
+                        <td><b>{{ iID }}</b></td>
+                        <td>The indicatorID # of the current data field.</td>
+                    </tr>
+                    <tr>
+                        <td><b>{{ recordID }}</b></td>
+                        <td>The record ID # of the current request.</td>
+                    </tr>
+                    <tr>
+                        <td><b>{{ data }}</b></td>
+                        <td>The contents of the current data field as stored in the database.</td>
+                    </tr>
+                </table><br />
+                html (for pages where the user can edit data): 
+                <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button>
+                <textarea id="html"></textarea><br />
+                htmlPrint (for pages where the user can only read data): 
+                <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button>
+                <textarea id="htmlPrint"></textarea><br />
+            </fieldset>
+        </div>`;
+
+    return `<fieldset>
+            <legend>Field Name</legend>
+            <textarea id="name" style="width: 99%"></textarea>
+            <button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button>
+            <button class="buttonNorm" id="advNameEditor">Advanced Formatting</button>
+        </fieldset>
+        <fieldset>
+            <legend>Short Label (Describe this field in 1-2 words)</legend>
+            <input type="text" id="description" maxlength="50" />
+        </fieldset>
+        <fieldset>
+            <legend>Input Format</legend>
+            <select id="indicatorType" style="margin-bottom:1em;">
+                <option value="">None</option>
+                <option value="text">Single line text</option>
+                <option value="textarea">Multi-line text</option>
+                <option value="grid">Grid (Table with rows and columns)</option>
+                <option value="number">Numeric</option>
+                <option value="currency">Currency</option>
+                <option value="date">Date</option>
+                <option value="radio">Radio (single select, multiple options)</option>
+                <option value="checkbox">Checkbox (A single checkbox)</option>
+                <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>
+                <option value="multiselect">Multi-Select Dropdown</option>
+                <option value="dropdown">Dropdown Menu (single select, multiple options)</option>
+                <option value="fileupload">File Attachment</option>
+                <option value="image">Image Attachment</option>
+                <option value="orgchart_group">Orgchart Group</option>
+                <option value="orgchart_position">Orgchart Position</option>
+                <option value="orgchart_employee">Orgchart Employee</option>
+                <option value="raw_data">Raw Data (for programmers)</option>
+            </select>
+            <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: 
+                <input type="text" id="indicatorSingleAnswer" />
+            </div>
+            <div id="container_indicatorMultiAnswer" style="display: none">One option per line:
+                <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea>
+                <textarea style="display: none" id="format"></textarea>
+            </div>
+            <div id="container_indicatorGrid" style="display: none">
+                <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
+                <br/><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;
+                <br/><br/>Columns:
+                <div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div>
+            </div>
+            <fieldset>
+                <legend>Default Answer</legend>
+                <textarea id="default" style="width: 50%;"></textarea>
+            </fieldset>
+        </fieldset>
+        <fieldset><legend>Attributes</legend>
+            <table>
+                <tr>
+                    <td>Required</td>
+                    <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" /></td>
+                </tr>
+                </tr>
+                    <td>Sensitive Data (PHI/PII)</td>
+                    <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" /></td>
+                </tr>
+                <tr>
+                    <td>Sort Priority</td>
+                    <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>
+                </tr>
+                ${isEditingModal ? parentArchDel : ''}
+            </table>
+        </fieldset>
+        ${isEditingModal ? advancedOptions : ''}`;
+}
+
+/**
  * Purpose: Add a new question to Form
  * @param parentIndicatorID
  */
@@ -567,52 +702,7 @@ function newQuestion(parentIndicatorID) {
 		title = 'Adding Question to ' + parentIndicatorID;
 	}
     dialog.setTitle(title);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
-            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
-                <input type="text" id="description" maxlength="50"></input>\
-            </fieldset>\
-            <fieldset><legend>Input Format</legend>\
-                <select id="indicatorType">\
-                    <option value="">None</option>\
-                    <option value="text">Single line text</option>\
-                    <option value="textarea">Multi-line text</option>\
-                    <option value="grid">Grid (Table with rows and columns)</option>\
-                    <option value="number">Numeric</option>\
-                    <option value="currency">Currency</option>\
-                    <option value="date">Date</option>\
-                    <option value="radio">Radio (single select, multiple options)</option>\
-                    <option value="checkbox">Checkbox (A single checkbox)</option>\
-                    <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
-                    <option value="multiselect">Multi-Select Dropdown</option>\
-                    <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
-                    <option value="fileupload">File Attachment</option>\
-                    <option value="image">Image Attachment</option>\
-                    <option value="orgchart_group">Orgchart Group</option>\
-                    <option value="orgchart_position">Orgchart Position</option>\
-                    <option value="orgchart_employee">Orgchart Employee</option>\
-                    <option value="raw_data">Raw Data (for programmers)</option>\
-                </select>\
-                <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
-                <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
-                </br><button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
-                <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <fieldset><legend>Default Answer</legend><textarea id="default" style="width: 50%;"></textarea></fieldset></fieldset>\
-                    <fieldset><legend>Attributes</legend>\
-                        <table>\
-                            <tr>\
-                                <td>Required</td>\
-                                <td><input id="required" name="required" type="checkbox" /></td>\
-                            </tr>\
-                            <tr>\
-                                <td>Sensitive Data (PHI/PII)</td>\
-                                <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
-                            </tr>\
-                            <tr>\
-                                <td>Sort Priority</td>\
-                                <td><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
-                            </tr>\
-                        </table>\
-                </fieldset>');
+    dialog.setContent(getIndicatorModalTemplate(false));
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
             case 'grid':
@@ -845,9 +935,9 @@ function makeGrid(columns) {
         let name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         let id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
         $(gridBodyElement).append(
-            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
-            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
+            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
             '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
         );
@@ -931,9 +1021,9 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
-        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
+        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
         '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
     );
@@ -1054,91 +1144,7 @@ function moveLeft(event){
  */
 function getForm(indicatorID, series) {
 	dialog.setTitle('Editing indicatorID: ' + indicatorID);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
-            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
-                <input type="text" id="description" maxlength="50"></input>\
-            </fieldset>\
-            <fieldset><legend>Input Format</legend>\
-                <select id="indicatorType">\
-                    <option value="">None</option>\
-                    <option value="text">Single line text</option>\
-                    <option value="textarea">Multi-line text</option>\
-                    <option value="grid">Grid (Table with rows and columns)</option>\
-                    <option value="number">Numeric</option>\
-                    <option value="currency">Currency</option>\
-                    <option value="date">Date</option>\
-                    <option value="radio">Radio (single select, multiple options)</option>\
-                    <option value="checkbox">Checkbox (A single checkbox)</option>\
-                    <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
-                    <option value="multiselect">Multi-Select Dropdown</option>\
-                    <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
-                    <option value="fileupload">File Attachment</option>\
-                    <option value="image">Image Attachment</option>\
-                    <option value="orgchart_group">Orgchart Group</option>\
-                    <option value="orgchart_position">Orgchart Position</option>\
-                    <option value="orgchart_employee">Orgchart Employee</option>\
-                    <option value="raw_data">Raw Data (for programmers)</option>\
-                </select>\
-                <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
-                <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
-                </br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
-                </br></br>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\
-                <fieldset><legend>Default Answer</legend><textarea id="default" style="width: 50%;"></textarea></fieldset></fieldset>\
-            <fieldset><legend>Attributes</legend>\
-                <table>\
-                    <tr>\
-                        <td>Required</td>\
-                        <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" /></td>\
-                    </tr>\
-                    </tr>\
-                        <td>Sensitive Data (PHI/PII)</td>\
-                        <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" /></td>\
-                    </tr>\
-                    <tr>\
-                        <td>Sort Priority</td>\
-                        <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
-                    </tr>\
-                    <tr>\
-                        <td>Parent Question ID</td>\
-                        <td colspan="2"><div id="container_parentID"></div></td>\
-                    </tr>\
-                    <tr>\
-                        <td>Archive</td>\
-                        <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" /></td>\
-                        <td style="width: 275px;">\
-                            <span id="archived-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>\
-                        </td>\
-                    </tr>\
-                    <tr>\
-                        <td>Delete</td>\
-                        <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" /></td>\
-                        <td style="width: 275px;">\
-                            <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>\
-                        </td>\
-                    </tr>\
-                </table>\
-        </fieldset>\
-        <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
-        <div><fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>\
-            Template Variables:<br />\
-            <table class="table" style="border-collapse: inherit">\
-            <tr>\
-                <td><b>{{ iID }}</b></td>\
-                <td>The indicatorID # of the current data field.</td>\
-            </tr>\
-            <tr>\
-                <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\
-                <td>The record ID # of the current request.</td>\
-            </tr>\
-            <tr>\
-                <td><b>{{ data }}</b></td>\
-                <td>The contents of the current data field as stored in the database.</td>\
-            </tr>\
-            </table><br />\
-            html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
-            htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
-        </fieldset></div></div>');
+    dialog.setContent(getIndicatorModalTemplate(true));
     $('#indicatorType').on('change', function() {
         switch($('#indicatorType').val()) {
             case 'grid':
@@ -1952,12 +1958,6 @@ function exportForm(categoryID) {
 		saveAs(outBlob, 'LEAF_FormPacket_'+ categoryID +'.txt');
 	});
 }
-// click function for 508 compliance
-function triggerClick(event){
-    if(event.keyCode === 13){
-        $(event.target).trigger('click');
-    }
-}
 
 /**
  * Purpose: Delete Form
@@ -2200,7 +2200,7 @@ function viewHistory(categoryId){
 /**
  * Purpose: Check for Secure Form Certifcation
  * @param searchResolved
- * @returns {*|jQuery}
+ * @returns { *|jQuery}
  */
 function fetchLEAFSRequests(searchResolved) {
     let deferred = $.Deferred();
@@ -2225,7 +2225,7 @@ function fetchLEAFSRequests(searchResolved) {
 
 /**
  * Purpose: Get all Indicators on Form
- * @returns {*|jQuery}
+ * @returns { *|jQuery}
  */
 function fetchIndicators() {
     let deferred = $.Deferred();
@@ -2358,12 +2358,4 @@ $(function() {
     var CSRFToken = '<!--{$CSRFToken}-->';
 });
 
-
-// keypress functions for 508 compliance
-function onKeyPressClick(e){
-    let keyC = e.keyCode ? e.keyCode : e.which;
-    if(keyC === 13){
-        $(e.target).trigger('click');
-    }
-}
 </script>
