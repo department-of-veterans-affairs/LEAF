@@ -591,7 +591,7 @@ class FormEditor
         $vars = array(':categoryID' => $categoryID);
 
         return $this->db->prepared_query('SELECT * FROM category_privs
-    										LEFT JOIN groups USING (groupID)
+    										LEFT JOIN `groups` USING (groupID)
     										WHERE categoryID=:categoryID', $vars);
     }
 
@@ -696,7 +696,7 @@ class FormEditor
         $res = $this->db->prepared_query(
             'SELECT indicator_mask.groupID, groups.name AS groupName
 				FROM indicator_mask
-				LEFT JOIN groups ON (groups.groupID = indicator_mask.groupID)
+				LEFT JOIN `groups` ON (groups.groupID = indicator_mask.groupID)
 				WHERE indicator_mask.indicatorID = :indicatorID ORDER BY indicator_mask.groupID ASC',
             array(':indicatorID' => $indicatorID)
         );

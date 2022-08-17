@@ -247,7 +247,7 @@ class Service
     public function getQuadrads()
     {
         $res = $this->db->prepared_query('SELECT groupID, name FROM services
-    								LEFT JOIN groups USING (groupID)
+    								LEFT JOIN `groups` USING (groupID)
     								WHERE groupID IS NOT NULL
     								GROUP BY groupID
     								ORDER BY name', array());

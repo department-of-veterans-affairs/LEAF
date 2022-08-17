@@ -645,7 +645,7 @@ class Employee extends Data
     {
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
                                             WHERE empUID=:empUID', $vars);
 
         return $res;
@@ -817,7 +817,7 @@ class Employee extends Data
             $sql = "SELECT *, positions.parentID AS parentID FROM relation_position_employee
                         LEFT JOIN positions USING (positionID)
                         LEFT JOIN relation_group_position USING (positionID)
-                        LEFT JOIN groups USING (groupID)
+                        LEFT JOIN `groups` USING (groupID)
                         WHERE empUID IN ({$empUID_list})";
 
             $vars = array();

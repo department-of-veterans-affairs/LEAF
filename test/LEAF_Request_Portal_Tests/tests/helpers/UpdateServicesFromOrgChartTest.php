@@ -40,7 +40,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
     {
         //CASE 1, REMOVE groups, user, AND category_privs:
             //insert new group with no corresponding group in nexus
-            self::$db->query("INSERT INTO groups (`groupID`, `parentGroupID`, `name`, `groupDescription`)
+            self::$db->query("INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`)
                                 VALUES ('20', NULL, 'faker', 'faker')");
             //add employee to group
             self::$db->query("INSERT INTO users (`userID`, `groupID`)
@@ -69,7 +69,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
 
         //CASE 2, REMOVE groups and users, no category_privs:
             //insert new group with no corresponding group in nexus
-            self::$db->query("INSERT INTO groups (`groupID`, `parentGroupID`, `name`, `groupDescription`)
+            self::$db->query("INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`)
                                 VALUES ('20', NULL, 'faker', 'faker')");
             //add employee to group
             self::$db->query("INSERT INTO users (`userID`, `groupID`)
@@ -91,7 +91,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
 
         //CASE 3, REMOVE groups and category_privs, no user:
             //insert new group with no corresponding group in nexus
-            self::$db->query("INSERT INTO groups (`groupID`, `parentGroupID`, `name`, `groupDescription`)
+            self::$db->query("INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`)
                                 VALUES ('20', NULL, 'faker', 'faker')");
             //add group to category_privs
             self::$db->query("INSERT INTO category_privs (`categoryID`, `groupID`, `readable`, `writable`)
@@ -135,7 +135,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
 
         //CASE 5, REMOVE groups only:
             //insert new group with no corresponding group in nexus
-            self::$db->query("INSERT INTO groups (`groupID`, `parentGroupID`, `name`, `groupDescription`)
+            self::$db->query("INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`)
                                 VALUES ('20', NULL, 'faker', 'faker')");
             //assert they are inserted
             $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");

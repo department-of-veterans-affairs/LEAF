@@ -188,7 +188,7 @@ class Workflow
         $res = $this->db->prepared_query('SELECT * FROM step_dependencies
                                             LEFT JOIN dependencies USING (dependencyID)
                                             LEFT JOIN dependency_privs USING (dependencyID)
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
         									LEFT JOIN workflow_steps USING (stepID)
                                             WHERE stepID = :stepID', $vars);
 

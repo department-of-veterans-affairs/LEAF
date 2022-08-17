@@ -393,7 +393,7 @@ class Position extends Data
     {
         $vars = array(':positionID' => $positionID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_position
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
                                             WHERE positionID=:positionID', $vars);
 
         return $res;
@@ -624,7 +624,7 @@ class Position extends Data
             $vars = array(':positionID' => $positionID,
                             ':tag' => $tag, );
             $res = $this->db->prepared_query('SELECT * FROM relation_group_position
-	                                            LEFT JOIN groups USING (groupID)
+	                                            LEFT JOIN `groups` USING (groupID)
 	                                            RIGHT JOIN (SELECT * FROM group_tags
 	                                                            WHERE tag=:tag) rj1
 	                                                USING (groupID)

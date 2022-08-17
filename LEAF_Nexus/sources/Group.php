@@ -153,7 +153,7 @@ class Group extends Data
         $vars = array(':groupTitle' => $groupTitle,
                       ':parentID' => $parentGroupID,
                       ':phoGroupTitle' => metaphone($groupTitle), );
-        $this->db->prepared_query('INSERT INTO groups (groupTitle, parentID, phoneticGroupTitle)
+        $this->db->prepared_query('INSERT INTO `groups` (groupTitle, parentID, phoneticGroupTitle)
                VALUES (:groupTitle, :parentID, :phoGroupTitle)', $vars);
 
         $groupID = $this->db->getLastInsertID();
@@ -333,7 +333,7 @@ class Group extends Data
                       ':abbrTitle' => $abbrTitle,
                       ':groupID' => $groupID,
                       ':phoTitle' => metaphone($newTitle), );
-        $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
+        $this->db->prepared_query('UPDATE `groups` SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
                                         WHERE groupID=:groupID', $vars);
         
         $this->logAction(\DataActions::MODIFY,\LoggableTypes::GROUP,[
@@ -357,7 +357,7 @@ class Group extends Data
 
         $vars = array(':groupID' => $groupID,
                       ':parentID' => $newParentID, );
-        $this->db->prepared_query('UPDATE groups SET parentID=:parentID
+        $this->db->prepared_query('UPDATE `groups` SET parentID=:parentID
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
 
@@ -433,7 +433,7 @@ class Group extends Data
         $this->db->limit($offset, $quantity);
         $vars = array(':tag' => $tag);
         $res = $this->db->prepared_query('SELECT * FROM group_tags
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
                                             WHERE tag=:tag
                                             ORDER BY groupTitle ASC', $vars);
 
@@ -668,7 +668,7 @@ class Group extends Data
             return array(); // Special case to prevent retrieving entire list in one query
         }
 
-        $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
+        $sql = "SELECT * FROM `{$this->tableName}`{$sql_tag}
                     WHERE groupTitle LIKE :groupTitle
                     ORDER BY {$this->sortBy} {$this->sortDir}
                     {$this->limit}";
@@ -679,7 +679,7 @@ class Group extends Data
 
         if (count($result) == 0)
         {
-            $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
+            $sql = "SELECT * FROM `{$this->tableName}`{$sql_tag}
                         WHERE phoneticGroupTitle LIKE :groupTitle
                         ORDER BY {$this->sortBy} {$this->sortDir}
                         {$this->limit}";
@@ -709,7 +709,7 @@ class Group extends Data
 
         if (count($result) <= $this->deepSearch)
         {
-            $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
+            $sql = "SELECT * FROM `{$this->tableName}`{$sql_tag}
                         WHERE groupAbbreviation LIKE :grpAbbr
                         ORDER BY {$this->sortBy} {$this->sortDir}
                         {$this->limit}";

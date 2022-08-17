@@ -38,7 +38,7 @@ $db->prepared_query('UPDATE dependencies
 						WHERE dependencyID = 8', $sql_vars);
 
 $sql_vars = array(':leadershipType' => ucfirst($tag->getParent('service')));
-$db->prepared_query('UPDATE groups
+$db->prepared_query('UPDATE `groups`
 						SET name = :leadershipType
 						WHERE groupID = -1', $sql_vars);
 
@@ -60,7 +60,7 @@ foreach ($resquadrad as $quadrad)
     $sql_vars = array(':groupID' => $quadrad['groupID'],
             ':quadrad' => $quadrad['groupTitle'], );
 
-    $db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
+    $db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name)
                             VALUES (:groupID, -1, :quadrad)
                             ON DUPLICATE KEY UPDATE name=:quadrad', $sql_vars);
 
@@ -200,7 +200,7 @@ foreach (Config::$orgchartImportTags as $tag)
         $sql_vars = array(':groupID' => $tgroup['groupID'],
                 ':title' => $tgroup['groupTitle'], );
 
-        $db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
+        $db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name)
                             VALUES (:groupID, NULL, :title)
                             ON DUPLICATE KEY UPDATE name=:title', $sql_vars);
 
@@ -264,7 +264,7 @@ foreach (Config::$orgchartImportTags as $tag)
 
 $groupIDs = $db->query('SELECT category_privs.groupID
                         FROM category_privs
-                        LEFT JOIN groups USING (groupID)
+                        LEFT JOIN `groups` USING (groupID)
                         WHERE groups.groupID IS NULL;');
 foreach($groupIDs as $groupIDToDelete)
 {
