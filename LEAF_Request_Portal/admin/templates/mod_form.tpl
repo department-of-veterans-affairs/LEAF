@@ -4,9 +4,11 @@
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>
 </div>
 <div id="LEAF_conditions_editor"></div><!-- vue IFTHEN app mount -->
+<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
-var CSRFToken = '<!--{$CSRFToken}-->';
 const vueData = {
     formID: 0,
     formTitle: '',
@@ -16,29 +18,25 @@ const vueData = {
     updateIndicatorList: false
 }
 
+//variables used within this scope, type, and approx. locations of def/redef (if applicable)
+const CSRFToken = '<!--{$CSRFToken}-->';
 const gridBodyElement = 'div#container_indicatorGrid > div';
-var indicatorEditing;
-var currCategoryID = '';
-var gridJSON = [];
-var postRenderFormBrowser;
-var categories = {};
-var dialog, dialog_confirm, dialog_simple;
-var portalAPI;
-if(columns === undefined) {
-    var columns = 0;
-}
+let currCategoryID = '';            //string, def @ ~1762, 1774, 1818, 1864, 2055
+let indicatorEditing = {}           //object, def @ ~1261
+let gridJSON = [];                  //array of objects, def @ ~1267
+let postRenderFormBrowser;          //func @ ~2104
+let categories = {};                //object, def @ ~1853
+let dialog, dialog_confirm, dialog_simple;   //dialogController instances, @ready
+let portalAPI;                      //@ready
+let columns = 0;                    //number, def @ ~1268
 </script>
 
 <script src="../../libs/js/vue3/vue.global.prod.js"></script>
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+
 <script>
-
-
 /**
  * Purpose: Check if an indicator is sensitive (needs to be masked)
  * @param indicator
@@ -276,12 +274,11 @@ function editProperties(isSubForm) {
 function openContent(url) {
 	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-	let workflow = '';
 
+    let workflow = '';
 	if(categories[currCategoryID].workflowID != 0) {
 		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
-	}
-	else {
+	} else {
 		workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
 	}
     $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
@@ -330,9 +327,9 @@ function openContent(url) {
 /**
  * Purpose: Add Permissions to Form
  * @param categoryID
- * @param group
  */
-function addPermission(categoryID, group) {
+function addPermission(categoryID) {
+    let formTitle = categories[categoryID].categoryName == '' ? 'Untitled' : categories[categoryID].categoryName;
     dialog.setTitle('Edit Collaborators');
     dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
     dialog.indicateBusy();
@@ -355,7 +352,7 @@ function addPermission(categoryID, group) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
+            url: '../api/?a=formEditor/_'+ categoryID +'/privileges',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	   groupID: $('#groupID').val(),
                    read: 1,
@@ -397,7 +394,7 @@ function removePermission(groupID) {
  * Purpose: Edit existing Permissions
  */
 function editPermissions() {
-	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
+	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 
 	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
 	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
@@ -414,7 +411,7 @@ function editPermissions() {
 				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
-			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addPermission();" role="button">Add Group</span>';
+			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addPermission(currCategoryID);" role="button">Add Group</span>';
 			$('#formPrivs').html(buffer);
 			dialog_simple.indicateIdle();
 		},
@@ -1078,7 +1075,6 @@ function deleteColumn(event){
             break;
         default:
             focus = column.next().find('[title="Delete column"]');
-            // column.next().focus();
             if(column.find('[title="Move column right"]').css('display') === 'none'){
                 rightArrows(column.prev(), false);
                 leftArrows(column.prev(), true);
@@ -1258,13 +1254,13 @@ function getForm(indicatorID, series) {
             type: 'GET',
             url: '../api/formEditor/indicator/' + indicatorID,
             success: function(res) {
-                indicatorEditing = res[indicatorID];
+                indicatorEditing = res[indicatorID]; //NOTE: indicatorEditing defined
                 const formatName = res[indicatorID]?.format || '';
                 const formatOptions = res[indicatorID]?.options || [];
                 const formatOptionsStr = formatOptions.join('\n');
                 
                 if(formatName === 'grid'){
-                    gridJSON = JSON.parse(formatOptions[0]);
+                    gridJSON = JSON.parse(formatOptions[0]);  //NOTE: gridJSON and columns defined
                     columns = gridJSON.length;
                 } 
 
@@ -1837,10 +1833,10 @@ function showFormBrowser() {
             let buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
             for(let i in res) {
-            	categories[res[i].categoryID] = res[i];
+            	categories[res[i].categoryID] = res[i];  //NOTE: categories set
             	if(res[i].parentID == '') {
-            		formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
-            		availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
+            		const formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
+            		const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
             		let needToKnow = '';
             		if(res[i].needToKnow == 1) {
             			needToKnow = ' <img src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
@@ -1852,8 +1848,8 @@ function showFormBrowser() {
             		else {
             			formActiveID = '#forms_inactive';
             		}
-            		let workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
-                    $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)"class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
+            		const workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
+                    $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
                     		<div tabindex="0" class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
                     		<div tabindex="0" class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
                     		<div tabindex="0" class="formPreviewStatus">'+ availability +'</div>\
