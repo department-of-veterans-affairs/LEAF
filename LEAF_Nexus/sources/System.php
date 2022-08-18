@@ -9,6 +9,16 @@
 
 */
 
+require_once 'Data.php';
+if(!class_exists('LogFormatter'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
+}
+if(!class_exists('LogItem'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logItem.php';
+}
+
 class System
 {
     public $siteRoot = '';
@@ -17,10 +27,14 @@ class System
 
     private $login;
 
+    private $dataActionLogger;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
+
+        $this->dataActionLogger = new \DataActionLogger($db, $login);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -241,5 +255,86 @@ class System
         $ret = $output[count($output) - 1]; 
 
         return $ret;
+    }
+
+    /**
+     * Get primary admin.
+     *
+     * @return array array with primary admin's info
+     */
+    public function getPrimaryAdmin(): array
+    {
+        $strSQL = "SELECT `data` FROM `settings` WHERE `setting` = 'primaryAdmin'";
+        $primaryAdminRes = $this->db->query($strSQL);
+
+        if(count($primaryAdminRes) > 0)
+        {
+            include_once 'Employee.php';
+            $employee = new Orgchart\Employee($this->db, $this->login);
+            $user = $employee->lookupLogin($primaryAdminRes[0]['data']);
+        }
+
+        return isset($user[0]) ? $user[0] : [];
+    }
+
+    /**
+     * Set primary admin.
+     *
+     * @return array array with response array
+     */
+    public function setPrimaryAdmin(): array
+    {
+        $userID = XSSHelpers::xscrub($_POST['userID']);
+
+        //check if user is system admin
+        include_once 'Employee.php';
+        $employee = new Orgchart\Employee($this->db, $this->login);
+        $user = $employee->lookupLogin($userID);
+
+        $sqlVars = array(':empUID' => $user[0]['empUID']);
+        $strSQL = "SELECT `empUID` FROM `relation_group_employee`".
+                    "WHERE `groupID` = 1 AND empUID = :empUID";
+        $res = $this->db->prepared_query($strSQL, $sqlVars);
+
+        $resultArray = array('success' => false, 'response' => $res);
+
+        if(count($res) > 0)
+        {
+            $sqlVars = array(':userID' => $user[0]['userName']);
+            $strSQL = "INSERT INTO `settings` (`setting`, `data`) VALUES ('primaryAdmin', :userID) ".
+                        "ON DUPLICATE KEY UPDATE `data` = :userID";
+            $this->db->prepared_query($strSQL, $sqlVars);
+
+            $resultArray = array('success' => true, 'response' => $res);
+
+            $primary = $this->getPrimaryAdmin();
+
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PRIMARY_ADMIN, [
+                new \LogItem("settings", "setting", 'primaryAdmin'),
+                new \LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
+            ]);
+        }
+
+        return $resultArray;
+    }
+
+    /**
+     * Unset primary admin.
+     *
+     * @return array array with query response
+     */
+    public function unsetPrimaryAdmin(): array
+    {
+        $primary = $this->getPrimaryAdmin();
+
+        $strSQL = "DELETE FROM `settings` WHERE `setting` = 'primaryAdmin'";
+        $result = $this->db->query($strSQL);
+
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        ]);
+
+        return $result;
     }
 }

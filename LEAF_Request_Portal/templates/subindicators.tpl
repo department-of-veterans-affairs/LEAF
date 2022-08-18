@@ -1110,7 +1110,14 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{include file=$subindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->
-
+        <!--{if $indicator.conditions != ''}-->
+            <script type="text/javascript">
+                formConditions["id<!--{$indicator.indicatorID}-->"] = {
+                    conditions:<!--{$indicator.conditions|strip_tags}-->,  //no quotes. send as object
+                    format:'<!--{$indicator.format}-->'
+                };
+            </script>
+        <!--{/if}-->
         </div>
     <!--{/foreach}-->
     </div>

@@ -12,6 +12,14 @@
     <!--{if $form}-->
     <div class="printformblock">
     <!--{foreach from=$form item=indicator}-->
+                <!--{if $indicator.conditions != ''}-->
+                <script type="text/javascript">
+                    formPrintConditions["id<!--{$indicator.indicatorID}-->"] = {
+                        conditions:<!--{$indicator.conditions|strip_tags}-->,
+                        format:'<!--{$indicator.format}-->'
+                    };
+                </script>
+                <!--{/if}-->
                 <!--{if $indicator.format == null || $indicator.format == 'textarea'}-->
                 <!--{assign var='colspan' value=2}-->
                 <!--{else}-->

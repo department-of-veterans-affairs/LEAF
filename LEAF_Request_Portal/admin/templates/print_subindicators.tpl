@@ -71,6 +71,9 @@
 
                     &nbsp;<img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />
                     &nbsp;<img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeypress="keyPressEditIndicatorPrivileges(event, <!--{$indicator.indicatorID}-->)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />
+                    <!--{if $indicator.format == 'dropdown' || $indicator.format == 'text'}-->
+                        &nbsp;<img id="edit_conditions_<!--{$indicator.indicatorID}-->" src="../../libs/dynicons/?img=preferences-system.svg&amp;w=16" tabindex="0" onkeypress="updateVueData(<!--{$indicator.indicatorID}-->)" onclick="updateVueData(<!--{$indicator.indicatorID}-->,<!--{$indicator.required}-->);" alt="Edit Conditions" title="Edit conditions" style="cursor: pointer" />
+                    <!--{/if}-->
                     <!--{if $indicator.has_code}-->
                         &nbsp;<img src="../../libs/dynicons/?img=document-properties.svg&amp;w=16" tabindex="0" alt="Advanced Options present" title="Advanced Options present" style="cursor: pointer" />
                     <!--{/if}-->
@@ -131,6 +134,11 @@ function onKeyPressClick(e){
     if((e.keyCode ? e.keyCode : e.which) === 13){
         $(e.target).trigger('click');
     }
+}
+function updateVueData(indicatorID, required){
+    vueData.indicatorID = indicatorID;
+    vueData.required = required;
+    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 }
 
 function keyPressEditIndicatorPrivileges(evt, indicatorID) {
