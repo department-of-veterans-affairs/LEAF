@@ -1258,7 +1258,7 @@ function getForm(indicatorID, series) {
                 const formatName = res[indicatorID]?.format || '';
                 const formatOptions = res[indicatorID]?.options || [];
                 const formatOptionsStr = formatOptions.join('\n');
-                
+
                 if(formatName === 'grid'){
                     gridJSON = JSON.parse(formatOptions[0]);  //NOTE: gridJSON and columns defined
                     columns = gridJSON.length;
@@ -1324,10 +1324,7 @@ function getForm(indicatorID, series) {
 
         let calls = [];
         let nameChanged = (indicatorEditing.name || "") !== $('#name').val();
-        let options = '';
-        if (indicatorEditing?.options) { 
-            indicatorEditing.options.forEach(o => options += `\n${o}`);
-        }
+        let options = (indicatorEditing?.options) ? '\n' + indicatorEditing?.options.join('\n') : '';
         let formatChanged = (indicatorEditing.format || "") + options !== $('#format').val();
         let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
