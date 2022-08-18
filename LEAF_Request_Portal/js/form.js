@@ -212,10 +212,11 @@ var LeafForm = function(containerID) {
 						break;
 					case 'Pre-fill':
 						if (prefillValue !== '') {
-							elJQChildID.val(prefillValue);
+							const text = $('<div/>').html(prefillValue).text();
+							elJQChildID.val(text);
 							elJQChildID.attr('disabled', 'disabled');
 							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val(prefillValue);
+								elJQChildID.chosen().val(text);
 								elJQChildID.trigger('chosen:updated');
 							}
 						} else {
