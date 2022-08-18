@@ -103,11 +103,11 @@ if (isset($_COOKIE['REMOTE_USER']))
         }
         else
         {
-            header('Location: ' . $protocol . NEXUS_AUTH_URL . '/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+            header('Location: ' . $protocol . AUTH_URL . '/?r=' . base64_encode($_SERVER['REQUEST_URI']));
         }
     }
 }else{
-    header('Location: ' . $protocol . NEXUS_AUTH_URL . '/?r=' . base64_encode($_SERVER['REQUEST_URI']));
+    header('Location: ' . $protocol . AUTH_URL . '/?r=' . base64_encode($_SERVER['REQUEST_URI']));
 }
 
 

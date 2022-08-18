@@ -459,8 +459,8 @@ switch ($action) {
     case 'reports':
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-//        $powerQueryURL = "{$protocol}://" . PORTAL_AUTH_URL . "/report_auth.php?r=";
-        $powerQueryURL = "https://" . PORTAL_AUTH_URL . "/report_auth.php?r=";
+//        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
+        $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
 
         $main->assign('stylesheets', array('css/report.css'));
            $main->assign('javascripts', array('js/form.js',
