@@ -2129,7 +2129,6 @@ class Form
         // if we do not have record IDs then lets not run go any further with this logic
         if (!empty($recordIDs))
         {
-            $this->db->enableDebug();
             // updated this from "Select * from to this
             $res = $this->db->prepared_query("SELECT recordID,indicatorID,series,data,timestamp,userID
                                         FROM data
