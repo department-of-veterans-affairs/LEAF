@@ -11,6 +11,7 @@ class TimeBracketCmd
     private int $sleepTime = 300;
     private int $startTime;
     private int $endTime;
+    private string $runAtExactTime = '';
     private string $processToRun;
     private string $arguments = '';
     private bool $continue = TRUE;
@@ -20,27 +21,18 @@ class TimeBracketCmd
     /**
      * [Description for __construct]
      *
-     * @param int $startTime - unix timestamp
-     * @param int $endTime - unix timestamp
      * @param string $processToRun - JSON {name:'test.php',arguments:{}}
      * @throws Exception
      *
      * Created at: 6/22/2022, 8:52:43 AM (America/Chicago)
      */
-    public function __construct(int $startTime = 0, int $endTime = 0, string $processToRun = '', $sleepTime = NULL)
+
+    public function __construct(string $processToRun = '')
     {
 
         // set our time
         $this->time = time();
 
-        // only set if not null, can default to 5 min,
-        // maybe need to prune optional properties
-        if ($sleepTime !== NULL) {
-            $this->setSleepTime($sleepTime);
-        }
-
-        $this->setStartTime($startTime);
-        $this->setEndTime($endTime);
         $this->setProcessToRun($processToRun);
 
     }
@@ -74,7 +66,6 @@ class TimeBracketCmd
     {
         if ($startTime < $this->time) {
             throw new Exception('Start Time must start after now!');
-
         } elseif (!empty($this->endTime) && $this->endTime < $startTime) {
             throw new Exception('Start Time must start before End Time');
         } else {
@@ -168,6 +159,56 @@ class TimeBracketCmd
     }
 
     /**
+     * Is this code ready to run?
+     * @return bool
+     *
+     * Created at: 8/19/2022, 9:23:45 AM (America/Chicago)
+     *
+     */
+    private function canIRun(): bool
+    {
+        // ie run at 7 am every day
+        if (!empty($this->runAtExactTime)) {
+            return TRUE;
+        } // only run if we are within the set time frame, ie every 5 minutes between 5 am to 6 am
+        elseif ($this->time > $this->startTime && $this->time < $this->endTime) {
+            return TRUE;
+        } // run only if we are on the exact time, we do not want to add complexity with start and end time
+
+        return FALSE;
+    }
+
+    /**
+     * This is for setting sleep, since we have two different ways to set our sleep this gives us a nice clean way
+     * to set our sleep time
+     * @return void
+     */
+    private function setSleep(): void
+    {
+
+        if (!empty($this->runAtExactTime)) {
+            $exactRunTimestamp = strtotime($this->runAtExactTime);
+            $currentTime = time();
+            // get the time for tomorrow if we are passed the time.
+            if ($currentTime > $exactRunTimestamp) {
+                $exactRunTimestamp = strtotime($this->runAtExactTime . ' tomorrow');
+            }
+
+            if ($currentTime > $exactRunTimestamp) {
+                throw new Exception('There was an issue with runAtExactTime and strtotime!');
+            }
+
+            // sleep the number of seconds until we need to run this
+            $this->setSleepTime($exactRunTimestamp - $currentTime);
+
+        }
+        // the else would end up being the between time and no real to do any checks on that
+
+        sleep($this->sleepTime);
+
+    }
+
+    /**
      * This is the main process for the timed run
      *
      * @return bool
@@ -187,8 +228,12 @@ class TimeBracketCmd
 
             $this->time = time();
 
+            // since it will never hit the run portion right away for the between times, might as well do the sleep
+            // first. this way we can make the run at 7 am portion more simple
+            $this->setSleep();
+
             // are we within this time frame? run the command
-            if ($this->time > $this->startTime && $this->time < $this->endTime) {
+            if ($this->canIRun()) {
                 // determine php vs sh this could be done better I am sure.
                 $phpsh = (stristr($this->processToRun, '.php')) ? 'php ' : 'bash ';
 
@@ -213,11 +258,9 @@ class TimeBracketCmd
                 echo "Wait for next cycle! \r\n";
             }
 
-            // zzz
-            sleep($this->sleepTime);
 
             // if we are beyond the end time then lets close out of this
-            if ($this->time > $this->endTime) {
+            if (!empty($this->endTime) && $this->time > $this->endTime) {
                 $this->continue = FALSE;
             }
 

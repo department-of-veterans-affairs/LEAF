@@ -42,7 +42,9 @@ try {
 
     $processToRun = json_encode(['name' => 'test.php', 'arguments' => ['numberOfTimes' => 'infinite', 'filesToLookFor' => ['a.txt', 'b.txt', 'c.txt']]]);
     //$processToRun = json_encode(['name' => 'test.sh', 'arguments' => "-u 'moomilk and the cow factory'"]);
-    $test = new TimeBracketCmd(strtotime('9:15pm'), strtotime('10:00pm'), $processToRun);
+    $test = new TimeBracketCmd($processToRun);
+    $test->setStartTime(strtotime('9:15pm'));
+    $test->setEndTime(strtotime('10:00pm'));
     //$test = new TimeBracketCmd(strtotime('1:43pm'),strtotime('10:00pm'),'test.sh');
     //$test = new TimeBracketCmd(strtotime('3:00pm'),strtotime('9:00pm'),'test.php');
     //$test = new TimeBracketCmd(strtotime('3:05pm'));
