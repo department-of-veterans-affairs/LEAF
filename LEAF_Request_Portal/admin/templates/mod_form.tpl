@@ -9,7 +9,7 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
-const vueData = {
+let vueData = {
     formID: 0,
     formTitle: '',
     indicatorID: 0,
@@ -259,7 +259,8 @@ function editProperties(isSubForm) {
             categories[currCategoryID].description = '';
             categories[currCategoryID].workflowID = $('#workflowID').val();
             categories[currCategoryID].needToKnow = $('#needToKnow').val();
-            categories[currCategoryID].visible = $('#visible').val();categories[currCategoryID].type = $('#formType').val();
+            categories[currCategoryID].visible = $('#visible').val();
+            categories[currCategoryID].type = $('#formType').val();
             categories[currCategoryID].sort = $('#sort').val();
             openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
             dialog.hide();
@@ -447,9 +448,9 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
  * Purpose: Add specific Indicator Privileges
  * @param indicatorID
  */
-function addIndicatorPrivilege(indicatorID, indicatorName = '') {
-    dialog.setTitle('Edit Privileges');
-    dialog.setContent('Add privileges to the <b>'+ indicatorName +'</b> form:<div id="groups"></div>');
+function addIndicatorPrivilege(indicatorID, indicatorName = '[blank]') {
+    dialog.setTitle(`Edit Privileges - ${indicatorID}`);
+    dialog.setContent(`Which group should have access to <b>${indicatorName}</b>?<div id="groups" style="margin: 0.2em 0"></div>`);
     dialog.indicateBusy();
 
     $.ajax({
@@ -503,7 +504,7 @@ function editIndicatorPrivileges(indicatorID) {
     portalAPI.FormEditor.getIndicator(
         indicatorID,
         function(indicator) {
-            const indicatorName= indicator[indicatorID]?.name;
+            const indicatorName= indicator[indicatorID]?.name || '[blank]';
 
             dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicatorID);
 
@@ -523,7 +524,7 @@ function editIndicatorPrivileges(indicatorID) {
                     if(count > 0) {
                         statusMessage = "Special access restrictions are enabled!";
                     }
-                    buffer += '<p>'+ statusMessage +'</p>';
+                    buffer += '<p style="margin-top: 1em">'+ statusMessage +'</p>';
                     $('#indicatorPrivs').html(buffer);
                     dialog_simple.indicateIdle();
                     dialog_simple.show();
@@ -2094,11 +2095,14 @@ $(function() {
     fetchFormSecureInfo();
 
     <!--{if $form != ''}-->
-    postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
+    postRenderFormBrowser = function() {
+        selectForm('<!--{$form}-->')
+    };
     <!--{/if}-->
 
     <!--{if $referFormLibraryID != ''}-->
-    postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
+    postRenderFormBrowser = function() { 
+        $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
         .animate({'background-color': 'white'}, 1000)
         .animate({'background-color': 'yellow'}, 1000);
