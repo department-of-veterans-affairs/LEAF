@@ -75,7 +75,7 @@ $(function() {
 
                 },
                 error: function(xhr, error, errorThrown) {
-                    $('#prodStatus').append('Error Pushing to ' + sites[i] + ' ('+ errorThrown +'). ');
+                    $('#prodStatus').append('Error Pushing to ' + item + ' ('+ errorThrown +'). ');
                 }
             });
         });
