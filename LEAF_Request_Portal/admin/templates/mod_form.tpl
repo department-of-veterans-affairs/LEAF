@@ -1848,10 +1848,10 @@ function showFormBrowser() {
             		}
             		const workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
                     $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
-                    		<div tabindex="0" class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
-                    		<div tabindex="0" class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
-                    		<div tabindex="0" class="formPreviewStatus">'+ availability +'</div>\
-                    		<div tabindex="0" class="formPreviewWorkflow">'+ workflow +'</div>\
+                    		<div class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
+                    		<div class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
+                    		<div class="formPreviewStatus">'+ availability +'</div>\
+                    		<div class="formPreviewWorkflow">'+ workflow +'</div>\
                     		</div>');
                     $('#' + res[i].categoryID).on('click', function(categoryID) {
                         return function() {
