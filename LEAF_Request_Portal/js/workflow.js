@@ -397,7 +397,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
             masquerade = '&masquerade=nonAdmin';
         }
 
-        $.ajax({
+        return $.ajax({
             type: 'GET',
             url: rootURL + 'api/?a=formWorkflow/'+ recordID +'/currentStep' + masquerade,
             dataType: 'json',
