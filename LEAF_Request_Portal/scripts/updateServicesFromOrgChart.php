@@ -218,7 +218,7 @@ foreach (Config::$orgchartImportTags as $tag)
                               ':groupID' => $tgroup['groupID'], );
 
                 $db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID)', $sql_vars);
+										VALUES (:userID, :groupID) ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
 
                 $res = $db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
 
