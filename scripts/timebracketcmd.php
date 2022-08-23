@@ -55,6 +55,25 @@ class TimeBracketCmd
     }
 
     /**
+     * @param string $runAtExactTime
+     * @return void
+     * @throws Exception
+     *
+     * Created at: 8/19/2022, 1:30:59 PM (America/Chicago)
+     */
+    public function setRunAtExactTime(string $runAtExactTime): void
+    {
+
+        // if the time is not greater than zero lets do something about it.
+        if (!strtotime($runAtExactTime) > 0) {
+            throw new Exception('This requested time resulted in an error.');
+        } else {
+            $this->runAtExactTime = $runAtExactTime;
+            $this->sleepTime = 0;
+        }
+    }
+
+    /**
      * Sets start time, should be a valid unix timestamp
      *
      * @param int $startTime - unix timestamp
@@ -122,7 +141,8 @@ class TimeBracketCmd
             $processFileName = $possibleJsonArray['name'];
 
         } else {
-            throw new Exception('This is not a valid json string');
+            /// or this is just a process being passed in as a string...
+            $processFileName = $processToRun;
         }
 
         // validate the process name
