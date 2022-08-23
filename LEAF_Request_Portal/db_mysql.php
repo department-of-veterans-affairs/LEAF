@@ -209,9 +209,12 @@ class DB
             try {
                 $query->execute($vars);
             } catch (PDOException $e) {
-                $this->show_data(["sql"=>$sql,"exception"=>$e]);
+                if ($this->debug)
+                {
+                    $this->show_data(["sql"=>$sql,"exception"=>$e]);
+                }
             }
-            
+
         }
         else
         {
