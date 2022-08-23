@@ -48,9 +48,9 @@ services:
       - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
       - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
 #      - ./nginx/src:/var/www/html
-      - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
-      - ../health_checks:/var/www/html/health_checks
       - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+    volumes_from:
+      - leaf-php-8
     ports:
       - 80:${HTTP_PORT}
       - 443:${HTTPS_PORT}
