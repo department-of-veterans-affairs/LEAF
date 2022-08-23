@@ -59,6 +59,10 @@ class DB
             }
             $this->isConnected = false;
         }
+
+        // may want to put this in debug only.
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         // $this->checkLastModified();
         unset($pass);
     }
@@ -205,7 +209,7 @@ class DB
             try {
                 $query->execute($vars);
             } catch (PDOException $e) {
-                $this->show_data(["sql"=>$sql]);
+                $this->show_data(["sql"=>$sql,"exception"=>$e]);
             }
             
         }
