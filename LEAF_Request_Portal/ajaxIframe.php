@@ -129,7 +129,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('name', XSSHelpers::sanitizeHMTL($recordInfo['name']));
+        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', XSSHelpers::sanitizeHTML($recordInfo['submitted']));
