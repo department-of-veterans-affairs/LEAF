@@ -1586,9 +1586,10 @@ class Form
                     }
                     else
                     {
-                        $vars3 = array(':serviceID' => (int)$details['serviceID']);
+                        $vars3 = array(':serviceID' => (int)$details['serviceID'],
+                                       ':quadGroupIDs' => $quadGroupIDs);
                         $res3 = $this->db->prepared_query("SELECT * FROM services
-    							WHERE groupID IN ($quadGroupIDs)
+    							WHERE groupID IN (:quadGroupIDs)
     							AND serviceID=:serviceID", $vars3);
                         $this->cache['checkReadAccess_quadGroupIDs_' . $quadGroupIDs . '_' . $details['serviceID']] = $res3;
                     }
@@ -1757,7 +1758,7 @@ class Form
         else
         {
             // get a list of records which have categories marked as need-to-know
-            $vars = array();
+            $vars = array(':recordIDs' => $recordIDs);
             $query = "
                 SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID,
                         indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
@@ -1768,7 +1769,7 @@ class Form
                     LEFT JOIN workflow_steps USING (workflowID)
                     LEFT JOIN step_dependencies USING (stepID)
                     LEFT JOIN dependency_privs USING (dependencyID)
-                    WHERE recordID IN ({$recordIDs})
+                    WHERE recordID IN (:recordIDs)
                         AND needToKnow = 1
                         AND count > 0";
 
@@ -1797,7 +1798,7 @@ class Form
             $t_needToKnowRecords = trim($t_needToKnowRecords, ',');
             if ($t_needToKnowRecords != '')
             {
-                $vars = array();
+                $vars = array(':t_needToKnowRecords' => $t_needToKnowRecords);
                 $res2 = $this->db->prepared_query("SELECT recordID, dependencyID, groupID, serviceID, userID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records
 													LEFT JOIN category_count USING (recordID)
 													LEFT JOIN categories USING (categoryID)
@@ -1805,7 +1806,7 @@ class Form
 													LEFT JOIN workflow_steps USING (workflowID)
 													LEFT JOIN step_dependencies USING (stepID)
 													LEFT JOIN dependency_privs USING (dependencyID)
-													WHERE recordID IN ({$t_needToKnowRecords})
+													WHERE recordID IN (:t_needToKnowRecords)
 														AND needToKnow = 0
 														AND count > 0", $vars);
 
@@ -1822,9 +1823,10 @@ class Form
             $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
             $uniqueCategoryIDs = $uniqueCategoryIDs ?: 0;
 
+            $vars = array(':uniqueCategoryIDs' => $uniqueCategoryIDs);
             $catsInGroups = $this->db->prepared_query(
-                "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
-                array()
+                "SELECT * FROM category_privs WHERE categoryID IN (:uniqueCategoryIDs) AND readable = 1",
+                $vars
             );
             if (count($catsInGroups) > 0)
             {
@@ -2048,8 +2050,9 @@ class Form
         $indicatorDefaults = array();
         if ($indicatorID_list != '')
         {
+            $vars = array(':indicatorID_list' => $indicatorID_list);
             $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                WHERE indicatorID IN ({$indicatorID_list})", array());
+                                                WHERE indicatorID IN (:indicatorID_list)", $vars);
             if (count($res) > 0)
             {
                 foreach ($res as $item)
@@ -2102,8 +2105,9 @@ class Form
         }
 
         // already made sure that $indicatorID_list and $recordIDs are comma delimited lists of numbers
+        $vars = array(':indicatorID_list' => $indicatorID_list);
         $res = $this->db->prepared_query("SELECT * FROM indicator_mask
-                                    WHERE indicatorID IN ({$indicatorID_list})", array());
+                                    WHERE indicatorID IN (:indicatorID_list)", $vars);
         $indicatorMasks = array();
         if (count($res) > 0)
         {
@@ -2125,9 +2129,9 @@ class Form
         }
 
         $vars2 = array(':recordIDs' => $recordIDs,
-                       ':indicatorIDs' => $indicatorID_list);
+                       ':indicatorID_list' => $indicatorID_list);
         $res = $this->db->prepared_query("SELECT * FROM data ".
-                                    "WHERE indicatorID IN (:indicatorIDs) ".
+                                    "WHERE indicatorID IN (:indicatorID_list) ".
                                         "AND recordID IN (:recordIDs)", $vars2);
 
         if (is_array($res) && count($res) > 0)
@@ -3056,13 +3060,14 @@ class Form
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
 
+        $vars = array(':recordIDs' => $recordIDs);
         if ($joinCategoryID)
         {
             $res2 = $this->db->prepared_query('SELECT * FROM category_count
     											LEFT JOIN categories USING (categoryID)
-    											WHERE recordID IN (' . $recordIDs . ')
+    											WHERE recordID IN (:recordIDs)
     												AND disabled = 0
-    												AND count > 0', array());
+    												AND count > 0', $vars);
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
@@ -3074,8 +3079,8 @@ class Form
         {
             $res2 = $this->db->prepared_query('SELECT * FROM category_count
     											LEFT JOIN categories USING (categoryID)
-    											WHERE recordID IN (' . $recordIDs . ')
-    												AND count > 0', array());
+    											WHERE recordID IN (:recordIDs)
+    												AND count > 0', $vars);
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
@@ -3087,8 +3092,8 @@ class Form
         {
             $res2 = $this->db->prepared_query('SELECT * FROM records_dependencies
     											LEFT JOIN dependencies USING (dependencyID)
-    											WHERE recordID IN (' . $recordIDs . ')
-    												AND filled != 0', array());
+    											WHERE recordID IN (:recordIDs)
+    												AND filled != 0', $vars);
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['time'] = $item['time'];
@@ -3104,8 +3109,8 @@ class Form
             $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
     											LEFT JOIN dependencies USING (dependencyID)
     											LEFT JOIN actions USING (actionType)
-    											WHERE recordID IN (' . $recordIDs . ')
-                                                ORDER BY time', array());
+    											WHERE recordID IN (:recordIDs)
+                                                ORDER BY time', $vars);
             foreach ($res2 as $item)
             {
                 $user = $dir->lookupLogin($item['userID'], true);
@@ -3121,10 +3126,10 @@ class Form
             $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
                     LEFT JOIN records_step_fulfillment USING (recordID)
                     LEFT JOIN records_workflow_state USING (recordID)
-                    WHERE recordID IN (' . $recordIDs . ')
+                    WHERE recordID IN (:recordIDs)
                         AND records_workflow_state.stepID IS NULL
                         AND submitted > 0
-                        AND deleted = 0', array());
+                        AND deleted = 0', $vars);
             foreach ($res2 as $item)
             {
                 if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
@@ -3143,14 +3148,14 @@ class Form
                       "LEFT JOIN records USING (recordID) ".
                       "INNER JOIN workflow_routes USING (stepID) ".
                       "LEFT JOIN records_workflow_state USING (recordID) ".
-                      "WHERE recordID IN ($recordIDs) ".
+                      "WHERE recordID IN (:recordIDs) ".
                         "AND action_history.actionType = workflow_routes.actionType ".
                         "AND records_workflow_state.stepID IS NULL ".
                         "AND nextStepID = 0 ".
                         "AND submitted > 0 ".
                         "AND deleted = 0";
 
-            $res2 = $this->db->prepared_query($strSQL, array());
+            $res2 = $this->db->prepared_query($strSQL, $vars);
 
             foreach ($res2 as $item) {
                 $user = $dir->lookupLogin($item['resolvedBy'], true);
@@ -3162,8 +3167,8 @@ class Form
         if ($joinRecords_Step_Fulfillment)
         {
             $strSQL = 'SELECT * FROM records_step_fulfillment LEFT JOIN workflow_steps USING (stepID) '.
-                'WHERE recordID IN (' . $recordIDs . ')';
-            $res2 = $this->db->prepared_query($strSQL, array());
+                'WHERE recordID IN (:recordIDs)';
+            $res2 = $this->db->prepared_query($strSQL, $vars);
             foreach ($res2 as $item)
             {
                 $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['time'] = $item['fulfillmentTime'];
@@ -3171,9 +3176,9 @@ class Form
             }
         }
         if ($addJoinRecords_Step_Fulfillment_Only) {
-            $strSQL = 'SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment WHERE recordID IN (' . $recordIDs . ') '.
+            $strSQL = 'SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment WHERE recordID IN (:recordIDs) '.
                 'ORDER BY recordID, fulfillmentTime DESC';
-            $res2 = $this->db->prepared_query($strSQL, array());
+            $res2 = $this->db->prepared_query($strSQL, $vars);
             foreach ($res2 as $item)
             {
                 // Need all bits to add to stepFullfillmentOnly otherwise skip
@@ -3516,10 +3521,11 @@ class Form
             {
                 $indicatorList = trim($indicatorList, ',');
                 $var = array(':series' => (int)$series,
-                             ':recordID' => (int)$recordID, );
+                             ':recordID' => (int)$recordID,
+                             ':indicatorList' => $indicatorList);
                 $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID FROM data
                 									LEFT JOIN indicator_mask USING (indicatorID)
-                									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
+                									WHERE indicatorID IN (:indicatorList) AND series=:series AND recordID=:recordID', $var);
 
                 foreach ($res2 as $resIn)
                 {
