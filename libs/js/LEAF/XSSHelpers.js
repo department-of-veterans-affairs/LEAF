@@ -13,7 +13,7 @@ var XSSHelpers = function () {
      * @return RegExp   a Javascript RegExp object
      */
     buildTagRegex = function(tag) {
-        return new RegExp('(<\\/?\\s*\\b' + tag + '\\b(.*?)\\s*>)', "g");
+        return new RegExp('(<\\/?\\s*\\b' + tag + '\\b(.*?)\\s*>)', "gi");
     },
 
     /**
@@ -107,6 +107,24 @@ var XSSHelpers = function () {
         }
 
         return text;
+    },
+
+    /**
+     * passes str through div, rms script tags unless specified.
+     *
+     * @param str  string with encoded HTML
+     * @param keepScriptTags whether to retain script tags for editing
+     *
+     * @return string with decoded html
+     */
+     decodeHTMLEntities = function (str, keepScriptTags = false) {
+        let temp = document.createElement('div');
+        temp.innerHTML = str;
+        let text = temp.innerText;
+        if (keepScriptTags !== true) {
+            text = this.stripTags(text, ['<script>']);
+        }
+        return text;
     };
 
     return {
@@ -115,7 +133,8 @@ var XSSHelpers = function () {
         containsTags: containsTags,
         stripAllTags: stripAllTags,
         stripTag: stripTag,
-        stripTags: stripTags
+        stripTags: stripTags,
+        decodeHTMLEntities: decodeHTMLEntities
     };
 }();
 

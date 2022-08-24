@@ -212,10 +212,11 @@ var LeafForm = function(containerID) {
 						break;
 					case 'Pre-fill':
 						if (prefillValue !== '') {
-							elJQChildID.val(prefillValue);
+							const text = $('<div/>').html(prefillValue).text();
+							elJQChildID.val(text);
 							elJQChildID.attr('disabled', 'disabled');
 							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val(prefillValue);
+								elJQChildID.chosen().val(text);
 								elJQChildID.trigger('chosen:updated');
 							}
 						} else {
@@ -261,9 +262,17 @@ var LeafForm = function(containerID) {
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
 		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
-
 		var data = {recordID: recordID};
-		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;});
+		$('#' + htmlFormID).serializeArray().map(function(x) {
+			if (x.name.includes('_multiselect')) {
+				const i = x.name.indexOf('_multiselect');
+				if (x.value === '') { //selected if no options are chosen
+					data[x.name.slice(0, i)] = x.value;
+				} else {
+					data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
+				}
+			} else data[x.name] = x.value;
+		});
 
 		if(hasTable){
             var tables = [];

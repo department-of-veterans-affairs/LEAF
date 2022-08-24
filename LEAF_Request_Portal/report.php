@@ -112,6 +112,7 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
+            $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -124,6 +125,7 @@ switch ($action) {
                 '../libs/jsapi/nexus/LEAFNexusAPI.js',
                 '../libs/jsapi/portal/LEAFPortalAPI.js',
                 '../libs/jsapi/portal/model/FormQuery.js',
+                '../libs/js/choicesjs/choices.min.js'
             ));
 
             $form = new Form($db, $login);

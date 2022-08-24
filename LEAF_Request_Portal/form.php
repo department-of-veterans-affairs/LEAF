@@ -534,6 +534,13 @@ class Form
             $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
         }
 
+        // handle multiselect format (new serialized arrays and old string concat values)
+        if (isset($data[0]['data']) && $data[0]['data'] != ''
+            && (substr($data[0]['format'], 0, 11) == 'multiselect'))
+        {
+            $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
+        }
+
         // prevent masked data from being output
         if ($form[$idx]['isMasked'])
         {
@@ -971,9 +978,10 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        if (is_array($_POST[$key]))
+        if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
-            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+            $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
+            $_POST[$key] = serialize($_POST[$key]);
         }
         else
         {
@@ -1137,20 +1145,13 @@ class Form
 
         foreach ($keys as $key)
         {
-            // If form has _selected key use over initial key (Multi-Select Dropdown)
-            if (is_numeric($key) && $_POST[$key . '_selected']) {
-                $_POST[$key] = $_POST[$key . '_selected'];
-                if (!$this->writeDataField($recordID, $key, $series)) {
-                    return 0;
-                }
-            }
-            elseif (is_numeric($key))
+            if (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
                 }
             }
-            elseif (!strpos($key, '_selected')) // Check for keys that don't include _selected
+            else // Check for keys
             {
                 list($tRecordID, $tIndicatorID) = explode('_', $key);
                 if ($tRecordID == $recordID
@@ -2180,9 +2181,10 @@ class Form
                         }
                         break;
                     default:
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
+                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
+                            substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
                         {
-                            $tData = @unserialize($item['data']);
+                            $tData = @unserialize($item['data']) !== false ? @unserialize($item['data']) : preg_split('/,(?!\s)/', $item['data']);
                             $item['data'] = '';
                             if (is_array($tData))
                             {

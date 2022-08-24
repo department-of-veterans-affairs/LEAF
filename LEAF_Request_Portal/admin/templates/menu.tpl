@@ -56,7 +56,7 @@
                 <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
                 <li><a href="../report.php?a=LEAF_request_initiator_new_account">Initiator New Account</a></li>
-                <li><a href="../report.php?a=LEAF_input_table_report">Grid Splitter</a></li>
+                <li><a href="../report.php?a=LEAF_table_input_report">Grid Splitter</a></li>
                 </ul>
             </li>
 
