@@ -143,6 +143,9 @@ function editProperties(isSubForm) {
             }
             dialog.indicateIdle();
         },
+        error: function(err) {
+            console.error(err?.responseText);
+        },
         cache: false
     });
 
@@ -165,6 +168,9 @@ function editProperties(isSubForm) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     categories[currCategoryID].name = $('#name').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             }));
         }
@@ -178,6 +184,9 @@ function editProperties(isSubForm) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     categories[currCategoryID].description = $('#description').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             }));
         }
@@ -195,6 +204,9 @@ function editProperties(isSubForm) {
                         alert('Workflow cannot be set because this form has been merged into another form');
                     }
                     categories[currCategoryID].workflowID = $('#workflowID').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             }));
         }
@@ -209,6 +221,9 @@ function editProperties(isSubForm) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     categories[currCategoryID].needToKnow = $('#needToKnow').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             }));
         }
@@ -223,6 +238,9 @@ function editProperties(isSubForm) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     categories[currCategoryID].sort = $('#sort').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             }));
         }
@@ -236,6 +254,9 @@ function editProperties(isSubForm) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     categories[currCategoryID].visible= $('#visible').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             });
         }
@@ -250,6 +271,9 @@ function editProperties(isSubForm) {
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
                     categories[currCategoryID].formType = $('#formType').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
                 }
             }));
         }
@@ -699,7 +723,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
     $('#container_indicatorSingleAnswer').css('display', 'none');
-    switch(indFormat) {
+    switch(indFormat?.toLowerCase()) {
         case 'grid':
             $('#container_indicatorGrid').css('display', 'block');
             makeGrid(gridCols);
@@ -815,7 +839,7 @@ function setFormatElementValue() {
 	const formatName = $('#indicatorType').val();
 
 	let fullFormat = formatName;
-	switch(formatName) {
+	switch(formatName?.toLowerCase()) {
 		case 'grid':
 			let gridJSON = [];
 			//gather column names and column types
@@ -859,8 +883,8 @@ function setFormatElementValue() {
  * Purpose: Add a new question to Form
  * @param parentIndicatorID
  */
-function newQuestion(parentIndicatorID) {
-    const title = parentIndicatorID == null ? 'Adding New Question': `Adding Question to ${parentIndicatorID}`;
+function newQuestion(parentIndicatorID = null) {
+    const title = parentIndicatorID === null ? 'Adding New Question': `Adding Question to ${parentIndicatorID}`;
     dialog.setTitle(title);
     dialog.setContent(getIndicatorModalTemplate(false));
     addIndicatorModalListeners(false);
@@ -1174,6 +1198,9 @@ function getForm(indicatorID, series) {
             success: function(res) {
                 const time = new Date().toLocaleTimeString();
                 $('#codeSaveStatus_html').html('<br /> Last saved: ' + time);
+            },
+            error: function(err) {
+                console.error(err?.responseText);
             }
         });
     }
@@ -1289,6 +1316,9 @@ function getForm(indicatorID, series) {
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
+            },
+            error: function(err) {
+                console.error(err?.responseText);
             },
             cache: false
         });
