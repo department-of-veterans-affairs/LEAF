@@ -76,7 +76,8 @@ foreach ($resquadrad as $quadrad)
                           ':groupID' => $quadrad['groupID'], );
 
             $db->prepared_query('INSERT INTO users (userID, groupID)
-                                    VALUES (:userID, :groupID)', $sql_vars);
+                                    VALUES (:userID, :groupID)
+                                    ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
@@ -88,7 +89,8 @@ foreach ($resquadrad as $quadrad)
 
                 // Add backupID for sync checks
                 $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                   		 VALUES (:userID, :groupID, :backupID)', $sql_vars);
+                                   		 VALUES (:userID, :groupID, :backupID)
+                                   		 ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
             }
         }
     }
@@ -129,7 +131,8 @@ foreach ($res as $service)
                           ':serviceID' => $service['groupID'], );
 
             $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID)
-                                    VALUES (:serviceID, :userID)', $sql_vars);
+                                    VALUES (:serviceID, :userID)
+                                    ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
 
             // include the backups of employees
             $backups = $employee->getBackups($emp['empUID']);
@@ -141,7 +144,8 @@ foreach ($res as $service)
 
                 // Add backupID for sync checks
                 $db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID)
-                                    VALUES (:serviceID, :userID, :backupID)', $sql_vars);
+                                    VALUES (:serviceID, :userID, :backupID)
+                                    ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
             }
         }
     }
@@ -162,7 +166,8 @@ foreach ($res as $service)
             $sql_vars = array(':userID' => $chief['userID'],
                           ':groupID' => $quadID, );
             $db->prepared_query('INSERT INTO users (userID, groupID)
-                                   		 VALUES (:userID, :groupID)', $sql_vars);
+                                   		 VALUES (:userID, :groupID)
+                                   		 ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
         }
     }
 
@@ -218,7 +223,8 @@ foreach (Config::$orgchartImportTags as $tag)
                               ':groupID' => $tgroup['groupID'], );
 
                 $db->prepared_query('INSERT INTO users (userID, groupID)
-										VALUES (:userID, :groupID) ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
+										VALUES (:userID, :groupID)
+										ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
 
                 $res = $db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
 
@@ -232,7 +238,8 @@ foreach (Config::$orgchartImportTags as $tag)
 
                         // Add backupID for sync checks
                         $db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-										VALUES (:userID, :groupID, :backupID)', $sql_vars);
+										VALUES (:userID, :groupID, :backupID)
+										ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
                     }
                 }
             }
