@@ -2124,11 +2124,10 @@ class Form
             }
         }
 
-        $vars2 = array(':recordIDs' => $recordIDs,
-                       ':indicatorIDs' => $indicatorID_list);
-        $res = $this->db->prepared_query("SELECT * FROM data ".
-                                    "WHERE indicatorID IN (:indicatorIDs) ".
-                                        "AND recordID IN (:recordIDs)", $vars2);
+        $strSQL = "SELECT * FROM data 
+                    WHERE indicatorID IN ({$indicatorID_list}) 
+                    AND recordID IN ({$recordIDs})";
+        $res = $this->db->query($strSQL);
 
         if (is_array($res) && count($res) > 0)
         {
