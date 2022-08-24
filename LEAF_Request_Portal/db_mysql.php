@@ -22,6 +22,8 @@ class DB
 
     private $debug = false;             // Are we debugging?
 
+    private $runErrors = false;         // On run errors specific error details
+
     private $time = 0;
 
     private $dryRun = false;            // only applies to prepared queries
@@ -209,7 +211,7 @@ class DB
             try {
                 $query->execute($vars);
             } catch (PDOException $e) {
-                if ($this->debug)
+                if ($this->runErrors)
                 {
                     $this->show_data(["sql"=>$sql,"exception"=>$e]);
                 }
