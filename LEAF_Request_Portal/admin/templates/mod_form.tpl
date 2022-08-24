@@ -1837,7 +1837,7 @@ function showFormBrowser() {
             		const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
             		let needToKnow = '';
             		if(res[i].needToKnow == 1) {
-            			needToKnow = ' <img src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
+            			needToKnow = ' <img style="position:absolute; right: 6px;" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
             		}
             		let formActiveID = '';
             		if(res[i].workflowID > 0) {
