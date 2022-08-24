@@ -1,1 +1,5 @@
-- ../scripts:/var/www/html/scripts wherever php is run
+#this line goes where php would be run within the docker-compose.yml php needs to see this
+- ../scripts:/var/www/html/scripts 
+
+#when the container gets fired up
+php /var/www/html/scripts/refreshOrgchartEmployees.php

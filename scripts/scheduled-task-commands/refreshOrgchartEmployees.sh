@@ -1,4 +1,3 @@
 #!/bin/bash
-pwd
-php ../LEAF_Nexus/scripts/refreshOrgchartEmployees.php
+php /var/www/html/LEAF_Nexus/scripts/refreshOrgchartEmployees.php
 

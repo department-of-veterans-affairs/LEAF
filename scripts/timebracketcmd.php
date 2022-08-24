@@ -270,6 +270,7 @@ class TimeBracketCmd
                 $proc = proc_open($process_w_dir, $descriptorspec, $pipes);
                 if (is_resource($proc)) {
                     $dat = proc_get_status($proc);
+                    // information that should be put towards any logging, for now I am just dumping 
                     var_dump($dat);
                     proc_close($proc);
                 }
