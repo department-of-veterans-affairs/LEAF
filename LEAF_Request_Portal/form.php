@@ -2033,6 +2033,10 @@ class Form
     // indicatorID_list: ID#'s delimited by ','
     public function getCustomData($recordID_list, $indicatorID_list)
     {
+	if (!count($recordID_list)) {
+	    return false;
+	}
+	    
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
         $indicatorIdStructure = array();
