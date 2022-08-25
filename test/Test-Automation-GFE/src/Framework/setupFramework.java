@@ -133,9 +133,9 @@ public class setupFramework {
 	@AfterClass
 	public void closeDown() {
 		
-		driver.quit();
-		System.out.println("setupFramework reached @AfterClass, driver.quit()");
-		//System.out.println("@AfterClass disabled - browser remains open");
+		//driver.quit();
+		//System.out.println("setupFramework reached @AfterClass, driver.quit()");
+		System.out.println("@AfterClass disabled - browser remains open");
 	}
 	
 	

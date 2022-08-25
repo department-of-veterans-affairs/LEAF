@@ -87,7 +87,7 @@ public class orgChartWorkflow extends setupFramework {
 	@Test(priority = 104) //
 	public void verifySearchByEmployee() {         
 		//waitMethods.implicitWait(waitMethods.w300);
-		waitMethods.waiter(waitMethods.w500);	
+		waitMethods.waiter(waitMethods.w1k);	
 		WebElement ele = driver.findElement(By.partialLinkText("Wagner")); 
 		highlightElement.highLightElement(driver, ele);
 		String verify = ele.toString();
@@ -123,7 +123,7 @@ public class orgChartWorkflow extends setupFramework {
 	@Test(priority = 108) //STILL FAILING???    TODO:
 	public void verifySearchByPosition() {         
 		//waitMethods.implicitWait(waitMethods.w300);
-		waitMethods.waiter(waitMethods.w500);	
+		waitMethods.waiter(waitMethods.w1k);	
 		WebElement ele = driver.findElement(By.partialLinkText("Accountability")); 
 		highlightElement.highLightElement(driver, ele);
 		String verify = ele.toString();
@@ -159,7 +159,7 @@ public class orgChartWorkflow extends setupFramework {
 	@Test(priority = 112) //
 	public void verifySearchByGroup() {         
 		//waitMethods.implicitWait(waitMethods.w300);
-		waitMethods.waiter(waitMethods.w500);	
+		waitMethods.waiter(waitMethods.w1k);	
 		WebElement ele = driver.findElement(By.partialLinkText("ADPAC")); 
 		highlightElement.highLightElement(driver, ele);
 		String verify = ele.toString();
@@ -195,7 +195,7 @@ public class orgChartWorkflow extends setupFramework {
 	@Test(priority = 116) //
 	public void verifySearchByService() {         
 		//waitMethods.implicitWait(waitMethods.w300);
-		waitMethods.waiter(waitMethods.w500);	
+		waitMethods.waiter(waitMethods.w1k);	
 		WebElement ele = driver.findElement(By.partialLinkText("Office of GEC")); 
 		highlightElement.highLightElement(driver, ele);
 		String verify = ele.toString();

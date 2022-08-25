@@ -1,4 +1,4 @@
-package Execution;
+	package Execution;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
@@ -61,7 +61,8 @@ public class homePageTest extends setupFramework {
 	public void verifyPageTitle() /*throws InterruptedException */ {         
 		System.out.println("Page Title Verified");	
 		String pageTitle = driver.getTitle();
-		Assert.assertEquals(pageTitle, "Academy Demo Site (Test site) | Washington DC | Washington DC", "Page Title does not match expected value");
+			System.out.println(pageTitle);
+		Assert.assertEquals(pageTitle, "Academy Demo Site (Test site) | Washington DC", "Page Title does not match expected value");
 		//AssertJUnit.assertEquals(pageTitle, "Academy Demo Site (Test site) | Washington DC");
 		//JUnit syntax, which I had to modify anyway because it was of type boolean
 	}
@@ -139,7 +140,7 @@ public class homePageTest extends setupFramework {
     	WebElement ele = driver.findElement(By.cssSelector("[title^='Enter your search text']"));
     	highlightElement.highLightElement(driver, ele);
 
-    	String name = "576";
+    	String name = "560";
     	//String name = TestData.SB_REQNUM.toString();
     	   
     	for(int i = 0; i < name.length(); i++) {
@@ -155,6 +156,8 @@ public class homePageTest extends setupFramework {
 	}
 
 	
+	//TODO: Add Assertion
+	
 	@Test(priority = 20)
 	public void basicSearchText() /*throws InterruptedException */ {
 		System.out.println("Perform basic search using Text");
@@ -162,7 +165,7 @@ public class homePageTest extends setupFramework {
 		waitMethods.waiter(waitMethods.w1k);								//REMOVE
 		WebElement ele = driver.findElement(By.name("searchtxt"));
 
-    	String name = "test automation";
+    	String name = "Conditional Dropdown";
     	   
     	for(int i = 0; i < name.length(); i++) {
     		char c = name.charAt(i);
@@ -178,6 +181,8 @@ public class homePageTest extends setupFramework {
    	 	waitMethods.waiter(waitMethods.w300);
 	}
 
+	
+	//TODO: Add Assertion
 
 	@Test(priority = 25) //Links Dropdown  
 	private void linksDropdown() /*throws InterruptedException */ {

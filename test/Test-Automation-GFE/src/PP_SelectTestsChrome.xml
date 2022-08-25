@@ -3,7 +3,7 @@
 <suite name="RegressionSuite">
 <!--    -->
 
-   
+<!--   
 	<test name="Home Page">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/">
 		<parameter name="browser" value="chrome"/>
@@ -12,7 +12,7 @@
 			</classes>
 		</parameter>
 	</test>   
-
+ -->
  <!--    
    		 	
 	<test name="User Access Groups">
@@ -25,7 +25,7 @@
 	</test>
 	
 -->   	
-	
+<!--	
 	<test name="Admin Page">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/">
 		<parameter name="browser" value="chrome"/>
@@ -37,7 +37,7 @@
 
  
  
- <!--   
+  
  
 	<test name="New Request Workflow"> 
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=newform">
@@ -50,6 +50,7 @@
 
 -->
 
+<!--  
 
 	<test name="Org Chart Workflow">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/orgchart/">
@@ -60,8 +61,8 @@
 		</parameter>
 	</test>    
  
- 
- <!--    
+--> 
+<!--   
  
  	<test name="Report Builder Workflow">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=reports">
@@ -82,6 +83,7 @@
 			</classes>
 		</parameter>
 	</test>    
+<!-- 
 
 	<test name="Forms Workflow Part 2">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
@@ -92,6 +94,8 @@
 		</parameter>
 	</test>    
 
+
+
 	<test name="Forms Workflow Part 3">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
@@ -100,7 +104,7 @@
 			</classes>
 		</parameter>
 	</test>   
- 
+-->
 
 </suite>
 
