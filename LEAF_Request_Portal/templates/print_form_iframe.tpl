@@ -43,7 +43,7 @@ function getIndicatorLog(indicatorID, series) {
 
     $.ajax({
         type: 'GET',
-        url: "api/?a=form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
+        url: "api/form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
         success: function(res) {
         	var numChanges = res.length;
         	var prev = '';

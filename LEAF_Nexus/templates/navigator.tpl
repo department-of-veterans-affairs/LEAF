@@ -62,7 +62,7 @@ function applyZoomLevel() {
 
 function viewSupervisor() {
     $.ajax({
-        url: './api/?a=position/<!--{$rootID}-->/supervisor',
+        url: './api/position/<!--{$rootID}-->/supervisor',
         dataType: 'json',
         success: function(response) {
             window.location = '?a=navigator&rootID=' + response[0].positionID;
@@ -115,7 +115,7 @@ function getSubordinates(positionID, level) {
                 && loadSubordinates == 1) {
 
                 $.ajax({
-                    url: './api/?a=position/' + subordinate[key].positionID,
+                    url: './api/position/' + subordinate[key].positionID,
                     data: {q: this.q},
                     dataType: 'json',
                     success: function(data) {

@@ -804,7 +804,7 @@ var printer = function() {
                 $.each(requestInfo['internalForms'], function (i) {
                     $.ajax({
                         method: 'GET',
-                        url: './api/?a=form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
+                        url: './api/form/' + recordID + '/_' + requestInfo['internalForms'][i] + '/data/tree',
                         dataType: 'json',
                         cache: false,
                         async: false
@@ -1021,7 +1021,7 @@ var printer = function() {
         function getIndicatorData() {
             $.ajax({
                 method: 'GET',
-                url: './api/?a=form/' + recordID + '/data/tree',
+                url: './api/form/' + recordID + '/data/tree',
                 dataType: 'json',
                 cache: false
             }).done(function (res) {
@@ -1036,7 +1036,7 @@ var printer = function() {
 
         //Get last action of record
         function getLastAction() {
-            var fetchURL = './api/?a=formWorkflow/' + recordID + '/lastAction';
+            var fetchURL = './api/formWorkflow/' + recordID + '/lastAction';
 
             $.ajax({
                 method: 'GET',
@@ -1069,7 +1069,7 @@ var printer = function() {
         //Get workflow current step or state
         function getWorkflowState() {
             if (requestInfo['submitted'] > 0) {
-                var fetchURL = './api/?a=formWorkflow/' + recordID + '/currentStep';
+                var fetchURL = './api/formWorkflow/' + recordID + '/currentStep';
 
                 $.ajax({
                     method: 'GET',
@@ -1099,7 +1099,7 @@ var printer = function() {
 
         //Get processed signatures if they were signed
         function getSigned() {
-            var fetchURL = './api/?a=signature/' + recordID;
+            var fetchURL = './api/signature/' + recordID;
 
             $.ajax({
                 method: 'GET',
@@ -1137,7 +1137,7 @@ var printer = function() {
                 getSigned();
             } else {
                 var workflowID = requestInfo['workflows'][processed][0]['workflowID'];
-                var fetchURL = './api/?a=workflow/' + workflowID;
+                var fetchURL = './api/workflow/' + workflowID;
 
                 $.ajax({
                     method: 'GET',
@@ -1175,7 +1175,7 @@ var printer = function() {
                 requestInfo['signatures'] = [];
                 getSignatures(0);
             } else {
-                var fetchURL = './api/?a=form/_' + categoryIDs[processed] + '/workflow';
+                var fetchURL = './api/form/_' + categoryIDs[processed] + '/workflow';
 
                 $.ajax({
                     method: 'GET',
@@ -1204,7 +1204,7 @@ var printer = function() {
             for (var i = 0; i < internalForms.length; i++) {
                 $.ajax({
                     method: 'GET',
-                    url: './api/?a=form/' + recordID + '/_' + internalForms[i],
+                    url: './api/form/' + recordID + '/_' + internalForms[i],
                     dataType: "json",
                     cache: false
                 })
@@ -1224,7 +1224,7 @@ var printer = function() {
 
         //Get main request form information
         function getFormInfo() {
-            var fetchURL = './api/?a=form/' + recordID + '/recordinfo';
+            var fetchURL = './api/form/' + recordID + '/recordinfo';
 
             $.ajax({
                 method: 'GET',

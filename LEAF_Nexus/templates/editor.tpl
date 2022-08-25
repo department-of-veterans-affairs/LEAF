@@ -114,7 +114,7 @@ function applyZoomLevel() {
 
 function viewSupervisor() {
     $.ajax({
-        url: './api/?a=position/<!--{$rootID}-->/supervisor',
+        url: './api/position/<!--{$rootID}-->/supervisor',
         dataType: 'json',
         success: function(response) {
             window.location = '?a=editor&rootID=' + response[0].positionID;
@@ -131,7 +131,7 @@ function saveLayout(positionID) {
 	newPosition.y = position.top;
     $.ajax({
     	type: 'POST',
-        url: './api/?a=position/' + positionID,
+        url: './api/position/' + positionID,
         data: {15: JSON.stringify({<!--{$rootID}-->: newPosition}),
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res) {
@@ -153,7 +153,7 @@ function changeSupervisor(currPositionID) {
         dialog.indicateBusy();
         $.ajax({
         	type: 'POST',
-            url: './api/?a=position/' + currPositionID + '/supervisor',
+            url: './api/position/' + currPositionID + '/supervisor',
             data: {positionID: posSel.selection,
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
@@ -175,7 +175,7 @@ function addSupervisor(positionID) {
         dialog.indicateBusy();
         $.ajax({
             type: 'POST',
-            url: './api/?a=position',
+            url: './api/position',
             dataType: 'json',
             data: {title: $('#inputtitle').val(),
                       parentID: 0,
@@ -189,7 +189,7 @@ function addSupervisor(positionID) {
                 }
                 $.ajax({
                     type: 'POST',
-                    url: './api/?a=position/' + positionID + '/supervisor',
+                    url: './api/position/' + positionID + '/supervisor',
                     data: {positionID: response,
                               CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(response) {
@@ -241,7 +241,7 @@ function addSubordinate(parentID) {
         dialog.indicateBusy();
         $.ajax({
         	type: 'POST',
-            url: './api/?a=position',
+            url: './api/position',
             dataType: 'json',
             data: {title: $('#inputtitle').val(),
                       parentID: parentID,
@@ -329,7 +329,7 @@ function getSubordinates(positionID, level) {
         	if(subordinate[key].hasSubordinates == 1
        			&& loadSubordinates == 1) {
                 $.ajax({
-                    url: './api/?a=position/' + subordinate[key].positionID,
+                    url: './api/position/' + subordinate[key].positionID,
                     dataType: 'json',
                     data: {q: this.q},
                     success: function(response) {
@@ -381,7 +381,7 @@ function showSubordinates(positionID) {
     data.hideSubordinates = 0;
     $.ajax({
     	type: 'POST',
-        url: './api/?a=position/' + positionID,
+        url: './api/position/' + positionID,
         data: {15: JSON.stringify({<!--{$rootID}-->: data}),
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {
@@ -396,7 +396,7 @@ function hideSubordinates(positionID) {
     data.hideSubordinates = 1;
     $.ajax({
     	type: 'POST',
-        url: './api/?a=position/' + positionID,
+        url: './api/position/' + positionID,
         data: {15: JSON.stringify({<!--{$rootID}-->: data}),
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {
@@ -412,7 +412,7 @@ function removePosition(positionID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=position/' + positionID + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/position/' + positionID + '?' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 if(response == 1) {
                     alert('Position has been deleted.');
@@ -433,7 +433,7 @@ function saveZoomLevel(zoomLevel) {
     data.zoom = zoomLevel;
     $.ajax({
     	type: 'POST',
-        url: './api/?a=position/' + <!--{$rootID}-->,
+        url: './api/position/' + <!--{$rootID}-->,
         data: {15: JSON.stringify({<!--{$rootID}-->: data}),
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {

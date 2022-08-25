@@ -355,7 +355,7 @@ function loadSearchPrereqs() {
     searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
-        url: './api/?a=form/indicator/list',
+        url: './api/form/indicator/list',
         dataType: 'text json',
         success: function(res) {
             var buffer = '';
@@ -520,7 +520,7 @@ function loadSearchPrereqs() {
 
                     $.ajax({
                         type: 'GET',
-                        url: './api/?a=workflow/dependencies',
+                        url: './api/workflow/dependencies',
                         dataType: 'json',
                         success: function(res) {
                             buffer2 = '';
@@ -858,7 +858,7 @@ function showJSONendpoint() {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: 'api/?a=form/' + form_data.recordID + '/title',
+            url: 'api/form/' + form_data.recordID + '/title',
             data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {

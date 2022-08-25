@@ -4,7 +4,6 @@
  */
 
 error_reporting(E_ALL & ~E_NOTICE);
-
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
@@ -54,7 +53,14 @@ $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('is_admin', $login->checkGroup(1));
+$t_menu->assign('hide_main_control', false);
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+$main->assign('emergency', '');
+$main->assign('status', '');
+$main->assign('hideFooter', false);
 $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
@@ -228,13 +234,6 @@ switch ($action) {
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
-        //url
-        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-//        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-//        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $main->assign('qrcodeURL', urlencode($qrcodeURL));
-
         switch ($action) {
             default:
                 $childForms = $form->getChildForms($recordIDToPrint);
@@ -259,7 +258,6 @@ switch ($action) {
                 }
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
-                $t_menu->assign('hide_main_control', true);
 
                 break;
         }
