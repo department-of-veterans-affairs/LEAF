@@ -1,8 +1,3 @@
-<style>
-/* 3 column grid */
-.group:after,.section{clear:both}.section{padding:0;margin:0}.col{display:block;float:left;margin:1% 0 1% 1.6%}.col:first-child{margin-left:0}.group:after,.group:before{content:"";display:table}.group{zoom:1}.span_3_of_3{width:100%}.span_2_of_3{width:66.13%}.span_1_of_3{width:32.26%}@media only screen and (max-width:480px){.col{margin:1% 0}.span_1_of_3,.span_2_of_3,.span_3_of_3{width:100%}}
-</style>
-
 <div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
@@ -360,7 +355,7 @@ function loadSearchPrereqs() {
     searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
-        url: './api/?a=form/indicator/list',
+        url: './api/form/indicator/list',
         dataType: 'text json',
         success: function(res) {
             var buffer = '';
@@ -525,7 +520,7 @@ function loadSearchPrereqs() {
 
                     $.ajax({
                         type: 'GET',
-                        url: './api/?a=workflow/dependencies',
+                        url: './api/workflow/dependencies',
                         dataType: 'json',
                         success: function(res) {
                             buffer2 = '';
@@ -863,7 +858,7 @@ function showJSONendpoint() {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: 'api/?a=form/' + form_data.recordID + '/title',
+            url: 'api/form/' + form_data.recordID + '/title',
             data: {title: $('#recordTitle').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {

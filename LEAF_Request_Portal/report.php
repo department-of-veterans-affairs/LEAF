@@ -72,6 +72,9 @@ $t_menu->assign('is_admin', $login->checkGroup(1));
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
 $main->assign('useUI', false);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -100,13 +103,6 @@ switch ($action) {
         $t_form->assign('resolvedServiceID', $resolvedService[0]['groupID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        //url
-        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-//        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-        $protocol = 'https';
-        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $main->assign('qrcodeURL', urlencode($qrcodeURL));
-
         $main->assign('body', $t_form->fetch('reports/showServiceFTEstatus.tpl'));
         $tabText = 'Service FTE Status';
 
@@ -116,6 +112,7 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
+            $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -128,6 +125,7 @@ switch ($action) {
                 '../libs/jsapi/nexus/LEAFNexusAPI.js',
                 '../libs/jsapi/portal/LEAFPortalAPI.js',
                 '../libs/jsapi/portal/model/FormQuery.js',
+                '../libs/js/choicesjs/choices.min.js'
             ));
 
             $form = new Form($db, $login);
@@ -145,13 +143,6 @@ switch ($action) {
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
-
-            //url
-            // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-//            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-            $protocol = 'https';
-            $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-            $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';

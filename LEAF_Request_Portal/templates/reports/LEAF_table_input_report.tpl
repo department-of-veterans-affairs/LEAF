@@ -13,7 +13,7 @@ let processedRecords = 0;
 //populate dropdown for forms
 $.ajax({
     type: 'GET',
-    url: './api/?a=form/categories'
+    url: './api/form/categories'
 }).done(function(data) {
     for(let i = 0; i < data.length; i++)
     {
@@ -61,7 +61,7 @@ function populateIndicators(categoryID)
     {
         $.ajax({
             type: 'GET',
-            url: './api/?a=form/indicator/list',
+            url: './api/form/indicator/list',
             data: {
                 includeHeadings: 1,
                 forms: categoryID
@@ -119,7 +119,7 @@ function getDataForExport(categoryID, indicatorID)
     processedRecords = 0;
     $.ajax({
         type: 'GET',
-        url: './api/?a=form/_'+categoryID+'/records'
+        url: './api/form/_'+categoryID+'/records'
     }).done(function(data) {
         bodyObj = {};
         for(let i = 0; i < data.length; i++)
@@ -146,7 +146,7 @@ function addRecordData(recordID, indicatorID)
 {
     $.ajax({
         type: 'GET',
-        url: './api/?a=formEditor/indicator/'+indicatorID,
+        url: './api/formEditor/indicator/'+indicatorID,
         data: {
             recordID: recordID
         }

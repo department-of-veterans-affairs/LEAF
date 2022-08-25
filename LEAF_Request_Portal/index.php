@@ -4,7 +4,6 @@
  */
 
 error_reporting(E_ALL & ~E_NOTICE);
-
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
@@ -54,7 +53,14 @@ $t_login->assign('name', XSSHelpers::xscrub($login->getName()));
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('is_admin', $login->checkGroup(1));
+$t_menu->assign('hide_main_control', false);
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+$main->assign('emergency', '');
+$main->assign('status', '');
+$main->assign('hideFooter', false);
 $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
@@ -111,8 +117,8 @@ switch ($action) {
         break;
     case 'view':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('css/view.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js'));
+        $main->assign('stylesheets', array('css/view.css', '../libs/js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Form($db, $login);
@@ -163,6 +169,7 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
+        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array(
             'js/form.js',
             'js/gridInput.js',
@@ -177,6 +184,7 @@ switch ($action) {
             '../libs/js/es6-promise/es6-promise.auto.min.js',
             '../libs/js/jspdf/jspdf.min.js',
             '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
+            '../libs/js/choicesjs/choices.min.js',
             'js/titleValidator.js'
         ));
 
@@ -226,13 +234,6 @@ switch ($action) {
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
-        //url
-        // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-//        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-//        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $main->assign('qrcodeURL', urlencode($qrcodeURL));
-
         switch ($action) {
             default:
                 $childForms = $form->getChildForms($recordIDToPrint);
@@ -257,7 +258,6 @@ switch ($action) {
                 }
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
-                $t_menu->assign('hide_main_control', true);
 
                 break;
         }
@@ -268,7 +268,8 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js'));
+        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', '../libs/js/choicesjs/choices.min.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -464,8 +465,8 @@ switch ($action) {
 //        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
         $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
 
-        $main->assign('stylesheets', array('css/report.css'));
-           $main->assign('javascripts', array('js/form.js',
+        $main->assign('stylesheets', array('css/report.css', '../libs/js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
                'js/formQuery.js',
                'js/formSearch.js',
@@ -474,6 +475,7 @@ switch ($action) {
                'js/lz-string/lz-string.min.js',
                '../libs/jsapi/portal/LEAFPortalAPI.js',
                '../libs/js/LEAF/XSSHelpers.js',
+               '../libs/js/choicesjs/choices.min.js'
            ));
            $main->assign('useUI', true);
 

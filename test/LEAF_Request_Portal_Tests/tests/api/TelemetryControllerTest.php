@@ -8,7 +8,7 @@ declare(strict_types = 1);
 use LEAFTest\LEAFClient;
 
 /**
- * Tests LEAF_Request_Portal/api/?a=telemetry API
+ * Tests LEAF_Request_Portal/api/telemetry API
  */
 final class TelemetryControllerTest extends DatabaseTest
 {

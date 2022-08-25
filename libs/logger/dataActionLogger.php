@@ -84,10 +84,7 @@ class DataActionLogger{
 
         $filterResults = isset($filterById) && isset($filterByColumnName);
 
-        $vars = array(
-            ':filterBy' => $filterByColumnName,
-            ':filterById' => $filterById
-        );
+
 
         $sqlCreateTemp =
             "
@@ -97,11 +94,17 @@ class DataActionLogger{
             LEFT JOIN data_action_log dal ON dal.id = dli.data_action_log_fk
             WHERE ";
 
+        $vars = [];
+
         if($filterResults){
             $sqlCreateTemp.="dli.column = :filterBy
             AND
                 dli.VALUE = :filterById
             AND";
+
+            // need to add this to this check here since passing the vars when they were not needed caused errors.
+            $vars[':filterBy'] = $filterByColumnName;
+            $vars[':filterById'] = $filterById;
         }
 
         $sqlCreateTemp.=" dal.ACTION IN ".$this->buildInClause($logType).";";
