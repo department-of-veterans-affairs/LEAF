@@ -2130,19 +2130,14 @@ class Form
             }
         }
 
-        $strSQL = "SELECT * FROM data 
-                    WHERE indicatorID IN ({$indicatorID_list}) 
-                    AND recordID IN ({$recordIDs})";
-        $res = $this->db->query($strSQL);
-
         // if we do not have record IDs then lets not run go any further with this logic
         if (!empty($recordIDs))
         {
             // updated this from "Select * from to this
-            $res = $this->db->prepared_query("SELECT recordID,indicatorID,series,data,timestamp,userID
-                                        FROM data
-                                        WHERE indicatorID IN ({$indicatorID_list})
-                                        AND recordID IN ({$recordIDs})", $vars2);
+	    $strSQL = "SELECT * FROM data 
+                    WHERE indicatorID IN ({$indicatorID_list}) 
+                    AND recordID IN ({$recordIDs})";
+            $res = $this->db->query($strSQL);
 
             if (is_array($res) && count($res) > 0)
             {
