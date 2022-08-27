@@ -51,7 +51,7 @@
         },
         {
             "id": "portalInbox",
-            "url": "LEAF_Request_Portal/?a=inbox"
+            "url": "LEAF_Request_Portal/inbox"
         },
         {
             "id": "portalBookmarks",

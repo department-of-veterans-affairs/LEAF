@@ -93,7 +93,7 @@ function saveSettings()
     $.when(
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/heading',
+                url: '../api/system/settings/heading',
                 data: {heading: $('#heading').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -101,7 +101,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/subHeading',
+                url: '../api/system/settings/subHeading',
                 data: {subHeading: $('#subHeading').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -109,7 +109,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/requestLabel',
+                url: '../api/system/settings/requestLabel',
                 data: {requestLabel: $('#requestLabel').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -117,7 +117,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/timeZone',
+                url: '../api/system/settings/timeZone',
                 data: {timeZone: $('#timeZone').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -125,7 +125,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/siteType',
+                url: '../api/system/settings/siteType',
                 data: {siteType: $('#siteType').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -133,7 +133,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/national_linkedSubordinateList',
+                url: '../api/system/settings/national_linkedSubordinateList',
                 data: {national_linkedSubordinateList: $('#national_linkedSubordinateList').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {
@@ -141,7 +141,7 @@ function saveSettings()
             }),
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=system/settings/national_linkedPrimary',
+                url: '../api/system/settings/national_linkedPrimary',
                 data: {national_linkedPrimary: $('#national_linkedPrimary').val(),
                     CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(res) {

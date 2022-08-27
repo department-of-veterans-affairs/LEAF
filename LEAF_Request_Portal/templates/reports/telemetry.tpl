@@ -12,7 +12,7 @@ var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 
 
 $.ajax({
     type: 'GET',
-    url: './api/?a=telemetry/requests&startTime=0&endTime=9999999999',
+    url: './api/telemetry/requests?startTime=0&endTime=9999999999',
     success: function(data) {
         var date = new Date();
         var parsedData = [];

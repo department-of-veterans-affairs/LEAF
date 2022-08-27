@@ -8,7 +8,7 @@ declare(strict_types = 1);
 use LEAFTest\LEAFClient;
 
 /**
- * Tests LEAF_Nexus/api/?a=system API
+ * Tests LEAF_Nexus/api/system API
  */
 final class SystemControllerTest extends DatabaseTest
 {
