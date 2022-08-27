@@ -13,7 +13,7 @@
 1. prevent double submits
 2. clean up
 */
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
