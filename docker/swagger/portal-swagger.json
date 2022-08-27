@@ -760,7 +760,7 @@
     "/form/import/manual": {
       "post": {
         "summary": "Call importForm()",
-        "description": "original endpont: calls formStack.php importForm(), header(''Location: ./?a=form'')",
+        "description": "original endpont: calls formStack.php importForm(), header(''Location: ./form'')",
         "tags": [
           "form"
         ],

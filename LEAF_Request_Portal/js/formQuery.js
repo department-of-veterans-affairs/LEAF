@@ -241,7 +241,7 @@ var LeafFormQuery = function() {
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/?a=form/query&q=' + queryUrl + extraParams,
+        		url: rootURL + 'api/form/query?q=' + queryUrl + extraParams,
         		dataType: 'json',
         		success: successCallback,
         		cache: false
@@ -250,7 +250,7 @@ var LeafFormQuery = function() {
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/?a=form/query&q=' + queryUrl + '&format=jsonp' + extraParams,
+        		url: rootURL + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
         		success: successCallback,
         		cache: false
