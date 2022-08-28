@@ -46,6 +46,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
+            <!--{if $indicator.value != ''}-->
             <!--{assign var='vals' value=$indicator.value}-->
             <!--{assign var='toString' value=','|implode:$vals}-->
 
@@ -60,6 +61,7 @@
                 <!--{if $indicator.value !== 'no' && $indicator.value !== ''}-->
                 &bull;&nbsp;<!--{$indicator.value|regex_replace:'/,(?!\s)/':'<br/>&bull;&nbsp;'|sanitize}-->
                 <!--{/if}-->
+            <!--{/if}-->
             <!--{/if}-->
             </span>
             <!--{$indicator.htmlPrint}-->
