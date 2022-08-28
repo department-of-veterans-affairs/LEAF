@@ -2191,32 +2191,32 @@ class Form
                             }
                             break;
                         default:
-                            if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
-                            {
-                                $tData = @unserialize($item['data']);
-                                $item['data'] = '';
-                                if (is_array($tData))
-                                {
-                                    foreach ($tData as $tItem)
-                                    {
-                                        // Forcing this to lower case caused the data to not show properly for JSON and exported data. Lower case 'no' is reserved, try putting no as a checkbox item and this no will become No.
-                                        if ($tItem != 'no')
-                                        {
-                                            $item['data'] .= "{$tItem}, ";
-                                            $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
-                                        }
-                                    }
-                                }
-                                $item['data'] = trim($item['data'], ', ');
-                            }
-                            if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
-                            {
-                                $values = @unserialize($item['data']);
-                                $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
-                                $item['gridInput'] = array_merge($values, array("format" => $format));
-                                $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
-                            }
-                            break;
+                            if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
+			        substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
+			    {
+			        $tData = @unserialize($item['data']) !== false ? @unserialize($item['data']) : preg_split('/,(?!\s)/', $item['data']);
+			    	$item['data'] = '';
+			    	if (is_array($tData))
+			    	{
+				    foreach ($tData as $tItem)
+				    {
+				    	if ($tItem != 'no')
+				    	{
+					    $item['data'] .= "{$tItem}, ";
+					    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
+				       	}
+				    }
+			    	}
+			    	$item['data'] = trim($item['data'], ', ');
+			    }
+			    if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
+			    {
+			    	$values = @unserialize($item['data']);
+			    	$format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
+			    	$item['gridInput'] = array_merge($values, array("format" => $format));
+			    	$item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
+			    }
+			    break;
                     }
 
 
