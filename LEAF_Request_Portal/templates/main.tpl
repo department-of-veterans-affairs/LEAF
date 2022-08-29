@@ -86,7 +86,7 @@
 </div>
 
 <div class="noprint" id="footer"{if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
-    <br /><br /><a id="versionID" href="?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.PORTAL_VERSION_NUMBER} r{$revision}</a>
+    <br /><br /><a id="versionID" href="?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
 </div>
 </body>
 </html>{/strip}

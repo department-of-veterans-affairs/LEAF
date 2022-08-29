@@ -8,7 +8,7 @@
 
 */
 header('Access-Control-Allow-Origin: *');
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 include '../../globals.php';
 include '../Login.php';

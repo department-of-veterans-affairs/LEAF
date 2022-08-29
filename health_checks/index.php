@@ -4,7 +4,7 @@ pong
 <br/>ping <br/> Have / going here temporarily.<br/><br/>
 
 <?php
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 ini_set('display_errors', 1);
 set_time_limit(0);
 

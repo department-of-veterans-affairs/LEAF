@@ -45,8 +45,17 @@
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
-                <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-                &bull;&nbsp;<!--{$indicator.value|replace:',':'<br/>&bull;&nbsp;'|sanitize}-->
+                <span class="printResponse">
+            <!--{assign var='idx' value=0}-->
+            <ul>
+            <!--{foreach from=$indicator.value item=option}-->
+                    <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
+                    <!--{if $indicator.value[$idx] != 'no'}-->
+                        <li><!--{$option|sanitize}--></li>
+                    <!--{/if}-->
+                    <!--{assign var='idx' value=$idx+1}-->
+            <!--{/foreach}-->
+            </ul>
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
@@ -107,14 +116,16 @@
         <!--{if $indicator.format == 'checkboxes'}-->
                 <span class="printResponse">
             <!--{assign var='idx' value=0}-->
+            <ul style="list-style: none">
             <!--{foreach from=$indicator.value item=option}-->
-                    <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" /> <!-- dumb workaround -->
+                    <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
                     <!--{if $indicator.value[$idx] != 'no'}-->
-                        <br /><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
-                        <!--{$option|sanitize}-->
+                        <li><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
+                        <!--{$option|sanitize}--></li>
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
+            </ul>
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->

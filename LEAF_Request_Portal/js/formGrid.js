@@ -40,10 +40,38 @@ var LeafFormGrid = function(containerID, options) {
 
     /**
      * @param values (required) object of cells and names to generate grid
+     * @param showScriptTags (default false) whether to display script tags
+     * @memberOf LeafFormGrid
+     * Returns copy of values with cells property html entities decoded
+     */
+    function decodeCellHTMLEntities(values, showScriptTags=false) {
+        let gridInfo = { ...values };
+        if (gridInfo?.cells) {
+            let cells = gridInfo.cells.slice();
+            cells.forEach((arrRowVals, ci) => {
+                arrRowVals = arrRowVals.map((v) => {
+                    v = v.replaceAll('<', '&lt;');  //handle old data values
+                    v = v.replaceAll('>', '&gt;');
+                    let elDiv = document.createElement('div');
+                    elDiv.innerHTML = v;
+                    let text = elDiv.innerText;
+                    if (showScriptTags !== true) text = text.replaceAll(/(<script[\s\S]*?>)|(<\/script[\s\S]*?>)/ig, '');
+                    return text;
+                });
+                cells[ci] = arrRowVals.slice();
+            });
+            gridInfo.cells = cells;
+        }
+        return gridInfo;
+    }
+
+    /**
+     * @param values (required) object of cells and names to generate grid
      * @memberOf LeafFormGrid
      */
     function printTableReportBuilder(values, columnValues) {
         // remove unused columns
+        values = decodeCellHTMLEntities(values);
         if (columnValues !== null && columnValues !== undefined) {
             values.format = values.format.filter(function (value) {
                 return columnValues.includes(value.id);
@@ -102,10 +130,10 @@ var LeafFormGrid = function(containerID, options) {
             dataType: 'json',
             success: function(response) {
                 var data = response[indicatorID].displayedValue != '' ? response[indicatorID].displayedValue : response[indicatorID].value;
-                if(response[indicatorID].format == 'checkboxes'
+                if((response[indicatorID].format == 'checkboxes' || response[indicatorID].format == 'multiselect')
                     && Array.isArray(data)) {
                     var tData = '';
-                    for(var i in data) {
+                    for(let i in data) {
                         if(data[i] != 'no') {
                             tData += ', ' + data[i];
                         }
