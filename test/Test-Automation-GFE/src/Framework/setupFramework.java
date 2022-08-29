@@ -45,7 +45,7 @@ public class setupFramework {
 	//fp.highlightFlash(returnedElement);  //called using this
 	
 	
-	private static WebDriver chromeLogin(String env) {						//ERR: Here is the DevToolsActivePort error
+	private static WebDriver chromeLogin(String env) {				//ERR: Here is the DevToolsActivePort error
 		//Currently version 98.0.44758.102      2.16.2022  //UPDATED TO v101.something
 		System.out.println("Launching Chrome by Automation");  //Step Over until - return driver;
 		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
@@ -97,8 +97,6 @@ public class setupFramework {
 //			}
 
 			
-
-
 		return driver;		//DELETE when headless code is re-enabled
 	}	
 
@@ -133,9 +131,9 @@ public class setupFramework {
 	@AfterClass
 	public void closeDown() {
 		
-		//driver.quit();
-		//System.out.println("setupFramework reached @AfterClass, driver.quit()");
-		System.out.println("@AfterClass disabled - browser remains open");
+		driver.quit();
+		System.out.println("setupFramework reached @AfterClass, driver.quit()");
+		//System.out.println("@AfterClass disabled - browser remains open");
 	}
 	
 	

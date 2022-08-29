@@ -2,9 +2,11 @@ package Execution;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.AssertJUnit;
 import org.testng.asserts.*;
 
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -21,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.openqa.selenium.support.ui.Select;			//Select Method
 
+import Framework.AppVariables;
 import Framework.TestData;
 import Framework.setupFramework;
 import Framework.waitMethods;
@@ -32,6 +35,7 @@ public class formsWorkflow extends setupFramework {
 
 	//private static final DateFormat Calendar = null;
 	Date date = new Date();
+	
 	
 	@BeforeMethod
 	@BeforeClass
@@ -73,8 +77,13 @@ public class formsWorkflow extends setupFramework {
  
 /////////////////////////////     Forms Workflow      \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 	
+		public void testURL() {
+			String url = driver.getCurrentUrl();
+			System.out.println("Current URL: " + url);
+		}
 
-	
+		
+		
 		@Test(priority = 90) //
 		private void clickCreateForm() {
 			waitMethods.waiter(waitMethods.w500);       
@@ -83,6 +92,8 @@ public class formsWorkflow extends setupFramework {
 	   		ele.click();
 			waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Forms - clicked Create Form");
+	    	System.out.println();
+	    	
 		}
 		
 		
@@ -253,9 +264,9 @@ public class formsWorkflow extends setupFramework {
 		}
 
 	////// Form Created w Title: Automation Test Description + dateAndTimeMethods.getDate().toString();
+		 
 		
-		
-		@Test(priority = 118) //
+		@Test(priority = 118) //  These Properties will be cancelled
 		private void selectEditProperties() {
 			waitMethods.waiter(waitMethods.w500);       
 			//WebElement ele = driver.findElement(By.xpath("//*[text()='Edit Properties']"));
@@ -270,7 +281,7 @@ public class formsWorkflow extends setupFramework {
 		@Test(priority = 120) //
 		public void selectWorkflow() {         
 			//waitMethods.implicitWait(waitMethods.w500);
-			waitMethods.waiter(waitMethods.w500);			//The below opens the DDL
+			waitMethods.waiter(waitMethods.w2k);			//The below opens the DDL
 			WebElement ele = driver.findElement(By.id("workflowID"));
 			highlightElement.highLightElement(driver, ele);
 			ele.click();
@@ -461,17 +472,27 @@ public class formsWorkflow extends setupFramework {
 		@Test(priority = 146) //  
 		private void closeCollaborators() {	
 			waitMethods.waiter(waitMethods.w300);     //       
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[6]/div[1]/button/span[1]"));    
-			//WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[1]/button/span[1]"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+			String url = driver.getCurrentUrl();
+			System.out.println("Current URL: " + url);
+			
+			if(url == AppVariables.PRE_PROD_FORMS) {	//    												
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[6]/div[1]/button/span[1]"));
+				highlightElement.highLightElement(driver, ele);
+				ele.click();
+			} else if( url == AppVariables.PROD_FORMS) {
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[1]/button/span[1]"));
+				highlightElement.highLightElement(driver, ele);
+				ele.click();
+			}
+			
+			waitMethods.waiter(waitMethods.w500);
 	    	System.out.println("Forms-Selected Close Collaborators)");
 		}
 
 		
-		@Test(priority = 148) //  
+		@Test(priority = 148) // 
 		private void selectEditCollaborators2() {	
+			waitMethods.waiter(waitMethods.w500);
 			selectEditCollaborators();
 		}
 		
@@ -521,7 +542,7 @@ public class formsWorkflow extends setupFramework {
 			
 		
 		
-		@Test(priority = 158) //  
+		@Test(priority = 158) //  HERE
 		private void closeCollaborators02() {	
 			closeCollaborators();
 		}	
@@ -529,435 +550,435 @@ public class formsWorkflow extends setupFramework {
 	
 	//////// Adding New Question  \\\\\\\\   	
 		
-		@Test(priority = 160) //  
-		private void selectAddSectionHeading01() {			//Will reuse this to add all field types
-			waitMethods.waiter(waitMethods.w500);       	 
-			WebElement ele = driver.findElement(By.cssSelector("#formEditor_form > div > div.buttonNorm"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Test Question: +Add Section Heading)");
-		}
-		
-		
-
-		
-		@Test(priority = 162) //
-		private void inputFieldName01() {
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("name"));
-	    	highlightElement.highLightElement(driver, ele);
-	    	
-	    	String name = "Test Q1 Single line text";
-	   
-	    	for(int i = 0; i < name.length(); i++) {
-	    		char c = name.charAt(i);
-	    		String s = new StringBuilder().append(c).toString();
-	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
-	    	}
-	    	
-	    	System.out.println("Test Question: Single line text)");			
-		}
-		
-
-		
-		@Test(priority = 164) //
-		private void inputShortLabel01() {
-			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.id("description"));
-	    	highlightElement.highLightElement(driver, ele);
-	    	
-	    	String name = "Q1";
-	   
-	    	for(int i = 0; i < name.length(); i++) {
-	    		char c = name.charAt(i);
-	    		String s = new StringBuilder().append(c).toString();
-	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
-	    	}
-	    	
-	    	System.out.println("Test Question: Short Label)");			
-		}
-
-		
-
-		@Test(priority = 168) //
-		public void selectSingleLineText01() {         
-			//waitMethods.implicitWait(waitMethods.w300);
-			waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
-			WebElement ele = driver.findElement(By.id("indicatorType"));
-			highlightElement.highLightElement(driver, ele);
-			ele.click();
-			waitMethods.waiter(waitMethods.w300);
-			Select select = new Select(driver.findElement(By.id("indicatorType")));
-			highlightElement.highLightElement(driver, ele);
-			select.selectByValue("text");
-			waitMethods.waiter(waitMethods.w200);
-			WebElement ele2 = driver.findElement(By.id("indicatorType"));
-			ele2.click();
-			System.out.println("Test Question: Single Line Text");
-		}
-		
-		
-		@Test(priority = 170) //  
-		private void selectQuestionCancel() {			//
-			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.id("button_cancelchange"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Test Question: Cancel button");
-		}
-		
-		
-		@Test(priority = 172) //  
-		private void selectAddSectionHeading01R() {	
-			selectAddSectionHeading01();
-		}
-		
-		
-		@Test(priority = 174) //
-		private void inputFieldName01R() {
-			inputFieldName01();
-		}
-		
-		
-		@Test(priority = 176) //
-		private void inputShortLabel01R() {
-			inputShortLabel01();
-		}
-		
-		
-		@Test(priority = 178) //
-		public void selectSingleLineText01R() {
-			selectSingleLineText01();
-		}
-
-		
-
-		@Test(priority = 180) //
-		private void inputDefaultAnswer01() {
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("default"));
-	    	highlightElement.highLightElement(driver, ele);
-	    	
-	    	String name = "MR Test Default Response Q1";
-	   
-	    	for(int i = 0; i < name.length(); i++) {
-	    		char c = name.charAt(i);
-	    		String s = new StringBuilder().append(c).toString();
-	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
-	    	}
-	    	
-	    	System.out.println("Test Question: input Default Answer");			
-		}
-		
-		
-		@Test(priority = 182) //  
-		private void selectFieldRequired01() {			//
-			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.id("required"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Test Question: Field Required = Y");
-		}
-		
-		
-		@Test(priority = 184) //  
-		private void selectFieldSensitiveData01() {			//
-			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.id("sensitive"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-	   		waitMethods.waiter(waitMethods.w300);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Test Question: Sensitive Data = N");
-		}
-		
-		
-		
-		@Test(priority = 186) //  
-		private void selectSortValue01() {			//
-			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.id("sort"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.sendKeys("1");
-			waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Test Question: Sort Priority");
-		}
-		
-		
-		@Test(priority = 188) //  
-		private void selectQuestionSave01() {			//
-			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.id("button_save"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);						//CHANGE TO w300
-	    	System.out.println("Test Question: Save button");
-		}
-// -  Currently the VAPO Site does not save the question	RESOLVED	
-		
-		@Test(priority = 190) //									
-		private void selectEditFieldIcon() {			//Try this: //img[contains(@title,'Collector')]
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.xpath("//*[contains(text(),'Test Q1 Single line text')]"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w500);	
-	    	System.out.println("Test Question: Edit Field Icon");
-		}
-		
-		
-		@Test(priority = 192) //
-		private void editDefaultAnswer01() {  //
-			waitMethods.waiter(waitMethods.w1k);       
-			WebElement ele = driver.findElement(By.id("default"));
-	    	highlightElement.highLightElement(driver, ele);
-	    	ele.clear();
-	    	
-	    	String name = "Test Default";
-	   
-	    	for(int i = 0; i < name.length(); i++) {
-	    		char c = name.charAt(i);
-	    		String s = new StringBuilder().append(c).toString();
-	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
-	    	}
-	    	
-	    	System.out.println("Test Question: Edit Default Answer");			
-		}
-		
-	
-		
-		@Test(priority = 194) //						//PERMISSION Issues - Resolved for Pre-Prod, PROD needs to be fixed 			
-		private void selectAdvancedOptions01() {			
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("button_advanced"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			//waitMethods.waiter(waitMethods.w500);	
-	    	System.out.println("Select Advanced Options");
-		}
-		
-		
-/*		
-TODO:		
-			Advanced Formatting:		id=  advNameEditor
-			
-		  	Required:					id=  required
-		  	Sensitive:					id=  sensitive
-			Sort Priority: 				id=  sort
-			Parent Question ID:			id=	 Different for each
-
-			
-			Save:						id=  button_save
-			Cancel:						id=  button_cancelchange
-			Advanced Options			id = button_advanced
-		
-*/	
-	
-		
-//		@Test(priority = 196) //						//  In test in class TestHTMLBox
-//		private void inputHTMLEditData() {			
-//			waitMethods.waiter(waitMethods.w500);       
-//			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[1]/div[6]/div[1]/div"));
-//			String strHTML = "HTML Text Here";
-//			//String strHTML = "<button id=\"button_save\" class=\"usa-button leaf-btn-med\" style=\"border: 2px solid white; "
-//			//		+ "visibility: visible;\">\r\n"
-//			//		+ "                        Save\r\n"
-//			//		+ "                    </button>";
+//		@Test(priority = 160) //  
+//		private void selectAddSectionHeading01() {			//Will reuse this to add all field types
+//			waitMethods.waiter(waitMethods.w500);       	 
+//			WebElement ele = driver.findElement(By.cssSelector("#formEditor_form > div > div.buttonNorm"));
 //	    	highlightElement.highLightElement(driver, ele);
-//	   		ele.sendKeys(strHTML);
-//			//waitMethods.waiter(waitMethods.w500);	
-//	    	System.out.println("Input HTML-Edit Data");
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w300);
+//	    	System.out.println("Test Question: +Add Section Heading)");
 //		}
-
-		
-		
-		
-		
-		
-
-
-		@Test(priority = 198) //						//  			
-		private void selectSaveCode01a() {			
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("btn_codeSave_html"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			//waitMethods.waiter(waitMethods.w500);	
-	    	System.out.println("Select Save Code (1st HTML box)");
-		}
-
-
-
-
-//		@Test(priority = 200) //						////  In test in class TestHTMLBox  			
-//		private void inputHTMLReadData01() {			
+//		
+//		
+//
+//		
+//		@Test(priority = 162) //
+//		private void inputFieldName01() {
 //			waitMethods.waiter(waitMethods.w500);       
-//			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[2]/div[6]/div[1]"));
-//			String strHTML = "<title>Form Editor&nbsp; - Academy Demo Site (Test site) | Washington DC</title>";
+//			WebElement ele = driver.findElement(By.id("name"));
 //	    	highlightElement.highLightElement(driver, ele);
-//	   		ele.sendKeys(strHTML);
-//			//waitMethods.waiter(waitMethods.w500);	
-//	    	System.out.println("Input HTML-Read Data");
+//	    	
+//	    	String name = "Test Q1 Single line text";
+//	   
+//	    	for(int i = 0; i < name.length(); i++) {
+//	    		char c = name.charAt(i);
+//	    		String s = new StringBuilder().append(c).toString();
+//	    		ele.sendKeys(s);
+//	    		waitMethods.waiter(waitMethods.w30);
+//	    	}
+//	    	
+//	    	System.out.println("Test Question: Single line text)");			
 //		}
-		
-		
-		
-		@Test(priority = 202) //						//  			
-		private void selectSaveCode01b() {			
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("btn_codeSave_htmlPrint"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			//waitMethods.waiter(waitMethods.w500);	
-	    	System.out.println("Select Save Code (2nd HTML box)");
-		}
-		
-		
-	
-		@Test(priority = 204) //  			
-		private void selectSaveQuestion01() {			
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("button_save"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w500);	
-	    	System.out.println("Select Save Code (2nd HTML box)");
-		}
-		
-		
-/////////////////     Advanced Formatting    \\\\\\\\\\\\\\\\\\		
-		
-		
-		@Test(priority = 206) //	  			
-		private void selectEditFieldIcon02() {		
-			selectEditFieldIcon();
-		}
-		
-		
-		
-		
-		@Test(priority = 208) //  Advanced Formatting
-		private void selectAdvancedFormatting() {			//
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("advNameEditor"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w500);
-	    	System.out.println("Select Advanced Formatting Button");
-		}
-		
-		
-	
-		@Test(priority = 210) //  Select textarea element (actually the div above it)
-		private void selectTextToFormat() {			//
-			waitMethods.waiter(waitMethods.w500);      // 
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[1]/div/div[2]"));
-			//WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/div[2]"));
-			//WebElement ele = driver.findElement(By.id("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/textarea"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		waitMethods.waiter(waitMethods.w500);
-	   		
-	   		
-	   		//String str = ele.getAttribute("value");
-	   		ele.sendKeys(Keys.chord(Keys.CONTROL, "a"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		waitMethods.waiter(waitMethods.w500);
-	   		System.out.println("Select Text to Format");
-		}	
-		
-//PICKUP HERE		
-		
-		@Test(priority = 212) //  ERR HERE
-		private void formatTextBold() {			//            //	  'B' Bold icon 			
-												//		  
-	   		WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/div[1]/div[2]/button"));
-	   		//WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/div[1]/div[2]/button"));
-	   		highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-	   		waitMethods.waiter(waitMethods.w500);
-	   		
-	    	System.out.println("Format text - Bold");
-		}	
-		
-		
-		
-		
-		@Test(priority = 214) //  			
-		private void selectSaveQuestion02() {			
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("button_save"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w500);	
-	    	System.out.println("Select Save Code");
-		}
-		
-		
-		
-		@Test(priority = 216) //	  			
-		private void selectEditFieldIcon03() {		
-			selectEditFieldIcon();
-		}
-		
-		
-		
-		
-		@Test(priority = 218) //  Show Formatted Code			//Resolved ERR	advNameEditor = to open advanced editor
-		private void showFormatedCode() {			//				//  		rawNameEditor = to see HTML
-			waitMethods.waiter(waitMethods.w500);       
-			WebElement ele = driver.findElement(By.id("rawNameEditor"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w500);
-	    	System.out.println("Select Show Formated Code Button");
-		}	
-		
-		
-
-		
-		
-
-		
-		
-		@Test(priority = 230) //  
-		private void validateFormatBold() {			//
-			waitMethods.waiter(waitMethods.w500);      // 
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/textarea"));
-	    	highlightElement.highLightElement(driver, ele);
-	    						  
-	    	String strExpected = "<p><strong>Test Q1 Single line text</strong></p>";
-	    	
-	   		String strActual = ele.getText().toString();
-	   		
-	   		System.out.println("strExpected: " + strExpected);
-	   		System.out.println("strActual: " + strActual);
-			waitMethods.waiter(waitMethods.w500);
-
-			Assert.assertEquals(strActual, strExpected);
-
-	    	//if(!str.contains("strong")) {
-	    	//	Assert.fail();
-
-		    System.out.println("Format text - Bold");
-	    	 
-		}
-		
-		
-		
-		@Test(priority = 232) //  save
-		private void selectSave03() {			//
-			selectSave();
-		}	
-		
-		
+//		
+//
+//		
+//		@Test(priority = 164) //
+//		private void inputShortLabel01() {
+//			waitMethods.waiter(waitMethods.w300);       
+//			WebElement ele = driver.findElement(By.id("description"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	    	
+//	    	String name = "Q1";
+//	   
+//	    	for(int i = 0; i < name.length(); i++) {
+//	    		char c = name.charAt(i);
+//	    		String s = new StringBuilder().append(c).toString();
+//	    		ele.sendKeys(s);
+//	    		waitMethods.waiter(waitMethods.w30);
+//	    	}
+//	    	
+//	    	System.out.println("Test Question: Short Label)");			
+//		}
+//
+//		
+//
+//		@Test(priority = 168) //
+//		public void selectSingleLineText01() {         
+//			//waitMethods.implicitWait(waitMethods.w300);
+//			waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
+//			WebElement ele = driver.findElement(By.id("indicatorType"));
+//			highlightElement.highLightElement(driver, ele);
+//			ele.click();
+//			waitMethods.waiter(waitMethods.w300);
+//			Select select = new Select(driver.findElement(By.id("indicatorType")));
+//			highlightElement.highLightElement(driver, ele);
+//			select.selectByValue("text");
+//			waitMethods.waiter(waitMethods.w200);
+//			WebElement ele2 = driver.findElement(By.id("indicatorType"));
+//			ele2.click();
+//			System.out.println("Test Question: Single Line Text");
+//		}
+//		
+//		
+//		@Test(priority = 170) //  
+//		private void selectQuestionCancel() {			//
+//			waitMethods.waiter(waitMethods.w300);       
+//			WebElement ele = driver.findElement(By.id("button_cancelchange"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w300);
+//	    	System.out.println("Test Question: Cancel button");
+//		}
+//		
+//		
+//		@Test(priority = 172) //  
+//		private void selectAddSectionHeading01R() {	
+//			selectAddSectionHeading01();
+//		}
+//		
+//		
+//		@Test(priority = 174) //
+//		private void inputFieldName01R() {
+//			inputFieldName01();
+//		}
+//		
+//		
+//		@Test(priority = 176) //
+//		private void inputShortLabel01R() {
+//			inputShortLabel01();
+//		}
+//		
+//		
+//		@Test(priority = 178) //
+//		public void selectSingleLineText01R() {
+//			selectSingleLineText01();
+//		}
+//
+//		
+//
+//		@Test(priority = 180) //
+//		private void inputDefaultAnswer01() {
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("default"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	    	
+//	    	String name = "MR Test Default Response Q1";
+//	   
+//	    	for(int i = 0; i < name.length(); i++) {
+//	    		char c = name.charAt(i);
+//	    		String s = new StringBuilder().append(c).toString();
+//	    		ele.sendKeys(s);
+//	    		waitMethods.waiter(waitMethods.w30);
+//	    	}
+//	    	
+//	    	System.out.println("Test Question: input Default Answer");			
+//		}
+//		
+//		
+//		@Test(priority = 182) //  
+//		private void selectFieldRequired01() {			//
+//			waitMethods.waiter(waitMethods.w300);       
+//			WebElement ele = driver.findElement(By.id("required"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w300);
+//	    	System.out.println("Test Question: Field Required = Y");
+//		}
+//		
+//		
+//		@Test(priority = 184) //  
+//		private void selectFieldSensitiveData01() {			//
+//			waitMethods.waiter(waitMethods.w300);       
+//			WebElement ele = driver.findElement(By.id("sensitive"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//	   		waitMethods.waiter(waitMethods.w300);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w300);
+//	    	System.out.println("Test Question: Sensitive Data = N");
+//		}
+//		
+//		
+//		
+//		@Test(priority = 186) //  
+//		private void selectSortValue01() {			//
+//			waitMethods.waiter(waitMethods.w300);       
+//			WebElement ele = driver.findElement(By.id("sort"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.sendKeys("1");
+//			waitMethods.waiter(waitMethods.w300);
+//	    	System.out.println("Test Question: Sort Priority");
+//		}
+//		
+//		
+//		@Test(priority = 188) //  
+//		private void selectQuestionSave01() {			//
+//			waitMethods.waiter(waitMethods.w300);       
+//			WebElement ele = driver.findElement(By.id("button_save"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w300);						//CHANGE TO w300
+//	    	System.out.println("Test Question: Save button");
+//		}
+//// -  Currently the VAPO Site does not save the question	RESOLVED	
+//		
+//		@Test(priority = 190) //									
+//		private void selectEditFieldIcon() {			//Try this: //img[contains(@title,'Collector')]
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.xpath("//*[contains(text(),'Test Q1 Single line text')]"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w500);	
+//	    	System.out.println("Test Question: Edit Field Icon");
+//		}
+//		
+//		
+//		@Test(priority = 192) //
+//		private void editDefaultAnswer01() {  //
+//			waitMethods.waiter(waitMethods.w1k);       
+//			WebElement ele = driver.findElement(By.id("default"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	    	ele.clear();
+//	    	
+//	    	String name = "Test Default";
+//	   
+//	    	for(int i = 0; i < name.length(); i++) {
+//	    		char c = name.charAt(i);
+//	    		String s = new StringBuilder().append(c).toString();
+//	    		ele.sendKeys(s);
+//	    		waitMethods.waiter(waitMethods.w30);
+//	    	}
+//	    	
+//	    	System.out.println("Test Question: Edit Default Answer");			
+//		}
+//		
+//	
+//		
+//		@Test(priority = 194) //						//PERMISSION Issues - Resolved for Pre-Prod, PROD needs to be fixed 			
+//		private void selectAdvancedOptions01() {			
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("button_advanced"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			//waitMethods.waiter(waitMethods.w500);	
+//	    	System.out.println("Select Advanced Options");
+//		}
+//		
+//		
+///*		
+//TODO:		
+//			Advanced Formatting:		id=  advNameEditor
+//			
+//		  	Required:					id=  required
+//		  	Sensitive:					id=  sensitive
+//			Sort Priority: 				id=  sort
+//			Parent Question ID:			id=	 Different for each
+//
+//			
+//			Save:						id=  button_save
+//			Cancel:						id=  button_cancelchange
+//			Advanced Options			id = button_advanced
+//		
+//*/	
+//	
+//		
+////		@Test(priority = 196) //						//  In test in class TestHTMLBox
+////		private void inputHTMLEditData() {			
+////			waitMethods.waiter(waitMethods.w500);       
+////			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[1]/div[6]/div[1]/div"));
+////			String strHTML = "HTML Text Here";
+////			//String strHTML = "<button id=\"button_save\" class=\"usa-button leaf-btn-med\" style=\"border: 2px solid white; "
+////			//		+ "visibility: visible;\">\r\n"
+////			//		+ "                        Save\r\n"
+////			//		+ "                    </button>";
+////	    	highlightElement.highLightElement(driver, ele);
+////	   		ele.sendKeys(strHTML);
+////			//waitMethods.waiter(waitMethods.w500);	
+////	    	System.out.println("Input HTML-Edit Data");
+////		}
+//
+//		
+//		
+//		
+//		
+//		
+//
+//
+//		@Test(priority = 198) //						//  			
+//		private void selectSaveCode01a() {			
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("btn_codeSave_html"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			//waitMethods.waiter(waitMethods.w500);	
+//	    	System.out.println("Select Save Code (1st HTML box)");
+//		}
+//
+//
+//
+//
+////		@Test(priority = 200) //						////  In test in class TestHTMLBox  			
+////		private void inputHTMLReadData01() {			
+////			waitMethods.waiter(waitMethods.w500);       
+////			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[2]/div[6]/div[1]"));
+////			String strHTML = "<title>Form Editor&nbsp; - Academy Demo Site (Test site) | Washington DC</title>";
+////	    	highlightElement.highLightElement(driver, ele);
+////	   		ele.sendKeys(strHTML);
+////			//waitMethods.waiter(waitMethods.w500);	
+////	    	System.out.println("Input HTML-Read Data");
+////		}
+//		
+//		
+//		
+//		@Test(priority = 202) //						//  			
+//		private void selectSaveCode01b() {			
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("btn_codeSave_htmlPrint"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			//waitMethods.waiter(waitMethods.w500);	
+//	    	System.out.println("Select Save Code (2nd HTML box)");
+//		}
+//		
+//		
+//	
+//		@Test(priority = 204) //  			
+//		private void selectSaveQuestion01() {			
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("button_save"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w500);	
+//	    	System.out.println("Select Save Code (2nd HTML box)");
+//		}
+//		
+//		
+///////////////////     Advanced Formatting    \\\\\\\\\\\\\\\\\\		
+//		
+//		
+//		@Test(priority = 206) //	  			
+//		private void selectEditFieldIcon02() {		
+//			selectEditFieldIcon();
+//		}
+//		
+//		
+//		
+//		
+//		@Test(priority = 208) //  Advanced Formatting
+//		private void selectAdvancedFormatting() {			//
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("advNameEditor"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w500);
+//	    	System.out.println("Select Advanced Formatting Button");
+//		}
+//		
+//		
+//	
+//		@Test(priority = 210) //  Select textarea element (actually the div above it)
+//		private void selectTextToFormat() {			//
+//			waitMethods.waiter(waitMethods.w500);      // 
+//			WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[1]/div/div[2]"));
+//			//WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/div[2]"));
+//			//WebElement ele = driver.findElement(By.id("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/textarea"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		waitMethods.waiter(waitMethods.w500);
+//	   		
+//	   		
+//	   		//String str = ele.getAttribute("value");
+//	   		ele.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		waitMethods.waiter(waitMethods.w500);
+//	   		System.out.println("Select Text to Format");
+//		}	
+//		
+//// HERE		
+//		
+//		@Test(priority = 212) //  ERR HERE
+//		private void formatTextBold() {			//            //	  'B' Bold icon 			
+//												//		  
+//	   		WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/div[1]/div[2]/button"));
+//	   		//WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/div/div[1]/div[2]/button"));
+//	   		highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//	   		waitMethods.waiter(waitMethods.w500);
+//	   		
+//	    	System.out.println("Format text - Bold");
+//		}	
+//		
+//		
+//		
+//		
+//		@Test(priority = 214) //  			
+//		private void selectSaveQuestion02() {			
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("button_save"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w500);	
+//	    	System.out.println("Select Save Code");
+//		}
+//		
+//		
+//		
+//		@Test(priority = 216) //	  			
+//		private void selectEditFieldIcon03() {		
+//			selectEditFieldIcon();
+//		}
+//		
+//		
+//		
+//		
+//		@Test(priority = 218) //  Show Formatted Code			//Resolved ERR	advNameEditor = to open advanced editor
+//		private void showFormatedCode() {			//				//  		rawNameEditor = to see HTML
+//			waitMethods.waiter(waitMethods.w500);       
+//			WebElement ele = driver.findElement(By.id("rawNameEditor"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	   		ele.click();
+//			waitMethods.waiter(waitMethods.w500);
+//	    	System.out.println("Select Show Formated Code Button");
+//		}	
+//		
+//		
+//
+//		
+//		
+//
+//		
+//		
+//		@Test(priority = 230) //  
+//		private void validateFormatBold() {			//
+//			waitMethods.waiter(waitMethods.w500);      // 
+//			WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[1]/textarea"));
+//	    	highlightElement.highLightElement(driver, ele);
+//	    						  
+//	    	String strExpected = "<p><strong>Test Q1 Single line text</strong></p>";
+//	    	
+//	   		String strActual = ele.getText().toString();
+//	   		
+//	   		System.out.println("strExpected: " + strExpected);
+//	   		System.out.println("strActual: " + strActual);
+//			waitMethods.waiter(waitMethods.w500);
+//
+//			Assert.assertEquals(strActual, strExpected);
+//
+//	    	//if(!str.contains("strong")) {
+//	    	//	Assert.fail();
+//
+//		    System.out.println("Format text - Bold");
+//	    	 
+//		}
+//		
+//		
+//		
+//		@Test(priority = 232) //  save
+//		private void selectSave03() {			//
+//			selectSave();
+//		}	
+//		
+////		TODO: *** PICKUP HERE *****   Comment out the rest of code		
 //		@Test(priority = 234) //	  			
 //		private void selectEditFieldIcon04() {		
 //			//selectEditFieldIcon();
@@ -1035,8 +1056,8 @@ TODO:
 //			selectSave();
 //		}	
 //		
-		
-/////////////////    Add Sub-question  \\\\\\\\\\\\\\\\\\\\
+//		
+///////////////////    Add Sub-question  \\\\\\\\\\\\\\\\\\\\
 //		
 //		
 //		@Test(priority = 250) //  add sub-question		//
@@ -1180,7 +1201,7 @@ TODO:
 //		
 //
 //		
-////==============    Q1 Subquestion 02 ==================================================================
+//////==============    Q1 Subquestion 02 ==================================================================
 //
 //		@Test(priority = 270) //  add sub-question		//
 //		private void addSubQuestion01S02() {
@@ -1804,8 +1825,8 @@ TODO:
 //	
 //			
 //			
-//////// Go into Properties and a) change title, b) set sort priority to -128, which will (usually) make it the
-//			// first form on the page
+////////// Go into Properties and a) change title, b) set sort priority to -128, which will (usually) make it the
+////			// first form on the page
 //			
 //			
 //			
