@@ -52,7 +52,16 @@ class LogFormatter{
             }
         }
 
-        return vsprintf($message,$variableArray);
+        // try our sprintf.
+        try{
+            $output_message = vsprintf($message,$variableArray);
+        }
+        // if we have an error need to say something, maybe this?
+        catch(ValueError $e){
+            $output_message = 'Format error: ' . $e->getMessage() . ' Message:' . $message . ' Values: ' . implode(', ', $variableArray);
+        }
+
+        return $output_message;
     }
 
     private static function findValue($changeDetails, $columnName, $loggableColumns, $message){
