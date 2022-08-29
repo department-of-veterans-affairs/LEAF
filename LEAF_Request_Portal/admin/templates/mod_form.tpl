@@ -2348,7 +2348,7 @@ $(function() {
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->
 
-    <!--{if $referFormLibraryID != ''}-->
+    <!--{if $referFormLibraryID != 0}-->
     postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
         .animate({'background-color': 'white'}, 1000)

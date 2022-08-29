@@ -45,26 +45,19 @@
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'multiselect'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
-            <!--{if $indicator.value != ''}-->
-            <!--{assign var='vals' value=$indicator.value}-->
-            <!--{assign var='toString' value=','|implode:$vals}-->
-
-            <!--{if isset($toString.0)}-->  <!--if this is set, value is in new array format-->
-                <!--{foreach from=$indicator.value item=val}-->
-                    <!--{if $val !== 'no' && $val !== ''}-->    
-                        &bull;&nbsp;<!--{$val|sanitize}-->
-                        </br>
+                <span class="printResponse">
+            <!--{assign var='idx' value=0}-->
+            <ul>
+            <!--{foreach from=$indicator.value item=option}-->
+                    <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
+                    <!--{if $indicator.value[$idx] != 'no'}-->
+                        <li><!--{$option|sanitize}--></li>
                     <!--{/if}-->
-                <!--{/foreach}-->
-            <!--{else}-->       <!--handle possible string concatenated values-->
-                <!--{if $indicator.value !== 'no' && $indicator.value !== ''}-->
-                &bull;&nbsp;<!--{$indicator.value|regex_replace:'/,(?!\s)/':'<br/>&bull;&nbsp;'|sanitize}-->
-                <!--{/if}-->
-            <!--{/if}-->
-            <!--{/if}-->
-            </span>
-            <!--{$indicator.htmlPrint}-->
+                    <!--{assign var='idx' value=$idx+1}-->
+            <!--{/foreach}-->
+            </ul>
+                </span>
+                <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
@@ -123,14 +116,16 @@
         <!--{if $indicator.format == 'checkboxes'}-->
                 <span class="printResponse">
             <!--{assign var='idx' value=0}-->
+            <ul style="list-style: none">
             <!--{foreach from=$indicator.value item=option}-->
-                    <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" /> <!-- dumb workaround -->
+                    <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
                     <!--{if $indicator.value[$idx] != 'no'}-->
-                        <br /><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
-                        <!--{$option|sanitize}-->
+                        <li><img class="print" src="../libs/dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
+                        <!--{$option|sanitize}--></li>
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
+            </ul>
                 </span>
                 <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
