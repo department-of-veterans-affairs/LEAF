@@ -35,7 +35,7 @@ $(function() {
             url: './utils/LEAF_exportStandardConfig.php',
             dataType: 'text',
             success: function(res) {
-                $('#outputLog').val($('#outputLog').val() + res);
+                $('#outputLog').val($('#outputLog').val() + res + '... Done.');
                 $('#test').attr('disabled', false);
                 $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
             }
