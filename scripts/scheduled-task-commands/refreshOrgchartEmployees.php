@@ -8,7 +8,7 @@ $blacklist = [
 ];
 
 $folder_to_check = 'orgchart';
-$folder_to_check = 'LEAF_Nexus';
+//$folder_to_check = 'LEAF_Nexus';
 
 $startTime = microtime(true);
 
