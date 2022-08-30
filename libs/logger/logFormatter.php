@@ -44,10 +44,10 @@ class LogFormatter{
 
         $variableArray = [];
 
-        foreach($formatVariables as $formatVariable){
+        foreach($formatVariables as $formatVariable) {
             $result = self::findValue($logData["items"], $formatVariable, $loggableColumns, $message);
             $message = $result["message"];
-            foreach($result["values"] as $value){
+            foreach($result["values"] as $value) {
                 array_push($variableArray, $value);
             }
         }
@@ -68,7 +68,7 @@ class LogFormatter{
                     array_push($result["values"], $value);
                 }
             }
-            if($detail["column"] == $columnName){
+            if($detail["column"] == $columnName) {
                 $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
                 array_push($result["values"], $value);
             }
