@@ -44,15 +44,25 @@ class LogFormatter{
 
         $variableArray = [];
 
-        foreach($formatVariables as $formatVariable){
+        foreach($formatVariables as $formatVariable) {
             $result = self::findValue($logData["items"], $formatVariable, $loggableColumns, $message);
             $message = $result["message"];
-            foreach($result["values"] as $value){
+            foreach($result["values"] as $value) {
                 array_push($variableArray, $value);
             }
         }
 
-        return vsprintf($message,$variableArray);
+        // try our sprintf.
+        try{
+            $output_message = vsprintf($message,$variableArray);
+        }
+        // if we have an error need to say something, maybe this?
+        catch(ValueError $e){
+            //$output_message = 'Format error: ' . $e->getMessage() . ' Message:' . $message . ' Values: ' . implode(', ', $variableArray);
+            $output_message = FALSE;
+        }
+
+        return $output_message;
     }
 
     private static function findValue($changeDetails, $columnName, $loggableColumns, $message){
@@ -68,7 +78,7 @@ class LogFormatter{
                     array_push($result["values"], $value);
                 }
             }
-            if($detail["column"] == $columnName){
+            if($detail["column"] == $columnName) {
                 $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
                 array_push($result["values"], $value);
             }
