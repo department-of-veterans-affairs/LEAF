@@ -9,7 +9,7 @@ try {
 
     // in the future stuff like this will be spun off through a different program.
     // Until then to keep thinks straight forward this could be done in individual files to be called.
-    $test = new TimeBracketCmd('refreshOrgchartEmployees.sh');
+    $test = new TimeBracketCmd('refreshOrgchartEmployees.php');
 
     $test->setRunAtExactTime('6 am');
     $test->run();
