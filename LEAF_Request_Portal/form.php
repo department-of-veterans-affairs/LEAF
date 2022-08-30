@@ -490,7 +490,6 @@ class Form
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
         $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
-        $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
         $form[$idx]['displayedValue'] = ''; // used for Org Charts
         $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
         $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
@@ -531,12 +530,15 @@ class Form
         {
             $values = @unserialize($data[0]['data']);
             $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
+            $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
             $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
         }
 
-        // handle multiselect format (new serialized arrays and old string concat values)
+        // handle multiselect and checkboxes format
+        // includes backwards compatibility for data stored as CSV
         if (isset($data[0]['data']) && $data[0]['data'] != ''
-            && (substr($data[0]['format'], 0, 11) == 'multiselect'))
+            && (substr($data[0]['format'], 0, 11) == 'multiselect'
+                || substr($data[0]['format'], 0, 10) == 'checkboxes'))
         {
             $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
         }
@@ -3595,7 +3597,6 @@ class Form
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
                 $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
-                $child[$idx]['value'] = @unserialize($data[$idx]['data']) === false ? $child[$idx]['value'] : unserialize($data[$idx]['data']);
                 $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ? $data[$idx]['timestamp'] : 0;
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
@@ -3645,6 +3646,23 @@ class Form
                     $groupTitle = $this->group->getGroup($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
                 }
+                if (substr($field['format'], 0, 4) == 'grid'
+                    && isset($data[$idx]['data']))
+                {
+                    $values = @unserialize($data[$idx]['data']);
+                    $format = json_decode(substr($field['format'], 5, -1) . ']');
+                    $child[$idx]['value'] = @unserialize($child[$idx]['value']) === false ? $child[$idx]['value'] : unserialize($child[$idx]['value']);
+                    $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+                }
+        
+                // handle multiselect and checkboxes formats
+                // includes backwards compatibility for data stored as CSV
+                if (isset($data[$idx]['data']) && $data[$idx]['data'] != ''
+                    && (substr($field['format'], 0, 11) == 'multiselect'
+                        || substr($field['format'], 0, 10) == 'checkboxes'))
+                {
+                    $child[$idx]['value'] = @unserialize($data[$idx]['data']) !== false ? @unserialize($data[$idx]['data']) : preg_split('/,(?!\s)/', $data[$idx]['data']);
+                }
 
                 if($parseTemplate) {
                     $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
@@ -3653,13 +3671,6 @@ class Form
                     $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['htmlPrint']);
-                }
-
-		// handle multiselect format (new serialized arrays and old string concat values)
-                if (isset($data[$idx]['data']) && $data[$idx]['data'] != ''
-                    && ($inputType[0] == 'multiselect'))
-                {
-                    $child[$idx]['value'] = @unserialize($data[$idx]['data']) !== false ? @unserialize($data[$idx]['data']) : preg_split('/,(?!\s)/', $data[$idx]['data']);
                 }
 		    
                 if ($child[$idx]['isMasked'])
