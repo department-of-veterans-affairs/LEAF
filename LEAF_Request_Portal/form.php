@@ -3672,13 +3672,6 @@ class Form
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['htmlPrint']);
                 }
-
-		// handle multiselect format (new serialized arrays and old string concat values)
-                if (isset($data[$idx]['data']) && $data[$idx]['data'] != ''
-                    && ($inputType[0] == 'multiselect'))
-                {
-                    $child[$idx]['value'] = @unserialize($data[$idx]['data']) !== false ? @unserialize($data[$idx]['data']) : preg_split('/,(?!\s)/', $data[$idx]['data']);
-                }
 		    
                 if ($child[$idx]['isMasked'])
                 {
