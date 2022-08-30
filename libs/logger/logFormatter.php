@@ -58,7 +58,8 @@ class LogFormatter{
         }
         // if we have an error need to say something, maybe this?
         catch(ValueError $e){
-            $output_message = 'Format error: ' . $e->getMessage() . ' Message:' . $message . ' Values: ' . implode(', ', $variableArray);
+            //$output_message = 'Format error: ' . $e->getMessage() . ' Message:' . $message . ' Values: ' . implode(', ', $variableArray);
+            $output_message = FALSE;
         }
 
         return $output_message;
