@@ -474,7 +474,7 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
  */
 function addIndicatorPrivilege(indicatorID, indicatorName = '[blank]') {
     dialog.setTitle(`Edit Privileges - ${indicatorID}`);
-    dialog.setContent(`Select which group should have access to<div style="max-width:500px; margin-top:0.25em"><b>${indicatorName}</b></div><hr/><div id="groups" style="margin: 0.25em 0"></div>`);
+    dialog.setContent(`What group should have access to the following?<div style="max-width:500px; margin-top:0.25em"><b>${indicatorName}</b></div><hr/><div id="groups" style="margin: 0.25em 0"></div>`);
     dialog.indicateBusy();
 
     $.ajax({
