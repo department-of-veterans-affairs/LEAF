@@ -15,7 +15,7 @@ class TimeBracketCmd
     private string $processToRun;
     private string $arguments = '';
     private bool $continue = TRUE;
-    protected string $directoryToRunFrom = 'scheduled-task-commands/';
+    protected string $directoryToRunFrom = __DIR__.'/scheduled-task-commands/';
     protected int $time;
 
     /**
