@@ -39,7 +39,7 @@ function checkForOrgChart($folder, $depth = 0)
         else {
             echo "OrgChart: " . $folder . " - depth: {$depth}\r\n";
             //echo $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php'."\r\n";
-            echo exec('php ' . $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php')."\r\n";
+            echo exec('php ' . $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php' . " > /dev/null 2>/dev/null &")."\r\n";
         }
     } else {
         echo "examine: " . $folder . "\r\n";
