@@ -27,11 +27,12 @@ class XSSHelpers
      * Uses htmlspecialchars()
      *
      * @param   string  $data       the string to be sanitized
+     * @TODO: (this is giving mixed types, INT, NULL)
      * @param   string  $encoding   the encoding to be used (default 'UTF-8')
      *
      * @return  string  the sanitized data
      */
-    public static function xssafe(string $data = '', string $encoding = 'UTF-8')
+    public static function xssafe($data = '', $encoding = 'UTF-8')
     {
         return htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, $encoding);
     }
@@ -39,11 +40,12 @@ class XSSHelpers
     /**
      * Sanitize a string using UTF-8 encoding, escapes all HTML tags.
      *
-     * @param   string  $data   the string to be sanitized
+     * @param   string  $data   the string to be sanitized 
+     * @TODO: (this is getting mixed types, INT, NULL)
      *
      * @return  string  the sanitized data
      */
-    public static function xscrub(string $data = '')
+    public static function xscrub($data = '')
     {
         return self::xssafe($data);
     }
@@ -57,7 +59,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function sanitizer(string $in = '', array $allowedTags = array(), string $encoding = 'UTF-8')
+    public static function sanitizer($in = '', $allowedTags = array(), $encoding = 'UTF-8')
     {
         $errorReportingLevel = error_reporting(E_ERROR);//turn off errors for the next few lines
         // replace linebreaks with <br /> if there's no html <p>'s
@@ -242,7 +244,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function sanitizeHTML(string $in = '')
+    public static function sanitizeHTML($in = '')
     {
         $allowedTags = array('b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
                         'td', 'tr', 'thead', 'tbody', 'span', 'strong', 'em',
@@ -265,7 +267,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function sanitizeHTMLRich(string $in = '')
+    public static function sanitizeHTMLRich($in = '')
     {
         $allowedTags = array('b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
                         'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong',
@@ -286,7 +288,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function scrubNewLinesFromURL(string $stringToSanitize = '')
+    public static function scrubNewLinesFromURL($stringToSanitize = '')
     {
         $toRemove = ['%0a','%0A', '%0d','%0D', '\r', '\n'];
 
@@ -300,7 +302,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function scrubFilename(string $stringToSanitize = '')
+    public static function scrubFilename($stringToSanitize = '')
     {
         $pattern = "/[\/\:\*\?\"\<\>\|\\\]*/";
         
