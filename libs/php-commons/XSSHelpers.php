@@ -31,7 +31,7 @@ class XSSHelpers
      *
      * @return  string  the sanitized data
      */
-    public static function xssafe($data, $encoding = 'UTF-8')
+    public static function xssafe(string $data = '', string $encoding = 'UTF-8')
     {
         return htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, $encoding);
     }
@@ -43,7 +43,7 @@ class XSSHelpers
      *
      * @return  string  the sanitized data
      */
-    public static function xscrub($data)
+    public static function xscrub(string $data = '')
     {
         return self::xssafe($data);
     }
@@ -57,7 +57,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function sanitizer($in, $allowedTags = array(), $encoding = 'UTF-8')
+    public static function sanitizer(string $in = '', array $allowedTags = array(), string $encoding = 'UTF-8')
     {
         $errorReportingLevel = error_reporting(E_ERROR);//turn off errors for the next few lines
         // replace linebreaks with <br /> if there's no html <p>'s
@@ -242,7 +242,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function sanitizeHTML($in)
+    public static function sanitizeHTML(string $in = '')
     {
         $allowedTags = array('b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
                         'td', 'tr', 'thead', 'tbody', 'span', 'strong', 'em',
@@ -265,7 +265,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function sanitizeHTMLRich($in)
+    public static function sanitizeHTMLRich(string $in = '')
     {
         $allowedTags = array('b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table',
                         'td', 'tr', 'thead', 'tbody', 'a', 'span', 'strong',
@@ -286,7 +286,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function scrubNewLinesFromURL($stringToSanitize)
+    public static function scrubNewLinesFromURL(string $stringToSanitize = '')
     {
         $toRemove = ['%0a','%0A', '%0d','%0D', '\r', '\n'];
 
@@ -300,7 +300,7 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function scrubFilename($stringToSanitize)
+    public static function scrubFilename(string $stringToSanitize = '')
     {
         $pattern = "/[\/\:\*\?\"\<\>\|\\\]*/";
         
@@ -314,7 +314,7 @@ class XSSHelpers
      *
      * @return   object  the sanitized object
      */
-    public static function scrubObjectOrArray($objectToScrub)
+    public static function scrubObjectOrArray($objectToScrub = array())
     {
          foreach($objectToScrub as $key => &$value)
         {
