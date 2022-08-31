@@ -84,11 +84,8 @@ class DataActionLogger{
 
         $filterResults = isset($filterById) && isset($filterByColumnName);
 
-        $vars = array(
-            ':filterBy' => $filterByColumnName,
-            ':filterById' => $filterById
-        );
-
+        $vars = array();
+        
         $sqlCreateTemp =
             "
             CREATE TEMPORARY TABLE group_logs
@@ -98,6 +95,10 @@ class DataActionLogger{
             WHERE ";
 
         if($filterResults){
+            $vars = array(
+                ':filterBy' => $filterByColumnName,
+                ':filterById' => $filterById
+            );
             $sqlCreateTemp.="dli.column = :filterBy
             AND
                 dli.VALUE = :filterById
