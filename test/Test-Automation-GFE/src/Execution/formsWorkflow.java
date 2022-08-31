@@ -278,7 +278,7 @@ public class formsWorkflow extends setupFramework {
 		}
 
 		
-		@Test(priority = 120) //
+		@Test(priority = 120) //	TODO: VALUE NEEDS TO BE UPDATED FOR PROD
 		public void selectWorkflow() {         
 			//waitMethods.implicitWait(waitMethods.w500);
 			waitMethods.waiter(waitMethods.w2k);			//The below opens the DDL
@@ -416,13 +416,13 @@ public class formsWorkflow extends setupFramework {
 		}
 
 		
-		@Test(priority = 138) //  
+		@Test(priority = 138) //  ERR HERE 
 		private void selectEditCollaborators() {	
-			waitMethods.waiter(waitMethods.w500);       
+			waitMethods.waiter(waitMethods.w1k);       
 			WebElement ele = driver.findElement(By.id("editFormPermissions"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+			waitMethods.waiter(waitMethods.w100);
 	    	System.out.println("Forms-Selected Edit Collaborators)");
 		}
 
@@ -434,7 +434,7 @@ public class formsWorkflow extends setupFramework {
 			WebElement ele = driver.findElement(By.xpath("//*[text()='Add Group']"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+			waitMethods.waiter(waitMethods.w100);
 	    	System.out.println("Forms-Selected Add Group)");
 		}
 		
@@ -473,14 +473,15 @@ public class formsWorkflow extends setupFramework {
 		private void closeCollaborators() {	
 			waitMethods.waiter(waitMethods.w300);     //       
 			String url = driver.getCurrentUrl();
-			System.out.println("Current URL: " + url);
+			System.out.println("Current URL: " + url.substring(0, 20));
+			System.out.println("Prod Domain: " + AppVariables.PROD_DOMAIN); 
 			
-			if(url == AppVariables.PRE_PROD_FORMS) {	//    												
-				WebElement ele = driver.findElement(By.xpath("/html/body/div[6]/div[1]/button/span[1]"));
+			if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   //   
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[1]/button/span[1]"));
 				highlightElement.highLightElement(driver, ele);
 				ele.click();
-			} else if( url == AppVariables.PROD_FORMS) {
-				WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[1]/button/span[1]"));
+			} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {  //  
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[6]/div[1]/button/span[1]"));
 				highlightElement.highLightElement(driver, ele);
 				ele.click();
 			}
@@ -490,7 +491,7 @@ public class formsWorkflow extends setupFramework {
 		}
 
 		
-		@Test(priority = 148) // 
+		@Test(priority = 148) //   ERR HERE
 		private void selectEditCollaborators2() {	
 			waitMethods.waiter(waitMethods.w500);
 			selectEditCollaborators();
@@ -548,8 +549,8 @@ public class formsWorkflow extends setupFramework {
 		}	
 		
 	
-	//////// Adding New Question  \\\\\\\\   	
-		
+	//////// Adding New Question  \\\\\\\\     
+	/////// HERE: For DEBUGGing, comment here to end \\\\\\\\\\\\\\\\\\\	
 //		@Test(priority = 160) //  
 //		private void selectAddSectionHeading01() {			//Will reuse this to add all field types
 //			waitMethods.waiter(waitMethods.w500);       	 
@@ -721,7 +722,7 @@ public class formsWorkflow extends setupFramework {
 //			waitMethods.waiter(waitMethods.w300);						//CHANGE TO w300
 //	    	System.out.println("Test Question: Save button");
 //		}
-//// -  Currently the VAPO Site does not save the question	RESOLVED	
+//	// -  Currently the VAPO Site does not save the question	RESOLVED	
 //		
 //		@Test(priority = 190) //									
 //		private void selectEditFieldIcon() {			//Try this: //img[contains(@title,'Collector')]
@@ -766,8 +767,8 @@ public class formsWorkflow extends setupFramework {
 //		}
 //		
 //		
-///*		
-//TODO:		
+//	/*		
+//	TODO:		
 //			Advanced Formatting:		id=  advNameEditor
 //			
 //		  	Required:					id=  required
@@ -780,23 +781,23 @@ public class formsWorkflow extends setupFramework {
 //			Cancel:						id=  button_cancelchange
 //			Advanced Options			id = button_advanced
 //		
-//*/	
+//	*/	
 //	
 //		
-////		@Test(priority = 196) //						//  In test in class TestHTMLBox
-////		private void inputHTMLEditData() {			
-////			waitMethods.waiter(waitMethods.w500);       
-////			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[1]/div[6]/div[1]/div"));
-////			String strHTML = "HTML Text Here";
-////			//String strHTML = "<button id=\"button_save\" class=\"usa-button leaf-btn-med\" style=\"border: 2px solid white; "
-////			//		+ "visibility: visible;\">\r\n"
-////			//		+ "                        Save\r\n"
-////			//		+ "                    </button>";
-////	    	highlightElement.highLightElement(driver, ele);
-////	   		ele.sendKeys(strHTML);
-////			//waitMethods.waiter(waitMethods.w500);	
-////	    	System.out.println("Input HTML-Edit Data");
-////		}
+//	//		@Test(priority = 196) //						//  In test in class TestHTMLBox
+//	//		private void inputHTMLEditData() {			
+//	//			waitMethods.waiter(waitMethods.w500);       
+//	//			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[1]/div[6]/div[1]/div"));
+//	//			String strHTML = "HTML Text Here";
+//	//			//String strHTML = "<button id=\"button_save\" class=\"usa-button leaf-btn-med\" style=\"border: 2px solid white; "
+//	//			//		+ "visibility: visible;\">\r\n"
+//	//			//		+ "                        Save\r\n"
+//	//			//		+ "                    </button>";
+//	//	    	highlightElement.highLightElement(driver, ele);
+//	//	   		ele.sendKeys(strHTML);
+//	//			//waitMethods.waiter(waitMethods.w500);	
+//	//	    	System.out.println("Input HTML-Edit Data");
+//	//		}
 //
 //		
 //		
@@ -818,16 +819,16 @@ public class formsWorkflow extends setupFramework {
 //
 //
 //
-////		@Test(priority = 200) //						////  In test in class TestHTMLBox  			
-////		private void inputHTMLReadData01() {			
-////			waitMethods.waiter(waitMethods.w500);       
-////			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[2]/div[6]/div[1]"));
-////			String strHTML = "<title>Form Editor&nbsp; - Academy Demo Site (Test site) | Washington DC</title>";
-////	    	highlightElement.highLightElement(driver, ele);
-////	   		ele.sendKeys(strHTML);
-////			//waitMethods.waiter(waitMethods.w500);	
-////	    	System.out.println("Input HTML-Read Data");
-////		}
+//	//		@Test(priority = 200) //						////  In test in class TestHTMLBox  			
+//	//		private void inputHTMLReadData01() {			
+//	//			waitMethods.waiter(waitMethods.w500);       
+//	//			WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div/fieldset/div[2]/div[6]/div[1]"));
+//	//			String strHTML = "<title>Form Editor&nbsp; - Academy Demo Site (Test site) | Washington DC</title>";
+//	//	    	highlightElement.highLightElement(driver, ele);
+//	//	   		ele.sendKeys(strHTML);
+//	//			//waitMethods.waiter(waitMethods.w500);	
+//	//	    	System.out.println("Input HTML-Read Data");
+//	//		}
 //		
 //		
 //		
@@ -854,7 +855,7 @@ public class formsWorkflow extends setupFramework {
 //		}
 //		
 //		
-///////////////////     Advanced Formatting    \\\\\\\\\\\\\\\\\\		
+//	///////////////////     Advanced Formatting    \\\\\\\\\\\\\\\\\\		
 //		
 //		
 //		@Test(priority = 206) //	  			
@@ -894,7 +895,7 @@ public class formsWorkflow extends setupFramework {
 //	   		System.out.println("Select Text to Format");
 //		}	
 //		
-//// HERE		
+//  // HERE		
 //		
 //		@Test(priority = 212) //  ERR HERE
 //		private void formatTextBold() {			//            //	  'B' Bold icon 			
@@ -978,7 +979,7 @@ public class formsWorkflow extends setupFramework {
 //			selectSave();
 //		}	
 //		
-////		TODO: *** PICKUP HERE *****   Comment out the rest of code		
+//	////		TODO: *** PICKUP HERE *****   Comment out the rest of code		
 //		@Test(priority = 234) //	  			
 //		private void selectEditFieldIcon04() {		
 //			//selectEditFieldIcon();
@@ -1057,7 +1058,7 @@ public class formsWorkflow extends setupFramework {
 //		}	
 //		
 //		
-///////////////////    Add Sub-question  \\\\\\\\\\\\\\\\\\\\
+//	///////////////////    Add Sub-question  \\\\\\\\\\\\\\\\\\\\
 //		
 //		
 //		@Test(priority = 250) //  add sub-question		//
@@ -1164,13 +1165,13 @@ public class formsWorkflow extends setupFramework {
 //		
 //		@Test(priority = 262) //  
 //		private void selectFieldSensitiveData01S01() {			//
-//			waitMethods.waiter(waitMethods.w500);       
+//			waitMethods.waiter(waitMethods.w300);       
 //			WebElement ele = driver.findElement(By.id("sensitive"));
 //	    	highlightElement.highLightElement(driver, ele);
 //	   		ele.click();
 //	   		waitMethods.waiter(waitMethods.w200);
 //	   		ele.click();
-//			waitMethods.waiter(waitMethods.w500);
+//			waitMethods.waiter(waitMethods.w300);
 //	    	System.out.println("Test Question: Sensitive Data = N");
 //		}
 //		
@@ -1201,7 +1202,7 @@ public class formsWorkflow extends setupFramework {
 //		
 //
 //		
-//////==============    Q1 Subquestion 02 ==================================================================
+//	//////==============    Q1 Subquestion 02 ==================================================================
 //
 //		@Test(priority = 270) //  add sub-question		//
 //		private void addSubQuestion01S02() {
@@ -1351,13 +1352,13 @@ public class formsWorkflow extends setupFramework {
 //		
 //		@Test(priority = 286) //  
 //		private void selectFieldSensitiveData01S02() {			//
-//			waitMethods.waiter(waitMethods.w500);       
+//			waitMethods.waiter(waitMethods.w300);       
 //			WebElement ele = driver.findElement(By.id("sensitive"));
 //	    	highlightElement.highLightElement(driver, ele);
 //	   		ele.click();
-//	   		waitMethods.waiter(waitMethods.w500);
+//	   		waitMethods.waiter(waitMethods.w100);
 //	   		ele.click();
-//			waitMethods.waiter(waitMethods.w500);
+//			waitMethods.waiter(waitMethods.w200);
 //	    	System.out.println("Test Question: Sensitive Data = N");
 //		}
 //		
@@ -1780,23 +1781,24 @@ public class formsWorkflow extends setupFramework {
 //			
 //			@Test(priority = 350) //  
 //			private void selectFieldRequired01S01S01() {			//
-//				waitMethods.waiter(waitMethods.w500);       
+//				waitMethods.waiter(waitMethods.w250);       
 //				WebElement ele = driver.findElement(By.id("required"));
 //		    	highlightElement.highLightElement(driver, ele);
 //		   		ele.click();
-//				waitMethods.waiter(waitMethods.w500);
+//				waitMethods.waiter(waitMethods.w250);
 //		    	System.out.println("Test Question: Field Required = Y");
 //			}
 //			
 //			
 //			@Test(priority = 352) //  
 //			private void selectFieldSensitiveData01S01S01() {			//
-//				waitMethods.waiter(waitMethods.w500);       
+//				waitMethods.waiter(waitMethods.w250);       
 //				WebElement ele = driver.findElement(By.id("sensitive"));
 //		    	highlightElement.highLightElement(driver, ele);
+//		    	ele.click();
+//		   		waitMethods.waiter(waitMethods.w100);
 //		   		ele.click();
-//		   		//ele.click();
-//				waitMethods.waiter(waitMethods.w500);
+//				waitMethods.waiter(waitMethods.w250);
 //		    	System.out.println("Test Question: Sensitive Data = Y");
 //			}
 //			
@@ -1804,11 +1806,11 @@ public class formsWorkflow extends setupFramework {
 //			
 //			@Test(priority = 362) //  
 //			private void selectSortValue01S01S01() {			//
-//				waitMethods.waiter(waitMethods.w500);       
+//				waitMethods.waiter(waitMethods.w250);       
 //				WebElement ele = driver.findElement(By.id("sort"));
 //		    	highlightElement.highLightElement(driver, ele);
 //		   		ele.sendKeys("4");
-//				waitMethods.waiter(waitMethods.w500);
+//				waitMethods.waiter(waitMethods.w250);
 //		    	System.out.println("Test Question: Sort Priority");
 //			}
 //			
@@ -1819,14 +1821,14 @@ public class formsWorkflow extends setupFramework {
 //				WebElement ele = driver.findElement(By.id("button_save"));
 //		    	highlightElement.highLightElement(driver, ele);
 //		   		ele.click();
-//				waitMethods.waiter(waitMethods.w500);				
+//				waitMethods.waiter(waitMethods.w250);				
 //		    	System.out.println("Test Question: Save button");
 //			}
 //	
 //			
 //			
-////////// Go into Properties and a) change title, b) set sort priority to -128, which will (usually) make it the
-////			// first form on the page
+//	////////// Go into Properties and a) change title, b) set sort priority to -128, which will (usually) make it the
+//	////			// first form on the page
 //			
 //			
 //			

@@ -13,11 +13,10 @@ public class AppVariables {
 										
 	public final static String IEDRIVER = "C:/DEV/Tools/Selenium/IEDriver/IEDriverServer_Win32_3.150.1/IEDriverServer.exe";
 	
-	public final static String PROD_BASE_URL = "https://leaf-preprod.va.gov/Academy/Demo1/";
-	public final static String PRE_PROD_BASE_URL = "https://leaf.va.gov/Academy/Demo1/";
+	public final static String PREPROD_DOMAIN = "https://leaf-preprod.va.gov/";  //  len = 28
+	public final static String PROD_DOMAIN = "https://leaf.va.gov/";	  		 //  len = 20 
 	
-	public final static String PROD_FORMS = PROD_BASE_URL + "admin/?a=form#";
-	public final static String PRE_PROD_FORMS = PROD_BASE_URL + "admin/?a=form#";
+
 
 	
 	//		https://leaf.va.gov/Academy/Demo1/admin/?a=form#
