@@ -2032,13 +2032,16 @@ class Form
         return $res;
     }
 
-    // recordID_list: array from view.php
-    // indicatorID_list: ID#'s delimited by ','
-    public function getCustomData($recordID_list, $indicatorID_list)
+    /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
+     * specified by $indicatorID_list (string of ID#'s delimited by ',')
+     * 
+     * @return array on success | false on malformed input
+     */ 
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list)
     {
-	if (!count($recordID_list)) {
-	    return false;
-	}
+        if (count($recordID_list) == 0) {
+            return $recordID_list;
+        }
 	    
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
