@@ -1,10 +1,10 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //obj w formID: 0, indicatorID: 0, updateIndicatorList: false
+            vueData: vueData,  //init {formID: 0, indicatorID: 0, updateIndicatorList: false}  indID is always set to a number
             windowTop: 0,
-            //indicatorOrg: {},  debug
-            indicators: [],
+            //indicatorOrg: {},  keep
+            indicators: [],  //.indicatorID is now type number. isDisabled is type number
             selectedParentIndicator: {},
             selectedParentOperators: [],
             selectedOperator: '',
