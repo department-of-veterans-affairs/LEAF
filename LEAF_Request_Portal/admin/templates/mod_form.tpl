@@ -124,7 +124,7 @@ function editProperties(isSubForm) {
     dialog.indicateBusy();
     $.ajax({
         type: 'GET',
-        url: '../api/?a=workflow',
+        url: '../api/workflow',
         success: function(res) {
             if(res.length > 0) {
                 let buffer = '<select id="workflowID">';
@@ -162,7 +162,7 @@ function editProperties(isSubForm) {
         if(nameChanged){
             calls.push($.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formName',
+                url: '../api/formEditor/formName',
                 data: {name: $('#name').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -178,7 +178,7 @@ function editProperties(isSubForm) {
         if(descriptionChanged){
             calls.push($.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formDescription',
+                url: '../api/formEditor/formDescription',
                 data: {description: $('#description').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -195,7 +195,7 @@ function editProperties(isSubForm) {
             calls.push(
                 $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formWorkflow',
+                url: '../api/formEditor/formWorkflow',
                 data: {workflowID: $('#workflowID').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -215,7 +215,7 @@ function editProperties(isSubForm) {
             calls.push(
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
+                url: '../api/formEditor/formNeedToKnow',
                 data: {needToKnow: $('#needToKnow').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -232,7 +232,7 @@ function editProperties(isSubForm) {
             calls.push(
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formSort',
+                url: '../api/formEditor/formSort',
                 data: {sort: $('#sort').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -248,7 +248,7 @@ function editProperties(isSubForm) {
         if(visibleChanged){
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formVisible',
+                url: '../api/formEditor/formVisible',
                 data: {visible: $('#visible').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -265,7 +265,7 @@ function editProperties(isSubForm) {
             calls.push(
                 $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formType',
+                url: '../api/formEditor/formType',
                 data: {type: $('#formType').val(),
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'},
@@ -377,7 +377,7 @@ function addPermission(categoryID) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/_'+ categoryID +'/privileges',
+            url: '../api/formEditor/_'+ categoryID +'/privileges',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	   groupID: $('#groupID').val(),
                    read: 1,
