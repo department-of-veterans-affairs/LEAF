@@ -352,7 +352,6 @@ function openContent(url) {
 /**
  * Purpose: Add Permissions to Form
  * @param categoryID
- * @param group
  */
 function addPermission(categoryID) {
     let formTitle = categories[categoryID].categoryName == '' ? 'Untitled' : categories[categoryID].categoryName;
@@ -1088,7 +1087,6 @@ function deleteColumn(event){
             break;
         default:
             focus = column.next().find('[title="Delete column"]');
-            // column.next().focus();
             if(column.find('[title="Move column right"]').css('display') === 'none'){
                 rightArrows(column.prev(), false);
                 leftArrows(column.prev(), true);
@@ -2112,7 +2110,8 @@ $(function() {
     <!--{/if}-->
 
     <!--{if $referFormLibraryID != 0}-->
-    postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
+    postRenderFormBrowser = function() {
+        $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
         .animate({'background-color': 'white'}, 1000)
         .animate({'background-color': 'yellow'}, 1000);
