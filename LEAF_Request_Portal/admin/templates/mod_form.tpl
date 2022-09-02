@@ -37,6 +37,7 @@ let columns = 0;                    //number, def @ ~1268
 
 
 <script>
+
 /**
  * Purpose: Check if an indicator is sensitive (needs to be masked)
  * @param indicator
@@ -91,8 +92,8 @@ function editProperties(isSubForm) {
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
-                                <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
+                            	 <td>Type <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
+                            	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
     $.ajax({
@@ -297,15 +298,14 @@ function editProperties(isSubForm) {
  * @param url
  */
 function openContent(url) {
-	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
-	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-
+    let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
+    let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
     let workflow = '';
-	if(categories[currCategoryID].workflowID != 0) {
-		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
-	} else {
-		workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
-	}
+    if(categories[currCategoryID].workflowID != 0) {
+        workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
+    } else {
+        workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
+    }
     $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
     		                      '<div style="float: right"><div id="editFormData" tabindex="0" onkeypress="onKeyPressClick(event)" class="buttonNorm">Edit Properties</div><br /><div tabindex="0" id="editFormPermissions" onkeypress="onKeyPressClick(event)" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
     		                      '<div style="padding: 8px">' +
@@ -361,7 +361,7 @@ function addPermission(categoryID) {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/groups',
+        url: '../api/system/groups',
         success: function(res) {
             let buffer = '<select id="groupID">';
             for(let i in res) {
@@ -389,12 +389,10 @@ function addPermission(categoryID) {
             cache: false
         });
     });
-
     //ie11 fix
     setTimeout(function () {
         dialog.show();
     }, 0);
-
 }
 
 /**
@@ -404,7 +402,7 @@ function addPermission(categoryID) {
 function removePermission(groupID) {
     $.ajax({
         type: 'POST',
-        url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
+        url: '../api/formEditor/_'+ currCategoryID +'/privileges',
         data: {CSRFToken: '<!--{$CSRFToken}-->',
         	   groupID: groupID,
         	   read: 0,
@@ -420,7 +418,6 @@ function removePermission(groupID) {
  */
 function editPermissions() {
 	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-
 	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
 	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
 	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />'
@@ -429,7 +426,7 @@ function editPermissions() {
 
 	$.ajax({
 		type: 'GET',
-		url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
+		url: '../api/formEditor/_'+ currCategoryID +'/privileges',
 		success: function(res) {
 			let buffer = '<ul>';
 			for(let i in res) {
@@ -479,7 +476,7 @@ function addIndicatorPrivilege(indicatorID, indicatorName = '[blank]') {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/groups',
+        url: '../api/system/groups',
         success: function(res) {
             let buffer = '<select id="groupID">';
             buffer += '<option value="1">System Administrators</option>';
@@ -528,10 +525,8 @@ function editIndicatorPrivileges(indicatorID) {
     portalAPI.FormEditor.getIndicator(
         indicatorID,
         function(indicator) {
-            const indicatorName= indicator[indicatorID]?.name || '[blank]';
-
+            const indicatorName = indicator[indicatorID]?.name || '[blank]';
             dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicatorID);
-
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
                     let buffer = '<ul>';
@@ -560,7 +555,6 @@ function editIndicatorPrivileges(indicatorID) {
             );
         },
         function(err) {
-
         }
     );
 }
@@ -587,9 +581,10 @@ function onKeyPressClick(event){
     }
 }
 
+
 /**
  * Purpose: returns template for the indicator modal
- * @param isEditingModal adds content associated with editing to the template
+ * @param isEditingModal (bool) adds content associated with editing (vs new) to the template
  */
 function getIndicatorModalTemplate(isEditingModal = false) {
     const parentArchDel = `<tr>
@@ -646,7 +641,6 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <textarea id="htmlPrint"></textarea>
             </fieldset>
         </div>`;
-
     return `<fieldset><legend>Field Name</legend>
             <textarea id="name" style="width: 99%"></textarea>
             <button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button>
@@ -743,7 +737,6 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             break;
     }
 }
-
 /**
  * Purpose: adds listeners to indicator modal.
  * adds archive, del and advanced options if editing (vs new question)
@@ -751,9 +744,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
 function addIndicatorModalListeners(isEditingModal = false) {
     //all indicator modals have format render, description, required, sensitive and raw/adv (text formatter)
     $('#indicatorType').on('change', event => renderFormatEntryUI(event.target.value));
-
     $('#description').on('keypress', preventEnterDefault);
-
     $('#required').on('keypress', preventEnterDefault);
     $('#required').on('click', function() {
         if($('#indicatorType').val() == '') {
@@ -792,7 +783,6 @@ function addIndicatorModalListeners(isEditingModal = false) {
             'height': '100px'
         });
     });
-
     if (isEditingModal === true) {  //archive, delete, advanced options
         $('#archived').on('keypress', preventEnterDefault);
         $('#archived').on('change', function(event) {
@@ -836,47 +826,47 @@ function addIndicatorModalListeners(isEditingModal = false) {
  * and option values from respective elements to update #format value for subsequent POST
  */
 function setFormatElementValue() {
-	const formatName = $('#indicatorType').val();
+    const formatName = $('#indicatorType').val();
 
-	let fullFormat = formatName;
-	switch(formatName?.toLowerCase()) {
-		case 'grid':
-			let gridJSON = [];
-			//gather column names and column types
-			//if column type is dropdown, adds property.options
-			$(gridBodyElement).find('div.cell').each(function() {
-				let properties = new Object();
-				if($(this).children('input:eq(0)').val() === 'undefined'){
-					properties.name = 'No title';
-				} else {
-					properties.name = $(this).children('input:eq(0)').val();
-				}
-				properties.id = $(this).attr('id');
-				properties.type = $(this).find('select').val();
-				if(properties.type !== undefined){
-					if(properties.type === 'dropdown'){
-						properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-					}
-				} else {
-					properties.type = 'textarea';
-				}
-				gridJSON.push(properties);
-			});
-			fullFormat += "\n" + JSON.stringify(gridJSON);
-			break;
-		case 'radio':
-		case 'checkboxes':
-		case 'multiselect':
-		case 'dropdown':
-			fullFormat += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-			break;
-		case 'checkbox':
-			fullFormat += "\n" + $('#indicatorSingleAnswer').val();
-			break;
-		default:
-			break;
-	}
-	$('#format').val(fullFormat);
+    let fullFormat = formatName;
+    switch(formatName?.toLowerCase()) {
+        case 'grid':
+            let gridJSON = [];
+            //gather column names and column types
+            //if column type is dropdown, adds property.options
+            $(gridBodyElement).find('div.cell').each(function() {
+                let properties = new Object();
+                if($(this).children('input:eq(0)').val() === 'undefined'){
+                    properties.name = 'No title';
+                } else {
+                    properties.name = $(this).children('input:eq(0)').val();
+                }
+                properties.id = $(this).attr('id');
+                properties.type = $(this).find('select').val();
+                if(properties.type !== undefined){
+                    if(properties.type === 'dropdown'){
+                        properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                    }
+                } else {
+                    properties.type = 'textarea';
+                }
+                gridJSON.push(properties);
+            });
+            fullFormat += "\n" + JSON.stringify(gridJSON);
+            break;
+        case 'radio':
+        case 'checkboxes':
+        case 'multiselect':
+        case 'dropdown':
+            fullFormat += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+            break;
+        case 'checkbox':
+            fullFormat += "\n" + $('#indicatorSingleAnswer').val();
+            break;
+        default:
+            break;
+    }
+    $('#format').val(fullFormat);
 }
 
 /**
@@ -892,14 +882,13 @@ function newQuestion(parentIndicatorID = null) {
     setTimeout(function () {
         dialog.show();
     }, 0);
-
     dialog.setSaveHandler(function() {
     	let isRequired = $('#required').is(':checked') ? 1 : 0;
         let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
         if (isSensitive === 1) {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
+                url: '../api/formEditor/formNeedToKnow',
                 data: {
                     needToKnow: '1',
                     categoryID: currCategoryID,
@@ -908,12 +897,10 @@ function newQuestion(parentIndicatorID = null) {
             });
             categories[currCategoryID].needToKnow = 1;
         }
-
         setFormatElementValue();
-
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/newIndicator',
+            url: '../api/formEditor/newIndicator',
             data: {name: $('#name').val(),
             	format: $('#format').val(),
             	description: $('#description').val(),
@@ -930,7 +917,7 @@ function newQuestion(parentIndicatorID = null) {
                     if($('#sort').val() != '') {
                         $.ajax({
                             type: 'POST',
-                            url: '../api/?a=formEditor/' + res + '/sort',
+                            url: '../api/formEditor/' + res + '/sort',
                             data: {sort: $('#sort').val(),
                                 CSRFToken: '<!--{$CSRFToken}-->'}
                         });
@@ -944,7 +931,7 @@ function newQuestion(parentIndicatorID = null) {
 }
 
 /**
- * Purpose: Update Input Name for grid formats
+ * Purpose: Update Input Name
  */
 function updateNames(){
     $(gridBodyElement).children('div').each(function(i) {
@@ -1183,14 +1170,13 @@ function getForm(indicatorID, series) {
     dialog.setTitle('Editing indicatorID: ' + indicatorID);
     dialog.setContent(getIndicatorModalTemplate(true));
     addIndicatorModalListeners(true);
-
     /**
      * Purpose: Save custom HTML Code
      */
     function saveCodeHTML() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/' + indicatorID + '/html',
+            url: '../api/formEditor/' + indicatorID + '/html',
             data: {
                 html: codeEditorHtml.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'
@@ -1204,14 +1190,13 @@ function getForm(indicatorID, series) {
             }
         });
     }
-
     /**
      * Purpose: Save custom HTML Print Code
      */
     function saveCodeHTMLPrint() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
+            url: '../api/formEditor/' + indicatorID + '/htmlPrint',
             data: {
                 htmlPrint: codeEditorHtmlPrint.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'
@@ -1260,23 +1245,23 @@ function getForm(indicatorID, series) {
     dialog.indicateBusy();
 
     $.when(
-    	    // populate indicator list for parentIDs
-    	    $.ajax({
-    	        type: 'GET',
-    	        url: '../api/form/_' + currCategoryID + '/flat',
-    	        success: function(res) {
-    	            let buffer = '<select id="parentID" style="width: 300px">';
-    	            buffer += '<option value="">None</option>';
-    	            for(let i in res) {
-    	                if(indicatorID != i) {
-    	                    buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
-    	                }
-    	            }
-    	            buffer += '</select>';
-    	            $('#container_parentID').html(buffer);
-    	        },
-    	        cache: false
-    	    })
+        // populate indicator list for parentIDs
+        $.ajax({
+            type: 'GET',
+            url: '../api/form/_' + currCategoryID + '/flat',
+            success: function(res) {
+                let buffer = '<select id="parentID" style="width: 300px">';
+                buffer += '<option value="">None</option>';
+                for(let i in res) {
+                    if(indicatorID != i) {
+                        buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
+                    }
+                }
+                buffer += '</select>';
+                $('#container_parentID').html(buffer);
+            },
+            cache: false
+        })
     ).done(function() {
         $.ajax({
             type: 'GET',
@@ -1286,12 +1271,10 @@ function getForm(indicatorID, series) {
                 const formatName = res[indicatorID]?.format || '';
                 const formatOptions = res[indicatorID]?.options || [];
                 const formatOptionsStr = formatOptions.join('\n');
-
                 if(formatName === 'grid'){
                     gridJSON = JSON.parse(formatOptions[0]);  //NOTE: gridJSON and columns defined
                     columns = gridJSON.length;
                 } 
-
                 $('#name').html(res[indicatorID].name);
                 // auto select advanced editor if it was previously used
                 if(XSSHelpers.containsTags(res[indicatorID].name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
@@ -1323,7 +1306,6 @@ function getForm(indicatorID, series) {
             cache: false
         });
     });
-
     dialog.setSaveHandler(function() {
         /*the below values are used by the indicators table*/
         let requiredIndicator = $('#required').is(':checked') ? 1 : 0;
@@ -1334,23 +1316,22 @@ function getForm(indicatorID, series) {
         if (sensitiveIndicator === 1) {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
+                url: '../api/formEditor/formNeedToKnow',
                 data: {needToKnow: '1',
                 categoryID: currCategoryID,
                 CSRFToken: '<!--{$CSRFToken}-->'}
             });
             categories[currCategoryID].needToKnow = 1;
         }
-
         setFormatElementValue();
-    	dialog.indicateBusy();
+        dialog.indicateBusy();
 
         // check if the user is trying to set an invalid parent ID
         if(indicatorID == $('#parentID').val()) {
-        	alert('Invalid parentID.');
-        	$('#parentID').val('');
-        	dialog.indicateIdle();
-        	return false;
+            alert('Invalid parentID.');
+            $('#parentID').val('');
+            dialog.indicateIdle();
+            return false;
         }
 
         let calls = [];
@@ -1370,7 +1351,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/name',
+                    url: '../api/formEditor/' + indicatorID + '/name',
                     data: {name: $('#name').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
@@ -1381,7 +1362,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/format',
+                    url: '../api/formEditor/' + indicatorID + '/format',
                     data: {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
@@ -1394,7 +1375,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/description',
+                    url: '../api/formEditor/' + indicatorID + '/description',
                     data: {description: $('#description').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
@@ -1405,7 +1386,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/default',
+                    url: '../api/formEditor/' + indicatorID + '/default',
                     data: {default: $('#default').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
@@ -1416,7 +1397,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/required',
+                    url: '../api/formEditor/' + indicatorID + '/required',
                     data: {required: requiredIndicator,
                     CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1426,7 +1407,7 @@ function getForm(indicatorID, series) {
             calls.push(            
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
+                    url: '../api/formEditor/' + indicatorID + '/sensitive',
                     data: {is_sensitive: sensitiveIndicator,
                     CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1436,7 +1417,7 @@ function getForm(indicatorID, series) {
             calls.push(   	        
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/disabled',
+                    url: '../api/formEditor/' + indicatorID + '/disabled',
                     data: {disabled: archivedIndicator,
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1445,7 +1426,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/deleted',
+                    url: '../api/formEditor/' + indicatorID + '/deleted',
                     data: {deleted: deletedIndicator,
                     CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1455,7 +1436,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/parentID',
+                    url: '../api/formEditor/' + indicatorID + '/parentID',
                     data: {parentID: $('#parentID').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
@@ -1471,7 +1452,7 @@ function getForm(indicatorID, series) {
             calls.push(            
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/sort',
+                    url: '../api/formEditor/' + indicatorID + '/sort',
                     data: {sort: $('#sort').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
             }));
@@ -1481,7 +1462,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/html',
+                    url: '../api/formEditor/' + indicatorID + '/html',
                     data: {html: codeEditorHtml.getValue(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
             }));
@@ -1491,7 +1472,7 @@ function getForm(indicatorID, series) {
             calls.push(            
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
+                    url: '../api/formEditor/' + indicatorID + '/htmlPrint',
                     data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1627,10 +1608,10 @@ function mergeForm(categoryID) {
         });
     });
 
-    //ie11 fix
-    setTimeout(function () {
-        dialog.show();
-    }, 0);
+		//ie11 fix
+		setTimeout(function () {
+			dialog.show();
+		}, 0);
 
 }
 
@@ -1660,7 +1641,7 @@ function mergeFormDialog(categoryID) {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=formEditor/_'+ categoryID +'/stapled',
+        url: '../api/formEditor/_'+ categoryID +'/stapled',
         success: function(res) {
             let buffer = '<ul>';
             for(let i in res) {
@@ -1694,7 +1675,7 @@ function exportForm(categoryID) {
 	promise = promise.then(function() {
 		return $.ajax({
 	        type: 'GET',
-	        url: '../api/?a=form/_' + categoryID + '/export',
+	        url: '../api/form/_' + categoryID + '/export',
 	        success: function(res) {
 	            packet.form = res;
 	            packet.categoryID = categoryID;
@@ -1705,7 +1686,7 @@ function exportForm(categoryID) {
     promise = promise.then(function() {
         return $.ajax({
             type: 'GET',
-            url: '../api/?a=form/_' + categoryID + '/workflow',
+            url: '../api/form/_' + categoryID + '/workflow',
             success: function(res) {
                 packet.workflowID = res[0].workflowID;
             }
@@ -1718,7 +1699,7 @@ function exportForm(categoryID) {
             	function(subCategoryID) {
                     return $.ajax({
                         type: 'GET',
-                        url: '../api/?a=form/_' + subCategoryID + '/export',
+                        url: '../api/form/_' + subCategoryID + '/export',
                         success: function(res) {
                         	packet.subforms[subCategoryID] = {};
                         	packet.subforms[subCategoryID].name = categories[subCategoryID].categoryName;
@@ -1755,7 +1736,7 @@ function deleteForm() {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
-			url: '../api/?a=formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
+			url: '../api/formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
 			success: function(res) {
 			    if(res != true) {
 			        alert(res);
@@ -1844,16 +1825,15 @@ function selectForm(categoryID) {
     openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
 }
 
-
 /**
  * Purpose: Show Form Nav
  */
 function showFormBrowser() {
     window.location = '#';
-	$('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
+    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
@@ -1861,28 +1841,28 @@ function showFormBrowser() {
             let buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
             for(let i in res) {
-            	categories[res[i].categoryID] = res[i];  //NOTE: categories set
-            	if(res[i].parentID == '') {
-            		const formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
-            		const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
-            		let needToKnow = '';
-            		if(res[i].needToKnow == 1) {
-            			needToKnow = ' <img style="position:absolute; right: 6px;" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
-            		}
-            		let formActiveID = '';
-            		if(res[i].workflowID > 0) {
-            			formActiveID = '#forms';
-            		}
-            		else {
-            			formActiveID = '#forms_inactive';
-            		}
-            		const workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
+                categories[res[i].categoryID] = res[i];  //NOTE: categories set
+                if(res[i].parentID == '') {
+                    const formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
+                    const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
+                    let needToKnow = '';
+                    if(res[i].needToKnow == 1) {
+                        needToKnow = ' <img style="position:absolute; right: 6px;" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
+                    }
+                    let formActiveID = '';
+                    if(res[i].workflowID > 0) {
+                        formActiveID = '#forms';
+                    }
+                    else {
+                        formActiveID = '#forms_inactive';
+                    }
+                    const workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
                     $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
-                    		<div class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
-                    		<div class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
-                    		<div class="formPreviewStatus">'+ availability +'</div>\
-                    		<div class="formPreviewWorkflow">'+ workflow +'</div>\
-                    		</div>');
+                            <div class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
+                            <div class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
+                            <div class="formPreviewStatus">'+ availability +'</div>\
+                            <div class="formPreviewWorkflow">'+ workflow +'</div>\
+                            </div>');
                     $('#' + res[i].categoryID).on('click', function(categoryID) {
                         return function() {
                             currCategoryID = categoryID;
@@ -1891,11 +1871,11 @@ function showFormBrowser() {
                             openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
                         };
                     }(res[i].categoryID));
-            	}
+                }
             }
             
             if(postRenderFormBrowser != undefined) {
-            	postRenderFormBrowser();
+                postRenderFormBrowser();
             }
         },
         cache: false
@@ -1965,7 +1945,7 @@ function viewHistory(categoryId){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Form History');
     dialog_simple.show();
-	dialog_simple.indicateBusy();
+    dialog_simple.indicateBusy();
 
     $.ajax({
         type: 'GET',
@@ -2041,59 +2021,59 @@ function fetchFormSecureInfo() {
  * @param parentID
  */
 function createForm(parentID) {
-	if(parentID == undefined) {
-		parentID = '';
-		dialog.setTitle('New Form');
-	}
-	else {
-	    dialog.setTitle('New Internal-Use Form');
-	}
+    if(parentID == undefined) {
+        parentID = '';
+        dialog.setTitle('New Form');
+    }
+    else {
+        dialog.setTitle('New Internal-Use Form');
+    }
     dialog.setContent('<table>\
-    		             <tr>\
-    		                 <td>Form Label</td>\
-    		                 <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
-    		             </tr>\
-    		             <tr>\
-    		                 <td>Form Description</td>\
-                             <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
-                         </tr>\
-    		           </table>');
-			//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+                            <tr>\
+                                <td>Form Label</td>\
+                                <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
+                            </tr>\
+                            <tr>\
+                                <td>Form Description</td>\
+                                <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
+                            </tr>\
+                        </table>');
+            //ie11 fix
+        setTimeout(function () {
+            dialog.show();
+        }, 0);
 
 
     dialog.setSaveHandler(function() {
-    	let categoryName = $('#name').val();
-    	let categoryDescription = $('#description').val();
-    	$.ajax({
-    		type: 'POST',
-    		url: '<!--{$APIroot}-->?a=formEditor/new',
-    		data: {name: $('#name').val(),
-    			   description: $('#description').val(),
-    			   parentID: parentID,
-    			   CSRFToken: '<!--{$CSRFToken}-->'},
-    		success: function(res) {
-    			dialog.hide();
-    			currCategoryID = res;
+        let categoryName = $('#name').val();
+        let categoryDescription = $('#description').val();
+        $.ajax({
+            type: 'POST',
+            url: '<!--{$APIroot}-->?a=formEditor/new',
+            data: {name: $('#name').val(),
+                    description: $('#description').val(),
+                    parentID: parentID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                dialog.hide();
+                currCategoryID = res;
                 categories[res] = {};
                 categories[res].categoryID = res;
                 categories[res].categoryName = categoryName;
                 categories[res].categoryDescription = categoryDescription;
                 categories[res].workflowID = 0;
                 categories[res].parentID = '';
-    			if(parentID != '') {
-    			    categories[res].parentID = parentID;
-    				buildMenu(parentID);
-    				// hightlight the newly created form in the menu
-    				$('#menu>div').removeClass('buttonNormSelected');
-    	            $('#' + res).addClass('buttonNormSelected');
-    			}
-    			buildMenu(res);
+                if(parentID != '') {
+                    categories[res].parentID = parentID;
+                    buildMenu(parentID);
+                    // hightlight the newly created form in the menu
+                    $('#menu>div').removeClass('buttonNormSelected');
+                    $('#' + res).addClass('buttonNormSelected');
+                }
+                buildMenu(res);
                 openContent('ajaxIndex.php?a=printview&categoryID='+ res);
-    		}
-    	});
+            }
+        });
     });
 }
 
@@ -2112,9 +2092,9 @@ function formLibrary() {
 }
 
 $(function() {
-	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+    dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
     $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     portalAPI = LEAFRequestPortalAPI();
@@ -2125,13 +2105,11 @@ $(function() {
     fetchFormSecureInfo();
 
     <!--{if $form != ''}-->
-    postRenderFormBrowser = function() {
-        selectForm('<!--{$form}-->')
-    };
+    postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->
 
-    <!--{if $referFormLibraryID != ''}-->
-    postRenderFormBrowser = function() { 
+    <!--{if $referFormLibraryID != 0}-->
+    postRenderFormBrowser = function() {
         $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
         .animate({'background-color': 'white'}, 1000)
