@@ -1836,7 +1836,7 @@ function showFormBrowser() {
     $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
-        url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
+        url: '<!--{$APIroot}-->formStack/categoryList/all',
         success: function(res) {
             let buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
@@ -2049,7 +2049,7 @@ function createForm(parentID) {
         let categoryDescription = $('#description').val();
         $.ajax({
             type: 'POST',
-            url: '<!--{$APIroot}-->?a=formEditor/new',
+            url: '<!--{$APIroot}-->formEditor/new',
             data: {name: $('#name').val(),
                     description: $('#description').val(),
                     parentID: parentID,
