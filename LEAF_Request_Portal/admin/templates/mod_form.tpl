@@ -114,7 +114,8 @@ function editProperties(isSubForm) {
     $('#needToKnow').val(categories[currCategoryID].needToKnow);
     $('#visible').val(categories[currCategoryID].visible);
     $('#sort').val(categories[currCategoryID].sort);
-    $('#formType').val(categories[currCategoryID].type);if(isSubForm) {
+    $('#formType').val(categories[currCategoryID].type);
+    if(isSubForm) {
         $('.isSubForm').css('display', 'none');
     }
     //ie11 fix
@@ -142,6 +143,9 @@ function editProperties(isSubForm) {
                 $('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
             }
             dialog.indicateIdle();
+        },
+        error: function(err) {
+            console.error(err?.responseText);
         },
         cache: false
     });
@@ -350,7 +354,8 @@ function openContent(url) {
  * @param categoryID
  * @param group
  */
-function addPermission(categoryID, group) {
+function addPermission(categoryID) {
+    let formTitle = categories[categoryID].categoryName == '' ? 'Untitled' : categories[categoryID].categoryName;
     dialog.setTitle('Edit Collaborators');
     dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
     dialog.indicateBusy();
@@ -373,7 +378,7 @@ function addPermission(categoryID, group) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/formEditor/_'+ currCategoryID +'/privileges',
+            url: '../api/formEditor/_'+ categoryID +'/privileges',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	   groupID: $('#groupID').val(),
                    read: 1,
@@ -385,12 +390,10 @@ function addPermission(categoryID, group) {
             cache: false
         });
     });
-
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
-
+    //ie11 fix
+    setTimeout(function () {
+        dialog.show();
+    }, 0);
 }
 
 /**
@@ -1736,7 +1739,7 @@ function deleteForm() {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
-			url: '../api/formStack/_' + currCategoryID + '?CSRFToken=<!--{$CSRFToken}-->',
+			url: '../api/formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
 			success: function(res) {
 			    if(res != true) {
 			        alert(res);
@@ -1789,7 +1792,7 @@ function buildMenu(categoryID) {
                           <div id="stapledArea"></div><br />');
 
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
-                        <div id="stapledArea"></div><br />');
+                        <div id="viewHistory"></div><br />');
 
 
     // show stapled forms in the menu area
@@ -1811,7 +1814,7 @@ function buildMenu(categoryID) {
     
 	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
     $('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
