@@ -136,7 +136,7 @@ function onKeyPressClick(e){
     }
 }
 function updateVueData(indicatorID, required){
-    vueData.indicatorID = indicatorID;
+    vueData.indicatorID = parseInt(indicatorID);
     vueData.required = required;
     document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 }
