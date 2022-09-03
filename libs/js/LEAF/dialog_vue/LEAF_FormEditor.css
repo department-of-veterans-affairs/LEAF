@@ -1,0 +1,100 @@
+.test {
+    border: 1px solid red;
+}
+#vue-formeditor-app {
+    margin: 0.5em 0.75em;
+    min-height: calc(75vh);
+}
+.mod-form-menu-nav {
+    position: relative;
+    flex: 0 0 180px;
+    width: 180px;
+    min-width: 0;
+    margin: 0 16px 0 0;
+}
+.mod-form-menu-nav ul {
+    width: 100%;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.mod-form-menu-nav li {
+    height: auto;
+    margin-bottom: 1em;
+}
+.mod-form-menu-nav li a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #000;
+    border-radius: 2px;
+    text-decoration: none;
+    background-color: #e8f2ff;
+    color: #1b1b1b;
+    padding: 0.2em 0.3em;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.mod-form-menu-nav li a.selected,
+.mod-form-menu-nav li a:hover,
+.mod-form-menu-nav li a:focus,
+.mod-form-menu-nav li a:active {
+    border: 1px solid #000 !important;
+    background-color:  #005EA2;
+    outline: 3px solid #20a0f0 !important;
+    color: white;
+}
+.mod-form-menu-nav ul a img {
+    margin-right: 0.5em
+}
+.mod-form-menu-nav #stapledArea ul {
+    list-style-type: disc;
+    padding-inline-start: 40px;
+}
+.buttonNorm.subquestionAddNew {
+    font-size: 12px;
+    padding: 2px 4px;
+}
+.leaf-vue-dialog-background {
+    width: 100vw; 
+    height: 100%;
+    background-color: rgba(0,0,25,0.25);
+    position: absolute;
+    left: 0;
+    top: 0;
+    display:flex; 
+    justify-content: center;
+}
+.leaf-vue-dialog {
+    position: absolute;
+    margin: auto;
+    width: auto;
+    z-index: 9999;
+    min-width: 400px;
+    max-width: 900px;
+    height: auto;
+    min-height: 0;
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
+    overflow: hidden;
+}
+.leaf-vue-dialog > div {
+    padding: 0.5em;
+}
+.leaf-vue-dialog button {
+    padding: 0.5em;
+    margin: 0 !important;
+}
+.leaf-vue-dialog-title {
+    border-bottom: 1px solid var(--charcoal, #252F3E);
+    background-color: var(--lt-cyan, #E0F4FA);
+    cursor: move;
+}
+#leaf-vue-dialog-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+}
