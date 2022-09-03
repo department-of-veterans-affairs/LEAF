@@ -86,8 +86,10 @@ const ConditionsEditor = Vue.createApp({
                 return;
             } else this.parentFound = true;
 
-            const valueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
-           
+            let formatNameAndOptions = indicator.format.split("\n");  //format field has the format name followed by options, separator is \n
+            let valueOptions = formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
+            valueOptions = valueOptions.map(o => o.replaceAll('\r', '').trim());  //these are ending up in the array
+
             this.selectedParentIndicator = {...indicator};
             this.selectedParentValueOptions = valueOptions.filter(vo => vo !== '');
 
@@ -595,7 +597,7 @@ ConditionsEditor.component('editor-main', {
                 <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="textValueDisplay(conditions.selectedChildValue)===val"> 
+                :selected="textValueDisplay(conditions.selectedChildValue)===val">
                 {{ val }} 
                 </option>
             </select>
@@ -614,7 +616,7 @@ ConditionsEditor.component('editor-main', {
                     <option v-for="i in selectableParents" 
                     :title="i.name" 
                     :value="i.indicatorID"
-                    :selected="conditions.parentIndID===i.indicatorID"
+                    :selected="parseInt(conditions.parentIndID)===parseInt(i.indicatorID)"
                     key="i.indicatorID">
                     {{getIndicatorName(i.indicatorID) }} (indicator {{i.indicatorID}})
                     </option>
