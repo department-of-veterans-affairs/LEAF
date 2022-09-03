@@ -2,7 +2,10 @@ export default {
     props: {
         category: Object
     },
-    inject: ['selectNewCategory'],
+    inject: [
+        'selectNewCategory',
+        'fromEncodeToHTML'
+    ],
     computed: {
         workflowID() {
             return parseInt(this.category.workflowID);
@@ -11,26 +14,36 @@ export default {
             return `formPreview formLibraryID_${this.category.formLibraryID}`
         },
         formTitle() {
-            return this.category.categoryName === '' ? 'Untitled' : this.category.categoryName;
+            return this.category.categoryName === '' ? 'Untitled' : this.fromEncodeToHTML(this.category.categoryName);
+        },
+        formDescription() {
+            return this.fromEncodeToHTML(this.category.categoryDescription);
         },
         availability () {
-            return this.category.visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
+            return this.category.visible === 1 && this.workflowID > 0 ? 
+            'This form is available' : 'Hidden. Users cannot submit new requests.';
         },
         workflow() {
-            return this.category.description !== null ? 'Workflow: ' + this.category.description : '';
+            let msg = ''
+            if (this.workflowID===0) {
+                msg = 'No Workflow';
+            } else {
+                msg = this.category.description !== null ? 'Workflow: ' + this.category.description : '';
+            }
+            return msg;
         }
     },
     template:`<div tabindex="0" 
         @click="selectNewCategory(category.categoryID)"
         @keyup.enter="selectNewCategory(category.categoryID)"
-        :class="cardLibraryClasses" 
+        :class="cardLibraryClasses" class="browser-category-card"
         :id="category.categoryID" 
         :title="category.categoryID">
             <div class="formPreviewTitle" style="position: relative">{{ formTitle }}
-                <img v-if="category.needToKnow == 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
+                <img v-if="parseInt(category.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
                 title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px; z-index:10;"/>
             </div>
-            <div class="formPreviewDescription" v-html="category.categoryDescription"></div>
+            <div class="formPreviewDescription" v-html="formDescription"></div>
             <div class="formPreviewStatus">{{ availability }}</div>
             <div class="formPreviewWorkflow">{{ workflow }}</div>
         </div>`

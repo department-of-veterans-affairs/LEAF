@@ -14,13 +14,14 @@ export default {
         return {
             APIroot: '../api/',
             CSRFToken: CSRFToken,
-            hasDevConsoleAccess: '0',
+            hasDevConsoleAccess: 0,
 
             dialogTitle: '',
             dialogFormContent: '',
             dialogContentIsComponent: false,
             showGeneralDialog: false,
             showFormDialog: false,
+            //this sets the method associated with the save btn to the onSave method of the modal's current component
             formSaveFunction: ()=> {
                 if(this.$refs[this.dialogFormContent]) {
                     this.$refs[this.dialogFormContent].onSave();
@@ -29,18 +30,18 @@ export default {
             isEditingModal: false,
 
             appIsLoadingCategoryList: true,
-            currCategoryID: null,
-            currIndicatorID: null,
-            newIndicatorParentID: null,
-            currentCategorySelection: {}, //current record from categories object, categories and workflow table fields
-            ajaxFormByCategoryID: [],     //form tree with information about indicators for each node
+            currCategoryID: null,          //null or string
+            currIndicatorID: null,         //null or number
+            newIndicatorParentID: null,    //null or number
+            categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
+            currentCategorySelection: {},  //current record from categories object
+            ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
             currentCategoryIsSensitive: false,
             ajaxSelectedCategoryStapled: [],
-            ajaxWorkflowRecords: [],
-            ajaxIndicatorByID: {},  
-            categories: {},
-            restoringFields: false,    //??page_views: [restoringFields: false, leafLibrary: false etc]
-            gridInput: gridInput, //global LEAF class for grid format questions
+            ajaxWorkflowRecords: [],       //array of all 'workflows' table records
+            ajaxIndicatorByID: {},         //'indicators' table record for a specific indicatorID
+            restoringFields: false,        //TODO:?? there are a few pages that could be view here, page_views: [restoringFields: false, leafLibrary: false etc]
+            gridInput: gridInput,          //global LEAF class for grid format questions.
         }
     },
     provide() {
@@ -75,7 +76,7 @@ export default {
             setCustomDialogTitle: this.setCustomDialogTitle,
             setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
-            filterHTML: this.filterHTML,
+            fromEncodeToHTML: this.fromEncodeToHTML,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
         }
@@ -93,20 +94,20 @@ export default {
     mounted() {
         //get here once at mount, so that span data with smarty info cannot be changed
         const data = document.getElementById('data-dev-console-access').getAttribute('data-dev-console-access');
-        this.hasDevConsoleAccess = data;
-        console.log('hdca', data)
+        this.hasDevConsoleAccess = parseInt(data);
     },
     methods: {
         ifthenUpdateVueDataFormID(catID) {
             vueData.formID = catID;
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
-        filterHTML(html) {
+        fromEncodeToHTML(html) {
             let elFilter = document.createElement('div');
             elFilter.innerHTML = html;
+            console.log('inner text', elFilter.innerHTML, elFilter.innerText);
             return elFilter.innerText.trim();
         },
-        getCategoryListAll() {  // TODO: update when?
+        getCategoryListAll() {
             this.appIsLoadingCategoryList = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
@@ -256,7 +257,7 @@ export default {
             if (this.currIndicatorID === null && indicatorID === null) {
                 title = `<h2>Adding new question</h2>`;
             } else {
-                title = this.currIndicatorID === indicatorID ? 
+                title = this.currIndicatorID === parseInt(indicatorID) ? 
                 `<h2>Editing indicator ${indicatorID}</h2>` : `<h2>Adding question to ${indicatorID}</h2>`;
             }
             this.setCustomDialogTitle(title);
@@ -270,12 +271,12 @@ export default {
         },
         newQuestion(parentIndID) {
             this.currIndicatorID = null;
-            this.newIndicatorParentID = parentIndID;
+            this.newIndicatorParentID = parseInt(parentIndID);
             this.isEditingModal = false;
             this.openIndicatorEditing(parentIndID);
         },
         getForm(indicatorID, series) {
-            this.currIndicatorID = indicatorID;
+            this.currIndicatorID = parseInt(indicatorID);
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
                 this.isEditingModal = true;

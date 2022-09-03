@@ -11,7 +11,7 @@ export default {
         'editIndicatorPrivileges',
         'gridInstances',
         'updateGridInstances',
-        'filterHTML'
+        'fromEncodeToHTML'
     ],
     methods: {
         ifthenUpdateIndicatorID(indicatorID) {
@@ -23,6 +23,9 @@ export default {
         hasChildNode() {
             const { child } = this.formNode;
             return child !== null && Object.keys(child).length > 0;
+        },
+        bgColor() {
+            return `rgb(${255-5*this.depth},${255-5*this.depth},${255-5*this.depth})`;
         },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -77,7 +80,7 @@ export default {
                             style="padding: 0 0.2em; font-size: 16px; cursor: pointer"
                             :style="{fontWeight: depth===0 ? 'bold' : 'normal'}" 
                             :title="'indicatorID: ' + formNode.indicatorID">
-                            {{filterHTML(formNode.name) || '[ blank ]'}}
+                            {{fromEncodeToHTML(formNode.name) || '[ blank ]'}}
                         </span>
                         <div style="display:inline-block; float:right;">
                             <img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" 

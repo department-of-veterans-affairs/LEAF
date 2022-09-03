@@ -17,6 +17,7 @@ export default {
     },
     inject: [
         'currCategoryID',
+        'fromEncodeToHTML',
         'currentCategorySelection', 
         'editPropertiesClicked',
         'editPermissionsClicked',
@@ -31,10 +32,10 @@ export default {
             return this.currentCategorySelection.categoryID;
         },
         categoryDescription() {
-            return this.currentCategorySelection.categoryDescription;
+            return this.fromEncodeToHTML(this.currentCategorySelection.categoryDescription);
         },
         workflow() {
-            return this.currentCategorySelection.workflowID === '0' ?
+            return this.currentCategorySelection.workflowID === 0 ?
             `<span style="color: red">No workflow. Users will not be able to select this form.</span>` :
             `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
         },
@@ -52,11 +53,11 @@ export default {
         <!-- NOTE: TOP INFO PANEL -->
         <div style="display: flex; justify-content: space-between; margin-bottom: 1em;
             background-color: white; padding: 8px; border: 1px solid black;">
-            <div>
+            <div><!-- TODO: check if title advanced formatting is shown -->
                 <p><b :aria-label="formTitle" :title="'CategoryID: ' + currCategoryID">{{ formTitle }}</b> (ID# {{ formCatID }})</p>
-                <p>{{ categoryDescription }}</p>
+                <p v-html="categoryDescription"></p>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
-                <span v-if="!isSubForm">Need to Know mode: <b>{{ currentCategorySelection.needToKnow == 1 ? 'On' : 'Off' }}</b></span>
+                <span v-if="!isSubForm">Need to Know mode: <b>{{ currentCategorySelection.needToKnow === 1 ? 'On' : 'Off' }}</b></span>
             </div>
 
             <div style="flex: 0 0 140px;">

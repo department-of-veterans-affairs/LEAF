@@ -3,17 +3,19 @@ export default {
         return {
             categoryName: this.currentCategorySelection.categoryName,
             categoryDescription: this.currentCategorySelection.categoryDescription,
-            workflowID: this.currentCategorySelection.workflowID,
-            description: this.currentCategorySelection.description,
-            needToKnow: this.currentCategorySelection.needToKnow,
-            sort: this.currentCategorySelection.sort,
-            visible: this.currentCategorySelection.visible,
+            categoryDescriptionHTML: this.fromEncodeToHTML(this.currentCategorySelection.categoryDescription),
+            workflowID: parseInt(this.currentCategorySelection.workflowID),
+            description: this.currentCategorySelection.description || '',
+            needToKnow: parseInt(this.currentCategorySelection.needToKnow),
+            sort: parseInt(this.currentCategorySelection.sort),
+            visible: parseInt(this.currentCategorySelection.visible),
             type: this.currentCategorySelection.type
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
+        'fromEncodeToHTML',
         'currCategoryID',
         'ajaxWorkflowRecords',
         'currentCategorySelection',
@@ -26,17 +28,18 @@ export default {
             return this.currentCategorySelection.parentID !== '';
         }
     },
-    methods: {
+    methods: {  //TODO: category descr needs html filter for name display
         updateWorkflowDescription() {
-            const currWorkflow = this.ajaxWorkflowRecords.find(rec => rec.workflowID === this.workflowID);
+            const currWorkflow = this.ajaxWorkflowRecords.find(rec => parseInt(rec.workflowID) === this.workflowID);
             this.description = currWorkflow?.description || '';
         },
         //called by ref on the component passed to setCustomDialogComponent in the main app
         onSave(){
             console.log('clicked edit properties save');
+            console.log(this.categoryDescription, 'selected', this.currentCategorySelection.categoryDescription)
             let  editPropertyUpdates = [];
             const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
-            const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription
+            const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
             const workflowChanged  = this.workflowID !== this.currentCategorySelection.workflowID;
             const needToKnowChanged = this.needToKnow !== this.currentCategorySelection.needToKnow;
             const sortChanged = this.sort !== this.currentCategorySelection.sort;
@@ -72,11 +75,12 @@ export default {
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formDescription`,
                         data: {
-                            description: this.categoryDescription,
+                            description: this.categoryDescription,    // html is posted, categories needs to be updated with the encoded version
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
                         success: (res) => {
+                            //TODO: this is getting the html rather than encoded version.  probably just need to track both.
                             this.updateCategoriesProperty(this.currCategoryID, 'categoryDescription', this.categoryDescription);
                             resolve(res);
                         },
@@ -230,13 +234,13 @@ export default {
                     <select v-if="ajaxWorkflowRecords.length > 0" 
                         id="workflowID" name="select-workflow" 
                         title="select workflow"
-                        v-model="workflowID"
+                        v-model.number="workflowID"
                         @change="updateWorkflowDescription">
-                        <option value="0" :selected="workflowID==='0'">No Workflow</option>
+                        <option value="0" :selected="workflowID===0">No Workflow</option>
                         <template v-for="r in ajaxWorkflowRecords">
                             <option v-if="parseInt(r.workflowID) > 0"
                                 :value="r.workflowID"
-                                :selected="workflowID===r.workflowID">
+                                :selected="workflowID===parseInt(r.workflowID)">
                             {{r.description}} (ID: #{{r.workflowID}})
                             </option>
                         </template>
@@ -250,9 +254,9 @@ export default {
                     title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information." />
                 </td>
                 <td>
-                    <select id="needToKnow" title="Need To Know" v-model="needToKnow">
-                        <option v-if="!currentCategoryIsSensitive" value="0" :selected="needToKnow==='0'">Off</option>
-                        <option value="1" :selected="currentCategoryIsSensitive===true || needToKnow==='1'">
+                    <select id="needToKnow" title="Need To Know" v-model.number="needToKnow">
+                        <option v-if="!currentCategoryIsSensitive" value="0" :selected="needToKnow===0">Off</option>
+                        <option value="1" :selected="currentCategoryIsSensitive===true || needToKnow===1">
                         {{currentCategoryIsSensitive ? 'Forced on because sensitive fields are present' : 'On'}}
                         </option>
                     </select>
@@ -264,15 +268,15 @@ export default {
                     title="When hidden, users will not be able to select this form as an option." />
                 </td>
                 <td>
-                    <select id="availability" title="Select Availability" v-model="visible">
-                        <option value="1" :selected="visible==='1'">Available</option>
-                        <option value="0" :selected="visible==='0'">Hidden</option>
+                    <select id="availability" title="Select Availability" v-model.number="visible">
+                        <option value="1" :selected="visible===1">Available</option>
+                        <option value="0" :selected="visible===0">Hidden</option>
                     </select>
                 </td>
             </tr>
             <tr>
                 <td>Sort Priority</td>
-                <td><input id="sort" type="number" v-model="sort" /></td>
+                <td><input id="sort" type="number" v-model.number="sort" /></td>
             </tr>
             <tr>
                 <td>Type 

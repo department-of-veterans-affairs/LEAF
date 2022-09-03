@@ -55,7 +55,7 @@ export default {
         'currIndicatorID',
         'ajaxIndicatorByID',
         'newIndicatorParentID',
-        'filterHTML',
+        'fromEncodeToHTML',
         'hasDevConsoleAccess'
     ],
     mounted(){
@@ -270,7 +270,7 @@ export default {
             $('#name').trumbowyg('destroy');
         },
         advancedOptionsClick() {
-            if(this.hasDevConsoleAccess === '1') {
+            if(this.hasDevConsoleAccess === 1) {
                 $('#button_advanced').css('display', 'none');
                 $('#advanced').css('height', 'auto');
                 $('#advanced').css('visibility', 'visible');
@@ -286,7 +286,7 @@ export default {
     template: `<div style="min-width: 400px;">
         <fieldset>
             <legend>Field Name</legend>
-            <textarea id="name" v-model="name" style="width: 99%">{{filterHTML(name)}}</textarea><br/>
+            <textarea id="name" v-model="name" style="width: 99%">{{fromEncodeToHTML(name)}}</textarea><br/>
             <button class="buttonNorm" id="rawNameEditor" @click="rawNameEditorClick" style="display: none">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor" @click="advNameEditorClick">Advanced Formatting</button>
         </fieldset>
