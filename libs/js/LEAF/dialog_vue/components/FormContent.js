@@ -17,7 +17,6 @@ export default {
     },
     inject: [
         'currCategoryID',
-        'fromEncodeToHTML',
         'currentCategorySelection', 
         'editPropertiesClicked',
         'editPermissionsClicked',
@@ -25,14 +24,14 @@ export default {
         'gridInput'
     ],
     computed: {
-        formTitle() {
-            return this.currentCategorySelection.categoryName;
+        formName() {
+            return `${this.currentCategorySelection.categoryName}`;
         },
         formCatID() {
             return this.currentCategorySelection.categoryID;
         },
         categoryDescription() {
-            return this.fromEncodeToHTML(this.currentCategorySelection.categoryDescription);
+            return this.currentCategorySelection.categoryDescription;
         },
         workflow() {
             return this.currentCategorySelection.workflowID === 0 ?
@@ -51,11 +50,10 @@ export default {
     },
     template: `
         <!-- NOTE: TOP INFO PANEL -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 1em;
-            background-color: white; padding: 8px; border: 1px solid black;">
-            <div><!-- TODO: check if title advanced formatting is shown -->
-                <p><b :aria-label="formTitle" :title="'CategoryID: ' + currCategoryID">{{ formTitle }}</b> (ID# {{ formCatID }})</p>
-                <p v-html="categoryDescription"></p>
+        <div id="edit-properties-panel">
+            <div>
+                <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID" v-html="formName"></div>
+                <div v-html="categoryDescription"></div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
                 <span v-if="!isSubForm">Need to Know mode: <b>{{ currentCategorySelection.needToKnow === 1 ? 'On' : 'Off' }}</b></span>
             </div>
@@ -68,6 +66,7 @@ export default {
                 <div tabindex="0" id="editFormPermissions" class="buttonNorm" 
                     @click="editPermissionsClicked" @keyup.enter="editPermissionsClicked">Edit Collaborators</div>
             </div>
+            <div style="position: absolute; right: 8px; bottom: 8px" class="form-id-label">ID: {{currCategoryID}}</div>
         </div>
         <!-- NOTE: FORM AREA -->
         <div id="formEditor_form" style="background-color: white;">

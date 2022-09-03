@@ -77,6 +77,7 @@ export default {
             setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
             fromEncodeToHTML: this.fromEncodeToHTML,
+            truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
         }
@@ -92,7 +93,7 @@ export default {
         }).catch(err => console.log('error getting workflow records', err));
     },
     mounted() {
-        //get here once at mount, so that span data with smarty info cannot be changed
+        //get here once at mount, so that span with smarty info cannot be changed
         const data = document.getElementById('data-dev-console-access').getAttribute('data-dev-console-access');
         this.hasDevConsoleAccess = parseInt(data);
     },
@@ -101,12 +102,16 @@ export default {
             vueData.formID = catID;
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
+        //general use methods
         fromEncodeToHTML(html) {
             let elFilter = document.createElement('div');
             elFilter.innerHTML = html;
-            console.log('inner text', elFilter.innerHTML, elFilter.innerText);
             return elFilter.innerText.trim();
         },
+        truncateText(str, maxlength = 40, overflow = '...') {
+            return str <= length ? str : str.slice(0, maxlength) + overflow;
+        },
+        //DB GET
         getCategoryListAll() {
             this.appIsLoadingCategoryList = true;
             return new Promise((resolve, reject)=> {
@@ -158,8 +163,8 @@ export default {
                 });
             });
         },
-        //build categories object from getCatListAll res on success 
-        setCategories(obj) {
+        //local data
+        setCategories(obj) {  //build categories object from getCatListAll res on success 
             for(let i in obj) {
                 this.categories[obj[i].categoryID] = obj[i];
             }
@@ -265,7 +270,7 @@ export default {
             this.showFormDialog = true;
         },
         openEditProperties() {
-            this.setCustomDialogTitle('<h2>Edit Properties</h2>');
+            this.setCustomDialogTitle('<h2 style="margin:0">Edit Properties</h2>');
             this.setFormDialogComponent('edit-properties-dialog');
             this.showFormDialog = true;  
         },

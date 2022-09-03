@@ -1,5 +1,5 @@
 export default {
-	data(){
+	data() {
 		return {
 			scrollY: window.scrollY,
 			initialTop: 15,
@@ -67,7 +67,7 @@ export default {
     template: `<div :id="elementID" class="leaf-vue-dialog" role="dialog" 
 			:style="{marginTop: scrollY !== null ? scrollY + initialTop + 'px' : ''}">
 			<div v-html="dialogTitle" :id="elementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
-			<div @click="closeFormDialog" id="leaf-vue-dialog-close">X</div>
+			<div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" id="leaf-vue-dialog-close">&#10005;</div>
 			<div>
 				<form id="record" action="javascript:void(0);">
 					<div role="document" style="position: relative;">
@@ -77,11 +77,11 @@ export default {
 						</main>
 					</div>
 					<div style="display:flex; justify-content: space-between; margin-top: 1em;">
-						<button id="button_save2" class="usa-button leaf-btn-med;"
+						<button id="button_save" class="usa-button leaf-btn-med;"
 							@click="formSaveFunction" @keypress.enter="formSaveFunction">
 							Save
 						</button>
-						<button id="button_cancelchange2" class="usa-button usa-button--outline leaf-btn-med" 
+						<button id="button_cancelchange" class="usa-button usa-button--outline leaf-btn-med" 
 							@click="closeFormDialog" @keypress.enter="closeFormDialog">
 							Cancel
 						</button>

@@ -68,7 +68,7 @@ export default {
             <div :class="depth===0 ? 'printmainlabel' : 'printsublabel'">
                 <div :style="{display: depth===0 ? 'flex': 'inline-block'}">
                     <div v-if="depth===0" class="printcounter">
-                        <span tabindex="0" aria-label="formNode.indicatorID" style="margin:0;">{{sectionNumber}}</span>
+                        <span tabindex="0" aria-label="formNode.indicatorID" style="margin:0; height: 100%">{{sectionNumber}}</span>
                     </div>
                     <div :id="labelID" :class="labelClass" 
                         :style="{display: depth===0 ? 'flex' : 'block'}" 

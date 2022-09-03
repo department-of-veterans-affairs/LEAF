@@ -3,7 +3,6 @@ export default {
         return {
             categoryName: this.currentCategorySelection.categoryName,
             categoryDescription: this.currentCategorySelection.categoryDescription,
-            categoryDescriptionHTML: this.fromEncodeToHTML(this.currentCategorySelection.categoryDescription),
             workflowID: parseInt(this.currentCategorySelection.workflowID),
             description: this.currentCategorySelection.description || '',
             needToKnow: parseInt(this.currentCategorySelection.needToKnow),
@@ -15,8 +14,8 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'fromEncodeToHTML',
         'currCategoryID',
+        'truncateText',
         'ajaxWorkflowRecords',
         'currentCategorySelection',
         'currentCategoryIsSensitive',
@@ -36,9 +35,9 @@ export default {
         //called by ref on the component passed to setCustomDialogComponent in the main app
         onSave(){
             console.log('clicked edit properties save');
-            console.log(this.categoryDescription, 'selected', this.currentCategorySelection.categoryDescription)
             let  editPropertyUpdates = [];
             const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
+            //console.log(this.categoryDescription, this.currentCategorySelection.categoryDescription);
             const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
             const workflowChanged  = this.workflowID !== this.currentCategorySelection.workflowID;
             const needToKnowChanged = this.needToKnow !== this.currentCategorySelection.needToKnow;
@@ -68,19 +67,18 @@ export default {
                     })
                 }));
             }
-            if(descriptionChanged){
+            if(descriptionChanged){  //NOTE: name endpoint strips tags, but description endpoint does not.  intended?
                 editPropertyUpdates.push(
                     new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formDescription`,
                         data: {
-                            description: this.categoryDescription,    // html is posted, categories needs to be updated with the encoded version
+                            description: this.categoryDescription,
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
                         success: (res) => {
-                            //TODO: this is getting the html rather than encoded version.  probably just need to track both.
                             this.updateCategoriesProperty(this.currCategoryID, 'categoryDescription', this.categoryDescription);
                             resolve(res);
                         },
@@ -213,8 +211,8 @@ export default {
                 });
         }
     },
-    template: `<table>
-        <tr>
+    template: `<table id="edit-properties-modal">
+        <tr> <!--'b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody', 'span', 'strong', 'em', 'colgroup', 'col'-->
             <td>Name</td>
             <td>
                 <input id="name" type="text" maxlength="50" v-model="categoryName" />
@@ -241,7 +239,7 @@ export default {
                             <option v-if="parseInt(r.workflowID) > 0"
                                 :value="r.workflowID"
                                 :selected="workflowID===parseInt(r.workflowID)">
-                            {{r.description}} (ID: #{{r.workflowID}})
+                                ID#{{r.workflowID}} - {{truncateText(r.description)}}
                             </option>
                         </template>
                     </select>

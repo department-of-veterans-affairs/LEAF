@@ -13,7 +13,9 @@ export default {
         },
         formName() {
             const maxlen = 16;
-            const name = this.categories[this.currCategoryID]?.categoryName || 'untitled';
+            let elFilter = document.createElement('div')
+            elFilter.innerHTML = this.categories[this.currCategoryID]?.categoryName || 'untitled';
+            let name = elFilter.innerText;
             return name <= maxlen ? name : name.slice(0, maxlen) + '...'
         }
     },
