@@ -10,8 +10,7 @@ export default {
         'getForm',
         'editIndicatorPrivileges',
         'gridInstances',
-        'updateGridInstances',
-        'fromEncodeToHTML'
+        'updateGridInstances'
     ],
     methods: {
         ifthenUpdateIndicatorID(indicatorID) {
@@ -79,8 +78,8 @@ export default {
                         <span class="printsubheading"  
                             style="padding: 0 0.2em; font-size: 16px; cursor: pointer"
                             :style="{fontWeight: depth===0 ? 'bold' : 'normal'}" 
-                            :title="'indicatorID: ' + formNode.indicatorID">
-                            {{fromEncodeToHTML(formNode.name) || '[ blank ]'}}
+                            :title="'indicatorID: ' + formNode.indicatorID"
+                            v-html="formNode.name || '[ blank ]'">
                         </span>
                         <div style="display:inline-block; float:right;">
                             <img src="../../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" 

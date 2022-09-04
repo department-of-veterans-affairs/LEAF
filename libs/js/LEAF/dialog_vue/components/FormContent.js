@@ -66,7 +66,7 @@ export default {
                 <div tabindex="0" id="editFormPermissions" class="buttonNorm" 
                     @click="editPermissionsClicked" @keyup.enter="editPermissionsClicked">Edit Collaborators</div>
             </div>
-            <div style="position: absolute; right: 8px; bottom: 8px" class="form-id-label">ID: {{currCategoryID}}</div>
+            <div style="position: absolute; right: 4px; bottom: 4px" class="form-id-label">ID: {{currCategoryID}}</div>
         </div>
         <!-- NOTE: FORM AREA -->
         <div id="formEditor_form" style="background-color: white;">

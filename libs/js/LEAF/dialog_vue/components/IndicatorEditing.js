@@ -55,7 +55,6 @@ export default {
         'currIndicatorID',
         'ajaxIndicatorByID',
         'newIndicatorParentID',
-        'fromEncodeToHTML',
         'hasDevConsoleAccess'
     ],
     mounted(){
@@ -194,7 +193,7 @@ export default {
         addCells(){
             console.log('grid stuff');  //TODO: maybe make grid component for these
         },
-        updateGridJSON(){
+        updateGridJSON() {  //TODO: temp from mod_form
             let gridJSON = [];
             //gather column names and column types. if type is dropdown, adds property.options
             $(gridBodyElement).find('div.cell').each(function() {
@@ -279,14 +278,14 @@ export default {
             } else {
                 alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
                 $('#button_advanced').css('display', 'none');
-                $('#advanced').css('visibility', 'visible');
+                $('#advanced').css('visibility', 'hidden');
             }
         }
     },
     template: `<div style="min-width: 400px;">
         <fieldset>
             <legend>Field Name</legend>
-            <textarea id="name" v-model="name" style="width: 99%">{{fromEncodeToHTML(name)}}</textarea><br/>
+            <textarea id="name" v-model="name" style="width: 99%">{{name}}</textarea><br/>
             <button class="buttonNorm" id="rawNameEditor" @click="rawNameEditorClick" style="display: none">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor" @click="advNameEditorClick">Advanced Formatting</button>
         </fieldset>

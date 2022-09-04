@@ -239,7 +239,7 @@ export default {
                             <option v-if="parseInt(r.workflowID) > 0"
                                 :value="r.workflowID"
                                 :selected="workflowID===parseInt(r.workflowID)">
-                                ID#{{r.workflowID}} - {{truncateText(r.description)}}
+                                ID#{{r.workflowID}}: {{truncateText(r.description)}}
                             </option>
                         </template>
                     </select>
@@ -247,9 +247,10 @@ export default {
                 </td>
             </tr>
             <tr>
-                <td>Need to Know mode 
+                <td>
                     <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" 
                     title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information." />
+                    Need to Know mode  
                 </td>
                 <td>
                     <select id="needToKnow" title="Need To Know" v-model.number="needToKnow">
@@ -261,9 +262,10 @@ export default {
                 </td>
             </tr>
             <tr>
-                <td>Availability 
+                <td>
                     <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" 
                     title="When hidden, users will not be able to select this form as an option." />
+                    Availability 
                 </td>
                 <td>
                     <select id="availability" title="Select Availability" v-model.number="visible">
@@ -277,9 +279,10 @@ export default {
                 <td><input id="sort" type="number" v-model.number="sort" /></td>
             </tr>
             <tr>
-                <td>Type 
+                <td>
                     <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" 
                     title="Change type of form" />
+                    Type  
                 </td>
                 <td>
                     <select id="formType" title="Change type of form" v-model="type" >

@@ -3,17 +3,33 @@ export default {
 		return {
 			scrollY: window.scrollY,
 			initialTop: 15,
-			elementID: 'leaf_xhrDialog2'
+			modalElementID: 'leaf_xhrDialog2',  //NOTE: update
+			modalBackgroundID: 'leaf-vue-dialog-background'
 		}
 	},
+	props: {
+        hasDevConsoleAccess: {
+			type: Number,
+			default: 0
+		}
+    },
 	inject: [
 		'dialogTitle', 
 		'dialogFormContent',
+		'showFormDialog',
 		'closeFormDialog',
 		'formSaveFunction'
 	],
+	provide() {
+		return {
+			hasDevConsoleAccess: this.hasDevConsoleAccess
+		}
+	},
 	mounted() {
-		this.makeDraggable(document.getElementById(this.elementID));
+		const elModal = document.getElementById(this.modalElementID);
+		const currModalHeight = elModal.clientHeight;
+		document.getElementById(this.modalBackgroundID).style.minHeight = currModalHeight + window.innerHeight/2 + 'px';
+		this.makeDraggable(elModal);
 	},
 	methods: {
 		makeDraggable(el) {
@@ -23,7 +39,7 @@ export default {
             const elementDrag = (e) => {
                 e = e || window.event;
                 e.preventDefault();
-                pos1 = mouseX - e.clientX;  
+                pos1 = mouseX - e.clientX;
                 pos2 = mouseY - e.clientY;
                 mouseX = e.clientX;
                 mouseY = e.clientY;
@@ -36,7 +52,6 @@ export default {
                 document.onmousemove = null;
             }
 			const dragMouseDown = (e) => {
-				if (this.scrollY !== null) this.scrollY = null;
                 e = e || window.event;
                 e.preventDefault();
                 mouseX = e.clientX;
@@ -45,28 +60,28 @@ export default {
                 document.onmousemove = elementDrag;
             }
 			const checkBounds = ()=> {
-				let pX = parseInt(el.style.left);
-				let pY = parseInt(el.style.top);
 				let scrollbarWidth = 20;
-
-				if (pY < window.scrollY) {
+				if (el.offsetTop < window.scrollY) {
+					console.log('top bound triggered')
 					el.style.top = window.scrollY + 'px';
 				}
-				if (pX < 0) {
+				if (el.offsetLeft < 0) {
 					el.style.left = 0 + 'px';
 				}
-				if (pX + currWidth + scrollbarWidth> window.innerWidth) {  //extra space for scrollbar
+				if (el.offsetLeft + currWidth + scrollbarWidth > window.innerWidth) {  //extra space for scrollbar
 					el.style.left = (window.innerWidth - currWidth - scrollbarWidth) + 'px';
 				}
 			}
-			if (document.getElementById(this.elementID + "_drag_handle")) {
-                document.getElementById(this.elementID + "_drag_handle").onmousedown = dragMouseDown;
+			if (document.getElementById(this.modalElementID + "_drag_handle")) {
+                document.getElementById(this.modalElementID + "_drag_handle").onmousedown = dragMouseDown;
             }
         }
 	},
-    template: `<div :id="elementID" class="leaf-vue-dialog" role="dialog" 
-			:style="{marginTop: scrollY !== null ? scrollY + initialTop + 'px' : ''}">
-			<div v-html="dialogTitle" :id="elementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
+    template: `<Teleport to="body">
+    <div v-if="showFormDialog || showGeneralDialog" :id="showFormDialog ? 'leaf-vue-dialog-background' : ''">
+		<div :id="modalElementID" class="leaf-vue-dialog" role="dialog" 
+			:style="{top: scrollY + initialTop + 'px'}">
+			<div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
 			<div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" id="leaf-vue-dialog-close">&#10005;</div>
 			<div>
 				<form id="record" action="javascript:void(0);">
@@ -88,5 +103,7 @@ export default {
 					</div>
 				</form>
 			</div>
-		</div>`
+		</div>
+	</div>
+</Teleport>`
 };

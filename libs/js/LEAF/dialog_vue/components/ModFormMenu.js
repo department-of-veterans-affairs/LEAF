@@ -1,5 +1,6 @@
 export default { 
     inject: [
+        'truncateText',
         'selectNewCategory',
         'categories',
         'currCategoryID',
@@ -12,11 +13,10 @@ export default {
             return 1; //TODO:
         },
         formName() {
-            const maxlen = 16;
             let elFilter = document.createElement('div')
             elFilter.innerHTML = this.categories[this.currCategoryID]?.categoryName || 'untitled';
-            let name = elFilter.innerText;
-            return name <= maxlen ? name : name.slice(0, maxlen) + '...'
+            const name = this.truncateText(elFilter.innerText, 16);
+            return name;
         }
     },
     methods: {

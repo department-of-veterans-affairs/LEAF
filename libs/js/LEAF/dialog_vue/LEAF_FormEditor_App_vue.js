@@ -14,8 +14,6 @@ export default {
         return {
             APIroot: '../api/',
             CSRFToken: CSRFToken,
-            hasDevConsoleAccess: 0,
-
             dialogTitle: '',
             dialogFormContent: '',
             dialogContentIsComponent: false,
@@ -47,7 +45,6 @@ export default {
     provide() {
         return {
             CSRFToken: Vue.computed(() => this.CSRFToken),
-            hasDevConsoleAccess: Vue.computed(() => this.hasDevConsoleAccess),
             currCategoryID: Vue.computed(() => this.currCategoryID),
             currIndicatorID: Vue.computed(() => this.currIndicatorID),
             newIndicatorParentID: Vue.computed(() => this.newIndicatorParentID),
@@ -59,12 +56,14 @@ export default {
             ajaxFormByCategoryID: Vue.computed(() => this.ajaxFormByCategoryID),
             ajaxSelectedCategoryStapled: Vue.computed(() => this.ajaxSelectedCategoryStapled),
             ajaxWorkflowRecords: Vue.computed(() => this.ajaxWorkflowRecords),
+            showFormDialog: Vue.computed(() => this.showFormDialog),
             dialogTitle: Vue.computed(() => this.dialogTitle),
             dialogFormContent: Vue.computed(() => this.dialogFormContent),
             formSaveFunction: Vue.computed(() => this.formSaveFunction),
             restoringFields: Vue.computed(() => this.restoringFields),
             //static values
             APIroot: this.APIroot,
+            hasDevConsoleAccess: this.hasDevConsoleAccess,
             editPropertiesClicked: this.editPropertiesClicked,
             editPermissionsClicked: this.editPermissionsClicked,
             newQuestion: this.newQuestion,
@@ -76,7 +75,6 @@ export default {
             setCustomDialogTitle: this.setCustomDialogTitle,
             setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
-            fromEncodeToHTML: this.fromEncodeToHTML,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
@@ -91,25 +89,20 @@ export default {
         this.getWorkflowRecords().then(res => {
             this.ajaxWorkflowRecords = res;
         }).catch(err => console.log('error getting workflow records', err));
-    },
+    }, /*
     mounted() {
         //get here once at mount, so that span with smarty info cannot be changed
         const data = document.getElementById('data-dev-console-access').getAttribute('data-dev-console-access');
         this.hasDevConsoleAccess = parseInt(data);
-    },
+    }, */
     methods: {
         ifthenUpdateVueDataFormID(catID) {
             vueData.formID = catID;
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         //general use methods
-        fromEncodeToHTML(html) {
-            let elFilter = document.createElement('div');
-            elFilter.innerHTML = html;
-            return elFilter.innerText.trim();
-        },
         truncateText(str, maxlength = 40, overflow = '...') {
-            return str <= length ? str : str.slice(0, maxlength) + overflow;
+            return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
         //DB GET
         getCategoryListAll() {
@@ -270,7 +263,7 @@ export default {
             this.showFormDialog = true;
         },
         openEditProperties() {
-            this.setCustomDialogTitle('<h2 style="margin:0">Edit Properties</h2>');
+            this.setCustomDialogTitle('<h2 style="margin:0;color:black">Edit Properties</h2>');
             this.setFormDialogComponent('edit-properties-dialog');
             this.showFormDialog = true;  
         },

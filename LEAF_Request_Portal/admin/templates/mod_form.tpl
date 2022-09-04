@@ -1,4 +1,4 @@
-<div class="leaf-width-100pct" id="vue-formeditor-app"> <!-- TODO rename FormEditor -->
+<div class="leaf-width-100pct" id="vue-formeditor-app">
     <h2 style="margin: 1em 0.1em 0.5em 0.1em;" >Form Editor</h2>
     <!--<div id="menu" style="float: left; width: 180px"></div>-->
     <div style="display:flex;">
@@ -29,20 +29,15 @@
         <template v-if="restoringFields===true">
         <restore-fields></restore-fields>
         </template>
-        <span id="data-dev-console-access" style="display:none" data-dev-console-access="<!--{$hasDevConsoleAccess}-->"></span>
     </div>
 
     <!-- DIALOGS -->
-    <Teleport to="body">
-    <div v-if="showFormDialog || showGeneralDialog" :class="showFormDialog ? 'leaf-vue-dialog-background' : ''">
-        <leaf-form-dialog v-if="showFormDialog">  
-            <template #dialog-content-slot>
-            <component v-if="dialogContentIsComponent" :is="dialogFormContent" :ref="dialogFormContent"></component>
-            <div v-else v-html="dialogFormContent"></div>
-            </template>
-        </leaf-form-dialog>
-    </div>
-    </Teleport> 
+    <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>  
+        <template #dialog-content-slot>
+        <component v-if="dialogContentIsComponent" :is="dialogFormContent" :ref="dialogFormContent"></component>
+        <div v-else v-html="dialogFormContent"></div>
+        </template>
+    </leaf-form-dialog>
 </div>
 
 <div id="LEAF_conditions_editor"></div><!-- vue IFTHEN app mount -->

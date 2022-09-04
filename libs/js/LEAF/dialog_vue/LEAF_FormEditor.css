@@ -76,7 +76,7 @@
     justify-content: space-between; 
     margin-bottom: 1em;
     background-color: white; 
-    padding: 0.2em 0.4em; 
+    padding: 0.25em; 
     border: 1px solid black;
 }
 .form-id-label {
@@ -89,13 +89,13 @@ table#edit-properties-modal {
 }
 table#edit-properties-modal td:first-child {
     position: relative;
-    padding-right: 2em;
+    padding-left: 20px;
 }
 table#edit-properties-modal img { 
     position: absolute;
-    right: 4px;
+    left: 0;
     top: 50%;
-    transform: translate(0,-50%);
+    transform: translate(0,-45%);
 }
 #edit-properties-modal input {
     width: 100%;
@@ -117,10 +117,10 @@ table#edit-properties-modal img {
 }
 
 
-.leaf-vue-dialog-background {
+#leaf-vue-dialog-background {
     width: 100vw; 
     height: 100%;
-    background-color: rgba(0,0,25,0.25);
+    background-color: rgba(0,0,20,0.35);
     position: absolute;
     left: 0;
     top: 0;
@@ -153,6 +153,10 @@ table#edit-properties-modal img {
     border-bottom: 1px solid var(--charcoal, #252F3E);
     background-color: var(--lt-cyan, #E0F4FA);
     cursor: move;
+}
+.leaf-vue-dialog-title h2 {
+    color: black;
+    margin: 0;
 }
 #button_save, #button_cancelchange {
     margin-right: 0;
