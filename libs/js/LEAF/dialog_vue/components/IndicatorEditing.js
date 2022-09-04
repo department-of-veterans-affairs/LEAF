@@ -22,17 +22,19 @@ export default {
                 orgchart_employee: "Orgchart Employee",
                 raw_data: "Raw Data (for programmers)",
             },
+            listForParentIDs: [],
+            isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
+
             name: this.ajaxIndicatorByID[this.currIndicatorID]?.name || '',
-            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || '',
-            //format property of the indicator from ajax is just the format name
-            format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',
+            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],
+            format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property of the indicator from ajax is just the format name
             description: this.ajaxIndicatorByID[this.currIndicatorID]?.description || '',
             defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
-            required: this.ajaxIndicatorByID[this.currIndicatorID]?.required==='1' || false,
-            is_sensitive: this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive==='1' || false,
-            parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID || this.newIndicatorParentID,
-            sort: this.ajaxIndicatorByID[this.currIndicatorID]?.sort || '',
+            required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required)===1 || false,
+            is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive)===1 || false,
+            parentID: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.parentID) || this.newIndicatorParentID,
+            sort: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.sort) || 0,
             //checkboxes input
             singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
                 this.ajaxIndicatorByID[this.currIndicatorID].options : '',
@@ -42,55 +44,41 @@ export default {
             //used for grid formats
             gridJSON: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'grid' ? 
                 JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : '',
-            //the value that gets posted to the format field of the indicators table (formatname + options)
+            //the value that gets posted to the format field of the indicators table (formatname + \n + options.join(\n))
             fullFormatForPost: '',
             archived: false,
             deleted: false,
-            codeEditorHtml: '',
-            codeEditorHtmlPrint: ''
+            codeEditorHtml: {},
+            codeEditorHtmlPrint: {},
+            html: this.ajaxIndicatorByID[this.currIndicatorID].html === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].html,
+            htmlPrint: this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint,
         }
     },
     inject: [
+        'APIroot',
+        'CSRFToken',
         'isEditingModal',
+        'closeFormDialog',
+        'currCategoryID',
         'currIndicatorID',
         'ajaxIndicatorByID',
+        'selectNewCategory',
         'newIndicatorParentID',
         'hasDevConsoleAccess'
     ],
     mounted(){
         console.log('indicator-editing mounted');
-        this.codeEditorHtml = this.isEditingModal ? 
-            CodeMirror.fromTextArea(document.getElementById("html"), {
-                mode: "htmlmixed",
-                lineNumbers: true,
-                extraKeys: {
-                    "F11": function(cm) {
-                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                    },
-                    "Esc": function(cm) {
-                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                    },
-                    "Ctrl-S": function(cm) {
-                        saveCodeHTML();
-                    }
-                }
-            }) : '',
-        this.codeEditorHtmlPrint = this.isEditingModal ?
-            CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
-                mode: "htmlmixed",
-                lineNumbers: true,
-                extraKeys: {
-                    "F11": function(cm) {
-                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                    },
-                    "Esc": function(cm) {
-                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                    },
-                    "Ctrl-S": function(cm) {
-                        saveCodeHTMLPrint();
-                    }
-                }
-            }) : ''
+        if (this.isEditingModal === true) {
+            console.log('editing indicator', this.currIndicatorID);
+            this.getFormParentIDs().then(res => {
+                console.log('indicator-editing got info for parentID selection');
+                this.listForParentIDs = res;
+                this.isLoadingParentIDs = false;
+            });
+            this.setupAdvancedOptions();
+        } else {
+            console.log('new indicator, parentID:', this.parentID);
+        }
     },
     computed:{
         isMultiOptionQuestion() {
@@ -98,6 +86,16 @@ export default {
         }
     },
     methods: {
+        getFormParentIDs() {
+            return new Promise((resolve, reject)=> {
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}/form/_${this.currCategoryID}/flat`,
+                    success: (res)=> resolve(res),
+                    error: (err)=> reject(err)
+                });
+            });
+        },
         preventWhenFormatNone(event) {
             if (event.target.id.toLowerCase() === "indicatortype") {
                 if (this.format === '' && (this.required === true || this.is_sensitive === true)) {
@@ -114,8 +112,8 @@ export default {
                 }
             }
         },
-        updateAdvancedOptions() {
-            this. codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
+        setupAdvancedOptions() {
+            this.codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
                 mode: "htmlmixed",
                 lineNumbers: true,
                 extraKeys: {
@@ -128,7 +126,7 @@ export default {
                     "Ctrl-S": function(cm) {
                         saveCodeHTML();
                     }
-                  }
+                }
             });
             this.codeEditorHtmlPrint = CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
                 mode: "htmlmixed",
@@ -145,41 +143,274 @@ export default {
                     }
                 }
             });
+            //TODO: troubleshooting
         },
         onSave(){
             console.log('clicked indicator-editing save');
             this.getFullFormatForPost();
 
             if (this.isEditingModal) {
-                this.updateAdvancedOptions();
                 console.log('updating indicator')
-                //TODO: post need to know
 
                 let indicatorEditingUpdates = []
                 const nameChanged = this.name !== this.ajaxIndicatorByID[this.currIndicatorID].name;
-                const fullFormatChanged = this.fullFormatForPost !== this.ajaxIndicatorByID[this.currIndicatorID].format +
-                            "\n" + this.ajaxIndicatorByID[this.currIndicatorID].options;
                 const descriptionChanged = this.description !== this.ajaxIndicatorByID[this.currIndicatorID].description;
-                const defaultChanged = this.default !== this.ajaxIndicatorByID[this.currIndicatorID].default;
-                const requiredChanged = this.required !== this.ajaxIndicatorByID[this.currIndicatorID].required;
-                const sensitiveChanged = this.is_sensitive !== this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive;
+
+                const options = this.ajaxIndicatorByID[this.currIndicatorID]?.options ? 
+                                '\n' + this.ajaxIndicatorByID[this.currIndicatorID]?.options?.join('\n') : '';
+                const fullFormatChanged = this.fullFormatForPost !== this.ajaxIndicatorByID[this.currIndicatorID].format + options;
+
+                const defaultChanged = this.defaultValue !== this.ajaxIndicatorByID[this.currIndicatorID].default;
+                const requiredChanged = +this.required !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].required);
+                const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
+                const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
-                const sortChanged = this.sort !== this.ajaxIndicatorByID[this.currIndicatorID].sort;    
-                //const htmlChanged = codeEditorHtml.getValue() !== this.ajaxIndicatorByID[this.currIndicatorID].html;
-                //htmlPrintChanged = codeEditorHtmlPrint.getValue() !== this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint; 
-                const shouldDelete = this.deleted;
-                const shouldArchive = this.archived;
+                //check html and htmlPrint in case code was not saved with the other buttons
+                const htmlChanged = this.html !== this.codeEditorHtml.getValue();
+                const htmlPrintChanged = this.htmlPrint !== this.codeEditorHtmlPrint.getValue();
+                const shouldArchive = this.archived === true;
+                const shouldDelete = this.deleted === true;
                 //push to array for each confirmed change
+
+                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,sortChanged,parentIDChanged,shouldArchive,shouldDelete, htmlChanged, htmlPrintChanged);
+
+                if(nameChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/name`,
+                            data: {
+                                name: this.name,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind name post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(descriptionChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/description`,
+                            data: {
+                                description: this.description,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind desciption post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(fullFormatChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/format`,
+                            data: {
+                                format: this.format,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind format post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(defaultChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/default`,
+                            data: {
+                                default: this.defaultValue,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind default value post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(requiredChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/required`,
+                            data: {
+                                required: this.required ? 1 : 0,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind required post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(sensitiveChanged) { //FIX: TODO:: category needToKnow endpoint if sensitive===1
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/sensitive`,
+                            data: {
+                                is_sensitive: this.is_sensitive ? 1 : 0,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind is_sensitive post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(shouldArchive) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/disabled`,
+                            data: {
+                                disabled: 1,  //can't undelete from there so this should be fine
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind disabled (archive) post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(shouldDelete) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/disabled`,
+                            data: {
+                                disabled: 2,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind disabled (deletion) post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(parentIDChanged && this.parentID !== this.currIndicatorID) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/parentID`,
+                            data: {
+                                parentID: this.parentID,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind parentID post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                if(sortChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/sort`,
+                            data: {
+                                sort: this.sort,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind sort post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+                
+                if(htmlChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
+                            data: {
+                                html: this.codeEditorHtml.getValue(),
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind html post err', err);
+                                reject(err);
+                            }
+                        });
+                    }));                    
+                }
+                if(htmlPrintChanged) {
+                    indicatorEditingUpdates.push(
+                        new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
+                            data: {
+                                html: this.codeEditorHtmlPrint.getValue(),
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => resolve(res),
+                            error: err => {
+                                console.log('ind htmlPrint post err', err);
+                                reject(err);
+                            }
+                        });
+                    }));                    
+                }
+
+                Promise.all([indicatorEditingUpdates])
+                .then(()=> {
+                    console.log('promise all:', indicatorEditingUpdates);
+                    this.closeFormDialog();
+                    if (indicatorEditingUpdates.length > 0) {
+                        this.selectNewCategory(this.currCategoryID);
+                        //TODO: update other vue app
+                    }
+                });
+
+
             } else {
                 console.log('new indicator')
                 //post need to know
                 //post info for new question
                 //'../api/formEditor/newIndicator'
             }
-            console.log(this.$data);
         },
         radioBehavior(event) {
-            console.log(event.target);
             const targetId = event.target.id;
             if (targetId.toLowerCase() === 'archived' && this.deleted) {
                 document.getElementById('deleted').checked = false
@@ -206,7 +437,7 @@ export default {
                 properties.id = $(this).attr('id');
                 properties.type = $(this).find('select').val();
                 if(properties.type !== undefined){
-                    if(properties.type === 'dropdown'){
+                    if(properties.type.toLowerCase() === 'dropdown'){
                         properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
                     }
                 } else {
@@ -238,7 +469,7 @@ export default {
         formatIndicatorMultiAnswer() {
             let optionsToArray = this.multiOptionValue.split('\n');
             optionsToArray = optionsToArray.map(option => option.trim());
-            optionsToArray = optionsToArray.map(option => option === 'no' ? 'No' : option);
+            optionsToArray = optionsToArray.map(option => option === 'no' ? 'No' : option); //this checks specifically for lower case values
 
             let uniqueArray = Array.from(new Set(optionsToArray));
             return uniqueArray.join('\n');
@@ -269,17 +500,56 @@ export default {
             $('#name').trumbowyg('destroy');
         },
         advancedOptionsClick() {
-            if(this.hasDevConsoleAccess === 1) {
+            if(parseInt(this.hasDevConsoleAccess) === 1) {
                 $('#button_advanced').css('display', 'none');
                 $('#advanced').css('height', 'auto');
                 $('#advanced').css('visibility', 'visible');
                 $('.table').css('border-collapse', 'collapse');
                 $('.CodeMirror').css('border', '1px solid black');
+                //this.setupAdvancedOptions();
             } else {
                 alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
                 $('#button_advanced').css('display', 'none');
                 $('#advanced').css('visibility', 'hidden');
             }
+        },
+        saveCodeHTML() {
+            const htmlValue = this.codeEditorHtml.getValue();
+            console.log('htmlValue', htmlValue);
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
+                data: {
+                    html: htmlValue,
+                    CSRFToken: this.CSRFToken
+                },
+                success: (res)=> {
+                    this.html = htmlValue;
+                    this.ajaxIndicatorByID[this.currIndicatorID].html = htmlValue;
+                    const time = new Date().toLocaleTimeString();
+                    document.getElementById('codeSaveStatus_html').innerHTML = '<br /> Last saved: ' + time;
+                },
+                error: (err) => console.log(err)
+            });
+        },
+        saveCodeHTMLPrint() {
+            const htmlPrintValue = this.codeEditorHtmlPrint.getValue();
+            console.log('htmlPrintValue', htmlPrintValue, this.currIndicatorID);
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
+                data: {
+                    htmlPrint: htmlPrintValue,
+                    CSRFToken: this.CSRFToken
+                },
+                success: (res)=> {
+                    this.htmlPrint = htmlPrintValue;
+                    this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint = htmlPrintValue;
+                    const time = new Date().toLocaleTimeString();
+                    document.getElementById('codeSaveStatus_htmlPrint').innerHTML ='<br /> Last saved: ' + time;
+                },
+                error: (err) => console.log(err)
+            });
         }
     },
     template: `<div style="min-width: 400px;">
@@ -344,12 +614,20 @@ export default {
                 </tr>
                 <tr>
                     <td>Sort Priority</td>
-                    <td><input id="sort" v-model="sort" name="sort" type="number" style="width: 40px" /></td>
+                    <td><input id="sort" v-model.number="sort" name="sort" type="number" style="width: 40px" /></td>
                 </tr>
                 <template v-if="isEditingModal">
                 <tr>
                     <td>Parent Question ID</td>
-                    <td colspan="2"><div id="container_parentID">TEMP</div></td>
+                    <td colspan="2">
+                        <div id="container_parentID">
+                            <select v-model.number="parentID">
+                                <template v-if="isLoadingParentIDs===false" v-for="kv in Object.entries(listForParentIDs)">
+                                    <option v-if="currIndicatorID !== parseInt(kv[0])" :value="kv[0]" :key="'parent'+kv[0]">{{kv[0]}}: {{kv[1]['1'].name}}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td>Archive</td>
@@ -375,7 +653,7 @@ export default {
         </fieldset>
         <template v-if="isEditingModal">
             <span id="button_advanced" class="buttonNorm" tabindex="0" @click="advancedOptionsClick">Advanced Options</span>
-            <div>
+            <div v-if="parseInt(hasDevConsoleAccess)===1">
                 <fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>
                     Template Variables:<br />
                     <table class="table" style="border-collapse: inherit">
@@ -394,20 +672,20 @@ export default {
                     </table><br />
                     <div style="display:flex; justify-content: space-between;">
                         html (for pages where the user can edit data): 
-                        <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
+                        <button id="btn_codeSave_html" @click="saveCodeHTML" class="buttonNorm" title="Save Code">
                             <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
                             Save Code<span id="codeSaveStatus_html"></span>
                         </button>
                     </div>
-                    <textarea id="html"></textarea><br />
+                    <textarea id="html">{{html}}</textarea><br />  <!-- NOTE: can't seem to v-model these areas html and htmlPrint properties updated after save -->
                     <div style="display:flex; justify-content: space-between;">
                         htmlPrint (for pages where the user can only read data): 
-                        <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
+                        <button id="btn_codeSave_htmlPrint" @click="saveCodeHTMLPrint" class="buttonNorm" title="Save Code">
                             <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
                             Save Code<span id="codeSaveStatus_htmlPrint"></span>
                         </button>
                     </div>
-                    <textarea id="htmlPrint"></textarea>
+                    <textarea id="htmlPrint">{{htmlPrint}}</textarea>
                 </fieldset>
             </div>
         </template>

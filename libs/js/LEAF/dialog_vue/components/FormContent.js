@@ -34,7 +34,7 @@ export default {
             return this.currentCategorySelection.categoryDescription;
         },
         workflow() {
-            return this.currentCategorySelection.workflowID === 0 ?
+            return parseInt(this.currentCategorySelection.workflowID) === 0 ?
             `<span style="color: red">No workflow. Users will not be able to select this form.</span>` :
             `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
         },
@@ -55,7 +55,7 @@ export default {
                 <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID" v-html="formName"></div>
                 <div v-html="categoryDescription"></div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
-                <span v-if="!isSubForm">Need to Know mode: <b>{{ currentCategorySelection.needToKnow === 1 ? 'On' : 'Off' }}</b></span>
+                <span v-if="!isSubForm">Need to Know mode: <b>{{ parseInt(currentCategorySelection.needToKnow) === 1 ? 'On' : 'Off' }}</b></span>
             </div>
 
             <div style="flex: 0 0 140px;">

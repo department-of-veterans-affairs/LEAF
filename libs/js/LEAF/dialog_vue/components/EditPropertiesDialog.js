@@ -39,10 +39,10 @@ export default {
             const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
             //console.log(this.categoryDescription, this.currentCategorySelection.categoryDescription);
             const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
-            const workflowChanged  = this.workflowID !== this.currentCategorySelection.workflowID;
-            const needToKnowChanged = this.needToKnow !== this.currentCategorySelection.needToKnow;
-            const sortChanged = this.sort !== this.currentCategorySelection.sort;
-            const visibleChanged = this.visible !== this.currentCategorySelection.visible;
+            const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
+            const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
+            const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
+            const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
             const typeChanged = this.type !== this.currentCategorySelection.type;
 
             if(nameChanged){

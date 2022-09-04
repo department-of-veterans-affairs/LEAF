@@ -28,7 +28,7 @@ export default {
 	mounted() {
 		const elModal = document.getElementById(this.modalElementID);
 		const currModalHeight = elModal.clientHeight;
-		document.getElementById(this.modalBackgroundID).style.minHeight = currModalHeight + window.innerHeight/2 + 'px';
+		document.getElementById(this.modalBackgroundID).style.minHeight = currModalHeight + window.innerHeight + 'px';
 		this.makeDraggable(elModal);
 	},
 	methods: {

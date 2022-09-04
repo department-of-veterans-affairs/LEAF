@@ -19,7 +19,7 @@ export default {
             return this.category.categoryDescription;
         },
         availability () {
-            return this.category.visible === 1 && this.workflowID > 0 ? 
+            return parseInt(this.category.visible) === 1 && this.workflowID > 0 ? 
             'This form is available' : 'Hidden. Users cannot submit new requests.';
         },
         workflow() {

@@ -30,22 +30,22 @@ export default {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
         },
         colspan() {
-            return this.formNode.format === null || this.formNode.format === 'textarea' ? 2 : 1;
+            return this.formNode.format === null || this.formNode.format.toLowerCase() === 'textarea' ? 2 : 1;
         },
         required() {
-            return this.formNode.required === '1'
+            return parseInt(this.formNode.required) === 1;
         },
         isEmpty() {
             return this.formNode.isEmpty === true;
         },
         blockID() { //NOTE: not sure about empty id attr
-            return this.depth === 0 ?  '' : `subIndicator_${this.suffix}`;
+            return parseInt(this.depth) === 0 ?  '' : `subIndicator_${this.suffix}`;
         },
         labelID() {
-            return this.depth === 0 ? `PHindicator_${this.suffix}` : '';
+            return parseInt(this.depth) === 0 ? `PHindicator_${this.suffix}` : '';
         },
         labelClass() {
-            if (this.depth === 0) {
+            if (parseInt(this.depth) === 0) {
                 return this.required && this.isEmpty ? `printheading_missing` : `printheading`;
             } else {
                 return this.required && this.isEmpty ? `printsubheading_missing` : `printsubheading`;
@@ -72,7 +72,7 @@ export default {
                     <div :id="labelID" :class="labelClass" 
                         :style="{display: depth===0 ? 'flex' : 'block'}" 
                         style="align-items:center; width: 100%;">
-                        <img v-if="formNode.is_sensitive==='1'" 
+                        <img v-if="parseInt(formNode.is_sensitive)===1" 
                             src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="" 
                             title="This field is sensitive" />
                         <span class="printsubheading"  
