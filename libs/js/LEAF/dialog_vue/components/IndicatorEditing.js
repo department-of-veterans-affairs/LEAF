@@ -380,7 +380,7 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
                             data: {
-                                html: this.codeEditorHtmlPrint.getValue(),
+                                htmlPrint: this.codeEditorHtmlPrint.getValue(),
                                 CSRFToken: this.CSRFToken
                             },
                             success: (res) => resolve(res),
