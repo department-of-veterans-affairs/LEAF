@@ -63,6 +63,7 @@ export default {
         'currIndicatorID',
         'ajaxIndicatorByID',
         'selectNewCategory',
+        'updateCategoriesProperty',
         'newIndicatorParentID',
         'hasDevConsoleAccess'
     ],
@@ -184,7 +185,7 @@ export default {
                                 name: this.name,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
+                            success: (res) =>  resolve(res),
                             error: err => {
                                 console.log('ind name post err', err);
                                 reject(err);
@@ -264,7 +265,7 @@ export default {
                         })
                     }));
                 }
-                if(sensitiveChanged) { //FIX: TODO:: category needToKnow endpoint if sensitive===1
+                if(sensitiveChanged) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
                         $.ajax({
@@ -282,6 +283,29 @@ export default {
                         })
                     }));
                 }
+                if (sensitiveChanged && +this.is_sensitive === 1) {
+                    indicatorEditingUpdates.push(
+                    new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/formNeedToKnow`,
+                            data: {
+                                needToKnow: 1,
+                                categoryID: this.currCategoryID,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => {
+                                this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', 1);
+                                resolve(res);
+                            },
+                            error: err => {
+                                console.log('set form need to know post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
+
                 if(shouldArchive) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -300,6 +324,7 @@ export default {
                         })
                     }));
                 }
+
                 if(shouldDelete) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -318,6 +343,7 @@ export default {
                         })
                     }));
                 }
+
                 if(parentIDChanged && this.parentID !== this.currIndicatorID) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -336,6 +362,7 @@ export default {
                         })
                     }));
                 }
+
                 if(sortChanged) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {

@@ -40,6 +40,9 @@ export default {
         },
         isSubForm(){
             return !this.currentCategorySelection.parentID == '';
+        },
+        isNeedToKnow(){
+            return parseInt(this.currentCategorySelection.needToKnow) === 1;
         }
     },
     methods: {
@@ -55,7 +58,7 @@ export default {
                 <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID" v-html="formName"></div>
                 <div v-html="categoryDescription"></div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
-                <span v-if="!isSubForm">Need to Know mode: <b>{{ parseInt(currentCategorySelection.needToKnow) === 1 ? 'On' : 'Off' }}</b></span>
+                <span v-if="!isSubForm">Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : black}">{{ isNeedToKnow ? 'On' : 'Off' }}</b></span>
             </div>
 
             <div style="flex: 0 0 140px;">
