@@ -33,7 +33,7 @@ export default {
             defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
             required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required)===1 || false,
             is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive)===1 || false,
-            parentID: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.parentID) || this.newIndicatorParentID,
+            parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
             sort: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.sort) || 0,
             //checkboxes input
             singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
@@ -50,8 +50,8 @@ export default {
             deleted: false,
             codeEditorHtml: {},
             codeEditorHtmlPrint: {},
-            html: this.ajaxIndicatorByID[this.currIndicatorID].html === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].html,
-            htmlPrint: this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint,
+            html: !this.isEditingModal || this.ajaxIndicatorByID[this.currIndicatorID].html === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].html,
+            htmlPrint: !this.isEditingModal || this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint,
         }
     },
     inject: [

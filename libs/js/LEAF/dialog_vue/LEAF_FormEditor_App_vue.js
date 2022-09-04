@@ -263,8 +263,9 @@ export default {
             this.showFormDialog = true;  
         },
         newQuestion(parentIndID) {
+            console.log(parentIndID)
             this.currIndicatorID = null;
-            this.newIndicatorParentID = parseInt(parentIndID);
+            this.newIndicatorParentID = parentIndID !== null ? parseInt(parentIndID) : null;
             this.isEditingModal = false;
             this.openIndicatorEditing(parentIndID);
         },

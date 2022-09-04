@@ -62,7 +62,6 @@ export default {
 			const checkBounds = ()=> {
 				let scrollbarWidth = 20;
 				if (el.offsetTop < window.scrollY) {
-					console.log('top bound triggered')
 					el.style.top = window.scrollY + 'px';
 				}
 				if (el.offsetLeft < 0) {
