@@ -21,7 +21,6 @@ export default {
         'appIsLoadingCategoryInfo',
         'editPropertiesClicked',
         'editPermissionsClicked',
-        'ajaxFormByCategoryID',
         'gridInput'
     ],
     computed: {

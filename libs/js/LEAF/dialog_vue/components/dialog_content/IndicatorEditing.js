@@ -73,9 +73,7 @@ export default {
     mounted(){
         console.log('indicator-editing mounted');
         if (this.isEditingModal === true) {
-            console.log('editing indicator', this.currIndicatorID);
             this.getFormParentIDs().then(res => {
-                console.log('indicator-editing got info for parentID selection');
                 this.listForParentIDs = res;
                 this.isLoadingParentIDs = false;
             });
@@ -168,7 +166,6 @@ export default {
                     }
                 }
             });
-            //TODO: troubleshooting
         },
         onSave(){
             console.log('clicked indicator-editing save');
@@ -189,7 +186,7 @@ export default {
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
                 const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
-                //check html and htmlPrint in case code was not saved with the other buttons.
+                //checks html and htmlPrint in case code was not saved with the other buttons.
                 const htmlChanged = this.html !== this.codeEditorHtml.getValue();
                 const htmlPrintChanged = this.htmlPrint !== this.codeEditorHtmlPrint.getValue();
                 const shouldArchive = this.archived === true;
@@ -199,7 +196,6 @@ export default {
 
                 if(nameChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/name`,
@@ -207,17 +203,13 @@ export default {
                                 name: this.name,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) =>  resolve(res),
-                            error: err => {
-                                console.log('ind name post err', err);
-                                reject(err);
-                            }
+                            success: () => console.log('name success'),
+                            error: err => console.log('ind name post err', err)
                         })
-                    }));
+                    );
                 }
                 if(descriptionChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/description`,
@@ -225,17 +217,13 @@ export default {
                                 description: this.description,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind desciption post err', err);
-                                reject(err);
-                            }
+                            success: () => console.log('description success'),
+                            error: err => console.log('ind desciption post err', err)
                         })
-                    }));
+                    );
                 }
                 if(fullFormatChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/format`,
@@ -243,17 +231,13 @@ export default {
                                 format: this.fullFormatForPost,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind format post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind format post err', err)
                         })
-                    }));
+                    );
                 }
                 if(defaultChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/default`,
@@ -261,17 +245,13 @@ export default {
                                 default: this.defaultValue,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind default value post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind default value post err', err)
                         })
-                    }));
+                    );
                 }
                 if(requiredChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/required`,
@@ -279,17 +259,13 @@ export default {
                                 required: this.required ? 1 : 0,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind required post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind required post err', err)
                         })
-                    }));
+                    );
                 }
                 if(sensitiveChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/sensitive`,
@@ -297,17 +273,13 @@ export default {
                                 is_sensitive: this.is_sensitive ? 1 : 0,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind is_sensitive post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err =>  console.log('ind is_sensitive post err', err)
                         })
-                    }));
+                    );
                 }
                 if (sensitiveChanged && +this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
-                    new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/formNeedToKnow`,
@@ -316,20 +288,15 @@ export default {
                                 categoryID: this.currCategoryID,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => {
+                            success: () => {
                                 this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', 1);
-                                resolve(res);
                             },
-                            error: err => {
-                                console.log('set form need to know post err', err);
-                                reject(err);
-                            }
+                            error: err => console.log('set form need to know post err', err)
                         })
-                    }));
+                    );
                 }
                 if(shouldArchive) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/disabled`,
@@ -337,17 +304,13 @@ export default {
                                 disabled: 1,  //can't undelete from there so this should be fine
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind disabled (archive) post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind disabled (archive) post err', err)
                         })
-                    }));
+                    );
                 }
                 if(shouldDelete) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/disabled`,
@@ -355,17 +318,13 @@ export default {
                                 disabled: 2,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind disabled (deletion) post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind disabled (deletion) post err', err)
                         })
-                    }));
+                    );
                 }
                 if(parentIDChanged && this.parentID !== this.currIndicatorID) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/parentID`,
@@ -373,17 +332,13 @@ export default {
                                 parentID: this.parentID,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind parentID post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind parentID post err', err)
                         })
-                    }));
+                    );
                 }
                 if(sortChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/sort`,
@@ -391,17 +346,13 @@ export default {
                                 sort: this.sort,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind sort post err', err);
-                                reject(err);
-                            }
+                            success: () => {},
+                            error: err => console.log('ind sort post err', err)
                         })
-                    }));
+                    );
                 }
                 if(htmlChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
@@ -409,17 +360,13 @@ export default {
                                 html: this.codeEditorHtml.getValue(),
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind html post err', err);
-                                reject(err);
-                            }
-                        });
-                    }));                    
+                            success: () => {},
+                            error: err => console.log('ind html post err', err)
+                        })
+                    );                    
                 }
                 if(htmlPrintChanged) {
                     indicatorEditingUpdates.push(
-                        new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
@@ -427,13 +374,10 @@ export default {
                                 htmlPrint: this.codeEditorHtmlPrint.getValue(),
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => resolve(res),
-                            error: err => {
-                                console.log('ind htmlPrint post err', err);
-                                reject(err);
-                            }
-                        });
-                    }));                    
+                            success: () => {},
+                            error: err => console.log('ind htmlPrint post err', err)
+                        })
+                    );                    
                 }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
@@ -441,7 +385,6 @@ export default {
 
                 if (+this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
-                    new Promise((resolve, reject) => {
                         $.ajax({
                             type: 'POST',
                             url: `${this.APIroot}formEditor/formNeedToKnow`,
@@ -450,20 +393,14 @@ export default {
                                 categoryID: this.currCategoryID,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => {
+                            success: () => {
                                 this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', 1);
-                                resolve(res);
                             },
-                            error: err => {
-                                console.log('set form need to know post err', err);
-                                reject(err);
-                            }
+                            error: err => console.log('set form need to know post err', err)
                         })
-                    }));
+                    );
                 }
-
                 indicatorEditingUpdates.push(
-                new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/newIndicator`,
@@ -479,22 +416,18 @@ export default {
                             sort: this.sort,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => resolve(res),
-                        error: err => {
-                            console.log('error posting new question', err);
-                            reject(err);
-                        }
+                        success: () => {},
+                        error: err => console.log('error posting new question', err)
                     })
-                }));
+                );
             }
 
-            Promise.all([indicatorEditingUpdates])
-            .then(()=> {
-                console.log('promise all:', indicatorEditingUpdates);
+            Promise.all(indicatorEditingUpdates).then((res)=> {
+                console.log('promise all:', indicatorEditingUpdates, res);
                 this.closeFormDialog();
-                if (indicatorEditingUpdates.length > 0) {
-                    vueData.updateIndicatorList = true;          //NOTE: flag IFTHEN app for indicator updates
-                    this.selectNewCategory(this.currCategoryID); //selectNew will update vueData formID and trigger click
+                if (res.length > 0) {
+                    vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
+                    this.selectNewCategory(this.currCategoryID);
                 }
             });
 

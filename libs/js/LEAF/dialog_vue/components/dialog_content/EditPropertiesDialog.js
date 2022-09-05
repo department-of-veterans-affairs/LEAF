@@ -47,7 +47,6 @@ export default {
 
             if(nameChanged){
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formName`,
@@ -56,20 +55,15 @@ export default {
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {  //NOTE:  except for WF, these give back an empty array
+                        success: () => {  //NOTE:  except for WF, these give back an empty array
                             this.updateCategoriesProperty(this.currCategoryID, 'categoryName', this.categoryName);
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('name post err', err);
-                            reject(err);
-                        }
+                        error: err =>  console.log('name post err', err)
                     })
-                }));
+                );
             }
             if(descriptionChanged){  //NOTE: name endpoint strips tags, but description endpoint does not.  intended?
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formDescription`,
@@ -78,20 +72,15 @@ export default {
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
+                        success: () => {
                             this.updateCategoriesProperty(this.currCategoryID, 'categoryDescription', this.categoryDescription);
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('form description post err', err);
-                            reject(err);
-                        }
-                    });
-                }));
+                        error: err => console.log('form description post err', err)
+                    })
+                );
             }
             if(workflowChanged) {
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formWorkflow`,
@@ -107,18 +96,13 @@ export default {
                                 this.updateCategoriesProperty(this.currCategoryID, 'workflowID', this.workflowID);
                                 this.updateCategoriesProperty(this.currCategoryID, 'description', this.description);
                             }
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('workflow post err', err);
-                            reject(err);
-                        }
-                    });
-                }));
+                        error: err => console.log('workflow post err', err)
+                    })
+                );
             }
             if(needToKnowChanged){
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formNeedToKnow`,
@@ -127,20 +111,15 @@ export default {
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
+                        success: () => {
                             this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', this.needToKnow);
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('ntk post err', err);
-                            reject(err);
-                        }
-                    });
-                }));
+                        error: err => console.log('ntk post err', err)
+                    })
+                );
             }
             if(sortChanged){
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formSort`,
@@ -149,20 +128,15 @@ export default {
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
+                        success: () => {
                             this.updateCategoriesProperty(this.currCategoryID, 'sort', this.sort);
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('sort post err', err);
-                            reject(err);
-                        }
-                    });
-                }));
+                        error: err => console.log('sort post err', err)
+                    })
+                );
             }
             if(visibleChanged){
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formVisible`,
@@ -171,20 +145,15 @@ export default {
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
+                        success: () => {
                             this.updateCategoriesProperty(this.currCategoryID, 'visible', this.visible);
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('visibility post err', err);
-                            reject(err);
-                        }
-                    });
-                }));
+                        error: err => console.log('visibility post err', err)
+                    })
+                );
             }
             if(typeChanged){
                 editPropertyUpdates.push(
-                    new Promise((resolve, reject) => {
                     $.ajax({
                         type: 'POST',
                         url: `${this.APIroot}formEditor/formType`,
@@ -193,18 +162,14 @@ export default {
                             categoryID: this.currCategoryID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
+                        success: () => {
                             this.updateCategoriesProperty(this.currCategoryID, 'type', this.type);
-                            resolve(res);
                         },
-                        error: err => {
-                            console.log('type post err', err);
-                            reject(err);
-                        }
-                    });
-                }));
+                        error: err => console.log('type post err', err)
+                    })
+                );
             }
-            Promise.all([editPropertyUpdates])
+            Promise.all(editPropertyUpdates)
                 .then(()=> {
                     console.log('promise all:', editPropertyUpdates);
                     this.closeFormDialog();

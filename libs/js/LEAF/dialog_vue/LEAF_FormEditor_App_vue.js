@@ -122,7 +122,7 @@ export default {
                 });
             });
         },
-        getFormByCategory() {
+        getFormByCategoryID() {
             this.appIsLoadingCategoryInfo = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
@@ -170,8 +170,8 @@ export default {
         addNewCategory(catID, record = {}) {
             this.categories[catID] = record;
         },
-        selectNewCategory(catID) {  //TODO: isSubform ?
-            console.log('selecting: ', catID !== null ? catID : 'nav to view all');
+        selectNewCategory(catID, isSubform = false) {  //TODO: isSubform ?
+            console.log('selecting: ', catID !== null ? catID + ' subform? ' + isSubform : 'nav to view all');
             this.restoringFields = false;
             this.currCategoryID = catID;
             console.log('clearing currentCategorySelection, ajaxFormByCategoryID, ajaxSelectedCategoryStapled');
@@ -184,17 +184,19 @@ export default {
 
             //if user clicks a form card or internal, switch to specified record and get info about the form
             if (catID !== null) { //TODO: subforms vs new main form selection
+                console.log('setting currentCategorySelection, ajaxFormByCategoryID, ajaxSelectedCategoryStapled');
                 this.currentCategorySelection = { ...this.categories[catID]};
-                console.log('new category selected: ', this.currentCategorySelection);
+                console.log('set currentCategorySelection: ', this.currentCategorySelection);
 
-                this.getFormByCategory().then(res => {
+                this.getFormByCategoryID().then(res => {
+                    console.log('set ajaxFormByCategoryID', res); //FIX: WHY DOES THIS NOT PULL NEW INFO AFTER PROMISE.ALL?
                     this.ajaxFormByCategoryID = res;
                     document.getElementById(this.currCategoryID).focus();
-                    console.log('updated ajaxFormByCategoryID', res);
                 }).catch(err => console.log('error getting form info: ', err));
+
                 this.getStapledFormsByCategory().then(res=>{
                     this.ajaxSelectedCategoryStapled = res;
-                    console.log('updated ajaxSelectedCategoryStapled', res);
+                    console.log('set ajaxSelectedCategoryStapled', res);
                 }).catch(err => console.log('error getting stapled forms: ', err));
 
             } else {  //nav to view all forms.  on live this recalls get categories
@@ -215,7 +217,7 @@ export default {
         },
         editPropertiesClicked() {
             console.log('clicked edit Properties, checking for updates');
-            this.getFormByCategory(currCategoryID).then(res => {
+            this.getFormByCategoryID().then(res => {
                 this.ajaxFormByCategoryID = res;
                 this.currentCategoryIsSensitive = false;
                 res.forEach(formSection => {
@@ -276,6 +278,7 @@ export default {
             this.setFormDialogComponent('new-form-dialog');
             this.showFormDialog = true; 
         },
+
         newQuestion(parentIndID) {
             console.log(parentIndID)
             this.currIndicatorID = null;
@@ -283,7 +286,7 @@ export default {
             this.isEditingModal = false;
             this.openIndicatorEditing(parentIndID);
         },
-        getForm(indicatorID, series) {
+        getForm(indicatorID, series) {  //TODO: rename. this gets info for a specific existing question
             this.currIndicatorID = parseInt(indicatorID);
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
