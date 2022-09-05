@@ -91,10 +91,6 @@ export default {
         }).catch(err => console.log('error getting workflow records', err));
     }, 
     methods: {
-        ifthenUpdateVueDataFormID(catID) {
-            vueData.formID = catID;
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
-        },
         //general use methods
         truncateText(str, maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
@@ -171,7 +167,8 @@ export default {
             this.ajaxFormByCategoryID = [];
             this.ajaxSelectedCategoryStapled = [];
 
-            this.ifthenUpdateVueDataFormID(catID || '');
+            vueData.formID = catID || '';       //NOTE: update of other vue app TODO: mv?
+            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
             //if user clicks a form card, switch to specified record and get info about the form
             if (catID !== null) { 

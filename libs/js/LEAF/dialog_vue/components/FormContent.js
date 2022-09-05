@@ -25,7 +25,7 @@ export default {
     ],
     computed: {
         formName() {
-            return `${this.currentCategorySelection.categoryName}`;
+            return `${this.currentCategorySelection.categoryName}` || 'Untitled';
         },
         formCatID() {
             return this.currentCategorySelection.categoryID;

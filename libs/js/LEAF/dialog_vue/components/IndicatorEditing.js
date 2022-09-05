@@ -490,8 +490,8 @@ export default {
                 console.log('promise all:', indicatorEditingUpdates);
                 this.closeFormDialog();
                 if (indicatorEditingUpdates.length > 0) {
-                    this.selectNewCategory(this.currCategoryID);
-                    //TODO: update other vue app
+                    vueData.updateIndicatorList = true;          //NOTE: flag IFTHEN app for indicator updates
+                    this.selectNewCategory(this.currCategoryID); //selectNew will update vueData formID and trigger click
                 }
             });
 
