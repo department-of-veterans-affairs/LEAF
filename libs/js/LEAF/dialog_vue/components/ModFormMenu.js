@@ -1,4 +1,4 @@
-export default { 
+export default {
     inject: [
         'truncateText',
         'selectNewCategory',
@@ -6,11 +6,19 @@ export default {
         'currCategoryID',
         'ajaxSelectedCategoryStapled',
         'restoringFields',
-        'showRestoreFields'
+        'showRestoreFields',
+        'openNewFormDialog'
     ],
     computed: {
         internalForms() {
-            return 1; //TODO:
+            let internalForms = [];
+            for(let c in this.categories){
+                if (this.categories[c].parentID===this.currCategoryID) {
+                    const internal = {...this.categories[c]};
+                    internalForms.push(internal);
+                }
+            }
+            return internalForms;
         },
         formName() {
             let elFilter = document.createElement('div')
@@ -20,9 +28,6 @@ export default {
         }
     },
     methods: {
-        createForm(event, catID = null) {
-            console.log('clicked app menu nav createForm', catID);
-        },
         deleteForm() {
             console.log('clicked app menu nav deleteForm', this.currCategoryID);
         },
@@ -34,12 +39,18 @@ export default {
         },
         mergeFormDialog() {
             console.log('clicked app menu nav mergeFormDialog');
+        },
+        selectMainForm() {
+            console.log('clicked main form', this.currCategoryID);
+        },
+        selectSubform(subformID){
+            console.log('clicked subform', 'sub', subformID, 'main', this.currCategoryID);
         }
     },
     template: `
         <div id="menu2" class="mod-form-menu-nav">
             <ul v-if="currCategoryID===null || restoringFields===true">
-                <li><a href="#" id="createFormButton" @click="createForm"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="" />Create Form</a></li>
+                <li><a href="#" id="createFormButton" @click="openNewFormDialog"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="" />Create Form</a></li>
                 <li><a href="./?a=formLibrary"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="" />LEAF Library</a></li>
                 <li><a href="./?a=importForm"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="" />Import Form</a></li>
                 <li v-if="!restoringFields"><a href="#" @click="showRestoreFields"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="" />Restore Fields</a></li>
@@ -47,9 +58,14 @@ export default {
             </ul>
             <ul v-else>
                 <li><a href="#" @click="selectNewCategory(null)"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="" />View All Forms</a></li>
-                <ul>
-                    <li style="margin-bottom:0.1em"><a href="#" :id="currCategoryID"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="" />{{ formName }}</a></li>
-                    <li><a href="#" @click="createForm(event, currCategoryID)"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="" />Add Internal-Use</a></li>
+                <ul><!-- MAIN AND INTERNAL FORMS -->
+                    <li style="margin-bottom:0.1em">
+                        <a href="#" :id="currCategoryID" @click="selectMainForm"><img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="" />{{ formName }}</a>
+                    </li>
+                    <li v-for="i in internalForms" style="margin-bottom:0.1em">
+                        <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)">{{ i.categoryName }}</a>
+                    </li>
+                    <li><a href="#" @click="openNewFormDialog"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="" />Add Internal-Use</a></li>
                 </ul>
                 <li><a href="#" @click="mergeFormDialog"><img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="" />Staple other form</a></li>
                 <div id="stapledArea">

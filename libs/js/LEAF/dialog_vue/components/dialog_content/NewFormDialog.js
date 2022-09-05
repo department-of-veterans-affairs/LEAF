@@ -1,0 +1,80 @@
+export default {
+    data() {
+        return {
+            categoryName: '',
+            categoryDescription: ''
+        }
+    },
+    inject: [
+        'APIroot',
+        'CSRFToken',
+        'currCategoryID',
+        'addNewCategory',
+        'selectNewCategory',
+        'closeFormDialog'
+	],
+    mounted() {
+        document.getElementById('name').focus();
+    },
+    computed: {
+        isSubform() {
+            return this.currCategoryID !== null;
+        },
+        nameChars(){
+            return this.categoryName.length;
+        },
+        descrChars(){
+            return this.categoryDescription.length;
+        }
+    },
+    methods: {
+        onSave() {
+            console.log('clicked save for new form modal');
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/new`,
+                data: {
+                    name: this.categoryName,
+                    description: this.categoryDescription,
+                    parentID: this.currCategoryID || '',
+                    CSRFToken: this.CSRFToken
+                },
+                success: (res)=> {
+                    let newCatID = res;
+                    let temp = {};
+                    temp.categoryID = newCatID;
+                    temp.categoryName = this.categoryName;
+                    temp.categoryDescription = this.categoryDescription;
+                    temp.workflowID = 0;
+                    temp.needToKnow = 0;
+                    temp.parentID = this.currCategoryID || '';
+                    this.addNewCategory(newCatID, temp);
+                    this.selectNewCategory(newCatID);
+                    if(this.isSubform) {
+                        console.log('TODO: handle subform menu changes')
+                    }
+                    this.closeFormDialog();
+                },
+                error: err => {
+                    console.log('error posting new form', err);
+                    reject(err);
+                }
+            });
+        }
+    },
+    template: `<div>
+            <div style="display: flex; justify-content: space-between; padding: 0.25em 0">
+                <div><b>Form Name</b><span style="font-size:80%"> (up to 50 characters)</span></div>
+                <div>{{nameChars}}</div>
+            </div>
+            <input id="name" type="text" maxlength="50" v-model="categoryName" style="width: 100%;" />
+
+            <div style="display: flex; justify-content: space-between; padding: 0.25em 0; margin-top: 1em;">
+                <div><b>Form Description</b><span style="font-size:80%"> (up to 255 characters)</span></div>
+                <div>{{descrChars}}</div>
+            </div>
+            <textarea id="description" maxlength="255" v-model="categoryDescription" 
+                style="width: 100%; height: 90px;">
+            </textarea>
+        </div>`
+};

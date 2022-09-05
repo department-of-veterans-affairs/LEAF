@@ -54,6 +54,9 @@ export default {
             htmlPrint: !this.isEditingModal || this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint,
         }
     },
+    props: {
+        contentProps: Object
+    },
     inject: [
         'APIroot',
         'CSRFToken',
@@ -701,7 +704,7 @@ export default {
                         <input id="archived" v-model="archived" name="disable_or_delete" type="checkbox" @change="radioBehavior"/>
                     </td>
                     <td style="width: 275px;">
-                        <span id="archived-warning" style="color: red; visibility: hidden;">
+                        <span v-show="archived" id="archived-warning" style="color: red; font-size: 80%;">
                         This field will be archived.  It can be<br/>re-enabled by using Restore Fields.</span>
                     </td>
                 </tr>
@@ -711,7 +714,7 @@ export default {
                         <input id="deleted" v-model="deleted" name="disable_or_delete" type="checkbox" @change="radioBehavior" />
                     </td>
                     <td style="width: 275px;">
-                        <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
+                        <span v-show="deleted" id="deletion-warning" style="color: red; font-size: 80%;">Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
                     </td>
                 </tr>
                 </template>

@@ -15,8 +15,13 @@
     box-sizing: border-box;
 }
 
-#vue-formeditor-app h1, #vue-formeditor-app h2, #vue-formeditor-app h3, #vue-formeditor-app h4, #vue-formeditor-app h5 {
-    margin: 0;
+/* tables in dialog modals */
+.leaf-vue-dialog table {
+    border-collapse: separate; 
+    border-spacing: 0 0.5em;
+}
+.leaf-vue-dialog table td:not(:last-child) {
+    padding-right: 0.2em;
 }
 
 /* left menu / nav */
@@ -42,6 +47,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
+    min-height: 40px;
     border: 1px solid #000;
     border-radius: 2px;
     text-decoration: none;
@@ -68,55 +74,8 @@
     padding-inline-start: 40px;
 }
 
-/* panel where edit properties modal is accessed */
-#edit-properties-panel {
-    position: relative; 
-    display: flex; 
-    min-height: 100px;
-    justify-content: space-between; 
-    margin-bottom: 1em;
-    background-color: white; 
-    padding: 0.25em; 
-    border: 1px solid black;
-}
-.form-id-label {
-    font-size: 12px;
-}
 
-table#edit-properties-modal {
-    border-collapse: separate; 
-    border-spacing: 0 0.5em;
-}
-table#edit-properties-modal td:first-child {
-    position: relative;
-    padding-left: 20px;
-}
-table#edit-properties-modal img { 
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translate(0,-45%);
-}
-#edit-properties-modal input {
-    width: 100%;
-}
-#edit-properties-modal textarea {
-    width: 100%;
-    height: 50px;
-}
-#edit-properties-modal select option {
-    max-width: 300px;
-    text-overflow: ellipsis;
-}
-
-
-
-.buttonNorm.subquestionAddNew {
-    font-size: 12px;
-    padding: 2px 4px;
-}
-
-
+/* base modal styling */
 #leaf-vue-dialog-background {
     width: 100vw; 
     height: 100%;
@@ -165,19 +124,61 @@ table#edit-properties-modal img {
 #button_cancelchange:hover, #button_cancelchange:focus, #button_cancelchange:active {
     box-shadow: inset 0 0 0 2px #003;
 }
-
-#leaf-vue-dialog-close {  /* TEMP TODO:*/
+#leaf-vue-dialog-close {
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
     top: 8px;
-    right: 12px;
+    right: 8px;
     width: 25px;
     height: 25px;
     cursor: pointer;
     font-weight: bold;
 }
+
+
+/* panel where edit properties modal is accessed from */
+#edit-properties-panel {
+    position: relative; 
+    display: flex; 
+    min-height: 100px;
+    justify-content: space-between; 
+    margin-bottom: 1em;
+    background-color: white; 
+    padding: 0.25em; 
+    border: 1px solid black;
+}
+.form-id-label {
+    font-size: 12px;
+}
+/*  edit-properties modal itself */
+table#edit-properties-modal td:first-child {
+    position: relative;
+    padding-left: 20px;
+}
+table#edit-properties-modal img { 
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(0,-40%);
+}
+#edit-properties-modal input {
+    width: 100%;
+}
+#edit-properties-modal textarea {
+    width: 100%;
+    height: 50px;
+}
+
+
+
+.buttonNorm.subquestionAddNew {
+    font-size: 12px;
+    padding: 2px 4px;
+}
+
+
 
 /* form browser cards */
 .browser-category-card {
@@ -198,7 +199,6 @@ table#edit-properties-modal img {
 .browser-category-card:hover, .browser-category-card:focus, .browser-category-card:active {
     box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25);
 }
-
 .browser-category-card > div {
     overflow: hidden;
     white-space: normal;

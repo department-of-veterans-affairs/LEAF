@@ -1,7 +1,8 @@
 import GenericDialog from "./components/GenericDialog.js";
 import LeafFormDialog from "./components/LeafFormDialog.js";
-import IndicatorEditing from "./components/IndicatorEditing.js";
-import EditPropertiesDialog from "./components/EditPropertiesDialog.js"
+import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
+import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDialog.js";
+import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
@@ -28,6 +29,7 @@ export default {
             isEditingModal: false,
 
             appIsLoadingCategoryList: true,
+            appIsLoadingCategoryInfo: false,
             currCategoryID: null,          //null or string
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
@@ -54,6 +56,7 @@ export default {
             currentCategorySelection: Vue.computed(() => this.currentCategorySelection),
             currentCategoryIsSensitive: Vue.computed(() => this.currentCategoryIsSensitive),
             ajaxFormByCategoryID: Vue.computed(() => this.ajaxFormByCategoryID),
+            appIsLoadingCategoryInfo: Vue.computed(() => this.appIsLoadingCategoryInfo),
             ajaxSelectedCategoryStapled: Vue.computed(() => this.ajaxSelectedCategoryStapled),
             ajaxWorkflowRecords: Vue.computed(() => this.ajaxWorkflowRecords),
             showFormDialog: Vue.computed(() => this.showFormDialog),
@@ -72,9 +75,11 @@ export default {
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
             updateCategoriesProperty: this.updateCategoriesProperty,
+            addNewCategory: this.addNewCategory,
             setCustomDialogTitle: this.setCustomDialogTitle,
             setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
+            openNewFormDialog: this.openNewFormDialog,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
@@ -118,11 +123,15 @@ export default {
             });
         },
         getFormByCategory() {
+            this.appIsLoadingCategoryInfo = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}form/_${this.currCategoryID}`,
-                    success: (res)=> resolve(res),
+                    success: (res)=> {
+                        this.appIsLoadingCategoryInfo = false;
+                        resolve(res)
+                    },
                     error: (err)=> reject(err)
                 });
             });
@@ -158,7 +167,10 @@ export default {
             this.currentCategorySelection = this.categories[catID];
             console.log('updated curr cat selection', keyName, this.currentCategorySelection);
         },
-        selectNewCategory(catID) {
+        addNewCategory(catID, record = {}) {
+            this.categories[catID] = record;
+        },
+        selectNewCategory(catID) {  //TODO: isSubform ?
             console.log('selecting: ', catID !== null ? catID : 'nav to view all');
             this.restoringFields = false;
             this.currCategoryID = catID;
@@ -170,8 +182,8 @@ export default {
             vueData.formID = catID || '';       //NOTE: update of other vue app TODO: mv?
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
-            //if user clicks a form card, switch to specified record and get info about the form
-            if (catID !== null) { 
+            //if user clicks a form card or internal, switch to specified record and get info about the form
+            if (catID !== null) { //TODO: subforms vs new main form selection
                 this.currentCategorySelection = { ...this.categories[catID]};
                 console.log('new category selected: ', this.currentCategorySelection);
 
@@ -193,7 +205,7 @@ export default {
                     this.appIsLoadingCategoryList = false;
                 }).catch(err => console.log('error getting category list', err));
                 this.getWorkflowRecords().then(res => {
-                    console.log('udated workflow records info')
+                    console.log('updated workflow records info')
                     this.ajaxWorkflowRecords = res;
                 }).catch(err => console.log('error getting workflow records', err));
             }
@@ -202,7 +214,6 @@ export default {
             console.log('clicked edit Permissions');
         },
         editPropertiesClicked() {
-            this.closeFormDialog();
             console.log('clicked edit Properties, checking for updates');
             this.getFormByCategory(currCategoryID).then(res => {
                 this.ajaxFormByCategoryID = res;
@@ -259,6 +270,12 @@ export default {
             this.setFormDialogComponent('edit-properties-dialog');
             this.showFormDialog = true;  
         },
+        openNewFormDialog() {
+            const titleHTML = this.currCategoryID === null ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
+            this.setCustomDialogTitle(titleHTML);
+            this.setFormDialogComponent('new-form-dialog');
+            this.showFormDialog = true; 
+        },
         newQuestion(parentIndID) {
             console.log(parentIndID)
             this.currIndicatorID = null;
@@ -297,6 +314,7 @@ export default {
         GenericDialog,
         LeafFormDialog,
         IndicatorEditing,
+        NewFormDialog,
         ModFormMenu,
         CategoryCard,
         FormContent,

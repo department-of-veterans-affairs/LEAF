@@ -24,7 +24,7 @@ export default {
             return child !== null && Object.keys(child).length > 0;
         },
         bgColor() {
-            return `rgb(${255-5*this.depth},${255-5*this.depth},${255-5*this.depth})`;
+            return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
         },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;

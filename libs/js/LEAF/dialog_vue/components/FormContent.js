@@ -17,7 +17,8 @@ export default {
     },
     inject: [
         'currCategoryID',
-        'currentCategorySelection', 
+        'currentCategorySelection',
+        'appIsLoadingCategoryInfo',
         'editPropertiesClicked',
         'editPermissionsClicked',
         'ajaxFormByCategoryID',
@@ -58,7 +59,7 @@ export default {
                 <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID" v-html="formName"></div>
                 <div v-html="categoryDescription"></div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
-                <span v-if="!isSubForm">Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : black}">{{ isNeedToKnow ? 'On' : 'Off' }}</b></span>
+                <span v-if="!isSubForm">Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : 'black'}">{{ isNeedToKnow ? 'On' : 'Off' }}</b></span>
             </div>
 
             <div style="flex: 0 0 140px;">
@@ -73,7 +74,7 @@ export default {
         </div>
         <!-- NOTE: FORM AREA -->
         <div id="formEditor_form" style="background-color: white;">
-            <div v-if="ajaxFormByCategoryID.length === 0" style="border: 2px solid black; text-align: center; 
+            <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
                 font-size: 24px; font-weight: bold; padding: 16px;">
                 Loading... 
                 <img src="../images/largespinner.gif" alt="loading..." />

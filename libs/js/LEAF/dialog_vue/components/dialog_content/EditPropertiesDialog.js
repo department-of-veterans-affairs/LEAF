@@ -276,7 +276,7 @@ export default {
             </tr>
             <tr>
                 <td>Sort Priority</td>
-                <td><input id="sort" type="number" v-model.number="sort" /></td>
+                <td><input id="sort" type="number" v-model.number="sort" style="width: 50px;"/></td>
             </tr>
             <tr>
                 <td>
