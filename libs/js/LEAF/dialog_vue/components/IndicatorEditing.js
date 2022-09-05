@@ -27,13 +27,14 @@ export default {
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
             name: this.ajaxIndicatorByID[this.currIndicatorID]?.name || '',
-            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],
-            format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property of the indicator from ajax is just the format name
+            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],//options property is arr of options (if present)
+            format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property here is just the format name
             description: this.ajaxIndicatorByID[this.currIndicatorID]?.description || '',
             defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
             required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required)===1 || false,
             is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive)===1 || false,
-            parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
+            parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? 
+                    parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
             sort: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.sort) || 0,
             //checkboxes input
             singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
@@ -44,8 +45,7 @@ export default {
             //used for grid formats
             gridJSON: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'grid' ? 
                 JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : '',
-            //the value that gets posted to the format field of the indicators table (formatname + \n + options.join(\n))
-            fullFormatForPost: '',
+
             archived: false,
             deleted: false,
             codeEditorHtml: {},
@@ -84,7 +84,28 @@ export default {
     computed:{
         isMultiOptionQuestion() {
             return this.multianswerFormats.includes(this.format);
-        }
+        },
+        fullFormatForPost() {
+            let fullFormat = this.format;
+            switch(this.format){
+                case 'grid':
+                    this.updateGridJSON();
+                    fullFormat = fullFormat + "\n" + JSON.stringify(this.gridJSON);
+                    break;
+                case 'radio':
+                case 'checkboxes':
+                case 'multiselect':
+                case 'dropdown':
+                    fullFormat = fullFormat  + "\n" +  this.formatIndicatorMultiAnswer();
+                    break;
+                case 'checkbox':
+                    fullFormat = fullFormat + "\n" +  this.singleOptionValue;
+                    break;
+                default:
+                    break;
+            }
+            return fullFormat;
+        },
     },
     methods: {
         getFormParentIDs() {
@@ -148,12 +169,11 @@ export default {
         },
         onSave(){
             console.log('clicked indicator-editing save');
-            this.getFullFormatForPost();
+            let indicatorEditingUpdates = [];
 
-            if (this.isEditingModal) {
-                console.log('updating indicator')
-
-                let indicatorEditingUpdates = []
+            if (this.isEditingModal) { /*  CALLS FOR EDITTING AN EXISTING QUESTION */
+                console.log('updating an existing indicator: ID#', this.currIndicatorID);
+                
                 const nameChanged = this.name !== this.ajaxIndicatorByID[this.currIndicatorID].name;
                 const descriptionChanged = this.description !== this.ajaxIndicatorByID[this.currIndicatorID].description;
 
@@ -166,13 +186,12 @@ export default {
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
                 const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
-                //check html and htmlPrint in case code was not saved with the other buttons
+                //check html and htmlPrint in case code was not saved with the other buttons.
                 const htmlChanged = this.html !== this.codeEditorHtml.getValue();
                 const htmlPrintChanged = this.htmlPrint !== this.codeEditorHtmlPrint.getValue();
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
-                //push to array for each confirmed change
-
+            
                 console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,sortChanged,parentIDChanged,shouldArchive,shouldDelete, htmlChanged, htmlPrintChanged);
 
                 if(nameChanged) {
@@ -218,7 +237,7 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/format`,
                             data: {
-                                format: this.format,
+                                format: this.fullFormatForPost,
                                 CSRFToken: this.CSRFToken
                             },
                             success: (res) => resolve(res),
@@ -305,7 +324,6 @@ export default {
                         })
                     }));
                 }
-
                 if(shouldArchive) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -324,7 +342,6 @@ export default {
                         })
                     }));
                 }
-
                 if(shouldDelete) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -343,7 +360,6 @@ export default {
                         })
                     }));
                 }
-
                 if(parentIDChanged && this.parentID !== this.currIndicatorID) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -362,7 +378,6 @@ export default {
                         })
                     }));
                 }
-
                 if(sortChanged) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -381,7 +396,6 @@ export default {
                         })
                     }));
                 }
-                
                 if(htmlChanged) {
                     indicatorEditingUpdates.push(
                         new Promise((resolve, reject) => {
@@ -419,23 +433,68 @@ export default {
                     }));                    
                 }
 
-                Promise.all([indicatorEditingUpdates])
-                .then(()=> {
-                    console.log('promise all:', indicatorEditingUpdates);
-                    this.closeFormDialog();
-                    if (indicatorEditingUpdates.length > 0) {
-                        this.selectNewCategory(this.currCategoryID);
-                        //TODO: update other vue app
-                    }
-                });
+            } else {  /* CALLS FOR CREATING A NEW QUESTION */
+                console.log('creating a new indicator on form ', this.currCategoryID);
 
+                if (+this.is_sensitive === 1) {
+                    indicatorEditingUpdates.push(
+                    new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: `${this.APIroot}formEditor/formNeedToKnow`,
+                            data: {
+                                needToKnow: 1,
+                                categoryID: this.currCategoryID,
+                                CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => {
+                                this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', 1);
+                                resolve(res);
+                            },
+                            error: err => {
+                                console.log('set form need to know post err', err);
+                                reject(err);
+                            }
+                        })
+                    }));
+                }
 
-            } else {
-                console.log('new indicator')
-                //post need to know
-                //post info for new question
-                //'../api/formEditor/newIndicator'
+                indicatorEditingUpdates.push(
+                new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: 'POST',
+                        url: `${this.APIroot}formEditor/newIndicator`,
+                        data: {
+                            name: this.name,
+                            format: this.fullFormatForPost,
+                            description: this.description,
+                            default: this.defaultValue,
+                            parentID: this.parentID,
+                            categoryID: this.currCategoryID,
+                            required: this.required ? 1 : 0,
+                            is_sensitive: this.is_sensitive ? 1 : 0,
+                            sort: this.sort,
+                            CSRFToken: this.CSRFToken
+                        },
+                        success: (res) => resolve(res),
+                        error: err => {
+                            console.log('error posting new question', err);
+                            reject(err);
+                        }
+                    })
+                }));
             }
+
+            Promise.all([indicatorEditingUpdates])
+            .then(()=> {
+                console.log('promise all:', indicatorEditingUpdates);
+                this.closeFormDialog();
+                if (indicatorEditingUpdates.length > 0) {
+                    this.selectNewCategory(this.currCategoryID);
+                    //TODO: update other vue app
+                }
+            });
+
         },
         radioBehavior(event) {
             const targetId = event.target.id;
@@ -474,31 +533,11 @@ export default {
             });
             this.gridJSON = gridJSON;
         },
-        getFullFormatForPost() {
-            switch(this.format){
-                case 'grid':
-                    this.updateGridJSON();
-                    this.fullFormatForPost = this.format + "\n" + JSON.stringify(this.gridJSON);
-                    break;
-                case 'radio':
-                case 'checkboxes':
-                case 'multiselect':
-                case 'dropdown':
-                    this.fullFormatForPost = this.format + "\n" +  this.formatIndicatorMultiAnswer();
-                    break;
-                case 'checkbox':
-                    this.fullFormatForPost = this.format + "\n" +  this.singleOptionValue;
-                    break;
-                default:
-                    this.fullFormatForPost = this.format;
-            }
-        },
         formatIndicatorMultiAnswer() {
             let optionsToArray = this.multiOptionValue.split('\n');
             optionsToArray = optionsToArray.map(option => option.trim());
             optionsToArray = optionsToArray.map(option => option === 'no' ? 'No' : option); //this checks specifically for lower case values
-
-            let uniqueArray = Array.from(new Set(optionsToArray));
+            const uniqueArray = Array.from(new Set(optionsToArray));
             return uniqueArray.join('\n');
         },
         //jQuery plugins and Codemirror for Advanced Options area. from mod_form as is
