@@ -81,6 +81,9 @@ export default {
         } else {
             console.log('new indicator, parentID:', this.parentID);
         }
+        if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
+            $('#advNameEditor').click();
+        }
     },
     computed:{
         isMultiOptionQuestion() {
@@ -169,8 +172,13 @@ export default {
         },
         onSave(){
             console.log('clicked indicator-editing save');
+            //check for advanced text formatting for name field
+            const elTrumbow = document.querySelector('.trumbowyg-editor');
+            if(elTrumbow !== undefined && elTrumbow !== null){
+                this.name = elTrumbow.innerHTML;
+            }
+            
             let indicatorEditingUpdates = [];
-
             if (this.isEditingModal) { /*  CALLS FOR EDITTING AN EXISTING QUESTION */
                 console.log('updating an existing indicator: ID#', this.currIndicatorID);
                 
@@ -422,6 +430,7 @@ export default {
                 );
             }
 
+            
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 console.log('promise all:', indicatorEditingUpdates, res);
                 this.closeFormDialog();
@@ -476,7 +485,7 @@ export default {
             const uniqueArray = Array.from(new Set(optionsToArray));
             return uniqueArray.join('\n');
         },
-        //jQuery plugins and Codemirror for Advanced Options area. from mod_form as is
+        //jQuery plugins for WYSWYG and Codemirror for Advanced Options area. from mod_form as is
         advNameEditorClick() {
             $('#advNameEditor').css('display', 'none');
             $('#rawNameEditor').css('display', 'inline');
@@ -508,7 +517,6 @@ export default {
                 $('#advanced').css('visibility', 'visible');
                 $('.table').css('border-collapse', 'collapse');
                 $('.CodeMirror').css('border', '1px solid black');
-                //this.setupAdvancedOptions();
             } else {
                 alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
                 $('#button_advanced').css('display', 'none');
@@ -525,7 +533,7 @@ export default {
                     html: htmlValue,
                     CSRFToken: this.CSRFToken
                 },
-                success: (res)=> {
+                success: ()=> {
                     this.html = htmlValue;
                     this.ajaxIndicatorByID[this.currIndicatorID].html = htmlValue;
                     const time = new Date().toLocaleTimeString();
@@ -544,7 +552,7 @@ export default {
                     htmlPrint: htmlPrintValue,
                     CSRFToken: this.CSRFToken
                 },
-                success: (res)=> {
+                success: ()=> {
                     this.htmlPrint = htmlPrintValue;
                     this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
@@ -636,8 +644,8 @@ export default {
                     <td colspan="1">
                         <input id="archived" v-model="archived" name="disable_or_delete" type="checkbox" @change="radioBehavior"/>
                     </td>
-                    <td style="width: 275px;">
-                        <span v-show="archived" id="archived-warning" style="color: red; font-size: 80%;">
+                    <td style="width: 275px; position: relative;">
+                        <span v-show="archived" id="archived-warning" style="color: red; font-size: 80%; position: absolute; top:-5px">
                         This field will be archived.  It can be<br/>re-enabled by using Restore Fields.</span>
                     </td>
                 </tr>
@@ -646,8 +654,8 @@ export default {
                     <td colspan="1">
                         <input id="deleted" v-model="deleted" name="disable_or_delete" type="checkbox" @change="radioBehavior" />
                     </td>
-                    <td style="width: 275px;">
-                        <span v-show="deleted" id="deletion-warning" style="color: red; font-size: 80%;">Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
+                    <td style="width: 275px; position: relative;">
+                        <span v-show="deleted" id="deletion-warning" style="color: red; font-size: 80%; position: absolute; top:-5px">Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
                     </td>
                 </tr>
                 </template>

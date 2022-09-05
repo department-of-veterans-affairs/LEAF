@@ -218,7 +218,7 @@ export default {
                     Need to Know mode  
                 </td>
                 <td>
-                    <select id="needToKnow" title="Need To Know" v-model.number="needToKnow">
+                    <select id="needToKnow" title="Need To Know" v-model.number="needToKnow" :style="{width: currentCategoryIsSensitive ? '100%' : 'auto'}">
                         <option v-if="!currentCategoryIsSensitive" value="0" :selected="needToKnow===0">Off</option>
                         <option value="1" :selected="currentCategoryIsSensitive===true || needToKnow===1">
                         {{currentCategoryIsSensitive ? 'Forced on because sensitive fields are present' : 'On'}}
