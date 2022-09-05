@@ -702,7 +702,7 @@ export default {
                     </td>
                     <td style="width: 275px;">
                         <span id="archived-warning" style="color: red; visibility: hidden;">
-                        This field will be archived.  It can be<br/>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>
+                        This field will be archived.  It can be<br/>re-enabled by using Restore Fields.</span>
                     </td>
                 </tr>
                 <tr>
@@ -711,7 +711,7 @@ export default {
                         <input id="deleted" v-model="deleted" name="disable_or_delete" type="checkbox" @change="radioBehavior" />
                     </td>
                     <td style="width: 275px;">
-                        <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled<br/>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>
+                        <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
                     </td>
                 </tr>
                 </template>
