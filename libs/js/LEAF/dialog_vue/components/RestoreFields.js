@@ -6,8 +6,7 @@ export default {
     },
     inject: [
         'APIroot',
-        'CSRFToken',
-        'selectNewCategory'
+        'CSRFToken'
     ],
     beforeMount() { 
         $.ajax({

@@ -54,7 +54,6 @@
     background-color: #e8f2ff;
     color: #1b1b1b;
     padding: 0.2em 0.3em;
-    white-space: nowrap;
     overflow: hidden;
 }
 .mod-form-menu-nav li a.selected,
@@ -67,7 +66,11 @@
     color: white;
 }
 .mod-form-menu-nav ul a img {
-    margin-right: 0.5em
+    margin-right: 0.4em
+}
+.mod-form-menu-nav ul a > div {
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .mod-form-menu-nav #stapledArea ul {
     list-style-type: disc;

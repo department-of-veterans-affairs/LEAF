@@ -17,6 +17,7 @@ export default {
     },
     inject: [
         'currCategoryID',
+        'currSubformID',
         'currentCategorySelection',
         'appIsLoadingCategoryInfo',
         'editPropertiesClicked',
@@ -39,7 +40,7 @@ export default {
             `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
         },
         isSubForm(){
-            return !this.currentCategorySelection.parentID == '';
+            return !this.currentCategorySelection.parentID === '';
         },
         isNeedToKnow(){
             return parseInt(this.currentCategorySelection.needToKnow) === 1;
@@ -66,10 +67,12 @@ export default {
                     @click="editPropertiesClicked" @keyup.enter="editPropertiesClicked"
                     style="margin-bottom:0.5em;">Edit Properties</div>
 
-                <div tabindex="0" id="editFormPermissions" class="buttonNorm" 
+                <div tabindex="0" id="editFormPermissions" class="buttonNorm"
                     @click="editPermissionsClicked" @keyup.enter="editPermissionsClicked">Edit Collaborators</div>
             </div>
-            <div style="position: absolute; right: 4px; bottom: 4px" class="form-id-label">ID: {{currCategoryID}}</div>
+            <div style="position: absolute; right: 4px; bottom: 4px" class="form-id-label">ID: {{currCategoryID}}
+            <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
+            </div>
         </div>
         <!-- NOTE: FORM AREA -->
         <div id="formEditor_form" style="background-color: white;">

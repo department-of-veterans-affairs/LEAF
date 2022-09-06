@@ -3,6 +3,7 @@ export default {
         return {
             left: '{{',
             right: '}}',
+            formID: this.currSubformID || this.currCategoryID,
             formats: {
                 text: "Single line text",
                 textarea: "Multi-line text",
@@ -63,6 +64,7 @@ export default {
         'isEditingModal',
         'closeFormDialog',
         'currCategoryID',
+        'currSubformID',
         'currIndicatorID',
         'ajaxIndicatorByID',
         'selectNewCategory',
@@ -293,11 +295,11 @@ export default {
                             url: `${this.APIroot}formEditor/formNeedToKnow`,
                             data: {
                                 needToKnow: 1,
-                                categoryID: this.currCategoryID,
+                                categoryID: this.formID,
                                 CSRFToken: this.CSRFToken
                             },
                             success: () => {
-                                this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', 1);
+                                this.updateCategoriesProperty(this.formID, 'needToKnow', 1);
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -389,7 +391,7 @@ export default {
                 }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
-                console.log('creating a new indicator on form ', this.currCategoryID);
+                console.log('creating a new indicator on form ', this.formID);
 
                 if (+this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
@@ -398,11 +400,11 @@ export default {
                             url: `${this.APIroot}formEditor/formNeedToKnow`,
                             data: {
                                 needToKnow: 1,
-                                categoryID: this.currCategoryID,
+                                categoryID: this.formID,
                                 CSRFToken: this.CSRFToken
                             },
                             success: () => {
-                                this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', 1);
+                                this.updateCategoriesProperty(this.formID, 'needToKnow', 1);
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -418,7 +420,7 @@ export default {
                             description: this.description,
                             default: this.defaultValue,
                             parentID: this.parentID,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             required: this.required ? 1 : 0,
                             is_sensitive: this.is_sensitive ? 1 : 0,
                             sort: this.sort,
@@ -436,7 +438,7 @@ export default {
                 this.closeFormDialog();
                 if (res.length > 0) {
                     vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
-                    this.selectNewCategory(this.currCategoryID);
+                    this.selectNewCategory(this.formID, this.currSubformID !== null);
                 }
             });
 

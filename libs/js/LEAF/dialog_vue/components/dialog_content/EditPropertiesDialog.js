@@ -8,13 +8,15 @@ export default {
             needToKnow: parseInt(this.currentCategorySelection.needToKnow),
             sort: parseInt(this.currentCategorySelection.sort),
             visible: parseInt(this.currentCategorySelection.visible),
-            type: this.currentCategorySelection.type
+            type: this.currentCategorySelection.type,
+            formID: this.currSubformID || this.currCategoryID
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
         'currCategoryID',
+        'currSubformID',
         'truncateText',
         'ajaxWorkflowRecords',
         'currentCategorySelection',
@@ -52,11 +54,11 @@ export default {
                         url: `${this.APIroot}formEditor/formName`,
                         data: {
                             name: this.categoryName,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {  //NOTE:  except for WF, these give back an empty array
-                            this.updateCategoriesProperty(this.currCategoryID, 'categoryName', this.categoryName);
+                            this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
                         },
                         error: err =>  console.log('name post err', err)
                     })
@@ -69,11 +71,11 @@ export default {
                         url: `${this.APIroot}formEditor/formDescription`,
                         data: {
                             description: this.categoryDescription,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {
-                            this.updateCategoriesProperty(this.currCategoryID, 'categoryDescription', this.categoryDescription);
+                            this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
                         },
                         error: err => console.log('form description post err', err)
                     })
@@ -86,15 +88,15 @@ export default {
                         url: `${this.APIroot}formEditor/formWorkflow`,
                         data: {
                             workflowID: this.workflowID,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: (res) => {
                             if (res === false) { //1 on success
                                 alert('The workflow could not be set because this form is stapled to another form');
                             } else {
-                                this.updateCategoriesProperty(this.currCategoryID, 'workflowID', this.workflowID);
-                                this.updateCategoriesProperty(this.currCategoryID, 'description', this.description);
+                                this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
+                                this.updateCategoriesProperty(this.formID, 'description', this.description);
                             }
                         },
                         error: err => console.log('workflow post err', err)
@@ -108,11 +110,11 @@ export default {
                         url: `${this.APIroot}formEditor/formNeedToKnow`,
                         data: {
                             needToKnow: this.needToKnow,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {
-                            this.updateCategoriesProperty(this.currCategoryID, 'needToKnow', this.needToKnow);
+                            this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
                         },
                         error: err => console.log('ntk post err', err)
                     })
@@ -125,11 +127,11 @@ export default {
                         url: `${this.APIroot}formEditor/formSort`,
                         data: {
                             sort: this.sort,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {
-                            this.updateCategoriesProperty(this.currCategoryID, 'sort', this.sort);
+                            this.updateCategoriesProperty(this.formID, 'sort', this.sort);
                         },
                         error: err => console.log('sort post err', err)
                     })
@@ -142,11 +144,11 @@ export default {
                         url: `${this.APIroot}formEditor/formVisible`,
                         data: {
                             visible: this.visible,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {
-                            this.updateCategoriesProperty(this.currCategoryID, 'visible', this.visible);
+                            this.updateCategoriesProperty(this.formID, 'visible', this.visible);
                         },
                         error: err => console.log('visibility post err', err)
                     })
@@ -159,11 +161,11 @@ export default {
                         url: `${this.APIroot}formEditor/formType`,
                         data: {
                             type: this.type,
-                            categoryID: this.currCategoryID,
+                            categoryID: this.formID,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {
-                            this.updateCategoriesProperty(this.currCategoryID, 'type', this.type);
+                            this.updateCategoriesProperty(this.formID, 'type', this.type);
                         },
                         error: err => console.log('type post err', err)
                     })

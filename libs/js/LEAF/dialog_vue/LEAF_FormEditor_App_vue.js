@@ -31,6 +31,7 @@ export default {
             appIsLoadingCategoryList: true,
             appIsLoadingCategoryInfo: false,
             currCategoryID: null,          //null or string
+            currSubformID: null,           //null or string
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
@@ -48,6 +49,7 @@ export default {
         return {
             CSRFToken: Vue.computed(() => this.CSRFToken),
             currCategoryID: Vue.computed(() => this.currCategoryID),
+            currSubformID: Vue.computed(() => this.currSubformID),
             currIndicatorID: Vue.computed(() => this.currIndicatorID),
             newIndicatorParentID: Vue.computed(() => this.newIndicatorParentID),
             isEditingModal: Vue.computed(() => this.isEditingModal),
@@ -122,12 +124,12 @@ export default {
                 });
             });
         },
-        getFormByCategoryID() {
+        getFormByCategoryID(catID = this.currCategoryID) {
             this.appIsLoadingCategoryInfo = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/_${this.currCategoryID}`,
+                    url: `${this.APIroot}form/_${catID}`,
                     success: (res)=> {
                         this.appIsLoadingCategoryInfo = false;
                         resolve(res)
@@ -157,7 +159,7 @@ export default {
             });
         },
         //local data
-        setCategories(obj) {  //build categories object from getCatListAll res on success 
+        setCategories(obj) {  //build categories object from getCatListAll res on success
             for(let i in obj) {
                 this.categories[obj[i].categoryID] = obj[i];
             }
@@ -170,44 +172,47 @@ export default {
         addNewCategory(catID, record = {}) {
             this.categories[catID] = record;
         },
-        selectNewCategory(catID, isSubform = false) {  //TODO: isSubform ?
-            console.log('selecting: ', catID !== null ? catID + ' subform? ' + isSubform : 'nav to view all');
-            this.restoringFields = false;
-            this.currCategoryID = catID;
-            console.log('clearing currentCategorySelection, ajaxFormByCategoryID, ajaxSelectedCategoryStapled');
+        selectNewCategory(catID, isSubform = false) {
+            console.log('selecting new form');
+            this.restoringFields = false;  //on nav from Restore Fields
+
+            if(!isSubform) { //also true on nav to View All, where catID will be null and the main form will reset
+                console.log('setting new currCatID')
+                this.currCategoryID = catID;
+                this.currSubformID = null;  //clear the subform ID whenever the main ID changes
+            } else {
+                console.log('setting new subCatID')
+                this.currSubformID = catID; //if it's an internal form, update the subformID, but keep the main form ID
+            }
             this.currentCategorySelection = {};
             this.ajaxFormByCategoryID = [];
             this.ajaxSelectedCategoryStapled = [];
 
-            vueData.formID = catID || '';       //NOTE: update of other vue app TODO: mv?
+            vueData.formID = catID || ''; //NOTE: update of other vue app TODO: mv?
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
             //if user clicks a form card or internal, switch to specified record and get info about the form
-            if (catID !== null) { //TODO: subforms vs new main form selection
-                console.log('setting currentCategorySelection, ajaxFormByCategoryID, ajaxSelectedCategoryStapled');
+            if (catID !== null) {
                 this.currentCategorySelection = { ...this.categories[catID]};
-                console.log('set currentCategorySelection: ', this.currentCategorySelection);
 
-                this.getFormByCategoryID().then(res => {
-                    console.log('set ajaxFormByCategoryID', res); //FIX: WHY DOES THIS NOT PULL NEW INFO AFTER PROMISE.ALL?
+                this.getFormByCategoryID(catID).then(res => {
                     this.ajaxFormByCategoryID = res;
-                    document.getElementById(this.currCategoryID).focus();
+                    document.getElementById(catID).focus();
                 }).catch(err => console.log('error getting form info: ', err));
 
                 this.getStapledFormsByCategory().then(res=>{
                     this.ajaxSelectedCategoryStapled = res;
-                    console.log('set ajaxSelectedCategoryStapled', res);
                 }).catch(err => console.log('error getting stapled forms: ', err));
 
-            } else {  //nav to view all forms.  on live this recalls get categories
+            } else {  //on nav to view all forms.
                 this.appIsLoadingCategoryList = true;
+                this.categories = {};
                 this.getCategoryListAll().then(res => {
                     this.setCategories(res);
-                    console.log('updated categories');
                     this.appIsLoadingCategoryList = false;
                 }).catch(err => console.log('error getting category list', err));
+
                 this.getWorkflowRecords().then(res => {
-                    console.log('updated workflow records info')
                     this.ajaxWorkflowRecords = res;
                 }).catch(err => console.log('error getting workflow records', err));
             }
@@ -216,8 +221,7 @@ export default {
             console.log('clicked edit Permissions');
         },
         editPropertiesClicked() {
-            console.log('clicked edit Properties, checking for updates');
-            this.getFormByCategoryID().then(res => {
+            this.getFormByCategoryID(this.currSubformID || this.currCategoryID).then(res => {
                 this.ajaxFormByCategoryID = res;
                 this.currentCategoryIsSensitive = false;
                 res.forEach(formSection => {
@@ -245,7 +249,7 @@ export default {
             this.dialogContentIsComponent = false;
             this.dialogFormContent = htmlContent;
         },
-        clearCustomDialog(){
+        clearCustomDialog() {
             this.setCustomDialogTitle('');
             this.setFormDialogComponent('');
             this.setFormDialogHTML('');
@@ -286,7 +290,7 @@ export default {
             this.isEditingModal = false;
             this.openIndicatorEditing(parentIndID);
         },
-        getForm(indicatorID, series) {  //TODO: rename. this gets info for a specific existing question
+        getForm(indicatorID, series) {  //TODO: rename? this gets info for a specific existing question
             this.currIndicatorID = parseInt(indicatorID);
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
@@ -294,7 +298,6 @@ export default {
                 this.ajaxIndicatorByID = res;
                 this.openIndicatorEditing(indicatorID);
                 console.log('app called getForm with:', indicatorID, series);
-                console.log('app got indicator:', res);
             }).catch(err => console.log('error getting indicator information', err));
         },
         checkSensitive(node, isSensitive = false) {
