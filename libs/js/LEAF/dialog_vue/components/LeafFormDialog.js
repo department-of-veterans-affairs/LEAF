@@ -3,7 +3,7 @@ export default {
 		return {
 			scrollY: window.scrollY,
 			initialTop: 15,
-			modalElementID: 'leaf_xhrDialog2',  //NOTE: update
+			modalElementID: 'leaf_xhrDialog',  //NOTE: update
 			modalBackgroundID: 'leaf-vue-dialog-background'
 		}
 	},
@@ -85,8 +85,8 @@ export default {
 			<div>
 				<form id="record" action="javascript:void(0);">
 					<div role="document" style="position: relative;">
-						<div id="loadIndicator2" class="leaf-dialog-loader"></div>
-						<main id="xhr2" class="leaf-vue-dialog-content" role="main">
+						<div id="loadIndicator" class="leaf-dialog-loader"></div>
+						<main id="xhr" class="leaf-vue-dialog-content" role="main">
 							<slot name="dialog-content-slot"></slot>
 						</main>
 					</div>

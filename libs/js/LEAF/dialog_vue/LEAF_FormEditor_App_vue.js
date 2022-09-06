@@ -3,6 +3,7 @@ import LeafFormDialog from "./components/LeafFormDialog.js";
 import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
 import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDialog.js";
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
+import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
@@ -82,6 +83,7 @@ export default {
             setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
             openNewFormDialog: this.openNewFormDialog,
+            openImportFormDialog: this.openImportFormDialog,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
@@ -282,7 +284,11 @@ export default {
             this.setFormDialogComponent('new-form-dialog');
             this.showFormDialog = true; 
         },
-
+        openImportFormDialog() {
+            this.setCustomDialogTitle('<h2>Import Form</h2>');
+            this.setFormDialogComponent('import-form-dialog');
+            this.showFormDialog = true;  
+        },
         newQuestion(parentIndID) {
             console.log(parentIndID)
             this.currIndicatorID = null;
@@ -321,6 +327,7 @@ export default {
         LeafFormDialog,
         IndicatorEditing,
         NewFormDialog,
+        ImportFormDialog,
         ModFormMenu,
         CategoryCard,
         FormContent,

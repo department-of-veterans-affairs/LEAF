@@ -7,7 +7,8 @@ export default {
         'ajaxSelectedCategoryStapled',
         'restoringFields',
         'showRestoreFields',
-        'openNewFormDialog'
+        'openNewFormDialog',
+        'openImportFormDialog'
     ],
     computed: {
         internalForms() {
@@ -65,7 +66,7 @@ export default {
                     </a>
                 </li>
                 <li>
-                    <a href="./?a=importForm">
+                    <a href="#" @click="openImportFormDialog">
                     <img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="" />
                     <div>Import Form</div>
                     </a>
