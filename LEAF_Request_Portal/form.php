@@ -133,7 +133,11 @@ class Form
             {
                 foreach ($section['children'] as $subsection)
                 {
-                    $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    try {
+                        $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
                 }
             }
         }
@@ -202,7 +206,11 @@ class Form
             {
                 foreach ($section['children'] as $subsection)
                 {
-                    $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    try {
+                        $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
                 }
             }
         }
@@ -237,7 +245,11 @@ class Form
 
         foreach ($form as $item)
         {
-            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
+            try {
+                $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
+            } catch (TypeError $te) {
+                error_log($te);
+            }
         }
 
         return $fullForm;
@@ -531,7 +543,11 @@ class Form
             $values = @unserialize($data[0]['data']);
             $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
             $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
-            $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+            try {
+                $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+            } catch (TypeError $te) {
+                error_log($te);
+            }
         }
 
         // handle multiselect and checkboxes format
@@ -1315,7 +1331,11 @@ class Form
             $status = $FormWorkflow->handleEvents($id, -1, 'submit', '');
             if (count($status['errors']) > 0)
             {
-                $errors = array_merge($errors, $status['errors']);
+                try {
+                    $errors = array_merge($errors, $status['errors']);
+                } catch (TypeError $te) {
+                    error_log($te);
+                }
             }
         }
 
@@ -1812,7 +1832,11 @@ class Form
 														AND needToKnow = 0
 														AND count > 0", $vars);
 
-                $res = array_merge($res, $res2);
+                try {
+                    $res = array_merge($res, $res2);
+                } catch (TypeError $te) {
+                    error_log($te);
+                }
             }
 
             // find out if "collaborator access" is being used for any categoryID in the set
@@ -2032,13 +2056,16 @@ class Form
         return $res;
     }
 
-    // recordID_list: array from view.php
-    // indicatorID_list: ID#'s delimited by ','
-    public function getCustomData($recordID_list, $indicatorID_list)
+    /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
+     * specified by $indicatorID_list (string of ID#'s delimited by ',')
+     * 
+     * @return array on success | false on malformed input
+     */ 
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list)
     {
-	if (!count($recordID_list)) {
-	    return false;
-	}
+        if (count($recordID_list) == 0) {
+            return $recordID_list;
+        }
 	    
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
@@ -2215,7 +2242,11 @@ class Form
 			    {
 			    	$values = @unserialize($item['data']);
 			    	$format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
-			    	$item['gridInput'] = array_merge($values, array("format" => $format));
+                    try {
+                        $item['gridInput'] = array_merge($values, array("format" => $format));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
 			    	$item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
 			    }
 			    break;
@@ -3652,7 +3683,11 @@ class Form
                     $values = @unserialize($data[$idx]['data']);
                     $format = json_decode(substr($field['format'], 5, -1) . ']');
                     $child[$idx]['value'] = @unserialize($child[$idx]['value']) === false ? $child[$idx]['value'] : unserialize($child[$idx]['value']);
-                    $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+                    try {
+                        $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
                 }
         
                 // handle multiselect and checkboxes formats
