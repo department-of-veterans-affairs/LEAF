@@ -164,7 +164,8 @@
             $('#unsetPrimaryAdmin').on('click', function() {
                 $.ajax({
                     type: 'DELETE',
-                    url: '../api/system/unsetPrimaryadmin&CSRFToken=<!--{$CSRFToken}-->',
+                    url: '../api/system/unsetPrimaryadmin?' +
+                        $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
                         location.reload();
                     },

@@ -131,7 +131,7 @@ switch ($action) {
 
         if ($result === true)
         {   session_write_close();
-            header('Location: ./form');
+            header('Location: ./?a=form');
             exit();
         }
         else
