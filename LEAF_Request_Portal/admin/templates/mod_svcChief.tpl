@@ -159,8 +159,8 @@ function addUser(groupID, userID) {
 function removeUser(groupID, userID) {
     $.ajax({
         type: 'DELETE',
-        url: "../api/service/" + groupID + "/members/_" + userID',
-        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        url: "../api/service/" + groupID + "/members/_" + userID + '?' +
+            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
         cache: false
     });
 }
@@ -210,8 +210,8 @@ function initiateWidget(serviceID, serviceName) {
                         dialog_confirm.setSaveHandler(function() {
                             $.ajax({
                                 type: 'DELETE',
-                                url: "../api/service/" + serviceID,
-                                data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+                                url: "../api/service/" + serviceID + '?' +
+                                    $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                                 success: function(response) {
                                     location.reload();
                                 },

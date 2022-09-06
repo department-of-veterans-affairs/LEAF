@@ -308,8 +308,8 @@ function populateMembers(groupID, members) {
 function removeMember(groupID, userID) {
     $.ajax({
         type: 'DELETE',
-        url: "../api/group/" + groupID + "/members/_" + userID,
-        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        url: "../api/group/" + groupID + "/members/_" + userID + '?' +
+            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
         cache: false
     });
 }
@@ -511,8 +511,8 @@ function getGroupList() {
                                     dialog_confirm.setSaveHandler(function() {
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: "../api/group/" + groupID,
-                                            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+                                            url: "../api/group/" + groupID + '?' +
+                                                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                                             success: function(response) {
                                                 location.reload();
                                             },
@@ -520,9 +520,9 @@ function getGroupList() {
                                         });
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?'
-                                                + $.param({tag: '<!--{$orgchartImportTag}-->',
-                                                    CSRFToken: '<!--{$CSRFToken}-->'}),
+                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
+                                                $.param({tag: '<!--{$orgchartImportTag}-->',
+                                                         CSRFToken: '<!--{$CSRFToken}-->'}),
                                             success: function() {
                                             },
                                             cache: false

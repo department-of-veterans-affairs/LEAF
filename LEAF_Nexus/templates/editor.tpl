@@ -412,7 +412,8 @@ function removePosition(positionID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/position/' + positionID + '?' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/position/' + positionID + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 if(response == 1) {
                     alert('Position has been deleted.');

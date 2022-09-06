@@ -132,7 +132,8 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/system/templates/_' + currentFile + '?CSRFToken=<!--{$CSRFToken}-->',
+	        url: '../api/system/templates/_' + currentFile + '?' +
+                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
 	        success: function() {
 	            loadContent(currentFile);
 	        }
