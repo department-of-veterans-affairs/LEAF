@@ -30,8 +30,7 @@ $position = new Orgchart\Position($db, $login);
 $tag = new Orgchart\Tag($db, $login);
 
 // check for cached result
-if(!isset($_GET['cache'])
-    && $_GET['cache'] == 0) {
+if(!isset($_GET['cache']) || $_GET['cache'] == 0) {
     $cache = $db->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
     if (isset($cache['jsonExport_PDL.php'])
         && isset($cache['lastModified'])

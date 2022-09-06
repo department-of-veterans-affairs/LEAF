@@ -322,15 +322,17 @@ class Employee extends Data
 	$strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 	    
-	$sqlVars = array(':empUID' => $result[0]['empUID']);
-	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
-        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
-        if(isset($result[0]) && isset($resEmail[0])) {
-            $result[0] = array_merge($result[0], $resEmail[0]);
-        }
+        if (isset($result[0])) {
+        	$sqlVars = array(':empUID' => $result[0]['empUID']);
+        	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
+            $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
+    	    
+            if(isset($resEmail[0])) {
+                $result[0] = array_merge($result[0], $resEmail[0]);
+            }
 
-        $this->cache[$cacheHash] = $result;
+            $this->cache[$cacheHash] = $result;
+        }
 
         return $result;
     }

@@ -26,15 +26,15 @@ $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
-$userName = $_GET['userName'];
-$empUID = $_GET['empUID'];
+$userName = $_GET['userName'] ?? false;
+$empUID = $_GET['empUID'] ?? false;
 
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
 
-	if(!empty($userName) && !empty($empUID)){
+	if(!$userName && !$empUID){
 
 		updateUserInfo($userName, $empUID);
         echo 1;
