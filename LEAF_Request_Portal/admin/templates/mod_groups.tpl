@@ -308,7 +308,8 @@ function populateMembers(groupID, members) {
 function removeMember(groupID, userID) {
     $.ajax({
         type: 'DELETE',
-        url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
+        url: "../api/group/" + groupID + "/members/_" + userID,
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         cache: false
     });
 }
@@ -510,7 +511,8 @@ function getGroupList() {
                                     dialog_confirm.setSaveHandler(function() {
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: "../api/group/" + groupID + '&CSRFToken=<!--{$CSRFToken}-->',
+                                            url: "../api/group/" + groupID,
+                                            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
                                             success: function(response) {
                                                 location.reload();
                                             },

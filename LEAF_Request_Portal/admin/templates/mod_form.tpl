@@ -1851,7 +1851,8 @@ function mergeForm(categoryID) {
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
-        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
+        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID,
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function() {
         	mergeFormDialog(categoryID);
         }
