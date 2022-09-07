@@ -138,21 +138,21 @@ var LeafForm = function(containerID) {
 				let arrCompVals = [];
 				arrConditions.map(c => {
 					if (cond.selectedOutcome === c.selectedOutcome &&
-						((cond.selectedOutcome === "Pre-fill" && cond.selectedChildValue === c.selectedChildValue) ||
+						((cond.selectedOutcome === "Pre-fill" && cond.selectedChildValue.trim() === c.selectedChildValue.trim()) ||
 						cond.selectedOutcome !== "Pre-fill"
 						)
-					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue});
+					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue.trim()});
 				});
 
 				switch (cond.selectedOp) {
 					case '==':
 						arrCompVals.forEach(entry => {
 							let id = Object.keys(entry)[0];
-							let val = document.getElementById(id).value;
+							let val = document.getElementById(id).value.trim();
 							if (sanitize(val) === entry[id]) {
 								comparisonResult = true;
 								if (cond.selectedOutcome === "Pre-fill") {
-									prefillValue = cond.selectedChildValue;
+									prefillValue = cond.selectedChildValue.trim();
 								}
 							}
 						});
@@ -160,7 +160,7 @@ var LeafForm = function(containerID) {
 					case '!=':  //TODO: SOME or EVERY?
 						arrCompVals.forEach(entry => {
 							let id = Object.keys(entry)[0];
-							let val = document.getElementById(id).value;
+							let val = document.getElementById(id).value.trim();
 							if (sanitize(val) !== entry[id]) {
 								comparisonResult = true;
 							}
@@ -182,10 +182,6 @@ var LeafForm = function(containerID) {
 					case 'Hide':
 						if (comparisonResult === true) {
 							elJQChildID.val('');
-							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
-							}
 							//if this is a required question, re-point validator
 							$('.blockIndicator_' + childID).hide();
 							if (currentChildInfo[childID].validator !== undefined) {
@@ -200,10 +196,6 @@ var LeafForm = function(containerID) {
 							$('.blockIndicator_' + childID).show();
 						} else {
 							elJQChildID.val('');
-							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
-							}
 							$('.blockIndicator_' + childID).hide();
 							if (currentChildInfo[childID].validator !== undefined) {
 								form.dialog().requirements[childID] = hideShowValidator;
@@ -215,23 +207,21 @@ var LeafForm = function(containerID) {
 							const text = $('<div/>').html(prefillValue).text();
 							elJQChildID.val(text);
 							elJQChildID.attr('disabled', 'disabled');
-							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val(text);
-								elJQChildID.trigger('chosen:updated');
-							}
 						} else {
 							elJQChildID.removeAttr('disabled');
 							elJQChildID.val('');
-							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val('');
-								elJQChildID.trigger('chosen:updated');
-							}
 						}
 						break; 
 					default:
 						console.log(cond.selectedOutcome);
 						break;
-				} 
+				}
+				if (chosenShouldUpdate) {
+					const val = elJQChildID.val();
+					elJQChildID.chosen().val(val);
+					elJQChildID.chosen({ width: '100%' });
+					elJQChildID.trigger('chosen:updated');
+				}
 			});
 		}
 
