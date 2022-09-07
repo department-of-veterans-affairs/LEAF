@@ -90,7 +90,7 @@ export default {
 							<slot name="dialog-content-slot"></slot>
 						</main>
 					</div>
-					<div style="display:flex; justify-content: space-between; margin-top: 1em;">
+					<div class="leaf-vue-dialog-cancel-save">
 						<button id="button_save" class="usa-button leaf-btn-med;"
 							@click="formSaveFunction" @keypress.enter="formSaveFunction">
 							Save
