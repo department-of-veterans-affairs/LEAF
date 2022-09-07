@@ -217,12 +217,14 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                             <h2>Loading...</h2>
                         </div>
                         </div>`);
+                    $(`#form_dep_container${step.dependencyID} .button`).attr('disabled', true);
                     $.ajax({
                         type: 'GET',
                         url: rootURL + 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
                         dataType: 'script',
                         success: function() {
                             workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step);
+                            $(`#form_dep_container${step.dependencyID} .button`).attr('disabled', false);
                         },
                         fail: function(err) {
                             console.log("Error: " + err);
