@@ -234,8 +234,7 @@ export default {
                 this.openEditProperties();
             }).catch(err => console.log('error updating category information', err));
         },
-        editIndicatorPrivileges(indicatorID) {
-            console.log(indicatorID)
+        editIndicatorPrivileges() {
             console.log('clicked edit privileges');
         },
         setCustomDialogTitle(htmlContent){
@@ -290,10 +289,11 @@ export default {
             this.showFormDialog = true;  
         },
         newQuestion(parentIndID) {
-            console.log(parentIndID)
             this.currIndicatorID = null;
             this.newIndicatorParentID = parentIndID !== null ? parseInt(parentIndID) : null;
             this.isEditingModal = false;
+            console.log('Adding new indicator.', 'currID should be null:', this.currIndicatorID, 
+                'parentID (null for new sections):', this.newIndicatorParentID, 'FORM:', this.currCategoryID);
             this.openIndicatorEditing(parentIndID);
         },
         getForm(indicatorID, series) {  //TODO: rename? this gets info for a specific existing question

@@ -1,6 +1,7 @@
 export default {
     data() {
         return {
+            initialFocusElID: 'name',
             left: '{{',
             right: '}}',
             formID: this.currSubformID || this.currCategoryID,
@@ -80,11 +81,12 @@ export default {
                 this.isLoadingParentIDs = false;
             });
             this.setupAdvancedOptions();
-        } else {
-            console.log('new indicator, parentID:', this.parentID);
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
             $('#advNameEditor').click();
+            document.querySelector('.trumbowyg-editor').focus();
+        } else {
+            document.getElementById(this.initialFocusElID).focus();
         }
     },
     computed:{

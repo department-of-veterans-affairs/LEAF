@@ -1,16 +1,18 @@
 export default {
     data() {
         return {
+            initialFocusElID: 'formPacket',
             files: null,
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'closeFormDialog'
+        'closeFormDialog',
+        'selectNewCategory'
     ],
     mounted() {
-        document.getElementById('formPacket').focus();
+        document.getElementById(this.initialFocusElID).focus();
     },
     methods: {
         onSave() {
@@ -26,11 +28,14 @@ export default {
                     contentType: false,
                     cache: false,
                     data: pkg,
-                    success: (res) => { //returning NULL instead of true
-                        if(res===true){
+                    success: (res) => {
+                        if(res===true) { //NOTE: false if issues, newCatID on success would be better
                             console.log('form import success');
-                        } //TODO: close dialog
+                        } else {
+                            console.log(res);
+                        }
                         this.closeFormDialog();
+                        this.selectNewCategory(null);
                     },
                     error: err => console.log('form import error', err),
                 })

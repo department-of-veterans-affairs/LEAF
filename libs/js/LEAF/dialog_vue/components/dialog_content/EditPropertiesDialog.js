@@ -1,6 +1,7 @@
 export default {
     data() {
         return {
+            initialFocusElID: 'name',
             categoryName: this.currentCategorySelection.categoryName,
             categoryDescription: this.currentCategorySelection.categoryDescription,
             workflowID: parseInt(this.currentCategorySelection.workflowID),
@@ -28,6 +29,9 @@ export default {
         isSubform() {
             return this.currentCategorySelection.parentID !== '';
         }
+    },
+    mounted() {
+        document.getElementById(this.initialFocusElID).focus();
     },
     methods: {  //TODO: category descr needs html filter for name display
         updateWorkflowDescription() {
