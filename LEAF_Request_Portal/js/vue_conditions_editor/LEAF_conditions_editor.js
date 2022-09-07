@@ -1,10 +1,10 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //obj w formID: 0, formTitle: '', indicatorID: 0, required: 0, icons: [], updateIndicatorList: false
+            vueData: vueData,  //init {formID: 0, indicatorID: 0, updateIndicatorList: false}  indID is always set to a number
             windowTop: 0,
-            //indicatorOrg: {},  debug
-            indicators: [],
+            //indicatorOrg: {},  keep
+            indicators: [],  //.indicatorID is now type number. isDisabled is type number
             selectedParentIndicator: {},
             selectedParentOperators: [],
             selectedOperator: '',
@@ -40,9 +40,8 @@ const ConditionsEditor = Vue.createApp({
             xhttpInds.onreadystatechange = () => {
                 if (xhttpInds.readyState == 4 && xhttpInds.status == 200) {
                     const list = JSON.parse(xhttpInds.responseText);
-                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && ele.isDisabled===0);
+                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled)===0);
                     this.indicators = filteredList;
-                    
                     /* this.indicators.forEach(i => {  //debug, make object for organization according to header
                         if (i.parentIndicatorID === null){
                             this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
@@ -80,7 +79,7 @@ const ConditionsEditor = Vue.createApp({
             this.editingCondition = '';
         },
         updateSelectedParentIndicator(indicatorID){
-            const indicator = this.indicators.find(i => indicatorID !== null && i.indicatorID === indicatorID);
+            const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
                 this.parentFound = false;
@@ -164,8 +163,8 @@ const ConditionsEditor = Vue.createApp({
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
-                        i.indicatorID !== this.childIndicator.indicatorID &&
-                        i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
+                            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+                            i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
                 });
                 /*if(indicator.conditions !== null && indicator.conditions !== ''){
                     const conditionObj = JSON.parse(indicator.conditions);
@@ -180,7 +179,7 @@ const ConditionsEditor = Vue.createApp({
                     const form = JSON.parse(xhttpForm.responseText);
                     form.forEach((formheader, index) => {
                         this.indicators.forEach(ind => {
-                            if (ind.headerIndicatorID===formheader.indicatorID){
+                            if (parseInt(ind.headerIndicatorID)===parseInt(formheader.indicatorID)){
                                 ind.formPage=index;
                             }
                         })
@@ -191,13 +190,13 @@ const ConditionsEditor = Vue.createApp({
             xhttpForm.send();
         },
         crawlParents(indicator, initialIndicator) { //ind to get parentID from, 
-            const parentIndicatorID = indicator.parentIndicatorID;
-            const parent = this.indicators.find(i => i.indicatorID === parentIndicatorID);
+            const parentIndicatorID = parseInt(indicator.parentIndicatorID);
+            const parent = this.indicators.find(i => parseInt(i.indicatorID) === parentIndicatorID);
 
             if (!parent || !parent.parentIndicatorID) {
                 //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
                 //add information about the headerIndicatorID to the indicators
-                let indToUpdate = this.indicators.find(i => i.indicatorID===initialIndicator.indicatorID);
+                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID)===parseInt(initialIndicator.indicatorID));
                 indToUpdate.headerIndicatorID = parentIndicatorID;
             } else {
                 this.crawlParents(parent, initialIndicator);
@@ -219,7 +218,7 @@ const ConditionsEditor = Vue.createApp({
             const { childIndID }  = this.conditionInputObject;
             if (this.conditionComplete) {
                 const conditionsJSON = JSON.stringify(this.conditionInputObject);
-                let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
+                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
                 let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
                     ? [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
@@ -260,7 +259,7 @@ const ConditionsEditor = Vue.createApp({
                 
                 if (childIndID !== undefined) {
                     const conditionsJSON = JSON.stringify(this.conditionInputObject);
-                    const currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
+                    const currConditions = JSON.parse(this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID)).conditions) || [];
                     let newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
                     if (newConditions.length === 0) newConditions = null;
                     
@@ -276,7 +275,7 @@ const ConditionsEditor = Vue.createApp({
                             const res = JSON.parse(xhttp.responseText);
                             //TODO: return better indication of success, currently just empty array
                             if (res !== 'Invalid Token.') {
-                                let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
+                                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
                                 //update the indicator in the indicators list
                                 indToUpdate.conditions = (newConditions !== null) ? JSON.stringify(newConditions) : '';
                             }
