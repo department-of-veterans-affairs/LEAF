@@ -212,6 +212,11 @@ var LeafWorkflow = function(containerID, CSRFToken) {
             for(var x in step.stepModules) {
                 if(modulesLoaded[step.stepModules[x].moduleName + '_' + step.stepID] == undefined) {
                     modulesLoaded[step.stepModules[x].moduleName + '_' + step.stepID] = 1;
+                    $(`#form_dep_extension${step.dependencyID}`).html(`<div style="padding: 8px 24px 8px">
+                        <div style="background-color: white; border: 1px solid black; padding: 16px">
+                            <h2>Loading...</h2>
+                        </div>
+                        </div>`);
                     $.ajax({
                         type: 'GET',
                         url: rootURL + 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
