@@ -1221,10 +1221,11 @@ $(function() {
         leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(','));
 
-        leafSearch.getLeafFormQuery().onSuccess(function(res) {
+        leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
             queryResult = Object.assign(queryResult, res);
 
-            if(Object.keys(res).length > 0
+            if((Object.keys(res).length == batchSize 
+                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
                 && !abortLoad) {
                 $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
                 $('#btn_abort').on('click', function() {
