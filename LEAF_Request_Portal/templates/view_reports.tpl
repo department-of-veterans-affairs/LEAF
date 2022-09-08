@@ -1228,7 +1228,6 @@ $(function() {
                 && !abortLoad) {
                 $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
                 $('#btn_abort').on('click', function() {
-                console.log('aborting');
                     abortLoad = true;
                 });
                 offset += batchSize;
