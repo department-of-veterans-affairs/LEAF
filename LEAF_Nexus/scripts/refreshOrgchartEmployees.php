@@ -26,19 +26,19 @@ $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
-$userName = $_GET['userName'] ?? false;
-$empUID = $_GET['empUID'] ?? false;
+$userName = $_GET['userName'] ?? '';
+$empUID = $_GET['empUID'] ?? '';
 
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
 
-	if(!$userName && !$empUID){
+	if($userName !== '' && $empUID !== ''){
 
 		updateUserInfo($userName, $empUID);
-        echo 1;
-	}else{
+        	echo 1;
+	} else {
 
 		$startTime = time();
 		// echo "Refresh Orgchart Employees Start\n";
@@ -47,7 +47,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 
 		$endTime = time();
 		// echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
-        echo 1; // success value
+        	echo 1; // success value
 	}
 
 }
