@@ -111,15 +111,15 @@ $('#toggleMenu').on('click', function() {
 })
 
 // Add plus mark to li that have a sub menu
-$('li.lev2:has("ul") > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
-$('li.lev3:has("ul") > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
+$('li.lev2:has(ul) > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
+$('li.lev3:has(ul) > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
 
 
 // sub menu
 // ------------------------
 
 // When interacting with a li that has a sub menu
-$('li:has("ul")').on('mouseover keyup click mouseleave', function(e) {
+$('li:has(ul)').on('mouseover keyup click mouseleave', function(e) {
 
     //console.log("test")
 

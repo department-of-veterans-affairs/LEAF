@@ -58,7 +58,8 @@ function deleteWorkflow() {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/workflow/'+ currentWorkflow + '?CSRFToken=' + CSRFToken,
+            url: '../api/workflow/'+ currentWorkflow + '?' +
+                $.param({'CSRFToken': CSRFToken}),
             success: function(res) {
             	if(res != true) {
             		alert("Prerequisite action needed:\n\n" + res);
@@ -80,7 +81,9 @@ function unlinkEvent(workflowID, stepID, actionType, eventID) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events?eventID=' + eventID + '&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/'+ workflowID +'/step/'+ stepID +'/_'+ actionType +'/events?' +
+                $.param({'eventID': eventID,
+                         'CSRFToken': CSRFToken}),
             success: function() {
                 $('.workflowStepInfo').css('display', 'none');
                 loadWorkflow(workflowID);
@@ -508,7 +511,8 @@ function deleteEvent(event) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/workflow/event/_' + event + '?CSRFToken=' + CSRFToken,
+            url: '../api/workflow/event/_' + event + '?' +
+                $.param({'CSRFToken': CSRFToken}),
         }).done(function() {
             listEvents();
         }).fail(function (error) {
@@ -526,7 +530,8 @@ function removeStep(stepID) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/workflow/step/' + stepID + '?CSRFToken=' + CSRFToken,
+            url: '../api/workflow/step/' + stepID + '?' +
+                $.param({'CSRFToken': CSRFToken}),
             success: function(res) {
             	if(res == 1) {
             		loadWorkflow(currentWorkflow);
@@ -593,7 +598,9 @@ function unlinkDependency(stepID, dependencyID) {
 		dialog_confirm.indicateBusy();
 	    $.ajax({
 	        type: 'DELETE',
-	        url: '../api/workflow/step/' + stepID + '/dependencies?dependencyID=' + dependencyID + '&CSRFToken=' + CSRFToken,
+	        url: '../api/workflow/step/' + stepID + '/dependencies?' +
+                $.param({'dependencyID': dependencyID,
+                         'CSRFToken': CSRFToken}),
 	        success: function() {
 	            $('.workflowStepInfo').css('display', 'none');
 	            showStepInfo(stepID);
@@ -625,7 +632,9 @@ function dependencyRevokeAccess(dependencyID, groupID) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/workflow/dependency/' + dependencyID + '/privileges?groupID='+ groupID +'&CSRFToken=' + CSRFToken,
+            url: '../api/workflow/dependency/' + dependencyID + '/privileges?' +
+                $.param({'groupID': groupID,
+                         'CSRFToken': CSRFToken}),
             success: function() {
                 $('.workflowStepInfo').css('display', 'none');
                 loadWorkflow(currentWorkflow);
@@ -926,7 +935,8 @@ function deleteActionType(actionType) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/workflow/action/_' + actionType + '?CSRFToken=' + CSRFToken,
+            url: '../api/workflow/action/_' + actionType + '?' +
+                $.param({'CSRFToken': CSRFToken}),
             success: function() {
                 listActionType();
             }
@@ -1092,7 +1102,8 @@ function removeAction(workflowID, stepID, nextStepID, action) {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
-			url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action + '/' + nextStepID + '?CSRFToken=' + CSRFToken,
+			url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action + '/' + nextStepID + '?' +
+                $.param({'CSRFToken': CSRFToken}),
 			success: function() {
 		        loadWorkflow(workflowID);
 			}

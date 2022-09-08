@@ -291,7 +291,8 @@ function confirmRemove() {
     confirm_dialog.setSaveHandler(function() {
     	$.ajax({
             type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->?' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/group/<!--{$groupID}-->?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
             	if(response == 1) {
             		alert('Group has been deleted.');
@@ -313,8 +314,8 @@ function confirmUnlinkPosition(positionID) {
 	confirm_dialog.setSaveHandler(function() {
 		$.ajax({
             type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->/position/' + positionID + '?'
-                    + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/group/<!--{$groupID}-->/position/' + positionID + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
             },
@@ -330,8 +331,8 @@ function confirmUnlinkEmployee(empUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->/employee/' + empUID + '?'
-            		+ $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/group/<!--{$groupID}-->/employee/' + empUID + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
             },
@@ -350,9 +351,9 @@ function confirmDeleteTag(inTag) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->/tag?'
-            		+ $.param({tag: inTag,
-            		    CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/group/<!--{$groupID}-->/tag?' +
+                $.param({tag: inTag,
+                         CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
             },
