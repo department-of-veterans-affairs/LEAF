@@ -138,8 +138,8 @@ var LeafForm = function(containerID) {
 				let arrCompVals = [];
 				arrConditions.map(c => {
 					if (cond.selectedOutcome === c.selectedOutcome &&
-						((cond.selectedOutcome === "Pre-fill" && cond.selectedChildValue.trim() === c.selectedChildValue.trim()) ||
-						cond.selectedOutcome !== "Pre-fill"
+						((cond.selectedOutcome.toLowerCase() === "pre-fill" && cond.selectedChildValue.trim() === c.selectedChildValue.trim()) ||
+						cond.selectedOutcome.toLowerCase() !== "pre-fill"
 						)
 					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue.trim()});
 				});
@@ -151,7 +151,7 @@ var LeafForm = function(containerID) {
 							let val = document.getElementById(id).value.trim();
 							if (sanitize(val) === entry[id]) {
 								comparisonResult = true;
-								if (cond.selectedOutcome === "Pre-fill") {
+								if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
 									prefillValue = cond.selectedChildValue.trim();
 								}
 							}
@@ -178,8 +178,8 @@ var LeafForm = function(containerID) {
 				}
 
 				//update child states and/or values
-				switch (cond.selectedOutcome) {
-					case 'Hide':
+				switch (cond.selectedOutcome.toLowerCase()) {
+					case 'hide':
 						if (comparisonResult === true) {
 							elJQChildID.val('');
 							//if this is a required question, re-point validator
@@ -191,7 +191,7 @@ var LeafForm = function(containerID) {
 							$('.blockIndicator_' + childID).show();
 						}
 						break;
-					case 'Show':
+					case 'show':
 						if (comparisonResult === true) {
 							$('.blockIndicator_' + childID).show();
 						} else {
@@ -202,7 +202,7 @@ var LeafForm = function(containerID) {
 							}
 						}
 						break;
-					case 'Pre-fill':
+					case 'pre-fill':
 						if (prefillValue !== '') {
 							const text = $('<div/>').html(prefillValue).text();
 							elJQChildID.val(text);
