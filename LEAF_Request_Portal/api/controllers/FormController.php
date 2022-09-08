@@ -32,6 +32,12 @@ class FormController extends RESTfulResponse
 
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
+
+        $this->index['GET']->register('form/download/[digit]/files', function ($args) use ($form) {
+            $zip = $form->zipAllAttachments($args[0]);
+            return $zip;
+        });
+
         $this->index['GET']->register('form/version', function () {
             return $this->API_VERSION;
         });

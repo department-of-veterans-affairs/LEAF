@@ -785,6 +785,84 @@ class Form
         return true;
     }
 
+    /**
+     * Zip up and download the attackments for a given record.
+     * This does not have need to know or checks to make sure the user can or cannot download something!
+     * @param int $recordID
+     * @return bool
+     */
+    public function zipAllAttachments(int $recordID):bool
+    {
+        // the record we are looking at
+        $vars = [':recordID' => $recordID];
+
+        // get our current record, we need the title for the filename
+        $currentRecordSql = "SELECT title,deleted FROM `records` WHERE recordID = :recordID;";
+        $recordRows = $this->db->prepared_query($currentRecordSql, $vars);
+        // nothing to show then return out of this.
+        if (empty($recordRows)) {
+            return FALSE;
+        }
+        $recordRow = current($recordRows);
+
+        // what is the data we want?
+        $getFilesSql = "SELECT indicatorID, series,`format`, `data` 
+                        FROM `data` 
+                        JOIN `indicators` USING(indicatorID) 
+                        WHERE recordID = :recordID 
+                        AND `format` IN ('fileupload','image')";
+        $fileRows = $this->db->prepared_query($getFilesSql, $vars);
+
+        // this will be our directory we need the files from
+        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+
+        // convert our relative path to absolute if it has the ./
+        if(strstr($uploadDir,'./')){
+            // current working directory
+            $cwd = getcwd();
+            // get rid of api
+            $cwd = trim($cwd, 'api');
+            $uploadDir = $cwd . $uploadDir;
+        }
+
+        // temp file so we can later dump to the browser
+        $name = tempnam(sys_get_temp_dir(), "FOO");
+        $zip = new ZipArchive;
+
+        // zip okay? lets send it.
+
+        try {
+            $res = $zip->open($name, ZipArchive::CREATE);
+
+            foreach ($fileRows as $file) {
+                $filename = $this->getFileHash($recordID, $file['indicatorID'], $file['series'], $file['data']);
+                $zip->addFile($uploadDir . $filename,$filename);
+
+            }
+
+            $zip->close();
+        } catch (Exception $e) {
+            error_log($e);
+            return FALSE;
+        }
+
+        // only fires if file exists
+        if (file_exists($name)) {
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . $recordRow['title'] . '.zip' . '"');
+            header('Content-Length: ' . filesize($name));
+            header('Cache-Control: maxage=1'); //In seconds
+            header('Pragma: public');
+
+            readfile($name);
+            return TRUE;
+        }
+
+        echo 'Error: Could not generate zip file!';
+        return FALSE;
+
+    }
+
     // TODO: cleanup this and doModify to not use $_POST
 
     /**

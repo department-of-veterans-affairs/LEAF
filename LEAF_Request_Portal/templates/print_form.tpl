@@ -38,6 +38,7 @@
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
+        <button class="tools"  onclick="window.location='api/form/download/<!--{$recordID|strip_tags}-->/files'" ><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=32" alt="File Downloader" title="File Downloader" style="vertical-align: middle" /> Download All Files</button>
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
