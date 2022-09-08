@@ -1224,7 +1224,7 @@ $(function() {
         leafSearch.getLeafFormQuery().onSuccess(function(res) {
             queryResult = Object.assign(queryResult, res);
 
-            if(Object.keys(res).length == batchSize
+            if(Object.keys(res).length > 0
                 && !abortLoad) {
                 $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
                 $('#btn_abort').on('click', function() {
