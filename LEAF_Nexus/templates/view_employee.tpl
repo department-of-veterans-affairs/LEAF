@@ -147,7 +147,8 @@ function removeBackup(backupEmpUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: './api/employee/<!--{$empUID}-->/backup/' + backupEmpUID + '?' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/employee/<!--{$empUID}-->/backup/' + backupEmpUID + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
             	getBackupInfo();
             	confirm_dialog.hide();
@@ -207,7 +208,8 @@ function disableAccount(backupEmpUID) {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: './api/employee/<!--{$empUID}-->' + '?' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/employee/<!--{$empUID}-->' + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 confirm_dialog.hide();
                 if(response == true) {
