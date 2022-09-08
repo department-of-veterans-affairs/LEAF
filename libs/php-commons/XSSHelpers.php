@@ -33,8 +33,9 @@ class XSSHelpers
      * @return  string  the sanitized data
      */
     public static function xssafe($data = '', $encoding = 'UTF-8')
-    {   if(is_string($data)) {
-            $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, $encoding);
+    {   
+        if(!empty($data)) {
+            $data = htmlspecialchars((string) $data, ENT_QUOTES | ENT_HTML5, $encoding);
         }
         return $data;
     }
@@ -49,9 +50,9 @@ class XSSHelpers
      */
     public static function xscrub($data = '')
     {
-        if(is_string($data)) {
-            $data = self::xssafe($data);
-        }
+        if(!empty($data)) {
+            $data = self::xssafe((string) $data);
+        } 
         return $data;
     }
 
@@ -66,10 +67,10 @@ class XSSHelpers
      */
     public static function sanitizer($in = '', $allowedTags = array(), $encoding = 'UTF-8')
     {
-        // hard character limit of 65535
-        $in = strlen($in) > 65535 ? substr($in, 0, 65535) : $in;
+        if(!empty($in)) {
+            // hard character limit of 65535
+            $in = strlen((string) $in) > 65535 ? substr((string) $in, 0, 65535) : (string) $in;
 
-        if(is_string($in)) {
             $errorReportingLevel = error_reporting(E_ERROR);//turn off errors for the next few lines
             // replace linebreaks with <br /> if there's no html <p>'s
             if (strpos($in, '<p>') === false
@@ -260,8 +261,8 @@ class XSSHelpers
         $allowedTags[] = 'font';
         $allowedTags[] = 'center';
 
-        if(is_string($in)) {
-            $in = self::sanitizer($in, $allowedTags);
+        if(!empty($in)) {
+            $in = self::sanitizer((string) $in, $allowedTags);
         }
         return $in;
     }
@@ -287,8 +288,8 @@ class XSSHelpers
         $allowedTags[] = 'font';
         $allowedTags[] = 'center';
 
-        if(is_string($in)) {
-            $in = self::sanitizer($in, $allowedTags);
+        if(!empty($in)) {
+            $in = self::sanitizer((string) $in, $allowedTags);
         }
         return $in;
     }
@@ -300,11 +301,11 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function scrubNewLinesFromURL(string $stringToSanitize = '')
+    public static function scrubNewLinesFromURL($stringToSanitize = '')
     {
         $toRemove = ['%0a','%0A', '%0d','%0D', '\r', '\n'];
 
-        return str_replace($toRemove, '', $stringToSanitize);
+        return str_replace($toRemove, '', (string) $stringToSanitize);
     }
 
     /**
@@ -314,11 +315,11 @@ class XSSHelpers
      *
      * @return   string  the sanitized string
      */
-    public static function scrubFilename(string $stringToSanitize = '')
+    public static function scrubFilename($stringToSanitize = '')
     {
         $pattern = "/[\/\:\*\?\"\<\>\|\\\]*/";
         
-        return preg_replace($pattern, "" , $stringToSanitize );
+        return preg_replace($pattern, "" , (string) $stringToSanitize );
     }
 
     /**
