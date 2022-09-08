@@ -175,6 +175,56 @@ class DB
         }
     }
 
+    /**
+     * Allows data to be inserted and updated in batches
+     * @param string $database
+     * @param array $batchData
+     * @param array $onDuplicateKeyUpdate
+     * @return bool
+     * Created at: 9/8/2022, 12:28:30 PM (America/Chicago)
+     */
+    public function insert_batch(string $database = '', array $batchData = [], array $onDuplicateKeyUpdate = []): bool
+    {
+
+        if (empty($database) || empty($batchData)) {
+            return FALSE;
+        }
+
+        $insert_batch_sql = "INSERT into `$database`";
+
+        // get the columns we are going to be inserting
+        $firstBatchData = current($batchData);
+        $firstBatchKeys = array_keys($firstBatchData);
+        $insert_batch_sql .= " (`" . implode('`,`', $firstBatchKeys) . "`) VALUES ";
+
+        // add in our values
+        foreach ($batchData as $data) {
+            foreach($data as &$datum){
+                // strings need to be quoted.
+                if(is_string($datum)){
+                    $datum = "'$datum'";
+                }
+            }
+            $insert_batch_sql .= "(" . implode(",", $data) . "),";
+        }
+        // remove the trailing , eh;
+        $insert_batch_sql = trim($insert_batch_sql, ',');
+
+        if (!empty($onDuplicateKeyUpdate)) {
+            $insert_batch_sql .= " ON DUPLICATE KEY UPDATE";
+            foreach ($onDuplicateKeyUpdate as $keys) {
+                $insert_batch_sql .= " `$keys` = VALUES(`$keys`),";
+            }
+        }
+        // remove the trailing , eh;
+        $insert_batch_sql = trim($insert_batch_sql, ',');
+
+        // now run the query.
+        $this->query($insert_batch_sql);
+
+        return TRUE;
+    }
+
     public function prepared_query($sql, $vars, $dry_run = false)
     {
         if ($this->limit != '')
