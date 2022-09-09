@@ -23,6 +23,16 @@ export default {
             const { child } = this.formNode;
             return child !== null && Object.keys(child).length > 0;
         },
+        children() {
+            let eles = [];
+            if(this.hasChildNode) {
+                for (let c in this.formNode.child) {
+                    eles.push(this.formNode.child[c]);
+                }
+                return eles.sort((a, b)=> a.sort - b.sort);
+            }
+            return 'done';
+        },
         bgColor() {
             return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
         },
@@ -127,7 +137,7 @@ export default {
                     <!-- NOTE: RECURSIVE SUBQUESTIONS -->
                     <template v-if="hasChildNode">
                         <div class="printformblock" :style="{marginLeft: depth +'px'}" style="display:flex; flex-wrap:wrap">
-                            <print-subindicators v-for="child in formNode.child"
+                            <print-subindicators v-for="child in children"
                                 :depth="depth + 4"
                                 :formNode="child"
                                 :key="child.indicatorID"> 
