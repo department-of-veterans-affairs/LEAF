@@ -38,7 +38,7 @@
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
-        <button class="tools"  onclick="window.location='api/form/download/<!--{$recordID|strip_tags}-->/files'" ><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=32" alt="File Downloader" title="File Downloader" style="vertical-align: middle" /> Download All Files</button>
+        <button class="tools"  onclick="downloadFiles()" ><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=32" alt="File Downloader" title="File Downloader" style="vertical-align: middle" /> Download All Files</button>
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
@@ -113,6 +113,31 @@ var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
 var CSRFToken = '<!--{$CSRFToken}-->';
 var formPrintConditions = {};
+
+
+function downloadFiles() {
+    let url = 'api/form/download/<!--{$recordID|strip_tags}-->/files';
+    var now = new Date().getTime();
+    let fileName = "Exported_" + now + ".zip";
+    fetch(url, { method: 'get', mode: 'no-cors', referrerPolicy: 'no-referrer' })
+        .then(res => {
+            if (res.status == 200) {
+                return res.blob();
+            } else {
+                return Promise.reject("No files to download");
+            }
+        })
+        .then(res => {
+            const aElement = document.createElement('a');
+            aElement.setAttribute('download', fileName);
+            const href = URL.createObjectURL(res);
+            aElement.href = href;
+            aElement.setAttribute('target', '_blank');
+            aElement.click();
+            URL.revokeObjectURL(href);
+        }).catch(error =>{alert(error)});
+}
+
 function doSubmit(recordID) {
 	$('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
 	$.ajax({

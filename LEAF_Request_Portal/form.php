@@ -801,8 +801,10 @@ class Form
         $recordRows = $this->db->prepared_query($currentRecordSql, $vars);
         // nothing to show then return out of this.
         if (empty($recordRows)) {
-            return FALSE;
+            http_response_code(404);
+            die();
         }
+
         $recordRow = current($recordRows);
 
         // what is the data we want?
@@ -810,8 +812,13 @@ class Form
                         FROM `data` 
                         JOIN `indicators` USING(indicatorID) 
                         WHERE recordID = :recordID 
-                        AND `format` IN ('fileupload','image')";
+                        AND `format` IN ('fileupload','image') AND `disabled` = 0";
         $fileRows = $this->db->prepared_query($getFilesSql, $vars);
+
+        if (empty($fileRows)) {
+            http_response_code(404);
+            die();
+        }
 
         // this will be our directory we need the files from
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
@@ -836,13 +843,12 @@ class Form
 
             foreach ($fileRows as $file) {
                 $filename = $this->getFileHash($recordID, $file['indicatorID'], $file['series'], $file['data']);
-                $zip->addFile($uploadDir . $filename,$filename);
+                $zip->addFile($uploadDir . $filename,$i.'_'.$filename);
 
             }
 
             $zip->close();
         } catch (Exception $e) {
-            error_log($e);
             return FALSE;
         }
 
@@ -855,10 +861,10 @@ class Form
             header('Pragma: public');
 
             readfile($name);
+            unlink($name);
             return TRUE;
         }
 
-        echo 'Error: Could not generate zip file!';
         return FALSE;
 
     }
