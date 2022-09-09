@@ -61,7 +61,7 @@ export default {
                 </li>
                 <li>
                     <a href="./?a=formLibrary">
-                    <img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="" />
+                    <img src="../../libs/dynicons/?img=x-office-address-book.svg&w=32" alt="" />
                     <div>LEAF Library</div>
                     </a>
                 </li>
