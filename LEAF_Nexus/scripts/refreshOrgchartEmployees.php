@@ -1,4 +1,7 @@
 <?php
+$start_time = microtime(true);
+
+
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -28,7 +31,7 @@ $login->loginUser();
 
 $userName = $_GET['userName'];
 $empUID = $_GET['empUID'];
-
+ini_set('display_errors',1);
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
@@ -53,6 +56,13 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 }
 
 
+// End clock time in seconds
+$end_time = microtime(true);
+
+// Calculate script execution time
+$execution_time = ($end_time - $start_time);
+
+echo " Execution time of script = ".$execution_time." sec";
 /*
  *	Updates single employee information from national orgchart to local orgchart
 */
@@ -133,7 +143,7 @@ function updateLocalOrgchartBatch()
     }
 
     // chunk it so we can go over this data.
-    $localEmployeeUsernamesChunked = array_chunk($localEmployeeUsernames, 10);
+    $localEmployeeUsernamesChunked = array_chunk($localEmployeeUsernames, 100);
 
     // loop over the chunked names so we can limit how much data this will be inserting at a time.
     foreach ($localEmployeeUsernamesChunked as $localEmployeeUsernames) {
@@ -142,10 +152,10 @@ function updateLocalOrgchartBatch()
     }
 }
 
+// no longer used keeping for comparison.
 function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
-    error_reporting(E_ALL);
-    ini_set('display_errors',1);
+
     global $db, $phonedb;
 
     if (empty($localEmployeeUsernames)) {
@@ -195,8 +205,6 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-
-
     $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','",$nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
@@ -214,11 +222,11 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     foreach($orgEmployeeDataRes as $orgEmployeeData){
 
         $localEmployeeDataArray[] = [
-                 'empUID' => $orgEmployee['empUID'],
-                 'indicatorID' => $orgEmployee['indicatorID'],
-                 'data' => $orgEmployee['data'],
-                 'author' => $orgEmployee['author'],
-                 'timestamp' => $orgEmployee['timestamp'],
+                 'empUID' => $orgEmployeeData['empUID'],
+                 'indicatorID' => $orgEmployeeData['indicatorID'],
+                 'data' => $orgEmployeeData['data'],
+                 'author' => $orgEmployeeData['author'],
+                 'timestamp' => $orgEmployeeData['timestamp'],
              ];
     }
 
@@ -227,6 +235,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 
 }
 
+// no longer used keeping for comparison.
 /*
  *	Updates multiple employees information from national orgchart to local orgchart
 */
@@ -314,8 +323,8 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
     $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $selectVars = array(
-        ':nationalEmpUID' => $nationalEmpUID, 
-        ':PHONEIID' => PHONEIID, 
+        ':nationalEmpUID' => $nationalEmpUID,
+        ':PHONEIID' => PHONEIID,
         ':EMAILIID' => EMAILIID,
         ':LOCATIONIID' => LOCATIONIID,
         ':ADTITLEIID' => ADTITLEIID
