@@ -231,7 +231,7 @@ public class formsWorkflowPart2 extends setupFramework {
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
-	   		ele.click();
+	   		//ele.click();
 			waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Test Question: Sensitive Data = N");
 		}
