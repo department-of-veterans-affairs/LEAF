@@ -19,8 +19,9 @@
 </div>
 
 <div id="saveLinkContainer" style="display: none">
-    <div id="reportTitleDisplay" style="font-size: 200%"></div>
+    <div id="reportTitleDisplay" style="font-size: 200%; padding-left: 8px;"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
+    <p id="reportStats" style="position: absolute; padding-left: 8px; z-index: 1"></p>
 </div>
 
 <div id="results" style="display: none">Loading...</div>
@@ -75,12 +76,14 @@ var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help
 var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
+var filterData = {}; // used to remove unused data returned by query
 let categoryID = 'strCatID';
 
 function addHeader(column) {
     let today = new Date();
     switch(column) {
         case 'title':
+            filterData['title'] = 1;
             headers.push({
                 name: 'Title',
                 indicatorID: 'title',
@@ -92,6 +95,7 @@ function addHeader(column) {
             }});
             break;
         case 'service':
+            filterData['service'] = 1;
             headers.push({
                 name: 'Service',
                 indicatorID: 'service',
@@ -101,6 +105,7 @@ function addHeader(column) {
             }});
             break;
         case 'type':
+            filterData['categoryNames'] = 1;
             leafSearch.getLeafFormQuery().join('categoryName');
             headers.push({
                 name: 'Type',
@@ -116,6 +121,8 @@ function addHeader(column) {
             }});
             break;
         case 'status':
+            filterData['stepTitle'] = 1;
+            filterData['lastStatus'] = 1;
             leafSearch.getLeafFormQuery().join('status');
             headers.push({
                 name: 'Current Status',
@@ -131,6 +138,8 @@ function addHeader(column) {
             }});
             break;
         case 'initiator':
+            filterData['lastName'] = 1;
+            filterData['firstName'] = 1;
             leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
@@ -138,6 +147,8 @@ function addHeader(column) {
             }});
             break;
         case 'dateCancelled':
+            filterData['deleted'] = 1;
+            filterData['action_history.approverName'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
@@ -157,6 +168,7 @@ function addHeader(column) {
             }});
             break;
         case 'dateInitiated':
+            filterData['date'] = 1;
             headers.push({
                 name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
@@ -164,6 +176,7 @@ function addHeader(column) {
             }});
             break;
         case 'dateResolved':
+            filterData['recordResolutionData'] = 1;
             leafSearch.getLeafFormQuery().join('recordResolutionData');
             headers.push({
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
@@ -180,6 +193,7 @@ function addHeader(column) {
             }});
             break;
         case 'resolvedBy':
+            filterData['recordResolutionBy'] = 1;
             leafSearch.getLeafFormQuery().join('recordResolutionBy');
             headers.push({
                 name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
@@ -198,6 +212,8 @@ function addHeader(column) {
             }});
             break;
         case 'action_history':
+            filterData['action_history.time'] = 1;
+            filterData['action_history.comment'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
                 name: 'Comment History',
@@ -221,6 +237,10 @@ function addHeader(column) {
             }});
             break;
         case 'approval_history':
+            filterData['action_history.time'] = 1;
+            filterData['action_history.description'] = 1;
+            filterData['action_history.actionTextPasttense'] = 1;
+            filterData['action_history.approverName'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
                 name: 'Approval History',
@@ -247,6 +267,9 @@ function addHeader(column) {
             break;
         case 'days_since_last_action':
         case 'days_since_last_step_movement':
+            filterData['action_history.stepID'] = 1;
+            filterData['action_history.actionType'] = 1;
+            filterData['stepFulfillmentOnly'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
 
@@ -272,7 +295,7 @@ function addHeader(column) {
                             //  2) Last action was a manual step move
                             //  3) No records in Step Fulfillment - Completed
                             if ( (lastActionRecord > 0)
-                                && (lastAction.stepID != 0 && lastAction.dependencyID != 0 && lastAction.actionType !== 'move')
+                                && (lastAction.stepID != 0 && lastAction.actionType !== 'move')
                                 && (recordBlob.stepFulfillmentOnly != undefined)
                             ) {
                                 // Newest addition to Step Fulfillment table is date we need
@@ -294,6 +317,7 @@ function addHeader(column) {
             break;
         default:
             if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
+                filterData['recordsDependencies'] = 1;
                 depID = column.substr(6);
                 tDepHeader[depID] = 0;
                 leafSearch.getLeafFormQuery().join('recordsDependencies');
@@ -318,6 +342,7 @@ function addHeader(column) {
                 }(depID)});
             }
             if(column.substr(0, 7) === 'stepID_') { // approval dates based on workflow steps
+                filterData['stepFulfillment'] = 1;
                 stepID = column.substr(7);
                 tStepHeader[stepID] = 0;
                 leafSearch.getLeafFormQuery().join('stepFulfillment');
@@ -750,12 +775,13 @@ function openShareDialog() {
 
 function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    leafSearch.getLeafFormQuery().setLimit(0, 10000);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
     var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
                            + '<select id="format">'
@@ -1143,9 +1169,9 @@ $(function() {
         selectedIndicators.sort(sortHeaders);
         grid.setHeaders(headers);
 
-        leafSearch.getLeafFormQuery().onSuccess(function(res) {
+        function renderGrid(res) {
             grid.setDataBlob(res);
-            // this replaces grid.loadData()
+
             var tGridData = [];
             for(let i in res) {
                 tGridData.push(res[i]);
@@ -1186,6 +1212,37 @@ $(function() {
                 $('#newRecordWarning').css('display', 'block');
             }
             clicked = false; //global to reduce dblclicks
+        }
+
+        let batchSize = 1000;
+        let offset = 0;
+        let queryResult = {};
+        let abortLoad = false;
+        leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
+        leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(','));
+
+        leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
+            queryResult = Object.assign(queryResult, res);
+
+            if((Object.keys(res).length == batchSize 
+                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
+                && !abortLoad) {
+                $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
+                $('#btn_abort').on('click', function() {
+                    abortLoad = true;
+                });
+                offset += batchSize;
+                leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
+                leafSearch.getLeafFormQuery().execute();
+            }
+            else {
+                let partialLoad = '';
+                if(abortLoad) {
+                    partialLoad = ' (partially loaded)';
+                }
+                $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
+                renderGrid(queryResult);
+            }
         });
 
         // get data
@@ -1329,29 +1386,7 @@ $(function() {
             alert('Invalid report');
         }
     }
-    if(typeof atob === 'function') {
-        loadReport();
-    }
+    loadReport();
     <!--{/if}-->
-    // ie9 workaround
-    if(typeof atob !== 'function') {
-        $.ajax({
-            type: 'GET',
-            url: 'js/base64.js',
-            dataType: 'script',
-            success: function() {
-                window.atob = base64.decode;
-                window.btoa = base64.encode;
-                <!--{if $query != '' && $indicators != ''}-->
-                loadReport(JSON.parse(LZString.decompressFromBase64('<!--{$indicators|escape:"html"}-->')));
-                <!--{/if}-->
-            }
-        });
-    }
-    if(typeof window.history.pushState !== 'function') {
-        window.history.pushState = function(a, b, c) {
-
-        }
-    }
 });
 </script>
