@@ -284,6 +284,7 @@ function editIndicatorPrivileges(indicatorID) {
     );
 }
 
+//TODO: GRID STUFF
 /**
  * Purpose: Generates Unique ID to track columns to update user input with grid format
  * @returns {string}
@@ -291,7 +292,6 @@ function editIndicatorPrivileges(indicatorID) {
 function makeColumnID(){
     return "col_" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 }
-
 /**
  * Purpose: Update Input Name for grid formats
  */
@@ -304,7 +304,6 @@ function updateNames(){
         gridJSON[i].id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
     });
 }
-
 /**
  * Purpose: Make Grid for Input Option
  * @param columns
@@ -359,7 +358,6 @@ function makeGrid(columns) {
         }
     }
 }
-
 /**
  * Purpose: Dropdown for Grid Options
  * @param type
@@ -374,7 +372,6 @@ function toggleDropDown(type, cell){
         $('#tableStatus').attr('aria-label', 'Dropdown options box removed');
     }
 }
-
 /**
  * Purpose: Left arrow for Grid
  * @param cell
@@ -387,7 +384,6 @@ function leftArrows(cell, toggle){
         cell.find('[title="Move column left"]').css('display', 'none');
     }
 }
-
 /**
  * Purpose: Right arrow for Grid
  * @param cell
@@ -400,7 +396,6 @@ function rightArrows(cell, toggle){
         cell.find('[title="Move column right"]').css('display', 'none');
     }
 }
-
 /**
  * Purpose: Add Cells for Grid Input Option
  */
@@ -418,7 +413,6 @@ function addCells(){
     $(gridBodyElement + ' > div:last').focus();
     updateColumnNumbers();
 }
-
 /**
  * Purpose: Update the number of columns
  */
@@ -427,7 +421,6 @@ function updateColumnNumbers(){
         $(this).html('Column #' + (index + 1) +':&nbsp;');
     });
 }
-
 /**
  * Purpose: Delete a column from Grid
  * @param event
@@ -470,7 +463,6 @@ function deleteColumn(event){
     }, 0);
     updateColumnNumbers();
 }
-
 /**
  * Purpose: Move Column Right
  * @param event
@@ -496,7 +488,6 @@ function moveRight(event){
     $('#tableStatus').attr('aria-label', 'Moved right to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
     updateColumnNumbers();
 }
-
 /**
  * Purpose: Move Column Left
  * @param event
@@ -522,33 +513,6 @@ function moveLeft(event){
     $('#tableStatus').attr('aria-label', 'Moved left to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
     updateColumnNumbers();
 }
-
-/**
- * Purpose: Edit existing Indicator
- * @param indicatorID
- * @param series
- */
-function getForm(indicatorID, series) {
-
-    dialog.setSaveHandler(function() {
-
-        if (sensitiveIndicator === 1) {
-            $.ajax({
-                type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
-                data: {needToKnow: '1',
-                categoryID: currCategoryID,
-                CSRFToken: '<!--{$CSRFToken}-->'}
-            });
-            categories[currCategoryID].needToKnow = 1;
-        }
-
-        setFormatElementValue();
-    	dialog.indicateBusy();
-
-    });
-}
-
 /**
  * Purpose: Create Array for Dropdown Options
  * @param dropDownOptions
@@ -573,7 +537,6 @@ function gridDropdown(dropDownOptions){
 
     return returnArray;
 }
-
 /**
  * Purpose: Create Array for Multi-Select Options
  * @param multiSelectOptions
@@ -598,6 +561,7 @@ function gridMultiselect(multiSelectOptions){
 
     return returnArray;
 }
+
 
 /**
  * Purpose: Merge Stapled Forms
@@ -646,13 +610,9 @@ function mergeForm(categoryID) {
         });
     });
 
-    //ie11 fix
-    setTimeout(function () {
-        dialog.show();
-    }, 0);
+    dialog.show();
 
 }
-
 /**
  * Purpose: Remove Stapled Form
  * @param categoryID
@@ -667,7 +627,6 @@ function unmergeForm(categoryID, stapledCategoryID) {
         }
     });
 }
-
 /**
  * Purpose: Merge another Form Dialog Box
  * @param categoryID
@@ -698,6 +657,7 @@ function mergeFormDialog(categoryID) {
 		}, 0);
 
 }
+
 
 /**
  * Purpose: Export Form
@@ -763,6 +723,9 @@ function exportForm(categoryID) {
 	});
 }
 
+
+
+
 /**
  * Purpose: Delete Form
  */
@@ -784,34 +747,11 @@ function deleteForm() {
 		});
 	});
 
-	//ie11 fix
-	setTimeout(function () {
-		dialog_confirm.show();
-	}, 0);
+	dialog_confirm.show();
 
 }
 
-/**
- * Purpose: Build Menu on Left Nav
- * @param categoryID
- */
-function buildMenu(categoryID) {
-    //internals
-	for(let i in categories) {
-		if(categories[i].parentID == categoryID) {
-			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeypress="onKeyPressClick(event)" class="buttonNorm" role="button"><img src="../../libs/dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
-            $('#' + categories[i].categoryID).on('click', function(categoryID) {
-                return function() {
-                    $('#menu>div').removeClass('buttonNormSelected');
-                    $('#' + categoryID).addClass('buttonNormSelected');
-                    currCategoryID = categoryID;
-                    openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
-                };
-            }(categories[i].categoryID));
-		}
-	}
 
-}
 
 
 /**
@@ -867,28 +807,6 @@ function renderSecureFormsInfo(res) {
             }
         });
     }
-}
-
-/**
- * Purpose: History for Forms
- * @param categoryId
- */
-function viewHistory(categoryId){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Form History');
-    dialog_simple.show();
-	dialog_simple.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
-        dataType: 'text',
-        success: function(res) {
-            dialog_simple.setContent(res);
-            dialog_simple.indicateIdle();
-        },
-        cache: false
-    });
 }
 
 /**
@@ -948,73 +866,35 @@ function fetchFormSecureInfo() {
     });
 }
 
+
+
+
 /**
- * Purpose: Create New form
- * @param parentID
+ * Purpose: History for Forms
+ * @param categoryId
  */
-function createForm(parentID) {
-	if(parentID == undefined) {
-		parentID = '';
-		dialog.setTitle('New Form');
-	}
-	else {
-	    dialog.setTitle('New Internal-Use Form');
-	}
-    dialog.setContent('<table>\
-    		             <tr>\
-    		                 <td>Form Label</td>\
-    		                 <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
-    		             </tr>\
-    		             <tr>\
-    		                 <td>Form Description</td>\
-                             <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
-                         </tr>\
-    		           </table>');
-			//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+function viewHistory(categoryId){
+    dialog_simple.setContent('');
+    dialog_simple.setTitle('Form History');
+    dialog_simple.show();
+	dialog_simple.indicateBusy();
 
-
-    dialog.setSaveHandler(function() {
-    	let categoryName = $('#name').val();
-    	let categoryDescription = $('#description').val();
-    	$.ajax({
-    		type: 'POST',
-    		url: '<!--{$APIroot}-->?a=formEditor/new',
-    		data: {name: $('#name').val(),
-    			   description: $('#description').val(),
-    			   parentID: parentID,
-    			   CSRFToken: '<!--{$CSRFToken}-->'},
-    		success: function(res) {
-    			dialog.hide();
-    			currCategoryID = res;
-                categories[res] = {};
-                categories[res].categoryID = res;
-                categories[res].categoryName = categoryName;
-                categories[res].categoryDescription = categoryDescription;
-                categories[res].workflowID = 0;
-                categories[res].parentID = '';
-    			if(parentID != '') {
-    			    categories[res].parentID = parentID;
-    				buildMenu(parentID);
-    				// hightlight the newly created form in the menu
-    				$('#menu>div').removeClass('buttonNormSelected');
-    	            $('#' + res).addClass('buttonNormSelected');
-    			}
-    			buildMenu(res);
-                openContent('ajaxIndex.php?a=printview&categoryID='+ res);
-    		}
-    	});
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
+        dataType: 'text',
+        success: function(res) {
+            dialog_simple.setContent(res);
+            dialog_simple.indicateIdle();
+        },
+        cache: false
     });
 }
 
-/**
- * Purpose: Import Form
- */
-function importForm() {
-	window.location.href = './?a=importForm';
-}
+
+
+
+
 
 /**
  * Purpose: Import Form from Library
@@ -1022,6 +902,8 @@ function importForm() {
 function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
+
+
 
 $(function() {
     portalAPI = LEAFRequestPortalAPI();

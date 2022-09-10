@@ -3,7 +3,7 @@ export default {
 		return {
 			scrollY: window.scrollY,
 			initialTop: 15,
-			modalElementID: 'leaf_xhrDialog',  //NOTE: update
+			modalElementID: 'leaf_xhrDialog',
 			modalBackgroundID: 'leaf-vue-dialog-background'
 		}
 	},
@@ -15,7 +15,6 @@ export default {
     },
 	inject: [
 		'dialogTitle', 
-		'dialogFormContent',
 		'showFormDialog',
 		'closeFormDialog',
 		'formSaveFunction'
@@ -90,7 +89,7 @@ export default {
 							<slot name="dialog-content-slot"></slot>
 						</main>
 					</div>
-					<div class="leaf-vue-dialog-cancel-save">
+					<div id="leaf-vue-dialog-cancel-save">
 						<button id="button_save" class="usa-button leaf-btn-med;"
 							@click="formSaveFunction" @keypress.enter="formSaveFunction">
 							Save

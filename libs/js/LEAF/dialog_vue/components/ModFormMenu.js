@@ -8,7 +8,8 @@ export default {
         'restoringFields',
         'showRestoreFields',
         'openNewFormDialog',
-        'openImportFormDialog'
+        'openImportFormDialog',
+        'openFormHistoryDialog'
     ],
     computed: {
         internalForms() {
@@ -28,9 +29,6 @@ export default {
         },
         exportForm() {
             console.log('clicked app menu nav exportForm', this.currCategoryID);
-        },
-        viewHistory() {
-            console.log('clicked app menu nav viewHistory', this.currCategoryID);
         },
         mergeFormDialog() {
             console.log('clicked app menu nav mergeFormDialog');
@@ -124,7 +122,7 @@ export default {
                     </ul>
                 </div>
                 <li>
-                    <a href="#" @click="viewHistory">
+                    <a href="#" @click="openFormHistoryDialog">
                     <img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="" />
                     <div>View History</div>
                     </a>

@@ -4,6 +4,7 @@ import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
 import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDialog.js";
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
+import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
@@ -79,11 +80,12 @@ export default {
             selectNewCategory: this.selectNewCategory,
             updateCategoriesProperty: this.updateCategoriesProperty,
             addNewCategory: this.addNewCategory,
-            setCustomDialogTitle: this.setCustomDialogTitle,
-            setFormDialogComponent: this.setFormDialogComponent,
+            //setCustomDialogTitle: this.setCustomDialogTitle,
+            //setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
+            openFormHistoryDialog: this.openFormHistoryDialog,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
@@ -308,6 +310,11 @@ export default {
             this.setFormDialogComponent('import-form-dialog');
             this.showFormDialog = true;  
         },
+        openFormHistoryDialog() {
+            this.setCustomDialogTitle(`<h2>Form History</h2>`);
+            this.setFormDialogComponent('form-history-dialog');
+            this.showFormDialog = true;
+        },
         newQuestion(parentIndID) {
             this.currIndicatorID = null;
             this.newIndicatorParentID = parentIndID !== null ? parseInt(parentIndID) : null;
@@ -348,6 +355,7 @@ export default {
         IndicatorEditing,
         NewFormDialog,
         ImportFormDialog,
+        FormHistoryDialog,
         ModFormMenu,
         CategoryCard,
         FormContent,

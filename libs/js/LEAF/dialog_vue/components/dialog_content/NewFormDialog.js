@@ -50,9 +50,6 @@ export default {
                     temp.parentID = this.currCategoryID || '';
                     this.addNewCategory(newCatID, temp);
                     this.selectNewCategory(newCatID, this.isSubform);
-                    if(this.isSubform) {
-                        console.log('TODO: handle subform menu changes')
-                    }
                     this.closeFormDialog();
                 },
                 error: err => {
