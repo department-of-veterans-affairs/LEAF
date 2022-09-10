@@ -1,5 +1,5 @@
 export default {
-    name: 'FormLayoutTest',
+    name: 'FormEntryDisplay',  //NOTE: this will replace PrintSubindicators
     props: {
         depth: Number,
         formNode: Object,
@@ -23,7 +23,7 @@ export default {
             const { child } = this.formNode;
             return child !== null && Object.keys(child).length > 0;
         },
-        bgColor() {
+        bgColor() { //TODO: not sure if I will use
             return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
         },
         suffix() {
@@ -127,11 +127,11 @@ export default {
                     <!-- NOTE: RECURSIVE SUBQUESTIONS -->
                     <template v-if="hasChildNode">
                         <div class="printformblock" :style="{marginLeft: depth +'px'}" style="display:flex; flex-wrap:wrap">
-                            <form-layout-test v-for="child in formNode.child"
+                            <form-entry-display v-for="child in formNode.child"
                                 :depth="depth + 4"
                                 :formNode="child"
                                 :key="child.indicatorID"> 
-                            </form-layout-test>
+                            </form-entry-display>
                         </div>
                     </template>
                     </div>

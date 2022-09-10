@@ -7,16 +7,12 @@
         <template v-if="restoringFields===false">
         <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content">
             <div id="forms" style="display:flex; flex-wrap:wrap">
-                <template v-for="c in categories">
-                <category-card v-if="c.parentID==='' && c.workflowID!==0" :category="c" :key="c.categoryID"></category-card>
-                </template>
+                <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
             </div>
             <hr style="margin-top: 32px; border-top:1px solid #556;" aria-label="Not associated with a workflow" />
             <p>Not associated with a workflow:</p>
             <div id="forms_inactive" style="display:flex; flex-wrap:wrap">
-                <template v-for="c in categories">
-                <category-card v-if="c.parentID==='' && c.workflowID===0" :category="c" :key="c.categoryID"></category-card>
-                </template>
+                <category-card v-for="c in inactiveCategories" :category="c" :key="c.categoryID"></category-card>
             </div>
         </div>
         <!-- SPECIFIC CATEGORY / FORM CONTENT -->

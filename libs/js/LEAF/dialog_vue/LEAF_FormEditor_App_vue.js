@@ -98,7 +98,27 @@ export default {
         this.getWorkflowRecords().then(res => {
             this.ajaxWorkflowRecords = res;
         }).catch(err => console.log('error getting workflow records', err));
-    }, 
+    },
+    computed: {
+        activeCategories() {
+            let active = [];
+            for (let c in this.categories) {
+                if (this.categories[c].parentID==='' && parseInt(this.categories[c].workflowID)!==0) {
+                    active.push({...this.categories[c]});
+                }
+            }
+            return active;
+        },
+        inactiveCategories() {
+            let inactive = [];
+            for (let c in this.categories) {
+                if (this.categories[c].parentID==='' && parseInt(this.categories[c].workflowID)===0) {
+                    inactive.push({...this.categories[c]});
+                }
+            }
+            return inactive;
+        }
+    },
     methods: {
         //general use methods
         truncateText(str, maxlength = 40, overflow = '...') {

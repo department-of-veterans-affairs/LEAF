@@ -1,8 +1,10 @@
 import PrintSubindicators from './PrintSubindicators.js';
+import FormEntryDisplay from './FormEntryDisplay.js';
 
 export default {
     components: {
-        PrintSubindicators
+        PrintSubindicators,
+        FormEntryDisplay
     },
     inject: [
         'ajaxFormByCategoryID',
