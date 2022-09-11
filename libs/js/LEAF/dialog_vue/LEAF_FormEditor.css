@@ -274,10 +274,8 @@ table#edit-properties-modal img {
     border-left: 2px solid transparent;
     outline: none !important;
 }
-#form_index_display li:hover, 
-#form_index_display li:focus,
-#form_index_display li:active,
-#form_index_display li.index-selected  {
+
+#form_index_display li.index-selected, #form_index_display li:focus  {
     border-left: 2px solid var(--base-navy, #005EA2);
 }
 #form_index_display li.subindicator_heading {
