@@ -42,7 +42,7 @@ export default {
             return XSSHelpers.decodeHTMLEntities(this.truncateText(XSSHelpers.stripAllTags(this.formNode.name))) || '[ blank ]';
         },
         bgColor() { //TODO: not sure if I will use
-            return `rgb(${255-2*this.depth},${255-2*this.depth},${255-0.5*this.depth})`;
+            return `rgb(${255-8*this.depth},${255-6*this.depth},${255})`;
         },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -68,9 +68,9 @@ export default {
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
             <template v-if="hasChildNode">
-                <ul class="form-index-listing" :style="{marginLeft: 2*depth +'px'}">
+                <ul class="form-index-listing">
                     <form-index-listing v-for="child in formNode.child"
-                        :depth="depth + 4"
+                        :depth="depth + 1"
                         :formNode="child"
                         :key="child.indicatorID"> 
                     </form-index-listing>
