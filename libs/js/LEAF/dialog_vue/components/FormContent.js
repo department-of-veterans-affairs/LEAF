@@ -56,8 +56,8 @@ export default {
         <!-- NOTE: TOP INFO PANEL -->
         <div id="edit-properties-panel">
             <div>
-                <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID" v-html="formName"></div>
-                <div v-html="categoryDescription"></div>
+                <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID">{{formName}}</div>
+                <div>{{categoryDescription}}</div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
                 <span v-if="!isSubForm">Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : 'black'}">{{ isNeedToKnow ? 'On' : 'Off' }}</b></span>
             </div>
@@ -74,15 +74,15 @@ export default {
             <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
             </div>
         </div>
+
         <!-- NOTE: FORM AREA -->
-        <div id="formEditor_form" style="background-color: white;">
-            <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
-                font-size: 24px; font-weight: bold; padding: 16px;">
-                Loading... 
-                <img src="../images/largespinner.gif" alt="loading..." />
-            </div>
-            <template v-else>
-            <print-form-ajax></print-form-ajax>
-            </template>
-        </div>`
+        <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
+            font-size: 24px; font-weight: bold; padding: 16px;">
+            Loading... 
+            <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
+        <template v-else>
+        <print-form-ajax></print-form-ajax>
+        </template>`
+        
 }

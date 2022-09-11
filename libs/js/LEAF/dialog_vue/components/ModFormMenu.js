@@ -53,65 +53,56 @@ export default {
             <ul v-if="currCategoryID===null || restoringFields===true">
                 <li>
                     <a href="#" id="createFormButton" @click="openNewFormDialog">
-                    <img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="" />
-                    <div>Create Form</div>
+                    <span>📄</span>Create Form
                     </a>
                 </li>
                 <li>
                     <a href="./?a=formLibrary">
-                    <img src="../../libs/dynicons/?img=x-office-address-book.svg&w=32" alt="" />
-                    <div>LEAF Library</div>
+                    <span>📘</span>LEAF Library
                     </a>
                 </li>
                 <li>
                     <a href="#" @click="openImportFormDialog">
-                    <img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="" />
-                    <div>Import Form</div>
+                    <span>📦</span>Import Form
                     </a>
                 </li>
                 <li v-if="!restoringFields">
                     <a href="#" @click="showRestoreFields">
-                    <img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="" />
-                    <div>Restore Fields</div>
+                    <span>♻️</span>Restore Fields
                     </a>
                 </li>
                 <li v-else>
                     <a href="#" @click="selectNewCategory(null)">
-                    <img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="" />
-                    <div>View All Forms</div>
+                    <span>💼</span>View All Forms
                     </a>
                 </li>
             </ul>
             <ul v-else>
                 <li>
                     <a href="#" @click="selectNewCategory(null)">
-                    <img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="" />
-                    <div>View All Forms</div>
+                    <span>💼</span> View All Forms
                     </a>
                 </li>
                 <ul><!-- MAIN AND INTERNAL FORMS -->
                     <li style="margin-bottom:0.1em">
-                        <a href="#" :id="currCategoryID" @click="selectMainForm">
-                        <img src="../../libs/dynicons/?img=document-open.svg&w=32" alt="" />
-                        <div>{{ formName(categories[currCategoryID].categoryName) }}</div>
+                        <a href="#" :id="currCategoryID" @click="selectMainForm" title="select form">
+                        <span>📂</span>{{formName(categories[currCategoryID].categoryName) }}
                         </a>
                     </li>
                     <li v-for="i in internalForms" style="margin-bottom:0.1em">
-                        <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)">
-                        <div>{{ formName(i.categoryName, 24) }}</div>
+                        <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                        <span>📋</span>{{formName(i.categoryName, 24) }}
                         </a>
                     </li>
                     <li>
-                        <a href="#" @click="openNewFormDialog">
-                        <img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="" />
-                        <div>Add Internal-Use</div>
+                        <a href="#" @click="openNewFormDialog" title="add new internal use form">
+                        <span>➕</span>Add Internal-Use
                         </a>
                     </li>
                 </ul>
                 <li>
-                    <a href="#" @click="mergeFormDialog">
-                    <img src="../../libs/dynicons/?img=tab-new.svg&w=32" alt="" />
-                    <div>Staple other form</div>
+                    <a href="#" @click="mergeFormDialog" title="staple another form">
+                    <span>📌</span>Staple other form
                     </a>
                 </li>
                 <div id="stapledArea">
@@ -122,27 +113,23 @@ export default {
                     </ul>
                 </div>
                 <li>
-                    <a href="#" @click="openFormHistoryDialog">
-                    <img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="" />
-                    <div>View History</div>
+                    <a href="#" @click="openFormHistoryDialog" title="view form history">
+                    <span>🕗</span>View History
                     </a>
                 </li>
                 <li>
-                    <a href="#" @click="exportForm">
-                    <img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="" />
-                    <div>Export Form</div>
+                    <a href="#" @click="exportForm" title="export form">
+                    <span>💾</span>Export Form
                     </a>
                 </li>
                 <li>
-                    <a href="#" @click="deleteForm">
-                    <img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="" />
-                    <div>Delete this form</div>
+                    <a href="#" @click="deleteForm" title="delete form">
+                    <span>❌</span>Delete this form
                     </a>
                 </li>
                 <li>
                     <a href="#" @click="showRestoreFields">
-                    <img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="" />
-                    <div>Restore Fields</div>
+                    <span>♻️</span>Restore Fields
                     </a>
                 </li>
             </ul>

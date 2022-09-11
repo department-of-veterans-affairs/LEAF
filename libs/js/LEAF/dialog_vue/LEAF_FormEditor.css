@@ -1,15 +1,8 @@
-:root { /* NOTE: consolidate */
-    --dark-navy: #162E51;
-    --charcoal: #252F3E;
-}
+ /* NOTE: consolidate variables */
 
-
-.test {
-    border: 1px solid red;
-}
 #vue-formeditor-app {
-    margin: 0.5em 0.75em;
-    min-height: calc(75vh);
+    padding: 0.5em 2em 0.5em 1em;
+    min-height: 100vh;
 }
 #vue-formeditor-app * {
     box-sizing: border-box;
@@ -26,11 +19,10 @@
 
 /* left menu / nav */
 .mod-form-menu-nav {
-    position: relative;
-    flex: 0 0 180px;
+    display: flex;
     width: 180px;
-    min-width: 0;
-    margin: 0 32px 0 0;
+    flex: 0 0 180px;
+    margin-right: 2em;
 }
 .mod-form-menu-nav ul {
     width: 100%;
@@ -44,8 +36,8 @@
 }
 .mod-form-menu-nav li a {
     display: flex;
+    position: relative;
     align-items: center;
-    width: 100%;
     height: 100%;
     min-height: 40px;
     border: 1px solid #000;
@@ -53,8 +45,16 @@
     text-decoration: none;
     background-color: #e8f2ff;
     color: #1b1b1b;
-    padding: 0.2em 0.3em;
+    padding-left: 2em;
     overflow: hidden;
+}
+.mod-form-menu-nav li a span {
+    position: absolute;
+    left: 0.4em;
+}
+.mod-form-menu-nav li a div {
+    height: 100%;
+    justify-self: center;
 }
 .mod-form-menu-nav li a.selected,
 .mod-form-menu-nav li a:hover,
@@ -148,7 +148,7 @@
 /* panel where edit properties modal is accessed from */
 #edit-properties-panel {
     position: relative; 
-    display: flex; 
+    display: flex;
     min-height: 100px;
     justify-content: space-between; 
     margin-bottom: 1em;
@@ -242,4 +242,47 @@ table#edit-properties-modal img {
     width: 100%;
     color: white;
     background-color: var(--dark-navy, #162E51);
+}
+
+
+/* form structure index */
+#form_index_display {
+    margin: 0;
+    padding: 1em 0.75em;
+    width: 350px;
+    flex: 0 0 350px;
+    align-self:flex-start;
+    margin-right: 1.5em;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+}
+
+#form_index_display ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; 
+    list-style-type: none;
+}
+#form_index_display li {
+    cursor: pointer;
+    margin: 0;
+    padding-left: 0.4em;
+    border-radius: 2px;
+    line-height: 2;
+    border-left: 2px solid transparent;
+    outline: none !important;
+}
+#form_index_display li:hover, 
+#form_index_display li:focus,
+#form_index_display li:active,
+#form_index_display li.index-selected  {
+    border-left: 2px solid var(--base-navy, #005EA2);
+}
+#form_index_display li.subindicator_heading {
+    margin-left: 0.5em;
+}
+#form_index_display li:not(:last-child) {
+    border-bottom: 1px solid #d0d0d4;
 }

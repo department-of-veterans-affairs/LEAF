@@ -1,11 +1,11 @@
 <div class="leaf-width-100pct" id="vue-formeditor-app">
-    <h2 style="margin: 1em 0.1em 0.5em 0.1em;" >Form Editor</h2>
-    <!--<div id="menu" style="float: left; width: 180px"></div>-->
+    <h2 style="margin: 1em 0.1em 0.75em 0.1em;" >Form Editor</h2>
     <div style="display:flex;">
         <mod-form-menu></mod-form-menu>
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
-        <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content">
+        <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
+            style="width: 100%; max-width: 1400px; margin: 0 auto;">
             <div id="forms" style="display:flex; flex-wrap:wrap">
                 <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
             </div>
@@ -17,7 +17,7 @@
         </div>
         <!-- SPECIFIC CATEGORY / FORM CONTENT -->
         <div v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
-            style="width: 100%; margin: 0 0.5em; min-width: 300px;">
+            style="width: 100%; max-width: 1400px; margin: 0 auto;">
             <form-content></form-content>
         </div>
         </template>
@@ -863,31 +863,6 @@ function fetchFormSecureInfo() {
     })
     .then(function(res) {
         renderSecureFormsInfo(res)
-    });
-}
-
-
-
-
-/**
- * Purpose: History for Forms
- * @param categoryId
- */
-function viewHistory(categoryId){
-    dialog_simple.setContent('');
-    dialog_simple.setTitle('Form History');
-    dialog_simple.show();
-	dialog_simple.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: 'ajaxIndex.php?a=gethistory&type=form&id='+categoryId,
-        dataType: 'text',
-        success: function(res) {
-            dialog_simple.setContent(res);
-            dialog_simple.indicateIdle();
-        },
-        cache: false
     });
 }
 
