@@ -142,21 +142,87 @@ function updateLocalOrgchartBatch()
 }
 
 
-/*
- *	Gets the employees from local employee table
- *  @return array of local employees
-*/
-function getOrgchartEmployees()
+function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
-    global $db;
 
-    $sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated FROM employee";
+    global $db, $phonedb;
 
-    $res = $db->query($sql);
+    if (empty($localEmployeeUsernames)) {
+        return FALSE;
+    }
 
-    return $res;
+    // you will need to gather the emp ids since we need to grab local data as well.
+    $nationalEmpUIDs = [];
+
+    // you will need to store the data for updating the batch of employees
+    $localEmployeeArray = [];
+    // as well as data
+    $localEmployeeDataArray = [];
+
+    // STEP 1: Get the employees updated
+    // get org employees
+    $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
+    		FROM employee
+    		WHERE userName in('".implode("','",$localEmployeeUsernames)."')";
+
+    $orgEmployeeRes = $phonedb->query($orgEmployeeSql);
+
+    //if for some reason there is no data, we need to stop right there.
+    if(empty($orgEmployeeRes)){
+        return FALSE;
+    }
+    foreach ($orgEmployeeRes as $orgEmployee) {
+        $nationalEmpUIDs[] = $orgEmployee['empUID'];
+
+        $localEmployeeArray[] = [
+            'empUID' => $orgEmployee['empUID'],
+            'userName' => $orgEmployee['userName'],
+            'lastName' => $orgEmployee['lastName'],
+            'firstName' => $orgEmployee['firstName'],
+            'middleName' => $orgEmployee['middleName'],
+            'phoneticFirstName' => $orgEmployee['phoneticFirstName'],
+            'phoneticLastName' => $orgEmployee['phoneticLastName'],
+            'domain' => $orgEmployee['domain'],
+            'deleted' => $orgEmployee['deleted'],
+            'lastUpdated' => $orgEmployee['lastUpdated']
+        ];
+
+    }
+
+    $db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
+
+    // STEP 2: Get employee_data updated
+    // get the employee data, we will need to get the employee ids first
+
+    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','",$nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+
+    $orgEmployeeDataVars = [
+        ':PHONEIID' => PHONEIID,
+        ':EMAILIID' => EMAILIID,
+        ':LOCATIONIID' => LOCATIONIID,
+        ':ADTITLEIID' => ADTITLEIID
+    ];
+
+    $orgEmployeeDataRes = $phonedb->prepared_query($orgEmployeeDataSql, $orgEmployeeDataVars);
+
+    if(empty($orgEmployeeDataRes)){
+        return FALSE;
+    }
+    foreach($orgEmployeeDataRes as $orgEmployeeData){
+
+        $localEmployeeDataArray[] = [
+                 'empUID' => $orgEmployeeData['empUID'],
+                 'indicatorID' => $orgEmployeeData['indicatorID'],
+                 'data' => $orgEmployeeData['data'],
+                 'author' => $orgEmployeeData['author'],
+                 'timestamp' => $orgEmployeeData['timestamp'],
+             ];
+    }
+
+    $db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+
+
 }
-
 
 /*
  *	Updates the individual indicators from national orgchart to local employee_data table. Emails, phone, etc
