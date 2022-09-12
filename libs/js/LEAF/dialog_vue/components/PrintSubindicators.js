@@ -3,7 +3,7 @@ export default {
     props: {
         depth: Number,
         formNode: Object,
-        sectionNumber: Number
+        index: Number
     },
     inject: [
         'newQuestion',
@@ -29,9 +29,9 @@ export default {
                 for (let c in this.formNode.child) {
                     eles.push(this.formNode.child[c]);
                 }
-                return eles.sort((a, b)=> a.sort - b.sort);
+                eles = eles.sort((a, b)=> a.sort - b.sort);
             }
-            return 'done';
+            return eles;
         },
         bgColor() {
             return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
@@ -77,7 +77,7 @@ export default {
             <div :class="depth===0 ? 'printmainlabel' : 'printsublabel'">
                 <div :style="{display: depth===0 ? 'flex': 'inline-block'}">
                     <div v-if="depth===0" class="printcounter">
-                        <span tabindex="0" aria-label="formNode.indicatorID" style="margin:0; height: 100%">{{sectionNumber}}</span>
+                        <span tabindex="0" aria-label="formNode.indicatorID" style="display:inline-block; margin:0; height: 100%;">{{index+1}}</span>
                     </div>
                     <div :id="labelID" :class="labelClass" 
                         :style="{display: depth===0 ? 'flex' : 'block'}" 

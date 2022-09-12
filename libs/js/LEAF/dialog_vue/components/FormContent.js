@@ -26,13 +26,13 @@ export default {
     ],
     computed: {
         formName() {
-            return `${this.currentCategorySelection.categoryName}` || 'Untitled';
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryName) || 'Untitled';
         },
         formCatID() {
             return this.currentCategorySelection.categoryID;
         },
         categoryDescription() {
-            return this.currentCategorySelection.categoryDescription;
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
         },
         workflow() {
             return parseInt(this.currentCategorySelection.workflowID) === 0 ?
@@ -56,8 +56,8 @@ export default {
         <!-- NOTE: TOP INFO PANEL -->
         <div id="edit-properties-panel">
             <div>
-                <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID">{{formName}}</div>
-                <div>{{categoryDescription}}</div>
+                <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID"><b>{{formName}}</b></div>
+                <div style="padding: 0.5em 0">{{categoryDescription}}</div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
                 <span v-if="!isSubForm">Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : 'black'}">{{ isNeedToKnow ? 'On' : 'Off' }}</b></span>
             </div>

@@ -91,7 +91,7 @@ export default {
                     </li>
                     <li v-for="i in internalForms" style="margin-bottom:0.1em">
                         <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                        <span>📋</span>{{formName(i.categoryName, 24) }}
+                        <span>📋</span>{{formName(i.categoryName, 35) }}
                         </a>
                     </li>
                     <li>

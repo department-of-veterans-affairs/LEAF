@@ -3,19 +3,26 @@ export default {
     props: {
         depth: Number,
         formNode: Object,
-        sectionNumber: Number
+        index: Number
     },
     inject: [
         'newQuestion',
         'getForm',
         'truncateText',
+        'addToListItemsArray'
     ],
+    mounted() {
+        this.addToListItemsArray(this.formNode, this.index);
+    },
     methods: {
-        indexHover(event) {
+        indexHover() {
             event.target.classList.add('index-selected');
         },
-        indexHoverOff(event){
+        indexHoverOff(){
             event.target.classList.remove('index-selected');
+        },
+        handleIndexing(selectedCategory, index) {
+            console.log(selectedCategory.sort, index);
         }
     },
     computed: {
@@ -23,14 +30,23 @@ export default {
             const { child } = this.formNode;
             return child !== null && Object.keys(child).length > 0;
         },
+        children() {
+            let eles = [];
+            if(this.hasChildNode) {
+                for (let c in this.formNode.child) {
+                    eles.push(this.formNode.child[c]);
+                }
+                eles = eles.sort((a, b)=> a.sort - b.sort);
+            }
+            return eles;
+        },
         headingNumber() {
-            return this.sectionNumber !== undefined ? this.sectionNumber + '.' : '';
+            return this.depth === 0 ? this.index + 1 + '.' : '';
         },
         conditionallyShown() {
             let isConditionalShow = false;
             if(this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '') {
                 const conditions = JSON.parse(this.formNode.conditions);
-                console.log(conditions)
                 if (conditions.some(c => c.selectedOutcome?.toLowerCase() === 'show')) {
                     isConditionalShow = true;
                 }
@@ -59,19 +75,21 @@ export default {
     },
 
     template:`
-        <li tabindex=0
+        <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
             :id="'index_' + blockID"
             :style="{backgroundColor:bgColor}"
-            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
+            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
+            @click.stop="handleIndexing(formNode, index)">
             {{conditionallyShown}}{{headingNumber}} {{shortLabel}}
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
             <template v-if="hasChildNode">
                 <ul class="form-index-listing">
-                    <form-index-listing v-for="child in formNode.child"
+                    <form-index-listing v-for="(child,i) in children"
                         :depth="depth + 1"
                         :formNode="child"
+                        :index="i"
                         :key="child.indicatorID"> 
                     </form-index-listing>
                 </ul>
