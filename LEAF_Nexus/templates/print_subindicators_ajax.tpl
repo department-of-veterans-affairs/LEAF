@@ -127,7 +127,7 @@
             <div dojoType="dijit.layout.ContentPane" style="padding: 0px">
             <script type="dojo/method">
                 dojo.xhrGet({
-                    url: "./api/?a=position/" + <!--{$indicator.data|strip_tags|escape}-->,
+                    url: "./api/position/" + <!--{$indicator.data|strip_tags|escape}-->,
                     handleAs: 'json',
                     load: function(response, args) {
                         dojo.byId('data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->').innerHTML = response.title;

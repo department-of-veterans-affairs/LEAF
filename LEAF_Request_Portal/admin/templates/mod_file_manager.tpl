@@ -41,7 +41,7 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 function showFiles() {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/files',
+        url: '../api/system/files',
         success: function(res) {
         	var output = '<table class="table">';
             for(var i in res) {
@@ -64,7 +64,8 @@ function deleteFile(file) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/?a=system/files/_'+ file + '&CSRFToken=' + CSRFToken,
+            url: '../api/system/files/_'+ file + '?' +
+                $.param({'CSRFToken': CSRFToken}),
             success: function() {
                 showFiles();
                 dialog_confirm.hide();

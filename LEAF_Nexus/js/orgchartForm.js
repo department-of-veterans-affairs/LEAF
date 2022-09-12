@@ -53,7 +53,7 @@ orgchartForm.prototype.getForm = function(UID, categoryID, indicatorID) {
 	        this.dialog.setSaveHandler(function() {
 	            $.ajax({
 	            	type: 'POST',
-	                url: './api/?a=employee/' + UID,
+	                url: './api/employee/' + UID,
 	                data: $('#' + t.prefixID + 'record').serialize(),
 	                success: function(res, args) {
             			dialog.hide();
@@ -84,7 +84,7 @@ orgchartForm.prototype.getForm = function(UID, categoryID, indicatorID) {
 	        this.dialog.setSaveHandler(function() {
 	            $.ajax({
 	            	type: 'POST',
-	                url: './api/?a=position/' + UID,
+	                url: './api/position/' + UID,
 	                data: $('#' + t.prefixID + 'record').serialize(),
 	                success: function(res) {
             			dialog.hide();
@@ -115,7 +115,7 @@ orgchartForm.prototype.getForm = function(UID, categoryID, indicatorID) {
 	        this.dialog.setSaveHandler(function() {
 	            $.ajax({
 	            	type: 'POST',
-	                url: './api/?a=group/' + UID,
+	                url: './api/group/' + UID,
 	                data: $('#' + t.prefixID + 'record').serialize(),
 	                success: function(res, args) {
             			dialog.hide();

@@ -31,7 +31,7 @@ function newGroup()
         dialog.indicateBusy();
         $.ajax({
         	type: 'POST',
-            url: './api/?a=group',
+            url: './api/group',
             data: {title: $('#groupName').val(),
             	CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {

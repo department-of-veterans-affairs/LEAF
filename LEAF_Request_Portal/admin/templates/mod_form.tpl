@@ -115,7 +115,7 @@ function editProperties(isSubForm) {
         dialog.indicateBusy();
         $.ajax({
         	type: 'GET',
-        	url: '../api/?a=workflow',
+        	url: '../api/workflow',
         	success: function(res) {
         		if(res.length > 0) {
                     var buffer = '<select id="workflowID">';
@@ -151,7 +151,7 @@ function editProperties(isSubForm) {
             if(nameChanged){
                 calls.push($.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formName',
+                    url: '../api/formEditor/formName',
                     data: {name: $('#name').val(),
                     	categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -164,7 +164,7 @@ function editProperties(isSubForm) {
             if(descriptionChanged){
                 calls.push($.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formDescription',
+                    url: '../api/formEditor/formDescription',
                     data: {description: $('#description').val(),
                     	categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -178,7 +178,7 @@ function editProperties(isSubForm) {
                 calls.push(
                     $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formWorkflow',
+                    url: '../api/formEditor/formWorkflow',
                     data: {workflowID: $('#workflowID').val(),
                     	categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -195,7 +195,7 @@ function editProperties(isSubForm) {
                 calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formNeedToKnow',
+                    url: '../api/formEditor/formNeedToKnow',
                     data: {needToKnow: $('#needToKnow').val(),
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -209,7 +209,7 @@ function editProperties(isSubForm) {
                 calls.push(                
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formSort',
+                    url: '../api/formEditor/formSort',
                     data: {sort: $('#sort').val(),
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -222,7 +222,7 @@ function editProperties(isSubForm) {
             if(visibleChanged){
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formVisible',
+                    url: '../api/formEditor/formVisible',
                     data: {visible: $('#visible').val(),
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -236,7 +236,7 @@ function editProperties(isSubForm) {
                 calls.push( 
                     $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/formType',
+                    url: '../api/formEditor/formType',
                     data: {type: $('#formType').val(),
                         categoryID: currCategoryID,
                         CSRFToken: '<!--{$CSRFToken}-->'},
@@ -329,7 +329,7 @@ function addPermission(categoryID, group) {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/groups',
+        url: '../api/system/groups',
         success: function(res) {
             var buffer = '<select id="groupID">';
             for(let i in res) {
@@ -345,7 +345,7 @@ function addPermission(categoryID, group) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
+            url: '../api/formEditor/_'+ currCategoryID +'/privileges',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	   groupID: $('#groupID').val(),
                    read: 1,
@@ -372,7 +372,7 @@ function addPermission(categoryID, group) {
 function removePermission(groupID) {
     $.ajax({
         type: 'POST',
-        url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
+        url: '../api/formEditor/_'+ currCategoryID +'/privileges',
         data: {CSRFToken: '<!--{$CSRFToken}-->',
         	   groupID: groupID,
         	   read: 0,
@@ -397,7 +397,7 @@ function editPermissions() {
 
 	$.ajax({
 		type: 'GET',
-		url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
+		url: '../api/formEditor/_'+ currCategoryID +'/privileges',
 		success: function(res) {
 			var buffer = '<ul>';
 			for(let i in res) {
@@ -447,7 +447,7 @@ function addIndicatorPrivilege(indicatorID) {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/groups',
+        url: '../api/system/groups',
         success: function(res) {
             var buffer = '<select id="groupID">';
             buffer += '<option value="1">System Administrators</option>';
@@ -723,7 +723,7 @@ function newQuestion(parentIndicatorID) {
         if (isSensitive === 1) {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
+                url: '../api/formEditor/formNeedToKnow',
                 data: {needToKnow: '1',
                     categoryID: currCategoryID,
                     CSRFToken: '<!--{$CSRFToken}-->'}
@@ -785,7 +785,7 @@ function newQuestion(parentIndicatorID) {
 
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/newIndicator',
+            url: '../api/formEditor/newIndicator',
             data: {name: $('#name').val(),
             	format: $('#format').val(),
             	description: $('#description').val(),
@@ -802,7 +802,7 @@ function newQuestion(parentIndicatorID) {
                     if($('#sort').val() != '') {
                         $.ajax({
                             type: 'POST',
-                            url: '../api/?a=formEditor/' + res + '/sort',
+                            url: '../api/formEditor/' + res + '/sort',
                             data: {sort: $('#sort').val(),
                                 CSRFToken: '<!--{$CSRFToken}-->'}
                         });
@@ -1304,7 +1304,7 @@ function getForm(indicatorID, series) {
     function saveCodeHTML() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/' + indicatorID + '/html',
+            url: '../api/formEditor/' + indicatorID + '/html',
             data: {html: codeEditorHtml.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
@@ -1320,7 +1320,7 @@ function getForm(indicatorID, series) {
     function saveCodeHTMLPrint() {
         $.ajax({
             type: 'POST',
-            url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
+            url: '../api/formEditor/' + indicatorID + '/htmlPrint',
             data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
@@ -1476,7 +1476,7 @@ function getForm(indicatorID, series) {
         if (sensitiveIndicator === 1) {
             $.ajax({
                 type: 'POST',
-                url: '../api/?a=formEditor/formNeedToKnow',
+                url: '../api/formEditor/formNeedToKnow',
                 data: {needToKnow: '1',
                 categoryID: currCategoryID,
                 CSRFToken: '<!--{$CSRFToken}-->'}
@@ -1565,7 +1565,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/name',
+                    url: '../api/formEditor/' + indicatorID + '/name',
                     data: {name: $('#name').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
@@ -1576,7 +1576,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/format',
+                    url: '../api/formEditor/' + indicatorID + '/format',
                     data: {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
@@ -1598,7 +1598,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/description',
+                    url: '../api/formEditor/' + indicatorID + '/description',
                     data: {description: $('#description').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
@@ -1609,7 +1609,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/default',
+                    url: '../api/formEditor/' + indicatorID + '/default',
                     data: {default: $('#default').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 })
@@ -1624,7 +1624,7 @@ function getForm(indicatorID, series) {
                 calls.push(
                     $.ajax({
                         type: 'POST',
-                        url: '../api/?a=formEditor/' + indicatorID + '/required',
+                        url: '../api/formEditor/' + indicatorID + '/required',
                         data: {required: requiredIndicator,
                         CSRFToken: '<!--{$CSRFToken}-->'}
                     }));
@@ -1635,7 +1635,7 @@ function getForm(indicatorID, series) {
             calls.push(            
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/sensitive',
+                    url: '../api/formEditor/' + indicatorID + '/sensitive',
                     data: {is_sensitive: sensitiveIndicator,
                     CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1645,7 +1645,7 @@ function getForm(indicatorID, series) {
             calls.push(   	        
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/disabled',
+                    url: '../api/formEditor/' + indicatorID + '/disabled',
                     data: {disabled: archivedIndicator,
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1654,7 +1654,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/deleted',
+                    url: '../api/formEditor/' + indicatorID + '/deleted',
                     data: {deleted: deletedIndicator,
                     CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1664,7 +1664,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/parentID',
+                    url: '../api/formEditor/' + indicatorID + '/parentID',
                     data: {parentID: $('#parentID').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'},
                     success: function(res) {
@@ -1680,7 +1680,7 @@ function getForm(indicatorID, series) {
             calls.push(            
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/sort',
+                    url: '../api/formEditor/' + indicatorID + '/sort',
                     data: {sort: $('#sort').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
             }));
@@ -1690,7 +1690,7 @@ function getForm(indicatorID, series) {
             calls.push(
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/html',
+                    url: '../api/formEditor/' + indicatorID + '/html',
                     data: {html: codeEditorHtml.getValue(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
             }));
@@ -1700,7 +1700,7 @@ function getForm(indicatorID, series) {
             calls.push(            
                 $.ajax({
                     type: 'POST',
-                    url: '../api/?a=formEditor/' + indicatorID + '/htmlPrint',
+                    url: '../api/formEditor/' + indicatorID + '/htmlPrint',
                     data: {htmlPrint: codeEditorHtmlPrint.getValue(),
                         CSRFToken: '<!--{$CSRFToken}-->'}
                 }));
@@ -1851,7 +1851,8 @@ function mergeForm(categoryID) {
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
-        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
+        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID + '?' +
+            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
         success: function() {
         	mergeFormDialog(categoryID);
         }
@@ -1869,7 +1870,7 @@ function mergeFormDialog(categoryID) {
 
     $.ajax({
         type: 'GET',
-        url: '../api/?a=formEditor/_'+ categoryID +'/stapled',
+        url: '../api/formEditor/_'+ categoryID +'/stapled',
         success: function(res) {
             var buffer = '<ul>';
             for(let i in res) {
@@ -1903,7 +1904,7 @@ function exportForm(categoryID) {
 	promise = promise.then(function() {
 		return $.ajax({
 	        type: 'GET',
-	        url: '../api/?a=form/_' + categoryID + '/export',
+	        url: '../api/form/_' + categoryID + '/export',
 	        success: function(res) {
 	            packet.form = res;
 	            packet.categoryID = categoryID;
@@ -1914,7 +1915,7 @@ function exportForm(categoryID) {
     promise = promise.then(function() {
         return $.ajax({
             type: 'GET',
-            url: '../api/?a=form/_' + categoryID + '/workflow',
+            url: '../api/form/_' + categoryID + '/workflow',
             success: function(res) {
                 packet.workflowID = res[0].workflowID;
             }
@@ -1927,7 +1928,7 @@ function exportForm(categoryID) {
             	function(subCategoryID) {
                     return $.ajax({
                         type: 'GET',
-                        url: '../api/?a=form/_' + subCategoryID + '/export',
+                        url: '../api/form/_' + subCategoryID + '/export',
                         success: function(res) {
                         	packet.subforms[subCategoryID] = {};
                         	packet.subforms[subCategoryID].name = categories[subCategoryID].categoryName;
@@ -1970,7 +1971,8 @@ function deleteForm() {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
-			url: '../api/?a=formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
+			url: '../api/formStack/_' + currCategoryID + '?' +
+                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
 			success: function(res) {
 			    if(res != true) {
 			        alert(res);
@@ -2074,7 +2076,7 @@ function showFormBrowser() {
 	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
-        url: '<!--{$APIroot}-->?a=formStack/categoryList/all',
+        url: '../api/formStack/categoryList/all',
         success: function(res) {
             var buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
@@ -2287,7 +2289,7 @@ function createForm(parentID) {
     	let categoryDescription = $('#description').val();
     	$.ajax({
     		type: 'POST',
-    		url: '<!--{$APIroot}-->?a=formEditor/new',
+    		url: '../api/formEditor/new',
     		data: {name: $('#name').val(),
     			   description: $('#description').val(),
     			   parentID: parentID,
@@ -2348,7 +2350,7 @@ $(function() {
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
     <!--{/if}-->
 
-    <!--{if $referFormLibraryID != ''}-->
+    <!--{if $referFormLibraryID != 0}-->
     postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
         .animate({'background-color': 'white'}, 1000)

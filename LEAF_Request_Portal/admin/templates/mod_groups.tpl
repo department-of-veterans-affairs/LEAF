@@ -235,7 +235,7 @@ function getMembers(groupID) {
 function updateAndGetMembers(groupID) {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/updateGroup/' + groupID,
+        url: '../api/system/updateGroup/' + groupID,
         success: function() {
             $.ajax({
                 url: "ajaxJSON.php?a=mod_groups_getMembers&groupID=" + groupID,
@@ -308,7 +308,8 @@ function populateMembers(groupID, members) {
 function removeMember(groupID, userID) {
     $.ajax({
         type: 'DELETE',
-        url: "../api/group/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
+        url: "../api/group/" + groupID + "/members/_" + userID + '?' +
+            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
         cache: false
     });
 }
@@ -510,7 +511,8 @@ function getGroupList() {
                                     dialog_confirm.setSaveHandler(function() {
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: "../api/group/" + groupID + '&CSRFToken=<!--{$CSRFToken}-->',
+                                            url: "../api/group/" + groupID + '?' +
+                                                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                                             success: function(response) {
                                                 location.reload();
                                             },
@@ -518,9 +520,9 @@ function getGroupList() {
                                         });
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: '<!--{$orgchartPath}-->/api/?a=group/' + groupID + '/local/tag&'
-                                                + $.param({tag: '<!--{$orgchartImportTag}-->',
-                                                    CSRFToken: '<!--{$CSRFToken}-->'}),
+                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
+                                                $.param({tag: '<!--{$orgchartImportTag}-->',
+                                                         CSRFToken: '<!--{$CSRFToken}-->'}),
                                             success: function() {
                                             },
                                             cache: false
@@ -822,7 +824,7 @@ function tagAndUpdate(groupID, callback) {
     $.when(
             $.ajax({
                 type: 'POST',
-                url: '<!--{$orgchartPath}-->/api/?a=group/'+ groupID + '/tag',
+                url: '<!--{$orgchartPath}-->/api/group/'+ groupID + '/tag',
                 data: {
                     tag: '<!--{$orgchartImportTag}-->',
                     CSRFToken: '<!--{$CSRFToken}-->'
@@ -833,7 +835,7 @@ function tagAndUpdate(groupID, callback) {
             }),
             $.ajax({
                 type: 'GET',
-                url: '../api/?a=system/importGroup/' + groupID,
+                url: '../api/system/importGroup/' + groupID,
                 success: function() {
                 },
                 cache: false
@@ -910,7 +912,7 @@ function createGroup() {
         });
         $.ajax({
             type: 'POST',
-            url: '<!--{$orgchartPath}-->/api/?a=group',
+            url: '<!--{$orgchartPath}-->/api/group',
             data: {title: $('#groupNameInput').val(),
                    CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
