@@ -1919,12 +1919,18 @@ class Form
         }
         $this->cache['checkReadAccess_tempArray'] = $temp;
 
+        $countPurged = 0;
         foreach ($records as $record)
         {
             if (isset($temp[$record['recordID']]) && $temp[$record['recordID']] == 0)
             {
                 unset($records[$record['recordID']]);
+                $countPurged++;
             }
+        }
+
+        if($countPurged > 0) {
+            header('LEAF-Query: continue');
         }
 
         return $records;
