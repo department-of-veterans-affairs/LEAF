@@ -267,6 +267,7 @@ function addHeader(column) {
             break;
         case 'days_since_last_action':
         case 'days_since_last_step_movement':
+            filterData['action_history.time'] = 1;
             filterData['action_history.stepID'] = 1;
             filterData['action_history.actionType'] = 1;
             filterData['stepFulfillmentOnly'] = 1;
