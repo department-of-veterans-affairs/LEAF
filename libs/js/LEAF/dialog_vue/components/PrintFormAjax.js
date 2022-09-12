@@ -30,6 +30,8 @@ export default {
         return {
             listItems: Vue.computed(() => this.listItems),
             addToListItemsArray: this.addToListItemsArray,
+            startDrag: this.startDrag,
+            onDrop: this.onDrop
         }
     },
     computed: {
@@ -71,6 +73,20 @@ export default {
                     error: (err) => reject(err)
                 });
             });
+        },
+        startDrag(evt) {  //need id of ele being dragged
+            evt.dataTransfer.dropEffect = 'move';
+            evt.dataTransfer.effectAllowed = 'move';
+            evt.dataTransfer.setData('indID', evt.target.id);
+            console.log('triggered startDrag', evt.dataTransfer, evt.target.id);
+        },
+        onDrop(evt) {
+            evt.preventDefault();
+            const draggedElID = evt.dataTransfer.getData('indID');
+            const parentEl = evt.target?.id?.includes('index_listing_') ? evt.target.parentNode : evt.target;
+            //const item = this.listItems.find(ele => ele.indicatorID === indID);
+            console.log('drop target', evt.target, 'draggedElID', draggedElID, parentEl);
+
         }
     },
     watch: {
@@ -109,13 +125,22 @@ export default {
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;">{{ formName }}</h3>
-            <ul v-if="ajaxFormByCategoryID.length > 0">
+            <ul v-if="ajaxFormByCategoryID.length > 0"
+                id="base_drop_area"
+                data-effect-allowed="move"
+                @drop.stop="onDrop($event)"
+                @dragover.prevent
+                @dragenter.prevent
+                >
                 <form-index-listing v-for="(formSection, i) in ajaxFormByCategoryID"
+                    :id="'index_listing_'+formSection.indicatorID"
                     :depth=0
                     :formNode="formSection"
                     :index=i
                     :parentID=null
-                    :key="'index_list_item_' + formSection.indicatorID">
+                    :key="'index_list_item_' + formSection.indicatorID"
+                    draggable="true"
+                    @dragstart.stop="startDrag($event)">
                 </form-index-listing>
             </ul>
         </div>

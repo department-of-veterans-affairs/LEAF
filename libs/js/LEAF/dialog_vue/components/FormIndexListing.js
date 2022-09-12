@@ -10,7 +10,10 @@ export default {
         'newQuestion',
         'getForm',
         'truncateText',
-        'addToListItemsArray'
+        'addToListItemsArray',
+        'listItems',
+        'startDrag',
+        'onDrop'
     ],
     mounted() {
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
@@ -22,9 +25,6 @@ export default {
         },
         indexHoverOff(){
             event.target.classList.remove('index-selected');
-        },
-        handleIndexing(selectedCategory, index) {
-            console.log(selectedCategory.sort, index);
         }
     },
     computed: {
@@ -70,30 +70,36 @@ export default {
         },
         isEmpty() {
             return this.formNode.isEmpty === true;
-        },
-        blockID() {
-            return `section_indicator_${this.suffix}`;
         }
     },
 
     template:`
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
-            :id="'index_' + blockID"
             :style="{backgroundColor:bgColor}"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="handleIndexing(formNode, index)">
+            
+            >
             {{conditionallyShown}}{{headingNumber}} {{shortLabel}}
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
             <template v-if="hasChildNode">
-                <ul class="form-index-listing">
+                <ul class="form-index-listing" :id="'drop_area_parent_'+formNode.indicatorID"
+                    data-effect-allowed="move"
+                    @drop.stop="onDrop($event)"
+                    @dragover.prevent
+                    @dragenter.prevent
+                    >
                     <form-index-listing v-for="(child, i) in children"
+                        :id="'index_listing_' + child.indicatorID"
                         :depth="depth + 1"
                         :parentID="formNode.indicatorID"
                         :formNode="child"
                         :index="i"
-                        :key="child.indicatorID"> 
+                        :key="child.indicatorID"
+                        draggable="true"
+                        @dragstart.stop="startDrag($event)"
+                        > 
                     </form-index-listing>
                 </ul>
             </template>
