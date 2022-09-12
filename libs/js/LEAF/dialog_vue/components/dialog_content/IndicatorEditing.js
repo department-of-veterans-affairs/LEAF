@@ -68,6 +68,7 @@ export default {
         'currSubformID',
         'currIndicatorID',
         'ajaxIndicatorByID',
+        'ajaxFormByCategoryID',
         'selectNewCategory',
         'updateCategoriesProperty',
         'newIndicatorParentID',
@@ -349,7 +350,7 @@ export default {
                         })
                     );
                 }
-                if(sortChanged) {
+                if(sortChanged) { //TODO: FIX: sort will be handled with drag drop in index, rm here
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -395,6 +396,11 @@ export default {
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 console.log('creating a new indicator on form ', this.formID);
 
+                const selector = `li#index_section_indicator_${this.parentID}_1 > ul > li`;
+                const sortVal = (this.parentID===null) ?                    //default sort to last question in current depth
+                    this.ajaxFormByCategoryID.length :                      //for new sections/pages
+                    Array.from(document.querySelectorAll(selector)).length  //for new questions in existing sections
+                
                 if (+this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
                         $.ajax({
@@ -425,7 +431,7 @@ export default {
                             categoryID: this.formID,
                             required: this.required ? 1 : 0,
                             is_sensitive: this.is_sensitive ? 1 : 0,
-                            sort: this.sort,
+                            sort: sortVal,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {},
@@ -434,7 +440,6 @@ export default {
                 );
             }
 
-            
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 console.log('promise all:', indicatorEditingUpdates, res);
                 this.closeFormDialog();

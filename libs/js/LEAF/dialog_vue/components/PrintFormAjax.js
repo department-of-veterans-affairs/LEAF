@@ -7,9 +7,9 @@ export default {
         return {
             formID: this.currentCategorySelection.categoryID,
             listItems: [],  //objects w indID, parID, newParID, sort, index
-            formFlat: {},
+            formFlat: {},   //used to determine the number of indicators on the form (better way?)
             totalIndicators: null,
-            sortValuesToUpdate: []
+            sortValuesToUpdate: []   //used to update legacy sort values
         }
     },
     components: {
@@ -33,9 +33,6 @@ export default {
         }
     },
     computed: {
-        /*formID() {
-            return this.currentCategorySelection.categoryID;
-        },*/
         formName() {
             return this.currentCategorySelection.categoryName || 'Untitled';
         },
@@ -51,13 +48,13 @@ export default {
         });
     },
     methods: {
-        addToListItemsArray(formNode, listIndex) {
-            const { indicatorID, parentID, sort } = formNode;  //parentID is only returned for headers for Reasons, updated for others after getting flat form
-            const item = { indicatorID, parentID, sort, listIndex, newParentID: null }
+        addToListItemsArray(formNode, parentID, listIndex) {
+            const { indicatorID, sort } = formNode;
+            const item = { indicatorID, sort, parentID, listIndex }
             this.listItems = [...this.listItems, item];
             this.handleItemSortShouldUpdate(item);
         },
-        //if the sort value is not the index, add it to the values to update.  true for first load legacy sort, and if dropped to new location (pending)
+        //checks if the sort value is not the index, adds it to sortValuesToUpdate to update (true for old forms).
         handleItemSortShouldUpdate(listItem) {
             if(listItem.sort !== listItem.listIndex) {
                 console.log('update the sort val to the index val for', listItem.indicatorID);
@@ -80,10 +77,6 @@ export default {
         allListItemsAreAdded(newVal, oldVal){
             console.log('watching');
             if(newVal===true) {
-                //add the current parentIDs for tracking
-                this.listItems.forEach(li => {
-                    li.parentID = this.formFlat[li.indicatorID][1].parentID;
-                });
                 if (this.sortValuesToUpdate.length > 0) {
                     //update legacy sort to from prev sort val to new index based value
                     let updateSort = [];
@@ -121,6 +114,7 @@ export default {
                     :depth=0
                     :formNode="formSection"
                     :index=i
+                    :parentID=null
                     :key="'index_list_item_' + formSection.indicatorID">
                 </form-index-listing>
             </ul>
@@ -132,9 +126,9 @@ export default {
                 <template v-for="(formSection, i) in ajaxFormByCategoryID">
                     <div class="printformblock">
                         <print-subindicators 
-                            :depth=0
+                            :depth="0"
                             :formNode="formSection"
-                            :index=i
+                            :index="i"
                             :key="formSection.indicatorID">
                         </print-subindicators>
                     </div>

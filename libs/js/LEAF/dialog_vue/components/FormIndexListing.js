@@ -3,7 +3,8 @@ export default {
     props: {
         depth: Number,
         formNode: Object,
-        index: Number
+        index: Number,
+        parentID: Number
     },
     inject: [
         'newQuestion',
@@ -12,7 +13,8 @@ export default {
         'addToListItemsArray'
     ],
     mounted() {
-        this.addToListItemsArray(this.formNode, this.index);
+        //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
+        this.addToListItemsArray(this.formNode, this.parentID, this.index);
     },
     methods: {
         indexHover() {
@@ -70,7 +72,7 @@ export default {
             return this.formNode.isEmpty === true;
         },
         blockID() {
-            return parseInt(this.depth) === 0 ?  `section_heading_${this.suffix}` : `section_indicator_${this.suffix}`;
+            return `section_indicator_${this.suffix}`;
         }
     },
 
@@ -86,8 +88,9 @@ export default {
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
             <template v-if="hasChildNode">
                 <ul class="form-index-listing">
-                    <form-index-listing v-for="(child,i) in children"
+                    <form-index-listing v-for="(child, i) in children"
                         :depth="depth + 1"
+                        :parentID="formNode.indicatorID"
                         :formNode="child"
                         :index="i"
                         :key="child.indicatorID"> 
