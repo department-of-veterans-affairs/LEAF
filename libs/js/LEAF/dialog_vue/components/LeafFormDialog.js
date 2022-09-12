@@ -25,6 +25,7 @@ export default {
 		}
 	},
 	mounted() {
+		//this helps fix the modal background coverage, as modals can have various heights
 		const elModal = document.getElementById(this.modalElementID);
 		const currModalHeight = elModal.clientHeight;
 		document.getElementById(this.modalBackgroundID).style.minHeight = currModalHeight + window.innerHeight + 'px';

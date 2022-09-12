@@ -6,10 +6,13 @@ export default {
     data()  {
         return {
             formID: this.currentCategorySelection.categoryID,
+            dragLI_Prefix: 'index_listing_',
+            dragUL_Prefix: 'drop_area_parent_',
             listItems: [],  //objects w indID, parID, newParID, sort, index
             formFlat: {},   //used to determine the number of indicators on the form (better way?)
             totalIndicators: null,
-            sortValuesToUpdate: []   //used to update legacy sort values
+            sortValuesToUpdate: [],   //used to update legacy sort values and for drag drop
+            parentIDsToUpdate: []
         }
     },
     components: {
@@ -39,9 +42,11 @@ export default {
             return this.currentCategorySelection.categoryName || 'Untitled';
         },
         allListItemsAreAdded() {
-            console.log( this.totalIndicators, this.listItems.length);
             return this.totalIndicators !== null && this.totalIndicators === this.listItems.length;
         },
+        sortOrParentChanged() {
+            return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
+        }
     },
     beforeMount() {
         this.getFormIndicatorList().then(res => {
@@ -50,18 +55,62 @@ export default {
         });
     },
     methods: {
+        applySortAndParentID_Updates(){
+            let updateSort = [];
+            this.sortValuesToUpdate.forEach(item => {
+                updateSort.push(
+                    $.ajax({
+                        type: 'POST',
+                        url: `${this.APIroot}formEditor/${item.indicatorID}/sort`,
+                        data: {
+                            sort: item.listIndex,
+                            CSRFToken: this.CSRFToken
+                        },
+                        success: () => {},
+                        error: err => console.log('ind sort post err', err)
+                    })
+                );
+            });
+            let updateParentID = [];
+            this.parentIDsToUpdate.forEach(item => {
+                updateParentID.push(
+                    $.ajax({
+                        type: 'POST',
+                        url: `${this.APIroot}formEditor/${item.indicatorID}/parentID`,
+                        data: {
+                            parentID: item.newParentID,
+                            CSRFToken: this.CSRFToken
+                        },
+                        success: () => {},
+                        error: err => console.log('ind parentID post err', err)
+                    })
+                );
+            });
+
+            const all = updateSort.concat(updateParentID);
+            Promise.all(all).then((res)=> {
+                console.log('promise all applied changes:', all, res);
+                if (res.length > 0) {
+                    this.selectNewCategory(this.formID, this.currSubformID !== null);
+                }
+            });
+
+        },
         addToListItemsArray(formNode, parentID, listIndex) {
             const { indicatorID, sort } = formNode;
-            const item = { indicatorID, sort, parentID, listIndex }
+            const item = { indicatorID, sort, parentID, listIndex, newParentID: '' }
             this.listItems = [...this.listItems, item];
-            this.handleItemSortShouldUpdate(item);
+            this.handleSortShouldUpdate(item);
         },
         //checks if the sort value is not the index, adds it to sortValuesToUpdate to update (true for old forms).
-        handleItemSortShouldUpdate(listItem) {
+        handleSortShouldUpdate(listItem) {
             if(listItem.sort !== listItem.listIndex) {
-                console.log('update the sort val to the index val for', listItem.indicatorID);
-                console.log('from', listItem.sort, 'to', listItem.listIndex);
                 this.sortValuesToUpdate = [...this.sortValuesToUpdate, listItem];
+            }
+        },
+        handleParentID_ShouldUpdate(listItem) {
+            if(listItem.newParentID !== '' && listItem.parentID !== listItem.newParentID) {
+                this.parentIDsToUpdate = [...this.parentIDsToUpdate, listItem];
             }
         },
         getFormIndicatorList(){
@@ -74,26 +123,83 @@ export default {
                 });
             });
         },
-        startDrag(evt) {  //need id of ele being dragged
+        //update the listIndex and parentID values for a specific indicator
+        updateListItems(indID, formParID, listIndex) {
+            const item = this.listItems.find(li => li.indicatorID === indID);
+            const index = this.listItems.indexOf(item);
+            this.listItems = [...this.listItems.slice(0, index), ...this.listItems.slice(index + 1)];
+
+            item.newParentID = formParID;
+            item.listIndex = listIndex;
+            this.listItems = [...this.listItems, item];
+        },
+        startDrag(evt) {
             evt.dataTransfer.dropEffect = 'move';
             evt.dataTransfer.effectAllowed = 'move';
-            evt.dataTransfer.setData('indID', evt.target.id);
-            console.log('triggered startDrag', evt.dataTransfer, evt.target.id);
+            evt.dataTransfer.setData('text/plain', evt.target.id);
         },
         onDrop(evt) {
             evt.preventDefault();
-            const draggedElID = evt.dataTransfer.getData('indID');
-            const parentEl = evt.target?.id?.includes('index_listing_') ? evt.target.parentNode : evt.target;
-            //const item = this.listItems.find(ele => ele.indicatorID === indID);
-            console.log('drop target', evt.target, 'draggedElID', draggedElID, parentEl);
+            const draggedElID = evt.dataTransfer.getData('text');
+            const parentEl = evt.currentTarget; //drop event is on the parent ul
 
+            const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
+            const formParID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
+
+            const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+            if (elsLI.length===0) { //if the drop ul has no lis, just append it
+                parentEl.append(document.getElementById(draggedElID));
+                this.updateListItems(indID, formParID, 0);
+                
+            } else { //otherwise, find the closest li to the droppoint
+                let dist = 9999;
+                let closestLI_id = null;
+                elsLI.forEach(el => {
+                    const newDist = Math.abs(el.offsetTop - evt.clientY);
+                    if(el.id !== draggedElID && newDist < dist) {
+                        dist = newDist;
+                        closestLI_id = el.id;
+                    }
+                });
+            
+                try {
+                    if(closestLI_id !== null) {
+                        parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
+                    } else {
+                        console.log('got a null id');
+                    }
+                    //check the new indexes
+                    const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                    newElsLI.forEach((li,i) => {
+                        const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
+                        this.updateListItems(indID, formParID, i);
+                    });
+                    
+                } catch(error) {
+                    console.log(error);
+                }
+            }
+            this.listItems.forEach(it => {
+                this.handleSortShouldUpdate(it);
+                this.handleParentID_ShouldUpdate(it);
+            });
+            
+        },
+        onDragLeave(evt) { //@dragleave="onDragLeave"
+            console.log('drag leave', evt);
+        },
+        onDragOver(evt) { //@dragover.prevent="onDragOver"
+            console.log('drag over', evt);
+        },
+        onDragEnter(evt) {
+            console.log('drag enter', evt);
         }
     },
     watch: {
         allListItemsAreAdded(newVal, oldVal){
             console.log('watching');
             if(newVal===true) {
-                if (this.sortValuesToUpdate.length > 0) {
+                if (this.sortValuesToUpdate.length > 0) {  //possibly keep these with their own variable, don't mix with drag-drop
                     //update legacy sort to from prev sort val to new index based value
                     let updateSort = [];
                     this.sortValuesToUpdate.forEach(item => {
@@ -124,14 +230,16 @@ export default {
     <div style="display:flex;">
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
+            <div v-show="sortOrParentChanged" id="can_update" tabindex="0" @click="applySortAndParentID_Updates">Apply changes</div>
+
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;">{{ formName }}</h3>
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
                 data-effect-allowed="move"
-                @drop.stop="onDrop($event)"
+                @drop.stop="onDrop"
                 @dragover.prevent
-                @dragenter.prevent
-                >
+                @dragenter.prevent="onDragEnter">
+
                 <form-index-listing v-for="(formSection, i) in ajaxFormByCategoryID"
                     :id="'index_listing_'+formSection.indicatorID"
                     :depth=0
@@ -140,7 +248,7 @@ export default {
                     :parentID=null
                     :key="'index_list_item_' + formSection.indicatorID"
                     draggable="true"
-                    @dragstart.stop="startDrag($event)">
+                    @dragstart.stop="startDrag">
                 </form-index-listing>
             </ul>
         </div>

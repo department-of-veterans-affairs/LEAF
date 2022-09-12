@@ -59,9 +59,6 @@ export default {
         shortLabel() { //TODO:  currently getting from name - too many items didn't have label - prompt during entry
             return XSSHelpers.decodeHTMLEntities(this.truncateText(XSSHelpers.stripAllTags(this.formNode.name))) || '[ blank ]';
         },
-        bgColor() { //TODO: not sure if I will use
-            return `rgb(${255-8*this.depth},${255-6*this.depth},${255})`;
-        },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
         },
@@ -76,20 +73,20 @@ export default {
     template:`
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
-            :style="{backgroundColor:bgColor}"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             
             >
             {{conditionallyShown}}{{headingNumber}} {{shortLabel}}
             
-            <!-- NOTE: RECURSIVE SUBQUESTIONS -->
-            <template v-if="hasChildNode">
-                <ul class="form-index-listing" :id="'drop_area_parent_'+formNode.indicatorID"
+            <!-- NOTE: RECURSIVE SUBQUESTIONS. TODO: test.  should ul always be present? -->
+            
+                <ul class="form-index-listing" :id="'drop_area_parent_'+ formNode.indicatorID"
                     data-effect-allowed="move"
-                    @drop.stop="onDrop($event)"
+                    @drop.stop="onDrop"
                     @dragover.prevent
-                    @dragenter.prevent
-                    >
+                    @dragenter.prevent>
+
+                <template v-if="hasChildNode">
                     <form-index-listing v-for="(child, i) in children"
                         :id="'index_listing_' + child.indicatorID"
                         :depth="depth + 1"
@@ -98,10 +95,9 @@ export default {
                         :index="i"
                         :key="child.indicatorID"
                         draggable="true"
-                        @dragstart.stop="startDrag($event)"
-                        > 
+                        @dragstart.stop="startDrag"> 
                     </form-index-listing>
-                </ul>
-            </template>
+                </template>
+            </ul>
         </li>`
 }

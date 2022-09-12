@@ -247,6 +247,7 @@ table#edit-properties-modal img {
 
 /* form structure index */
 #form_index_display {
+    position: relative;
     margin: 0;
     padding: 1em 0.75em;
     width: 350px;
@@ -257,18 +258,28 @@ table#edit-properties-modal img {
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 }
-
+#form_index_display #can_update {
+    position: absolute;
+    top: 1em;
+    right: 0.75em;
+    cursor: pointer;
+    width: 100px;
+    height: 20px;
+    text-align: right;
+}
 #form_index_display ul {
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column; 
     list-style-type: none;
+    min-height: 0.2em;
 }
 #form_index_display li {
     cursor: pointer;
     margin: 0;
-    padding-left: 0.4em;
+    margin-top: 0.2em;
+    padding-left: 0.5em;
     border-radius: 2px;
     line-height: 2;
     border-left: 2px solid transparent;
@@ -279,7 +290,7 @@ table#edit-properties-modal img {
     border-left: 2px solid var(--base-navy, #005EA2);
 }
 #form_index_display li.subindicator_heading {
-    margin-left: 0.5em;
+    padding-left: 0.75em;
 }
 #form_index_display li:not(:last-child) {
     border-bottom: 1px solid #d0d0d4;
