@@ -1,7 +1,4 @@
 <?php
-$start_time = microtime(true);
-
-
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -31,7 +28,7 @@ $login->loginUser();
 
 $userName = $_GET['userName'];
 $empUID = $_GET['empUID'];
-ini_set('display_errors',1);
+
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
@@ -55,14 +52,6 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 
 }
 
-
-// End clock time in seconds
-$end_time = microtime(true);
-
-// Calculate script execution time
-$execution_time = ($end_time - $start_time);
-
-echo " Execution time of script = ".$execution_time." sec";
 /*
  *	Updates single employee information from national orgchart to local orgchart
 */
