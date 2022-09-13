@@ -73,18 +73,16 @@ export default {
     template:`
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
-            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            
-            >
+            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
             {{conditionallyShown}}{{headingNumber}} {{shortLabel}}
             
-            <!-- NOTE: RECURSIVE SUBQUESTIONS. TODO: test.  should ul always be present? -->
+            <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             
-                <ul class="form-index-listing" :id="'drop_area_parent_'+ formNode.indicatorID"
-                    data-effect-allowed="move"
-                    @drop.stop="onDrop"
-                    @dragover.prevent
-                    @dragenter.prevent>
+            <ul class="form-index-listing" :id="'drop_area_parent_'+ formNode.indicatorID"
+                data-effect-allowed="move"
+                @drop.stop="onDrop"
+                @dragover.prevent
+                @dragenter.prevent>
 
                 <template v-if="hasChildNode">
                     <form-index-listing v-for="(child, i) in children"

@@ -190,7 +190,7 @@ export default {  //TODO: rename this component
             //console.log('drag over', evt);
         },
         onDragEnter(evt) {
-            console.log('drag enter', evt);
+            //console.log('drag enter', evt);
         }
     },
     watch: {
@@ -251,6 +251,9 @@ export default {  //TODO: rename this component
                     @dragstart.stop="startDrag">
                 </form-index-listing>
             </ul>
+            <div style="display: flex; justify-content: center; align-items: center; margin-top: 1em;">
+                <button class="btn-general" style="width: 100%" @click="newQuestion(null)">+ Add Section</button>
+            </div>
         </div>
 
         <!-- FORM ENTRY DISPLAY -->

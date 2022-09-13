@@ -8,6 +8,22 @@
     box-sizing: border-box;
 }
 
+#vue-formeditor-app button.btn-general {
+    background-color: white;
+    color: var(--base-navy, #005EA2);
+    font-weight: bolder;
+    padding: 0.4em;
+    border: 2px solid var(--base-navy, #005EA2);
+    border-radius: 4px;
+}
+#vue-formeditor-app button.btn-general:hover,
+#vue-formeditor-app button.btn-general:focus,
+#vue-formeditor-app button.btn-general:active {
+    border: 2px solid black !important;
+    box-shadow: 0 0 4px rgba(0,0,30,0.4);
+}
+
+
 /* tables in dialog modals */
 .leaf-vue-dialog table {
     border-collapse: separate; 
@@ -249,7 +265,7 @@ table#edit-properties-modal img {
 #form_index_display {
     position: relative;
     margin: 0;
-    padding: 1em 0.75em;
+    padding: 1em 0.75em 0.75em;
     width: 350px;
     flex: 0 0 350px;
     align-self:flex-start;
@@ -274,31 +290,48 @@ table#edit-properties-modal img {
     color: black;
     background-color: white;
 }
+#form_index_display .section_heading {
+    font-weight: bolder;
+    color: var(--base-navy, #005EA2);
+}
+#form_index_display .subindicator_heading {
+    font-weight: normal;
+    color: black;
+}
+
 #form_index_display ul {
     margin: 0;
     padding: 0;
+    padding-left: 0.75em;
     display: flex;
     flex-direction: column; 
     list-style-type: none;
     min-height: 0.2em;
 }
+#form_index_display ul#base_drop_area {
+    padding: 0;
+}
+#form_index_display ul:first-child {
+    border-top: 1px solid #d0d0d4;
+}
 #form_index_display li {
+    position: relative;
     cursor: pointer;
     margin: 0;
     margin-top: 0.2em;
-    padding-left: 0.5em;
     border-radius: 2px;
     line-height: 2;
     border-left: 2px solid transparent;
     outline: none !important;
 }
 
-#form_index_display li.index-selected, #form_index_display li:focus  {
-    border-left: 2px solid var(--base-navy, #005EA2);
-}
-#form_index_display li.subindicator_heading {
-    padding-left: 0.75em;
-}
-#form_index_display li:not(:last-child) {
-    border-bottom: 1px solid #d0d0d4;
+#form_index_display li.index-selected::before, #form_index_display li:focus::before {
+    position: absolute;
+    top: -2px;
+    left: -8px;
+    content: '';
+    width: 3px;
+    height: 100%;
+    border-radius: 50% / 3px;
+    background-color: var(--base-navy, #005EA2);
 }
