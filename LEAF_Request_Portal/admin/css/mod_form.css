@@ -1,3 +1,59 @@
+.formPreview {
+    cursor: pointer;
+    width: 230px;
+    height: 160px;
+    margin: 8px;
+    float: left;
+    background-color: white;
+    box-shadow: 0 2px 6px #8e8e8e;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+}
+
+.formPreviewTitle {
+    font-weight: bold;
+    padding: 0.4rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.formPreviewDescription {
+    padding: 0.2rem 0.4rem 0.2rem 0.4em;
+    overflow: hidden;
+    white-space: normal;
+    text-overflow: ellipsis;
+    height: 4.7rem;
+    font-size: 0.9rem;
+    line-height: 1.2rem;
+}
+
+.formPreviewStatus {
+    padding: 0.2rem 0.4rem 0.2rem 0.4rem;
+    font-size: 0.6rem;
+    color: red;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-top: 0.3rem;
+}
+
+.formPreviewWorkflow {
+    position: absolute;
+    bottom: 0;
+    background-color: #c9ddff;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0.3rem;
+}
+
+
+
+.formPreview:hover {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+}
 
 div.cell {
     text-align: center;
