@@ -14,6 +14,8 @@ try {
     $test->setRunAtExactTime('6 am');
     $test->run();
     echo 'end';
+    echo date('Y-m-d g:i:s a') . "\r\n";
+
 } catch (Exception $e) {
     echo sprintf("Message: %s \r\nFile: %s \r\nLine: %s \r\nTrace: %s\r\n", $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
 }
