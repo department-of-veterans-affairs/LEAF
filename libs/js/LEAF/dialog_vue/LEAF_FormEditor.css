@@ -263,9 +263,16 @@ table#edit-properties-modal img {
     top: 1em;
     right: 0.75em;
     cursor: pointer;
-    width: 100px;
-    height: 20px;
-    text-align: right;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    font-size: 90%;
+    padding: 0.25em 0.5em;
+    border: 1px outset #aac;
+    border-radius: 3px;
+    color: black;
+    background-color: white;
 }
 #form_index_display ul {
     margin: 0;

@@ -2,7 +2,7 @@ import PrintSubindicators from './PrintSubindicators.js';
 import FormEntryDisplay from './FormEntryDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
 
-export default {
+export default {  //TODO: rename this component
     data()  {
         return {
             formID: this.currentCategorySelection.categoryID,
@@ -184,10 +184,10 @@ export default {
             
         },
         onDragLeave(evt) { //@dragleave="onDragLeave"
-            console.log('drag leave', evt);
+            //console.log('drag leave', evt);
         },
         onDragOver(evt) { //@dragover.prevent="onDragOver"
-            console.log('drag over', evt);
+            //console.log('drag over', evt);
         },
         onDragEnter(evt) {
             console.log('drag enter', evt);
@@ -228,7 +228,9 @@ export default {
     <div style="display:flex;">
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <div v-show="sortOrParentChanged" id="can_update" tabindex="0" @click="applySortAndParentID_Updates">Apply changes</div>
+            <div v-show="sortOrParentChanged" id="can_update" 
+            tabindex="0" @click="applySortAndParentID_Updates"
+            title="Apply form structure updates">Apply changes</div>
 
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;">{{ formName }}</h3>
             <ul v-if="ajaxFormByCategoryID.length > 0"
