@@ -175,12 +175,6 @@ const ConditionsEditor = Vue.createApp({
                             parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
                             i.format.indexOf('dropdown') === 0;  //parents are currently dropdowns only
                 });
-                /*if(indicator.conditions !== null && indicator.conditions !== ''){
-                    const conditionObj = JSON.parse(indicator.conditions);
-                    if(conditionObj.length===1){
-                        this.selectConditionFromList(conditionObj[0]);    
-                    }
-                }*/
             }
             $.ajax({
                 type: 'GET',
