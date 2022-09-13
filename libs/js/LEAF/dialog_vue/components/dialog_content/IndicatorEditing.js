@@ -350,7 +350,7 @@ export default {
                         })
                     );
                 }
-                if(sortChanged) { //TODO: FIX: sort will be handled with drag drop in index, rm here
+                if(sortChanged) { //NOTE: sort is also handled with drag drop in index, might rm here
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -462,9 +462,9 @@ export default {
             }
         },
         addCells(){
-            console.log('grid stuff');  //TODO: maybe make grid component for these
+            console.log('grid stuff');  //TODO: grid component for these
         },
-        updateGridJSON() {  //TODO: temp from mod_form
+        updateGridJSON() {  //TODO: temp same as from mod_form, rework
             let gridJSON = [];
             //gather column names and column types. if type is dropdown, adds property.options
             $(gridBodyElement).find('div.cell').each(function() {

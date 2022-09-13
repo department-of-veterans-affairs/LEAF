@@ -1,5 +1,5 @@
 export default {
-    name: 'FormIndexListing',  //NOTE: this will replace PrintSubindicators
+    name: 'FormIndexListing',
     props: {
         depth: Number,
         formNode: Object,

@@ -1,4 +1,3 @@
-import GenericDialog from "./components/GenericDialog.js";
 import LeafFormDialog from "./components/LeafFormDialog.js";
 import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
 import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDialog.js";
@@ -20,7 +19,6 @@ export default {
             dialogTitle: '',
             dialogFormContent: '',
             dialogContentIsComponent: false,
-            showGeneralDialog: false,
             showFormDialog: false,
             //this sets the method associated with the save btn to the onSave method of the modal's current component
             formSaveFunction: ()=> {
@@ -80,8 +78,6 @@ export default {
             selectNewCategory: this.selectNewCategory,
             updateCategoriesProperty: this.updateCategoriesProperty,
             addNewCategory: this.addNewCategory,
-            //setCustomDialogTitle: this.setCustomDialogTitle,
-            //setFormDialogComponent: this.setFormDialogComponent,
             closeFormDialog: this.closeFormDialog,
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
@@ -279,7 +275,6 @@ export default {
         },
         closeFormDialog() {
             this.showFormDialog = false;
-            this.showGeneralDialog = false;
             this.clearCustomDialog();
         },
         openIndicatorEditing(indicatorID) { //currentID for editing, parentID for new questions
@@ -350,7 +345,6 @@ export default {
         }
     },
     components: {
-        GenericDialog,
         LeafFormDialog,
         IndicatorEditing,
         NewFormDialog,

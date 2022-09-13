@@ -33,17 +33,15 @@ export default {
     mounted() {
         document.getElementById(this.initialFocusElID).focus();
     },
-    methods: {  //TODO: category descr needs html filter for name display
+    methods: {
         updateWorkflowDescription() {
             const currWorkflow = this.ajaxWorkflowRecords.find(rec => parseInt(rec.workflowID) === this.workflowID);
             this.description = currWorkflow?.description || '';
         },
-        //called by ref on the component passed to setCustomDialogComponent in the main app
         onSave(){
             console.log('clicked edit properties save');
             let  editPropertyUpdates = [];
             const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
-            //console.log(this.categoryDescription, this.currentCategorySelection.categoryDescription);
             const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
             const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
             const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
@@ -51,7 +49,7 @@ export default {
             const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
             const typeChanged = this.type !== this.currentCategorySelection.type;
 
-            if(nameChanged){
+            if(nameChanged) {
                 editPropertyUpdates.push(
                     $.ajax({
                         type: 'POST',
@@ -68,7 +66,7 @@ export default {
                     })
                 );
             }
-            if(descriptionChanged){  //NOTE: name endpoint strips tags, but description endpoint does not.  intended?
+            if(descriptionChanged) {
                 editPropertyUpdates.push(
                     $.ajax({
                         type: 'POST',

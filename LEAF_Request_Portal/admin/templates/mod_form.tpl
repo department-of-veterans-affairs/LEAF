@@ -5,7 +5,7 @@
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
         <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
-            style="width: 100%; max-width: 1400px; margin: 0 auto;">
+            style="width: 100%; max-width: 1600px; margin: 0 auto;">
             <div id="forms" style="display:flex; flex-wrap:wrap">
                 <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
             </div>
@@ -17,7 +17,7 @@
         </div>
         <!-- SPECIFIC CATEGORY / FORM CONTENT -->
         <div v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
-            style="width: 100%; max-width: 1400px; margin: 0 auto;">
+            style="width: 100%; max-width: 1600px; margin: 0 auto;">
             <form-content></form-content>
         </div>
         </template>

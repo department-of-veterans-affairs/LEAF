@@ -8,10 +8,9 @@ export default {
             formID: this.currentCategorySelection.categoryID,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
-            listItems: [],  //objects w indID, parID, newParID, sort, index
-            formFlat: {},   //used to determine the number of indicators on the form (better way?)
+            listItems: [],  //objects w indID, parID, newParID, sort, listindex for tracking parID and sort changes
             totalIndicators: null,
-            sortValuesToUpdate: [],   //used to update legacy sort values and for drag drop
+            sortValuesToUpdate: [],
             parentIDsToUpdate: []
         }
     },
@@ -50,7 +49,6 @@ export default {
     },
     beforeMount() {
         this.getFormIndicatorList().then(res => {
-            this.formFlat = res;  //save this to get the parentID for the indicators
             this.totalIndicators = Object.keys(res).length;  //total to track updates
         });
     },
@@ -225,7 +223,7 @@ export default {
                 }
             }
         }
-    }, //{{currentCategorySelection.categoryID}} {{currSubformID || 'n/a'}}
+    },
     template:`
     <div style="display:flex;">
         <!-- FORM INDEX DISPLAY -->
