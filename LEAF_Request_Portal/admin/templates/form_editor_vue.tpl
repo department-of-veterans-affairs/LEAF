@@ -5,7 +5,7 @@
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
         <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
-            style="width: 100%; max-width: 1600px; margin: 0 auto;">
+            style="width: 100%; margin: 0 auto;">
             <div id="forms" style="display:flex; flex-wrap:wrap">
                 <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
             </div>
@@ -17,7 +17,7 @@
         </div>
         <!-- SPECIFIC CATEGORY / FORM CONTENT -->
         <div v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
-            style="width: 100%; max-width: 1600px; margin: 0 auto;">
+            style="width: 100%; margin: 0 auto;">
             <form-content></form-content>
         </div>
         </template>
@@ -759,9 +759,10 @@ function deleteForm() {
  * @param res
  */
 function renderSecureFormsInfo(res) {
-    $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: red; display:none;" ></div>');
+    $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: red; display:none; margin-bottom:1em;" ></div>');
     $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
     $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
+
     if(res['leafSecure'] >= 1) { // Certified
         $.when(fetchIndicators(), fetchLEAFSRequests(true)).then(function(indicators, leafSRequests) {
             let mostRecentID = null;
@@ -775,10 +776,8 @@ function renderSecureFormsInfo(res) {
                     mostRecentID = i;
                 }
             }
-            
             $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ mostRecentID);
             let mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
-
             // check for new indicators since certification
             for(let i in indicators) {
                 if(new Date(indicators[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
@@ -786,7 +785,6 @@ function renderSecureFormsInfo(res) {
                     break;
                 }
             }
-
             // if newIndicator found, look for existing leaf-s request and assign proper next step
             if (newIndicator) {
                 fetchLEAFSRequests(false).then(function(unresolvedLeafSRequests) {
@@ -796,19 +794,16 @@ function renderSecureFormsInfo(res) {
                         $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
                     } else {
                         let recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
-
                         $('#secureStatus').text('Re-certification in progress.');
                         $('#secureBtn').text('Check Certification Progress');
                         $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ recordID);
                     }
-
                     $('#secure_forms_info').show();
                 });
             }
         });
     }
 }
-
 /**
  * Purpose: Check for Secure Form Certifcation
  * @param searchResolved
@@ -826,15 +821,12 @@ function fetchLEAFSRequests(searchResolved) {
     } else {
         query.addTerm('stepID', '!=', 'resolved');
     }
-
     query.onSuccess(function(data) {
         deferred.resolve(data);
     });
-
     query.execute();
     return deferred.promise();
 }
-
 /**
  * Purpose: Get all Indicators on Form
  * @returns { *|jQuery}
@@ -851,7 +843,6 @@ function fetchIndicators() {
     });
     return deferred.promise();
 }
-
 /**
  * Purpose: Get Form Secure Information
  */
@@ -871,13 +862,6 @@ function fetchFormSecureInfo() {
 
 
 
-/**
- * Purpose: Import Form from Library
- */
-function formLibrary() {
-    window.location.href = './?a=formLibrary';
-}
-
 
 
 $(function() {
@@ -886,7 +870,7 @@ $(function() {
     portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
 
     //showFormBrowser();
-    //fetchFormSecureInfo();
+    fetchFormSecureInfo();
 
     <!--{if $form != ''}-->
     //postRenderFormBrowser = function() { 

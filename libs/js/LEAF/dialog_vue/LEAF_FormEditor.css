@@ -8,17 +8,28 @@
     box-sizing: border-box;
 }
 
-#vue-formeditor-app button.btn-general {
+button.btn-general, button.btn-save {
     background-color: white;
     color: var(--base-navy, #005EA2);
     font-weight: bolder;
     padding: 0.4em;
     border: 2px solid var(--base-navy, #005EA2);
     border-radius: 4px;
+    display: flex;
+    width: 95px;
+    justify-content: center;
+    align-items: center;
 }
-#vue-formeditor-app button.btn-general:hover,
-#vue-formeditor-app button.btn-general:focus,
-#vue-formeditor-app button.btn-general:active {
+button.btn-save {
+    color: white;
+    background-color: var(--base-navy, #005EA2);
+}
+button.btn-general:hover,
+button.btn-general:focus,
+button.btn-general:active,
+button.btn-save:hover,
+button.btn-save:focus,
+button.btn-save:active {
     border: 2px solid black !important;
     box-shadow: 0 0 4px rgba(0,0,30,0.4);
 }
@@ -127,15 +138,7 @@
     justify-content: space-between; 
     margin-top: 1em;
 }
-#leaf-vue-dialog-cancel-save button {
-    padding: 0.5em;
-    margin: 0 !important;
-}
-#leaf-vue-dialog-cancel-save button:hover, 
-#leaf-vue-dialog-cancel-save button:focus, 
-#leaf-vue-dialog-cancel-save button:active {
-    box-shadow: inset 0 0 0 2px #003;
-}
+
 
 .leaf-vue-dialog-title {
     color: black;

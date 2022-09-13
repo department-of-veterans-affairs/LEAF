@@ -48,7 +48,7 @@ export default {
         conditionallyShown() {
             let isConditionalShow = false;
             if(this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '') {
-                const conditions = JSON.parse(this.formNode.conditions);
+                const conditions = JSON.parse(this.formNode.conditions) || [];
                 if (conditions.some(c => c.selectedOutcome?.toLowerCase() === 'show')) {
                     isConditionalShow = true;
                 }

@@ -12,11 +12,11 @@ export default {
         cardLibraryClasses() {  //NOTE:? often null (LIVE).  called when smarty referFormLibraryID != ''
             return `formPreview formLibraryID_${this.category.formLibraryID}`
         },
-        categoryName() {
-            return this.category.categoryName === '' ? 'Untitled' : this.category.categoryName;
+        categoryName() { //NOTE: XSSHelpers global
+            return this.category.categoryName === '' ? 'Untitled' : XSSHelpers.stripAllTags(this.category.categoryName);
         },
         formDescription() {
-            return this.category.categoryDescription;
+            return XSSHelpers.stripAllTags(this.category.categoryDescription);
         },
         availability () {
             return parseInt(this.category.visible) === 1 && this.workflowID > 0 ? 

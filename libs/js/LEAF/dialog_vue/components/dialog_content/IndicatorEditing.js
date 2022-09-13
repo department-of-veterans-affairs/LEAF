@@ -534,7 +534,6 @@ export default {
         },
         saveCodeHTML() {
             const htmlValue = this.codeEditorHtml.getValue();
-            console.log('htmlValue', htmlValue);
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
@@ -553,7 +552,6 @@ export default {
         },
         saveCodeHTMLPrint() {
             const htmlPrintValue = this.codeEditorHtmlPrint.getValue();
-            console.log('htmlPrintValue', htmlPrintValue, this.currIndicatorID);
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
@@ -571,7 +569,7 @@ export default {
             });
         }
     },
-    template: `<div style="min-width: 400px;">
+    template: `<div style="min-width: 500px;">
         <fieldset>
             <legend>Field Name</legend>
             <textarea id="name" v-model="name" style="width: 99%">{{name}}</textarea><br/>
