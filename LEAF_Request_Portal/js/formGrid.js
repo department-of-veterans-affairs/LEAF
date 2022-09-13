@@ -777,18 +777,17 @@ var LeafFormGrid = function(containerID, options) {
 
             var download = document.createElement('a');
             var now = new Date().getTime();
-            download.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows));
-            download.setAttribute('download', 'Exported_' + now + '.csv');
-            download.style.display = 'none';
+            let fileName = "Exported_" + now + ".csv";
 
-            document.body.appendChild(download);
-            if (navigator.msSaveOrOpenBlob) {
-                rows = "\uFEFF" + rows;
-                navigator.msSaveOrOpenBlob(new Blob([rows], {type: 'text/csv;charset=utf-8;'}), "Exported_" + now + ".csv");
-            } else {
-                download.click();
-            }
-            document.body.removeChild(download);
+            const blob = new Blob([rows], {type : 'text/csv'});
+            const aElement = document.createElement('a');
+            aElement.setAttribute('download', fileName);
+            const href = URL.createObjectURL(blob);
+            aElement.href = href;
+            aElement.setAttribute('target', '_blank');
+            aElement.click();
+            URL.revokeObjectURL(href);
+
         });
     }
 
