@@ -1623,7 +1623,8 @@ function mergeForm(categoryID) {
 function unmergeForm(categoryID, stapledCategoryID) {
     $.ajax({
         type: 'DELETE',
-        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
+        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID + '?' +
+            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
         success: function() {
         	mergeFormDialog(categoryID);
         }
@@ -1736,7 +1737,8 @@ function deleteForm() {
 	dialog_confirm.setSaveHandler(function() {
 		$.ajax({
 			type: 'DELETE',
-			url: '../api/formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
+			url: '../api/formStack/_' + currCategoryID + '?' +
+                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
 			success: function(res) {
 			    if(res != true) {
 			        alert(res);
