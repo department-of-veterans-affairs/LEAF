@@ -14,6 +14,14 @@
             <span class="leaf-admin-btndesc">Review service chiefs and set backups</span>
         </a>
 
+        <!--{if $siteType == 'national_subordinate'}-->
+        <a href="?a=access_matrix" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
+            <i class="leaf-admin-btnicon fas fa-th text-yellow-40" title="Modify users and groups"></i>
+            <span class="leaf-admin-btntitle">Access Matrix</span>
+            <span class="leaf-admin-btndesc">Configure access to tasks</span>
+        </a>
+        <!--{/if}-->
+
     <h3 role="heading" aria-level="1" tabindex="0">Request Portal Admin</h3>
         
         <!--{if $siteType != 'national_subordinate'}-->
