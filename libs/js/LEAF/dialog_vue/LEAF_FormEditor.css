@@ -295,37 +295,49 @@ table#edit-properties-modal img {
 #form_index_display ul {
     margin: 0;
     padding: 0;
-    padding-left: 0.75em;
+    padding-left: 1em;
     display: flex;
     flex-direction: column; 
     list-style-type: none;
-    min-height: 0.5em;
-    background-color: #dff;
+    min-height: 0.5em;  /*NOTE: min height needed for drop zones*/
 }
 #form_index_display ul#base_drop_area {
     padding: 0;
 }
 #form_index_display ul:first-child {
-    border-top: 1px solid #d0d0d4;
+    /* border-top: 1px solid #d0d0d4; */
 }
+#form_index_display ul.entered-drop-zone {
+    background-color: #e8ebf0;
+}
+
 #form_index_display li {
     position: relative;
     cursor: pointer;
-    margin: 0;
-    margin-top: 0.2em;
+    margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
     border-radius: 2px;
-    line-height: 2;
-    background-color: white;
     outline: none !important;
+}
+#form_index_display li > span {
+    display: block; 
+    height:100%; width: 100%; 
+    border-bottom: 1px solid #d0d0d4;
+    padding-bottom: 0.9em; /*NOTE: min height of drop zone, plus margin of li */
+}
+#form_index_display li:first-child {
+    margin-top: 0.8em;
+}
+#form_index_display li:last-child {
+    margin-bottom: 0;
 }
 
 #form_index_display li.index-selected::before, #form_index_display li:focus::before {
     position: absolute;
-    top: -2px;
-    left: -8px;
+    top: -0.2em;
+    left: -0.5em;
     content: '';
     width: 3px;
-    height: 100%;
+    height: calc(100% - 0.9em);
     border-radius: 50% / 3px;
     background-color: var(--base-navy, #005EA2);
 }

@@ -33,6 +33,8 @@ export default {  //TODO: rename this component
             listItems: Vue.computed(() => this.listItems),
             addToListItemsArray: this.addToListItemsArray,
             startDrag: this.startDrag,
+            onDragEnter: this.onDragEnter,
+            onDragLeave: this.onDragLeave,
             onDrop: this.onDrop
         }
     },
@@ -140,9 +142,9 @@ export default {  //TODO: rename this component
         },
         onDrop(evt) {
             evt.preventDefault();
-            const baseTopY = document.getElementById("base_drop_area").getBoundingClientRect().top;
             const draggedElID = evt.dataTransfer.getData('text');
             const parentEl = evt.currentTarget; //drop event is on the parent ul
+            console.log('drop', 'currTar', parentEl.id, 'tar', evt.target.id);
 
             const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
             const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
@@ -156,14 +158,15 @@ export default {  //TODO: rename this component
                 let dist = 9999;
                 let closestLI_id = null;
                 elsLI.forEach(el => {
-                    const newDist = el.getBoundingClientRect().top - evt.clientY; //Math.abs(el.offsetTop - evt.clientY);
+                    const newDist = el.getBoundingClientRect().top - evt.clientY;
                     if(el.id !== draggedElID && newDist > 0 && newDist < dist) {
                         dist = newDist;
                         closestLI_id = el.id;
                     }
-                    console.log('baseTopY, LIRectTop, evtdropY, dist, newDist, parentElID, formParIndID, lis, closest')
-                    console.log(baseTopY, el.getBoundingClientRect().top, evt.clientY, dist, newDist, parentEl.id, formParIndID, elsLI, closestLI_id);
+                    //console.log('LIRectTop, evtdropY, dist, newDist, parentElID, liID')
+                    //console.log(el.getBoundingClientRect().top, evt.clientY, dist, newDist, parentEl.id, el.id);
                 });
+                //console.log(elsLI, closestLI_id);
             
                 try {
                     if(closestLI_id !== null) {
@@ -173,7 +176,6 @@ export default {  //TODO: rename this component
                     }
                     //check the new indexes
                     const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-                    console.log(newElsLI);
                     newElsLI.forEach((li,i) => {
                         const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                         this.updateListItems(indID, formParIndID, i);
@@ -183,6 +185,9 @@ export default {  //TODO: rename this component
                     console.log(error);
                 }
             }
+            if(parentEl.classList.contains('entered-drop-zone')){
+                evt.target.classList.remove('entered-drop-zone');
+            }
             this.listItems.forEach(it => {
                 this.handleSortShouldUpdate(it);
                 this.handleParentID_ShouldUpdate(it);
@@ -190,18 +195,21 @@ export default {  //TODO: rename this component
             
         },
         onDragLeave(evt) { //@dragleave="onDragLeave"
-            //console.log('drag leave', evt);
-        },
-        onDragOver(evt) { //@dragover.prevent="onDragOver"
-            //console.log('drag over', evt);
+            if(evt.target.classList.contains('form-index-listing-ul')){
+                console.log('leave', evt.target); //if target is ul, rm drop zone hilite
+                evt.target.classList.remove('entered-drop-zone');
+            }
         },
         onDragEnter(evt) {
-            //console.log('drag enter', evt);
+            if(evt.target.classList.contains('form-index-listing-ul')){
+                console.log('enter', evt.target); //if target is ul, apply style to hilite drop zone
+                evt.target.classList.add('entered-drop-zone');
+            }
         }
     },
     watch: {
         allListItemsAreAdded(newVal, oldVal){
-            console.log('watching');
+            console.log('watch triggered, all items have been added');
             if(newVal===true) {
                 if (this.sortValuesToUpdate.length > 0) {  //possibly keep these with their own variable, don't mix with drag-drop
                     //update legacy sort to from prev sort val to new index based value
@@ -241,10 +249,12 @@ export default {  //TODO: rename this component
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;">{{ formName }}</h3>
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
+                class="form-index-listing-ul"
                 data-effect-allowed="move"
                 @drop.stop="onDrop"
                 @dragover.prevent
-                @dragenter.prevent="onDragEnter">
+                @dragenter.prevent="onDragEnter"
+                @dragleave="onDragLeave">
 
                 <form-index-listing v-for="(formSection, i) in ajaxFormByCategoryID"
                     :id="'index_listing_'+formSection.indicatorID"
