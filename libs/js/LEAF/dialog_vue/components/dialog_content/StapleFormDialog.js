@@ -46,7 +46,7 @@ export default {
             });
         },
         onSave() {
-            if(catIDtoStaple !== '') {
+            if(this.catIDtoStaple !== '') {
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}formEditor/_${this.formID}/stapled`,
