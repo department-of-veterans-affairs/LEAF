@@ -242,11 +242,14 @@ export default {  //TODO: rename this component
     <div style="display:flex;">
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <div v-show="sortOrParentChanged" id="can_update" 
+            <div v-if="sortOrParentChanged" id="can_update" 
             tabindex="0" @click="applySortAndParentID_Updates"
             title="Apply form structure updates">Apply changes</div>
+            <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
 
-            <h3 style="margin: 0; margin-bottom: 0.5em; color: black;">{{ formName }}</h3>
+            <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
+            {{ formName }}
+            </h3>
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
                 class="form-index-listing-ul"
@@ -288,7 +291,7 @@ export default {  //TODO: rename this component
             </template>
             <div class="buttonNorm" role="button" tabindex="0" 
                 @click="newQuestion(null)" @keypress.enter="newQuestion(null)"
-                style="margin: 0 -1px -1px -1px">
+                style="margin: auto -1px -1px -1px">
                 <img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="" title="Add Section Heading"/> Add Section Heading
             </div>
         </div>

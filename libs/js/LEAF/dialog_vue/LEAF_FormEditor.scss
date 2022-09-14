@@ -1,12 +1,25 @@
- /* NOTE: consolidate variables */
+ /* NOTE: TODO: consolidate variables 
+ 
+$BG-DarkNavy: #162e51;
+$BG-Charcoal: #252f3e;
+$BG-VividOrange: #ff6800; changed from Figma #f56600 to meet accessibility contrast 
+$BG-LightGray: #dcdee0;
+$USWDS-LtGray: #c9c9c9;
+$USWDS-Cyan: #00bde3;
+$BaseNavy: #005ea2;
+$LtNavy: #1476bd;
+ 
+*/
 
 #vue-formeditor-app {
     padding: 0.5em 1em;
     min-height: 100vh;
-}
-#vue-formeditor-app * {
-    box-sizing: border-box;
-}
+
+    * {
+        box-sizing: border-box;
+    }
+}  /* TODO: keeping basic resets outside until style collisions with previous UI are resolved */
+
 
 button.btn-general, button.btn-save {
     background-color: white;
@@ -15,34 +28,33 @@ button.btn-general, button.btn-save {
     padding: 0.4em;
     border: 2px solid var(--base-navy, #005EA2);
     border-radius: 4px;
-    display: flex;
     width: 95px;
+    display: flex;
     justify-content: center;
     align-items: center;
+
+    &:hover, &:focus, &:active {
+        border: 2px solid black !important;
+        box-shadow: 0 0 4px rgba(0,0,30,0.4);
+    }
 }
 button.btn-save {
     color: white;
     background-color: var(--base-navy, #005EA2);
 }
-button.btn-general:hover,
-button.btn-general:focus,
-button.btn-general:active,
-button.btn-save:hover,
-button.btn-save:focus,
-button.btn-save:active {
-    border: 2px solid black !important;
-    box-shadow: 0 0 4px rgba(0,0,30,0.4);
-}
+
 
 
 /* tables in dialog modals */
 .leaf-vue-dialog table {
     border-collapse: separate; 
     border-spacing: 0 0.5em;
+
+    td:not(:last-child) {
+        padding-right: 0.2em;
+    }
 }
-.leaf-vue-dialog table td:not(:last-child) {
-    padding-right: 0.2em;
-}
+
 
 /* left menu / nav */
 .mod-form-menu-nav {
@@ -50,48 +62,48 @@ button.btn-save:active {
     width: 180px;
     flex: 0 0 180px;
     margin-right: 1.5em;
-}
-.mod-form-menu-nav ul {
-    width: 100%;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-.mod-form-menu-nav li {
-    height: auto;
-    margin-bottom: 1em;
-}
-.mod-form-menu-nav li a {
-    display: flex;
-    position: relative;
-    align-items: center;
-    height: 100%;
-    min-height: 40px;
-    border: 1px solid #000;
-    border-radius: 2px;
-    text-decoration: none;
-    background-color: #e8f2ff;
-    color: #1b1b1b;
-    padding-left: 1.8em;
-    overflow: hidden;
-}
-.mod-form-menu-nav li a span {
-    position: absolute;
-    left: 0.3em;
-}
-.mod-form-menu-nav li a.selected,
-.mod-form-menu-nav li a:hover,
-.mod-form-menu-nav li a:focus,
-.mod-form-menu-nav li a:active {
-    border: 1px solid #000 !important;
-    background-color:  #005EA2;
-    outline: 3px solid #20a0f0 !important;
-    color: white;
-}
-.mod-form-menu-nav #stapledArea ul {
-    list-style-type: disc;
-    padding-inline-start: 35px;
-    margin-bottom: 2em;
+
+    ul {
+        width: 100%;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+    li {
+        height: auto;
+        margin-bottom: 1em;
+
+        a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            min-height: 40px;
+            border: 1px solid #000;
+            border-radius: 2px;
+            text-decoration: none;
+            background-color: #e8f2ff;
+            color: #1b1b1b;
+            /*padding-left: 1.8em; */
+            padding: 0 0.4em;
+            overflow: hidden;
+
+            &.selected, &:hover, &:focus, &:active {
+                border: 1px solid #000 !important;
+                background-color:  #005EA2;
+                outline: 3px solid #20a0f0 !important;
+                color: white;
+            }
+        }
+        a span {
+            display: inline-block;
+        }
+    }
+    #stapledArea ul {
+        list-style-type: disc;
+        padding-inline-start: 35px;
+        margin-bottom: 2em;
+    }
 }
 
 
@@ -119,39 +131,41 @@ button.btn-save:active {
     background-color: white;
     box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
     overflow: hidden;
-}
-.leaf-vue-dialog > div {
-    padding: 0.75em;
-}
-#leaf-vue-dialog-cancel-save {
-    display:flex; 
-    justify-content: space-between; 
-    margin-top: 1em;
+
+    > div {
+        padding: 0.75em;
+    }
+    #leaf-vue-dialog-cancel-save {
+        display:flex; 
+        justify-content: space-between; 
+        margin-top: 1em;
+    }
+    .leaf-vue-dialog-title {
+        color: black;
+        border-bottom: 1px solid var(--charcoal, #252F3E);
+        background-color: var(--lt-cyan, #E0F4FA);
+        cursor: move;
+    
+        h2 {
+            color: black;
+            margin: 0;
+        }
+    } 
+    #leaf-vue-dialog-close {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 8px;
+        right: 8px;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-weight: bold;
+    }
 }
 
 
-.leaf-vue-dialog-title {
-    color: black;
-    border-bottom: 1px solid var(--charcoal, #252F3E);
-    background-color: var(--lt-cyan, #E0F4FA);
-    cursor: move;
-}
-.leaf-vue-dialog-title h2 {
-    color: black;
-    margin: 0;
-}
-#leaf-vue-dialog-close {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 8px;
-    right: 8px;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    font-weight: bold;
-}
 
 
 /* panel where edit properties modal is accessed from */
@@ -164,28 +178,34 @@ button.btn-save:active {
     background-color: white; 
     padding: 0.25em; 
     border: 1px solid black;
+
+    .form-id-label {
+        font-size: 12px;
+    }
 }
-.form-id-label {
-    font-size: 12px;
-}
+
+
 /*  edit-properties modal itself */
-table#edit-properties-modal td:first-child {
-    position: relative;
-    padding-left: 20px;
+table#edit-properties-modal {
+    td:first-child {
+        position: relative;
+        padding-left: 20px;
+    }
+    img { 
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(0,-40%);
+    }
+    input {
+        width: 100%;
+    }
+    textarea {
+        width: 100%;
+        height: 50px;
+    }
 }
-table#edit-properties-modal img { 
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translate(0,-40%);
-}
-#edit-properties-modal input {
-    width: 100%;
-}
-#edit-properties-modal textarea {
-    width: 100%;
-    height: 50px;
-}
+
 
 /* Form History modal */
 #history-slice td {
@@ -195,6 +215,7 @@ table#edit-properties-modal img {
     width: 135px;
 }
 
+/* makes 'Add Sub-Question' buttons smaller than new header buttons */
 .buttonNorm.subquestionAddNew {
     font-size: 12px;
     padding: 2px 4px;
@@ -217,41 +238,40 @@ table#edit-properties-modal img {
     color: black;
     overflow: hidden;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-}
-.browser-category-card:hover, .browser-category-card:focus, .browser-category-card:active {
-    box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25);
-}
-.browser-category-card > div {
-    overflow: hidden;
-    white-space: normal;
-    text-overflow: ellipsis;
-    padding: 0.2em 0.4em;
-}
-.browser-category-card > div * { /* prevents collision with these properties for any allowed markup */
-    margin: 0;
-    padding: 0;
-}
-.formPreviewTitle {
-    font-weight: bold;
-}
-.formPreviewDescription {
-    justify-self: end;
-    height: 80px;
-    font-size: 14px;
-    line-height: 1.2;
-}
-.formPreviewStatus {
-    font-size: 80%;
-    color: rgb(200, 0, 0);
+
+    &:hover, &:focus, &:active {
+        box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25); 
+    }
+    > div {
+        overflow: hidden;
+        white-space: normal;
+        text-overflow: ellipsis;
+        padding: 0.2em 0.4em;
+    }
+    .formPreviewTitle {
+        font-weight: bold;
+    }
+    .formPreviewDescription {
+        justify-self: end;
+        height: 80px;
+        font-size: 14px;
+        line-height: 1.2;
+    }
+    .formPreviewStatus {
+        font-size: 80%;
+        color: rgb(200, 0, 0);
+    }
+    .formPreviewWorkflow {
+        justify-self: end;
+        height: 26px;
+        width: 100%;
+        color: white;
+        background-color: var(--dark-navy, #162E51);
+    }
     
 }
-.formPreviewWorkflow {
-    justify-self: end;
-    height: 26px;
-    width: 100%;
-    color: white;
-    background-color: var(--dark-navy, #162E51);
-}
+
+
 
 
 /* form structure index */
@@ -259,85 +279,80 @@ table#edit-properties-modal img {
     position: relative;
     margin: 0;
     padding: 1em 0.75em 0.75em;
-    width: 350px;
-    flex: 0 0 350px;
+    width: 375px;
+    flex: 0 0 375px;
     align-self:flex-start;
     margin-right: 1.5em;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-}
-#form_index_display #can_update {
-    position: absolute;
-    top: 1em;
-    right: 0.75em;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    font-size: 90%;
-    padding: 0.25em 0.5em;
-    border: 1px outset #aac;
-    border-radius: 3px;
-    color: black;
-    background-color: white;
-}
-#form_index_display .section_heading {
-    font-weight: bolder;
-    color: var(--base-navy, #005EA2);
-}
-#form_index_display .subindicator_heading {
-    font-weight: normal;
-    color: black;
-}
 
-#form_index_display ul {
-    margin: 0;
-    padding: 0;
-    padding-left: 1em;
-    display: flex;
-    flex-direction: column; 
-    list-style-type: none;
-    min-height: 0.5em;  /*NOTE: min height needed for drop zones*/
-}
-#form_index_display ul#base_drop_area {
-    padding: 0;
-}
-#form_index_display ul:first-child {
-    /* border-top: 1px solid #d0d0d4; */
-}
-#form_index_display ul.entered-drop-zone {
-    background-color: #e8ebf0;
-}
-
-#form_index_display li {
-    position: relative;
-    cursor: pointer;
-    margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
-    border-radius: 2px;
-    outline: none !important;
-}
-#form_index_display li > span {
-    display: block; 
-    height:100%; width: 100%; 
-    border-bottom: 1px solid #d0d0d4;
-    padding-bottom: 0.9em; /*NOTE: min height of drop zone, plus margin of li */
-}
-#form_index_display li:first-child {
-    margin-top: 0.8em;
-}
-#form_index_display li:last-child {
-    margin-bottom: 0;
-}
-
-#form_index_display li.index-selected::before, #form_index_display li:focus::before {
-    position: absolute;
-    top: -0.2em;
-    left: -0.5em;
-    content: '';
-    width: 3px;
-    height: calc(100% - 0.9em);
-    border-radius: 50% / 3px;
-    background-color: var(--base-navy, #005EA2);
+    #can_update {
+        position: absolute;
+        top: 1em;
+        right: 0.75em;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        font-size: 90%;
+        padding: 0.25em 0.5em;
+        border: 1px outset #aac;
+        border-radius: 3px;
+        color: black;
+        background-color: white;
+    }
+    .section_heading {
+        font-weight: bolder;
+        color: var(--base-navy, #005EA2);
+    }
+    .subindicator_heading {
+        font-weight: normal;
+        color: black;
+    }
+    ul {
+        margin: 0;
+        padding: 0;
+        padding-left: 1em;
+        display: flex;
+        flex-direction: column; 
+        list-style-type: none;
+        min-height: 0.5em;  /*NOTE: min height needed for drop zones*/
+    }
+    ul#base_drop_area {
+        padding: 0;
+    }
+    ul.entered-drop-zone {
+        background-color: #e8ebf0;
+    }
+    li {
+        position: relative;
+        cursor: pointer;
+        margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
+        border-radius: 2px;
+        outline: none !important;
+    }
+    li > span {
+        display: block; 
+        height:100%; width: 100%; 
+        border-bottom: 1px solid #d0d0d4;
+        padding-bottom: 0.9em; /*NOTE: min height of drop zone, plus margin of li */
+    }
+    li:first-child {
+        margin-top: 0.8em;
+    }
+    li:last-child {
+        margin-bottom: 0;
+    }
+    li.index-selected::before, li:focus::before {
+        position: absolute;
+        top: -0.2em;
+        left: -0.5em;
+        content: '';
+        width: 3px;
+        height: calc(100% - 0.9em);
+        border-radius: 50% / 3px;
+        background-color: var(--base-navy, #005EA2);
+    }
 }

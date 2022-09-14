@@ -51,83 +51,83 @@ export default {
             <ul v-if="currCategoryID===null || restoringFields===true">
                 <li>
                     <a href="#" id="createFormButton" @click="openNewFormDialog">
-                    <span>📄</span>Create Form
+                    Create Form<span>📄</span>
                     </a>
                 </li>
                 <li>
                     <a href="./?a=formLibrary">
-                    <span>📘</span>LEAF Library
+                    LEAF Library<span>📘</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" @click="openImportFormDialog">
-                    <span>📦</span>Import Form
+                    Import Form<span>📦</span>
                     </a>
                 </li>
                 <li v-if="!restoringFields">
                     <a href="#" @click="showRestoreFields">
-                    <span>♻️</span>Restore Fields
+                    Restore Fields<span>♻️</span>
                     </a>
                 </li>
                 <li v-else>
                     <a href="#" @click="selectNewCategory(null)">
-                    <span>💼</span>View All Forms
+                    View All Forms<span>💼</span>
                     </a>
                 </li>
             </ul>
             <ul v-else>
                 <li>
                     <a href="#" @click="selectNewCategory(null)">
-                    <span>💼</span> View All Forms
+                    View All Forms<span>💼</span>
                     </a>
                 </li>
                 <ul><!-- MAIN AND INTERNAL FORMS -->
                     <li style="margin-bottom:0.1em">
                         <a href="#" :id="currCategoryID" @click="selectMainForm" title="select form">
-                        <span>📂</span>{{formName(categories[currCategoryID].categoryName) }}
+                        {{formName(categories[currCategoryID].categoryName)}}<span>📂</span>
                         </a>
                     </li>
                     <li v-for="i in internalForms" style="margin-bottom:0.1em">
                         <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                        <span>📋</span>{{formName(i.categoryName, 20) }}
+                        {{formName(i.categoryName, 20)}}<span>📋</span>
                         </a>
                     </li>
                     <li>
                         <a href="#" @click="openNewFormDialog" title="add new internal use form">
-                        <span>➕</span>Add Internal-Use
+                        Add Internal-Use<span>➕</span>
                         </a>
                     </li>
                 </ul>
                 <li>
                     <a href="#" @click="openStapleFormsDialog" title="staple another form">
-                    <span>📌</span>Stapled Forms
+                    Stapled Forms<span>📌</span>
                     </a>
                 </li>
                 <div id="stapledArea">
-                    <ul v-if="ajaxSelectedCategoryStapled.length > 0">
-                        <li v-for="s in ajaxSelectedCategoryStapled">
-                        {{s.categoryName}}
+                    <ul v-if="ajaxSelectedCategoryStapled.length > 0" style="margin-top: -0.5em;">
+                        <li v-for="s in ajaxSelectedCategoryStapled" style="margin-bottom:0.2em;">
+                        {{s.categoryName || 'Untitled'}}
                         </li>
                     </ul>
                 </div>
                 <li>
                     <a href="#" @click="openFormHistoryDialog" title="view form history">
-                    <span>🕗</span>View History
+                    View History<span>🕗</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" @click="exportForm" title="export form">
-                    <span>💾</span>Export Form
+                    Export Form<span>💾</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" @click="deleteForm" title="delete form">
-                    <span>❌</span>Delete this form
+                    Delete this form<span>❌</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" @click="showRestoreFields">
-                    <span>♻️</span>Restore Fields
+                    Restore Fields<span>♻️</span>
                     </a>
                 </li>
             </ul>

@@ -17,8 +17,10 @@ export default {
         'ajaxSelectedCategoryStapled',
         'getStapledFormsByCurrentCategory',
         'closeFormDialog',
-        //'selectNewCategory'
     ],
+    mounted() {
+        document.getElementById('select-form-to-staple').focus();
+    },
     computed: {
         mergeableForms() {
             let mergeable = [];
@@ -84,7 +86,7 @@ export default {
         <div style="min-height: 50px; margin: 1em 0;">
             <div style="margin-bottom: 0.2em;">Select a form to merge</div>
             <template v-if="mergeableForms.length > 0">
-            <select v-model="catIDtoStaple" title="select a form to merge">
+            <select v-model="catIDtoStaple" title="select a form to merge" id="select-form-to-staple">
                 <option value="">Select a Form</option>
                 <option v-for="f in mergeableForms" :value="f.categoryID" :key="'staple_'+f.categoryID">{{truncateText(f.categoryName) || 'Untitled'}}</option>
             </select>
