@@ -1,4 +1,3 @@
-<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
 <div id="sideBar" style="float: left; width: 180px">
     <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
