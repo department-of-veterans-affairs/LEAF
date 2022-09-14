@@ -681,12 +681,6 @@ function dependencyGrantAccess(dependencyID, stepID) {
     	cache: false
     });
 
-    var groupSel = new groupSelector('groupSearch');
-    groupSel.basePath = '<!--{$orgchartPath}-->/';
-    groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-    groupSel.tag = '<!--{$orgchartImportTags[0]}-->';
-    groupSel.initialize();
-
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
