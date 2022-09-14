@@ -10,7 +10,8 @@ export default {
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
-        'openStapleFormsDialog'
+        'openStapleFormsDialog',
+        'openConfirmDeleteFormDialog'
     ],
     computed: {
         internalForms() {
@@ -121,7 +122,7 @@ export default {
                     </a>
                 </li>
                 <li>
-                    <a href="#" @click="deleteForm" title="delete form">
+                    <a href="#" @click="openConfirmDeleteFormDialog" title="delete this form">
                     Delete this form<span>❌</span>
                     </a>
                 </li>

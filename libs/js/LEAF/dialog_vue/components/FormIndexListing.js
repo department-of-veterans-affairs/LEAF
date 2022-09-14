@@ -53,7 +53,27 @@ export default {
                     isConditionalShow = true;
                 }
             }
-            return isConditionalShow ? '→ ' : "";
+            return isConditionalShow;
+        },
+        conditionallyHidden() {
+            let isConditionalHide = false;
+            if(this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '') {
+                const conditions = JSON.parse(this.formNode.conditions) || [];
+                if (conditions.some(c => c.selectedOutcome?.toLowerCase() === 'hide')) {
+                    isConditionalHide = true;
+                }
+            }
+            return isConditionalHide;
+        },
+        hasConditionalPrefill() {
+            let hasConditionalPrefill = false;
+            if(this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '') {
+                const conditions = JSON.parse(this.formNode.conditions) || [];
+                if (conditions.some(c => c.selectedOutcome?.toLowerCase() === 'pre-fill')) {
+                    hasConditionalPrefill = true;
+                }
+            }
+            return hasConditionalPrefill;
         },
         //NOTE: Uses globally available XSSHelpers.js (LEAF class)
         shortLabel() { //TODO:  currently getting from name - too many items didn't have label - prompt during entry
@@ -69,12 +89,16 @@ export default {
             return this.formNode.isEmpty === true;
         }
     },
-
     template:`
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
-            <span>{{conditionallyShown}}{{headingNumber}} {{shortLabel}}</span>
+            <span>
+                <span v-if="conditionallyShown" title="question is conditionally shown">→ </span>
+                <span v-if="conditionallyHidden" title="question is conditionally hidden">⇏ </span>
+                <span v-if="hasConditionalPrefill" title="question has a conditional prefill value">✎ </span>
+                {{headingNumber}} {{shortLabel}}
+            </span>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             

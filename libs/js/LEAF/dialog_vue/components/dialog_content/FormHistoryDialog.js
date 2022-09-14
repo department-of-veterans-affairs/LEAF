@@ -50,15 +50,16 @@ export default {
     template:`<div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">
             <button v-if="showPrev" id="prev" 
-            class="usa-button leaf-btn-med;"
-            @click="getPrev" title="get previous page">
-            Previous page
+                class="btn-general"
+                style="width: 125px;"
+                @click="getPrev" title="get previous page">
+                Previous page
             </button>
             <button v-if="showNext" id="next" 
-            class="usa-button leaf-btn-med;"
-            style="margin: 0; margin-left:auto"
-            @click="getNext" title="get next page">
-            Next page
+                class="btn-general"
+                style="width: 125px; margin-left: auto;"
+                @click="getNext" title="get next page">
+                Next page
             </button>
         </div>`
 }

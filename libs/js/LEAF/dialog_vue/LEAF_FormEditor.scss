@@ -21,7 +21,7 @@ $LtNavy: #1476bd;
 }  /* TODO: keeping basic resets outside until style collisions with previous UI are resolved */
 
 
-button.btn-general, button.btn-save {
+button.btn-general, button.btn-confirm {
     background-color: white;
     color: var(--base-navy, #005EA2);
     font-weight: bolder;
@@ -32,13 +32,14 @@ button.btn-general, button.btn-save {
     display: flex;
     justify-content: center;
     align-items: center;
+    white-space: nowrap;
 
     &:hover, &:focus, &:active {
         border: 2px solid black !important;
         box-shadow: 0 0 4px rgba(0,0,30,0.4);
     }
 }
-button.btn-save {
+button.btn-confirm {
     color: white;
     background-color: var(--base-navy, #005EA2);
 }

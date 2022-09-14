@@ -17,7 +17,8 @@ export default {
         'dialogTitle', 
         'showFormDialog',
         'closeFormDialog',
-        'formSaveFunction'
+        'formSaveFunction',
+        'dialogButtonText'
     ],
     provide() {
         return {
@@ -90,14 +91,14 @@ export default {
                 </div>
                 <div id="leaf-vue-dialog-cancel-save">
                     <button 
-                        id="button_save" class="btn-save" title="save"
+                        id="button_save" class="btn-confirm" :title="dialogButtonText.confirm"
                         @click="formSaveFunction">
-                        Save
+                        {{dialogButtonText.confirm}}
                     </button>
                     <button 
-                        id="button_cancelchange" class="btn-general" title="cancel"
+                        id="button_cancelchange" class="btn-general" :title="dialogButtonText.cancel"
                         @click="closeFormDialog">
-                        Cancel
+                        {{dialogButtonText.cancel}}
                     </button>
                 </div>
             </div>

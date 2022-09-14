@@ -58,13 +58,12 @@ let vueData = {
 }
 </script>
 
-<!--<script src="https://unpkg.com/vue@3"></script> DEV -->
-<script src="../../libs/js/vue3/vue.global.prod.js"></script>
+<script src="https://unpkg.com/vue@3"></script> <!--DEV -->
+<!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>-->
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
 <script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
-<!--<link rel="stylesheet" href="../../libs/js/LEAF/dialog_vue/LEAF_FormEditor.css" />-->
 
 
 <script>
@@ -109,14 +108,8 @@ function addPermission(categoryID) {
             cache: false
         });
     });
-
-    //ie11 fix
-    setTimeout(function () {
-        dialog.show();
-    }, 0);
-
+    dialog.show();
 }
-
 /**
  * Purpose: Remove Permissions from Form
  * @param groupID
@@ -134,7 +127,6 @@ function removePermission(groupID) {
         }
     });
 }
-
 /**
  * Purpose: Edit existing Permissions
  */
@@ -162,13 +154,8 @@ function editPermissions() {
 		},
 		cache: false
 	});
-	//ie11 fix
-	setTimeout(function () {
-		dialog_simple.show();
-	}, 0);
-
+	dialog_simple.show();
 }
-
 /**
  * Purpose: Remove specific Indicator Privileges
  * @param indicatorID
@@ -187,7 +174,6 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
         }
     );
 }
-
 /**
  * Purpose: Add specific Indicator Privileges
  * @param indicatorID
@@ -212,7 +198,6 @@ function addIndicatorPrivilege(indicatorID, indicatorName = '') {
         },
         cache: false
     });
-
     dialog.setSaveHandler(function() {
         portalAPI.FormEditor.setIndicatorPrivileges(
             indicatorID,
@@ -228,11 +213,8 @@ function addIndicatorPrivilege(indicatorID, indicatorName = '') {
             }
         );
     });
-
     dialog.show();
 }
-
-
 /**
  * Purpose: Edit exisitng Indicator Privileges
  * @param indicatorID
@@ -242,7 +224,6 @@ function editIndicatorPrivileges(indicatorID) {
                             + '<p>These restrictions will limit view access to the request initiator and members of any groups you specify.</p>'
                             + '<p>Additionally, these restrictions will only allow the groups specified below to apply search filters for this field.</p>'
                             + 'All others will see "[protected data]".<br /><div id="indicatorPrivs"></div>');
-
     dialog_simple.indicateBusy();
 
     portalAPI.FormEditor.getIndicator(
@@ -284,6 +265,7 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
+
 
 //TODO: GRID STUFF
 /**
@@ -378,7 +360,7 @@ function toggleDropDown(type, cell){
  * @param cell
  * @param toggle
  */
-function leftArrows(cell, toggle){
+function leftArrows(cell, toggle) {
     if(toggle){
         cell.find('[title="Move column left"]').css('display', 'inline');
     } else {
@@ -390,7 +372,7 @@ function leftArrows(cell, toggle){
  * @param cell
  * @param toggle
  */
-function rightArrows(cell, toggle){
+function rightArrows(cell, toggle) {
     if(toggle){
         cell.find('[title="Move column right"]').css('display', 'inline');
     } else {
@@ -630,33 +612,6 @@ function exportForm(categoryID) {
 	});
 }
 
-
-
-
-/**
- * Purpose: Delete Form
- */
-function deleteForm() {
-	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-	dialog_confirm.setTitle('Delete Form?');
-	dialog_confirm.setContent('Are you sure you want to delete the <b>'+ formTitle +'</b> form?');
-
-	dialog_confirm.setSaveHandler(function() {
-		$.ajax({
-			type: 'DELETE',
-			url: '../api/?a=formStack/_' + currCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
-			success: function(res) {
-			    if(res != true) {
-			        alert(res);
-			    }
-		        window.location.reload();
-			}
-		});
-	});
-
-	dialog_confirm.show();
-
-}
 
 
 

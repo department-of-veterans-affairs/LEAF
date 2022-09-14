@@ -8,7 +8,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'currCategoryID',
+        'currCategoryID', //NOTE: currCatID is null on the card browser page (Create Form), but has the main form value if user clicks Add Internal Use
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'

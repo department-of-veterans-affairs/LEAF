@@ -5,6 +5,7 @@ import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
 import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
 import StapleFormDialog from "./components/dialog_content/StapleFormDialog.js";
+import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
@@ -21,6 +22,7 @@ export default {
             dialogTitle: '',
             dialogFormContent: '',
             dialogContentIsComponent: false,
+            dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             showFormDialog: false,
             //this sets the method associated with the save btn to the onSave method of the modal's current component
             formSaveFunction: ()=> {
@@ -66,6 +68,7 @@ export default {
             showFormDialog: Vue.computed(() => this.showFormDialog),
             dialogTitle: Vue.computed(() => this.dialogTitle),
             dialogFormContent: Vue.computed(() => this.dialogFormContent),
+            dialogButtonText: Vue.computed(() => this.dialogButtonText),
             formSaveFunction: Vue.computed(() => this.formSaveFunction),
             restoringFields: Vue.computed(() => this.restoringFields),
             //static values
@@ -85,6 +88,7 @@ export default {
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
             openFormHistoryDialog: this.openFormHistoryDialog,
+            openConfirmDeleteFormDialog: this.openConfirmDeleteFormDialog,
             openStapleFormsDialog: this.openStapleFormsDialog,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
@@ -259,7 +263,7 @@ export default {
         editIndicatorPrivileges() {
             console.log('clicked edit privileges');
         },
-        setCustomDialogTitle(htmlContent){
+        setCustomDialogTitle(htmlContent) {
             this.dialogTitle = htmlContent;
         },
         //takes comp name as string, eg 'edit-properties-dialog'
@@ -276,10 +280,17 @@ export default {
             this.setCustomDialogTitle('');
             this.setFormDialogComponent('');
             this.setFormDialogHTML('');
+            this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
         },
         closeFormDialog() {
             this.showFormDialog = false;
             this.clearCustomDialog();
+        },
+        openConfirmDeleteFormDialog() {
+            this.setCustomDialogTitle('<h2>Delete this form</h2>');
+            this.setFormDialogComponent('confirm-delete-dialog');
+            this.dialogButtonText = {confirm: 'Yes', cancel: 'No'};
+            this.showFormDialog = true;
         },
         openStapleFormsDialog() {
             this.setCustomDialogTitle('<h2>Staple Other Form</h2>');
@@ -360,6 +371,7 @@ export default {
         ImportFormDialog,
         FormHistoryDialog,
         StapleFormDialog,
+        ConfirmDeleteDialog,
         ModFormMenu,
         CategoryCard,
         FormContent,
