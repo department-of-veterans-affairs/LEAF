@@ -9,7 +9,8 @@ export default {
         'showRestoreFields',
         'openNewFormDialog',
         'openImportFormDialog',
-        'openFormHistoryDialog'
+        'openFormHistoryDialog',
+        'openStapleFormsDialog'
     ],
     computed: {
         internalForms() {
@@ -29,9 +30,6 @@ export default {
         },
         exportForm() {
             console.log('clicked app menu nav exportForm', this.currCategoryID);
-        },
-        mergeFormDialog() {
-            console.log('clicked app menu nav mergeFormDialog');
         },
         selectMainForm() {
             console.log('clicked main form', this.currCategoryID);
@@ -91,7 +89,7 @@ export default {
                     </li>
                     <li v-for="i in internalForms" style="margin-bottom:0.1em">
                         <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                        <span>📋</span>{{formName(i.categoryName, 35) }}
+                        <span>📋</span>{{formName(i.categoryName, 20) }}
                         </a>
                     </li>
                     <li>
@@ -101,8 +99,8 @@ export default {
                     </li>
                 </ul>
                 <li>
-                    <a href="#" @click="mergeFormDialog" title="staple another form">
-                    <span>📌</span>Staple other form
+                    <a href="#" @click="openStapleFormsDialog" title="staple another form">
+                    <span>📌</span>Stapled Forms
                     </a>
                 </li>
                 <div id="stapledArea">

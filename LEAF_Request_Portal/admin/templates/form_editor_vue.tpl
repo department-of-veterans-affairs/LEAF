@@ -563,100 +563,6 @@ function gridMultiselect(multiSelectOptions){
 }
 
 
-/**
- * Purpose: Merge Stapled Forms
- * @param categoryID
- */
-function mergeForm(categoryID) {
-    dialog.setTitle('Staple other form');
-    dialog.setContent('Select a form to staple: <div id="formOptions"></div>');
-    dialog.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: '../api/formStack/categoryList/all',
-        success: function(res) {
-            let buffer = '<select id="stapledCategoryID">';
-            for(let i in res) {
-            	if(res[i].workflowID == 0
-            		&& res[i].categoryID != categoryID
-            		&& res[i].parentID == '') {
-            		buffer += '<option value="'+ res[i].categoryID +'">'+ res[i].categoryName +'</option>';
-            	}
-            }
-            buffer += '</select>';
-            $('#formOptions').html(buffer);
-            dialog.indicateIdle();
-        },
-        cache: false
-    });
-
-    dialog.setSaveHandler(function() {
-        $.ajax({
-            type: 'POST',
-            url: '../api/formEditor/_'+ categoryID +'/stapled',
-            data: {CSRFToken: '<!--{$CSRFToken}-->',
-                   stapledCategoryID: $('#stapledCategoryID').val()},
-            success: function(res) {
-            	if(res == 1) {
-                    dialog.hide();
-                    mergeFormDialog(categoryID);
-            	}
-            	else {
-            		alert(res);
-            	}
-            },
-            cache: false
-        });
-    });
-
-    dialog.show();
-
-}
-/**
- * Purpose: Remove Stapled Form
- * @param categoryID
- * @param stapledCategoryID
- */
-function unmergeForm(categoryID, stapledCategoryID) {
-    $.ajax({
-        type: 'DELETE',
-        url: '../api/formEditor/_'+ categoryID +'/stapled/_'+ stapledCategoryID + '&CSRFToken=<!--{$CSRFToken}-->',
-        success: function() {
-        	mergeFormDialog(categoryID);
-        }
-    });
-}
-/**
- * Purpose: Merge another Form Dialog Box
- * @param categoryID
- */
-function mergeFormDialog(categoryID) {
-    dialog_simple.setTitle('Staple other form');
-    dialog_simple.setContent('Stapled forms will show up on the same page as the primary form.<div id="mergedForms"></div>');
-    dialog_simple.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: '../api/?a=formEditor/_'+ categoryID +'/stapled',
-        success: function(res) {
-            let buffer = '<ul>';
-            for(let i in res) {
-                buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="onKeyPressClick(event)" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
-            }
-            buffer += '</ul>';
-            buffer += '<span class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="mergeForm(\''+ categoryID +'\');" tabindex="0" role="button">Select a form to merge</span>';
-            $('#mergedForms').html(buffer);
-            dialog_simple.indicateIdle();
-        },
-        cache: false
-    });
-		//ie11 fix
-		setTimeout(function () {
-				dialog_simple.show();
-		}, 0);
-
-}
 
 
 /**
@@ -860,10 +766,6 @@ function fetchFormSecureInfo() {
 
 
 
-
-
-
-
 $(function() {
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');
@@ -872,11 +774,6 @@ $(function() {
     //showFormBrowser();
     fetchFormSecureInfo();
 
-    <!--{if $form != ''}-->
-    //postRenderFormBrowser = function() { 
-    //    selectForm('<!--{$form}-->');
-   //};
-    <!--{/if}-->
 
     <!--{if $referFormLibraryID != ''}-->
     //postRenderFormBrowser = function() { 

@@ -91,7 +91,7 @@ export default {
                         :parentID="formNode.indicatorID"
                         :formNode="child"
                         :index="i"
-                        :key="child.indicatorID"
+                        :key="'index_list_item_' + child.indicatorID"
                         draggable="true"
                         @dragstart.stop="startDrag"> 
                     </form-index-listing>

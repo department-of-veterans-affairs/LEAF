@@ -4,6 +4,7 @@ import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDial
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
 import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
+import StapleFormDialog from "./components/dialog_content/StapleFormDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
@@ -73,6 +74,7 @@ export default {
             editPermissionsClicked: this.editPermissionsClicked,
             newQuestion: this.newQuestion,
             getForm: this.getForm,
+            getStapledFormsByCurrentCategory: this.getStapledFormsByCurrentCategory,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
@@ -82,6 +84,7 @@ export default {
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
             openFormHistoryDialog: this.openFormHistoryDialog,
+            openStapleFormsDialog: this.openStapleFormsDialog,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
@@ -158,14 +161,16 @@ export default {
                 });
             });
         },
-        getStapledFormsByCategory() {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}formEditor/_${this.currCategoryID}/stapled`,
-                    success: (res)=> resolve(res),
-                    error: (err) => reject(err)
-                });
+        getStapledFormsByCurrentCategory() {
+            const formID = this.currSubformID || this.currCategoryID;
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}formEditor/_${formID}/stapled`,
+                success: (res) => {
+                    console.log('setting stapled forms', res);
+                    this.ajaxSelectedCategoryStapled = res;
+                },
+                error: (err) => console.log(err)
             });
         },
         getIndicatorByID(indID) { //get specific indicator info
@@ -197,11 +202,11 @@ export default {
             this.restoringFields = false;  //on nav from Restore Fields
 
             if(!isSubform) { //also true on nav to View All, where catID will be null and the main form will reset
-                console.log('setting new currCatID')
+                console.log('setting new currCatID', catID);
                 this.currCategoryID = catID;
                 this.currSubformID = null;  //clear the subform ID whenever the main ID changes
             } else {
-                console.log('setting new subCatID')
+                console.log('setting new subCatID', catID);
                 this.currSubformID = catID; //if it's an internal form, update the subformID, but keep the main form ID
             }
             this.currentCategorySelection = {};
@@ -220,9 +225,7 @@ export default {
                     document.getElementById(catID).focus();
                 }).catch(err => console.log('error getting form info: ', err));
 
-                this.getStapledFormsByCategory().then(res=>{
-                    this.ajaxSelectedCategoryStapled = res;
-                }).catch(err => console.log('error getting stapled forms: ', err));
+                this.getStapledFormsByCurrentCategory();
 
             } else {  //on nav to view all forms.
                 this.appIsLoadingCategoryList = true;
@@ -276,6 +279,11 @@ export default {
         closeFormDialog() {
             this.showFormDialog = false;
             this.clearCustomDialog();
+        },
+        openStapleFormsDialog() {
+            this.setCustomDialogTitle('<h2>Staple Other Form</h2>');
+            this.setFormDialogComponent('staple-form-dialog');
+            this.showFormDialog = true;
         },
         openIndicatorEditing(indicatorID) { //currentID for editing, parentID for new questions
             let title = ''
@@ -350,6 +358,7 @@ export default {
         NewFormDialog,
         ImportFormDialog,
         FormHistoryDialog,
+        StapleFormDialog,
         ModFormMenu,
         CategoryCard,
         FormContent,

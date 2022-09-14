@@ -1,7 +1,7 @@
  /* NOTE: consolidate variables */
 
 #vue-formeditor-app {
-    padding: 0.5em 2em 0.5em 1em;
+    padding: 0.5em 1em;
     min-height: 100vh;
 }
 #vue-formeditor-app * {
@@ -49,7 +49,7 @@ button.btn-save:active {
     display: flex;
     width: 180px;
     flex: 0 0 180px;
-    margin-right: 2em;
+    margin-right: 1.5em;
 }
 .mod-form-menu-nav ul {
     width: 100%;
@@ -72,16 +72,12 @@ button.btn-save:active {
     text-decoration: none;
     background-color: #e8f2ff;
     color: #1b1b1b;
-    padding-left: 2em;
+    padding-left: 1.8em;
     overflow: hidden;
 }
 .mod-form-menu-nav li a span {
     position: absolute;
     left: 0.3em;
-}
-.mod-form-menu-nav li a div {
-    height: 100%;
-    justify-self: center;
 }
 .mod-form-menu-nav li a.selected,
 .mod-form-menu-nav li a:hover,
@@ -92,16 +88,10 @@ button.btn-save:active {
     outline: 3px solid #20a0f0 !important;
     color: white;
 }
-.mod-form-menu-nav ul a img {
-    margin-right: 0.4em
-}
-.mod-form-menu-nav ul a > div {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
 .mod-form-menu-nav #stapledArea ul {
     list-style-type: disc;
-    padding-inline-start: 40px;
+    padding-inline-start: 35px;
+    margin-bottom: 2em;
 }
 
 
@@ -309,7 +299,8 @@ table#edit-properties-modal img {
     display: flex;
     flex-direction: column; 
     list-style-type: none;
-    min-height: 0.2em;
+    min-height: 0.5em;
+    background-color: #dff;
 }
 #form_index_display ul#base_drop_area {
     padding: 0;
@@ -324,7 +315,7 @@ table#edit-properties-modal img {
     margin-top: 0.2em;
     border-radius: 2px;
     line-height: 2;
-    border-left: 2px solid transparent;
+    background-color: white;
     outline: none !important;
 }
 

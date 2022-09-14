@@ -103,12 +103,14 @@ export default {  //TODO: rename this component
         //checks if the sort value is not the index, adds it to sortValuesToUpdate to update (true for old forms).
         handleSortShouldUpdate(listItem) {
             if(listItem.sort !== listItem.listIndex) {
-                this.sortValuesToUpdate = [...this.sortValuesToUpdate, listItem];
+                let filteredItems = this.sortValuesToUpdate.filter(item => item.indicatorID !== listItem.indicatorID);
+                this.sortValuesToUpdate = [...filteredItems, listItem];
             }
         },
         handleParentID_ShouldUpdate(listItem) {
             if(listItem.newParentID !== '' && listItem.parentID !== listItem.newParentID) {
-                this.parentIDsToUpdate = [...this.parentIDsToUpdate, listItem];
+                let filteredItems = this.parentIDsToUpdate.filter(item => item.indicatorID !== listItem.indicatorID);
+                this.parentIDsToUpdate = [...filteredItems, listItem];
             }
         },
         getFormIndicatorList(){
@@ -122,12 +124,12 @@ export default {  //TODO: rename this component
             });
         },
         //update the listIndex and parentID values for a specific indicator
-        updateListItems(indID, formParID, listIndex) {
+        updateListItems(indID, formParIndID, listIndex) {
             const item = this.listItems.find(li => li.indicatorID === indID);
             const index = this.listItems.indexOf(item);
             this.listItems = [...this.listItems.slice(0, index), ...this.listItems.slice(index + 1)];
 
-            item.newParentID = formParID;
+            item.newParentID = formParIndID;
             item.listIndex = listIndex;
             this.listItems = [...this.listItems, item];
         },
@@ -138,26 +140,29 @@ export default {  //TODO: rename this component
         },
         onDrop(evt) {
             evt.preventDefault();
+            const baseTopY = document.getElementById("base_drop_area").getBoundingClientRect().top;
             const draggedElID = evt.dataTransfer.getData('text');
             const parentEl = evt.currentTarget; //drop event is on the parent ul
 
             const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
-            const formParID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
+            const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
 
             const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
             if (elsLI.length===0) { //if the drop ul has no lis, just append it
                 parentEl.append(document.getElementById(draggedElID));
-                this.updateListItems(indID, formParID, 0);
+                this.updateListItems(indID, formParIndID, 0);
                 
-            } else { //otherwise, find the closest li to the droppoint
+            } else { //otherwise, find the closest li to the droppoint to insert before
                 let dist = 9999;
                 let closestLI_id = null;
                 elsLI.forEach(el => {
-                    const newDist = Math.abs(el.offsetTop - evt.clientY);
-                    if(el.id !== draggedElID && newDist < dist) {
+                    const newDist = el.getBoundingClientRect().top - evt.clientY; //Math.abs(el.offsetTop - evt.clientY);
+                    if(el.id !== draggedElID && newDist > 0 && newDist < dist) {
                         dist = newDist;
                         closestLI_id = el.id;
                     }
+                    console.log('baseTopY, LIRectTop, evtdropY, dist, newDist, parentElID, formParIndID, lis, closest')
+                    console.log(baseTopY, el.getBoundingClientRect().top, evt.clientY, dist, newDist, parentEl.id, formParIndID, elsLI, closestLI_id);
                 });
             
                 try {
@@ -168,9 +173,10 @@ export default {  //TODO: rename this component
                     }
                     //check the new indexes
                     const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                    console.log(newElsLI);
                     newElsLI.forEach((li,i) => {
                         const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
-                        this.updateListItems(indID, formParID, i);
+                        this.updateListItems(indID, formParIndID, i);
                     });
                     
                 } catch(error) {
