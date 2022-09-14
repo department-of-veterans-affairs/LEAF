@@ -11,6 +11,7 @@ import CategoryCard from "./components/CategoryCard.js";
 import FormContent from "./components/FormContent.js";
 
 import RestoreFields from "./components/RestoreFields.js";
+import './LEAF_FormEditor.scss';
 
 export default {
     data() {
