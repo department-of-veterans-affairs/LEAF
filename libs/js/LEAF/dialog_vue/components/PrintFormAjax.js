@@ -236,12 +236,12 @@ export default {  //TODO: rename this component
                 </form-index-listing>
             </ul>
             <div style="display: flex; justify-content: center; align-items: center; margin-top: 1em;">
-                <button class="btn-general" style="width: 100%" @click="newQuestion(null)">+ Add Section</button>
+                <button class="btn-general" style="width: 100%" @click="newQuestion(null)" title="Add new form section">+ Add Section</button>
             </div>
         </div>
 
         <!-- FORM ENTRY DISPLAY -->
-        <div style="display:flex; flex-direction: column; width: 100%; background-color: white; border: 1px solid black; min-width: 400px;">
+        <div id="form_entry_display">
             <template v-if="ajaxFormByCategoryID.length > 0">
                 <template v-for="(formSection, i) in ajaxFormByCategoryID">
                     <div class="printformblock">

@@ -357,3 +357,80 @@ table#edit-properties-modal {
         background-color: var(--base-navy, #005EA2);
     }
 }
+
+
+#form_entry_display {
+    display:flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: white;
+    border: 1px solid black;
+    min-width: 400px;
+
+    .printmainblock .printformblock {
+        page-break-inside: avoid;
+    }
+    .printmainlabel {
+        padding: 0;
+        height: 40px;
+    }
+
+    .printcounter {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 0 0.2em;
+        font-size: 1.4em;
+        font-weight: bold;
+        background-color: black;
+        color: white;
+    }
+    .printheading, .printheading_missing {
+        display: flex; 
+        align-items: center; 
+        width: 100%;
+        padding: 0.2em 0.4em;
+        background-color: #e0e0e0;
+    }
+    div.printsubheading, div.printsubheading_missing {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: 0.2em 0.4em;
+        border-bottom: 0;
+        background-color: white;
+        max-width: none;
+    }
+    div.printheading_missing, div.printsubheading_missing {
+        background-color: #ee9a9a;
+    }
+    div.printResponse {
+        margin: 0;
+        padding: 0;
+    }
+    div.printResponse, div.printsubblock {
+        width: 100%;
+    }
+
+    span.printsubheading {
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .form_entry_preview {
+        margin-bottom: 1em;
+        padding: 0.2em 0.4em;
+
+        .text_input_preview {
+            width: 100%;
+            height: 2em;
+            background-color: white;
+            border: 1px inset rgb(147, 149, 159);
+            margin: 0 auto;
+        }
+    }
+
+    
+
+}
