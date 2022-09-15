@@ -837,19 +837,28 @@ class Form
         $zip = new ZipArchive;
 
         // zip okay? lets send it.
-
+        $physicalFiles = FALSE;
         try {
             $res = $zip->open($name, ZipArchive::CREATE);
 
             foreach ($fileRows as $file) {
                 $filename = $this->getFileHash($recordID, $file['indicatorID'], $file['series'], $file['data']);
-                $zip->addFile($uploadDir . $filename,$i.'_'.$filename);
+                // if there is at least one then we will allow it.
+                if(is_file($uploadDir.$filename)===TRUE){
+                    $physicalFiles = TRUE;
+                }
+                $zip->addFile($uploadDir . $filename,$filename);
 
             }
 
             $zip->close();
         } catch (Exception $e) {
             return FALSE;
+        }
+
+        if($physicalFiles === FALSE){
+            http_response_code(404);
+            die();
         }
 
         // only fires if file exists
