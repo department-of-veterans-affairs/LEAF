@@ -147,7 +147,7 @@
 function assocEmployeePosition(empUID) {
     $.ajax({
         type: 'POST',
-        url: './api/?a=position/<!--{$positionID}-->/employee',
+        url: './api/position/<!--{$positionID}-->/employee',
         data: {empUID: empUID,
             isActing: $('#isActing').prop('checked') ? 1 : 0,
             CSRFToken: '<!--{$CSRFToken}-->'},
@@ -211,7 +211,7 @@ function startFTE() {
     	}
         $.ajax({
         	type: 'POST',
-            url: '<!--{$ERM_site_resource_management}-->api/?a=form/new',
+            url: '<!--{$ERM_site_resource_management}-->api/form/new',
             dataType: 'json',
             data: {service: '<!--{$positionSummary.services[0].groupID}-->',
                       title: '<!--{$positionSummary.title}-->' + description,
@@ -224,7 +224,7 @@ function startFTE() {
             	if(!isNaN(recordID) && isFinite(recordID) && recordID != 0) {
             		$.ajax({
             			type: 'POST',
-            			url: '<!--{$ERM_site_resource_management}-->api/?a=form/' + recordID,
+            			url: '<!--{$ERM_site_resource_management}-->api/form/' + recordID,
             			dataType: 'json',
             			data: {
             				7: <!--{$positionID}-->,
@@ -256,7 +256,7 @@ function editTitle() {
         dialog.indicateBusy();
         $.ajax({
         	type: 'POST',
-            url: './api/?a=position/<!--{$positionID}-->/title',
+            url: './api/position/<!--{$positionID}-->/title',
             data: {title: $('#inputtitle').val(),
             	CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
@@ -282,7 +282,7 @@ function addGroup() {
             dialog.indicateBusy();
             $.ajax({
                 type: 'POST',
-                url: './api/?a=group/'+ grpSel.selection +'/position',
+                url: './api/group/'+ grpSel.selection +'/position',
                 data: {positionID: <!--{$positionID}-->,
                        CSRFToken: '<!--{$CSRFToken}-->'},
                 success: function(response) {
@@ -329,7 +329,7 @@ function changeSupervisor() {
         dialog.indicateBusy();
         $.ajax({
         	type: 'POST',
-            url: './api/?a=position/<!--{$positionID}-->/supervisor',
+            url: './api/position/<!--{$positionID}-->/supervisor',
             data: {positionID: posSel.selection,
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
@@ -346,7 +346,8 @@ function confirmUnlink(empUID) {
 	confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=position/<!--{$positionID}-->/employee/' + empUID + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/position/<!--{$positionID}-->/employee/' + empUID + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
                 window.location.reload();
             },
@@ -362,7 +363,8 @@ function confirmRemove() {
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'DELETE',
-            url: './api/?a=position/<!--{$positionID}-->' + '&' + $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+            url: './api/position/<!--{$positionID}-->' + '?' +
+                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
             success: function(response) {
             	if(response == 1) {
                     alert('Position has been deleted.');

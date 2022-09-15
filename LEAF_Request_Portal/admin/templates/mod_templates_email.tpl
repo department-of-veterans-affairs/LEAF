@@ -230,7 +230,11 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/emailTemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&emailToFileName='+currentEmailToFile+'&emailCcFileName='+currentEmailCcFile+'&CSRFToken=<!--{$CSRFToken}-->',
+	        url: '../api/emailTemplates/_' + currentFile + '?' +
+                $.param({'subjectFileName': currentSubjectFile,
+                         'emailToFileName': currentEmailToFile,
+                         'emailCcFileName': currentEmailCcFile,
+                         'CSRFToken': '<!--{$CSRFToken}-->'}),
 	        success: function() {
 	            loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
 	        }

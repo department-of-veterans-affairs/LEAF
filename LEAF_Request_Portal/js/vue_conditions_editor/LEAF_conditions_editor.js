@@ -1,10 +1,10 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //obj w formID: 0, formTitle: '', indicatorID: 0, required: 0, icons: [], updateIndicatorList: false
+            vueData: vueData,  //init {formID: 0, indicatorID: 0, updateIndicatorList: false}  indID is always set to a number
             windowTop: 0,
-            //indicatorOrg: {},  debug
-            indicators: [],
+            //indicatorOrg: {},  keep
+            indicators: [],  //.indicatorID is now type number. isDisabled is type number
             selectedParentIndicator: {},
             selectedParentOperators: [],
             selectedOperator: '',
@@ -40,9 +40,8 @@ const ConditionsEditor = Vue.createApp({
             xhttpInds.onreadystatechange = () => {
                 if (xhttpInds.readyState == 4 && xhttpInds.status == 200) {
                     const list = JSON.parse(xhttpInds.responseText);
-                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && ele.isDisabled===0);
+                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled)===0);
                     this.indicators = filteredList;
-                    
                     /* this.indicators.forEach(i => {  //debug, make object for organization according to header
                         if (i.parentIndicatorID === null){
                             this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
@@ -80,7 +79,7 @@ const ConditionsEditor = Vue.createApp({
             this.editingCondition = '';
         },
         updateSelectedParentIndicator(indicatorID){
-            const indicator = this.indicators.find(i => indicatorID !== null && i.indicatorID === indicatorID);
+            const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
                 this.parentFound = false;
@@ -164,8 +163,8 @@ const ConditionsEditor = Vue.createApp({
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
-                        i.indicatorID !== this.childIndicator.indicatorID &&
-                        i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
+                            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+                            i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
                 });
                 /*if(indicator.conditions !== null && indicator.conditions !== ''){
                     const conditionObj = JSON.parse(indicator.conditions);
@@ -180,7 +179,7 @@ const ConditionsEditor = Vue.createApp({
                     const form = JSON.parse(xhttpForm.responseText);
                     form.forEach((formheader, index) => {
                         this.indicators.forEach(ind => {
-                            if (ind.headerIndicatorID===formheader.indicatorID){
+                            if (parseInt(ind.headerIndicatorID)===parseInt(formheader.indicatorID)){
                                 ind.formPage=index;
                             }
                         })
@@ -191,13 +190,13 @@ const ConditionsEditor = Vue.createApp({
             xhttpForm.send();
         },
         crawlParents(indicator, initialIndicator) { //ind to get parentID from, 
-            const parentIndicatorID = indicator.parentIndicatorID;
-            const parent = this.indicators.find(i => i.indicatorID === parentIndicatorID);
+            const parentIndicatorID = parseInt(indicator.parentIndicatorID);
+            const parent = this.indicators.find(i => parseInt(i.indicatorID) === parentIndicatorID);
 
             if (!parent || !parent.parentIndicatorID) {
                 //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
                 //add information about the headerIndicatorID to the indicators
-                let indToUpdate = this.indicators.find(i => i.indicatorID===initialIndicator.indicatorID);
+                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID)===parseInt(initialIndicator.indicatorID));
                 indToUpdate.headerIndicatorID = parentIndicatorID;
             } else {
                 this.crawlParents(parent, initialIndicator);
@@ -219,7 +218,7 @@ const ConditionsEditor = Vue.createApp({
             const { childIndID }  = this.conditionInputObject;
             if (this.conditionComplete) {
                 const conditionsJSON = JSON.stringify(this.conditionInputObject);
-                let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
+                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
                 let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
                     ? [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
@@ -260,7 +259,7 @@ const ConditionsEditor = Vue.createApp({
                 
                 if (childIndID !== undefined) {
                     const conditionsJSON = JSON.stringify(this.conditionInputObject);
-                    const currConditions = JSON.parse(this.indicators.find(i => i.indicatorID === childIndID).conditions) || [];
+                    const currConditions = JSON.parse(this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID)).conditions) || [];
                     let newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
                     if (newConditions.length === 0) newConditions = null;
                     
@@ -276,7 +275,7 @@ const ConditionsEditor = Vue.createApp({
                             const res = JSON.parse(xhttp.responseText);
                             //TODO: return better indication of success, currently just empty array
                             if (res !== 'Invalid Token.') {
-                                let indToUpdate = this.indicators.find(i => i.indicatorID === childIndID);
+                                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
                                 //update the indicator in the indicators list
                                 indToUpdate.conditions = (newConditions !== null) ? JSON.stringify(newConditions) : '';
                             }
@@ -468,14 +467,18 @@ ConditionsEditor.component('editor-main', {
                 }*/
             }
         },
+		applyMaxTextLength(text) {
+            let maxTextLength = 40;
+            return text.length > maxTextLength ? text.slice(0,maxTextLength) + '... ' : text;
+        },
         getIndicatorName(id) {
             if (id !== 0) {
-                let maxTextLength = 40;
-                let indicatorName = '';
-                indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
-                indicatorName = indicatorName && indicatorName.length > maxTextLength ? indicatorName.slice(0,maxTextLength) + '... ' : indicatorName;
-                return indicatorName;
+                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
+                return this.applyMaxTextLength(indicatorName);
             }
+        },
+		textValueDisplay(str) {
+            return $('<div/>').html(str).text();
         },
         getOperatorText(op){
             switch(op){
@@ -520,7 +523,7 @@ ConditionsEditor.component('editor-main', {
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                         then show this question.
                         </button>
                         <button style="width: 1.75em;"
@@ -535,7 +538,7 @@ ConditionsEditor.component('editor-main', {
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
+                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                         then hide this question.
                         </button>
                         <button style="width: 1.75em;"
@@ -550,8 +553,8 @@ ConditionsEditor.component('editor-main', {
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
                         :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
                         If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{c.selectedParentValue}}</strong> 
-                        then this question will be <strong>{{c.selectedChildValue}}</strong>
+                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                        then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
                         </button>
                         <button style="width: 1.75em;"
                         class="btn_remove_condition"
@@ -586,19 +589,19 @@ ConditionsEditor.component('editor-main', {
                     <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
-            <!-- TODO: FIX: other formats - only testing dropdown for now -->
+            <!-- TODO: other formats - only testing dropdown for now -->
             <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
                 @change="$emit('update-selected-child-value', $event.target.value)">
                 <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="conditions.selectedChildValue===val"> 
+                :selected="textValueDisplay(conditions.selectedChildValue)===val"> 
                 {{ val }} 
                 </option>
             </select>
             <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
                 @change="$emit('update-selected-child-value', $event.target.value)"
-                :value="conditions.selectedChildValue" />
+                :value="textValueDisplay(conditions.selectedChildValue)" />
         </div>
         <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0"
             class="if-then-setup">
@@ -646,7 +649,7 @@ ConditionsEditor.component('editor-main', {
                     @change="$emit('update-selected-parent-value', $event.target.value)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                     <option v-for="val in selectedParentValueOptions"
-                        :selected="conditions.selectedParentValue===val"> {{ val }}
+                        :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                     </option>
                 </select>
                 <select v-else-if="parentFormat==='radio'"
@@ -659,7 +662,7 @@ ConditionsEditor.component('editor-main', {
         </div>
         <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
             <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
-                <span style="color: #00A91C; font-weight: bold;"> have the value '{{conditions.selectedChildValue}}'</span>
+            <span style="color: #00A91C; font-weight: bold;"> have the value '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
             </span>
             <span v-else>will 
                 <span style="color: #00A91C; font-weight: bold;">

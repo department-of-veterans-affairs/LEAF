@@ -45,7 +45,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     {
         $.ajax({
             type: 'GET',
-            url: 'api/?a=form/'+recordID+'/workflow/indicator/assigned',
+            url: 'api/form/'+recordID+'/workflow/indicator/assigned',
             success: function(obj) {
                 //indicatorObject is global, obj is an array or null
                 indicatorObject = obj;
@@ -276,7 +276,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     
         $.ajax({
             type: 'GET',
-            url: 'api/?a=form/'+recordID+'/recordinfo',
+            url: 'api/form/'+recordID+'/recordinfo',
             success: function(res) {
                 if ('priority' in res)
                 {
@@ -299,7 +299,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         }).done(function() {
             $.ajax({
                 type: 'GET',
-                url: 'api/?a=form/'+recordID+'/data',
+                url: 'api/form/'+recordID+'/data',
                 success: function(res) {
                    loopThroughSubmissions(res, priority, serviceID, title, categories);
                 },

@@ -133,7 +133,11 @@ class Form
             {
                 foreach ($section['children'] as $subsection)
                 {
-                    $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    try {
+                        $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
                 }
             }
         }
@@ -202,7 +206,11 @@ class Form
             {
                 foreach ($section['children'] as $subsection)
                 {
-                    $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    try {
+                        $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
                 }
             }
         }
@@ -237,7 +245,11 @@ class Form
 
         foreach ($form as $item)
         {
-            $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
+            try {
+                $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
+            } catch (TypeError $te) {
+                error_log($te);
+            }
         }
 
         return $fullForm;
@@ -490,7 +502,6 @@ class Form
         $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
         $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
         $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
-        $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
         $form[$idx]['displayedValue'] = ''; // used for Org Charts
         $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
         $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
@@ -531,7 +542,21 @@ class Form
         {
             $values = @unserialize($data[0]['data']);
             $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
-            $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+            $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
+            try {
+                $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+            } catch (TypeError $te) {
+                error_log($te);
+            }
+        }
+
+        // handle multiselect and checkboxes format
+        // includes backwards compatibility for data stored as CSV
+        if (isset($data[0]['data']) && $data[0]['data'] != ''
+            && (substr($data[0]['format'], 0, 11) == 'multiselect'
+                || substr($data[0]['format'], 0, 10) == 'checkboxes'))
+        {
+            $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
         }
 
         // prevent masked data from being output
@@ -971,9 +996,10 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
-        if (is_array($_POST[$key]))
+        if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
-            $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+            $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
+            $_POST[$key] = serialize($_POST[$key]);
         }
         else
         {
@@ -1137,20 +1163,13 @@ class Form
 
         foreach ($keys as $key)
         {
-            // If form has _selected key use over initial key (Multi-Select Dropdown)
-            if (is_numeric($key) && $_POST[$key . '_selected']) {
-                $_POST[$key] = $_POST[$key . '_selected'];
-                if (!$this->writeDataField($recordID, $key, $series)) {
-                    return 0;
-                }
-            }
-            elseif (is_numeric($key))
+            if (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
                     return 0;
                 }
             }
-            elseif (!strpos($key, '_selected')) // Check for keys that don't include _selected
+            else // Check for keys
             {
                 list($tRecordID, $tIndicatorID) = explode('_', $key);
                 if ($tRecordID == $recordID
@@ -1312,7 +1331,11 @@ class Form
             $status = $FormWorkflow->handleEvents($id, -1, 'submit', '');
             if (count($status['errors']) > 0)
             {
-                $errors = array_merge($errors, $status['errors']);
+                try {
+                    $errors = array_merge($errors, $status['errors']);
+                } catch (TypeError $te) {
+                    error_log($te);
+                }
             }
         }
 
@@ -1809,7 +1832,11 @@ class Form
 														AND needToKnow = 0
 														AND count > 0", $vars);
 
-                $res = array_merge($res, $res2);
+                try {
+                    $res = array_merge($res, $res2);
+                } catch (TypeError $te) {
+                    error_log($te);
+                }
             }
 
             // find out if "collaborator access" is being used for any categoryID in the set
@@ -1820,24 +1847,26 @@ class Form
                 $uniqueCategoryIDs .= "'{$key}',";
             }
             $uniqueCategoryIDs = trim($uniqueCategoryIDs, ',');
+            $uniqueCategoryIDs = $uniqueCategoryIDs ?: 0;
 
-            $catsInGroups = $this->db->prepared_query(
-                "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
-                array()
-            );
-            if (count($catsInGroups) > 0)
-            {
-                $groups = $this->login->getMembership();
-                foreach ($catsInGroups as $cat)
+            if(!empty($uniqueCategoryIDs)){
+                $catsInGroups = $this->db->prepared_query(
+                    "SELECT * FROM category_privs WHERE categoryID IN ({$uniqueCategoryIDs}) AND readable = 1",
+                    array()
+                );
+                if (count($catsInGroups) > 0)
                 {
-                    if (isset($groups['groupID'][$cat['groupID']])
-                        && $groups['groupID'][$cat['groupID']] == 1)
+                    $groups = $this->login->getMembership();
+                    foreach ($catsInGroups as $cat)
                     {
-                        $hasCategoryAccess[$cat['categoryID']] = 1;
+                        if (isset($groups['groupID'][$cat['groupID']])
+                            && $groups['groupID'][$cat['groupID']] == 1)
+                        {
+                            $hasCategoryAccess[$cat['categoryID']] = 1;
+                        }
                     }
                 }
             }
-
             $this->cache["checkReadAccess_{$recordIDsHash}"] = $res;
         }
 
@@ -1890,12 +1919,18 @@ class Form
         }
         $this->cache['checkReadAccess_tempArray'] = $temp;
 
+        $countPurged = 0;
         foreach ($records as $record)
         {
             if (isset($temp[$record['recordID']]) && $temp[$record['recordID']] == 0)
             {
                 unset($records[$record['recordID']]);
+                $countPurged++;
             }
+        }
+
+        if($countPurged > 0) {
+            header('LEAF-Query: continue');
         }
 
         return $records;
@@ -2027,10 +2062,17 @@ class Form
         return $res;
     }
 
-    // recordID_list: array from view.php
-    // indicatorID_list: ID#'s delimited by ','
-    public function getCustomData($recordID_list, $indicatorID_list)
+    /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
+     * specified by $indicatorID_list (string of ID#'s delimited by ',')
+     * 
+     * @return array on success | false on malformed input
+     */ 
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list)
     {
+        if (count($recordID_list) == 0) {
+            return $recordID_list;
+        }
+	    
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
         $indicatorIdStructure = array();
@@ -2123,107 +2165,120 @@ class Form
             }
         }
 
-        $vars2 = array('recordIDs' => $recordIDs);
-        $res = $this->db->prepared_query("SELECT * FROM data
-                                    WHERE indicatorID IN ({$indicatorID_list})
-                                        AND recordID IN ({$recordIDs})", $vars2);
-
-        if (is_array($res) && count($res) > 0)
+        // if we do not have record IDs then lets not run go any further with this logic
+        if (!empty($recordIDs))
         {
-            foreach ($res as $item)
+            // updated this from "Select * from to this
+	    $strSQL = "SELECT * FROM data 
+                    WHERE indicatorID IN ({$indicatorID_list}) 
+                    AND recordID IN ({$recordIDs})";
+            $res = $this->db->query($strSQL);
+
+            if (is_array($res) && count($res) > 0)
             {
-                // handle special data types
-                switch($indicators[$item['indicatorID']]['format']) {
-                    case 'date':
-                        if ($item['data'] != '' && !is_numeric($item['data']))
-                        {
-                            $parsedDate = strtotime($item['data']);
-                            if ($parsedDate !== false)
-                            {
-                                $item['data'] = date('m/d/Y', $parsedDate);
-                            }
-                        }
-                        break;
-                    case 'orgchart_employee':
-                        $empRes = $this->employee->lookupEmpUID($item['data']);
-                        if (isset($empRes[0]))
-                        {
-                            $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                            $item['dataOrgchart'] = $empRes[0];
-                        }
-                        else
-                        {
-                            $item['data'] = '';
-                        }
-                        break;
-                    case 'orgchart_position':
-                        $positionTitle = $this->position->getTitle($item['data']);
-                        $positionData = $this->position->getAllData($item['data']);
+                foreach ($res as $item)
+                {
 
-                        $item['dataOrgchart'] = $positionData;
-                        $item['dataOrgchart']['positionID'] = $item['data'];
-                        $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
-                        break;
-                    case 'orgchart_group':
-                        $groupTitle = $this->group->getTitle($item['data']);
-
-                        $item['data'] = $groupTitle;
-                        break;
-                    case 'raw_data':
-                        if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
-                            $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
-                            $pData = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
-                            $item['dataHtmlPrint'] = str_replace('{{ data }}',
-                                                        $pData,
-                                                        $item['dataHtmlPrint']);
-                        }
-                        break;
-                    default:
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes')
-                        {
-                            $tData = @unserialize($item['data']);
-                            $item['data'] = '';
-                            if (is_array($tData))
+                    // handle special data types
+                    switch(strtolower($indicators[$item['indicatorID']]['format'])) {
+                        case 'date':
+                            if ($item['data'] != '' && !is_numeric($item['data']))
                             {
-                                foreach ($tData as $tItem)
+                                $parsedDate = strtotime($item['data']);
+                                if ($parsedDate !== false)
                                 {
-                                    if ($tItem != 'no')
-                                    {
-                                        $item['data'] .= "{$tItem}, ";
-                                        $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
-                                    }
+                                    $item['data'] = date('m/d/Y', $parsedDate);
                                 }
                             }
-                            $item['data'] = trim($item['data'], ', ');
-                        }
-                        if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
-                        {
-                            $values = @unserialize($item['data']);
-                            $format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
-                            $item['gridInput'] = array_merge($values, array("format" => $format));
-                            $item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
-                        }
-                        break;
-                }
+                            break;
+                        case 'orgchart_employee':
+                            $empRes = $this->employee->lookupEmpUID($item['data']);
+                            if (isset($empRes[0]))
+                            {
+                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                                $item['dataOrgchart'] = $empRes[0];
+                            }
+                            else
+                            {
+                                $item['data'] = '';
+                            }
+                            break;
+                        case 'orgchart_position':
+                            $positionTitle = $this->position->getTitle($item['data']);
+                            $positionData = $this->position->getAllData($item['data']);
 
-                $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
-                $indFormat = explode("\n", $indicators[$item['indicatorID']]['format'])[0];
-                $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_format'] = $indFormat;
-                if (isset($item['dataOrgchart']))
-                {
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
-                }
+                            $item['dataOrgchart'] = $positionData;
+                            $item['dataOrgchart']['positionID'] = $item['data'];
+                            $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+                            break;
+                        case 'orgchart_group':
+                            $groupTitle = $this->group->getTitle($item['data']);
+                            
+                            $item['data'] = $groupTitle;
+                            break;
+                        case 'raw_data':
+                            if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
+                                $item['dataHtmlPrint'] = $indicators[$item['indicatorID']]['htmlPrint'];
+                                $pData = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
+                                $item['dataHtmlPrint'] = str_replace('{{ data }}',
+                                                            $pData,
+                                                            $item['dataHtmlPrint']);
+                            }
+                            break;
+                        default:
+                            if (substr($indicators[$item['indicatorID']]['format'], 0, 10) == 'checkboxes' ||
+			        substr($indicators[$item['indicatorID']]['format'], 0, 11) == 'multiselect')
+			    {
+			        $tData = @unserialize($item['data']) !== false ? @unserialize($item['data']) : preg_split('/,(?!\s)/', $item['data']);
+			    	$item['data'] = '';
+			    	if (is_array($tData))
+			    	{
+				    foreach ($tData as $tItem)
+				    {
+				    	if ($tItem != 'no')
+				    	{
+					    $item['data'] .= "{$tItem}, ";
+					    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_array'][] = $tItem;
+				       	}
+				    }
+			    	}
+			    	$item['data'] = trim($item['data'], ', ');
+			    }
+			    if (substr($indicators[$item['indicatorID']]['format'], 0, 4) == 'grid')
+			    {
+			    	$values = @unserialize($item['data']);
+			    	$format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
+                    try {
+                        $item['gridInput'] = array_merge($values, array("format" => $format));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
+			    	$item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
+			    }
+			    break;
+                    }
 
-                if (isset($item['dataHtmlPrint']))
-                {
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_htmlPrint'] = $item['dataHtmlPrint'];
-                }
-                if (isset($item['gridInput']))
-                {
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_gridInput'] = $item['gridInput'];
-                }
 
-                $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_timestamp'] = $item['timestamp'];
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
+                    $indFormat = explode("\n", $indicators[$item['indicatorID']]['format'])[0];
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_format'] = $indFormat;
+                    if (isset($item['dataOrgchart']))
+                    {
+                        $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
+                    }
+
+
+                    if (isset($item['dataHtmlPrint']))
+                    {
+                        $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_htmlPrint'] = $item['dataHtmlPrint'];
+                    }
+                    if (isset($item['gridInput']))
+                    {
+                        $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_gridInput'] = $item['gridInput'];
+                    }
+
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_timestamp'] = $item['timestamp'];
+                }
             }
         }
 
@@ -2889,7 +2944,7 @@ class Form
 
         $joinCategoryID = false;
         $joinAllCategoryID = false;
-        $joinRecords_Dependencies = false;
+        $joinRecordsDependencies = false;
         $joinRecords_Step_Fulfillment = false;
         $addJoinRecords_Step_Fulfillment_Only = false;
         $joinActionHistory = false;
@@ -3052,136 +3107,169 @@ class Form
             $recordIDs .= $item['recordID'] . ',';
         }
         $recordIDs = trim($recordIDs, ',');
+        $recordIDs = $recordIDs ?: 0;
 
-        if ($joinCategoryID)
+        // These all require the recordIDs to be set
+        if (!empty($recordIDs))
         {
-            $res2 = $this->db->prepared_query('SELECT * FROM category_count
-    											LEFT JOIN categories USING (categoryID)
-    											WHERE recordID IN (' . $recordIDs . ')
-    												AND disabled = 0
-    												AND count > 0', array());
-            foreach ($res2 as $item)
+
+            if ($joinCategoryID)
             {
-                $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
-                $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
-            }
-        }
+                $categorySQL = 'SELECT recordID,categoryName,categoryID 
+                FROM category_count
+                LEFT JOIN categories USING (categoryID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND disabled = 0
+                AND count > 0';
 
-        if ($joinAllCategoryID)
-        {
-            $res2 = $this->db->prepared_query('SELECT * FROM category_count
-    											LEFT JOIN categories USING (categoryID)
-    											WHERE recordID IN (' . $recordIDs . ')
-    												AND count > 0', array());
-            foreach ($res2 as $item)
-            {
-                $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
-                $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
-            }
-        }
-
-        if ($joinRecordsDependencies)
-        {
-            $res2 = $this->db->prepared_query('SELECT * FROM records_dependencies
-    											LEFT JOIN dependencies USING (dependencyID)
-    											WHERE recordID IN (' . $recordIDs . ')
-    												AND filled != 0', array());
-            foreach ($res2 as $item)
-            {
-                $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['time'] = $item['time'];
-                $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['description'] = $item['description'];
-            }
-        }
-
-        if ($joinActionHistory)
-        {
-            require_once 'VAMC_Directory.php';
-            $dir = new VAMC_Directory;
-
-            $res2 = $this->db->prepared_query('SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment FROM action_history
-    											LEFT JOIN dependencies USING (dependencyID)
-    											LEFT JOIN actions USING (actionType)
-    											WHERE recordID IN (' . $recordIDs . ')
-                                                ORDER BY time', array());
-            foreach ($res2 as $item)
-            {
-                $user = $dir->lookupLogin($item['userID'], true);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
-                $item['approverName'] = $name;
-
-                $data[$item['recordID']]['action_history'][] = $item;
-            }
-        }
-
-        if($joinRecordResolutionData)
-        {
-            $res2 = $this->db->prepared_query('SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime FROM records
-                    LEFT JOIN records_step_fulfillment USING (recordID)
-                    LEFT JOIN records_workflow_state USING (recordID)
-                    WHERE recordID IN (' . $recordIDs . ')
-                        AND records_workflow_state.stepID IS NULL
-                        AND submitted > 0
-                        AND deleted = 0', array());
-            foreach ($res2 as $item)
-            {
-                if($data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] == null
-                    || $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] < $item['fulfillmentTime']) {
-                    $data[$item['recordID']]['recordResolutionData']['lastStatus'] = $item['lastStatus'];
-                    $data[$item['recordID']]['recordResolutionData']['fulfillmentTime'] = $item['fulfillmentTime'];
-                }
-            }
-        }
-
-        if ($joinRecordResolutionBy === true) {
-            require_once 'VAMC_Directory.php';
-            $dir = new VAMC_Directory;
-
-            $strSQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType FROM action_history ".
-                      "LEFT JOIN records USING (recordID) ".
-                      "INNER JOIN workflow_routes USING (stepID) ".
-                      "LEFT JOIN records_workflow_state USING (recordID) ".
-                      "WHERE recordID IN ($recordIDs) ".
-                        "AND action_history.actionType = workflow_routes.actionType ".
-                        "AND records_workflow_state.stepID IS NULL ".
-                        "AND nextStepID = 0 ".
-                        "AND submitted > 0 ".
-                        "AND deleted = 0";
-
-            $res2 = $this->db->prepared_query($strSQL, array());
-
-            foreach ($res2 as $item) {
-                $user = $dir->lookupLogin($item['resolvedBy'], true);
-                $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
-                $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
-            }
-        }
-
-        if ($joinRecords_Step_Fulfillment)
-        {
-            $strSQL = 'SELECT * FROM records_step_fulfillment LEFT JOIN workflow_steps USING (stepID) '.
-                'WHERE recordID IN (' . $recordIDs . ')';
-            $res2 = $this->db->prepared_query($strSQL, array());
-            foreach ($res2 as $item)
-            {
-                $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['time'] = $item['fulfillmentTime'];
-                $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['step'] = $item['stepTitle'];
-            }
-        }
-        if ($addJoinRecords_Step_Fulfillment_Only) {
-            $strSQL = 'SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment WHERE recordID IN (' . $recordIDs . ') '.
-                'ORDER BY recordID, fulfillmentTime DESC';
-            $res2 = $this->db->prepared_query($strSQL, array());
-            foreach ($res2 as $item)
-            {
-                // Need all bits to add to stepFullfillmentOnly otherwise skip
-                if (!empty($item['recordID']) && !empty($item['fulfillmentTime']) && !empty($item['stepID']))
+                $res2 = $this->db->prepared_query($categorySQL, array());
+                foreach ($res2 as $item)
                 {
-                    $stepFulfill = [];
-                    $stepFulfill['stepID'] = $item['stepID'];
-                    $stepFulfill['time'] = $item['fulfillmentTime'];
-                    $data[$item['recordID']]['stepFulfillmentOnly'][] = $stepFulfill;
+                    $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
+                    $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
                 }
             }
+
+            if ($joinAllCategoryID)
+            {
+
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID 
+                FROM category_count
+                LEFT JOIN categories USING (categoryID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND count > 0';
+
+                $res2 = $this->db->prepared_query($allCategorySQL, array());
+                foreach ($res2 as $item)
+                {
+                    $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
+                    $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
+                }
+            }
+
+            if ($joinRecordsDependencies)
+            {
+                $recordDependenciesSQL = 'SELECT recordID,dependencyID,time,description 
+                FROM records_dependencies
+                LEFT JOIN dependencies USING (dependencyID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND filled != 0';
+
+                $res2 = $this->db->prepared_query($recordDependenciesSQL, array());
+                foreach ($res2 as $item)
+                {
+                    $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['time'] = $item['time'];
+                    $data[$item['recordID']]['recordsDependencies'][$item['dependencyID']]['description'] = $item['description'];
+                }
+            }
+
+            if ($joinActionHistory)
+            {
+                require_once 'VAMC_Directory.php';
+                $dir = new VAMC_Directory;
+
+                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment 
+                FROM action_history
+                LEFT JOIN dependencies USING (dependencyID)
+                LEFT JOIN actions USING (actionType)
+                WHERE recordID IN (' . $recordIDs . ')
+                ORDER BY time';
+
+                $res2 = $this->db->prepared_query($actionHistorySQL, array());
+                foreach ($res2 as $item)
+                {
+                    $user = $dir->lookupLogin($item['userID'], true);
+                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+                    $item['approverName'] = $name;
+
+                    $data[$item['recordID']]['action_history'][] = $item;
+                }
+            }
+
+            if($joinRecordResolutionData)
+            {
+
+                $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime 
+                FROM records
+                LEFT JOIN records_step_fulfillment USING (recordID)
+                LEFT JOIN records_workflow_state USING (recordID)
+                WHERE recordID IN (' . $recordIDs . ')
+                AND records_workflow_state.stepID IS NULL
+                AND submitted > 0
+                AND deleted = 0';
+
+                $res2 = $this->db->prepared_query($recordResolutionSQL, array());
+                foreach ($res2 as $item)
+                {
+                    // resolution data to be checked and updated.
+                    $recordResolutionData = $data[$item['recordID']]['recordResolutionData'];
+                    if(
+                        $recordResolutionData['fulfillmentTime'] == null ||
+                        $recordResolutionData['fulfillmentTime'] < $item['fulfillmentTime']
+                    ) {
+                        $recordResolutionData['lastStatus'] = $item['lastStatus'];
+                        $recordResolutionData['fulfillmentTime'] = $item['fulfillmentTime'];
+
+                        // set our resolution data back to the main array since we have changes.
+                        $data[$item['recordID']]['recordResolutionData'] = $recordResolutionData;
+                    }
+                }
+            }
+
+            if ($joinRecordResolutionBy === true) {
+                require_once 'VAMC_Directory.php';
+                $dir = new VAMC_Directory;
+
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType 
+                FROM action_history
+                LEFT JOIN records USING (recordID) 
+                INNER JOIN workflow_routes USING (stepID) 
+                LEFT JOIN records_workflow_state USING (recordID)
+                WHERE recordID IN ($recordIDs) 
+                AND action_history.actionType = workflow_routes.actionType 
+                AND records_workflow_state.stepID IS NULL 
+                AND nextStepID = 0 
+                AND submitted > 0 
+                AND deleted = 0";
+
+                $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
+
+                foreach ($res2 as $item) {
+                    $user = $dir->lookupLogin($item['resolvedBy'], true);
+                    $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
+                    $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
+                }
+            }
+
+            if ($joinRecords_Step_Fulfillment)
+            {
+                $strSQL = 'SELECT * FROM records_step_fulfillment LEFT JOIN workflow_steps USING (stepID) '.
+                    'WHERE recordID IN (' . $recordIDs . ')';
+                $res2 = $this->db->prepared_query($strSQL, array());
+                foreach ($res2 as $item)
+                {
+                    $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['time'] = $item['fulfillmentTime'];
+                    $data[$item['recordID']]['stepFulfillment'][$item['stepID']]['step'] = $item['stepTitle'];
+                }
+            }
+
+            if ($addJoinRecords_Step_Fulfillment_Only) {
+                $strSQL = 'SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment WHERE recordID IN (' . $recordIDs . ') '.
+                    'ORDER BY recordID, fulfillmentTime DESC';
+                $res2 = $this->db->prepared_query($strSQL, array());
+                foreach ($res2 as $item)
+                {
+                    // Need all bits to add to stepFullfillmentOnly otherwise skip
+                    if (!empty($item['recordID']) && !empty($item['fulfillmentTime']) && !empty($item['stepID']))
+                    {
+                        $stepFulfill = [];
+                        $stepFulfill['stepID'] = $item['stepID'];
+                        $stepFulfill['time'] = $item['fulfillmentTime'];
+                        $data[$item['recordID']]['stepFulfillmentOnly'][] = $stepFulfill;
+                    }
+                }
+            }
+
         }
 
         // check needToKnow mode
@@ -3546,7 +3634,6 @@ class Form
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
                 $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
-                $child[$idx]['value'] = @unserialize($data[$idx]['data']) === false ? $child[$idx]['value'] : unserialize($data[$idx]['data']);
                 $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ? $data[$idx]['timestamp'] : 0;
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
@@ -3596,6 +3683,27 @@ class Form
                     $groupTitle = $this->group->getGroup($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
                 }
+                if (substr($field['format'], 0, 4) == 'grid'
+                    && isset($data[$idx]['data']))
+                {
+                    $values = @unserialize($data[$idx]['data']);
+                    $format = json_decode(substr($field['format'], 5, -1) . ']');
+                    $child[$idx]['value'] = @unserialize($child[$idx]['value']) === false ? $child[$idx]['value'] : unserialize($child[$idx]['value']);
+                    try {
+                        $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+                    } catch (TypeError $te) {
+                        error_log($te);
+                    }
+                }
+        
+                // handle multiselect and checkboxes formats
+                // includes backwards compatibility for data stored as CSV
+                if (isset($data[$idx]['data']) && $data[$idx]['data'] != ''
+                    && (substr($field['format'], 0, 11) == 'multiselect'
+                        || substr($field['format'], 0, 10) == 'checkboxes'))
+                {
+                    $child[$idx]['value'] = @unserialize($data[$idx]['data']) !== false ? @unserialize($data[$idx]['data']) : preg_split('/,(?!\s)/', $data[$idx]['data']);
+                }
 
                 if($parseTemplate) {
                     $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
@@ -3605,7 +3713,7 @@ class Form
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['htmlPrint']);
                 }
-
+		    
                 if ($child[$idx]['isMasked'])
                 {
                     $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')

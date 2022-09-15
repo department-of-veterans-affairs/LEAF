@@ -56,7 +56,7 @@
                 <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
                 <li><a href="../report.php?a=LEAF_request_initiator_new_account">Initiator New Account</a></li>
-                <li><a href="../report.php?a=LEAF_input_table_report">Grid Splitter</a></li>
+                <li><a href="../report.php?a=LEAF_table_input_report">Grid Splitter</a></li>
                 </ul>
             </li>
 
@@ -111,15 +111,15 @@ $('#toggleMenu').on('click', function() {
 })
 
 // Add plus mark to li that have a sub menu
-$('li.lev2:has("ul") > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
-$('li.lev3:has("ul") > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
+$('li.lev2:has(ul) > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
+$('li.lev3:has(ul) > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
 
 
 // sub menu
 // ------------------------
 
 // When interacting with a li that has a sub menu
-$('li:has("ul")').on('mouseover keyup click mouseleave', function(e) {
+$('li:has(ul)').on('mouseover keyup click mouseleave', function(e) {
 
     //console.log("test")
 

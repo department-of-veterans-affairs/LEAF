@@ -51,7 +51,7 @@ var LeafForm = function(containerID) {
 		let currentChildInfo = {};
 		
 		const checkConditions = (event, selected, parID=0)=> {
-			const parentElID = event !== null ? event.target.id : parID;
+			const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
 
 			const linkedParentConditions = getConditionsLinkedToParent(parentElID);
 			let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
@@ -84,7 +84,7 @@ var LeafForm = function(containerID) {
 					//match the current format, as this would have unpredictable results
 					if (formConditionsByChild[entry].format === c.childFormat && 
 						formatIsEnabled &&
-						c.parentIndID === parentID) {
+						parseInt(c.parentIndID) === parseInt(parentID)) {
 						conditionsLinkedToParent.push({...c});
 					}
 				})
@@ -100,7 +100,7 @@ var LeafForm = function(containerID) {
 						const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
 						if (formConditionsByChild[entry].format === c.childFormat && 
 							formatIsEnabled &&
-							currParentID !== c.parentIndID) {
+							parseInt(currParentID) !== parseInt(c.parentIndID)) {
 							conditionsLinkedToChild.push({...c});
 						}
 					});
@@ -212,10 +212,11 @@ var LeafForm = function(containerID) {
 						break;
 					case 'Pre-fill':
 						if (prefillValue !== '') {
-							elJQChildID.val(prefillValue);
+							const text = $('<div/>').html(prefillValue).text();
+							elJQChildID.val(text);
 							elJQChildID.attr('disabled', 'disabled');
 							if (chosenShouldUpdate) {
-								elJQChildID.chosen().val(prefillValue);
+								elJQChildID.chosen().val(text);
 								elJQChildID.trigger('chosen:updated');
 							}
 						} else {
@@ -261,9 +262,17 @@ var LeafForm = function(containerID) {
 		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
 		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
-
 		var data = {recordID: recordID};
-		$('#' + htmlFormID).serializeArray().map(function(x){data[x.name] = x.value;});
+		$('#' + htmlFormID).serializeArray().map(function(x) {
+			if (x.name.includes('_multiselect')) {
+				const i = x.name.indexOf('_multiselect');
+				if (x.value === '') { //selected if no options are chosen
+					data[x.name.slice(0, i)] = x.value;
+				} else {
+					data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
+				}
+			} else data[x.name] = x.value;
+		});
 
 		if(hasTable){
             var tables = [];

@@ -141,7 +141,7 @@ function updateTags() {
 	$('#tags').fadeOut(250);
 	$.ajax({
 		type: 'GET',
-		url: "./api/?a=form/<!--{$recordID|strip_tags}-->/tags",
+		url: "./api/form/<!--{$recordID|strip_tags}-->/tags",
 		success: function(res) {
 			var buffer = '';
 			if(res.length > 0) {
@@ -178,7 +178,7 @@ function getIndicatorLog(indicatorID, series) {
 
     $.ajax({
         type: 'GET',
-        url: "api/?a=form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
+        url: "api/form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
         success: function(res) {
         	var numChanges = res.length;
         	var prev = '';
@@ -476,7 +476,7 @@ function changeTitle() {
     dialog.setSaveHandler(function() {
         $.ajax({
         	type: 'POST',
-        	url: 'api/?a=form/<!--{$recordID|strip_tags}-->/title',
+        	url: 'api/form/<!--{$recordID|strip_tags}-->/title',
         	data: {title: $('#title').val(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
         	success: function(res) {
@@ -503,7 +503,7 @@ function changeService() {
     });
     $.ajax({
         type: 'GET',
-        url: './api/?a=system/services',
+        url: './api/system/services',
         dataType: 'json',
         success: function(res) {
             var services = '<select id="newService" class="chosen" style="width: 250px">';
@@ -517,7 +517,7 @@ function changeService() {
             dialog.setSaveHandler(function() {
                 $.ajax({
                     type: 'POST',
-                    url: 'api/?a=form/<!--{$recordID|strip_tags}-->/service',
+                    url: 'api/form/<!--{$recordID|strip_tags}-->/service',
                     data: {serviceID: $('#newService').val(),
                            CSRFToken: CSRFToken},
                     success: function() {
@@ -546,7 +546,7 @@ function admin_changeStep() {
     dialog.indicateBusy();
     $.ajax({
         type: 'GET',
-        url: 'api/?a=formWorkflow/<!--{$recordID|strip_tags}-->/currentStep',
+        url: 'api/formWorkflow/<!--{$recordID|strip_tags}-->/currentStep',
         dataType: 'json',
         success: function(res) {
         	var workflows = {};
@@ -556,7 +556,7 @@ function admin_changeStep() {
 
         	$.ajax({
                 type: 'GET',
-                url: 'api/?a=workflow/steps',
+                url: 'api/workflow/steps',
                 dataType: 'json',
                 success: function(res) {
                     var steps = '<select id="newStep" class="chosen" style="width: 250px">';
@@ -590,7 +590,7 @@ function admin_changeStep() {
                     dialog.setSaveHandler(function() {
                         $.ajax({
                             type: 'POST',
-                            url: 'api/?a=formWorkflow/<!--{$recordID|strip_tags}-->/step',
+                            url: 'api/formWorkflow/<!--{$recordID|strip_tags}-->/step',
                             data: {stepID: $('#newStep').val(),
                             	   comment: $('#changeStep_comment').val(),
                                    CSRFToken: CSRFToken},
@@ -618,7 +618,7 @@ function admin_changeForm() {
     });
     $.ajax({
         type: 'GET',
-        url: './api/?a=workflow/categoriesUnabridged',
+        url: './api/workflow/categoriesUnabridged',
         dataType: 'json',
         success: function(res) {
             var categories = '';
@@ -636,7 +636,7 @@ function admin_changeForm() {
             	});
                 $.ajax({
                     type: 'POST',
-                    url: 'api/?a=form/<!--{$recordID|strip_tags}-->/types',
+                    url: 'api/form/<!--{$recordID|strip_tags}-->/types',
                     data: data,
                     success: function() {
                         window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
@@ -649,7 +649,7 @@ function admin_changeForm() {
             var query = {terms: [{id: 'recordID', operator: '=', match: '<!--{$recordID|strip_tags}-->'}],joins: ['categoryNameUnabridged']};
             $.ajax({
                 type: 'GET',
-                url: './api/?a=form/query',
+                url: './api/form/query',
                 data: {q: JSON.stringify(query)},
                 dataType: 'json',
                 success: function(res) {
@@ -679,7 +679,7 @@ function admin_changeInitiator() {
     	if($('#changeInitiator').val() != '') {
             $.ajax({
                 type: 'POST',
-                url: './api/?a=form/<!--{$recordID|strip_tags}-->/initiator',
+                url: './api/form/<!--{$recordID|strip_tags}-->/initiator',
                 data: {CSRFToken: CSRFToken,
                 	   initiator: $('#changeInitiator').val()},
                 success: function() {

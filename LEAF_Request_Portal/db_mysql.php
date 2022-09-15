@@ -22,6 +22,8 @@ class DB
 
     private $debug = false;             // Are we debugging?
 
+    private $runErrors = false;         // On run errors specific error details
+
     private $time = 0;
 
     private $dryRun = false;            // only applies to prepared queries
@@ -59,6 +61,10 @@ class DB
             }
             $this->isConnected = false;
         }
+
+        // may want to put this in debug only.
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         // $this->checkLastModified();
         unset($pass);
     }
@@ -200,9 +206,17 @@ class DB
         }
 
         if ($dry_run == false && $this->dryRun == false)
-        {
+        {            
             $query = $this->db->prepare($sql);
-            $query->execute($vars);
+            try {
+                $query->execute($vars);
+            } catch (PDOException $e) {
+                if ($this->runErrors)
+                {
+                    $this->show_data(["sql"=>$sql,"exception"=>$e]);
+                }
+            }
+
         }
         else
         {
@@ -215,6 +229,15 @@ class DB
         }
 
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function show_data(array $dataIn = []) {
+        echo "<pre>";
+        echo "Host: " . $this->dbHost."\n";
+        echo "User: " . $this->dbUser ."\n";
+        echo "DB Name: " . $this->dbName."\n";
+        print_r($dataIn);
+        die("full stop");
     }
 
     /**

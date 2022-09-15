@@ -1,10 +1,13 @@
 <!--{if $empMembership['groupID'][1]}-->
+<script src="../libs/js/LEAF/intervalQueue.js"></script>
 <style>
 li {
     padding: 8px;
 }
 </style>
-<div id="loadingIndicator"><h1>Loading...</h1></div>
+<div id="loadingIndicator"><h1>Loading...</h1>
+    <h2 id="loadingStatus"></h2>
+</div>
 <div id="errors"></div>
 <div id="ui_container" style="display: none">
     <h2>
@@ -32,7 +35,7 @@ $(function() {
             url: './utils/LEAF_exportStandardConfig.php',
             dataType: 'text',
             success: function(res) {
-                $('#outputLog').val($('#outputLog').val() + res);
+                $('#outputLog').val($('#outputLog').val() + res + '... Done.');
                 $('#test').attr('disabled', false);
                 $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
             }
@@ -40,11 +43,12 @@ $(function() {
     });
 
     $('#test').on('click', function() {
+        $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to test site...");
         $.ajax({
             url: sites[0] + 'utils/LEAF_importStandardConfig.php',
             dataType: 'text',
             success: function(res) {
-                $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to test site..." + res);
+                $('#outputLog').val($('#outputLog').val() + "\r\nDistributed to test site.");
                 $('#distribute').attr('disabled', false);
                 $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
             }
@@ -52,27 +56,49 @@ $(function() {
     });
 
     $('#distribute').on('click', function() {
-        for(var i in sites) {
-            $.ajax({
-                url: sites[i] + 'utils/LEAF_importStandardConfig.php',
+        let totalCount = 0;
+        let currCount = 0;
+        let queue = new intervalQueue();
+        queue.setConcurrency(3);
+        queue.setWorker(function(item) {
+            return $.ajax({
+                url: item + 'utils/LEAF_importStandardConfig.php',
                 dataType: 'text',
-                async: false,
                 success: function(res) {
-                    $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites..." + res);
-                    $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
+                    currCount++;
                     if(res.indexOf('ERROR') == -1) {
-                        $('#prodStatus').append('Pushed to ' + sites[i] + '.<br />');
+                        $('#prodStatus').append(`${currCount} of ${totalCount} - Pushed to ` + item + '.<br />');
                     }
                     else {
-                        $('#prodStatus').append('Error Pushing to ' + sites[i]);
+                        $('#prodStatus').append('Error Pushing to ' + item);
                     }
-                    
+
                 },
                 error: function(xhr, error, errorThrown) {
-                    $('#prodStatus').append('Error Pushing to ' + sites[i] + ' ('+ errorThrown +'). ');
+                    $('#prodStatus').append('Error Pushing to ' + item + ' ('+ errorThrown +'). ');
                 }
             });
+        });
+    
+        queue.setOnWorkerError(function(item, reason) { // Errors can be logged here
+            console.log(`Error processing: ${item}`);
+        });
+    
+        queue.onComplete(function() {
+            return 'Complete';
+        });
+    
+        for(var i in sites) {
+            queue.push(sites[i]);
+            totalCount++;
         }
+    
+    	queue.start().then(function() {
+			$('#outputLog').val($('#outputLog').val() + "\r\nDistribution complete!");
+            $('#prodStatus').append('Distribution complete!<br />');
+        });
+        $('#outputLog').val($('#outputLog').val() + "\r\nDistributing to all sites...");
+        $('#outputLog').scrollTop($('#outputLog')[0].scrollHeight);
     });
 
 
@@ -93,35 +119,36 @@ $(function() {
             sites = res.national_linkedSubordinateList.split(/\n/).filter(function(site) {
                 return site != "" ? true : false;
             });
-            sites.forEach(function(site, i) {
-                site = site.trim();
-                sites[i] = site.trim();
-                $.ajax({
+            
+			let queue = new intervalQueue();
+            queue.setConcurrency(3);
+            queue.setWorker(function(site) {
+               return $.ajax({
                     type: 'GET',
                     url: site + 'api/form/version',
-                    success: function() {
-                        sitesLoaded++;
-                    },
                     error: function(xhr, status, errMsg) {
-                        sitesLoaded++;
                         siteErrors++;
                         $('#errors').append('<span style="font-size: 140%; color: red">Error. ' + errMsg + ': '+ site + '</span><br />');
                     },
                     cache: false
-                });
+                }).then(function() {
+					$('#loadingStatus').html(`Checking ${queue.getLoaded()} of ${sites.length} sites`);
+               });
+            });
+            
+            sites.forEach(function(site, i) {
+ 				queue.push(site);
+            });
+            
+            queue.start().then(function() {
+                $('#loadingIndicator').slideUp();
+                if(siteErrors == 0) {
+                    $('#ui_container').fadeIn();
+                }
             });
 
             $('#testURL').html(sites[0]);
             $('#testURL').attr('href', sites[0]);
-            var checkLoaded = setInterval(function() {
-                if(sitesLoaded == sites.length) {
-                    clearInterval(checkLoaded);
-                    $('#loadingIndicator').slideUp();
-                    if(siteErrors == 0) {
-                        $('#ui_container').fadeIn();
-                    }
-                }
-            }, 500);
         }
     });
 });

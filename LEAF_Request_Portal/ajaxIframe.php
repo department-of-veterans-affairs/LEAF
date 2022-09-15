@@ -9,7 +9,7 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 if (false)
 {
@@ -62,6 +62,7 @@ function customTemplate($tpl)
 }
 
 // HQ logo
+$main->assign('status', '');
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 { // issue with dijit tabcontainer and ie6
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 7 or higher.');
@@ -73,7 +74,12 @@ $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
+$t_menu->assign('hide_main_control', true);
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+$main->assign('emergency', '');
 $main->assign('useUI', false);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -123,7 +129,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('name', XSSHelpers::sanitizeHMTL($recordInfo['name']));
+        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
         $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', XSSHelpers::sanitizeHTML($recordInfo['submitted']));
@@ -146,8 +152,6 @@ switch ($action) {
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $qrcodeURL = "{$protocol}://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
-        $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
         switch ($action) {
             default:
@@ -172,7 +176,6 @@ switch ($action) {
                 }
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl')));
-                $t_menu->assign('hide_main_control', true);
 
                 break;
         }

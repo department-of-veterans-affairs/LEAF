@@ -9,7 +9,7 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 if (false)
 {
@@ -98,6 +98,7 @@ function hasDevConsoleAccess($login, $db_phonebook)
 }
 
 // HQ logo
+$main->assign('status', '');
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 { // issue with dijit tabcontainer and ie6
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
@@ -109,6 +110,13 @@ $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />')
 
 $t_login->assign('name', $login->getName());
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+$main->assign('emergency', '');
+$main->assign('hideFooter', false);
+$main->assign('useUI', false);
+$main->assign('useLiteUI', false);
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
 
