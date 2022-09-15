@@ -1,10 +1,11 @@
 <style>
+#access_matrix_container {
+    padding: 8px;
+}
+
 #access_matrix {
     margin: auto;
     width: 80%;
-    border: 1px solid black;
-    background-color: white;
-    padding: 8px;
 }
 
 .table td {
@@ -20,7 +21,7 @@ button.buttonNorm {
 }
 </style>
 
-<div class="leaf-width-100pct">
+<div id="access_matrix_container" class="leaf-width-100pct">
     <h2>Access Matrix</h2>
     <div id="access_matrix"><img src="../images/indicator.gif" style="vertical-align: middle" /> Loading... </div>
 </div>
@@ -49,6 +50,18 @@ async function getActiveWorkflows() {
 async function getDependenciesAndGroups() {
     return fetch('../api/workflow/dependencies/groups')
         .then(res => res.json());
+}
+
+async function getGroupMembers() {
+    return fetch('../api/group/members')
+        .then(res => res.json())
+        .then(data => {
+            let out = {};
+            data.forEach(group => {
+                out[group.groupID] = group.members;
+            })
+            return out;
+    });
 }
 
 async function getActiveDependencies(workflows, dependencies) {
@@ -115,7 +128,12 @@ function promptAddGroup(dependencyID) {
 
     dialog.setSaveHandler(function() {
         let selectedGroupID = document.querySelector('#groupID').value;
-        document.querySelector(`#dep${dependencyID}`).insertAdjacentHTML('afterbegin', `<li>${groups[selectedGroupID]}</li>`);
+        if(document.querySelector(`#empty_${dependencyID}`) != null) {
+            document.querySelector(`#empty_${dependencyID}`).style.display = 'none';
+        }
+        document.querySelector(`#dep${dependencyID}`)
+            .insertAdjacentHTML('afterbegin', buildGroupRow(dependencyID, selectedGroupID, groups[selectedGroupID]));
+        renderGroupPreview();
 
         let formData = new FormData();
         formData.append('groupID', selectedGroupID);
@@ -147,17 +165,49 @@ function promptRemoveGroup(dependencyID, groupID) {
     dialog_confirm.show();
 }
 
+function buildGroupRow(depID, groupID, groupName) {
+    return `<tr data-dep-group="${depID}_${groupID}">
+                <td style="min-width: 30vw">${groupName}</td>
+                <td data-group-preview="${groupID}"></td>
+                <td><button class="buttonNorm" onclick="promptRemoveGroup(${depID}, ${groupID});">Remove Group</button></td>
+            </tr>`;
+}
+
+function renderGroupPreview() {
+    document.querySelectorAll("[data-group-preview]").forEach(elem => {
+        let buf = `<span style="color: red">Empty group</span>`;
+        let numMembers = groupMembers[elem.dataset.groupPreview].length;
+        if(numMembers > 0) {
+            let member = groupMembers[elem.dataset.groupPreview][0];
+            buf = `${member.lastName}, ${member.firstName} ${member.middleName}`
+        }
+        if(numMembers > 1) {
+            buf += ` + ${numMembers-1} others`
+        }
+        document.querySelectorAll(`[data-group-preview="${elem.dataset.groupPreview}"]`).forEach(prev => {
+            prev.innerHTML = `<a href="?a=mod_groups">${buf}</a>`;
+        });
+    });
+}
+
 function renderView(dependencyGroups, activeDependencies) {
-    // TODO: show users associated with groups
-    let buf = '<table class="table"><thead><td>Task</td><td>Groups with access</td></thead><tbody>';
+    let buf = '<table class="table"><thead><td>Task</td><td>Access List</td></thead><tbody>';
     for(let depID in activeDependencies) {
-        let groupList = `<ul id="dep${depID}">`;
+        let groupList = `<table id="dep${depID}" class="table">`;
+        let numGroups = 0;
         if(dependencyGroups[depID].groups != undefined) {
             dependencyGroups[depID].groups.forEach(group => {
-                groupList += `<li data-dep-group="${depID}_${group.groupID}">${group.name} <button class="buttonNorm" onclick="promptRemoveGroup(${depID}, ${group.groupID});">Remove</button></li>`;
+                groupList += buildGroupRow(depID, group.groupID, group.name);
+                numGroups++;
             });
         }
-        groupList += `<li><button class="buttonNorm" onclick="promptAddGroup(${depID});">Add Group</button></li></ul>`;
+
+        if(numGroups == 0) {
+            groupList += `<tr id="empty_${depID}"><td colspan="2" style="color: red">Please add a group to this task</td></tr>`;
+        }
+
+        groupList += `<tr><td colspan="3"><button class="buttonNorm" onclick="promptAddGroup(${depID});">Add Group</button></td></tr>
+                    </table>`;
 
         buf += `<tr>
                 <td>${dependencyGroups[depID].description}</td>
@@ -168,17 +218,21 @@ function renderView(dependencyGroups, activeDependencies) {
     buf += '</tbody></table>';
 
     document.querySelector('#access_matrix').innerHTML = buf;
+    renderGroupPreview();
 }
 
 var dialog, dialog_confirm;
+var groupMembers;
 async function main() {
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
-    let [workflows, dependencyGroups] = await Promise.all([
+    let [workflows, dependencyGroups, tGroupMembers] = await Promise.all([
         getActiveWorkflows(),
-        getDependenciesAndGroups()
+        getDependenciesAndGroups(),
+        getGroupMembers()
     ]);
+    groupMembers = tGroupMembers;
 
     let activeDependencies = await getActiveDependencies(workflows, dependencyGroups);
     

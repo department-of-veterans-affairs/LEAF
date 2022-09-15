@@ -18,7 +18,7 @@
         <a href="?a=access_matrix" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
             <i class="leaf-admin-btnicon fas fa-th text-yellow-40" title="Modify users and groups"></i>
             <span class="leaf-admin-btntitle">Access Matrix</span>
-            <span class="leaf-admin-btndesc">Configure access to tasks</span>
+            <span class="leaf-admin-btndesc">Configure group access to tasks</span>
         </a>
         <!--{/if}-->
 
