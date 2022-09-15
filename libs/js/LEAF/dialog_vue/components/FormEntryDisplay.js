@@ -1,9 +1,9 @@
 export default {
-    name: 'FormEntryDisplay',  //NOTE: this will replace PrintSubindicators
+    name: 'FormEntryDisplay',  //NOTE: this will replace previous 'print-subindicators' component
     props: {
         depth: Number,
         formNode: Object,
-        sectionNumber: Number
+        index: Number
     },
     inject: [
         'newQuestion',
@@ -23,7 +23,17 @@ export default {
             const { child } = this.formNode;
             return child !== null && Object.keys(child).length > 0;
         },
-        bgColor() { //TODO: not sure if I will use
+        children() {
+            let eles = [];
+            if(this.hasChildNode) {
+                for (let c in this.formNode.child) {
+                    eles.push(this.formNode.child[c]);
+                }
+                eles = eles.sort((a, b)=> a.sort - b.sort);
+            }
+            return eles;
+        },
+        bgColor() {
             return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
         },
         suffix() {
@@ -67,7 +77,7 @@ export default {
             <div :class="depth===0 ? 'printmainlabel' : 'printsublabel'">
                 <div :style="{display: depth===0 ? 'flex': 'inline-block'}">
                     <div v-if="depth===0" class="printcounter">
-                        <span tabindex="0" aria-label="formNode.indicatorID" style="margin:0; height: 100%">{{sectionNumber}}</span>
+                        <span tabindex="0" aria-label="formNode.indicatorID" style="display:inline-block; margin:0; height: 100%;">{{index+1}}</span>
                     </div>
                     <div :id="labelID" :class="labelClass" 
                         :style="{display: depth===0 ? 'flex' : 'block'}" 
@@ -127,7 +137,7 @@ export default {
                     <!-- NOTE: RECURSIVE SUBQUESTIONS -->
                     <template v-if="hasChildNode">
                         <div class="printformblock" :style="{marginLeft: depth +'px'}" style="display:flex; flex-wrap:wrap">
-                            <form-entry-display v-for="child in formNode.child"
+                            <Form-entry-display v-for="child in children"
                                 :depth="depth + 4"
                                 :formNode="child"
                                 :key="child.indicatorID"> 
