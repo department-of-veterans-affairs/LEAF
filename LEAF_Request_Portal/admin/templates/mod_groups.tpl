@@ -310,6 +310,9 @@ function removeMember(groupID, userID) {
         type: 'POST',
         url: "../api/group/" + groupID + "/members/_" + userID,
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        fail: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
@@ -322,9 +325,9 @@ function addNexusMember(groupID, empUID) {
             CSRFToken: '<!--{$CSRFToken}-->',
             empUID: empUID
         },
-	      fail: function(err) {
-	          console.log(err);
-	      },
+        fail: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }

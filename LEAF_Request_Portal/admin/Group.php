@@ -201,7 +201,7 @@ class Group
                     ':groupID' => $groupID,
                     ':backupID' => $member,);
 
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+                $res = $this->db->prepared_query('SELECT locallyManaged FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
 
                 // Check for locallyManaged users
                 if ($res[0]['locallyManaged'] == 0) {
