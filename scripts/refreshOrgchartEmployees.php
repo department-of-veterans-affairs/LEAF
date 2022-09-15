@@ -11,7 +11,7 @@ try {
     // Until then to keep thinks straight forward this could be done in individual files to be called.
     $test = new TimeBracketCmd('refreshOrgchartEmployees.php');
 
-    $test->setRunAtExactTime('+5 minutes');
+    $test->setRunAtExactTime('6 am');
     $test->run();
     echo 'end';
     echo date('Y-m-d g:i:s a') . "\r\n";
