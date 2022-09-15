@@ -9,7 +9,6 @@ export default {
     inject: [
         'truncateText',
         'addToListItemsArray',
-        'listItems',
         'startDrag',
         'onDragEnter',
         'onDragLeave',

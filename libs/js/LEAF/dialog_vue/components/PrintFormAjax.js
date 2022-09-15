@@ -9,9 +9,6 @@ export default {  //TODO: rename this component
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: [],  //objects w indID, parID, newParID, sort, listindex for tracking parID and sort changes
-            totalIndicators: null,
-            sortValuesToUpdate: [],
-            parentIDsToUpdate: []
         }
     },
     components: {
@@ -27,6 +24,7 @@ export default {  //TODO: rename this component
         'selectNewCategory',
         'newQuestion',
         'currentCategorySelection',
+        'currentCategoryIndicatorTotal'
     ],
     provide() {
         return {
@@ -43,16 +41,18 @@ export default {  //TODO: rename this component
             return this.currentCategorySelection.categoryName || 'Untitled';
         },
         allListItemsAreAdded() {
-            return this.totalIndicators !== null && this.totalIndicators === this.listItems.length;
+            return this.currentCategoryIndicatorTotal === this.listItems.length;
         },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
+        },
+        sortValuesToUpdate() {
+            return this.listItems.filter(item => item.sort !== item.listIndex);
+        },
+        parentIDsToUpdate() {
+            //NOTE: headers have null as parentID, so listitems element newParentID is initialized with ''
+            return this.listItems.filter(item => item.newParentID !== '' && item.parentID !== item.newParentID);
         }
-    },
-    beforeMount() {
-        this.getFormIndicatorList().then(res => {
-            this.totalIndicators = Object.keys(res).length;  //total to track updates
-        });
     },
     methods: {
         applySortAndParentID_Updates(){
@@ -100,30 +100,6 @@ export default {  //TODO: rename this component
             const { indicatorID, sort } = formNode;
             const item = { indicatorID, sort, parentID, listIndex, newParentID: '' }
             this.listItems = [...this.listItems, item];
-            this.handleSortShouldUpdate(item);
-        },
-        //checks if the sort value is not the index, adds it to sortValuesToUpdate to update (true for old forms).
-        handleSortShouldUpdate(listItem) {
-            if(listItem.sort !== listItem.listIndex) {
-                let filteredItems = this.sortValuesToUpdate.filter(item => item.indicatorID !== listItem.indicatorID);
-                this.sortValuesToUpdate = [...filteredItems, listItem];
-            }
-        },
-        handleParentID_ShouldUpdate(listItem) {
-            if(listItem.newParentID !== '' && listItem.parentID !== listItem.newParentID) {
-                let filteredItems = this.parentIDsToUpdate.filter(item => item.indicatorID !== listItem.indicatorID);
-                this.parentIDsToUpdate = [...filteredItems, listItem];
-            }
-        },
-        getFormIndicatorList(){
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}form/_${this.formID}/flat`,
-                    success: (res) => resolve(res),
-                    error: (err) => reject(err)
-                });
-            });
         },
         //update the listIndex and parentID values for a specific indicator
         updateListItems(indID, formParIndID, listIndex) {
@@ -144,7 +120,6 @@ export default {  //TODO: rename this component
             evt.preventDefault();
             const draggedElID = evt.dataTransfer.getData('text');
             const parentEl = evt.currentTarget; //drop event is on the parent ul
-            console.log('drop', 'currTar', parentEl.id, 'tar', evt.target.id);
 
             const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
             const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
@@ -163,10 +138,7 @@ export default {  //TODO: rename this component
                         dist = newDist;
                         closestLI_id = el.id;
                     }
-                    //console.log('LIRectTop, evtdropY, dist, newDist, parentElID, liID')
-                    //console.log(el.getBoundingClientRect().top, evt.clientY, dist, newDist, parentEl.id, el.id);
                 });
-                //console.log(elsLI, closestLI_id);
             
                 try {
                     if(closestLI_id !== null) {
@@ -188,21 +160,16 @@ export default {  //TODO: rename this component
             if(parentEl.classList.contains('entered-drop-zone')){
                 evt.target.classList.remove('entered-drop-zone');
             }
-            this.listItems.forEach(it => {
-                this.handleSortShouldUpdate(it);
-                this.handleParentID_ShouldUpdate(it);
-            });
-            
         },
         onDragLeave(evt) { //@dragleave="onDragLeave"
             if(evt.target.classList.contains('form-index-listing-ul')){
-                console.log('leave', evt.target); //if target is ul, rm drop zone hilite
+               //if target is ul, rm drop zone hilite
                 evt.target.classList.remove('entered-drop-zone');
             }
         },
         onDragEnter(evt) {
             if(evt.target.classList.contains('form-index-listing-ul')){
-                console.log('enter', evt.target); //if target is ul, apply style to hilite drop zone
+                //if target is ul, apply style to hilite drop zone
                 evt.target.classList.add('entered-drop-zone');
             }
         }
@@ -211,8 +178,8 @@ export default {  //TODO: rename this component
         allListItemsAreAdded(newVal, oldVal){
             console.log('watch triggered, all items have been added');
             if(newVal===true) {
-                if (this.sortValuesToUpdate.length > 0) {  //possibly keep these with their own variable, don't mix with drag-drop
-                    //update legacy sort to from prev sort val to new index based value
+                //update legacy sort to from prev sort val to new index based value.  NOTE: possibly just use manual 'apply changes' btn
+                if (this.sortValuesToUpdate.length > 0) {
                     let updateSort = [];
                     this.sortValuesToUpdate.forEach(item => {
                         updateSort.push(

@@ -42,6 +42,7 @@ export default {
             currentCategorySelection: {},  //current record from categories object
             ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
             currentCategoryIsSensitive: false,
+            currentCategoryIndicatorTotal: 0,
             ajaxSelectedCategoryStapled: [],
             ajaxWorkflowRecords: [],       //array of all 'workflows' table records
             ajaxIndicatorByID: {},         //'indicators' table record for a specific indicatorID
@@ -61,6 +62,7 @@ export default {
             categories: Vue.computed(() => this.categories),
             currentCategorySelection: Vue.computed(() => this.currentCategorySelection),
             currentCategoryIsSensitive: Vue.computed(() => this.currentCategoryIsSensitive),
+            currentCategoryIndicatorTotal: Vue.computed(() => this.currentCategoryIndicatorTotal),
             ajaxFormByCategoryID: Vue.computed(() => this.ajaxFormByCategoryID),
             appIsLoadingCategoryInfo: Vue.computed(() => this.appIsLoadingCategoryInfo),
             ajaxSelectedCategoryStapled: Vue.computed(() => this.ajaxSelectedCategoryStapled),
@@ -227,6 +229,12 @@ export default {
 
                 this.getFormByCategoryID(catID).then(res => {
                     this.ajaxFormByCategoryID = res;
+
+                    this.currentCategoryIndicatorTotal = 0;
+                    this.ajaxFormByCategoryID.forEach(section => {
+                        this.currentCategoryIndicatorTotal = this.checkFormIndicatorCount(section, this.currentCategoryIndicatorTotal);
+                    });
+
                     document.getElementById(catID).focus();
                 }).catch(err => console.log('error getting form info: ', err));
 
@@ -359,6 +367,15 @@ export default {
                 }
             }
             return isSensitive;
+        },
+        checkFormIndicatorCount(node = {}, count = 0) {
+            count++;
+            if (node.child) {
+                for (let c in node.child) {
+                    count = this.checkFormIndicatorCount(node.child[c], count);
+                }
+            }
+            return count;
         },
         showRestoreFields() {
             this.restoringFields = true;

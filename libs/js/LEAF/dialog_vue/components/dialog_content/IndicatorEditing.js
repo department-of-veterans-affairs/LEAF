@@ -395,11 +395,11 @@ export default {
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 console.log('creating a new indicator on form ', this.formID);
-
-                const selector = `li#index_section_indicator_${this.parentID}_1 > ul > li`;
-                const sortVal = (this.parentID===null) ?                    //default sort to last question in current depth
-                    this.ajaxFormByCategoryID.length :                      //for new sections/pages
-                    Array.from(document.querySelectorAll(selector)).length  //for new questions in existing sections
+                const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
+                //set default sort to last question in current depth
+                const sortVal = (this.parentID===null) ?
+                    this.ajaxFormByCategoryID.length :                                 //new sections/pages
+                    Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
                 
                 if (+this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
