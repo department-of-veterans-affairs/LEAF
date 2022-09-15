@@ -118,7 +118,7 @@ var formPrintConditions = {};
 function downloadFiles() {
     let url = 'api/form/download/<!--{$recordID|strip_tags}-->/files';
     var now = new Date().getTime();
-    let fileName = "Exported_" + now + ".zip";
+    let fileName = "FileAttachmentsFor_" + <!--{$recordID|strip_tags}--> + ".zip";
     fetch(url, { method: 'get', mode: 'no-cors', referrerPolicy: 'no-referrer' })
         .then(res => {
             if (res.status == 200) {
