@@ -63,3 +63,10 @@ div.cell {
     display: table-cell;
     padding-bottom: 65px;
 }
+#button_save, #button_cancelchange {
+    margin-right: 0;
+}
+#button_save:hover, #button_save:focus, #button_save:active,
+#button_cancelchange:hover, #button_cancelchange:focus, #button_cancelchange:active {
+    box-shadow: inset 0 0 0 2px #003;
+}
