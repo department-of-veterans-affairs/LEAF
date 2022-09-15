@@ -250,6 +250,7 @@ class TimeBracketCmd
 
             // since it will never hit the run portion right away for the between times, might as well do the sleep
             // first. this way we can make the run at 7 am portion more simple
+
             $this->setSleep();
 
             // are we within this time frame? run the command
