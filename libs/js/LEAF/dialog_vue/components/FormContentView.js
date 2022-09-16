@@ -1,4 +1,4 @@
-import PrintFormAjax from "./PrintFormAjax.js";
+import FormViewController from "./FormViewController.js";
 
 export default {
     data() {
@@ -13,7 +13,7 @@ export default {
         }
     },
     components: {
-        PrintFormAjax
+        FormViewController
     },
     inject: [
         'currCategoryID',
@@ -82,7 +82,7 @@ export default {
             <img src="../images/largespinner.gif" alt="loading..." />
         </div>
         <template v-else>
-        <print-form-ajax></print-form-ajax>
+        <form-view-controller></form-view-controller>
         </template>`
         
 }

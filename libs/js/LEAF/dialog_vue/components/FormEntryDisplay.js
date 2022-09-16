@@ -6,11 +6,12 @@ export default {
         index: Number
     },
     inject: [
+        'truncateText',
         'newQuestion',
         'getForm',
         'editIndicatorPrivileges',
         'gridInstances',
-        'updateGridInstances'
+        'updateGridInstances',
     ],
     methods: {
         ifthenUpdateIndicatorID(indicatorID) {
@@ -34,8 +35,9 @@ export default {
             return eles;
         },
         indicatorName() {
-            return (XSSHelpers.stripAllTags(this.formNode.name) || '[ blank ]') + ' 📝 ';
-            //return this.formNode.name || '[ blank ]' + ' 📝';
+            let name = XSSHelpers.stripAllTags(this.formNode.name) || '[ blank ]';
+            name = parseInt(this.depth) === 0 ? this.truncateText(name, 50) : name;
+            return name + ' 📝'
         },
         formatPreview() {
             const baseFormat = this.formNode.format;
@@ -95,50 +97,50 @@ export default {
     },
     template:`<div :class="depth===0 ? 'printmainblock' : 'printsubblock'" :id="blockID">
             <div :class="depth===0 ? 'printmainlabel' : 'printsublabel'">
-                <div style="display:flex; height:100%;">
-                    <div v-if="depth===0" class="printcounter">{{index + 1}}</div>
+                <!-- <div style="display:flex; height:100%;"> -->
+                    
                     <div :id="labelID" :class="labelClass">
-                        
-                            <img v-if="parseInt(formNode.is_sensitive)===1" 
-                                src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
-                                :style="{margin: depth===0 ? '0.2em' : 'auto'}"
-                                title="This field is sensitive" />
-                            
-                            <div :style="{display: depth===0 ? 'flex':'block'}" style="width:100%; align-items: center;">
-                                <span class="printsubheading"
-                                    tabindex="0" 
-                                    @keypress.enter="getForm(formNode.indicatorID, formNode.series)" @click="getForm(formNode.indicatorID, formNode.series)"
-                                    :style="{fontWeight: depth===0 ? 'bold' : 'normal'}"
-                                    :title="'edit indicator ' + formNode.indicatorID">
-                                    {{indicatorName}}
-                                </span>
-                                <span tabindex="0"
-                                    @keypress.enter="editIndicatorPrivileges(formNode.indicatorID)" 
-                                    @click="editIndicatorPrivileges(formNode.indicatorID)"
-                                    style="cursor: pointer;" 
-                                    title="Edit indicator privileges">🔒 </span>
-                                <span v-if="depth>0 && (formNode.format==='dropdown' || formNode.format==='text')" :id="'edit_conditions_' + formNode.indicatorID" 
-                                    tabindex="0" @keypress.enter="ifthenUpdateIndicatorID(formNode.indicatorID)" 
-                                    @click="ifthenUpdateIndicatorID(formNode.indicatorID)" alt="" title="Edit conditions" style="cursor: pointer">🛠️ </span>
-                                <span v-if="formNode.has_code" title="Advanced Options present" style="cursor: pointer">🔧 </span>
-                                <span class="buttonNorm" tabindex="0" title="Add Sub-question"
-                                    :style="{marginLeft: depth===0 ? 'auto' : '0.25em'}"
-                                    :class="{subquestionAddNew: depth > 0}"
-                                    @keypress.enter="newQuestion(formNode.indicatorID)"
-                                    @click="newQuestion(formNode.indicatorID)">
-                                    <img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="" /> 
-                                    Add Sub-question
-                                </span>
-                            </div>
-                        
+                        <div v-if="depth===0 && index>=0" class="printcounter">{{index + 1}}</div>
+                        <img v-if="parseInt(formNode.is_sensitive)===1" 
+                            src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
+                            :style="{margin: depth===0 ? '0.2em' : 'auto'}"
+                            title="This field is sensitive" />
+                        <div style="display: flex; align-items:center;">
+                            <span tabindex="0" class="printsubheading" 
+                                @click="getForm(formNode.indicatorID, formNode.series)"
+                                @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
+                                :title="'edit indicator ' + formNode.indicatorID"
+                                :style="{fontWeight: depth===0 ? 'bold' : 'normal'}">
+                                {{indicatorName}}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items:center; margin-left:auto;">
+                            <button @click="editIndicatorPrivileges(formNode.indicatorID)"
+                                :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
+                                <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
+                            </button>
+                            <button v-if="depth>0 && (formNode.format==='dropdown' || formNode.format==='text')" :id="'edit_conditions_' + formNode.indicatorID" 
+                                @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
+                                <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
+                            </button>
+                            <button v-if="formNode.has_code" title="Advanced Options present" class="icon">
+                                <img v-if="formNode.has_code" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
+                            </button>
+                            <span class="buttonNorm" tabindex="0" title="Add Sub-question"
+                                :class="{subquestionAddNew: depth > 0}"
+                                @keypress.enter="newQuestion(formNode.indicatorID)"
+                                @click="newQuestion(formNode.indicatorID)">
+                                + Add Sub-question
+                            </span>
+                        </div>
                     </div>
-                </div>
+                <!-- </div> -->
                 
                 <div class="printResponse" :id="'xhrIndicator_' + suffix" 
-                    :style="{minHeight: depth===0 ? '75px': 0, padding: depth===0 ? '1em': 0}">
+                    :style="{minHeight: depth===0 ? '75px': 0, padding: depth===0 ? '0.4em': 0}">
 
                     <!-- NOTE: FORMAT PREVIEWS -->
-                    <div class="form_entry_preview">
+                    <div v-if="formNode.format!==''" class="form_entry_preview">
                         <div v-html="formatPreview"></div>
                         <template v-if="formNode.format==='grid'">
                             <br /><br />
@@ -157,7 +159,7 @@ export default {
                     <template v-if="hasChildNode">
                         <div class="printformblock" style="display:flex; flex-wrap:wrap">
                             <Form-entry-display v-for="child in children"
-                                :depth="depth + 4"
+                                :depth="depth + 1"
                                 :formNode="child"
                                 :key="child.indicatorID"> 
                             </form-entry-display>

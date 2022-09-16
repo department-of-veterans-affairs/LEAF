@@ -38,7 +38,7 @@ export default {
         :class="cardLibraryClasses" class="browser-category-card"
         :id="category.categoryID" 
         :title="category.categoryID">
-            <div class="formPreviewTitle" style="position: relative"><div v-html="categoryName"></div>
+            <div class="formPreviewTitle" style="position: relative">{{categoryName}}
                 <img v-if="parseInt(category.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
                 title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px; z-index:10;"/>
             </div>

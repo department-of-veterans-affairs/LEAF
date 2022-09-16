@@ -9,6 +9,7 @@ export default {
     inject: [
         'truncateText',
         'addToListItemsArray',
+        'selectNewFormNode',
         'startDrag',
         'onDragEnter',
         'onDragLeave',
@@ -75,7 +76,7 @@ export default {
             return hasConditionalPrefill;
         },
         //NOTE: Uses globally available XSSHelpers.js (LEAF class)
-        shortLabel() { //TODO:  currently getting from name - too many items didn't have label - prompt during entry
+        shortLabel() { //FIX:TODO:  currently getting from name - too many items didn't have label - prompt during entry
             return XSSHelpers.decodeHTMLEntities(this.truncateText(XSSHelpers.stripAllTags(this.formNode.name))) || '[ blank ]';
         },
         suffix() {
@@ -91,7 +92,9 @@ export default {
     template:`
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
-            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
+            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
+            @click.stop="selectNewFormNode(formNode)"
+            @keypress.enter="selectNewFormNode(formNode)">
             <span>
                 <span v-if="conditionallyShown" title="question is conditionally shown">→ </span>
                 <span v-if="conditionallyHidden" title="question is conditionally hidden">⇏ </span>

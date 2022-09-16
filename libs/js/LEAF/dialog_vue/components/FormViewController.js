@@ -1,13 +1,14 @@
 import FormEntryDisplay from './FormEntryDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
 
-export default {  //TODO: rename this component
+export default {
     data()  {
         return {
             formID: this.currentCategorySelection.categoryID,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: [],  //objects w indID, parID, newParID, sort, listindex for tracking parID and sort changes
+            selectedFormNode: {}
         }
     },
     components: {
@@ -27,7 +28,9 @@ export default {  //TODO: rename this component
     provide() {
         return {
             listItems: Vue.computed(() => this.listItems),
+            selectedFormNode: Vue.computed(() => this.selectedFormNode),
             addToListItemsArray: this.addToListItemsArray,
+            selectNewFormNode: this.selectNewFormNode,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
@@ -50,9 +53,16 @@ export default {  //TODO: rename this component
         parentIDsToUpdate() {
             //NOTE: headers have null as parentID, so listitems element newParentID is initialized with ''
             return this.listItems.filter(item => item.newParentID !== '' && item.parentID !== item.newParentID);
+        },
+        selectedNodeIsEmpty() {
+            return Object.keys(this.selectedFormNode).length === 0;
         }
     },
     methods: {
+        selectNewFormNode(node){
+            this.selectedFormNode = node;
+            console.log(this.selectedFormNode);
+        },
         applySortAndParentID_Updates(){
             let updateSort = [];
             this.sortValuesToUpdate.forEach(item => {
@@ -208,13 +218,14 @@ export default {  //TODO: rename this component
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
             <div v-if="sortOrParentChanged" id="can_update" 
-            tabindex="0" @click="applySortAndParentID_Updates"
-            title="Apply form structure updates">Apply changes</div>
+                tabindex="0" @click="applySortAndParentID_Updates"
+                title="Apply form structure updates">Apply changes</div>
             <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
 
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
             {{ formName }}
             </h3>
+            <button @click="selectNewFormNode({})" class="btn-general" title="show entire form" style="width:100%; margin-top: 1em;">Show entire form</button>
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
                 class="form-index-listing-ul"
@@ -241,7 +252,7 @@ export default {  //TODO: rename this component
         </div>
 
         <!-- FORM ENTRY DISPLAY -->
-        <div id="form_entry_display">
+        <div v-if="selectedNodeIsEmpty" id="form_entry_display">
             <template v-if="ajaxFormByCategoryID.length > 0">
                 <template v-for="(formSection, i) in ajaxFormByCategoryID">
                     <div class="printformblock">
@@ -254,6 +265,16 @@ export default {  //TODO: rename this component
                     </div>
                 </template>
             </template>
+        </div>
+        <div v-else id="form_entry_display">
+            <div class="printformblock">
+                <form-entry-display 
+                    :depth="0"
+                    :formNode="selectedFormNode"
+                    :index="-1"
+                    :key="selectedFormNode.indicatorID">
+                </form-entry-display>
+            </div>
         </div>
     </div>`
 }

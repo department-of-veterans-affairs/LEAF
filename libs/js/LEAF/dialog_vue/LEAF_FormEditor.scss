@@ -1,15 +1,21 @@
- /* NOTE: TODO: consolidate variables 
- 
+ /* NOTE: TODO: consolidate variables */
+
 $BG-DarkNavy: #162e51;
-$BG-Charcoal: #252f3e;
-$BG-VividOrange: #ff6800; changed from Figma #f56600 to meet accessibility contrast 
-$BG-LightGray: #dcdee0;
-$USWDS-LtGray: #c9c9c9;
-$USWDS-Cyan: #00bde3;
-$BaseNavy: #005ea2;
+$base_navy: #005EA2;
 $LtNavy: #1476bd;
- 
-*/
+$charcoal: #252f3e;
+$BG_LightGray: #dcdee0;
+$USWDS_LtGray: #c9c9c9;
+$USWDS_Cyan: #00bde3;
+$lt_cyan: #E0F4FA;
+$BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
+
+@mixin flexcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 
 #vue-formeditor-app {
     padding: 0.5em 1em;
@@ -22,16 +28,14 @@ $LtNavy: #1476bd;
 
 
 button.btn-general, button.btn-confirm {
+    @include flexcenter;
     background-color: white;
-    color: var(--base-navy, #005EA2);
+    color: $base_navy;
     font-weight: bolder;
     padding: 0.4em;
-    border: 2px solid var(--base-navy, #005EA2);
+    border: 2px solid $base_navy;
     border-radius: 4px;
     width: 95px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     white-space: nowrap;
 
     &:hover, &:focus, &:active {
@@ -41,7 +45,7 @@ button.btn-general, button.btn-confirm {
 }
 button.btn-confirm {
     color: white;
-    background-color: var(--base-navy, #005EA2);
+    background-color: $base_navy;
 }
 
 
@@ -51,6 +55,10 @@ button.btn-confirm {
     border-collapse: separate; 
     border-spacing: 0 0.5em;
 
+    td {
+        white-space: nowrap;
+    }
+
     td:not(:last-child) {
         padding-right: 0.2em;
     }
@@ -59,7 +67,6 @@ button.btn-confirm {
 
 /* left menu / nav */
 .mod-form-menu-nav {
-    display: flex;
     width: 180px;
     flex: 0 0 180px;
     margin-right: 1.5em;
@@ -73,31 +80,25 @@ button.btn-confirm {
     li {
         height: auto;
         margin-bottom: 1em;
+    }
+    a {
+        @include flexcenter;
+        justify-content: space-between;
+        height: 100%;
+        min-height: 40px;
+        border: 1px solid #000;
+        border-radius: 2px;
+        text-decoration: none;
+        background-color: #e8f2ff;
+        color: #1b1b1b;
+        padding: 0 0.4em;
+        overflow: hidden;
 
-        a {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 100%;
-            min-height: 40px;
-            border: 1px solid #000;
-            border-radius: 2px;
-            text-decoration: none;
-            background-color: #e8f2ff;
-            color: #1b1b1b;
-            /*padding-left: 1.8em; */
-            padding: 0 0.4em;
-            overflow: hidden;
-
-            &.selected, &:hover, &:focus, &:active {
-                border: 1px solid #000 !important;
-                background-color:  #005EA2;
-                outline: 3px solid #20a0f0 !important;
-                color: white;
-            }
-        }
-        a span {
-            display: inline-block;
+        &.selected, &:hover, &:focus, &:active {
+            border: 1px solid #000 !important;
+            background-color:  $base_navy;
+            outline: 3px solid #20a0f0 !important;
+            color: white;
         }
     }
     #stapledArea ul {
@@ -110,19 +111,19 @@ button.btn-confirm {
 
 /* base dialog modal styling */
 #leaf-vue-dialog-background {
+    @include flexcenter;
     width: 100vw; 
     height: 100%;
     background-color: rgba(0,0,20,0.35);
     position: absolute;
     left: 0;
     top: 0;
-    display:flex; 
-    justify-content: center;
 }
 .leaf-vue-dialog {
     position: absolute;
     margin: auto;
     width: auto;
+    resize: horizontal;
     z-index: 9999;
     min-width: 400px;
     max-width: 900px;
@@ -143,8 +144,8 @@ button.btn-confirm {
     }
     .leaf-vue-dialog-title {
         color: black;
-        border-bottom: 1px solid var(--charcoal, #252F3E);
-        background-color: var(--lt-cyan, #E0F4FA);
+        border-bottom: 1px solid $charcoal;
+        background-color: $lt_cyan;
         cursor: move;
     
         h2 {
@@ -153,16 +154,17 @@ button.btn-confirm {
         }
     } 
     #leaf-vue-dialog-close {
+        @include flexcenter;
         position: absolute;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         top: 8px;
         right: 8px;
         width: 25px;
         height: 25px;
         cursor: pointer;
         font-weight: bold;
+    }
+    select, input:not([type='checkbox']) {
+        width: 50%;
     }
 }
 
@@ -198,9 +200,6 @@ table#edit-properties-modal {
         top: 50%;
         transform: translate(0,-40%);
     }
-    input {
-        width: 100%;
-    }
     textarea {
         width: 100%;
         height: 50px;
@@ -230,8 +229,6 @@ table#edit-properties-modal {
     margin: 0 1em 1em 0;
     width: 300px;
     height: 150px;
-    display: flex;
-    flex-direction: column;
     background-color: white;
     cursor: pointer;
     transition: box-shadow 0.3s ease;
@@ -267,7 +264,7 @@ table#edit-properties-modal {
         height: 26px;
         width: 100%;
         color: white;
-        background-color: var(--dark-navy, #162E51);
+        background-color: $BG-DarkNavy;
     }
     
 }
@@ -306,7 +303,7 @@ table#edit-properties-modal {
     }
     .section_heading {
         font-weight: bolder;
-        color: var(--base-navy, #005EA2);
+        color: $base_navy;
     }
     .subindicator_heading {
         font-weight: normal;
@@ -354,31 +351,43 @@ table#edit-properties-modal {
         width: 3px;
         height: calc(100% - 0.9em);
         border-radius: 50% / 3px;
-        background-color: var(--base-navy, #005EA2);
+        background-color: $base_navy;
     }
 }
+
+
 
 
 #form_entry_display {
     display:flex;
     flex-direction: column;
+    align-self: flex-start;
     width: 100%;
     background-color: white;
     border: 1px solid black;
+    border-top: 0;
     min-width: 400px;
 
-    .printmainblock .printformblock {
+    .printmainblock, .printformblock, .printsubblock {
         page-break-inside: avoid;
     }
+
+    div.printResponse {
+        margin: 0;
+        padding: 0;
+        float: left;
+    }
+    div.printResponse, div.printsubblock {
+        width: 100%;
+    }
+
     .printmainlabel {
         padding: 0;
         height: 40px;
     }
 
     .printcounter {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        @include flexcenter;
         height: 100%;
         padding: 0 0.2em;
         font-size: 1.4em;
@@ -386,41 +395,58 @@ table#edit-properties-modal {
         background-color: black;
         color: white;
     }
-    .printheading, .printheading_missing {
-        display: flex; 
-        align-items: center; 
-        width: 100%;
-        padding: 0.2em 0.4em;
-        background-color: #e0e0e0;
-    }
+
+    .printheading, .printheading_missing,
     div.printsubheading, div.printsubheading_missing {
         display: flex;
-        flex-direction: column;
         width: 100%;
+        padding: 0;
+        padding-right: 0.4em;
+
+        button.icon {
+            margin-right: 0.2em;
+            padding: 0.1em;
+            background-color: transparent;
+            border-radius: 2px;
+            border: 0;
+
+            &:hover, &:focus, &:active {
+                outline: 3px solid $LtNavy !important;
+            }
+
+            img {
+                display: block;
+            }
+        }
+    }
+    .printheading, .printheading_missing {
+        justify-content: flex-start;
+        align-items: center;
+        height: 100%;
+        background-color: #e0e0e0;
+        border-top: 2px solid black;
+    }
+    div.printsubheading, div.printsubheading_missing {
         padding: 0.2em 0.4em;
+        flex-direction: column;
         border-bottom: 0;
-        background-color: white;
+        margin-bottom: 0.5em;
+        background-color: #f4f4f4;
         max-width: none;
     }
     div.printheading_missing, div.printsubheading_missing {
         background-color: #ee9a9a;
     }
-    div.printResponse {
-        margin: 0;
-        padding: 0;
-    }
-    div.printResponse, div.printsubblock {
-        width: 100%;
-    }
+
 
     span.printsubheading {
         font-size: 16px;
         cursor: pointer;
+        padding: 0.2em 0.4em;
     }
 
     .form_entry_preview {
-        margin-bottom: 1em;
-        padding: 0.2em 0.4em;
+        margin: 1em 0;
 
         .text_input_preview {
             width: 100%;
