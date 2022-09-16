@@ -12,6 +12,8 @@ export default {
         'editIndicatorPrivileges',
         'gridInstances',
         'updateGridInstances',
+        'listItems',
+        'allListItemsAreAdded'
     ],
     methods: {
         ifthenUpdateIndicatorID(indicatorID) {
@@ -34,21 +36,26 @@ export default {
             }
             return eles;
         },
+        isHeaderLocation() {
+            let ID = parseInt(this.formNode.indicatorID);
+            let item = this.listItems.find(i => i.indicatorID===ID);
+            return this.allListItemsAreAdded && (item.parentID===null || item.newParentID===null);
+        },
         indicatorName() {
             let name = XSSHelpers.stripAllTags(this.formNode.name) || '[ blank ]';
-            name = parseInt(this.depth) === 0 ? this.truncateText(name, 50) : name;
+            name = parseInt(this.depth) === 0 ? this.truncateText(name, 70) : name;
             return name + ' 📝'
         },
         formatPreview() {
             const baseFormat = this.formNode.format;
             console.log(baseFormat);
 
-            let preview = baseFormat;
+            let preview = ``;
             switch(baseFormat) {
                 case 'number':
                 case 'text':
                 case 'currency':
-                    preview = `<div class="text_input_preview"></div>`
+                    preview += `<input type="baseFormat" class="text_input_preview"/>`
                     break;
                 default:
                     break;
@@ -97,51 +104,63 @@ export default {
     },
     template:`<div :class="depth===0 ? 'printmainblock' : 'printsubblock'" :id="blockID">
             <div :class="depth===0 ? 'printmainlabel' : 'printsublabel'">
-                <!-- <div style="display:flex; height:100%;"> -->
-                    
-                    <div :id="labelID" :class="labelClass">
-                        <div v-if="depth===0 && index>=0" class="printcounter">{{index + 1}}</div>
-                        <img v-if="parseInt(formNode.is_sensitive)===1" 
-                            src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
-                            :style="{margin: depth===0 ? '0.2em' : 'auto'}"
-                            title="This field is sensitive" />
-                        <div style="display: flex; align-items:center;">
-                            <span tabindex="0" class="printsubheading" 
-                                @click="getForm(formNode.indicatorID, formNode.series)"
-                                @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
-                                :title="'edit indicator ' + formNode.indicatorID"
-                                :style="{fontWeight: depth===0 ? 'bold' : 'normal'}">
-                                {{indicatorName}}
-                            </span>
-                        </div>
-                        <div style="display: flex; align-items:center; margin-left:auto;">
-                            <button @click="editIndicatorPrivileges(formNode.indicatorID)"
-                                :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
-                                <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
-                            </button>
-                            <button v-if="depth>0 && (formNode.format==='dropdown' || formNode.format==='text')" :id="'edit_conditions_' + formNode.indicatorID" 
-                                @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
-                                <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
-                            </button>
-                            <button v-if="formNode.has_code" title="Advanced Options present" class="icon">
-                                <img v-if="formNode.has_code" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
-                            </button>
-                            <span class="buttonNorm" tabindex="0" title="Add Sub-question"
-                                :class="{subquestionAddNew: depth > 0}"
-                                @keypress.enter="newQuestion(formNode.indicatorID)"
-                                @click="newQuestion(formNode.indicatorID)">
-                                + Add Sub-question
-                            </span>
-                        </div>
+                <div :id="labelID" :class="labelClass">
+                    <div v-if="depth===0 && index>=0" class="printcounter">{{index + 1}}</div>
+                    <img v-if="parseInt(formNode.is_sensitive)===1" 
+                        src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
+                        :style="{margin: depth===0 ? '0.2em' : 'auto'}"
+                        title="This field is sensitive" />
+                    <div style="display: flex; align-items:center;">
+                        <span tabindex="0" class="printsubheading" 
+                            @click="getForm(formNode.indicatorID, formNode.series)"
+                            @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
+                            :title="'edit indicator ' + formNode.indicatorID"
+                            :style="{fontWeight: depth===0 ? 'bold' : 'normal', paddingLeft: depth===0 || index===-1 ? '0.4em' : '0'}">
+                            {{indicatorName}}
+                        </span>
                     </div>
-                <!-- </div> -->
+                </div>
+
                 
                 <div class="printResponse" :id="'xhrIndicator_' + suffix" 
                     :style="{minHeight: depth===0 ? '75px': 0, padding: depth===0 ? '0.4em': 0}">
 
                     <!-- NOTE: FORMAT PREVIEWS -->
-                    <div v-if="formNode.format!==''" class="form_entry_preview">
+                    <div class="form_entry_preview">
+
+                        <div id="entry_display_toolbar">  <!-- format display and toolbar -->
+                            <div>entry preview (format: {{formNode.format || 'none'}})</div>
+
+                            <div style="display: flex; align-items:center; margin-left:auto; height: 30px;">
+                                <button @click="editIndicatorPrivileges(formNode.indicatorID)"
+                                    :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
+                                    <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
+                                </button>
+                                <button v-if="!isHeaderLocation && (formNode.format==='dropdown' || formNode.format==='text')" :id="'edit_conditions_' + formNode.indicatorID" 
+                                    @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
+                                    <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
+                                </button>
+                                <button v-if="formNode.has_code" title="Advanced Options present" class="icon">
+                                    <img v-if="formNode.has_code" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
+                                </button>
+                                <span class="buttonNorm" tabindex="0" title="Add Sub-question"
+                                    :class="{subquestionAddNew: depth > 0}"
+                                    @keypress.enter="newQuestion(formNode.indicatorID)"
+                                    @click="newQuestion(formNode.indicatorID)">
+                                    + Add Sub-question
+                                </span>
+                            </div>
+                        </div>
+
+                        <div :title="'edit indicator ' + formNode.indicatorID"
+                        @click="getForm(formNode.indicatorID, formNode.series)"
+                        @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
+                        v-html="formNode.name || '[blank]'">
+                        </div>
+
                         <div v-html="formatPreview"></div>
+
+                        <!-- TODO: OLD -->
                         <template v-if="formNode.format==='grid'">
                             <br /><br />
                             <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>

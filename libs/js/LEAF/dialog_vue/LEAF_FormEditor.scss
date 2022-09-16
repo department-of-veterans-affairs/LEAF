@@ -274,7 +274,7 @@ table#edit-properties-modal {
 
 /* form structure index */
 #form_index_display {
-    position: relative;
+    /*position: relative;*/
     margin: 0;
     padding: 1em 0.75em 0.75em;
     width: 375px;
@@ -285,22 +285,20 @@ table#edit-properties-modal {
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
-    #can_update {
-        position: absolute;
-        top: 1em;
-        right: 0.75em;
+    #can_update, #show_entire_form {
         cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10;
         font-size: 90%;
+        margin: 0;
         padding: 0.25em 0.5em;
         border: 1px outset #aac;
         border-radius: 3px;
         color: black;
         background-color: white;
     }
+    #can_update {
+        margin-left: auto;
+    }
+
     .section_heading {
         font-weight: bolder;
         color: $base_navy;
@@ -311,7 +309,7 @@ table#edit-properties-modal {
     }
     ul {
         margin: 0;
-        padding: 0;
+        padding: 0 0 0.2em 0;
         padding-left: 1em;
         display: flex;
         flex-direction: column; 
@@ -319,7 +317,7 @@ table#edit-properties-modal {
         min-height: 0.5em;  /*NOTE: min height needed for drop zones*/
     }
     ul#base_drop_area {
-        padding: 0;
+        padding-bottom: 0.4em;
     }
     ul.entered-drop-zone {
         background-color: #e8ebf0;
@@ -368,6 +366,22 @@ table#edit-properties-modal {
     border-top: 0;
     min-width: 400px;
 
+    button.icon {
+        margin-right: 0.2em;
+        padding: 0.1em;
+        background-color: transparent;
+        border-radius: 2px;
+        border: 0;
+
+        &:hover, &:focus, &:active {
+            outline: 3px solid $LtNavy !important;
+        }
+
+        img {
+            display: block;
+        }
+    }
+
     .printmainblock, .printformblock, .printsubblock {
         page-break-inside: avoid;
     }
@@ -400,24 +414,9 @@ table#edit-properties-modal {
     div.printsubheading, div.printsubheading_missing {
         display: flex;
         width: 100%;
+        border-radius: 2px;
         padding: 0;
         padding-right: 0.4em;
-
-        button.icon {
-            margin-right: 0.2em;
-            padding: 0.1em;
-            background-color: transparent;
-            border-radius: 2px;
-            border: 0;
-
-            &:hover, &:focus, &:active {
-                outline: 3px solid $LtNavy !important;
-            }
-
-            img {
-                display: block;
-            }
-        }
     }
     .printheading, .printheading_missing {
         justify-content: flex-start;
@@ -442,18 +441,33 @@ table#edit-properties-modal {
     span.printsubheading {
         font-size: 16px;
         cursor: pointer;
-        padding: 0.2em 0.4em;
+        padding: 0;
+    }
+
+
+
+    
+    #entry_display_toolbar {
+        margin-bottom: 1em; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        background-color: $lt_cyan;
     }
 
     .form_entry_preview {
-        margin: 1em 0;
+        margin-bottom: 2em;
+
+        > div {
+            padding: 0.2em 0.4em;
+        }
 
         .text_input_preview {
-            width: 100%;
-            height: 2em;
+            display: block;
+            width: 50%;
+           
             background-color: white;
             border: 1px inset rgb(147, 149, 159);
-            margin: 0 auto;
         }
     }
 

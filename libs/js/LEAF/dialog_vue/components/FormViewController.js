@@ -29,6 +29,7 @@ export default {
         return {
             listItems: Vue.computed(() => this.listItems),
             selectedFormNode: Vue.computed(() => this.selectedFormNode),
+            allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
             addToListItemsArray: this.addToListItemsArray,
             selectNewFormNode: this.selectNewFormNode,
             startDrag: this.startDrag,
@@ -61,7 +62,6 @@ export default {
     methods: {
         selectNewFormNode(node){
             this.selectedFormNode = node;
-            console.log(this.selectedFormNode);
         },
         applySortAndParentID_Updates(){
             let updateSort = [];
@@ -152,7 +152,8 @@ export default {
                     if(closestLI_id !== null) {
                         parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
                     } else {
-                        console.log('got a null id');
+                        console.log('got a null id'); //it's at the end
+                        parentEl.append(document.getElementById(draggedElID));
                     }
                     //check the new indexes
                     const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
@@ -185,6 +186,7 @@ export default {
     watch: {
         allListItemsAreAdded(newVal, oldVal){
             console.log('watch triggered, all items have been added');
+            /*
             if(newVal===true) {
                 //update legacy sort to from prev sort val to new index based value.  NOTE: possibly just use manual 'apply changes' btn
                 if (this.sortValuesToUpdate.length > 0) {
@@ -210,22 +212,27 @@ export default {
                         }
                     });
                 }
-            }
+            } */
         }
     },
     template:`
     <div style="display:flex;">
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <div v-if="sortOrParentChanged" id="can_update" 
-                tabindex="0" @click="applySortAndParentID_Updates"
-                title="Apply form structure updates">Apply changes</div>
-            <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
+            <div style="display:flex; margin-bottom: 1em;">
+                <button v-if="!selectedNodeIsEmpty" @click="selectNewFormNode({})" 
+                    id="show_entire_form"
+                    title="Show entire form">Show entire form</button>
+                <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
+                    id="can_update" 
+                    title="Apply form structure updates">Apply changes</button>
+                <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
+            </div>
 
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
             {{ formName }}
             </h3>
-            <button @click="selectNewFormNode({})" class="btn-general" title="show entire form" style="width:100%; margin-top: 1em;">Show entire form</button>
+            
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
                 class="form-index-listing-ul"
