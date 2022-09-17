@@ -41,6 +41,8 @@ export default {
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
             currentCategorySelection: {},  //current record from categories object
             ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
+            selectedFormNode: null,
+            selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             currentCategoryIndicatorTotal: 0,
             ajaxSelectedCategoryStapled: [],
@@ -61,6 +63,8 @@ export default {
             ajaxIndicatorByID: Vue.computed(() => this.ajaxIndicatorByID),
             categories: Vue.computed(() => this.categories),
             currentCategorySelection: Vue.computed(() => this.currentCategorySelection),
+            selectedNodeIndicatorID: Vue.computed(() => this.selectedNodeIndicatorID),
+            selectedFormNode: Vue.computed(() => this.selectedFormNode),
             currentCategoryIsSensitive: Vue.computed(() => this.currentCategoryIsSensitive),
             currentCategoryIndicatorTotal: Vue.computed(() => this.currentCategoryIndicatorTotal),
             ajaxFormByCategoryID: Vue.computed(() => this.ajaxFormByCategoryID),
@@ -84,6 +88,7 @@ export default {
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
+            selectNewFormNode: this.selectNewFormNode,
             updateCategoriesProperty: this.updateCategoriesProperty,
             addNewCategory: this.addNewCategory,
             closeFormDialog: this.closeFormDialog,
@@ -204,7 +209,7 @@ export default {
         addNewCategory(catID, record = {}) {
             this.categories[catID] = record;
         },
-        selectNewCategory(catID, isSubform = false) {
+        selectNewCategory(catID, isSubform = false, subnodeIndID = null) {
             console.log('selecting new form');
             this.restoringFields = false;  //on nav from Restore Fields
 
@@ -216,9 +221,13 @@ export default {
                 console.log('setting new subCatID', catID);
                 this.currSubformID = catID; //if it's an internal form, update the subformID, but keep the main form ID
             }
+            console.log('reset: catselection, form, selectedNode, staples,  nodeIndID, total indicators');
             this.currentCategorySelection = {};
             this.ajaxFormByCategoryID = [];
             this.ajaxSelectedCategoryStapled = [];
+            this.selectedFormNode = null;
+            this.selectedNodeIndicatorID = null;
+            this.currentCategoryIndicatorTotal = 0;
 
             vueData.formID = catID || ''; //NOTE: update of other vue app TODO: mv?
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
@@ -226,13 +235,12 @@ export default {
             //if user clicks a form card or internal, switch to specified record and get info about the form
             if (catID !== null) {
                 this.currentCategorySelection = { ...this.categories[catID]};
+                this.selectedNodeIndicatorID = subnodeIndID;
 
                 this.getFormByCategoryID(catID).then(res => {
                     this.ajaxFormByCategoryID = res;
-
-                    this.currentCategoryIndicatorTotal = 0;
                     this.ajaxFormByCategoryID.forEach(section => {
-                        this.currentCategoryIndicatorTotal = this.checkFormIndicatorCount(section, this.currentCategoryIndicatorTotal);
+                        this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
                     });
 
                     document.getElementById(catID).focus();
@@ -243,6 +251,7 @@ export default {
             } else {  //on nav to view all forms.
                 this.appIsLoadingCategoryList = true;
                 this.categories = {};
+
                 this.getCategoryListAll().then(res => {
                     this.setCategories(res);
                     this.appIsLoadingCategoryList = false;
@@ -252,6 +261,11 @@ export default {
                     this.ajaxWorkflowRecords = res;
                 }).catch(err => console.log('error getting workflow records', err));
             }
+        },
+        selectNewFormNode(node) {
+            this.selectedFormNode = node;
+            this.selectedNodeIndicatorID = node?.indicatorID || null;
+            console.log('setting form node and indID from list selection', this.selectedFormNode, this.selectedNodeIndicatorID)
         },
         editPermissionsClicked() {
             console.log('clicked edit Permissions');
@@ -368,11 +382,15 @@ export default {
             }
             return isSensitive;
         },
-        checkFormIndicatorCount(node = {}, count = 0) {
+        getIndicatorCountAndNodeSelection(node = {}, count = 0) {
             count++;
+            if (node.indicatorID===this.selectedNodeIndicatorID) {
+                this.selectedFormNode = node;
+                console.log('found updated node from stored node ID', this.selectedNodeIndicatorID, this.selectedFormNode)
+            }
             if (node.child) {
                 for (let c in node.child) {
-                    count = this.checkFormIndicatorCount(node.child[c], count);
+                    count = this.getIndicatorCountAndNodeSelection(node.child[c], count);
                 }
             }
             return count;

@@ -10,6 +10,7 @@ export default {
         'truncateText',
         'addToListItemsObject',
         'selectNewFormNode',
+        'selectedNodeIndicatorID',
         'startDrag',
         'onDragEnter',
         'onDragLeave',
@@ -18,6 +19,9 @@ export default {
     mounted() {
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
         this.addToListItemsObject(this.formNode, this.parentID, this.index);
+        if(this.selectedNodeIndicatorID!==null) {
+            document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`).classList.add('index-selected');
+        }
     },
     methods: {
         indexHover(evt) {

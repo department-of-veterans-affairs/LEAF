@@ -8,8 +8,6 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
-            selectedFormNode: null,
-            selectedNodeIndicatorID: null,
             allowedConditionChildFormats: ['dropdown', 'text']
         }
     },
@@ -23,6 +21,8 @@ export default {
         'ajaxFormByCategoryID',
         'currSubformID',
         'selectNewCategory',
+        'selectNewFormNode',
+        'selectedFormNode',
         'newQuestion',
         'currentCategorySelection',
         'currentCategoryIndicatorTotal'
@@ -30,10 +30,8 @@ export default {
     provide() {
         return {
             listItems: Vue.computed(() => this.listItems),
-            selectedFormNode: Vue.computed(() => this.selectedFormNode),
             allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
             addToListItemsObject: this.addToListItemsObject,
-            selectNewFormNode: this.selectNewFormNode,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
@@ -41,7 +39,9 @@ export default {
             onDrop: this.onDrop
         }
     },
-    mounted() {console.log('CONTROLLER mount')},
+    mounted() {
+        console.log('CONTROLLER mount')
+    },
     computed: {
         formName() {
             return this.currentCategorySelection.categoryName || 'Untitled';
@@ -54,7 +54,6 @@ export default {
         },
         sortValuesToUpdate() {
             let indsToUpdate = [];
-            //return this.listItems.filter(item => item.sort !== item.listIndex);
             for (let i in this.listItems) {
                 if (this.listItems[i].sort !== this.listItems[i].listIndex) {
                     indsToUpdate.push({indicatorID: parseInt(i), ...this.listItems[i]});
@@ -65,7 +64,6 @@ export default {
         parentIDsToUpdate() {
             let indsToUpdate = [];
             //NOTE: headers have null as parentID, so listitems element newParentID is initialized with ''
-            //return this.listItems.filter(item => item.newParentID !== '' && item.parentID !== item.newParentID);
             for (let i in this.listItems) {
                 if (this.listItems[i].newParentID !== '' && this.listItems[i].parentID !== this.listItems[i].newParentID) {
                     indsToUpdate.push({indicatorID:  parseInt(i), ...this.listItems[i]});
@@ -75,10 +73,7 @@ export default {
         }
     },
     methods: {
-        selectNewFormNode(node){
-            this.selectedFormNode = node;
-            this.selectedNodeIndicatorID = node?.indicatorID || null;
-        },
+
         applySortAndParentID_Updates(){
             let updateSort = [];
             this.sortValuesToUpdate.forEach(item => {

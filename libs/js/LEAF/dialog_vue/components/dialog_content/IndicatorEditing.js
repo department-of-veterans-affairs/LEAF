@@ -69,6 +69,7 @@ export default {
         'currIndicatorID',
         'ajaxIndicatorByID',
         'ajaxFormByCategoryID',
+        'selectedNodeIndicatorID',
         'selectNewCategory',
         'updateCategoriesProperty',
         'newIndicatorParentID',
@@ -445,7 +446,7 @@ export default {
                 this.closeFormDialog();
                 if (res.length > 0) {
                     vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
-                    this.selectNewCategory(this.formID, this.currSubformID !== null);
+                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                 }
             });
 
