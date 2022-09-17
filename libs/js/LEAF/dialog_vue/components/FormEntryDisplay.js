@@ -115,7 +115,7 @@ export default {
                             @click="getForm(formNode.indicatorID, formNode.series)"
                             @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
                             :title="'edit indicator ' + formNode.indicatorID"
-                            :style="{fontWeight: depth===0 ? 'bold' : 'normal', paddingLeft: depth===0 || index===-1 ? '0.4em' : '0'}">
+                            :style="{fontWeight: depth===0 ? 'bold' : 'normal'}">
                             {{indicatorName}}
                         </span>
                     </div>
@@ -123,15 +123,15 @@ export default {
 
                 
                 <div class="printResponse" :id="'xhrIndicator_' + suffix" 
-                    :style="{minHeight: depth===0 ? '75px': 0, padding: depth===0 ? '0.4em': 0}">
+                    :style="{minHeight: depth===0 ? '75px': 0}">
 
                     <!-- NOTE: FORMAT PREVIEWS -->
                     <div class="form_entry_preview">
 
                         <div id="entry_display_toolbar">  <!-- format display and toolbar -->
-                            <div>entry preview (format: {{formNode.format || 'none'}})</div>
+                            <div>format: {{formNode.format || 'none'}}</div>
 
-                            <div style="display: flex; align-items:center; margin-left:auto; height: 30px;">
+                            <div style="display: flex; align-items:center; height: 30px;">
                                 <button @click="editIndicatorPrivileges(formNode.indicatorID)"
                                     :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
                                     <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
@@ -152,15 +152,16 @@ export default {
                             </div>
                         </div>
 
+                        <!-- TODO: section previe, mv -->
                         <div :title="'edit indicator ' + formNode.indicatorID"
-                        @click="getForm(formNode.indicatorID, formNode.series)"
-                        @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
-                        v-html="formNode.name || '[blank]'">
+                            @click="getForm(formNode.indicatorID, formNode.series)"
+                            @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
+                            v-html="formNode.name || '[blank]'">
                         </div>
-
                         <div v-html="formatPreview"></div>
 
                         <!-- TODO: OLD -->
+                        <!--
                         <template v-if="formNode.format==='grid'">
                             <br /><br />
                             <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
@@ -170,13 +171,12 @@ export default {
                                 <li v-for="o in truncatedOptions" :key="o">{{o}}</li>
                                 <li v-if="formNode.options !== '' && formNode.options.length > 6">...</li>
                             </ul>
-                        </template>
+                        </template> -->
                     </div>
 
-                    <span class="printResponse" :id="'data_' + suffix"></span>
                     <!-- NOTE: RECURSIVE SUBQUESTIONS -->
                     <template v-if="hasChildNode">
-                        <div class="printformblock" style="display:flex; flex-wrap:wrap">
+                        <div class="printformblock">
                             <Form-entry-display v-for="child in children"
                                 :depth="depth + 1"
                                 :formNode="child"

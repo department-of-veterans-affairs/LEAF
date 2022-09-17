@@ -274,7 +274,6 @@ table#edit-properties-modal {
 
 /* form structure index */
 #form_index_display {
-    /*position: relative;*/
     margin: 0;
     padding: 1em 0.75em 0.75em;
     width: 375px;
@@ -366,6 +365,12 @@ table#edit-properties-modal {
     border-top: 0;
     min-width: 400px;
 
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
     button.icon {
         margin-right: 0.2em;
         padding: 0.1em;
@@ -386,21 +391,8 @@ table#edit-properties-modal {
         page-break-inside: avoid;
     }
 
-    div.printResponse {
-        margin: 0;
-        padding: 0;
-        float: left;
-    }
-    div.printResponse, div.printsubblock {
-        width: 100%;
-    }
 
-    .printmainlabel {
-        padding: 0;
-        height: 40px;
-    }
-
-    .printcounter {
+    .printcounter { 
         @include flexcenter;
         height: 100%;
         padding: 0 0.2em;
@@ -415,21 +407,28 @@ table#edit-properties-modal {
         display: flex;
         width: 100%;
         border-radius: 2px;
-        padding: 0;
         padding-right: 0.4em;
     }
     .printheading, .printheading_missing {
-        justify-content: flex-start;
         align-items: center;
-        height: 100%;
+        height: 36px;
         background-color: #e0e0e0;
         border-top: 2px solid black;
+
+        span.printsubheading {
+            padding: 0.2em 0.4em;
+        }
     }
+
+    div.printmainlabel div.printResponse > div {
+        padding: 0.2em, 0.4em;
+    }
+
     div.printsubheading, div.printsubheading_missing {
-        padding: 0.2em 0.4em;
         flex-direction: column;
         border-bottom: 0;
         margin-bottom: 0.5em;
+        padding: 0.2em 0.4em;
         background-color: #f4f4f4;
         max-width: none;
     }
@@ -441,10 +440,7 @@ table#edit-properties-modal {
     span.printsubheading {
         font-size: 16px;
         cursor: pointer;
-        padding: 0;
     }
-
-
 
     
     #entry_display_toolbar {
@@ -457,6 +453,7 @@ table#edit-properties-modal {
 
     .form_entry_preview {
         margin-bottom: 2em;
+        
 
         > div {
             padding: 0.2em 0.4em;
@@ -471,6 +468,8 @@ table#edit-properties-modal {
         }
     }
 
-    
+}
 
+#form_entry_display * {
+   /* border: 1px solid #ff999980;*/
 }
