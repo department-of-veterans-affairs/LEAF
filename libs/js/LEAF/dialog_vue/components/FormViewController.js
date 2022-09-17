@@ -22,6 +22,7 @@ export default {
         'currSubformID',
         'selectNewCategory',
         'selectNewFormNode',
+        'selectedNodeIndicatorID',
         'selectedFormNode',
         'newQuestion',
         'currentCategorySelection',
@@ -110,7 +111,7 @@ export default {
             Promise.all(all).then((res)=> {
                 console.log('promise all applied changes:', all, res);
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID, this.currSubformID !== null);
+                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                 }
             });
 
