@@ -215,11 +215,6 @@ table#edit-properties-modal {
     width: 135px;
 }
 
-/* makes 'Add Sub-Question' buttons smaller than new header buttons */
-.buttonNorm.subquestionAddNew {
-    font-size: 12px;
-    padding: 2px 4px;
-}
 
 
 
@@ -400,7 +395,7 @@ table#edit-properties-modal {
     .printcounter { 
         @include flexcenter;
         height: 100%;
-        padding: 0 0.2em;
+        padding: 0 0.4em;
         font-size: 1.4em;
         font-weight: bold;
         background-color: black;
@@ -425,7 +420,7 @@ table#edit-properties-modal {
         }
     }
 
-    div.printmainlabel div.printResponse > div {
+    div.printmainlabel div.printResponse > div {  /* TODO: check this.  should only hit first*/
         padding: 0.2em, 0.4em;
     }
 
@@ -439,6 +434,13 @@ table#edit-properties-modal {
     }
     div.printheading_missing, div.printsubheading_missing {
         background-color: #ee9a9a;
+    }
+
+    button.add-subquestion {
+        padding: 0.2em 0.4em;
+        font-size: 90%;
+        width: -moz-fit-content; /*firefox prior to nov 2021*/
+        width: fit-content;
     }
 
 

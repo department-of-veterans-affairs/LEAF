@@ -9,7 +9,8 @@ export default {
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
             selectedFormNode: null,
-            selectedNodeIndicatorID: null
+            selectedNodeIndicatorID: null,
+            allowedConditionChildFormats: ['dropdown', 'text']
         }
     },
     components: {
@@ -33,6 +34,7 @@ export default {
             allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
             addToListItemsObject: this.addToListItemsObject,
             selectNewFormNode: this.selectNewFormNode,
+            allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
