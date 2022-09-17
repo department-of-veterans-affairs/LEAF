@@ -38,7 +38,7 @@ export default {
         },
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
-            let item = this.listItems.find(i => i.indicatorID===ID);
+            let item = this.listItems[ID];
             return this.allListItemsAreAdded && (item.parentID===null || item.newParentID===null);
         },
         indicatorName() {

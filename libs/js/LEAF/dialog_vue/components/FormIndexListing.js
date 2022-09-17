@@ -8,7 +8,7 @@ export default {
     },
     inject: [
         'truncateText',
-        'addToListItemsArray',
+        'addToListItemsObject',
         'selectNewFormNode',
         'startDrag',
         'onDragEnter',
@@ -17,7 +17,7 @@ export default {
     ],
     mounted() {
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
-        this.addToListItemsArray(this.formNode, this.parentID, this.index);
+        this.addToListItemsObject(this.formNode, this.parentID, this.index);
     },
     methods: {
         indexHover(evt) {

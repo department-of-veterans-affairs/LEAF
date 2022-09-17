@@ -7,8 +7,9 @@ export default {
             formID: this.currentCategorySelection.categoryID,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
-            listItems: [],  //objects w indID, parID, newParID, sort, listindex for tracking parID and sort changes
-            selectedFormNode: {}
+            listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
+            selectedFormNode: null,
+            selectedNodeIndicatorID: null
         }
     },
     components: {
@@ -30,7 +31,7 @@ export default {
             listItems: Vue.computed(() => this.listItems),
             selectedFormNode: Vue.computed(() => this.selectedFormNode),
             allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
-            addToListItemsArray: this.addToListItemsArray,
+            addToListItemsObject: this.addToListItemsObject,
             selectNewFormNode: this.selectNewFormNode,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
@@ -38,30 +39,43 @@ export default {
             onDrop: this.onDrop
         }
     },
+    mounted() {console.log('CONTROLLER mount')},
     computed: {
         formName() {
             return this.currentCategorySelection.categoryName || 'Untitled';
         },
         allListItemsAreAdded() {
-            return this.currentCategoryIndicatorTotal === this.listItems.length;
+            return this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
         },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
         },
         sortValuesToUpdate() {
-            return this.listItems.filter(item => item.sort !== item.listIndex);
+            let indsToUpdate = [];
+            //return this.listItems.filter(item => item.sort !== item.listIndex);
+            for (let i in this.listItems) {
+                if (this.listItems[i].sort !== this.listItems[i].listIndex) {
+                    indsToUpdate.push({indicatorID: parseInt(i), ...this.listItems[i]});
+                }
+            }
+            return indsToUpdate;
         },
         parentIDsToUpdate() {
+            let indsToUpdate = [];
             //NOTE: headers have null as parentID, so listitems element newParentID is initialized with ''
-            return this.listItems.filter(item => item.newParentID !== '' && item.parentID !== item.newParentID);
-        },
-        selectedNodeIsEmpty() {
-            return Object.keys(this.selectedFormNode).length === 0;
+            //return this.listItems.filter(item => item.newParentID !== '' && item.parentID !== item.newParentID);
+            for (let i in this.listItems) {
+                if (this.listItems[i].newParentID !== '' && this.listItems[i].parentID !== this.listItems[i].newParentID) {
+                    indsToUpdate.push({indicatorID:  parseInt(i), ...this.listItems[i]});
+                }
+            }
+            return indsToUpdate;
         }
     },
     methods: {
         selectNewFormNode(node){
             this.selectedFormNode = node;
+            this.selectedNodeIndicatorID = node?.indicatorID || null;
         },
         applySortAndParentID_Updates(){
             let updateSort = [];
@@ -104,20 +118,17 @@ export default {
             });
 
         },
-        addToListItemsArray(formNode, parentID, listIndex) {
+        addToListItemsObject(formNode, parentID, listIndex) {
             const { indicatorID, sort } = formNode;
-            const item = { indicatorID, sort, parentID, listIndex, newParentID: '' }
-            this.listItems = [...this.listItems, item];
+            const item = { sort, parentID, listIndex, newParentID: '' }
+            this.listItems[indicatorID] = item;
         },
         //update the listIndex and parentID values for a specific indicator
         updateListItems(indID, formParIndID, listIndex) {
-            const item = this.listItems.find(li => li.indicatorID === indID);
-            const index = this.listItems.indexOf(item);
-            this.listItems = [...this.listItems.slice(0, index), ...this.listItems.slice(index + 1)];
-
-            item.newParentID = formParIndID;
+            let item = {...this.listItems[indID]};
             item.listIndex = listIndex;
-            this.listItems = [...this.listItems, item];
+            item.newParentID = formParIndID;
+            this.listItems[indID] = item;
         },
         startDrag(evt) {
             evt.dataTransfer.dropEffect = 'move';
@@ -187,8 +198,8 @@ export default {
         allListItemsAreAdded(newVal, oldVal){
             console.log('watch triggered, all items have been added');
             /*
+            //this would update legacy sort to from prev sort val to new index based value.  NOTE: possibly just use manual 'apply changes' btn
             if(newVal===true) {
-                //update legacy sort to from prev sort val to new index based value.  NOTE: possibly just use manual 'apply changes' btn
                 if (this.sortValuesToUpdate.length > 0) {
                     let updateSort = [];
                     this.sortValuesToUpdate.forEach(item => {
@@ -219,19 +230,31 @@ export default {
     <div style="display:flex;">
         <!-- FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <div style="display:flex; margin-bottom: 1em;">
-                <button v-if="!selectedNodeIsEmpty" @click="selectNewFormNode({})" 
-                    id="show_entire_form"
-                    title="Show entire form">Show entire form</button>
-                <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
-                    id="can_update" 
-                    title="Apply form structure updates">Apply changes</button>
-                <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
-            </div>
-
+            
+            <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
+                id="can_update"
+                title="Apply form structure updates">Apply changes</button>
+            <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
+            
             <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
             {{ formName }}
             </h3>
+
+            <div style="margin: 1.5em 0 0.5em 0;">
+                <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em" 
+                    @click="selectNewFormNode(null)" 
+                    id="show_entire_form" 
+                    title="Show entire form">Show entire form
+                </button>
+                
+                <button class="btn-general" style="width: 100%" 
+                    @click="newQuestion(null)"
+                    id="add_new_form_section"
+                    title="Add new form section">
+                    + Add Section
+                </button>
+            </div>
+            
             
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
@@ -253,13 +276,10 @@ export default {
                     @dragstart.stop="startDrag">
                 </form-index-listing>
             </ul>
-            <div style="display: flex; justify-content: center; align-items: center; margin-top: 1em;">
-                <button class="btn-general" style="width: 100%" @click="newQuestion(null)" title="Add new form section">+ Add Section</button>
-            </div>
         </div>
 
         <!-- FORM ENTRY DISPLAY -->
-        <div v-if="selectedNodeIsEmpty" id="form_entry_display">
+        <div v-if="selectedFormNode===null" id="form_entry_display">
             <template v-if="ajaxFormByCategoryID.length > 0">
                 <template v-for="(formSection, i) in ajaxFormByCategoryID">
                     <div class="printformblock">
@@ -267,7 +287,7 @@ export default {
                             :depth="0"
                             :formNode="formSection"
                             :index="i"
-                            :key="formSection.indicatorID">
+                            :key="'entry_display_' + formSection.indicatorID">
                         </form-entry-display>
                     </div>
                 </template>

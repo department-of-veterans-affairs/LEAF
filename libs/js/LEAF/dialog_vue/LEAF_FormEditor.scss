@@ -274,17 +274,20 @@ table#edit-properties-modal {
 
 /* form structure index */
 #form_index_display {
+    position: relative;
     margin: 0;
-    padding: 1em 0.75em 0.75em;
+    padding: 1em 1em 0.75em;
     width: 375px;
     flex: 0 0 375px;
     align-self:flex-start;
-    margin-right: 1.5em;
+    margin-right: 1em;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
-    #can_update, #show_entire_form {
+    #can_update {
+        position: absolute;
+        right: 1em;
         cursor: pointer;
         font-size: 90%;
         margin: 0;
@@ -293,9 +296,6 @@ table#edit-properties-modal {
         border-radius: 3px;
         color: black;
         background-color: white;
-    }
-    #can_update {
-        margin-left: auto;
     }
 
     .section_heading {
@@ -317,6 +317,7 @@ table#edit-properties-modal {
     }
     ul#base_drop_area {
         padding-bottom: 0.4em;
+        padding-left:  0;
     }
     ul.entered-drop-zone {
         background-color: #e8ebf0;
@@ -369,6 +370,10 @@ table#edit-properties-modal {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+    }
+
+    div.printResponse, .printsubblock  {
+        width: 100%;
     }
 
     button.icon {
