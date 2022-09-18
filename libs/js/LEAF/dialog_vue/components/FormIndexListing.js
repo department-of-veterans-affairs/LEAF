@@ -14,7 +14,8 @@ export default {
         'startDrag',
         'onDragEnter',
         'onDragLeave',
-        'onDrop'
+        'onDrop',
+        'moveListing'
     ],
     mounted() {
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
@@ -97,14 +98,25 @@ export default {
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="selectNewFormNode(formNode)"
-            @keypress.enter="selectNewFormNode(formNode)">
-            <span>
-                <span v-if="conditionallyShown" title="question is conditionally shown">→ </span>
-                <span v-if="conditionallyHidden" title="question is conditionally hidden">⇏ </span>
-                <span v-if="hasConditionalPrefill" title="question has a conditional prefill value">✎ </span>
-                {{headingNumber}} {{shortLabel}}
-            </span>
+            @click.stop="selectNewFormNode($event, formNode)"
+            @keypress.stop.enter="selectNewFormNode($event, formNode)">
+            <div>
+                <span v-if="conditionallyShown" title="question is conditionally shown">→</span>
+                <span v-if="conditionallyHidden" title="question is conditionally hidden">⇏</span>
+                <span v-if="hasConditionalPrefill" title="question has a conditional prefill value">✎</span>
+                {{headingNumber}}&nbsp;{{shortLabel}}
+
+                <div class="icon_move_container">
+                    <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
+                        tabindex="0" class="icon_move up" title="move item up"
+                        @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
+                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, true)"></div>
+                    <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
+                        tabindex="0" class="icon_move down" title="move item down"
+                        @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
+                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, false)"></div>
+                </div>
+            </div>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             

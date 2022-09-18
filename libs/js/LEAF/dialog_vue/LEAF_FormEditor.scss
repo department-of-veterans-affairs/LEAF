@@ -38,7 +38,11 @@ button.btn-general, button.btn-confirm {
     width: 95px;
     white-space: nowrap;
 
-    &:hover, &:focus, &:active {
+    &.disabled {
+        cursor: auto;
+    }
+
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         border: 2px solid black !important;
         box-shadow: 0 0 4px rgba(0,0,30,0.4);
     }
@@ -282,7 +286,7 @@ table#edit-properties-modal {
 
     #can_update {
         position: absolute;
-        right: 1em;
+        right: 1.2em;
         cursor: pointer;
         font-size: 90%;
         margin: 0;
@@ -290,7 +294,7 @@ table#edit-properties-modal {
         border: 1px outset #aac;
         border-radius: 3px;
         color: black;
-        background-color: white;
+        background-color: $lt_cyan;
     }
 
     .section_heading {
@@ -311,25 +315,61 @@ table#edit-properties-modal {
         min-height: 0.5em;  /*NOTE: min height needed for drop zones*/
     }
     ul#base_drop_area {
-        padding-bottom: 0.4em;
-        padding-left:  0;
+        padding: 0 0 0.4em 0;
     }
     ul.entered-drop-zone {
         background-color: #e8ebf0;
     }
     li {
         position: relative;
-        cursor: pointer;
+        cursor: grab;
         margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
         border-radius: 2px;
         outline: none !important;
     }
-    li > span {
-        display: block; 
-        height:100%; width: 100%; 
+    li > div {
+        display: flex;
+        align-items: center;
+        width: 100%; 
+        height: 40px;
         border-bottom: 1px solid #d0d0d4;
         padding-bottom: 0.9em; /*NOTE: min height of drop zone, plus margin of li */
+
+        .icon_move_container {
+            @include flexcenter;
+            flex-direction: column;
+            position: absolute;
+            right: 0;
+
+            .icon_move {
+                @include flexcenter;
+                cursor: pointer;
+                width: 0;
+                height: 0;
+                background-color: transparent;
+                border-radius: 2px;
+                border: 8px solid transparent;
+                margin-left: auto;
+
+                &.up {
+                    margin-bottom: 0.4em;
+                    border-bottom: 14px solid $BG-DarkNavy;
+                    &:hover, &:focus, &:active {
+                        outline: none !important;
+                        border-bottom: 14px solid $USWDS_Cyan;
+                    }
+                }
+                &.down {
+                    border-top: 14px solid $BG-DarkNavy;
+                    &:hover, &:focus, &:active {
+                        outline: none !important;
+                        border-top: 14px solid $USWDS_Cyan;
+                    }
+                }
+            }
+        }
     }
+
     li:first-child {
         margin-top: 0.8em;
     }

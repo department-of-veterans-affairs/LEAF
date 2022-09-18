@@ -37,7 +37,8 @@ export default {
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
-            onDrop: this.onDrop
+            onDrop: this.onDrop,
+            moveListing: this.moveListing
         }
     },
     mounted() {
@@ -74,7 +75,42 @@ export default {
         }
     },
     methods: {
+        moveListing(event, indID, moveup) {
+            const parentEl = event.currentTarget.closest('ul');
+            const elToMove = document.getElementById(`index_listing_${indID}`);
+            const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+            const newElsLI = oldElsLI.filter(li => li !== elToMove);
+            const listitem = this.listItems[indID];
 
+            if(moveup) {
+                if(listitem.listIndex > 0) {
+                    newElsLI.splice(listitem.listIndex - 1, 0, elToMove);
+                    oldElsLI.forEach(li => parentEl.removeChild(li));
+                    newElsLI.forEach((li, i) => {
+                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                        parentEl.appendChild(li);
+                        this.listItems[liIndID].listIndex = i;
+                    });
+                    event.currentTarget.focus();
+                } else {
+                    console.log('is first item');
+                }
+            } 
+            else {
+                if(listitem.listIndex < oldElsLI.length - 1) {
+                    newElsLI.splice(listitem.listIndex + 1, 0, elToMove);
+                    oldElsLI.forEach(li => parentEl.removeChild(li));
+                    newElsLI.forEach((li, i) => {
+                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                        parentEl.appendChild(li);
+                        this.listItems[liIndID].listIndex = i;
+                    });
+                    event.currentTarget.focus();
+                } else {
+                    console.log('is last item');
+                }
+            }
+        },
         applySortAndParentID_Updates(){
             let updateSort = [];
             this.sortValuesToUpdate.forEach(item => {
@@ -234,16 +270,17 @@ export default {
                 title="Apply form structure updates">Apply changes</button>
             <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
             
-            <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
-            {{ formName }}
+            <h3 style="margin: 0; margin-bottom: 0.75em; color: black;">
+            Form Index
             </h3>
 
-            <div style="margin: 1.5em 0 0.5em 0;">
-                <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em" 
-                    @click="selectNewFormNode(null)" 
+            <div style="margin: 1em 0">
+                <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
+                    @click="selectNewFormNode($event, null)" 
                     id="show_entire_form" 
                     title="Show entire form">Show entire form
                 </button>
+                <button v-else class="btn-general disabled" disabled="true" style="width: 100%; margin-bottom: 0.5em;">Viewing entire form</button>
                 
                 <button class="btn-general" style="width: 100%" 
                     @click="newQuestion(null)"
@@ -252,6 +289,10 @@ export default {
                     + Add Section
                 </button>
             </div>
+
+            <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
+            {{ formName }}
+            </h3>
             
             
             <ul v-if="ajaxFormByCategoryID.length > 0"

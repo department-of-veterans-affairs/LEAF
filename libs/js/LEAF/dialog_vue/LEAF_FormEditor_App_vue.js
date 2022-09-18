@@ -262,7 +262,8 @@ export default {
                 }).catch(err => console.log('error getting workflow records', err));
             }
         },
-        selectNewFormNode(node) {
+        selectNewFormNode(event, node) {
+            if (event.target.classList.contains('icon_move')) return //this shouldn't happen but it does
             this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
             console.log('setting form node and indID from list selection', this.selectedFormNode, this.selectedNodeIndicatorID)
