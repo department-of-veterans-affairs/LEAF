@@ -1,5 +1,5 @@
 export default {
-    name: 'FormEntryDisplay',  //NOTE: this will replace previous 'print-subindicators' component
+    name: 'FormEditingDisplay',  //NOTE: this will replace previous 'print-subindicators' component
     props: {
         depth: Number,
         formNode: Object,
@@ -54,23 +54,6 @@ export default {
             let name = XSSHelpers.stripAllTags(this.formNode.name) || '[ blank ]';
             name = parseInt(this.depth) === 0 ? this.truncateText(name, 70) : name;
             return name;
-        },
-        formatPreview() {
-            const baseFormat = this.formNode.format;
-            console.log(baseFormat);
-
-            let preview = ``;
-            switch(baseFormat) {
-                case 'number':
-                case 'text':
-                case 'currency':
-                    preview += `<input type="baseFormat" class="text_input_preview"/>`
-                    break;
-                default:
-                    break;
-
-            }
-            return preview;
         },
         bgColor() {
             return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
@@ -135,9 +118,9 @@ export default {
                     :style="{minHeight: depth===0 ? '75px': 0}">
 
                     <!-- NOTE: FORMAT PREVIEWS -->
-                    <div class="form_entry_preview">
+                    <div class="form_editing_area">
 
-                        <div id="entry_display_toolbar">  <!-- format display and toolbar -->
+                        <div id="form_editing_toolbar">  <!-- format display and toolbar -->
                             <div>format: {{formNode.format || 'none'}}</div>
 
                             <div style="display: flex; align-items:center;">
@@ -160,14 +143,6 @@ export default {
                             </div>
                         </div>
 
-                        <!-- TODO: section previe, mv -->
-                        <div :title="'edit indicator ' + formNode.indicatorID"
-                            @click="getForm(formNode.indicatorID, formNode.series)"
-                            @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
-                            v-html="formNode.name || '[blank]'">
-                        </div>
-                        <div v-html="formatPreview"></div>
-
                         <!-- TODO: OLD -->
                         <!--
                         <template v-if="formNode.format==='grid'">
@@ -185,15 +160,14 @@ export default {
                     <!-- NOTE: RECURSIVE SUBQUESTIONS -->
                     <template v-if="hasChildNode">
                         <div class="printformblock">
-                            <Form-entry-display v-for="child in children"
+                            <form-editing-display v-for="child in children"
                                 :depth="depth + 1"
                                 :formNode="child"
-                                :key="child.indicatorID"> 
-                            </form-entry-display>
+                                :key="'editing_display_' + child.indicatorID"> 
+                            </form-editing-display>
                         </div>
                     </template>
                 </div>
-                
             </div> <!-- END MAIN/SUB LABEL -->
         </div> <!-- END MAIN/SUB BLOCK -->`
 }

@@ -1,5 +1,6 @@
-import FormEntryDisplay from './FormEntryDisplay.js';
+import FormEditingDisplay from './FormEditingDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
+import FormEntryPreview from './FormEntryPreview.js';
 
 export default {
     data()  {
@@ -12,8 +13,9 @@ export default {
         }
     },
     components: {
-        FormEntryDisplay,
-        FormIndexListing
+        FormEditingDisplay,
+        FormIndexListing,
+        FormEntryPreview
     },
     inject: [
         'APIroot',
@@ -317,29 +319,50 @@ export default {
             </ul>
         </div>
 
-        <!-- FORM ENTRY DISPLAY -->
-        <div v-if="selectedFormNode===null" id="form_entry_display">
+
+        <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
+        <div v-if="selectedFormNode===null" id="form_entry_and_preview">
             <template v-if="ajaxFormByCategoryID.length > 0">
-                <template v-for="(formSection, i) in ajaxFormByCategoryID">
+                <template v-for="(formSection, i) in ajaxFormByCategoryID"
+                    :key="'editing_display_' + formSection.indicatorID">
                     <div class="printformblock">
-                        <form-entry-display 
+                        <form-editing-display 
                             :depth="0"
                             :formNode="formSection"
-                            :index="i"
-                            :key="'entry_display_' + formSection.indicatorID">
-                        </form-entry-display>
+                            :index="i">
+                        </form-editing-display>
+                    </div>
+
+                    <!-- ENTIRE FORM PREVIEW -->
+                    <h3 style="padding: 0.5em">Form Preview</h3>
+                    <div id="form_entry_preview">
+                        <form-entry-preview
+                            :depth="0"
+                            :formNode="formSection"
+                            :index="i">
+                        </form-entry-preview>
                     </div>
                 </template>
             </template>
         </div>
-        <div v-else id="form_entry_display">
+        <div v-else id="form_entry_and_preview">
+            <!-- SUBSECTION EDIT -->
             <div class="printformblock">
-                <form-entry-display 
+                <form-editing-display 
                     :depth="0"
                     :formNode="selectedFormNode"
-                    :index="-1"
-                    :key="selectedFormNode.indicatorID">
-                </form-entry-display>
+                    :index="-1">
+                </form-editing-display>
+            </div>
+
+            <!-- SUBSECTION PREVIEW -->
+            <h3 style="padding: 0.5em">Selection Preview</h3>
+            <div id="form_entry_preview">
+                <form-entry-preview
+                    :depth="0"
+                    :formNode="selectedFormNode"
+                    :index="-1">
+                </form-entry-preview>
             </div>
         </div>
     </div>`

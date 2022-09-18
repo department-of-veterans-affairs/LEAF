@@ -391,7 +391,7 @@ table#edit-properties-modal {
 
 
 
-#form_entry_display {
+#form_entry_and_preview {
     display:flex;
     flex-direction: column;
     align-self: flex-start;
@@ -490,7 +490,7 @@ table#edit-properties-modal {
     }
 
     
-    #entry_display_toolbar {
+    #form_editing_toolbar {
         margin-bottom: 1em; 
         display: flex; 
         justify-content: space-between; 
@@ -498,7 +498,7 @@ table#edit-properties-modal {
         background-color: $lt_cyan;
     }
 
-    .form_entry_preview {
+    .form_editing_area {
         margin-bottom: 2em;
         
 
@@ -515,8 +515,29 @@ table#edit-properties-modal {
         }
     }
 
-}
+    #form_entry_preview {
+        margin: 0.5em;
+        border: 1px solid black;
+    }
 
-#form_entry_display * {
-   /* border: 1px solid #ff999980;*/
+    .form_data_entry_preview {
+        padding: 0.2em 0;
+    
+        &.conditional-show {
+            color: white;
+            background-color: $BG-DarkNavy;
+        }
+        .title-preview, .format-preview {
+            padding: 0.2em 0.4em;
+        }
+        
+        .text_input_preview {
+            display: block;
+            width: 50%;
+        
+            background-color: white;
+            border: 1px inset rgb(147, 149, 159);
+        }
+    }
+
 }
