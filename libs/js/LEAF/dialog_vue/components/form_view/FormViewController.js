@@ -334,7 +334,7 @@ export default {
                     </div>
 
                     <!-- ENTIRE FORM PREVIEW -->
-                    <h3 style="padding: 0.5em">Form Preview</h3>
+                    <h3 style="padding: 0.5em">Form Page Preview</h3>
                     <div id="form_entry_preview">
                         <form-entry-preview
                             :depth="0"

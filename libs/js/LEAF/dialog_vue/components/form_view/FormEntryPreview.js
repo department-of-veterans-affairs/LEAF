@@ -40,7 +40,8 @@ export default {
                 case 'number':
                 case 'text':
                 case 'currency':
-                    preview += `<input type="baseFormat" class="text_input_preview"/>`
+                    const type = baseFormat === 'currency' ? 'number' : baseFormat;
+                    preview += `<input type="${type}" ${baseFormat === 'currency' ? 'min="0.00" step="0.01"' : ''} class="text_input_preview"/>`
                     break;
                 default:
                     break;
