@@ -115,7 +115,7 @@ export default {
 
                 
                 <div class="printResponse" :id="'xhrIndicator_' + suffix" 
-                    :style="{minHeight: depth===0 ? '75px': 0}">
+                    :style="{minHeight: depth===0 ? '50px': 0}">
 
                     <!-- NOTE: FORMAT PREVIEWS -->
                     <div class="form_editing_area">

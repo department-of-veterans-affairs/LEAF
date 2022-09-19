@@ -430,6 +430,9 @@ table#edit-properties-modal {
     .printmainblock, .printformblock, .printsubblock {
         page-break-inside: avoid;
     }
+    .printsubblock {
+        padding-left: 0.75em;
+    }
 
 
     .printcounter { 
@@ -477,7 +480,7 @@ table#edit-properties-modal {
     }
 
     button.add-subquestion {
-        padding: 0.2em 0.4em;
+        padding: 0.1em 0.4em;
         font-size: 90%;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         width: fit-content;
@@ -491,7 +494,7 @@ table#edit-properties-modal {
 
     
     #form_editing_toolbar {
-        margin-bottom: 1em; 
+        /*margin-bottom: 0.5em; */
         display: flex; 
         justify-content: space-between; 
         align-items: center;
@@ -499,7 +502,7 @@ table#edit-properties-modal {
     }
 
     .form_editing_area {
-        margin-bottom: 2em;
+        margin-bottom: 1.5em;
         
 
         > div {
