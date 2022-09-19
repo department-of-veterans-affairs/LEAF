@@ -199,6 +199,7 @@ class Group
      * @return array|string
      */
     public function getMembers($groupID): array|string
+
     {
         if (!is_numeric($groupID))
         {
