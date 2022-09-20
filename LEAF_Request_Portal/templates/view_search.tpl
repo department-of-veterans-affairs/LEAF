@@ -179,6 +179,7 @@ function main() {
         offset = 0;
         loadAllResults = false;
         scrollY = 0;
+        abortSearch = false;
 
         let isJSON = true;
         let advSearch = {};
