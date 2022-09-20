@@ -446,7 +446,7 @@ switch ($action) {
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
 
-        $tabText = 'Recover disabled fields';
+        $tabText = 'Access Matrix';
 
         break;
     case 'import_data':
