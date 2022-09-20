@@ -12,10 +12,6 @@
     font-size: 1rem;
 }
 
-li {
-    line-height: 2rem;
-}
-
 button.buttonNorm {
     font-size: 1rem;
 }
