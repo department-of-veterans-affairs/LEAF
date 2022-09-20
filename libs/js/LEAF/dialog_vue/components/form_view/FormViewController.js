@@ -1,6 +1,5 @@
 import FormEditingDisplay from './FormEditingDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
-import FormEntryPreview from './FormEntryPreview.js';
 
 export default {
     data()  {
@@ -14,8 +13,7 @@ export default {
     },
     components: {
         FormEditingDisplay,
-        FormIndexListing,
-        FormEntryPreview
+        FormIndexListing
     },
     inject: [
         'APIroot',
@@ -49,6 +47,11 @@ export default {
     computed: {
         formName() {
             return this.currentCategorySelection.categoryName || 'Untitled';
+        },
+        currentSectionNumber() {
+            let ID = parseInt(this.selectedFormNode.indicatorID);
+            let item = this.listItems[ID];
+            return this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
         },
         allListItemsAreAdded() {
             return this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
@@ -228,7 +231,7 @@ export default {
                 //if target is ul, apply style to hilite drop zone
                 evt.target.classList.add('entered-drop-zone');
             }
-        }
+        },
     },
     watch: {
         allListItemsAreAdded(newVal, oldVal){
@@ -264,7 +267,7 @@ export default {
     },
     template:`
     <div style="display:flex;">
-        <!-- FORM INDEX DISPLAY -->
+        <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
             
             <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
@@ -296,7 +299,6 @@ export default {
             {{ formName }}
             </h3>
             
-            
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
                 class="form-index-listing-ul"
@@ -319,12 +321,15 @@ export default {
             </ul>
         </div>
 
-
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
         <div v-if="selectedFormNode===null" id="form_entry_and_preview">
             <template v-if="ajaxFormByCategoryID.length > 0">
                 <template v-for="(formSection, i) in ajaxFormByCategoryID"
                     :key="'editing_display_' + formSection.indicatorID">
+                    <!-- ENTIRE FORM EDIT / PREVIEW -->
+                    <div class="form-section-header" style="display: flex;">
+                        <h3>Form Page {{i+1}}</h3>
+                    </div>
                     <div class="printformblock">
                         <form-editing-display 
                             :depth="0"
@@ -332,37 +337,20 @@ export default {
                             :index="i">
                         </form-editing-display>
                     </div>
-
-                    <!-- ENTIRE FORM PREVIEW -->
-                    <h3 style="padding: 0.5em">Form Page Preview</h3>
-                    <div id="form_entry_preview">
-                        <form-entry-preview
-                            :depth="0"
-                            :formNode="formSection"
-                            :index="i">
-                        </form-entry-preview>
-                    </div>
                 </template>
             </template>
         </div>
         <div v-else id="form_entry_and_preview">
-            <!-- SUBSECTION EDIT -->
+            <!-- SUBSECTION EDIT / PREVIEW -->
+            <div class="form-section-header" style="display: flex;">
+                <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
+            </div>
             <div class="printformblock">
                 <form-editing-display 
                     :depth="0"
                     :formNode="selectedFormNode"
                     :index="-1">
                 </form-editing-display>
-            </div>
-
-            <!-- SUBSECTION PREVIEW -->
-            <h3 style="padding: 0.5em">Selection Preview</h3>
-            <div id="form_entry_preview">
-                <form-entry-preview
-                    :depth="0"
-                    :formNode="selectedFormNode"
-                    :index="-1">
-                </form-entry-preview>
             </div>
         </div>
     </div>`

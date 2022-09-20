@@ -1,5 +1,5 @@
 export default {
-    name: 'FormEntryPreview',
+    name: 'FormEntryPreview',  //NOTE: rm, worked in with editor section
     props: {
         depth: Number,
         formNode: Object,
