@@ -243,8 +243,7 @@ var LeafFormQuery = function() {
         		type: 'GET',
         		url: rootURL + 'api/form/query?q=' + queryUrl + extraParams,
         		dataType: 'json',
-        		success: successCallback,
-        		cache: false
+        		success: successCallback
         	});
     	}
     	else {
@@ -252,8 +251,7 @@ var LeafFormQuery = function() {
         		type: 'GET',
         		url: rootURL + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
-        		success: successCallback,
-        		cache: false
+        		success: successCallback
         	});
     	}
     }
