@@ -356,7 +356,7 @@ export default {
             <!-- SUBSECTION EDIT / PREVIEW -->
             <div class="form-section-header" style="display: flex;">
                 <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                <button
+                <button id="indicator_toolbar_toggle"
                     @click.stop="toggleToolbars($event)">
                     {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
                 </button>

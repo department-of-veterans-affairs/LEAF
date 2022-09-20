@@ -131,7 +131,7 @@ export default {
 
                 <!-- PREVIEW QUESTION AND ENTRY FORMAT -->
                 <div 
-                    style="display: flex; padding: 0.2em 1em;">
+                    style="display: flex; padding: 0.2em 1em 0 1em;">
                     <span v-html="indicatorName" class="indicator-name-preview"></span>
                 </div>
 
