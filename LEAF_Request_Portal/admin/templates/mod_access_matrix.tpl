@@ -211,6 +211,10 @@ function renderView(dependencyGroups, activeDependencies) {
                 </tr>`;
     }
 
+    if(Object.keys(activeDependencies).length == 0) {
+        buf += '<tr><td colspan="2">No tasks available for configuration</td></tr>';
+    }
+
     buf += '</tbody></table>';
 
     document.querySelector('#access_matrix').innerHTML = buf;
