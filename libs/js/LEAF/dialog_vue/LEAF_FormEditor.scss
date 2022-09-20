@@ -423,7 +423,7 @@ table#edit-properties-modal {
             cursor: pointer;
             width: 100px;
             flex: 0 0 100px;
-            background-color: $charcoal;
+            background-color: $BG-DarkNavy;
             color: $BG_Pearl;
             padding: 0.15em 0.4em;
             border: 1px solid black;
@@ -469,7 +469,7 @@ table#edit-properties-modal {
 
 
     .form_editing_area {
-        padding-bottom: 1em;
+        padding-bottom: 0.75em;
 
         &.conditional-show {
             color: white;
@@ -489,6 +489,11 @@ table#edit-properties-modal {
                 display: inline;
             }
 
+            .input-required-sensitive {
+                color: Red;
+                margin-left: 0.4em;
+            }
+
         }
 
         div[id^="form_editing_toolbar_"] {
@@ -504,7 +509,7 @@ table#edit-properties-modal {
 
 
         .form_data_entry_preview {
-            padding: 0 0.75em 0.75em 0.75em;
+            padding: 0 0.75em 0.5em 0.75em;
 
             .text_input_preview {
                 display: inline-block;
@@ -515,11 +520,91 @@ table#edit-properties-modal {
                 border: 1px solid gray;
                 padding: 0.25em;
             }
+            .textarea_input_preview {
+                width: 100%; 
+                padding: 0.5em; 
+                font-size: 1.3em; 
+                font-family: monospace;
+            }
 
         }
 
         .format-preview {
             margin-top: 0.2em;
+
+
+            /* checkboxes and radio */
+            /* additional class added to avoid hitting custom files */
+            .checkable.leaf_check {
+                font-family: Source Sans Pro Web, sans-serif;
+                cursor: pointer;
+                position: relative;
+                display:flex;
+                align-items: center;
+                width: -moz-fit-content;
+                width: fit-content;
+                max-width: 600px;
+                margin-bottom: 0.2em;
+            }
+
+            /*keeping prev class names.  used as handle in many form advanced options*/
+            /*additional class name leaf_check used to avoid hitting custom files*/
+            input[class*="icheck"][class*="leaf_check"], 
+            input[class*="ischecked"][class*="leaf_check"] { 
+                opacity: 0;
+                margin-right: 0.2em;
+                cursor: pointer;
+                width: 20px;
+                flex: 0 0 20px;
+                height: 20px;
+                margin: 4px 10px 4px 0;
+            }
+            span.leaf_check {
+                position: absolute;
+                top: 50%;
+                transform: translate(0, -50%);
+                left: 4px;
+                width: 20px;
+                height: 20px;
+                background-color: transparent;
+                border: 1px solid rgb(151, 150, 149);
+            }
+            span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active,
+            input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check,
+            input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check {
+                border: 2px solid #47e;
+            }
+            input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
+                border-radius: 50%;
+            }
+            span.leaf_check::after {
+                content: "";
+                box-sizing: content-box; /* needed to fix leaf.css collision */
+                position: absolute;
+                top: 10%;
+                left: 30%;
+                width: 25%;
+                height: 50%;
+                background-color: transparent;
+                border: 1px solid #FFF;
+                border-width: 0px 3px 3px 0px;
+                border-radius: 2px;
+                transform: rotate(40deg);
+                display: none;
+            }
+            input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check,
+            input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check {
+                background-color: #47e;
+                border: 1px solid #47e;
+                opacity: 1;
+            }
+            input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
+            input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
+                display: block;
+            }
+
+
+
         }
     }
 

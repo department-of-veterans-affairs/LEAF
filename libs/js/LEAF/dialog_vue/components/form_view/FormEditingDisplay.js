@@ -1,9 +1,14 @@
+import FormatPreview from "./FormatPreview";
+
 export default {
     name: 'FormEditingDisplay',  //NOTE: this will replace previous 'print-subindicators' component
     props: {
         depth: Number,
         formNode: Object,
         index: Number
+    },
+    components: {
+        FormatPreview
     },
     inject: [
         'truncateText',
@@ -44,29 +49,10 @@ export default {
             return this.allListItemsAreAdded && (item.parentID===null || item.newParentID===null);
         },
         sensitiveImg() {
-            return parseInt(this.formNode.is_sensitive)===1 ? 
+            return this.sensitive ? 
                 `<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
                     style="vertical-align: text-bottom; display:inline-block;"
                     title="This field is sensitive" />` : '';
-        },
-        formatPreview() {
-            const baseFormat = this.formNode.format?.toLowerCase();
-            console.log(baseFormat);
-
-            let preview = ``;
-            switch(baseFormat) {
-                case 'number':
-                case 'text':
-                case 'currency':
-                    const type = baseFormat === 'currency' ? 'number' : baseFormat;
-                    if (baseFormat === 'currency') preview += '$&nbsp;'
-                    preview += `<input type="${type}" ${baseFormat === 'currency' ? 'min="0.00" step="0.01"' : ''} class="text_input_preview"/>`
-                    break;
-                default:
-                    break;
-
-            }
-            return preview;
         },
         conditionallyShown() {
             let isConditionalShow = false;
@@ -81,9 +67,12 @@ export default {
         consitionsAllowed() {
             return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
         },
-        indicatorName() {
+        indicatorName() {  //TODO: and label??
+            const contentRequired = this.required ? `<span class="input-required-sensitive">*&nbsp;Required</span>` : '';
+            const contentSensitive = this.sensitive ? `<span class="input-required-sensitive">*&nbsp;Sensitive</span>` : '';
+
             let name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
-            name = `${this.sensitiveImg} ${name}`;
+            name = `${name}${contentRequired}${contentSensitive}  &nbsp;${this.sensitiveImg}`;
             return name;
         },
         bgColor() {
@@ -92,20 +81,11 @@ export default {
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
         },
-        colspan() {
-            return this.formNode.format === null || this.formNode.format.toLowerCase() === 'textarea' ? 2 : 1;
-        },
         required() {
             return parseInt(this.formNode.required) === 1;
         },
-        blockID() { //NOTE: not sure about empty id attr
-            return parseInt(this.depth) === 0 ?  '' : `subIndicator_${this.suffix}`;
-        },
-        labelID() {
-            return parseInt(this.depth) === 0 ? `PHindicator_${this.suffix}` : '';
-        },
-        truncatedOptions() {
-            return this.formNode.options?.slice(0, 6) || [];
+        sensitive() {
+            return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
     mounted(){
@@ -155,21 +135,16 @@ export default {
                 <div v-html="indicatorName" class="indicator-name-preview"></div>
                 
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
-                    <template v-if="formatPreview!==''">
-                    <div v-html="formatPreview" class="format-preview"></div>
-                    </template>
+                    
+                    <format-preview :indicator="formNode"></format-preview>
+                    
 
                     <!-- NOTE:/TODO: OLD FORMAT PREVIEWS -->
                     <template v-if="formNode.format==='grid'">
                         <br />
                         <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
                     </template>
-                    <template v-else>
-                        <ul v-if="formNode.options && formNode.options !== ''" style="padding-left:26px;">
-                            <li v-for="o in truncatedOptions" :key="o">{{o}}</li>
-                            <li v-if="formNode.options !== '' && formNode.options.length > 6">...</li>
-                        </ul>
-                    </template>
+
                 </div>
 
 
