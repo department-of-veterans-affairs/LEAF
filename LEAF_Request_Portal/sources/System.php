@@ -290,84 +290,89 @@ class System
         return "groupID: {$groupID} updated";
     }
 
-    public function importGroup($groupID)
+    /**
+     * @param int $groupID
+     *
+     * @return string
+     */
+    public function importGroup($groupID): string
     {
         if (!is_numeric($groupID)) {
-            return 'Invalid Group';
-        }
-        if ($groupID == 1) {
-            return 'Cannot update admin group';
-        }
+            $return_value = 'Invalid Group';
+        } else if ($groupID == 1) {
+            $return_value = 'Cannot update admin group';
+        } else {
+                // clear out old data first
+            $vars = array(':groupID' => $groupID);
+            //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
+            $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        // clear out old data first
-        $vars = array(':groupID' => $groupID);
-        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
-        $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+            $config = new Config();
+            $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+            $group = new Orgchart\Group($db_phonebook, $this->login);
+            $position = new Orgchart\Position($db_phonebook, $this->login);
+            $employee = new Orgchart\Employee($db_phonebook, $this->login);
+            $tag = new Orgchart\Tag($db_phonebook, $this->login);
 
-        $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new Orgchart\Group($db_phonebook, $this->login);
-        $position = new Orgchart\Position($db_phonebook, $this->login);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
-        $tag = new Orgchart\Tag($db_phonebook, $this->login);
+            // find quadrad/ELT tag name
+            $upperLevelTag = $tag->getParent('service');
+            $isQuadrad = false;
+            if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
+                $isQuadrad = true;
+            }
 
-        // find quadrad/ELT tag name
-        $upperLevelTag = $tag->getParent('service');
-        $isQuadrad = false;
-        if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
-            $isQuadrad = true;
-        }
+            $resGroup = $group->getGroup($groupID)[0];
+            $vars = array(':groupID' => $groupID,
+                ':parentGroupID' => ($isQuadrad == true ? -1 : null),
+                ':name' => $resGroup['groupTitle'],
+                ':groupDescription' => '',);
 
-        $resGroup = $group->getGroup($groupID)[0];
-        $vars = array(':groupID' => $groupID,
-            ':parentGroupID' => ($isQuadrad == true ? -1 : null),
-            ':name' => $resGroup['groupTitle'],
-            ':groupDescription' => '',);
+            $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name, groupDescription)
+                                            VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
 
-        $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name, groupDescription)
-                    					VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
+            // build list of member employees
+            $resEmp = array();
+            $positions = $group->listGroupPositions($groupID);
+            $resEmp = $group->listGroupEmployees($groupID);
+            foreach ($positions as $tposition) {
+                $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
+            }
 
-        // build list of member employees
-        $resEmp = array();
-        $positions = $group->listGroupPositions($groupID);
-        $resEmp = $group->listGroupEmployees($groupID);
-        foreach ($positions as $tposition) {
-            $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
-        }
+            foreach ($resEmp as $emp) {
+                if ($emp['userName'] != '') {
+                    $vars = array(':userID' => $emp['userName'],
+                        ':groupID' => $groupID,);
 
-        foreach ($resEmp as $emp) {
-            if ($emp['userName'] != '') {
-                $vars = array(':userID' => $emp['userName'],
-                    ':groupID' => $groupID,);
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
+                                                        VALUES (:userID, :groupID)
+                                                        ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                    VALUES (:userID, :groupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                    // include the backups of employees
+                    $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+                    if ($res[0]['active'] == 1) {
+                        $backups = $employee->getBackups($emp['empUID']);
+                        foreach ($backups as $backup) {
+                            $vars = array(':userID' => $backup['userName'],
+                                ':groupID' => $groupID,
+                                ':backupID' => $emp['userName'],);
 
-                // include the backups of employees
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-                if ($res[0]['active'] == 1) {
-                    $backups = $employee->getBackups($emp['empUID']);
-                    foreach ($backups as $backup) {
-                        $vars = array(':userID' => $backup['userName'],
-                            ':groupID' => $groupID,
-                            ':backupID' => $emp['userName'],);
-
-                        // Add backupID check for updates
-                        $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                            // Add backupID check for updates
+                            $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                        VALUES (:userID, :groupID, :backupID)
+                                                        ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                        }
                     }
                 }
             }
+            $return_value = "groupID: {$groupID} imported";
         }
 
-        return "groupID: {$groupID} imported";
+        return $return_value;
     }
 
     public function getServices()
