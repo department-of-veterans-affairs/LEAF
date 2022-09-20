@@ -5,7 +5,7 @@ $base_navy: #005EA2;
 $LtNavy: #1476bd;
 $charcoal: #252f3e;
 $BG_LightGray: #dcdee0;
-$BG_Pearl: #f0f0fc;
+$BG_Pearl: #ededfb;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
 $lt_cyan: #E0F4FA;
@@ -390,6 +390,8 @@ table#edit-properties-modal {
 }
 
 
+
+
 #form_entry_and_preview {
     display:flex;
     flex-direction: column;
@@ -408,25 +410,44 @@ table#edit-properties-modal {
     .form-section-header {
         display: flex;
         align-items: center;
-        padding: 0.4em;
+        padding: 0.4em 0.75em;
         background-color: $base_navy;
         border-top: 2px solid black;
-        border-bottom: 1px solid black;
 
         h3 {
             width: 100%;
             height: 100%;
             color: white;
         }
+        #indicator_toolbar_toggle {
+            cursor: pointer;
+            width: 100px;
+            flex: 0 0 100px;
+            background-color: $charcoal;
+            color: $BG_Pearl;
+            padding: 0.15em 0.4em;
+            border: 1px solid black;
+            border-radius: 2px;
+            font-size: 90%;
+    
+            &:hover, &:focus, &:active {
+                background-color: black;
+                color: white;
+                border: 1px solid white !important;
+            }
+        }
     }
 
-    div.printResponse, .printsubblock  {
+    div.printformblock {
+        page-break-inside: avoid;
+    }
+
+    div.printResponse {
         width: 100%;
     }
 
     button.icon {
-        margin-right: 0.2em;
-        padding: 0.1em;
+        margin-right: 0.3em;
         background-color: transparent;
         border-radius: 2px;
         border: 0;
@@ -434,48 +455,9 @@ table#edit-properties-modal {
         &:hover, &:focus, &:active {
             outline: 3px solid $LtNavy !important;
         }
-
         img {
             display: block;
         }
-    }
-
-    .printmainblock, .printformblock, .printsubblock {
-        page-break-inside: avoid;
-    }
-
-    .printheading, .printheading_missing,
-    div.printsubheading, div.printsubheading_missing {
-        display: flex;
-        width: 100%;
-        border-radius: 2px;
-        padding-right: 0.4em;
-    }
-    .printheading, .printheading_missing {
-        align-items: center;
-        height: 36px;
-        background-color: #e0e0e0;
-        border-top: 2px solid black;
-
-        span.printsubheading {
-            padding: 0.2em 0.4em;
-        }
-    }
-
-    div.printmainlabel div.printResponse > div {  /* TODO: check this.  should only hit first*/
-        padding: 0.2em, 0.4em;
-    }
-
-    div.printsubheading, div.printsubheading_missing {
-        flex-direction: column;
-        border-bottom: 0;
-        margin-bottom: 0.5em;
-        padding: 0.2em 0.4em;
-        background-color: #f4f4f4;
-        max-width: none;
-    }
-    div.printheading_missing, div.printsubheading_missing {
-        background-color: #ee9a9a;
     }
 
     button.add-subquestion {
@@ -486,32 +468,8 @@ table#edit-properties-modal {
     }
 
 
-    span.printsubheading {
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    #indicator_toolbar_toggle {
-        cursor: pointer;
-        background-color: $lt_cyan;
-        color: black;
-        padding: 0.15em 0.4em;
-        border: 1px solid $lt_cyan;
-        border-radius: 2px;
-        font-size: 90%;
-
-        &:hover, &:focus, &:active {
-            background-color: white;
-            border: 1px solid white !important;
-        }
-    }
-
     .form_editing_area {
-        padding-top: 1.5em;
-
-        span.indicator-name-preview > p {
-            display: inline;
-        }
+        padding-bottom: 1em;
 
         &.conditional-show {
             color: white;
@@ -519,23 +477,34 @@ table#edit-properties-modal {
         }
 
         > div {
-            padding: 0.5em 1em;
+            padding: 0.5em 0.75em;
+        }
+
+        .indicator-name-preview {
+            /*display: flex;*/
+            padding: 0.75em 0.75em 0 0.75em;
+
+            /* text editor can insert p tags when used.  this keeps them from disrupting icons in the indicator name display */
+            > p {
+                display: inline;
+            }
+
         }
 
         div[id^="form_editing_toolbar_"] {
-            padding: 0.2em 1em;
+            padding: 0.2em 0.75em;
             display: flex; 
             justify-content: space-between; 
             align-items: center;
             background-color: $BG_Pearl;
-            border-top: 1px dotted $USWDS_LtGray;
-            border-bottom: 1px solid black;
+            border-top: 1px solid black;
             font-size: 90%;
             color: black;
         }
 
+
         .form_data_entry_preview {
-            padding: 0 1em 0.75em 1em;
+            padding: 0 0.75em 0.75em 0.75em;
 
             .text_input_preview {
                 display: inline-block;
@@ -553,6 +522,5 @@ table#edit-properties-modal {
             margin-top: 0.2em;
         }
     }
-
 
 }

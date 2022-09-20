@@ -98,21 +98,11 @@ export default {
         required() {
             return parseInt(this.formNode.required) === 1;
         },
-        isEmpty() {
-            return this.formNode.isEmpty === true;
-        },
         blockID() { //NOTE: not sure about empty id attr
             return parseInt(this.depth) === 0 ?  '' : `subIndicator_${this.suffix}`;
         },
         labelID() {
             return parseInt(this.depth) === 0 ? `PHindicator_${this.suffix}` : '';
-        },
-        labelClass() {
-            if (parseInt(this.depth) === 0) {
-                return this.required && this.isEmpty ? `printheading_missing` : `printheading`;
-            } else {
-                return this.required && this.isEmpty ? `printsubheading_missing` : `printsubheading`;
-            }
         },
         truncatedOptions() {
             return this.formNode.options?.slice(0, 6) || [];
@@ -131,29 +121,6 @@ export default {
             <div class="form_editing_area" :class="{'conditional-show': conditionallyShown}">
 
                 <!-- PREVIEW QUESTION AND ENTRY FORMAT -->
-                <div 
-                    style="display: flex; padding: 0.2em 1em 0 1em;">
-                    <span v-html="indicatorName" class="indicator-name-preview"></span>
-                </div>
-
-                <div v-if="formNode.format!==''" class="form_data_entry_preview">
-                    <template v-if="formatPreview!==''">
-                    <div v-html="formatPreview" class="format-preview"></div>
-                    </template>
-
-                    <!-- NOTE:/TODO: OLD FORMAT PREVIEWS -->
-                    <template v-if="formNode.format==='grid'">
-                        <br />
-                        <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
-                    </template>
-                    <template v-else>
-                        <ul v-if="formNode.options && formNode.options !== ''" style="padding-left:26px;">
-                            <li v-for="o in truncatedOptions" :key="o">{{o}}</li>
-                            <li v-if="formNode.options !== '' && formNode.options.length > 6">...</li>
-                        </ul>
-                    </template>
-                </div>
-
                 <!-- TOOLBAR -->
                 <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
                     <div>
@@ -184,6 +151,28 @@ export default {
                         </button>
                     </div>
                 </div>
+
+                <div v-html="indicatorName" class="indicator-name-preview"></div>
+                
+                <div v-if="formNode.format!==''" class="form_data_entry_preview">
+                    <template v-if="formatPreview!==''">
+                    <div v-html="formatPreview" class="format-preview"></div>
+                    </template>
+
+                    <!-- NOTE:/TODO: OLD FORMAT PREVIEWS -->
+                    <template v-if="formNode.format==='grid'">
+                        <br />
+                        <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
+                    </template>
+                    <template v-else>
+                        <ul v-if="formNode.options && formNode.options !== ''" style="padding-left:26px;">
+                            <li v-for="o in truncatedOptions" :key="o">{{o}}</li>
+                            <li v-if="formNode.options !== '' && formNode.options.length > 6">...</li>
+                        </ul>
+                    </template>
+                </div>
+
+
             </div>
 
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
