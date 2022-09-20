@@ -3,6 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+require '../form.php';
 
 class UserActivity extends RESTfulResponse
 {
@@ -12,8 +13,14 @@ class UserActivity extends RESTfulResponse
 
     private $login;
 
+    private $form;
+
+    private $db;
+
     public function __construct($db, $login)
     {
+        $this->form = new Form($db, $login);
+        $this->db = $db;
         $this->login = $login;
     }
 
