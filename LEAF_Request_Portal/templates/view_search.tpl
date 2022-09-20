@@ -15,9 +15,9 @@ function renderResult(leafSearch, res) {
             let now = new Date();
             let year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
             let formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-            $('#'+data.cellContainerID).html(formattedDate);
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = formattedDate;
             if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
-                $('#'+data.cellContainerID).css('background-color', '#feffd1');
+                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
             }
         }},
         {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
@@ -36,19 +36,20 @@ function renderResult(leafSearch, res) {
                 priorityStyle = ' style="background-color: red; color: black"';
             }
 
-            $('#'+data.cellContainerID).html('<span class="browsecounter"><a '+priorityStyle+' href="'
-                    + 'index.php?a=printview&recordID='+data.recordID + '" tabindex="-1">' + data.recordID
-                    + '</a></span><a href="' + 'index.php?a=printview&recordID='+data.recordID
-                    + '">' + blob[data.recordID].title + '</a><br />'
-                    + '<span class="browsetypes">' + types + '</span>' + priority);
-            $('#'+data.cellContainerID).on('click', function() {
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = 
+                `<span class="browsecounter">
+                    <a ${priorityStyle} href="index.php?a=printview&recordID=${data.recordID}" tabindex="-1">${data.recordID}</a>
+                 </span>
+                 <a href="index.php?a=printview&recordID=${data.recordID}">${blob[data.recordID].title}</a><br />
+                 <span class="browsetypes">${types}</span>${priority}`;
+            document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
                 window.location = 'index.php?a=printview&recordID='+data.recordID;
             });
         }},
         {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
-            $('#'+data.cellContainerID).html(blob[data.recordID].service);
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
             if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                $('#'+data.cellContainerID).css('background-color', '#feffd1');
+                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
             }
         }},
         {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
@@ -72,9 +73,9 @@ function renderResult(leafSearch, res) {
                 status += ', Cancelled';
             }
 
-            $('#'+data.cellContainerID).html(status);
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
             if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                $('#'+data.cellContainerID).css('background-color', '#feffd1');
+                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
             }
         }}
     ]);
@@ -105,9 +106,6 @@ function renderResult(leafSearch, res) {
     grid.renderBody();
     grid.announceResults();
 
-    $('#header_date').css('width', '60px');
-    $('#header_service').css('width', '150px');
-    $('#header_currentStatus').css('width', '100px');
 }
 
 function main() {
@@ -153,8 +151,8 @@ function main() {
             && loadAllResults
             && !abortSearch) {
 
-            $('#' + leafSearch.getResultContainerID()).html(`<h3>Searching ${offset}+ possible records...</h3><p><button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button></p>`);
-            $('#btn_abortSearch').on('click', function() {
+            document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p><button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button></p>`;
+            document.querySelector('#btn_abortSearch').addEventListener('click', function() {
                 abortSearch = true;
             });
             offset += batchSize;
@@ -168,10 +166,10 @@ function main() {
 
         // UI for "show more results" button
         if(!loadAllResults) {
-            $('#searchContainer_getMoreResults').css('display', 'inline');
+            document.querySelector('#searchContainer_getMoreResults').style.display = 'inline';
         }
         else {
-            $('#searchContainer_getMoreResults').css('display', 'none');
+            document.querySelector('#searchContainer_getMoreResults').style.display = 'none';
         }
     });
     leafSearch.setSearchFunc(function(txt) {
@@ -185,7 +183,7 @@ function main() {
         let isJSON = true;
         let advSearch = {};
         try {
-            advSearch = $.parseJSON(txt);
+            advSearch = JSON.parse(txt);
         }
         catch(err) {
             isJSON = false;
@@ -195,7 +193,7 @@ function main() {
         if(txt == '') {
             query.addTerm('title', 'LIKE', '*');
         }
-        else if($.isNumeric(txt)) {
+        else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
             query.addTerm('recordID', '=', txt);
         }
         else if(isJSON) {
@@ -237,9 +235,9 @@ function main() {
         return query.execute();
     });
     leafSearch.init();
-    $('#' + leafSearch.getResultContainerID()).html('<h3>Searching for records...</h3>');
+    document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = '<h3>Searching for records...</h3>';
 
-    $('#searchContainer_getMoreResults').on('click', function() {
+    document.querySelector('#searchContainer_getMoreResults').addEventListener('click', function() {
         loadAllResults = true;
         scrollY = window.scrollY;
         if(leafSearch.getSearchInput() == '') {
