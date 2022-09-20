@@ -50,7 +50,7 @@ export default {
                     title="This field is sensitive" />` : '';
         },
         formatPreview() {
-            const baseFormat = this.formNode.format;
+            const baseFormat = this.formNode.format?.toLowerCase();
             console.log(baseFormat);
 
             let preview = ``;
@@ -59,6 +59,7 @@ export default {
                 case 'text':
                 case 'currency':
                     const type = baseFormat === 'currency' ? 'number' : baseFormat;
+                    if (baseFormat === 'currency') preview += '$&nbsp;'
                     preview += `<input type="${type}" ${baseFormat === 'currency' ? 'min="0.00" step="0.01"' : ''} class="text_input_preview"/>`
                     break;
                 default:

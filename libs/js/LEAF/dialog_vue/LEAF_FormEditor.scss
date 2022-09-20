@@ -406,13 +406,12 @@ table#edit-properties-modal {
     }
 
     .form-section-header {
-        margin: -1px -1px 0 -1px;
         display: flex;
         align-items: center;
         padding: 0.4em;
         background-color: $base_navy;
-        border: 2px solid black;
-        border-bottom: 0;
+        border-top: 2px solid black;
+        border-bottom: 1px solid black;
 
         h3 {
             width: 100%;
@@ -539,10 +538,13 @@ table#edit-properties-modal {
             padding: 0 1em 0.75em 1em;
 
             .text_input_preview {
-                display: block;
+                display: inline-block;
                 width: 50%;
+                font-size: 1.3em; 
+                font-family: monospace;
                 background-color: white;
-                border: 1px inset rgb(147, 149, 159);
+                border: 1px solid gray;
+                padding: 0.25em;
             }
 
         }
