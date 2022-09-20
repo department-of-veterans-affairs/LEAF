@@ -5,24 +5,24 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 
 
 function renderResult(leafSearch, res) {
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-    var grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    let grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
     grid.hideIndex();
     grid.setDataBlob(res);
     grid.setHeaders([
         {name: 'Date', indicatorID: 'date', editable: false, callback: function(data, blob) {
-            var date = new Date(blob[data.recordID].date * 1000);
-            var now = new Date();
-            var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-            var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+            let date = new Date(blob[data.recordID].date * 1000);
+            let now = new Date();
+            let year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
+            let formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
             $('#'+data.cellContainerID).html(formattedDate);
             if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
                 $('#'+data.cellContainerID).css('background-color', '#feffd1');
             }
         }},
         {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-            var types = '';
-            for(var i in blob[data.recordID].categoryNames) {
+            let types = '';
+            for(let i in blob[data.recordID].categoryNames) {
                 if(blob[data.recordID].categoryNames[i] != '') {
                     types += blob[data.recordID].categoryNames[i] + ' | ';
                 }
@@ -52,13 +52,13 @@ function renderResult(leafSearch, res) {
             }
         }},
         {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
-            var waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
-            var status = '';
+            let waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+            let status = '';
             if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
                 status = '<span style="color: #e00000">Not Submitted</span>';
             }
             else if(blob[data.recordID].stepID == null) {
-                var lastStatus = blob[data.recordID].lastStatus;
+                let lastStatus = blob[data.recordID].lastStatus;
                 if(lastStatus == '') {
                     lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
                 }
@@ -79,8 +79,8 @@ function renderResult(leafSearch, res) {
         }}
     ]);
     grid.setPostProcessDataFunc(function(data) {
-        var data2 = [];
-        for(var i in data) {
+        let data2 = [];
+        for(let i in data) {
             <!--{if !$is_admin}-->
             if(data[i].submitted == '0'
                 && data[i].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
@@ -96,8 +96,8 @@ function renderResult(leafSearch, res) {
         return data2;
     });
 
-    var tGridData = [];
-    for(var i in res) {
+    let tGridData = [];
+    for(let i in res) {
         tGridData.push(res[i]);
     }
     grid.setData(tGridData);
