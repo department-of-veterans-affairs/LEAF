@@ -738,8 +738,8 @@ function linkDependencyDialog(stepID) {
             buffer = 'Select an existing requirement ';
             buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
 
-            var reservedDependencies = ['-3', '-2', '-1', '1', '8'];
-            var maskedDependencies = ['5'];
+            var reservedDependencies = [-3, -2, -1, 1, 8];
+            var maskedDependencies = [5];
 
             buffer += '<optgroup label="Custom Requirements">';
             for(let i in res) {

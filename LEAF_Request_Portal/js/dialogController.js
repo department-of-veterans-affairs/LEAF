@@ -3,10 +3,10 @@
 
 */
 
-function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCancelID) {
+function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, btnCancelID) {
 	this.containerID = containerID;
 	this.contentID = contentID;
-	this.indicatorID = indicatorID;
+	this.loadIndicatorID = loadIndicatorID;
 	this.btnSaveID = btnSaveID;
 	this.btnCancelID = btnCancelID;
 	this.dialogControllerXhrEvent = null;
@@ -63,7 +63,7 @@ dialogController.prototype.hide = function() {
 
 dialogController.prototype.show = function() {
 	if($('#' + this.contentID).html() == '') {
-		$('#' + this.indicatorID).css('visibility', 'visible');
+		$('#' + this.loadIndicatorID).css('visibility', 'visible');
 	}
 	$('#' + this.containerID).dialog('open');
 	$('#' + this.containerID).css('visibility', 'visible');
@@ -76,12 +76,12 @@ dialogController.prototype.setContent = function(content) {
 };
 
 dialogController.prototype.indicateBusy = function() {
-    $('#' + this.indicatorID).css('visibility', 'visible');
+    $('#' + this.loadIndicatorID).css('visibility', 'visible');
     $('#' + this.btnSaveID).css('visibility', 'hidden');
 };
 
 dialogController.prototype.indicateIdle = function() {
-    $('#' + this.indicatorID).css('visibility', 'hidden');
+    $('#' + this.loadIndicatorID).css('visibility', 'hidden');
     $('#' + this.btnSaveID).css('visibility', 'visible');
 };
 

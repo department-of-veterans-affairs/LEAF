@@ -88,7 +88,7 @@ const ConditionsEditor = Vue.createApp({
 
             let formatNameAndOptions = indicator.format.split("\n");  //format field has the format name followed by options, separator is \n
             let valueOptions = formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
-            valueOptions = valueOptions.map(o => o.replaceAll('\r', '').trim());  //these are ending up in the array
+            valueOptions = valueOptions.map(o => o.trim());  //there are sometimes carriage returns in the array
 
             this.selectedParentIndicator = {...indicator};
             this.selectedParentValueOptions = valueOptions.filter(vo => vo !== '');
@@ -261,7 +261,14 @@ const ConditionsEditor = Vue.createApp({
                 
                 if (childIndID !== undefined) {
                     const conditionsJSON = JSON.stringify(this.conditionInputObject);
-                    const currConditions = JSON.parse(this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID)).conditions) || [];
+
+                    let currConditions = JSON.parse(this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID)).conditions) || [];
+                    currConditions.forEach(c => {
+                        c.childIndID = parseInt(c.childIndID);   //fixes an issue where older conditions could not be deleted due to data type change
+                        c.parentIndID = parseFloat(c.parentIndID);
+                    });
+
+                    console.log('confirm del', currConditions, conditionsJSON); //NOTE:
                     let newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
                     if (newConditions.length === 0) newConditions = null;
                     
