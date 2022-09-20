@@ -1,10 +1,5 @@
 export default {
     name: 'FormEditingDisplay',  //NOTE: this will replace previous 'print-subindicators' component
-    data() {
-        return {
-            showToolbar: false
-        }
-    },
     props: {
         depth: Number,
         formNode: Object,
@@ -19,18 +14,14 @@ export default {
         'updateGridInstances',
         'listItems',
         'allListItemsAreAdded',
-        'allowedConditionChildFormats'
+        'allowedConditionChildFormats',
+        'showToolbars'
     ],
     methods: {
         ifthenUpdateIndicatorID(indicatorID) {
             vueData.indicatorID = parseInt(indicatorID); //NOTE: TODO: possible better way
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
-        },
-        toggleEditArea(event) {
-            event.stopPropagation();
-            if (event?.keyCode===32) event.preventDefault();
-            this.showToolbar=!this.showToolbar;
-        },
+        }
     },
     computed: {
         hasChildNode() {
@@ -55,7 +46,7 @@ export default {
         sensitiveImg() {
             return parseInt(this.formNode.is_sensitive)===1 ? 
                 `<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
-                    style="vertical-align:text-bottom; padding: 0.2em; align-self: flex-center"
+                    style="vertical-align: text-bottom; display:inline-block;"
                     title="This field is sensitive" />` : '';
         },
         formatPreview() {
@@ -90,8 +81,8 @@ export default {
             return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
         },
         indicatorName() {
-            let name = XSSHelpers.stripAllTags(this.formNode.name) || '[ blank ]';
-            name = parseInt(this.depth) === 0 || this.index===-1 ? this.truncateText(name, 70) : name;
+            let name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
+            name = `${this.sensitiveImg} ${name}`;
             return name;
         },
         bgColor() {
@@ -139,11 +130,9 @@ export default {
             <div class="form_editing_area" :class="{'conditional-show': conditionallyShown}">
 
                 <!-- PREVIEW QUESTION AND ENTRY FORMAT -->
-                <div tabindex="0" title="click or press space or enter to access tools"
-                    @click.stop="toggleEditArea($event)"
-                    @keypress.enter.space="toggleEditArea($event)"
-                    style="display: flex; padding: 0.2em 1em; cursor: pointer;">
-                    <span class="indicator-name-preview" v-html="formNode.name || '[blank]'"></span>
+                <div 
+                    style="display: flex; padding: 0.2em 1em;">
+                    <span v-html="indicatorName" class="indicator-name-preview"></span>
                 </div>
 
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
@@ -165,13 +154,12 @@ export default {
                 </div>
 
                 <!-- TOOLBAR -->
-                <div v-show="showToolbar" :id="'form_editing_toolbar_' + formNode.indicatorID">
+                <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
                     <div>
                         <span tabindex="0" style="cursor: pointer;"
                             @click="getForm(formNode.indicatorID, formNode.series)"
                             @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
-                            :title="'edit indicator ' + formNode.indicatorID">
-                            📝
+                            :title="'edit indicator ' + formNode.indicatorID">📝
                         </span>
                         format: {{formNode.format || 'none'}}
                     </div>

@@ -5,7 +5,7 @@ $base_navy: #005EA2;
 $LtNavy: #1476bd;
 $charcoal: #252f3e;
 $BG_LightGray: #dcdee0;
-$BG_Pearl: #f0f0fb;
+$BG_Pearl: #f0f0fc;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
 $lt_cyan: #E0F4FA;
@@ -492,9 +492,25 @@ table#edit-properties-modal {
         cursor: pointer;
     }
 
+    #indicator_toolbar_toggle {
+        cursor: pointer;
+        background-color: $lt_cyan;
+        padding: 0.2em 0.4em;
+        border: 1px solid $lt_cyan;
+        border-radius: 3px;
+
+        &:hover, &:focus, &:active {
+            background-color: white;
+            border: 1px solid white !important;
+        }
+    }
 
     .form_editing_area {
         padding-top: 1.5em;
+
+        span.indicator-name-preview > p {
+            display: inline;
+        }
 
         &.conditional-show {
             color: white;

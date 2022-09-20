@@ -8,7 +8,8 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
-            allowedConditionChildFormats: ['dropdown', 'text']
+            allowedConditionChildFormats: ['dropdown', 'text'],
+            showToolbars: true
         }
     },
     components: {
@@ -32,6 +33,7 @@ export default {
         return {
             listItems: Vue.computed(() => this.listItems),
             allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
+            showToolbars: Vue.computed(() => this.showToolbars),
             addToListItemsObject: this.addToListItemsObject,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,
@@ -232,6 +234,11 @@ export default {
                 evt.target.classList.add('entered-drop-zone');
             }
         },
+        toggleToolbars(event) {
+            event.stopPropagation();
+            if (event?.keyCode===32) event.preventDefault();
+            this.showToolbars=!this.showToolbars;
+        },
     },
     watch: {
         allListItemsAreAdded(newVal, oldVal){
@@ -326,9 +333,14 @@ export default {
             <template v-if="ajaxFormByCategoryID.length > 0">
                 <template v-for="(formSection, i) in ajaxFormByCategoryID"
                     :key="'editing_display_' + formSection.indicatorID">
+
                     <!-- ENTIRE FORM EDIT / PREVIEW -->
                     <div class="form-section-header" style="display: flex;">
                         <h3>Form Page {{i+1}}</h3>
+                        <button v-if="i===0" id="indicator_toolbar_toggle" 
+                            @click.stop="toggleToolbars($event)">
+                            {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                        </button>
                     </div>
                     <div class="printformblock">
                         <form-editing-display 
@@ -344,6 +356,10 @@ export default {
             <!-- SUBSECTION EDIT / PREVIEW -->
             <div class="form-section-header" style="display: flex;">
                 <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
+                <button
+                    @click.stop="toggleToolbars($event)">
+                    {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                </button>
             </div>
             <div class="printformblock">
                 <form-editing-display 
