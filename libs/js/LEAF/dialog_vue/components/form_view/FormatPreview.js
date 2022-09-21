@@ -44,7 +44,7 @@ export default {
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
-            <div v-if="indicator.options.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
+            <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
         </template>
 
         <template v-if="baseFormat==='checkboxes' || baseFormat==='checkbox'">
@@ -54,7 +54,7 @@ export default {
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
-            <div v-if="indicator.options.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
+            <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
         </template>
 
 

@@ -1,5 +1,10 @@
 export default {
     name: 'FormIndexListing',
+    data() {
+        return {
+            subMenuOpen: true
+        }
+    },
     props: {
         depth: Number,
         formNode: Object,
@@ -25,11 +30,16 @@ export default {
         }
     },
     methods: {
-        indexHover(evt) {
-            evt.currentTarget.classList.add('index-selected');
+        indexHover(event) {
+            event.currentTarget.classList.add('index-selected');
         },
-        indexHoverOff(evt){
-            evt.currentTarget.classList.remove('index-selected');
+        indexHoverOff(event){
+            event.currentTarget.classList.remove('index-selected');
+        },
+        toggleSubMenu(event) {
+            console.log(event)
+            if(event?.keyCode === 32) event.preventDefault();
+            this.subMenuOpen = !this.subMenuOpen;
         }
     },
     computed: {
@@ -105,22 +115,28 @@ export default {
                 <span v-if="conditionallyHidden" title="question is conditionally hidden">⇏</span>
                 <span v-if="hasConditionalPrefill" title="question has a conditional prefill value">✎</span>
                 {{headingNumber}}&nbsp;{{shortLabel}}
-
                 <div class="icon_move_container">
                     <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" title="move item up"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
-                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, true)"></div>
-                    <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
+                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, true)">
+                    </div>
+                    <div v-show="formNode.indicatorID===selectedNodeIndicatorID"
                         tabindex="0" class="icon_move down" title="move item down"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
-                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, false)"></div>
+                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, false)">
+                    </div>
+                </div>
+                <div v-if="hasChildNode" tabindex="0" class="sub-menu-chevron"
+                    @click.stop="toggleSubMenu($event)"
+                    @keydown.stop.enter.space="toggleSubMenu($event)">
+                    {{subMenuOpen ? '︽' : '︾'}}
                 </div>
             </div>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             
-            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
+            <ul v-show="subMenuOpen" class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop"
                 @dragover.prevent

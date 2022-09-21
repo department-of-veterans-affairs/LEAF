@@ -88,8 +88,8 @@ export default {
                         {{formName(categories[currCategoryID].categoryName)}}<span>📂</span>
                         </a>
                     </li>
-                    <li v-for="i in internalForms" style="margin-bottom:0.1em">
-                        <a href="#" :id="i.categoryID" :key="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                    <li v-for="i in internalForms" style="margin-bottom:0.1em" :key="i.categoryID">
+                        <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
                         {{formName(i.categoryName, 20)}}<span>📋</span>
                         </a>
                     </li>
@@ -106,7 +106,7 @@ export default {
                 </li>
                 <div id="stapledArea">
                     <ul v-if="ajaxSelectedCategoryStapled.length > 0" style="margin-top: -0.5em;">
-                        <li v-for="s in ajaxSelectedCategoryStapled" style="margin-bottom:0.2em;">
+                        <li v-for="s in ajaxSelectedCategoryStapled" style="margin-bottom:0.2em;" :key="'staple_' + s.stapledCategoryID">
                         {{s.categoryName || 'Untitled'}}
                         </li>
                     </ul>

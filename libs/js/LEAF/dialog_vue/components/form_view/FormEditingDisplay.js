@@ -64,7 +64,7 @@ export default {
             }
             return isConditionalShow;
         },
-        consitionsAllowed() {
+        conditionsAllowed() {
             return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
         },
         indicatorName() {  //TODO: and label??
@@ -113,7 +113,7 @@ export default {
                     </div>
 
                     <div style="display: flex; align-items:center;">
-                        <button v-if="consitionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
+                        <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
                             @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
                             <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
                         </button>

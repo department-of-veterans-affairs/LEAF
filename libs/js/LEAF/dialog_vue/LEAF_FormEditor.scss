@@ -291,11 +291,18 @@ table#edit-properties-modal {
         cursor: pointer;
         font-size: 90%;
         margin: 0;
-        padding: 0.25em 0.5em;
-        border: 1px outset #aac;
+        padding: 0.2em 0.4em;
+        border: 2px solid $base_navy;
         border-radius: 3px;
-        color: black;
-        background-color: $lt_cyan;
+        color: $base_navy;
+        font-weight: bolder;
+        background-color: white;
+
+        &:hover, &:focus, &:active {
+            background-color: $base_navy;
+            color: white;
+            border: 2px solid $base_navy !important;
+        }
     }
 
     .section_heading {
@@ -339,8 +346,10 @@ table#edit-properties-modal {
         .icon_move_container {
             @include flexcenter;
             flex-direction: column;
-            position: absolute;
-            right: 0;
+            margin-left: auto;
+            margin-right: 0.2em;
+            /*position: absolute;
+            right: 0;*/
 
             .icon_move {
                 @include flexcenter;
@@ -368,6 +377,16 @@ table#edit-properties-modal {
                     }
                 }
             }
+        }
+
+        .sub-menu-chevron {
+            height: 100%;
+            align-self: center;
+            font-size: 1.4em; 
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer; 
+            transform: scaleX(0.6);
         }
     }
 
