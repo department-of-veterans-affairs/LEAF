@@ -5,7 +5,7 @@ $base_navy: #005EA2;
 $LtNavy: #1476bd;
 $charcoal: #252f3e;
 $BG_LightGray: #dcdee0;
-$BG_Pearl: #ededfb;
+$BG_Pearl: #f0f2fd;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
 $lt_cyan: #E0F4FA;
@@ -149,7 +149,7 @@ button.btn-confirm {
         margin-top: 1em;
     }
     .leaf-vue-dialog-title {
-        color: black;
+        color: $charcoal;
         border-top: 3px solid white;
         border-left: 3px solid white;
         border-right: 3px solid #cadff0;
@@ -159,7 +159,7 @@ button.btn-confirm {
         cursor: move;
     
         h2 {
-            color: black;
+            color: inherit;
             margin: 0;
         }
     } 

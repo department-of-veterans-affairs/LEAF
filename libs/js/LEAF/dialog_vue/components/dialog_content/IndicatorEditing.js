@@ -2,8 +2,6 @@ export default {
     data() {
         return {
             initialFocusElID: 'name',
-            left: '{{',
-            right: '}}',
             formID: this.currSubformID || this.currCategoryID,
             formats: {
                 text: "Single line text",
@@ -49,15 +47,8 @@ export default {
                 JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : '',
 
             archived: false,
-            deleted: false,
-            codeEditorHtml: {},
-            codeEditorHtmlPrint: {},
-            html: !this.isEditingModal || this.ajaxIndicatorByID[this.currIndicatorID].html === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].html,
-            htmlPrint: !this.isEditingModal || this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint,
+            deleted: false
         }
-    },
-    props: {
-        contentProps: Object
     },
     inject: [
         'APIroot',
@@ -72,8 +63,7 @@ export default {
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'updateCategoriesProperty',
-        'newIndicatorParentID',
-        'hasDevConsoleAccess'
+        'newIndicatorParentID'
     ],
     mounted(){
         console.log('indicator-editing mounted');
@@ -82,7 +72,6 @@ export default {
                 this.listForParentIDs = res;
                 this.isLoadingParentIDs = false;
             });
-            this.setupAdvancedOptions();
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
             $('#advNameEditor').click();
@@ -144,38 +133,6 @@ export default {
                 }
             }
         },
-        setupAdvancedOptions() {
-            this.codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
-                mode: "htmlmixed",
-                lineNumbers: true,
-                extraKeys: {
-                    "F11": function(cm) {
-                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                    },
-                    "Esc": function(cm) {
-                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                    },
-                    "Ctrl-S": function(cm) {
-                        saveCodeHTML();
-                    }
-                }
-            });
-            this.codeEditorHtmlPrint = CodeMirror.fromTextArea(document.getElementById("htmlPrint"), {
-                mode: "htmlmixed",
-                lineNumbers: true,
-                extraKeys: {
-                    "F11": function(cm) {
-                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                    },
-                    "Esc": function(cm) {
-                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                    },
-                    "Ctrl-S": function(cm) {
-                        saveCodeHTMLPrint();
-                    }
-                }
-            });
-        },
         onSave(){
             console.log('clicked indicator-editing save');
             //check for advanced text formatting for name field
@@ -200,13 +157,10 @@ export default {
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
                 const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
-                //checks html and htmlPrint in case code was not saved with the other buttons.
-                const htmlChanged = this.html !== this.codeEditorHtml.getValue();
-                const htmlPrintChanged = this.htmlPrint !== this.codeEditorHtmlPrint.getValue();
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
             
-                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,sortChanged,parentIDChanged,shouldArchive,shouldDelete, htmlChanged, htmlPrintChanged);
+                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,sortChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
                     indicatorEditingUpdates.push(
@@ -365,34 +319,6 @@ export default {
                         })
                     );
                 }
-                if(htmlChanged) {
-                    indicatorEditingUpdates.push(
-                        $.ajax({
-                            type: 'POST',
-                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
-                            data: {
-                                html: this.codeEditorHtml.getValue(),
-                                CSRFToken: this.CSRFToken
-                            },
-                            success: () => {},
-                            error: err => console.log('ind html post err', err)
-                        })
-                    );                    
-                }
-                if(htmlPrintChanged) {
-                    indicatorEditingUpdates.push(
-                        $.ajax({
-                            type: 'POST',
-                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
-                            data: {
-                                htmlPrint: this.codeEditorHtmlPrint.getValue(),
-                                CSRFToken: this.CSRFToken
-                            },
-                            success: () => {},
-                            error: err => console.log('ind htmlPrint post err', err)
-                        })
-                    );                    
-                }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 console.log('creating a new indicator on form ', this.formID);
@@ -519,55 +445,6 @@ export default {
             $('#advNameEditor').css('display', 'inline');
             $('#rawNameEditor').css('display', 'none');
             $('#name').trumbowyg('destroy');
-        },
-        advancedOptionsClick() {
-            if(parseInt(this.hasDevConsoleAccess) === 1) {
-                $('#button_advanced').css('display', 'none');
-                $('#advanced').css('height', 'auto');
-                $('#advanced').css('visibility', 'visible');
-                $('.table').css('border-collapse', 'collapse');
-                $('.CodeMirror').css('border', '1px solid black');
-            } else {
-                alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
-                $('#button_advanced').css('display', 'none');
-                $('#advanced').css('visibility', 'hidden');
-            }
-        },
-        saveCodeHTML() {
-            const htmlValue = this.codeEditorHtml.getValue();
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
-                data: {
-                    html: htmlValue,
-                    CSRFToken: this.CSRFToken
-                },
-                success: ()=> {
-                    this.html = htmlValue;
-                    this.ajaxIndicatorByID[this.currIndicatorID].html = htmlValue;
-                    const time = new Date().toLocaleTimeString();
-                    document.getElementById('codeSaveStatus_html').innerHTML = '<br /> Last saved: ' + time;
-                },
-                error: (err) => console.log(err)
-            });
-        },
-        saveCodeHTMLPrint() {
-            const htmlPrintValue = this.codeEditorHtmlPrint.getValue();
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
-                data: {
-                    htmlPrint: htmlPrintValue,
-                    CSRFToken: this.CSRFToken
-                },
-                success: ()=> {
-                    this.htmlPrint = htmlPrintValue;
-                    this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint = htmlPrintValue;
-                    const time = new Date().toLocaleTimeString();
-                    document.getElementById('codeSaveStatus_htmlPrint').innerHTML ='<br /> Last saved: ' + time;
-                },
-                error: (err) => console.log(err)
-            });
         }
     },
     template: `<div style="min-width: 500px;">
@@ -669,43 +546,5 @@ export default {
                 </template>
             </table>
         </fieldset>
-        <template v-if="isEditingModal">
-            <span id="button_advanced" class="buttonNorm" tabindex="0" @click="advancedOptionsClick">Advanced Options</span>
-            <div v-if="parseInt(hasDevConsoleAccess)===1">
-                <fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>
-                    Template Variables:<br />
-                    <table class="table" style="border-collapse: inherit">
-                        <tr>
-                            <td><b>{{ left }} iID {{ right }}</b></td>
-                            <td>The indicatorID # of the current data field.</td>
-                        </tr>
-                        <tr>
-                            <td><b>{{ left }} recordID {{ right }}</b></td>
-                            <td>The record ID # of the current request.</td>
-                        </tr>
-                        <tr>
-                            <td><b>{{ left }} data {{ right }}</b></td>
-                            <td>The contents of the current data field as stored in the database.</td>
-                        </tr>
-                    </table><br />
-                    <div style="display:flex; justify-content: space-between;">
-                        html (for pages where the user can edit data): 
-                        <button id="btn_codeSave_html" @click="saveCodeHTML" class="buttonNorm" title="Save Code">
-                            <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
-                            Save Code<span id="codeSaveStatus_html"></span>
-                        </button>
-                    </div>
-                    <textarea id="html">{{html}}</textarea><br />  <!-- NOTE: can't seem to v-model these areas html and htmlPrint properties updated after save -->
-                    <div style="display:flex; justify-content: space-between;">
-                        htmlPrint (for pages where the user can only read data): 
-                        <button id="btn_codeSave_htmlPrint" @click="saveCodeHTMLPrint" class="buttonNorm" title="Save Code">
-                            <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
-                            Save Code<span id="codeSaveStatus_htmlPrint"></span>
-                        </button>
-                    </div>
-                    <textarea id="htmlPrint">{{htmlPrint}}</textarea>
-                </fieldset>
-            </div>
-        </template>
     </div>`
 };

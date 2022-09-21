@@ -14,6 +14,7 @@ export default {
         'truncateText',
         'newQuestion',
         'getForm',
+        'openAdvancedOptionsDialog',
         'editIndicatorPrivileges',
         'gridInstances',
         'updateGridInstances',
@@ -97,7 +98,7 @@ export default {
     },
     template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" :style="{minHeight: depth===0 ? '50px': 0}">
 
-            <!-- EDITING AREA -->
+            <!-- EDITING AREA FOR INDICATOR -->
             <div class="form_editing_area" :class="{'conditional-show': conditionallyShown}">
 
                 <!-- TOOLBAR -->
@@ -106,9 +107,9 @@ export default {
                         <span tabindex="0" style="cursor: pointer;"
                             @click="getForm(formNode.indicatorID, formNode.series)"
                             @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
-                            :title="'edit indicator ' + formNode.indicatorID">📝
+                            :title="'edit indicator ' + formNode.indicatorID">📝Edit
                         </span>
-                        format: {{formNode.format || 'none'}}
+                        <span style="margin-left: 2em;">format: {{formNode.format || 'none'}}</span>
                     </div>
                     <div style="display: flex; align-items:center;">
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
@@ -119,10 +120,13 @@ export default {
                             :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
                             <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
                         </button>
-
-                        <button v-if="formNode.has_code" title="Advanced Options present" class="icon">
-                            <img v-if="formNode.has_code" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
+                        <button @click="openAdvancedOptionsDialog(formNode.indicatorID)"
+                            title="Open Advanced Options" class="icon">
+                            <img src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
                         </button>
+                        <div style="padding-right: 0.5em; color: #007860; font-weight: bold; width:20px; display:flex; align-items:center;">
+                            <div v-if="formNode.has_code" tabindex="0" style="cursor:pointer" title="advanced options are present">✓</div>
+                        </div>
                         <button class="btn-general add-subquestion" title="Add Sub-question"
                             @click="newQuestion(formNode.indicatorID)">
                             + Add Sub-question
@@ -142,10 +146,7 @@ export default {
                         <br />
                         <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
                     </template>
-
                 </div>
-
-
             </div>
 
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->

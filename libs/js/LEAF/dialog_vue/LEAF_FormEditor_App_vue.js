@@ -1,5 +1,6 @@
 import LeafFormDialog from "./components/LeafFormDialog.js";
 import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
+import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";
 import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDialog.js";
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
@@ -92,6 +93,7 @@ export default {
             updateCategoriesProperty: this.updateCategoriesProperty,
             addNewCategory: this.addNewCategory,
             closeFormDialog: this.closeFormDialog,
+            openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
             openFormHistoryDialog: this.openFormHistoryDialog,
@@ -101,6 +103,21 @@ export default {
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
         }
+    },
+    components: {
+        LeafFormDialog,
+        IndicatorEditing,
+        AdvancedOptionsDialog,
+        NewFormDialog,
+        ImportFormDialog,
+        FormHistoryDialog,
+        StapleFormDialog,
+        ConfirmDeleteDialog,
+        ModFormMenu,
+        CategoryCard,
+        FormContentView,
+        EditPropertiesDialog,
+        RestoreFields
     },
     beforeMount(){
         this.getCategoryListAll().then(res => {
@@ -209,19 +226,20 @@ export default {
         addNewCategory(catID, record = {}) {
             this.categories[catID] = record;
         },
+        //categoryID of the form to select, whether it is a subform, indicatorID associated with the current selection in the form index 
         selectNewCategory(catID, isSubform = false, subnodeIndID = null) {
             console.log('selecting new form');
-            this.restoringFields = false;  //on nav from Restore Fields
+            this.restoringFields = false;  //nav from Restore Fields subview
 
-            if(!isSubform) { //also true on nav to View All, where catID will be null and the main form will reset
+            if(!isSubform) {
                 console.log('setting new currCatID', catID);
-                this.currCategoryID = catID;
-                this.currSubformID = null;  //clear the subform ID whenever the main ID changes
+                this.currCategoryID = catID; //set main form catID
+                this.currSubformID = null;   //clear the subform ID
             } else {
                 console.log('setting new subCatID', catID);
-                this.currSubformID = catID; //if it's an internal form, update the subformID, but keep the main form ID
+                this.currSubformID = catID;  //update the subformID, but keep the main form ID
             }
-            console.log('reset: catselection, form, selectedNode, staples,  nodeIndID, total indicators');
+            console.log('RESET: currentCategorySelection, ajaxFormByCategoryID, staples, selectednode, nodeIndID, indicatorTotal');
             this.currentCategorySelection = {};
             this.ajaxFormByCategoryID = [];
             this.ajaxSelectedCategoryStapled = [];
@@ -232,7 +250,7 @@ export default {
             vueData.formID = catID || ''; //NOTE: update of other vue app TODO: mv?
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
-            //if user clicks a form card or internal, switch to specified record and get info about the form
+            //switch to specified record, get info for the newly selected form, update variable values
             if (catID !== null) {
                 this.currentCategorySelection = { ...this.categories[catID]};
                 this.selectedNodeIndicatorID = subnodeIndID;
@@ -248,7 +266,7 @@ export default {
 
                 this.getStapledFormsByCurrentCategory();
 
-            } else {  //on nav to view all forms.
+            } else {  //nav to form card browser.
                 this.appIsLoadingCategoryList = true;
                 this.categories = {};
 
@@ -322,9 +340,9 @@ export default {
             this.setFormDialogComponent('staple-form-dialog');
             this.showFormDialog = true;
         },
-        openIndicatorEditing(indicatorID) { //currentID for editing, parentID for new questions
+        openIndicatorEditing(indicatorID) { //gets passed the currentID on edit buttons, a parentID for subquestion buttons, and null for new form sections
             let title = ''
-            if (this.currIndicatorID === null && indicatorID === null) {
+            if (this.currIndicatorID === null && indicatorID === null) { //not an existing indicator, nor a child of an existing indicator
                 title = `<h2>Adding new question</h2>`;
             } else {
                 title = this.currIndicatorID === parseInt(indicatorID) ? 
@@ -333,6 +351,16 @@ export default {
             this.setCustomDialogTitle(title);
             this.setFormDialogComponent('indicator-editing');
             this.showFormDialog = true;
+        },
+        openAdvancedOptionsDialog(indicatorID) {
+            console.log('app called open Advanced with:', indicatorID);
+            this.currIndicatorID = parseInt(indicatorID);
+            this.getIndicatorByID(indicatorID).then(res => {
+                this.ajaxIndicatorByID = res;
+                this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicatorID}</h2>`);
+                this.setFormDialogComponent('advanced-options-dialog');
+                this.showFormDialog = true;   
+            }).catch(err => console.log('error getting indicator information', err));
         },
         openEditProperties() {
             this.setCustomDialogTitle('<h2>Edit Properties</h2>');
@@ -401,19 +429,5 @@ export default {
         showRestoreFields() {
             this.restoringFields = true;
         }
-    },
-    components: {
-        LeafFormDialog,
-        IndicatorEditing,
-        NewFormDialog,
-        ImportFormDialog,
-        FormHistoryDialog,
-        StapleFormDialog,
-        ConfirmDeleteDialog,
-        ModFormMenu,
-        CategoryCard,
-        FormContentView,
-        EditPropertiesDialog,
-        RestoreFields
     }
 }
