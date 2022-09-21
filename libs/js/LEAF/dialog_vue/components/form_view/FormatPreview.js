@@ -13,6 +13,18 @@ export default {
             return `input_preview_${this.indicator.indicatorID}`;
         }
     },
+    mounted() {
+        console.log(this.indicator.format);
+        if(this.baseFormat==='date') {
+            $('#date_prev_' + this.indicator.indicatorID).datepicker({
+                autoHide: true,
+                showAnim: "slideDown",
+                onSelect: ()=> {
+                    $('#' + this.indicator.indicatorID + '_focusfix').focus();
+                }
+            });
+        }
+    },
     methods: {
         useAdvancedEditor() {
             $('#' + this.inputElID).trumbowyg({
@@ -54,6 +66,19 @@ export default {
                 </label>
             </template>
             <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
+        </template>
+
+        <template v-if="baseFormat==='fileupload' || baseFormat==='image'">
+            <fieldset style="padding: 0.5em;"><legend>File Attachment(s)</legend>
+                <p style="margin-bottom: 0.5em;">Select File to attach:</p>
+                <input :id="'file_prev_' + indicator.indicatorID" name="formPacket" type="file" />
+            </fieldset>
+        </template>
+
+        <template v-if="baseFormat==='date'">
+            <input type="text" :id="'date_prev_' + indicator.indicatorID" 
+            style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="" />
+            <input class="ui-helper-hidden-accessible" :id="indicator.indicatorID + '_focusfix'" type="text" />
         </template>
 
 
