@@ -38,7 +38,10 @@ export default {
 
         <input v-if="baseFormat==='text'" :id="inputElID" type="text" class="text_input_preview"/>
         <input v-if="baseFormat==='number'" :id="inputElID" type="number" class="text_input_preview"/>
-        <input v-if="baseFormat==='currency'" :id="inputElID" type="number" min="0.00" step="0.01" class="text_input_preview"/>
+
+        <template v-if="baseFormat==='currency'">
+            $&nbsp;<input :id="inputElID" type="number" min="0.00" step="0.01" class="text_input_preview"/>
+        </template>
 
         <template v-if="baseFormat==='textarea'">
             <textarea :id="inputElID" rows="10" class="textarea_input_preview"></textarea>
