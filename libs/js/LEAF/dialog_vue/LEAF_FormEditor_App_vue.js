@@ -263,7 +263,9 @@ export default {
             }
         },
         selectNewFormNode(event, node) {
-            if (event.target.classList.contains('icon_move')) return //this shouldn't happen but it does
+            if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
+                return //prevents enter/space activation from list item move and menu toggle buttons
+            }
             this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
             console.log('setting form node and indID from list selection', this.selectedFormNode, this.selectedNodeIndicatorID)

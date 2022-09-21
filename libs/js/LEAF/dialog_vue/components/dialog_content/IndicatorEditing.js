@@ -573,7 +573,7 @@ export default {
     template: `<div style="min-width: 500px;">
         <fieldset>
             <legend>Field Name</legend>
-            <textarea id="name" v-model="name" style="width: 99%;">{{name}}</textarea><br/>
+            <textarea id="name" v-model="name" style="width: 99%; margin-bottom: 1em; height: 90px;">{{name}}</textarea>
             <button class="buttonNorm" id="rawNameEditor" @click="rawNameEditorClick" style="display: none">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor" @click="advNameEditorClick">Advanced Formatting</button>
         </fieldset>

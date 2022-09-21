@@ -109,7 +109,7 @@ export default {
             :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             @click.stop="selectNewFormNode($event, formNode)"
-            @keypress.stop.enter="selectNewFormNode($event, formNode)">
+            @keypress.enter.stop="selectNewFormNode($event, formNode)">
             <div>
                 <span v-if="conditionallyShown" title="question is conditionally shown">→</span>
                 <span v-if="conditionallyHidden" title="question is conditionally hidden">⇏</span>

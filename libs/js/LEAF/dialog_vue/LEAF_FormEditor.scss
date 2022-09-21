@@ -119,6 +119,7 @@ button.btn-confirm {
     @include flexcenter;
     width: 100vw; 
     height: 100%;
+    z-index: 999;
     background-color: rgba(0,0,20,0.4);
     position: absolute;
     left: 0;

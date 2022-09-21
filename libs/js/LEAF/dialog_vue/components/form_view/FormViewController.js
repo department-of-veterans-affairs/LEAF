@@ -56,7 +56,8 @@ export default {
             return this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
         },
         allListItemsAreAdded() {
-            return this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
+            //FIX: curr formNode
+            return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
         },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
@@ -329,12 +330,11 @@ export default {
         </div>
 
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-        <div v-if="selectedFormNode===null" id="form_entry_and_preview">
-            <template v-if="ajaxFormByCategoryID.length > 0">
-                <template v-for="(formSection, i) in ajaxFormByCategoryID"
-                    :key="'editing_display_' + formSection.indicatorID">
+        <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
 
-                    <!-- ENTIRE FORM EDIT / PREVIEW -->
+            <!-- ENTIRE FORM EDIT / PREVIEW -->
+            <div v-if="selectedFormNode===null" id="form_entry_and_preview">
+                <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
                     <div class="form-section-header" style="display: flex;">
                         <h3>Form Page {{i+1}}</h3>
                         <button v-if="i===0" id="indicator_toolbar_toggle" 
@@ -350,24 +350,25 @@ export default {
                         </form-editing-display>
                     </div>
                 </template>
-            </template>
-        </div>
-        <div v-else id="form_entry_and_preview">
+            </div>
+
             <!-- SUBSECTION EDIT / PREVIEW -->
-            <div class="form-section-header" style="display: flex;">
-                <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                <button id="indicator_toolbar_toggle"
-                    @click.stop="toggleToolbars($event)">
-                    {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
-                </button>
+            <div v-else id="form_entry_and_preview">
+                <div class="form-section-header" style="display: flex;">
+                    <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
+                    <button id="indicator_toolbar_toggle"
+                        @click.stop="toggleToolbars($event)">
+                        {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                    </button>
+                </div>
+                <div class="printformblock">
+                    <form-editing-display 
+                        :depth="0"
+                        :formNode="selectedFormNode"
+                        :index="-1">
+                    </form-editing-display>
+                </div>
             </div>
-            <div class="printformblock">
-                <form-editing-display 
-                    :depth="0"
-                    :formNode="selectedFormNode"
-                    :index="-1">
-                </form-editing-display>
-            </div>
-        </div>
+        </template>
     </div>`
 }

@@ -88,7 +88,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    mounted(){
+    mounted() {
         if(this.formNode.format==='grid') {
             const options = JSON.parse(this.formNode.options[0]);
             this.updateGridInstances(options, this.formNode.indicatorID, this.formNode.series);
@@ -97,10 +97,9 @@ export default {
     },
     template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" :style="{minHeight: depth===0 ? '50px': 0}">
 
-            <!-- NOTE: EDITING AREA -->
+            <!-- EDITING AREA -->
             <div class="form_editing_area" :class="{'conditional-show': conditionallyShown}">
 
-                <!-- PREVIEW QUESTION AND ENTRY FORMAT -->
                 <!-- TOOLBAR -->
                 <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
                     <div>
@@ -111,7 +110,6 @@ export default {
                         </span>
                         format: {{formNode.format || 'none'}}
                     </div>
-
                     <div style="display: flex; align-items:center;">
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
                             @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
@@ -132,12 +130,12 @@ export default {
                     </div>
                 </div>
 
+                <!-- NAME -->
                 <div v-html="indicatorName" class="indicator-name-preview"></div>
                 
+                <!-- FORMAT PREVIEW -->
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
-                    
                     <format-preview :indicator="formNode"></format-preview>
-                    
 
                     <!-- NOTE:/TODO: OLD FORMAT PREVIEWS -->
                     <template v-if="formNode.format==='grid'">

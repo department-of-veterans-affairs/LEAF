@@ -1,21 +1,20 @@
 export default {
-    data() {
-        return {
-            baseFormat: this.indicator.format.toLowerCase().trim(),
-            inputElID: `input_preview_${this.indicator.indicatorID}`,
-        }
-    },
     props: {
         indicator: Object
     },
     computed: {
         truncatedOptions() {
             return this.indicator.options?.slice(0, 5) || [];
+        },
+        baseFormat() {
+            return this.indicator.format?.toLowerCase()?.trim() || '';
+        },
+        inputElID() {
+            return `input_preview_${this.indicator.indicatorID}`;
         }
     },
     methods: {
         useAdvancedEditor() {
-            console.log(this.indicator);
             $('#' + this.inputElID).trumbowyg({
                 btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
             });
