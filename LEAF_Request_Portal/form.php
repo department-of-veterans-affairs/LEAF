@@ -787,7 +787,6 @@ class Form
 
     /**
      * Zip up and download the attackments for a given record.
-     * This does not have need to know or checks to make sure the user can or cannot download something!
      * @param int $recordID
      * @return bool
      */
@@ -843,11 +842,19 @@ class Form
 
             foreach ($fileRows as $file) {
                 $filename = $this->getFileHash($recordID, $file['indicatorID'], $file['series'], $file['data']);
+                // see if the current user can download this file, to me I do not see a per file download but download ANY file.
+                // If this is the case, we can extract the check at the beginning of the function here and check once.
+                $data = $this->getIndicator(
+                    $file['indicatorID'],
+                    $file['series'],
+                    $recordID
+                );
+
                 // if there is at least one then we will allow it.
-                if(is_file($uploadDir.$filename)===TRUE){
+                if(is_file($uploadDir.$filename)===TRUE && !empty($data)){
                     $physicalFiles = TRUE;
+                    $zip->addFile($uploadDir . $filename,$filename);
                 }
-                $zip->addFile($uploadDir . $filename,$filename);
 
             }
 
