@@ -73,6 +73,7 @@
         <!--{if $submitted != 0}-->
             <button class="AdminButton" onclick="admin_changeStep()" title="Change Current Step" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=go-jump.svg&w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Current Step</button>
         <!--{/if}-->
+        <button class="AdminButton" onclick="createFrom()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Create From</button>
         <button class="AdminButton" onclick="changeService()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Service</button>
         <button class="AdminButton" onclick="admin_changeForm()" title="Change Forms" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=system-file-manager.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Form(s)</button>
         <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Initiator</button>
@@ -486,6 +487,68 @@ function changeTitle() {
                 dialog.hide();
         	}
         });
+    });
+}
+
+function createFrom(){
+    dialog.setTitle('Create From');
+    dialog.setContent('Select new service: <br /><div id="changeService"></div>');
+    // populate the drop down with the 2 requests types
+    // give a palce to update title
+    dialog.setContent('Choose which form: <br /><div id="changeStep"></div><br /><br />'
+        + 'Form Type:<br /><select id="type" name="type"><option value="form_d6a41">Recruitment</option></select>'
+        + '<br /><br />'
+        + 'Update Title:<br />'
+        + '<input type="text" id="title" name="title" value="<!--{$title|escape:'quotes'}-->" />');
+    dialog.show();
+    dialog.indicateBusy();
+    $.ajax({
+        type: 'GET',
+        url: 'api/form/<!--{$recordID|strip_tags}-->/data/tree',
+        CSRFToken: '<!--{$CSRFToken}-->',
+        success: function(res) {
+         console.log(res);
+        }
+    });
+
+    $('.chosen').chosen({disable_search_threshold: 6});
+    dialog.indicateIdle();
+    dialog.setSaveHandler(function() {
+
+        //<!--{$userID}-->
+
+        let theForm = "num"+$('#type option:selected').val(),
+        $.ajax({
+            type: 'POST',
+            url: './api/form/new',
+            data: {
+                title: $('#title').val(),
+                service: '<!--{$serviceID|strip_tags}-->',
+                priority: 0,
+                numleaf_secure: 1,
+                CSRFToken: '<!--{$CSRFToken}-->'
+            }
+        })
+            .then(function(res) {
+                var recordID = parseFloat(res);
+                if(!isNaN(recordID) && isFinite(recordID) && recordID != 0) {
+                    //window.location = "index.php?a=view&recordID=" + recordID;
+                }
+            });
+
+        // get the data from the existing form we will be copying.
+
+        /*$.ajax({
+            type: 'POST',
+            url: 'api/formWorkflow/<!--{$recordID|strip_tags}-->/step',
+            data: {stepID: $('#newStep').val(),
+            comment: $('#changeStep_comment').val(),
+            CSRFToken: CSRFToken},
+            success: function() {
+                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
+            }
+        });
+        dialog.hide();*/
     });
 }
 
