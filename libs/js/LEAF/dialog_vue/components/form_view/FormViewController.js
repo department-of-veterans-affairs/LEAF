@@ -84,6 +84,7 @@ export default {
     },
     methods: {
         moveListing(event, indID, moveup) {
+            if (event?.keyCode===32) event.preventDefault();
             const parentEl = event.currentTarget.closest('ul');
             const elToMove = document.getElementById(`index_listing_${indID}`);
             const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
@@ -187,8 +188,12 @@ export default {
 
             const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
             if (elsLI.length===0) { //if the drop ul has no lis, just append it
-                parentEl.append(document.getElementById(draggedElID));
-                this.updateListItems(indID, formParIndID, 0);
+                try {
+                    parentEl.append(document.getElementById(draggedElID));
+                    this.updateListItems(indID, formParIndID, 0); 
+                } catch (error) {
+                    console.log(error);
+                }
                 
             } else { //otherwise, find the closest li to the droppoint to insert before
                 let dist = 9999;
@@ -214,7 +219,6 @@ export default {
                         const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                         this.updateListItems(indID, formParIndID, i);
                     });
-                    
                 } catch(error) {
                     console.log(error);
                 }

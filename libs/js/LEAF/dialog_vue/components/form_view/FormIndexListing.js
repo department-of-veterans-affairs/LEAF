@@ -37,7 +37,6 @@ export default {
             event.currentTarget.classList.remove('index-selected');
         },
         toggleSubMenu(event) {
-            console.log(event)
             if(event?.keyCode === 32) event.preventDefault();
             this.subMenuOpen = !this.subMenuOpen;
         }
@@ -119,12 +118,12 @@ export default {
                     <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" title="move item up"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
-                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, true)">
+                        @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, true)">
                     </div>
                     <div v-show="formNode.indicatorID===selectedNodeIndicatorID"
                         tabindex="0" class="icon_move down" title="move item down"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
-                        @keydown.stop.enter="moveListing($event, selectedNodeIndicatorID, false)">
+                        @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
                 <div v-if="hasChildNode" tabindex="0" class="sub-menu-chevron"
