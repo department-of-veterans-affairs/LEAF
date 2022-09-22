@@ -71,7 +71,7 @@ groupSelector.prototype.showBusy = function() {
 
 groupSelector.prototype.select = function(id) {
 	this.selection = id;
-	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
+	if(event != undefined && typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
 	nodes = $('#'+ this.containerID +' .groupSelected');
 	for(var i in nodes) {
 		if(nodes[i].id != undefined) {
