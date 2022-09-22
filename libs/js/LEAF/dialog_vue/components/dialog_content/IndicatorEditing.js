@@ -63,7 +63,8 @@ export default {
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'updateCategoriesProperty',
-        'newIndicatorParentID'
+        'newIndicatorParentID',
+        'truncateText'
     ],
     mounted(){
         console.log('indicator-editing mounted');
@@ -509,7 +510,7 @@ export default {
                 </tr>
                 <tr>
                     <td>Sort Priority</td>
-                    <td><input id="sort" v-model.number="sort" name="sort" type="number" style="width: 40px" /></td>
+                    <td><input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px" /></td>
                 </tr>
                 <template v-if="isEditingModal">
                 <tr>
@@ -518,7 +519,7 @@ export default {
                         <div id="container_parentID">
                             <select v-model.number="parentID">
                                 <template v-if="isLoadingParentIDs===false" v-for="kv in Object.entries(listForParentIDs)">
-                                    <option v-if="currIndicatorID !== parseInt(kv[0])" :value="kv[0]" :key="'parent'+kv[0]">{{kv[0]}}: {{kv[1]['1'].name}}</option>
+                                    <option v-if="currIndicatorID !== parseInt(kv[0])" :value="kv[0]" :key="'parent'+kv[0]">{{kv[0]}}: {{truncateText(kv[1]['1'].name)}}</option>
                                 </template>
                             </select>
                         </div>
@@ -530,7 +531,7 @@ export default {
                         <input id="archived" v-model="archived" name="disable_or_delete" type="checkbox" @change="radioBehavior"/>
                     </td>
                     <td style="width: 275px; position: relative;">
-                        <span v-show="archived" id="archived-warning" style="color: red; font-size: 80%; position: absolute; top:-5px">
+                        <span v-show="archived" id="archived-warning" style="color: #d00; font-size: 80%; position: absolute; top:-6px; left: -18px;">
                         This field will be archived.  It can be<br/>re-enabled by using Restore Fields.</span>
                     </td>
                 </tr>
@@ -540,7 +541,8 @@ export default {
                         <input id="deleted" v-model="deleted" name="disable_or_delete" type="checkbox" @change="radioBehavior" />
                     </td>
                     <td style="width: 275px; position: relative;">
-                        <span v-show="deleted" id="deletion-warning" style="color: red; font-size: 80%; position: absolute; top:-5px">Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
+                        <span v-show="deleted" id="deletion-warning" style="color: #d00; font-size: 80%; position: absolute; top:-6px; left: -18px;">
+                        Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
                     </td>
                 </tr>
                 </template>
