@@ -209,12 +209,14 @@ switch ($action) {
                                             '../../libs/js/codemirror/addon/display/fullscreen.js',
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                            '../../libs/js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js'
         ));
         $main->assign('stylesheets', array('../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
                                             '../../libs/js/codemirror/addon/display/fullscreen.css',
+                                            '../../libs/js/choicesjs/choices.min.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
