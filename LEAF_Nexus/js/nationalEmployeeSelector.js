@@ -486,3 +486,8 @@ nationalEmployeeSelector.prototype.search = function() {
 		}
 	}
 };
+
+nationalEmployeeSelector.prototype.disableSearch = function() {
+    $('#' + this.containerID).css('display', 'none');
+    clearInterval(this.intervalID);
+}

@@ -247,3 +247,8 @@ positionSelector.prototype.search = function() {
 	    }
 	}
 };
+
+positionSelector.prototype.disableSearch = function() {
+    $('#' + this.containerID).css('display', 'none');
+    clearInterval(this.intervalID);
+}

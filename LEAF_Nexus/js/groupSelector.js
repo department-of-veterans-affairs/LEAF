@@ -233,3 +233,8 @@ groupSelector.prototype.search = function() {
 	    }
 	}
 };
+
+groupSelector.prototype.disableSearch = function() {
+    $('#' + this.containerID).css('display', 'none');
+    clearInterval(this.intervalID);
+}

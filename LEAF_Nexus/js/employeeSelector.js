@@ -286,3 +286,8 @@ employeeSelector.prototype.search = function() {
 	    }
 	}
 };
+
+employeeSelector.prototype.disableSearch = function() {
+    $('#' + this.containerID).css('display', 'none');
+    clearInterval(this.intervalID);
+}
