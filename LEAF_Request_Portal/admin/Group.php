@@ -95,7 +95,7 @@ class Group
                     $dirRes[0]['regionallyManaged'] = false;
                     if($groupID == 1)
                     {
-                      $dirRes[0]['primary_admin'] = $member['primary_admin'];  
+                      $dirRes[0]['primary_admin'] = $member['primary_admin'];
                     }
                     if($member['locallyManaged'] == 1) {
                         $dirRes[0]['backupID'] = null;
@@ -104,7 +104,7 @@ class Group
                     }
                     $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                     $dirRes[0]['active'] = $member['active'];
-                    
+
                     $members[] = $dirRes[0];
                 }
             }
@@ -158,6 +158,51 @@ class Group
                 $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
                                                     VALUES (:userID, :groupID, :backupID)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
+            }
+        }
+    }
+
+    /**
+     * @param string $member
+     * @param int $groupID
+     *
+     * @return void
+     */
+    public function deactivateMember($member, $groupID): void
+    {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
+        if (is_numeric($groupID) && $member != '')
+        {
+            $sql_vars = array(':userID' => $member,
+                          ':groupID' => $groupID, );
+
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
+
+            $this->db->prepared_query('UPDATE users SET active = 0, locallyManaged = 1 WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+
+            // include the backups of employee
+
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $sql_vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID,
+                    ':backupID' => $member,);
+
+                $res = $this->db->prepared_query('SELECT locallyManaged FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 0) {
+                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+                }
             }
         }
     }
@@ -237,7 +282,7 @@ class Group
     /**
      * Returns formatted group name.
      * @param string $groupID       The group id to find the formatted name of
-     * @return string 
+     * @return string
      */
     public function getGroupName($groupId)
     {
@@ -248,31 +293,31 @@ class Group
         }
         return "";
     }
-    
+
     /**
      * Returns formatted Employee name.
      * @param string $employeeID        The id to create the display name of.
-     * @return string 
+     * @return string
      */
     private function getEmployeeDisplay($employeeID)
     {
         require_once '../VAMC_Directory.php';
-     
+
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
         $empData = $dirRes[0];
         $empDisplay =$empData["firstName"]." ".$empData["lastName"];
-        
+
         return $empDisplay;
     }
 
     /**
      * Returns Portal Group logs.
-     * 
+     *
      * @param string $filterById        The id of the Group to find the logs of
      *
-     * @return array 
+     * @return array
      */
     public function getHistory($filterById)
     {
@@ -281,7 +326,7 @@ class Group
 
     /**
      * Returns all history ids for all groups
-     * 
+     *
      * @return array all history ids for all groups
      */
     public function getAllHistoryIDs()

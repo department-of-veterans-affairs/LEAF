@@ -250,6 +250,7 @@ class TimeBracketCmd
 
             // since it will never hit the run portion right away for the between times, might as well do the sleep
             // first. this way we can make the run at 7 am portion more simple
+
             $this->setSleep();
 
             // are we within this time frame? run the command
@@ -271,7 +272,7 @@ class TimeBracketCmd
                 if (is_resource($proc)) {
                     $dat = proc_get_status($proc);
                     // information that should be put towards any logging, for now I am just dumping 
-                    var_dump($dat);
+                    //var_dump($dat);
                     proc_close($proc);
                 }
 

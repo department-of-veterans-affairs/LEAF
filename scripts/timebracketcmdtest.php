@@ -69,6 +69,8 @@ try {
     //var_dump($ret2);
 
     echo 'end';
+    echo date('Y-m-d g:i:s a') . "\r\n";
+
 } catch (Exception $e) {
     echo sprintf("Message: %s \r\nFile: %s \r\nLine: %s \r\nTrace: %s\r\n", $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
 }

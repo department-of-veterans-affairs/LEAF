@@ -60,3 +60,4 @@ checkForOrgChart($dir);
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
 echo "Update took {$timeInMinutes} minutes";
+echo date('Y-m-d g:i:s a') . "\r\n";

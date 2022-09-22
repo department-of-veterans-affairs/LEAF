@@ -230,7 +230,10 @@ var LeafForm = function(containerID) {
 		for (let entry in formConditionsByChild) {
 			const formConditions = formConditionsByChild[entry].conditions || [];
 			formConditions.forEach(c => {
-				parentQuestionIDs.push(c.parentIndID);
+				//if the parent is not there (archived or deleted), do not add it
+				if (document.getElementById(c.parentIndID) !== null) {
+					parentQuestionIDs.push(c.parentIndID);
+				}
 			});
 		}
 		parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
@@ -361,9 +364,7 @@ var LeafForm = function(containerID) {
 
 	            dialog.enableLiveValidation();
 
-				//for (let c in formConditions) {
-					handleConditionalIndicators(formConditions); //[c]
-				//}
+				handleConditionalIndicators(formConditions);
 				
 	        },
 	        error: function(response) {
