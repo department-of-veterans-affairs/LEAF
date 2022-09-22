@@ -7778,7 +7778,7 @@ CREATE TABLE `settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
-('dbversion',	'2021062800'),
+('dbversion',	'2022050300'),
 ('heading',	'Academy Demo Site (Test site)'),
 ('leafSecure',	'1568216371'),
 ('national_linkedPrimary',	''),
