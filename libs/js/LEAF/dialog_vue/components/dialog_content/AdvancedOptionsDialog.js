@@ -148,26 +148,24 @@ export default {
     },
     template: `<div v-if="parseInt(hasDevConsoleAccess)===1">
             <fieldset id="advanced" style="min-width: 700px; padding: 0.5em; margin:0"><legend>Template Variables and Controls</legend>
-                <table class="table" style="border-collapse: collapse;">
+                <table class="table" style="border-collapse: collapse; margin: 0; width: 100%;">
                     <tr>
                         <td><b>{{ left }} iID {{ right }}</b></td>
                         <td>The indicatorID # of the current data field.</td>
+                        <td><b>Ctrl-S</b></td>
+                        <td>Save the focused section</td>
                     </tr>
                     <tr>
-                        <td><b>{{ left }} recordID {{ right }}&nbsp;</b></td>
+                        <td><b>{{ left }} recordID {{ right }}</b></td>
                         <td>The record ID # of the current request.</td>
+                        <td><b>F11</b></td>
+                        <td>Toggle Full Screen mode for the focused section</td>
                     </tr>
                     <tr>
                         <td><b>{{ left }} data {{ right }}</b></td>
                         <td>The contents of the current data field as stored in the database.</td>
-                    </tr>
-                    <tr>
-                        <td><b>Ctrl-S</b></td>
-                        <td>Save</td>
-                    </tr>
-                    <tr>
-                        <td><b>F11</b></td>
-                        <td>Toggle Full Screen mode</td>
+                        <td><b>Esc</b></td>
+                        <td>Escape Full Screen mode</td>
                     </tr>
                 </table><br />
                 <div style="display:flex; justify-content: space-between;">

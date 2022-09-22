@@ -103,13 +103,13 @@ export default {
 
                 <!-- TOOLBAR -->
                 <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
-                    <div>
-                        <span tabindex="0" style="cursor: pointer;"
+                    <div style="display: flex; align-items: center;">
+                        <span tabindex="0" style="cursor: pointer; display: flex; align-items:center;"
                             @click="getForm(formNode.indicatorID, formNode.series)"
                             @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
-                            :title="'edit indicator ' + formNode.indicatorID">📝Edit
+                            :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
-                        <span style="margin-left: 2em;">format: {{formNode.format || 'none'}}</span>
+                        <span style="margin-left: 1.5em; white-space:nowrap">{{formNode.format || 'no format'}}</span>
                     </div>
                     <div style="display: flex; align-items:center;">
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 

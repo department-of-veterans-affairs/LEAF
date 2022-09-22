@@ -525,13 +525,24 @@ table#edit-properties-modal {
 
         div[id^="form_editing_toolbar_"] {
             padding: 0.2em 0.75em;
-            display: flex; 
+            display: flex;
             justify-content: space-between; 
             align-items: center;
             background-color: $BG_Pearl;
             border-top: 1px solid black;
             font-size: 90%;
             color: black;
+
+            .toolbar-edit {
+                background-color: $base_navy; 
+                color: white;
+                margin: 0 0.4em;
+                padding: 0.2em 0.6em;
+                font-size: 70%;
+                height: 100%;
+                border-radius: 4px;
+                letter-spacing: 1px;
+            }
         }
 
 
