@@ -202,7 +202,9 @@ class DB
             foreach($data as &$datum){
                 // strings need to be quoted.
                 if(is_string($datum)){
-                    $datum = "'$datum'";
+                    $datum = $this->db->quote($datum);
+                } else if(is_null($datum)){
+                    $datum = 'NULL';
                 }
             }
             $insert_batch_sql .= "(" . implode(",", $data) . "),";
@@ -265,6 +267,15 @@ class DB
         }
 
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Pass through quoting of string data, only strings can come in.
+     * @param string $data
+     * @return string
+     */
+    public function quote(string $data) : string{
+        return $this->db->quote($data);
     }
 
     /**
