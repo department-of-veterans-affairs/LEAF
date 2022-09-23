@@ -156,16 +156,12 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $localEmployeeDataArray = [];
 
     // STEP 1: Get the employees updated
-    foreach($localEmployeeUsernames as &$username){
-        $username = $db->quote($username);
-    }
-
     // get org employees
     $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
     		FROM employee
-    		WHERE userName in(".implode(",",$localEmployeeUsernames).")";
+    		WHERE userName in(".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
 
-    $orgEmployeeRes = $phonedb->query($orgEmployeeSql);
+    $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql,$localEmployeeUsernames);
 
     //if for some reason there is no data, we need to stop right there.
     if(empty($orgEmployeeRes)){
