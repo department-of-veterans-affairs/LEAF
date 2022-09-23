@@ -89,12 +89,14 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    mounted() {
+    mounted() {/*
         if(this.formNode.format==='grid') {
+            //console.log('grid instance added')
             const options = JSON.parse(this.formNode.options[0]);
             this.updateGridInstances(options, this.formNode.indicatorID, this.formNode.series);
-            this.gridInstances[this.formNode.indicatorID].preview();
-        }
+            //this.gridInstances[this.formNode.indicatorID].preview();
+            this.gridInstances[this.formNode.indicatorID].addRow();
+        } */
     },
     template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" :style="{minHeight: depth===0 ? '50px': 0}">
 
@@ -141,11 +143,11 @@ export default {
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
                     <format-preview :indicator="formNode" :key="'FP' + formNode.indicatorID"></format-preview>
 
-                    <!-- NOTE:/TODO: OLD FORMAT PREVIEWS -->
+                    <!-- NOTE:/TODO: OLD FORMAT PREVIEWS 
                     <template v-if="formNode.format==='grid'">
                         <br />
                         <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
-                    </template>
+                    </template> -->
                 </div>
             </div>
 

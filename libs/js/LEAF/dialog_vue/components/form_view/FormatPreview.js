@@ -5,7 +5,9 @@ export default {
     inject: [
         'orgchartPath',
         'addOrgSelector',
-        'orgSelectorClassesAdded'     //JS classes for orgchart formats
+        'orgSelectorClassesAdded',     //JS classes for orgchart formats
+        'updateGridInstances',
+        'gridInstances'
     ],
     computed: {
         truncatedOptions() {
@@ -91,9 +93,13 @@ export default {
 
                 } else {
                     console.log("already fetched");
-                    this.createOrgSelector();
+                    this.createOrgSelector(); 
                 }
-                
+                break;
+            case 'grid':
+                const options = JSON.parse(this.indicator.options);
+                this.updateGridInstances(options, this.indicator.indicatorID, this.indicator.series);
+                this.gridInstances[this.indicator.indicatorID].input();
                 break;
             default: break;
         
@@ -124,6 +130,33 @@ export default {
             });
             if(orgSelector.enableEmployeeSearch !== undefined) orgSelector.enableEmployeeSearch();
             orgSelector.initialize();
+        },
+        addGridRow() {
+            this.gridInstances[this.indicator.indicatorID].addRow();
+
+            //update hardcoded img paths, and listeners to use methods from the gridinstances object
+            const elSelector = `#grid_${this.indicator.indicatorID}_${this.indicator.series}_input tbody > tr > td`;
+            const elTDs = document.querySelectorAll(elSelector);
+            const arrowIndex = elTDs.length - 1;
+            const rmRowIndex = elTDs.length - 2;
+            let arrowImgs = elTDs[arrowIndex].querySelectorAll('img');  //[up, down ]
+            let rmRowImg = elTDs[rmRowIndex].querySelector('img');
+
+            const deleteRow = this.gridInstances[this.indicator.indicatorID].deleteRow;
+            const moveUp = this.gridInstances[this.indicator.indicatorID].moveUp;
+            const moveDown = this.gridInstances[this.indicator.indicatorID].moveDown;
+            const triggerClick = this.gridInstances[this.indicator.indicatorID].triggerClick;
+
+            arrowImgs[0]?.setAttribute('src', '../' + arrowImgs[0]?.getAttribute('src'));
+            arrowImgs[0].onclick = ()=> moveUp(event);
+            arrowImgs[0].onkeydown = ()=> triggerClick(event);
+            arrowImgs[1]?.setAttribute('src', '../' + arrowImgs[1]?.getAttribute('src'));
+            arrowImgs[1].onclick = ()=> moveDown(event);
+            arrowImgs[1].onkeydown = ()=> triggerClick(event);
+
+            rmRowImg?.setAttribute('src', '../' + rmRowImg.getAttribute('src'));
+            rmRowImg.onclick = ()=> deleteRow(event);
+            rmRowImg.onkeydown = ()=> triggerClick(event);
         }
     },
     template: `<div class="format-preview">
@@ -189,11 +222,29 @@ export default {
             style="display:none">
         </select>
         
-        <template  v-if="baseFormat==='orgchart_group' || baseFormat==='orgchart_position' || baseFormat==='orgchart_employee'">
+        <template v-if="baseFormat==='orgchart_group' || baseFormat==='orgchart_position' || baseFormat==='orgchart_employee'">
             <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
             <input :id="'sel_prev_' + indicator.indicatorID" style="display: none;">
         </template>
-        
+
+        <template v-if="baseFormat==='grid'">
+            <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" :id="'tableStatus_' + indicator.indicatorID" role="status"></span>
+            <div class="tableinput">
+                <table class="table" 
+                :id="'grid_' + indicator.indicatorID + '_' + indicator.series + '_input'" 
+                style="word-wrap: break-word; table-layout: fixed; height: 100%; display: table">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="buttonNorm" :id="'addRowBtn_' + indicator.indicatorID" 
+                title="Grid input add row" aria-label="Grid input add row" 
+                @click="addGridRow">
+                + Add row
+            </button>
+        </template>
 
     </div>`
 }

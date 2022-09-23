@@ -568,6 +568,13 @@ table#edit-properties-modal {
             position: relative;
             margin-top: 0.2em;
 
+            table {
+
+                img {
+                    max-width: none;
+                }
+            }
+
             .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
                 margin-bottom: 0.5em;
             }
