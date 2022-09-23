@@ -85,7 +85,7 @@ export default {
             editPropertiesClicked: this.editPropertiesClicked,
             editPermissionsClicked: this.editPermissionsClicked,
             newQuestion: this.newQuestion,
-            getForm: this.getForm,
+            editQuestion: this.editQuestion,
             getStapledFormsByCurrentCategory: this.getStapledFormsByCurrentCategory,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
@@ -396,14 +396,14 @@ export default {
                 'parentID (null for new sections):', this.newIndicatorParentID, 'FORM:', this.currCategoryID);
             this.openIndicatorEditing(parentIndID);
         },
-        getForm(indicatorID, series) {  //TODO: rename? this gets info for a specific existing question
+        editQuestion(indicatorID, series) {
             this.currIndicatorID = parseInt(indicatorID);
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
                 this.isEditingModal = true;
                 this.ajaxIndicatorByID = res;
                 this.openIndicatorEditing(indicatorID);
-                console.log('app called getForm with:', indicatorID, series);
+                console.log('app called editQuestion with:', indicatorID, series);
             }).catch(err => console.log('error getting indicator information', err));
         },
         checkSensitive(node, isSensitive = false) {

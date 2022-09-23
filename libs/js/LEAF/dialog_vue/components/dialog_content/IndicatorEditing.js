@@ -121,7 +121,7 @@ export default {
                 });
             });
         },
-        preventWhenFormatNone(event) {
+        preventSelectionIfFormatNone(event) {
             if (event.target.id.toLowerCase() === "indicatortype") {
                 if (this.format === '' && (this.required === true || this.is_sensitive === true)) {
                     this.required = false;
@@ -465,7 +465,7 @@ export default {
         </fieldset>
         <fieldset>
             <legend>Input Format</legend>
-            <select id="indicatorType" title="Select a Format" v-model="format" @change="preventWhenFormatNone">
+            <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
                 <option value="">None</option>
                 <option v-for="kv in Object.entries(formats)" 
                 :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
@@ -502,14 +502,14 @@ export default {
                     <td>Required</td>
                     <td>
                         <input id="required" v-model="required" name="required" type="checkbox" 
-                        @click="preventWhenFormatNone" @keypress.enter="preventWhenFormatNone"/>
+                        @click="preventSelectionIfFormatNone" @keypress.enter="preventSelectionIfFormatNone"/>
                     </td>
                 </tr>
                 <tr>
                     <td>Sensitive Data (PHI/PII)</td>
                     <td>
                         <input id="sensitive" v-model="is_sensitive" name="sensitive" type="checkbox" 
-                        @click="preventWhenFormatNone" @keypress.enter="preventWhenFormatNone"/>
+                        @click="preventSelectionIfFormatNone" @keypress.enter="preventSelectionIfFormatNone"/>
                     </td>
                 </tr>
                 <tr>

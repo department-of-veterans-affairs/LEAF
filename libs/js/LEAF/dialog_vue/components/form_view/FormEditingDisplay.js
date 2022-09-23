@@ -13,7 +13,7 @@ export default {
     inject: [
         'truncateText',
         'newQuestion',
-        'getForm',
+        'editQuestion',
         'openAdvancedOptionsDialog',
         'editIndicatorPrivileges',
         'gridInstances',
@@ -98,8 +98,8 @@ export default {
                 <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
                     <div style="display: flex; align-items: center;">
                         <span tabindex="0" style="cursor: pointer; display: flex; align-items:center;"
-                            @click="getForm(formNode.indicatorID, formNode.series)"
-                            @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
+                            @click="editQuestion(formNode.indicatorID, formNode.series)"
+                            @keypress.enter="editQuestion(formNode.indicatorID, formNode.series)"
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
                         <span style="margin-left: 1rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
