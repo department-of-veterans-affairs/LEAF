@@ -66,13 +66,16 @@ export default {
         'newIndicatorParentID',
         'truncateText'
     ],
-    mounted(){
-        console.log('indicator-editing mounted');
+    mounted() {
         if (this.isEditingModal === true) {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
                 this.isLoadingParentIDs = false;
             });
+            if(this.format==='grid') {
+                const gridJSON = JSON.parse(this.options[0]);
+                makeGrid(gridJSON);  //FIX: TODO: grid methods are still outside the app
+            }
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
             $('#advNameEditor').click();
@@ -389,10 +392,11 @@ export default {
                 this.archived = false;
             }
         },
-        addCells(){
-            console.log('grid stuff');  //TODO: grid component for these
+        appAddCells(){
+            console.log('grid stuff');  
+            addCells();  //FIX: TODO: grid methods are still outside app template
         },
-        updateGridJSON() {  //TODO: temp same as from mod_form, rework
+        updateGridJSON() {  //FIX: TODO: temp same as from mod_form, rework
             let gridJSON = [];
             //gather column names and column types. if type is dropdown, adds property.options
             $(gridBodyElement).find('div.cell').each(function() {
@@ -478,7 +482,7 @@ export default {
             <div v-if="format==='grid'" id="container_indicatorGrid">
                 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
                 <br/>
-                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" onclick="addCells">
+                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" @click="appAddCells">
                     <img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>
                     Add column
                 </button>

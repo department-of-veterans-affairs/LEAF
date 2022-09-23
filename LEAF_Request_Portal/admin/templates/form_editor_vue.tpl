@@ -49,7 +49,6 @@ let postRenderFormBrowser;          //func @ ~2104
 let categories = {};                //object, def @ ~1853
 let dialog, dialog_confirm, dialog_simple;   //dialogController instances, @ready
 let portalAPI;                      //@ready
-let columns = 0;                    //number, def @ ~1268
 
 let vueData = {
     formID: 0,
@@ -289,12 +288,12 @@ function updateNames(){
 }
 /**
  * Purpose: Make Grid for Input Option
- * @param columns
+ * @param gridJSON
  */
-function makeGrid(columns) {
+function makeGrid(gridJSON = []) {
     $(gridBodyElement).html('');
+    let columns = gridJSON.length;
     if(columns === 0){
-        gridJSON = [];
         columns = 1;
     }
     for (let i = 0; i < columns; i++) {
@@ -382,8 +381,7 @@ function rightArrows(cell, toggle) {
 /**
  * Purpose: Add Cells for Grid Input Option
  */
-function addCells(){
-    columns = columns + 1;
+function addCells() {
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
         '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
@@ -437,7 +435,6 @@ function deleteColumn(event){
             column.remove();
             break;
     }
-    columns = columns - 1;
     $('#tableStatus').attr('aria-label', 'Row ' + columnDeleted + ' removed, ' + $(tbody).children().length + ' total.');
 
     //ie11 fix

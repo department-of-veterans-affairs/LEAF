@@ -179,6 +179,18 @@ button.btn-confirm {
     input[type='file'] {
         width: 100%;
     }
+    div.cell {
+        min-width: 150px;
+        text-align: center;
+        border: 1px grey solid;
+        padding: 10px;
+        vertical-align: top;
+        display: table-cell;
+        padding-bottom: 65px;
+        input, select {
+            width: 100%;
+        }
+    }
 }
 
 
