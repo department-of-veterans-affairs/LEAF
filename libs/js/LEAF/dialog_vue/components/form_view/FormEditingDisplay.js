@@ -89,19 +89,10 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    mounted() {/*
-        if(this.formNode.format==='grid') {
-            //console.log('grid instance added')
-            const options = JSON.parse(this.formNode.options[0]);
-            this.updateGridInstances(options, this.formNode.indicatorID, this.formNode.series);
-            //this.gridInstances[this.formNode.indicatorID].preview();
-            this.gridInstances[this.formNode.indicatorID].addRow();
-        } */
-    },
     template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" :style="{minHeight: depth===0 ? '50px': 0}">
 
             <!-- EDITING AREA FOR INDICATOR -->
-            <div class="form_editing_area" :class="{'conditional-show': conditionallyShown}">
+            <div class="form_editing_area" :class="{'conditional-show': conditionallyShown, 'form-header': isHeaderLocation}">
 
                 <!-- TOOLBAR -->
                 <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
@@ -111,7 +102,7 @@ export default {
                             @keypress.enter="getForm(formNode.indicatorID, formNode.series)"
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
-                        <span style="margin-left: 1.5em; white-space:nowrap">{{formNode.format || 'no format'}}</span>
+                        <span style="margin-left: 1rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
                     </div>
                     <div style="display: flex; align-items:center;">
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 

@@ -38,8 +38,8 @@ export default {
                 });
                 break;
             case 'dropdown':
-                $('#drop_prev_' + this.indicator.indicatorID).chosen({
-                    disable_search_threshold: 5, 
+                $(`#${this.inputElID}`).chosen({
+                    disable_search_threshold: 5,
                     allow_single_deselect: true, 
                     width: '50%'
                 });

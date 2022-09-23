@@ -501,27 +501,23 @@ table#edit-properties-modal {
         }
 
         > div {
-            padding: 0.5em 0.75em;
+            padding: 0.5rem 0.75rem;
         }
 
         .indicator-name-preview {
-            /*display: flex;*/
-            padding: 0.75em 0.75em 0 0.75em;
-
+            padding: 0.75rem 0.75rem 0 0.75rem;
             /* text editor can insert p tags when used.  this keeps them from disrupting icons in the indicator name display */
             > p {
                 display: inline;
             }
-
             .input-required-sensitive {
                 color: Red;
                 margin-left: 0.4em;
             }
-
         }
 
         div[id^="form_editing_toolbar_"] {
-            padding: 0.2em 0.75em;
+            padding: 0.2rem 0.75rem;
             display: flex;
             justify-content: space-between; 
             align-items: center;
@@ -542,9 +538,12 @@ table#edit-properties-modal {
             }
         }
 
+        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] {
+            font-size: 116%;
+        }
 
         .form_data_entry_preview {
-            padding: 0 0.75em 0.5em 0.75em;
+            padding: 0 0.75rem 0.5rem 0.75rem;
 
             .text_input_preview {
                 display: inline-block;
