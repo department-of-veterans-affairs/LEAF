@@ -199,13 +199,8 @@ class DB
 
         // add in our values
         foreach ($batchData as $data) {
-            foreach($data as &$datum){
-                // strings need to be quoted.
-                if(is_string($datum)){
-                    $datum = "'$datum'";
-                }
-            }
-            $insert_batch_sql .= "(" . implode(",", $data) . "),";
+
+            $insert_batch_sql .= "(" . implode(",", array_fill(1, count($firstBatchKeys), '?')) . "),";
         }
         // remove the trailing , eh;
         $insert_batch_sql = trim($insert_batch_sql, ',');
@@ -220,8 +215,16 @@ class DB
         $insert_batch_sql = trim($insert_batch_sql, ',');
 
         // now run the query.
-        $this->query($insert_batch_sql);
+        $statement = $this->db->prepare($insert_batch_sql);
 
+        // using a loop since large datasets seem to be slower than a loop
+        $executeData = [];
+        foreach($batchData as $row){
+            foreach($row as $datum) {
+                $executeData[] = $datum;
+            }
+        }
+        $statement->execute($executeData);
         return TRUE;
     }
 
@@ -265,6 +268,15 @@ class DB
         }
 
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Pass through quoting of string data, only strings can come in.
+     * @param string $data
+     * @return string
+     */
+    public function quote(string $data) : string{
+        return $this->db->quote($data);
     }
 
     /**

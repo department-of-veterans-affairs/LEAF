@@ -26,29 +26,25 @@ $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
-$userName = $_GET['userName'];
-$empUID = $_GET['empUID'];
-
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
 
-	if(!empty($userName) && !empty($empUID)){
-
-		updateUserInfo($userName, $empUID);
+    if(!empty($_GET['userName']) && !empty($_GET['empUID'])){
+        updateUserInfo($_GET['userName'], $_GET['empUID']);
         echo 1;
-	}else{
+    }else{
 
-		$startTime = time();
-		// echo "Refresh Orgchart Employees Start\n";
+        $startTime = time();
+        // echo "Refresh Orgchart Employees Start\n";
 
-		updateLocalOrgchartBatch();
+        updateLocalOrgchartBatch();
 
-		$endTime = time();
-		// echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+        $endTime = time();
+        // echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
         echo 1; // success value
-	}
+    }
 
 }
 
@@ -160,10 +156,14 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $localEmployeeDataArray = [];
 
     // STEP 1: Get the employees updated
+    foreach($localEmployeeUsernames as &$username){
+        $username = $db->quote($username);
+    }
+
     // get org employees
     $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
     		FROM employee
-    		WHERE userName in('".implode("','",$localEmployeeUsernames)."')";
+    		WHERE userName in(".implode(",",$localEmployeeUsernames).")";
 
     $orgEmployeeRes = $phonedb->query($orgEmployeeSql);
 
