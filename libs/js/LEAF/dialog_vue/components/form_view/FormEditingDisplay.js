@@ -139,7 +139,7 @@ export default {
                 
                 <!-- FORMAT PREVIEW -->
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
-                    <format-preview :indicator="formNode"></format-preview>
+                    <format-preview :indicator="formNode" :key="'FP' + formNode.indicatorID"></format-preview>
 
                     <!-- NOTE:/TODO: OLD FORMAT PREVIEWS -->
                     <template v-if="formNode.format==='grid'">
@@ -154,7 +154,7 @@ export default {
                 <form-editing-display v-for="child in children"
                     :depth="depth + 1"
                     :formNode="child"
-                    :key="'editing_display_' + child.indicatorID"> 
+                    :key="'FED' + child.indicatorID">
                 </form-editing-display>
             </template>
         </div>`

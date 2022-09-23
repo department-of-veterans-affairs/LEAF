@@ -221,6 +221,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 

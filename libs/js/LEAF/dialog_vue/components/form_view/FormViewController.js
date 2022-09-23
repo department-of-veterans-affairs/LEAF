@@ -43,20 +43,16 @@ export default {
             moveListing: this.moveListing
         }
     },
-    mounted() {
-        console.log('CONTROLLER mount')
-    },
     computed: {
         formName() {
             return this.currentCategorySelection.categoryName || 'Untitled';
         },
         currentSectionNumber() {
-            let ID = parseInt(this.selectedFormNode.indicatorID);
+            let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID];
             return this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
         },
         allListItemsAreAdded() {
-            //FIX: curr formNode
             return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
         },
         sortOrParentChanged() {
@@ -350,7 +346,8 @@ export default {
                         <form-editing-display 
                             :depth="0"
                             :formNode="formSection"
-                            :index="i">
+                            :index="i"
+                            :key="'FED' + formSection.indicatorID">
                         </form-editing-display>
                     </div>
                 </template>
@@ -369,7 +366,8 @@ export default {
                     <form-editing-display 
                         :depth="0"
                         :formNode="selectedFormNode"
-                        :index="-1">
+                        :index="-1"
+                        :key="'FED' + selectedFormNode.indicatorID">
                     </form-editing-display>
                 </div>
             </div>

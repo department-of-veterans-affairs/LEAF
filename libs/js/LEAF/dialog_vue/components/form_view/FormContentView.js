@@ -6,10 +6,16 @@ export default {
             gridInstances: {},
         }
     },
+    props: {
+        orgchartPath: {
+            type: String
+        }
+    },
     provide() {
         return {
             gridInstances: Vue.computed(() => this.gridInstances),
-            updateGridInstances: this.updateGridInstances
+            updateGridInstances: this.updateGridInstances,
+            orgchartPath: this.orgchartPath
         }
     },
     components: {

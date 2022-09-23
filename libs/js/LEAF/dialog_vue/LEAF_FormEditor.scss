@@ -565,8 +565,12 @@ table#edit-properties-modal {
         }
 
         .format-preview {
+            position: relative;
             margin-top: 0.2em;
 
+            .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
+                margin-bottom: 0.5em;
+            }
 
             /* checkboxes and radio */
             /* additional class added to avoid hitting custom files */

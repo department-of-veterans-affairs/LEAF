@@ -2,6 +2,11 @@ export default {
     props: {
         indicator: Object
     },
+    inject: [
+        'orgchartPath',
+        'addOrgSelector',
+        'orgSelectorClassesAdded'     //JS classes for orgchart formats
+    ],
     computed: {
         truncatedOptions() {
             return this.indicator.options?.slice(0, 5) || [];
@@ -11,10 +16,15 @@ export default {
         },
         inputElID() {
             return `input_preview_${this.indicator.indicatorID}`;
+        },
+        selectorInputPrefix() {
+            return this.baseFormat === 'orgchart_group' ? 'group#' : '#';
+        },
+        selType() {
+            return this.baseFormat.slice(this.baseFormat.indexOf('_') + 1);
         }
     },
     mounted() {
-        console.log(this.baseFormat);
         switch(this.baseFormat) {
             case 'date': 
                 $('#date_prev_' + this.indicator.indicatorID).datepicker({
@@ -33,7 +43,7 @@ export default {
                 });
                 break;
             case 'multiselect':
-                const elSelect = document.getElementById(`multi_prev_${this.indicator.indicatorID}`);
+                const elSelect = document.getElementById(this.inputElID);
                 if (elSelect !== null && elSelect.multiple === true && elSelect.getAttribute('data-choice') !== 'active') {
 
                     let options = this.indicator.options || [];
@@ -62,6 +72,29 @@ export default {
                     });
                 }
                 break;
+            case 'orgchart_group':
+            case 'orgchart_position':
+            case 'orgchart_employee':
+                if(this.orgSelectorClassesAdded[this.selType]===false) {
+                    console.log(`get and track addition of ${this.selType} class and styles`);
+                    $('head').append(`<link type="text/css" rel="stylesheet" href="${this.orgchartPath}/css/${this.selType}Selector.css" />`);
+
+                    $.ajax({
+                        type: 'GET',
+                        url: `${this.orgchartPath}/js/${this.selType}Selector.js`,
+                        dataType: 'script',
+                        success: ()=> {
+                            this.addOrgSelector(this.selType, true);
+                            this.createOrgSelector();
+                        }
+                    });
+
+                } else {
+                    console.log("already fetched");
+                    this.createOrgSelector();
+                }
+                
+                break;
             default: break;
         
         }
@@ -72,8 +105,26 @@ export default {
                 btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
             });
             $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
+        },
+        createOrgSelector() {
+            let orgSelector = {};
+            if (this.selType==='group') {
+                orgSelector = new groupSelector(`orgSel_${this.indicator.indicatorID}`);
+            } else if (this.selType==='position') {
+                orgSelector = new positionSelector(`orgSel_${this.indicator.indicatorID}`);
+            } else {
+                orgSelector = new employeeSelector(`orgSel_${this.indicator.indicatorID}`);
+            }
+            orgSelector.apiPath = `${this.orgchartPath}/api/`;
+            orgSelector.rootPath = `${this.orgchartPath}/`;
+            orgSelector.basePath = `${this.orgchartPath}/`;
+            orgSelector.setSelectHandler(()=> {
+                $(`#sel_prev_${this.indicator.indicatorID}`).val(orgSelector.selection);
+                $(`#orgSel_${this.indicator.indicatorID} input.${this.selType}SelectorInput`).val(`${this.selectorInputPrefix}` + orgSelector.selection);
+            });
+            if(orgSelector.enableEmployeeSearch !== undefined) orgSelector.enableEmployeeSearch();
+            orgSelector.initialize();
         }
-
     },
     template: `<div class="format-preview">
 
@@ -111,37 +162,38 @@ export default {
             </template>
             <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
         </template>
-
-        <template v-if="baseFormat==='fileupload' || baseFormat==='image'">
-            <fieldset style="padding: 0.5em;"><legend>File Attachment(s)</legend>
-                <p style="margin-bottom: 0.5em;">Select File to attach:</p>
-                <input :id="'file_prev_' + indicator.indicatorID" name="formPacket" type="file" />
-            </fieldset>
-        </template>
+        
+        <fieldset v-if="baseFormat==='fileupload' || baseFormat==='image'" 
+            style="padding: 0.5em;"><legend>File Attachment(s)</legend>
+            <p style="margin-bottom: 0.5em;">Select File to attach:</p>
+            <input :id="inputElID" name="formPacket" type="file" />
+        </fieldset>
 
         <template v-if="baseFormat==='date'">
-            <input type="text" :id="'date_prev_' + indicator.indicatorID" 
+            <input type="text" :id="inputElID" 
             style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="" />
             <input class="ui-helper-hidden-accessible" :id="indicator.indicatorID + '_focusfix'" type="text" />
         </template>
 
-        <template v-if="baseFormat==='dropdown'">
-            <select :id="'drop_prev_' + indicator.indicatorID" style="width: 50%">
-                <option v-for="o, i in truncatedOptions" :key="'drop_prev_' + indicator.indicatorID + '_' + i">
-                {{o}}
-                </option>
-                <option v-if="indicator?.options?.length > 5" style="padding-left: 0.4em" disabled>(preview showing first 5)</option>
-            </select>
+        
+        <select v-if="baseFormat==='dropdown'" :id="inputElID" style="width: 50%">
+            <option v-for="o, i in truncatedOptions" :key="'drop_prev_' + indicator.indicatorID + '_' + i">
+            {{o}}
+            </option>
+            <option v-if="indicator?.options?.length > 5" style="padding-left: 0.4em" disabled>(preview showing first 5)</option>
+        </select>
+        
+        <select v-if="baseFormat==='multiselect'" multiple 
+            :id="inputElID">
+            :name="'multi_prev_' + indicator.indicatorID + '_multiselect[]'"
+            style="display:none">
+        </select>
+        
+        <template  v-if="baseFormat==='orgchart_group' || baseFormat==='orgchart_position' || baseFormat==='orgchart_employee'">
+            <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
+            <input :id="'sel_prev_' + indicator.indicatorID" style="display: none;">
         </template>
-
-        <template v-if="baseFormat==='multiselect'">
-            <select multiple 
-                :id="'multi_prev_' + indicator.indicatorID">
-                :name="'multi_prev_' + indicator.indicatorID + '_multiselect[]'"
-                style="display:none">
-            </select>
-        </template>
-
+        
 
     </div>`
 }

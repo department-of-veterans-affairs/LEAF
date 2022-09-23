@@ -49,6 +49,7 @@ export default {
             ajaxSelectedCategoryStapled: [],
             ajaxWorkflowRecords: [],       //array of all 'workflows' table records
             ajaxIndicatorByID: {},         //'indicators' table record for a specific indicatorID
+            orgSelectorClassesAdded: { group: false, position: false, employee: false },
             restoringFields: false,        //TODO:?? there are a few pages that could be view here, page_views: [restoringFields: false, leafLibrary: false etc]
             gridInput: gridInput,          //global LEAF class for grid format questions.
         }
@@ -78,9 +79,9 @@ export default {
             dialogButtonText: Vue.computed(() => this.dialogButtonText),
             formSaveFunction: Vue.computed(() => this.formSaveFunction),
             restoringFields: Vue.computed(() => this.restoringFields),
+            orgSelectorClassesAdded: Vue.computed(() => this.orgSelectorClassesAdded),
             //static values
             APIroot: this.APIroot,
-            hasDevConsoleAccess: this.hasDevConsoleAccess,
             editPropertiesClicked: this.editPropertiesClicked,
             editPermissionsClicked: this.editPermissionsClicked,
             newQuestion: this.newQuestion,
@@ -99,6 +100,7 @@ export default {
             openFormHistoryDialog: this.openFormHistoryDialog,
             openConfirmDeleteFormDialog: this.openConfirmDeleteFormDialog,
             openStapleFormsDialog: this.openStapleFormsDialog,
+            addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
             gridInput: this.gridInput,   //global leaf class for grid formats
@@ -153,6 +155,9 @@ export default {
         //general use methods
         truncateText(str, maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
+        },
+        addOrgSelector(selectorType) {
+            this.orgSelectorClassesAdded[selectorType] = true;
         },
         //DB GET
         getCategoryListAll() {
@@ -286,7 +291,7 @@ export default {
             }
             this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
-            console.log('setting form node and indID from list selection', this.selectedFormNode, this.selectedNodeIndicatorID)
+            console.log('setting form node and indID from list selection', this.selectedNodeIndicatorID)
         },
         editPermissionsClicked() {
             console.log('clicked edit Permissions');
