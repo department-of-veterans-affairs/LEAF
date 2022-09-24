@@ -208,7 +208,7 @@ button.btn-confirm {
     justify-content: space-between;
     margin-bottom: 1em;
     background-color: white; 
-    padding: 0.25em; 
+    padding: 0.75rem; 
     border: 1px solid black;
 
     .form-id-label {
@@ -292,14 +292,23 @@ table#edit-properties-modal {
     
 }
 
+div#form_content_view {
+    margin: 0 auto; 
+    display:flex; 
+    flex-direction: column; 
+    max-width: 2000px;
+}
 
+#form_index_and_editing {
+    display: flex; 
+}
 
 
 /* form index */
 #form_index_display {
     position: relative;
     margin: 0;
-    padding: 1em 1em 0.75em;
+    padding: 0.75rem 0.75rem 0.25rem 0.75rem;
     width: 360px;
     flex: 0 0 360px;
     align-self:flex-start;
@@ -310,7 +319,7 @@ table#edit-properties-modal {
 
     #can_update {
         position: absolute;
-        right: 1.2em;
+        right: 0.75rem;
         cursor: pointer;
         font-size: 90%;
         margin: 0;
@@ -576,7 +585,7 @@ table#edit-properties-modal {
                 }
                 div.tableinput { /* fixes for grid tables */
                     overflow: scroll;
-                    max-width: 900px;
+                    max-width: 800px;
                     
                     table {
                         margin: 0;
@@ -689,6 +698,49 @@ table#edit-properties-modal {
                         outline: none;
                     }
                 } 
+            }
+        }
+    }
+}
+
+
+
+@media only screen and (max-width: 550px) {
+    #vue-formeditor-app {
+        padding: 1rem 0;
+        min-width: 350px;
+    
+        > div {
+            flex-direction: column;
+
+            .mod-form-menu-nav {
+                width: 100%;
+                margin: 0;
+
+                a {
+                    border-radius: 0;
+                }
+            }
+        }
+        div#form_content_view {
+            margin: 0;
+        }
+
+        #form_index_and_editing {
+            flex-direction: column;
+        
+            #form_index_display {
+                width: 100%;
+                margin: 0;
+                margin-bottom: 1rem;
+                flex: 0 0 100%;
+            }
+
+            .form_editing_area {
+                &.form-header .indicator-name-preview, 
+                &.form-header div[id^="form_editing_toolbar_"] {
+                    font-size: 100%;
+                }
             }
         }
     }

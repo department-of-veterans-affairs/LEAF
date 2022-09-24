@@ -274,7 +274,7 @@ export default {
         }
     },
     template:`
-    <div style="display:flex;">
+    <div id="form_index_and_editing">
         <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
             
@@ -303,9 +303,9 @@ export default {
                 </button>
             </div>
 
-            <h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
+            <!--<h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
             {{ formName }}
-            </h3>
+            </h3>-->
             
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"

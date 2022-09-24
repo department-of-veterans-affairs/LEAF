@@ -56,11 +56,11 @@ export default {
             this.gridInstances[indicatorID] = new gridInput(options, indicatorID, series, ''); //NOTE: global LEAF class for grid format
         }
     },
-    template: `
+    template: `<div id="form_content_view">
         <!-- NOTE: TOP INFO PANEL -->
         <div id="edit-properties-panel">
             <div>
-                <div :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID"><b>{{formName}}</b></div>
+                <h3 :aria-label="currCategoryID" :title="'CategoryID: ' + currCategoryID">{{formName}}</h3>
                 <div style="padding: 0.5em 0">{{categoryDescription}}</div>
                 <span v-if="!isSubForm">Workflow: <b v-html="workflow"></b></span><br />
                 <span v-if="!isSubForm">Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : 'black'}">{{ isNeedToKnow ? 'On' : 'Off' }}</b></span>
@@ -87,6 +87,7 @@ export default {
         </div>
         <template v-else>
         <form-view-controller></form-view-controller>
-        </template>`
+        </template>
+    </div>` 
         
 }
