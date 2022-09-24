@@ -17,7 +17,7 @@
         </div>
         <!-- SPECIFIC CATEGORY / FORM CONTENT -->
         <div v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
-            style="width: 100%; margin: 0 auto;">
+            style="margin: 0 auto; display:flex; flex-direction: column; width: 100%; max-width: 2000px;">
             <form-content-view orgchart-path='<!--{$orgchartPath}-->'></form-content-view>
         </div>
         </template>

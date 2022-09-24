@@ -52,7 +52,6 @@ export default {
         sensitiveImg() {
             return this.sensitive ? 
                 `<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
-                    style="vertical-align: text-bottom; display:inline-block;"
                     title="This field is sensitive" />` : '';
         },
         conditionallyShown() {
@@ -102,7 +101,8 @@ export default {
                             @keypress.enter="editQuestion(formNode.indicatorID, formNode.series)"
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
-                        <span style="margin-left: 1rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
+                        <span style="margin-left: 0.75rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
+                        <span v-if="sensitive" v-html="sensitiveImg" style="display:flex; align-items: center; margin-left: 0.4rem;"></span>
                     </div>
                     <div style="display: flex; align-items:center;">
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
@@ -133,12 +133,6 @@ export default {
                 <!-- FORMAT PREVIEW -->
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
                     <format-preview :indicator="formNode" :key="'FP' + formNode.indicatorID"></format-preview>
-
-                    <!-- NOTE:/TODO: OLD FORMAT PREVIEWS 
-                    <template v-if="formNode.format==='grid'">
-                        <br />
-                        <div :id="'grid'+ suffix" style="width: 100%; max-width: 100%;"></div>
-                    </template> -->
                 </div>
             </div>
 
