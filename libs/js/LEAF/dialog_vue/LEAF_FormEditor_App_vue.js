@@ -50,8 +50,7 @@ export default {
             ajaxWorkflowRecords: [],       //array of all 'workflows' table records
             ajaxIndicatorByID: {},         //'indicators' table record for a specific indicatorID
             orgSelectorClassesAdded: { group: false, position: false, employee: false },
-            restoringFields: false,        //TODO:?? there are a few pages that could be view here, page_views: [restoringFields: false, leafLibrary: false etc]
-            gridInput: gridInput,          //global LEAF class for grid format questions.
+            restoringFields: false        //TODO:?? there are a few pages that could be view here, page_views: [restoringFields: false, leafLibrary: false etc]
         }
     },
     provide() {
@@ -102,8 +101,7 @@ export default {
             openStapleFormsDialog: this.openStapleFormsDialog,
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
-            showRestoreFields: this.showRestoreFields,
-            gridInput: this.gridInput,   //global leaf class for grid formats
+            showRestoreFields: this.showRestoreFields
         }
     },
     components: {

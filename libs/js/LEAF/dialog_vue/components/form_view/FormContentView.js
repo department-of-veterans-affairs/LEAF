@@ -27,8 +27,7 @@ export default {
         'currentCategorySelection',
         'appIsLoadingCategoryInfo',
         'editPropertiesClicked',
-        'editPermissionsClicked',
-        'gridInput'
+        'editPermissionsClicked'
     ],
     computed: {
         formName() {
@@ -54,8 +53,7 @@ export default {
     },
     methods: {
         updateGridInstances(options, indicatorID, series) {
-            const gridInput = new this.gridInput(options, indicatorID, series, '');
-            this.gridInstances[indicatorID] = gridInput;
+            this.gridInstances[indicatorID] = new gridInput(options, indicatorID, series, ''); //NOTE: global LEAF class for grid format
         }
     },
     template: `

@@ -426,7 +426,7 @@ export default {
             const uniqueArray = Array.from(new Set(optionsToArray));
             return uniqueArray.join('\n');
         },
-        //jQuery plugins for WYSWYG and Codemirror for Advanced Options area. from mod_form as is
+        //jQuery plugins for WYSWYG. from mod_form as is
         advNameEditorClick() {
             $('#advNameEditor').css('display', 'none');
             $('#rawNameEditor').css('display', 'inline');
