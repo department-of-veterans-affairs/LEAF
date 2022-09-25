@@ -16,14 +16,14 @@ $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility con
     justify-content: center;
     align-items: center;
 }
-/*
-#bodyarea {
-    display: flex;
-} */
+
+body { /* fixes header not extending entire width */
+    min-width: -moz-fit-content; /*firefox prior to nov 2021*/
+    min-width: fit-content;
+} 
 
 #vue-formeditor-app {
     padding: 0.5em 1em;
-    /* width: 100%; */
     min-height: 100vh;
 
     * {
@@ -297,6 +297,7 @@ div#form_content_view {
     display:flex; 
     flex-direction: column; 
     max-width: 2000px;
+    width: 100%;
 }
 
 #form_index_and_editing {
@@ -309,8 +310,8 @@ div#form_content_view {
     position: relative;
     margin: 0;
     padding: 0.75rem 0.75rem 0.25rem 0.75rem;
-    width: 360px;
-    flex: 0 0 360px;
+    width: 375px;
+    flex: 0 0 375px;
     align-self:flex-start;
     margin-right: 1em;
     background-color: white;
@@ -448,7 +449,6 @@ div#form_content_view {
     width: 100%;
     background-color: white;
     border: 1px solid black;
-    min-width: 400px;
 
     .form-section-header {
         display: flex;
@@ -489,6 +489,7 @@ div#form_content_view {
     div.printResponse {
         width: 100%;
         padding: 0;
+        float: none; /* style.css style collision */
     }
 
     button.icon {
@@ -585,7 +586,7 @@ div#form_content_view {
                 }
                 div.tableinput { /* fixes for grid tables */
                     overflow: scroll;
-                    max-width: 800px;
+                    max-width: 900px;
                     
                     table {
                         margin: 0;
@@ -724,6 +725,9 @@ div#form_content_view {
         }
         div#form_content_view {
             margin: 0;
+        }
+        #form_entry_and_preview {
+            min-width: 400px;
         }
 
         #form_index_and_editing {
