@@ -1,3 +1,5 @@
+import GridCell from "../GridCell";
+
 export default {
     data() {
         return {
@@ -44,7 +46,7 @@ export default {
                 this.ajaxIndicatorByID[this.currIndicatorID].options?.join('\n') : '',
             //used for grid formats
             gridJSON: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'grid' ? 
-                JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : '',
+               JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : [],
 
             archived: false,
             deleted: false
@@ -66,16 +68,21 @@ export default {
         'newIndicatorParentID',
         'truncateText'
     ],
+    provide() {
+        return {
+            gridJSON: Vue.computed(() => this.gridJSON),
+            updateGridJSON: this.updateGridJSON
+        }
+    },
+    components: {
+        GridCell
+    },
     mounted() {
         if (this.isEditingModal === true) {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
                 this.isLoadingParentIDs = false;
             });
-            if(this.format==='grid') {
-                const gridJSON = JSON.parse(this.options[0]);
-                makeGrid(gridJSON);  //FIX: TODO: grid methods are still outside the app
-            }
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
             $('#advNameEditor').click();
@@ -376,7 +383,9 @@ export default {
                 this.closeFormDialog();
                 if (res.length > 0) {
                     vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    const subnodeIndID = (this.archived===true || this.deleted===true) && 
+                            this.currIndicatorID === this.selectedNodeIndicatorID ? null : this.selectedNodeIndicatorID
+                    this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
                 }
             });
 
@@ -392,12 +401,32 @@ export default {
                 this.archived = false;
             }
         },
-        appAddCells(){
-            console.log('grid stuff');  
-            addCells();  //FIX: TODO: grid methods are still outside app template
+        appAddCell(){
+            console.log('app added cell');
+            this.gridJSON.push({});
         },
-        updateGridJSON() {  //FIX: TODO: temp same as from mod_form, rework
+        gridDropdown(dropDownOptions){ //TODO: edit
+            if(dropDownOptions == null || dropDownOptions.length === 0){
+                return dropDownOptions;
+            }
+            let uniqueNames = dropDownOptions.split("\n");
+            let returnArray = [];
+            uniqueNames = uniqueNames.filter(function(elem, index, self) {
+                return index == self.indexOf(elem);
+            });
+        
+            $.each(uniqueNames, function(i, el){
+                if(el === "no") {
+                    uniqueNames[i] = "No";
+                }
+                returnArray.push(uniqueNames[i]);
+            });
+        
+            return returnArray;
+        },
+        updateGridJSON() {  //FIX: TODO: rework
             let gridJSON = [];
+            let t = this;
             //gather column names and column types. if type is dropdown, adds property.options
             $(gridBodyElement).find('div.cell').each(function() {
                 let properties = new Object();
@@ -408,9 +437,9 @@ export default {
                 }
                 properties.id = $(this).attr('id');
                 properties.type = $(this).find('select').val();
-                if(properties.type !== undefined){
-                    if(properties.type.toLowerCase() === 'dropdown'){
-                        properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                if(properties.type !== undefined && properties.type !==null){
+                    if(properties.type.toLowerCase() === 'dropdown') {
+                        properties.options = t.gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
                     }
                 } else {
                     properties.type = 'textarea';
@@ -482,13 +511,15 @@ export default {
             <div v-if="format==='grid'" id="container_indicatorGrid">
                 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
                 <br/>
-                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" @click="appAddCells">
+                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" @click="appAddCell">
                     <img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>
                     Add column
                 </button>
                 <br/><br/>
                 Columns:
                 <div border="1" style="overflow-x: scroll; max-width: 100%;">
+                <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
+                <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                 </div>
             </div>               
             <fieldset>

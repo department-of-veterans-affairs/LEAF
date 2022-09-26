@@ -169,7 +169,7 @@ export default {
         </template>
 
         <template v-if="baseFormat==='textarea'">
-            <textarea :id="inputElID" rows="10" class="textarea_input_preview"></textarea>
+            <textarea :id="inputElID" rows="6" class="textarea_input_preview"></textarea>
             <div :id="'textarea_format_button_' + indicator.indicatorID" 
                 @click="useAdvancedEditor" 
                 style="text-align: right; font-size: 12px"><span class="link">formatting options</span>
