@@ -564,7 +564,10 @@ div#form_content_view {
                 letter-spacing: 1px;
             }
         }
-        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] {
+        &.form-header div[id^="form_editing_toolbar_"] {
+            /*background-color: $lt_cyan;*/
+        }
+        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
             font-size: 116%;
         }
 

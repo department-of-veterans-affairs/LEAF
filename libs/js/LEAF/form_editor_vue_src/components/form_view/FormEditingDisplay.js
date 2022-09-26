@@ -76,7 +76,7 @@ export default {
             return name;
         },
         bgColor() {
-            return `rgb(${255-2*this.depth},${255-2*this.depth},${255-2*this.depth})`;
+            return `rgb(${255-20*this.depth},${255-20*this.depth},${255-15*this.depth})`;
         },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
