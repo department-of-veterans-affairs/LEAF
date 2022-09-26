@@ -271,15 +271,6 @@ class DB
     }
 
     /**
-     * Pass through quoting of string data, only strings can come in.
-     * @param string $data
-     * @return string
-     */
-    public function quote(string $data) : string{
-        return $this->db->quote($data);
-    }
-
-    /**
      * Query a key-value table structure
      * Returns an associative array
      * @param string $sql
