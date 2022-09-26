@@ -41,13 +41,8 @@
 <script>
 //variables used within this scope, type, and approx. locations of def/redef (if applicable)
 const CSRFToken = '<!--{$CSRFToken}-->';
-const gridBodyElement = 'div#container_indicatorGrid > div';
-let currCategoryID = '';            //string, def @ ~1762, 1774, 1818, 1864, 2055
-let indicatorEditing = {}           //object, def @ ~1261
-let gridJSON = [];                  //array of objects, def @ ~1267
+
 let postRenderFormBrowser;          //func @ ~2104
-let categories = {};                //object, def @ ~1853
-let dialog, dialog_confirm, dialog_simple;   //dialogController instances, @ready
 let portalAPI;                      //@ready
 
 let vueData = {

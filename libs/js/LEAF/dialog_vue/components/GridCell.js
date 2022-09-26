@@ -1,7 +1,6 @@
 export default {
     data() {
         return {
-            gridBodyElement: 'div#container_indicatorGrid > div',
             name: this.cell?.name || 'No title',
             id: this.cell?.id || this.makeColumnID(),
             gridType: this.cell?.type || '',

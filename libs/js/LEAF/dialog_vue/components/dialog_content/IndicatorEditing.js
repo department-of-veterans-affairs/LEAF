@@ -45,6 +45,7 @@ export default {
             multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.ajaxIndicatorByID[this.currIndicatorID]?.format) ? 
                 this.ajaxIndicatorByID[this.currIndicatorID].options?.join('\n') : '',
             //used for grid formats
+            gridBodyElement: 'div#container_indicatorGrid > div',
             gridJSON: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'grid' ? 
                JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : [],
 
@@ -428,7 +429,7 @@ export default {
             let gridJSON = [];
             let t = this;
             //gather column names and column types. if type is dropdown, adds property.options
-            $(gridBodyElement).find('div.cell').each(function() {
+            $(this.gridBodyElement).find('div.cell').each(function() {
                 let properties = new Object();
                 if($(this).children('input:eq(0)').val() === 'undefined'){
                     properties.name = 'No title';
