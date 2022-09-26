@@ -46,7 +46,7 @@ var LeafForm = function(containerID) {
 
 	
 	function handleConditionalIndicators(formConditions) {
-		const allowedChildFormats = ['dropdown', 'text'];
+		const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
 		const formConditionsByChild = formConditions;
 		let currentChildInfo = {};
 		
