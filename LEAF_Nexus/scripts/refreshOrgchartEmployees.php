@@ -39,7 +39,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
         $startTime = time();
         // echo "Refresh Orgchart Employees Start\n";
 
-        //updateLocalOrgchartBatch();
+        updateLocalOrgchartBatch();
 
         $endTime = time();
         // echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
