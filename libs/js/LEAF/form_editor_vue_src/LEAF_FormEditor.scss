@@ -549,6 +549,10 @@ div#form_content_view {
             font-size: 90%;
             color: black;
 
+            img {
+                max-width: none;
+            }
+
             .toolbar-edit {
                 background-color: $base_navy; 
                 color: white;
@@ -726,6 +730,15 @@ div#form_content_view {
                 }
             }
         }
+        #secure_forms_info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        #forms, #forms_inactive {
+            justify-content: center;
+        }
+
         div#form_content_view {
             margin: 0;
         }
