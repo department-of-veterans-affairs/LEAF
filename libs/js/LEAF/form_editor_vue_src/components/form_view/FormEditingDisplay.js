@@ -56,7 +56,9 @@ export default {
         },
         conditionallyShown() {
             let isConditionalShow = false;
-            if(this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '') {
+            console.log('check 1')
+            if(!this.isHeaderLocation && this.formNode.conditions !== null && this.formNode.conditions !== '') {
+                console.log('check 2')
                 const conditions = JSON.parse(this.formNode.conditions) || [];
                 if (conditions.some(c => c.selectedOutcome?.toLowerCase() === 'show')) {
                     isConditionalShow = true;

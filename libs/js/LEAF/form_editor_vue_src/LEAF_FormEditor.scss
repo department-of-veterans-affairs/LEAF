@@ -208,10 +208,13 @@ button.btn-confirm {
     justify-content: space-between;
     margin-bottom: 1em;
     background-color: white; 
-    padding: 0.75rem; 
+    padding: 0.5rem 0.75rem; 
     border: 1px solid black;
 
     .form-id-label {
+        position: absolute; 
+        right: 0.75rem;
+        bottom: 0.5rem;
         font-size: 12px;
     }
 }

@@ -29,7 +29,7 @@ export default {
     mounted() {
         switch(this.baseFormat) {
             case 'date': 
-                $('#date_prev_' + this.indicator.indicatorID).datepicker({
+                $(`#${this.inputElID}`).datepicker({
                     autoHide: true,
                     showAnim: "slideDown",
                     onSelect: ()=> {

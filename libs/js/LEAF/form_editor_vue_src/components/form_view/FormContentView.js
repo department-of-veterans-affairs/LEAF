@@ -74,7 +74,7 @@ export default {
                 <div tabindex="0" id="editFormPermissions" class="buttonNorm"
                     @click="editPermissionsClicked" @keyup.enter="editPermissionsClicked">Edit Collaborators</div>
             </div>
-            <div style="position: absolute; right: 4px; bottom: 4px" class="form-id-label">ID: {{currCategoryID}}
+            <div class="form-id-label">ID: {{currCategoryID}}
             <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
             </div>
         </div>

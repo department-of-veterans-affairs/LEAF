@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './libs/js/LEAF/dialog_vue/LEAF_FormEditor_main.js',
+    entry: './libs/js/LEAF/form_editor_vue_src/LEAF_FormEditor_main.js',
     output: {
         filename: 'LEAF_FormEditor_main_build.js',
         path: path.resolve(__dirname, './libs/js/vue-dest')
