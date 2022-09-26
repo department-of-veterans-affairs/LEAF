@@ -323,14 +323,16 @@ function removeBookmark() {
 }
 
 function handlePrintConditionalIndicators(formPrintConditions) {
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
     const conditions = formPrintConditions.conditions;
     const format = formPrintConditions.format;
+    const formatIsEnabled = allowedChildFormats.some(f => f === format);
+
     for (let i in conditions) {
         const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
         const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
 
-        if ((format === 'dropdown' || format === 'text')
-            && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
+        if (formatIsEnabled && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
             //*NOTE: need format for various plugins (icheck, chosen, etc)
 
             let comparison = false;

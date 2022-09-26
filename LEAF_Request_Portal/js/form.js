@@ -6,272 +6,286 @@ var formValidator = {};
 var formRequired = {};
 var formConditions = {};
 var LeafForm = function(containerID) {
-	var containerID = containerID;
-	var prefixID = 'LeafForm' + Math.floor(Math.random()*1000) + '_';
-	var htmlFormID = prefixID + 'record';
-	var dialog;
-	var recordID = 0;
-	var postModifyCallback;
+    var containerID = containerID;
+    var prefixID = 'LeafForm' + Math.floor(Math.random()*1000) + '_';
+    var htmlFormID = prefixID + 'record';
+    var dialog;
+    var recordID = 0;
+    var postModifyCallback;
 
-	$('#' + containerID).html('<div id="'+prefixID+'xhrDialog" style="display: none; background-color: white; border-style: none solid solid; border-width: 0 1px 1px; border-color: #e0e0e0; padding: 4px">\
-			<form id="'+prefixID+'record" enctype="multipart/form-data" action="javascript:void(0);">\
-			    <div>\
-			    	<div id="form-xhr-cancel-save-menu" style="border-bottom: 2px solid black; height: 30px">\
-			        	<button id="'+prefixID+'button_cancelchange" class="buttonNorm" ><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
-			        	<button id="'+prefixID+'button_save" class="buttonNorm"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
-			        </div>\
-			        <div id="'+prefixID+'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
-			        <div id="'+prefixID+'xhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto"></div>\
-			    </div>\
-			</form>\
-			</div>');
-	dialog = new dialogController(prefixID+'xhrDialog', prefixID+'xhr', prefixID+'loadIndicator', prefixID+'button_save', prefixID+'button_cancelchange');
+    $('#' + containerID).html('<div id="'+prefixID+'xhrDialog" style="display: none; background-color: white; border-style: none solid solid; border-width: 0 1px 1px; border-color: #e0e0e0; padding: 4px">\
+            <form id="'+prefixID+'record" enctype="multipart/form-data" action="javascript:void(0);">\
+                <div>\
+                    <div id="form-xhr-cancel-save-menu" style="border-bottom: 2px solid black; height: 30px">\
+                        <button id="'+prefixID+'button_cancelchange" class="buttonNorm" ><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
+                        <button id="'+prefixID+'button_save" class="buttonNorm"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
+                    </div>\
+                    <div id="'+prefixID+'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
+                    <div id="'+prefixID+'xhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto"></div>\
+                </div>\
+            </form>\
+            </div>');
+    dialog = new dialogController(prefixID+'xhrDialog', prefixID+'xhr', prefixID+'loadIndicator', prefixID+'button_save', prefixID+'button_cancelchange');
 
-	function setRecordID(id) {
-		recordID = id;
-	}
-	
-	function setPostModifyCallback(func) {
-		postModifyCallback = func;
-	}
+    function setRecordID(id) {
+        recordID = id;
+    }
+    
+    function setPostModifyCallback(func) {
+        postModifyCallback = func;
+    }
 
-	function sanitize(input){
-		input = input.replace(/&/g, '&amp;');
+    function sanitize(input){
+        input = input.replace(/&/g, '&amp;');
         input = input.replace(/</g, '&lt;');
         input = input.replace(/>/g, '&gt;');
         input = input.replace(/"/g, '&quot;');
         input = input.replace(/'/g, '&#039;');
-		return input;
-	}
+        return input;
+    }
 
-	
-	function handleConditionalIndicators(formConditions) {
-		const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
-		const formConditionsByChild = formConditions;
-		let currentChildInfo = {};
-		
-		const checkConditions = (event, selected, parID=0)=> {
-			const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
+    
+    function handleConditionalIndicators(formConditions) {
+        const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
+        const formConditionsByChild = formConditions;
+        let currentChildInfo = {};
+        
+        const checkConditions = (event, selected, parID=0)=> {
+            const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
 
-			const linkedParentConditions = getConditionsLinkedToParent(parentElID);
-			let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
-			uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
+            const linkedParentConditions = getConditionsLinkedToParent(parentElID);
+            let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
+            uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
 
-			let linkedChildConditions = [];
-			uniqueChildIDs.forEach(id => {
-				linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID));
-			});
+            let linkedChildConditions = [];
+            uniqueChildIDs.forEach(id => {
+                linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID));
+            });
 
-			const allConditions = [...linkedParentConditions, ...linkedChildConditions];
+            const allConditions = [...linkedParentConditions, ...linkedChildConditions];
 
-			const conditionsByChild = {}
-			allConditions.map(c => {
-				conditionsByChild[c.childIndID] ? conditionsByChild[c.childIndID].push(c) : conditionsByChild[c.childIndID] = [c];
-			})
+            const conditionsByChild = {}
+            allConditions.map(c => {
+                conditionsByChild[c.childIndID] ? conditionsByChild[c.childIndID].push(c) : conditionsByChild[c.childIndID] = [c];
+            })
 
-			for (let childID in conditionsByChild) {
-				makeComparisons(childID, conditionsByChild[childID]);
-			}
-		}
+            for (let childID in conditionsByChild) {
+                makeComparisons(childID, conditionsByChild[childID]);
+            }
+        }
 
-		const getConditionsLinkedToParent = (parentID)=> {
-			let conditionsLinkedToParent = [];
-			for (let entry in formConditionsByChild) {
-				const formConditions = formConditionsByChild[entry].conditions || [];
-				formConditions.forEach(c => {
-					const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
-					//do not include conditions if the recorded condition format (condition.childFormat) does not
-					//match the current format, as this would have unpredictable results
-					if (formConditionsByChild[entry].format === c.childFormat && 
-						formatIsEnabled &&
-						parseInt(c.parentIndID) === parseInt(parentID)) {
-						conditionsLinkedToParent.push({...c});
-					}
-				})
-			}
-			return conditionsLinkedToParent;
-		}
-		const getConditionsLinkedToChild = (childID, currParentID)=> {
-			let conditionsLinkedToChild = [];
-			for (let entry in formConditionsByChild) {
-				if (entry.slice(2) === childID) {
-					const formConditions = formConditionsByChild[entry].conditions || [];
-					formConditions.map(c => {
-						const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
-						if (formConditionsByChild[entry].format === c.childFormat && 
-							formatIsEnabled &&
-							parseInt(currParentID) !== parseInt(c.parentIndID)) {
-							conditionsLinkedToChild.push({...c});
-						}
-					});
-				}
-			}
-			return conditionsLinkedToChild;
-		}
-		//use as ref for comparisons so that the validators can be reset
-		const hideShowValidator = function(){return false};
+        const getConditionsLinkedToParent = (parentID)=> {
+            let conditionsLinkedToParent = [];
+            for (let entry in formConditionsByChild) {
+                const formConditions = formConditionsByChild[entry].conditions || [];
+                formConditions.forEach(c => {
+                    const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+                    //do not include conditions if the recorded condition format (condition.childFormat) does not
+                    //match the current format, as this would have unpredictable results
+                    if (formConditionsByChild[entry].format === c.childFormat && 
+                        formatIsEnabled &&
+                        parseInt(c.parentIndID) === parseInt(parentID)) {
+                        conditionsLinkedToParent.push({...c});
+                    }
+                })
+            }
+            return conditionsLinkedToParent;
+        }
+        const getConditionsLinkedToChild = (childID, currParentID)=> {
+            let conditionsLinkedToChild = [];
+            for (let entry in formConditionsByChild) {
+                if (entry.slice(2) === childID) {
+                    const formConditions = formConditionsByChild[entry].conditions || [];
+                    formConditions.map(c => {
+                        const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+                        if (formConditionsByChild[entry].format === c.childFormat && 
+                            formatIsEnabled &&
+                            parseInt(currParentID) !== parseInt(c.parentIndID)) {
+                            conditionsLinkedToChild.push({...c});
+                        }
+                    });
+                }
+            }
+            return conditionsLinkedToChild;
+        }
+        //use as ref for comparisons so that the validators can be reset
+        const hideShowValidator = function(){return false};
 
 
-		const handleChildValidators = (childID)=> {
-			if (!currentChildInfo[childID]) { //if it is new define key and store validator
-				currentChildInfo[childID] = {
-					validator: form.dialog().requirements[childID]
-				}
-			} 
-			//reset the validator if there is one from the stored value
-			if (currentChildInfo[childID].validator !== undefined) {
-				form.dialog().requirements[childID] = currentChildInfo[childID].validator;
-			}
-		}
+        const handleChildValidators = (childID)=> {
+            if (!currentChildInfo[childID]) { //if it is new define key and store validator
+                currentChildInfo[childID] = {
+                    validator: form.dialog().requirements[childID]
+                }
+            } 
+            //reset the validator if there is one from the stored value
+            if (currentChildInfo[childID].validator !== undefined) {
+                form.dialog().requirements[childID] = currentChildInfo[childID].validator;
+            }
+        }
 
-		//conditions to assess per child
-		const makeComparisons = (childID, arrConditions)=> {
-			let prefillValue = '';
-			const elJQChildID = $('#' + childID);
-			
-			handleChildValidators(childID);
+        //conditions to assess per child
+        const makeComparisons = (childID, arrConditions)=> {
+            let prefillValue = '';
+            const elJQChildID = $('#' + childID);
+            
+            handleChildValidators(childID);
 
-			arrConditions.forEach(cond => {
-				const chosenShouldUpdate = cond.childFormat === 'dropdown';
-				let comparisonResult = false;
+            arrConditions.forEach(cond => {
+                const chosenShouldUpdate = cond.childFormat === 'dropdown';
+                let comparisonResult = false;
 
-				let arrCompVals = [];
-				arrConditions.map(c => {
-					if (cond.selectedOutcome === c.selectedOutcome &&
-						((cond.selectedOutcome.toLowerCase() === "pre-fill" && cond.selectedChildValue.trim() === c.selectedChildValue.trim()) ||
-						cond.selectedOutcome.toLowerCase() !== "pre-fill"
-						)
-					) arrCompVals.push({[c.parentIndID]:c.selectedParentValue.trim()});
-				});
+                let arrCompVals = [];
+                arrConditions.map(c => {
+                    if (cond.selectedOutcome === c.selectedOutcome &&
+                        ((cond.selectedOutcome.toLowerCase() === "pre-fill" && cond.selectedChildValue.trim() === c.selectedChildValue.trim()) ||
+                        cond.selectedOutcome.toLowerCase() !== "pre-fill"
+                        )
+                    ) arrCompVals.push({[c.parentIndID]:c.selectedParentValue.trim()});
+                });
 
-				switch (cond.selectedOp) {
-					case '==':
-						arrCompVals.forEach(entry => {
-							let id = Object.keys(entry)[0];
-							let val = document.getElementById(id).value.trim();
-							if (sanitize(val) === entry[id]) {
-								comparisonResult = true;
-								if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-									prefillValue = cond.selectedChildValue.trim();
-								}
-							}
-						});
-						break;
-					case '!=':  //TODO: SOME or EVERY?
-						arrCompVals.forEach(entry => {
-							let id = Object.keys(entry)[0];
-							let val = document.getElementById(id).value.trim();
-							if (sanitize(val) !== entry[id]) {
-								comparisonResult = true;
-							}
-						});
-						break;
-					case '>':  
-						//comparisonResult = arrCompVals.some(v => v > sanitize(val));
-						break;
-					case '<':
-						//comparisonResult = arrCompVals.some(v => v < sanitize(val));
-						break;
-					default:
-						console.log(cond.selectedOp);
-						break;
-				}
+                switch (cond.selectedOp) {
+                    case '==':
+                        arrCompVals.forEach(entry => {
+                            let id = Object.keys(entry)[0];
+                            let val = document.getElementById(id).value.trim();
+                            if (sanitize(val) === entry[id]) {
+                                comparisonResult = true;
+                                if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
+                                    prefillValue = cond.selectedChildValue.trim();
+                                }
+                            }
+                        });
+                        break;
+                    case '!=':  //TODO: SOME or EVERY?
+                        arrCompVals.forEach(entry => {
+                            let id = Object.keys(entry)[0];
+                            let val = document.getElementById(id).value.trim();
+                            if (sanitize(val) !== entry[id]) {
+                                comparisonResult = true;
+                            }
+                        });
+                        break;
+                    case '>':  
+                        //comparisonResult = arrCompVals.some(v => v > sanitize(val));
+                        break;
+                    case '<':
+                        //comparisonResult = arrCompVals.some(v => v < sanitize(val));
+                        break;
+                    default:
+                        console.log(cond.selectedOp);
+                        break;
+                }
 
-				//update child states and/or values
-				switch (cond.selectedOutcome.toLowerCase()) {
-					case 'hide':
-						if (comparisonResult === true) {
-							elJQChildID.val('');
-							//if this is a required question, re-point validator
-							$('.blockIndicator_' + childID).hide();
-							if (currentChildInfo[childID].validator !== undefined) {
-								form.dialog().requirements[childID] = hideShowValidator;
-							}
-						} else {
-							$('.blockIndicator_' + childID).show();
-						}
-						break;
-					case 'show':
-						if (comparisonResult === true) {
-							$('.blockIndicator_' + childID).show();
-						} else {
-							elJQChildID.val('');
-							$('.blockIndicator_' + childID).hide();
-							if (currentChildInfo[childID].validator !== undefined) {
-								form.dialog().requirements[childID] = hideShowValidator;
-							}
-						}
-						break;
-					case 'pre-fill':
-						if (prefillValue !== '') {
-							const text = $('<div/>').html(prefillValue).text();
-							elJQChildID.val(text);
-							elJQChildID.attr('disabled', 'disabled');
-						} else {
-							elJQChildID.removeAttr('disabled');
-							elJQChildID.val('');
-						}
-						break; 
-					default:
-						console.log(cond.selectedOutcome);
-						break;
-				}
-				if (chosenShouldUpdate) {
-					const val = elJQChildID.val();
-					elJQChildID.chosen().val(val);
-					elJQChildID.chosen({ width: '100%' });
-					elJQChildID.trigger('chosen:updated');
-				}
-			});
-		}
+                //update child states and/or values
+                switch (cond.selectedOutcome.toLowerCase()) {
+                    case 'hide':
+                        if (comparisonResult === true) {
+                            elJQChildID.val('');
+                            //if this is a required question, re-point validator
+                            $('.blockIndicator_' + childID).hide();
+                            if (currentChildInfo[childID].validator !== undefined) {
+                                form.dialog().requirements[childID] = hideShowValidator;
+                            }
+                        } else {
+                            $('.blockIndicator_' + childID).show();
+                        }
+                        break;
+                    case 'show':
+                        if (comparisonResult === true) {
+                            $('.blockIndicator_' + childID).show();
+                        } else {
+                            elJQChildID.val('');
+                            $('.blockIndicator_' + childID).hide();
+                            if (currentChildInfo[childID].validator !== undefined) {
+                                form.dialog().requirements[childID] = hideShowValidator;
+                            }
+                        }
+                        break;
+                    case 'pre-fill':
+                        if (prefillValue !== '') {
+                            if(cond.childFormat === 'multiselect') {
+                                setTimeout(()=> { //you need to clear the stack first or this won't work
+                                    const arrPrefills = prefillValue.split('\n');
+                                    const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
+                                    let elSelectChoices = elJQChildID[0].choicesjs;
+                                    elSelectChoices?.removeActiveItems();
+                                    elSelectChoices?.setChoiceByValue(arrChoices);
+                                    elSelectChoices?.disable();
+                                }, 0);
+                                
+                            } else {
+                                const text = $('<div/>').html(prefillValue).text().trim();
+                                elJQChildID.val(text);
+                                elJQChildID.attr('disabled', 'disabled');
+                            }
+                            
+                        } else {
+                            elJQChildID.removeAttr('disabled');
+                            elJQChildID.val('');
+                            elJQChildID[0]?.choicesjs?.enable();
+                        }
+                        break; 
+                    default:
+                        console.log(cond.selectedOutcome);
+                        break;
+                }
+                if (chosenShouldUpdate) {
+                    const val = elJQChildID.val();
+                    elJQChildID.chosen().val(val);
+                    elJQChildID.chosen({ width: '100%' });
+                    elJQChildID.trigger('chosen:updated');
+                }
+            });
+        }
 
-		//get the IDs of the questions that need listeners
-		let parentQuestionIDs = [];
-		for (let entry in formConditionsByChild) {
-			const formConditions = formConditionsByChild[entry].conditions || [];
-			formConditions.forEach(c => {
-				//if the parent is not there (archived or deleted), do not add it
-				if (document.getElementById(c.parentIndID) !== null) {
-					parentQuestionIDs.push(c.parentIndID);
-				}
-			});
-		}
-		parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
-		parentQuestionIDs.forEach(id => {
-			checkConditions(null, null, id);
-			$('#'+id).on('change', checkConditions); //does not call with addEventListener (Chosen plugin?)
-		});
-		
-	}
+        //get the IDs of the questions that need listeners
+        let parentQuestionIDs = [];
+        for (let entry in formConditionsByChild) {
+            const formConditions = formConditionsByChild[entry].conditions || [];
+            formConditions.forEach(c => {
+                //if the parent is not there (archived or deleted), do not add it
+                if (document.getElementById(c.parentIndID) !== null) {
+                    parentQuestionIDs.push(c.parentIndID);
+                }
+            });
+        }
+        parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
+        parentQuestionIDs.forEach(id => {
+            checkConditions(null, null, id);
+            $('#'+id).on('change', checkConditions); //does not call with addEventListener (Chosen plugin?)
+        });
+        
+    }
 
-	function doModify() {
-		if(recordID == 0) {
-			console.log('recordID not set');
-			return 0;
-		}
+    function doModify() {
+        if(recordID == 0) {
+            console.log('recordID not set');
+            return 0;
+        }
 
-		var hasTable = $('#' + htmlFormID).find('.tableinput').length !== 0;
-		var temp = $('#' + dialog.btnSaveID).html();
-		$('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
+        var hasTable = $('#' + htmlFormID).find('.tableinput').length !== 0;
+        var temp = $('#' + dialog.btnSaveID).html();
+        $('#' + dialog.btnSaveID).empty().html('<img src="images/indicator.gif" alt="saving" /> Saving...');
 
-		$('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
-		var data = {recordID: recordID};
-		$('#' + htmlFormID).serializeArray().map(function(x) {
-			if (x.name.includes('_multiselect')) {
-				const i = x.name.indexOf('_multiselect');
-				if (x.value === '') { //selected if no options are chosen
-					data[x.name.slice(0, i)] = x.value;
-				} else {
-					data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
-				}
-			} else data[x.name] = x.value;
-		});
+        $('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
+        var data = {recordID: recordID};
+        $('#' + htmlFormID).serializeArray().map(function(x) {
+            if (x.name.includes('_multiselect')) {
+                const i = x.name.indexOf('_multiselect');
+                if (x.value === '') { //selected if no options are chosen
+                    data[x.name.slice(0, i)] = x.value;
+                } else {
+                    data[x.name.slice(0, i)] ? data[x.name.slice(0, i)].push(x.value) : data[x.name.slice(0, i)] = [x.value];
+                }
+            } else data[x.name] = x.value;
+        });
 
-		if(hasTable){
+        if(hasTable){
             var tables = [];
 
-			$('#' + htmlFormID).find('.tableinput > table').each(function(index) {
-				var gridObject = {};
+            $('#' + htmlFormID).find('.tableinput > table').each(function(index) {
+                var gridObject = {};
                 gridObject.cells = [];
                 gridObject.names = [];
 
@@ -281,119 +295,119 @@ var LeafForm = function(containerID) {
                 $('thead', this).find('td').slice(0, -1).each(function() {
                     gridObject.names.push($(this).text());
                     gridObject.columns.push($('div', this).attr('id'));
-				});
+                });
 
-				$('tbody', this).find('tr').each(function(){
+                $('tbody', this).find('tr').each(function(){
                     var cellArr = [];
-					$(this).children('td').each(function() {
+                    $(this).children('td').each(function() {
                         if($('textarea', this).length) {
                             cellArr.push($(this).find('textarea').val());
                         } else if($('select', this).length){
                             cellArr.push($("option:selected", this).val());
-						} else if($('input', this).length) {
+                        } else if($('input', this).length) {
                             cellArr.push($("input", this).val());
                         }
                     });
                     gridObject.cells.push(cellArr);
-				});
-				tables[index] = {
-					id: $(this).attr('id').split('_')[1],
-					data: gridObject,
-				};
+                });
+                tables[index] = {
+                    id: $(this).attr('id').split('_')[1],
+                    data: gridObject,
+                };
             });
 
             $('#' + htmlFormID).serializeArray().map(function(){
-            	for(var i = 0; i < tables.length; i++){
+                for(var i = 0; i < tables.length; i++){
                     data[tables[i].id] = tables[i].data;
                 }
             });
-		}
+        }
 
-	    $.ajax({
-	        type: 'POST',
-	        url: 'ajaxIndex.php?a=domodify',
-	        data: data,
-	        dataType: 'text',
-	        success: function(res) {
-	        	if(postModifyCallback != undefined) {
-	        		postModifyCallback();
-	        	}
-	            $('#' + dialog.btnSaveID).empty().html(temp);
-	        },
-	        cache: false
-	    });
-	}
+        $.ajax({
+            type: 'POST',
+            url: 'ajaxIndex.php?a=domodify',
+            data: data,
+            dataType: 'text',
+            success: function(res) {
+                if(postModifyCallback != undefined) {
+                    postModifyCallback();
+                }
+                $('#' + dialog.btnSaveID).empty().html(temp);
+            },
+            cache: false
+        });
+    }
 
-	function getForm(indicatorID, series) {
-		if(recordID == 0) {
-			console.log('recordID not set');
-			return 0;
-		}
-	    dialog.indicateBusy();
+    function getForm(indicatorID, series) {
+        if(recordID == 0) {
+            console.log('recordID not set');
+            return 0;
+        }
+        dialog.indicateBusy();
 
-	    dialog.setSaveHandler(function() {
-	    	doModify();
-	    });
+        dialog.setSaveHandler(function() {
+            doModify();
+        });
 
-	    formValidator = new Object();
-	    formRequired = new Object();
-	    formConditions = new Object();
-	    $.ajax({
-	        type: 'GET',
-	        url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
-	        dataType: 'text',
-	        success: function(response) {
-	        	dialog.setTitle('Editing #' + recordID);
-	            dialog.setContent(response);
+        formValidator = new Object();
+        formRequired = new Object();
+        formConditions = new Object();
+        $.ajax({
+            type: 'GET',
+            url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
+            dataType: 'text',
+            success: function(response) {
+                dialog.setTitle('Editing #' + recordID);
+                dialog.setContent(response);
 
-	            for(let i in formValidator) {
-	            	let tID = i.slice(2);
-	            	dialog.setValidator(tID, formValidator[i].setValidator);
-	            	dialog.setSubmitValid(tID, formValidator[i].setSubmitValid);
-	                dialog.setValidatorError(tID, formValidator[i].setValidatorError);
-	                dialog.setValidatorOk(tID, formValidator[i].setValidatorOk);
-	            }
+                for(let i in formValidator) {
+                    let tID = i.slice(2);
+                    dialog.setValidator(tID, formValidator[i].setValidator);
+                    dialog.setSubmitValid(tID, formValidator[i].setSubmitValid);
+                    dialog.setValidatorError(tID, formValidator[i].setValidatorError);
+                    dialog.setValidatorOk(tID, formValidator[i].setValidatorOk);
+                }
 
-	            for(let i in formRequired) {
-	            	let tID = i.slice(2);
-	            	dialog.setRequired(tID, formRequired[i].setRequired);
-					dialog.setSubmitError(tID, formRequired[i].setSubmitError);
-	            	dialog.setRequiredError(tID, formRequired[i].setRequiredError);
-	            	dialog.setRequiredOk(tID, formRequired[i].setRequiredOk);
-	            }
+                for(let i in formRequired) {
+                    let tID = i.slice(2);
+                    dialog.setRequired(tID, formRequired[i].setRequired);
+                    dialog.setSubmitError(tID, formRequired[i].setSubmitError);
+                    dialog.setRequiredError(tID, formRequired[i].setRequiredError);
+                    dialog.setRequiredOk(tID, formRequired[i].setRequiredOk);
+                }
 
-	            dialog.enableLiveValidation();
+                dialog.enableLiveValidation();
 
-				handleConditionalIndicators(formConditions);
-				
-	        },
-	        error: function(response) {
-	        	dialog.setContent("Error: " + response);
-	        },
-	        cache: false
-	    });
-	}
+                handleConditionalIndicators(formConditions);
+                
+            },
+            error: function(response) {
+                dialog.setContent("Error: " + response);
+            },
+            cache: false
+        });
+    }
 
-	function initCustom(containerID, contentID, indicatorID, btnSaveID, btnCancelID) {
-		dialog = new dialogController(containerID, contentID, indicatorID, btnSaveID, btnCancelID);
-		prefixID = '';
-		htmlFormID = 'record';
-	}
+    function initCustom(containerID, contentID, indicatorID, btnSaveID, btnCancelID) {
+        dialog = new dialogController(containerID, contentID, indicatorID, btnSaveID, btnCancelID);
+        prefixID = '';
+        htmlFormID = 'record';
+    }
 
-	function setHtmlFormID(id) {
-		htmlFormID = id;
-	}
+    function setHtmlFormID(id) {
+        htmlFormID = id;
+    }
 
-	return {
-		dialog: function() { return dialog; },
-		getHtmlFormID: function() { return htmlFormID; },
-		serializeData: function() { return $('#' + htmlFormID).serialize(); },
+    return {
+        dialog: function() { return dialog; },
+        getHtmlFormID: function() { return htmlFormID; },
+        serializeData: function() { return $('#' + htmlFormID).serialize(); },
 
-		setRecordID: setRecordID,
-		setPostModifyCallback: setPostModifyCallback,
-		doModify: doModify,
-		getForm: getForm,
-		initCustom: initCustom,
-		setHtmlFormID: setHtmlFormID
-	}
+        setRecordID: setRecordID,
+        setPostModifyCallback: setPostModifyCallback,
+        doModify: doModify,
+        getForm: getForm,
+        initCustom: initCustom,
+        setHtmlFormID: setHtmlFormID
+    }
 };

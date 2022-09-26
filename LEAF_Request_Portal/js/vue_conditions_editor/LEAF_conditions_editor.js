@@ -111,6 +111,12 @@ const ConditionsEditor = Vue.createApp({
                     ];
                     break;
                 case 'multiselect':
+                case 'checkboxes':
+                    this.selectedParentOperators = [
+                        {val:"==", text: "includes"}, 
+                        {val:"!=", text: "does not include"}
+                    ];
+                    break;                   
                 case 'dropdown':
                 case 'radio':
                     this.selectedParentOperators = [
@@ -153,7 +159,18 @@ const ConditionsEditor = Vue.createApp({
         updateSelectedParentValue(value){
             this.selectedParentValue = value;
         },
-        updateSelectedChildValue(value){
+        updateSelectedChildValue(target){
+            const childFormat = this.childIndicator.format.split('\n')[0].trim();
+            let value = '';
+            if (childFormat==='multiselect') {
+                const arrSelections = Array.from(target.selectedOptions);
+                arrSelections.forEach(sel => {
+                    value += sel.label.replaceAll('\r', '').trim() + '\n';
+                });
+                value = value.trim();
+            } else {
+                value = target.value;
+            }
             this.selectedChildValue = value;
         }, 
         updateSelectedChildIndicator(){
@@ -529,6 +546,11 @@ ConditionsEditor.component('editor-main', {
             const prefill = this.savedConditions.filter(i => i.selectedOutcome === 'Pre-fill');
 
             return {show,hide,prefill};
+        },
+        arrMultiselectValues() {
+            let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
+            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+            return arrValues;
         }
     },
     template: `<div id="condition_editor_inputs">
@@ -634,12 +656,14 @@ ConditionsEditor.component('editor-main', {
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
             <!-- TODO: other formats - only testing dropdown for now -->
-            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
-                @change="$emit('update-selected-child-value', $event.target.value)">
-                <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
+            <select v-if="conditions.selectedOutcome==='Pre-fill' && (childFormat==='dropdown' || childFormat==='multiselect')"
+                :multiple="childFormat==='multiselect'"
+                name="child-prefill-value-selector"
+                @change="$emit('update-selected-child-value', $event.target)">
+                <option v-if="conditions.selectedChildValue===''" value="" selected>{{childFormat==='multiselect' ? 'Select value(s)' : 'Select a value'}}</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="textValueDisplay(conditions.selectedChildValue)===val">
+                :selected="textValueDisplay(conditions.selectedChildValue)===val || childFormat==='multiselect' && arrMultiselectValues.includes(val)">
                 {{ val }} 
                 </option>
             </select>
@@ -706,7 +730,7 @@ ConditionsEditor.component('editor-main', {
         </div>
         <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
             <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
-            <span style="color: #00A91C; font-weight: bold;"> have the value '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+            <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
             </span>
             <span v-else>will 
                 <span style="color: #00A91C; font-weight: bold;">
