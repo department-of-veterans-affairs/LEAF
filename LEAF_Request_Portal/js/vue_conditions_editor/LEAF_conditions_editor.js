@@ -3,9 +3,10 @@ const ConditionsEditor = Vue.createApp({
         return {
             vueData: vueData,  //init {formID: 0, indicatorID: 0, updateIndicatorList: false}  indID is always set to a number
             windowTop: 0,
-            //indicatorOrg: {},  keep
+            //indicatorOrg: {},  NOTE: keep
             indicators: [],  //.indicatorID is now type number. isDisabled is type number
             selectedParentIndicator: {},
+            selectedDisabledParentID: null,
             selectedParentOperators: [],
             selectedOperator: '',
             selectedParentValue: '',
@@ -36,28 +37,30 @@ const ConditionsEditor = Vue.createApp({
         },
         getAllIndicators(){
             //get all enabled indicators + headings
-            const xhttpInds = new XMLHttpRequest();
-            xhttpInds.onreadystatechange = () => {
-                if (xhttpInds.readyState == 4 && xhttpInds.status == 200) {
-                    const list = JSON.parse(xhttpInds.responseText);
+            $.ajax({
+                type: 'GET',
+                url: '../api/form/indicator/list/unabridged',
+                success: (res)=> {
+                    const list = res;
                     const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled)===0);
                     this.indicators = filteredList;
-                    /* this.indicators.forEach(i => {  //debug, make object for organization according to header
+                    
+                    /* this.indicators.forEach(i => {
                         if (i.parentIndicatorID === null){
                             this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
                         }
-                    });*/
+                    }); //NOTE: keep for later use to make object for organization according to header */
                     this.indicators.forEach(i => { 
                         if (i.parentIndicatorID !== null) { //no need to check headers themselves
                             this.crawlParents(i,i);
                         }    
                     });
                     this.vueData.updateIndicatorList = false;
+                },
+                error: (err)=> {
+                    console.log(err)
                 }
-            };
-            //get the headers too, need to figure out what they are for each child
-            xhttpInds.open("GET", `../api/form/indicator/list/unabridged`, true);
-            xhttpInds.send();
+            });
         },
         clearSelections(resetAll = false){
             //cleared when either the form or child indicator changes
@@ -83,8 +86,12 @@ const ConditionsEditor = Vue.createApp({
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
                 this.parentFound = false;
+                this.selectedDisabledParentID = indicatorID===0 ? this.selectedDisabledParentID : indicatorID;
                 return;
-            } else this.parentFound = true;
+            } else {
+                this.parentFound = true;
+                this.selectedDisabledParentID = null;
+            }
 
             let formatNameAndOptions = indicator.format.split("\n");  //format field has the format name followed by options, separator is \n
             let valueOptions = formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
@@ -166,30 +173,26 @@ const ConditionsEditor = Vue.createApp({
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                             parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                            i.format.indexOf('dropdown') === 0;  //TEST dropdowns and single text only
+                            i.format.indexOf('dropdown') === 0;  //parents are currently dropdowns only
                 });
-                /*if(indicator.conditions !== null && indicator.conditions !== ''){
-                    const conditionObj = JSON.parse(indicator.conditions);
-                    if(conditionObj.length===1){
-                        this.selectConditionFromList(conditionObj[0]);    
-                    }
-                }*/
             }
-            const xhttpForm = new XMLHttpRequest();
-            xhttpForm.onreadystatechange = () => {
-                if (xhttpForm.readyState == 4 && xhttpForm.status == 200) {
-                    const form = JSON.parse(xhttpForm.responseText);
+            $.ajax({
+                type: 'GET',
+                url: `../api/form/_${this.vueData.formID}`,
+                success: (res)=> {
+                    const form = res;
                     form.forEach((formheader, index) => {
                         this.indicators.forEach(ind => {
                             if (parseInt(ind.headerIndicatorID)===parseInt(formheader.indicatorID)){
-                                ind.formPage=index;
+                                ind.formPage = index;
                             }
                         })
                     });
+                },
+                error: (err)=> {
+                    console.log(err)
                 }
-            };
-            xhttpForm.open("GET", `../api/form/_${this.vueData.formID}`, false);
-            xhttpForm.send();
+            });
         },
         crawlParents(indicator, initialIndicator) { //ind to get parentID from, 
             const parentIndicatorID = parseInt(indicator.parentIndicatorID);
@@ -224,77 +227,86 @@ const ConditionsEditor = Vue.createApp({
                 let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
                     ? [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
+
                 const isUnique = newConditions.every(c => JSON.stringify(c) !== conditionsJSON);
-                
                 if (isUnique){
                     newConditions.push(this.conditionInputObject);
                     
-                    const pkg = JSON.stringify(newConditions);
-                    let form = new FormData();
-                    form.append('CSRFToken', CSRFToken);
-                    form.append('conditions', pkg);
-
-                    const xhttp = new XMLHttpRequest();
-                    xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
-                    xhttp.send(form);
-                    xhttp.onreadystatechange = () => {
-                        if (xhttp.readyState == 4 && xhttp.status == 200) {
-                            const res = JSON.parse(xhttp.responseText);
-                            //TODO: return better indication of success, currently just empty array
+                    $.ajax({
+                        type: 'POST',
+                        url: `../api/formEditor/${childIndID}/conditions`,
+                        data: {
+                            conditions: JSON.stringify(newConditions),
+                            CSRFToken: CSRFToken
+                        },
+                        success: (res)=> {
                             if (res !== 'Invalid Token.') {
-                                indToUpdate.conditions = pkg; //update the indicator in the indicators list
+                                indToUpdate.conditions = JSON.stringify(newConditions), //update the indicator in the indicators list
                                 this.clearSelections(true);
-                            }
+                            }                            
+                        },
+                        error:(err)=> {
+                            console.log(err);
                         }
-                    };
+                    });
+
                 } else {
                     this.clearSelections(true);
                 }
             }
         },
-        removeCondition(data){
+        removeCondition(data) {  //data is  {confirmDelete: <bool>, condition: object}
             //updates conditionInputObject
             this.selectConditionFromList(data.condition);
-            //confirm delete btn on the confirm modal
-            if(data.confirmDelete===true){
-                const { childIndID } = this.conditionInputObject;
+
+            if(data.confirmDelete === true) { //if user pressed delete btn on the confirm modal
+                const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
                 
                 if (childIndID !== undefined) {
-                    const conditionsJSON = JSON.stringify(this.conditionInputObject);
+                    const hasActiveParentIndicator = this.indicators.some(ele => parseInt(ele.indicatorID)===parseInt(parentIndID));
+                    const conditionsJSON = JSON.stringify(data.condition);
 
+                    //get all conditions on this child
                     let currConditions = JSON.parse(this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID)).conditions) || [];
+                    //fixes issues due to data type changes after php8.
                     currConditions.forEach(c => {
-                        c.childIndID = parseInt(c.childIndID);   //fixes an issue where older conditions could not be deleted due to data type change
-                        c.parentIndID = parseFloat(c.parentIndID);
+                        c.childIndID = parseInt(c.childIndID);
+                        c.parentIndID = parseInt(c.parentIndID);
                     });
-
-                    console.log('confirm del', currConditions, conditionsJSON); //NOTE:
-                    let newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
+ 
+                    //filter out the condition to be rm'd from the indicator's currConditions
+                    let newConditions = [];
+                    if(hasActiveParentIndicator) {
+                        newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
+                    } else {
+                        newConditions = currConditions.filter(c => !(c.parentIndID===this.selectedDisabledParentID && c.selectedOutcome===selectedOutcome && c.selectedChildValue===selectedChildValue))
+                    }
+                    
                     if (newConditions.length === 0) newConditions = null;
                     
-                    let form = new FormData();
-                    form.append('CSRFToken', CSRFToken);
-                    form.append('conditions', (newConditions !== null) ? JSON.stringify(newConditions) : '');
-
-                    const xhttp = new XMLHttpRequest();
-                    xhttp.open("POST", `../api/formEditor/${childIndID}/conditions`, true);
-                    xhttp.send(form); 
-                    xhttp.onreadystatechange = () => {
-                        if (xhttp.readyState == 4 && xhttp.status == 200) {
-                            const res = JSON.parse(xhttp.responseText);
-                            //TODO: return better indication of success, currently just empty array
+                    $.ajax({
+                        type: 'POST',
+                        url: `../api/formEditor/${childIndID}/conditions`,
+                        data: {
+                            conditions: (newConditions !== null) ? JSON.stringify(newConditions) : '',
+                            CSRFToken: CSRFToken
+                        },
+                        success: (res)=> {
                             if (res !== 'Invalid Token.') {
                                 let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
-                                //update the indicator in the indicators list
+                                //update conditions on the indicator by reference to the indicators list
                                 indToUpdate.conditions = (newConditions !== null) ? JSON.stringify(newConditions) : '';
                             }
+                        },
+                        error: (err)=> {
+                            console.log(err);
                         }
-                    }; 
+                    });
                 }
                 this.showRemoveConditionModal = false;
                 this.clearSelections(true);
-            //X buttons that open the confirm delete modal   
-            } else {
+             
+            } else { //user pressed an X button in a conditions list that opens the confirm delete modal  
                 this.showRemoveConditionModal = true;
             }
         },
@@ -467,18 +479,11 @@ ConditionsEditor.component('editor-main', {
                 this.$emit('update-indicator-list');
             } else {
                 this.$emit('update-selected-child');
-                /*if (this.vueData.required === 0) {
-                    this.$emit('update-selected-child');
-                } else {
-                    alert('This question is Required, currently questions that are required are not supported with conditions. ' +
-                        'Please remove the required status and try again.');
-                    this.vueData.indicatorID = 0;
-                }*/
             }
         },
-		applyMaxTextLength(text) {
+        applyMaxTextLength(text) {
             let maxTextLength = 40;
-            return text.length > maxTextLength ? text.slice(0,maxTextLength) + '... ' : text;
+            return text?.length > maxTextLength ? text.slice(0,maxTextLength) + '... ' : text || '';
         },
         getIndicatorName(id) {
             if (id !== 0) {
@@ -486,7 +491,7 @@ ConditionsEditor.component('editor-main', {
                 return this.applyMaxTextLength(indicatorName);
             }
         },
-		textValueDisplay(str) {
+        textValueDisplay(str) {
             return $('<div/>').html(str).text();
         },
         getOperatorText(op){
@@ -501,6 +506,16 @@ ConditionsEditor.component('editor-main', {
                     return 'is less than';    
                 default: return op;
             }
+        },
+        isOrphan(childIndID) {
+            return !this.selectableParents.some(p => parseInt(p.indicatorID) === parseInt(childIndID));
+        },
+        childFormatChangedSinceSave(condition){
+            const childConditionFormat = condition.childFormat;
+            const childID = parseInt(condition.childIndID);
+            const childIndicator = this.indicators.find(ind => parseInt(ind.indicatorID) === childID);
+            const currentIndicatorFormat = childIndicator?.format?.split('\n')[0];
+            return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
         }
     },
     computed: {
@@ -530,10 +545,17 @@ ConditionsEditor.component('editor-main', {
                     <p><b>This field will be hidden except:</b></p>
                     <li v-for="c in conditionTypes.show" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
-                        :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
-                        If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                        then show this question.
+                            :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
+                            <span v-if="!isOrphan(c.parentIndID)">
+                                If '{{getIndicatorName(c.parentIndID)}}' 
+                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                then show this question.
+                                <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
+                                The format of this question has changed.  
+                                Please review and save it to update</span>
+                                </span>
+                            </span>
+                            <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
                         <button style="width: 1.75em;"
                         class="btn_remove_condition"
@@ -545,10 +567,17 @@ ConditionsEditor.component('editor-main', {
                     <p style="margin-top: 1em"><b>This field will be shown except:</b></p>
                     <li v-for="c in conditionTypes.hide" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
-                        :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
-                        If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                        then hide this question.
+                            :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
+                            <span v-if="!isOrphan(c.parentIndID)">
+                                If '{{getIndicatorName(c.parentIndID)}}' 
+                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                then hide this question.
+                                <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
+                                The format of this question has changed.  
+                                Please review and save it to update</span>
+                                </span>
+                            </span>
+                            <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
                         <button style="width: 1.75em;"
                         class="btn_remove_condition"
@@ -560,10 +589,16 @@ ConditionsEditor.component('editor-main', {
                     <p style="margin-top: 1em"><b>This field will be pre-filled:</b></p>
                     <li v-for="c in conditionTypes.prefill" key="c" class="savedConditionsCard">
                         <button @click="$emit('set-condition', c)" class="btnSavedConditions" 
-                        :class="JSON.stringify(c)===editingCondition ? 'selectedConditionEdit' : ''">
-                        If '{{getIndicatorName(c.parentIndID)}}' 
-                        {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                        then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
+                            :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
+                            <span v-if="!isOrphan(c.parentIndID)">
+                                If '{{getIndicatorName(c.parentIndID)}}' 
+                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
+                                <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
+                                The format of this question has changed.  
+                                Please review and save it to update</span>
+                            </span>
+                            <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
                         <button style="width: 1.75em;"
                         class="btn_remove_condition"
@@ -578,7 +613,7 @@ ConditionsEditor.component('editor-main', {
                 <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                 <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                     <li style="width: 30%;">
-                        <button class="btn_remove_condition" @click="$emit('remove-condition', {confirmDelete: true, condition: conditions} )">Delete</button>
+                        <button class="btn_remove_condition" @click="$emit('remove-condition', {confirmDelete: true, condition: conditions } )">Delete</button>
                     </li>
                     <li style="width: 30%;">
                         <button id="btn_cancel" @click="$emit('cancel-delete')">Cancel</button>
