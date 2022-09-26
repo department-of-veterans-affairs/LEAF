@@ -482,7 +482,7 @@ ConditionsEditor.component('editor-main', {
         },
         getIndicatorName(id) {
             if (id !== 0) {
-                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
+                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name || '';
                 return this.applyMaxTextLength(indicatorName);
             }
         },
