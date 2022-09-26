@@ -190,14 +190,13 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in (':EMPUIDS') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','", $nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
         ':PHONEIID' => PHONEIID,
         ':EMAILIID' => EMAILIID,
         ':LOCATIONIID' => LOCATIONIID,
-        ':ADTITLEIID' => ADTITLEIID,
-	':EMPUIDS' => implode("','", $nationalEmpUIDs)
+        ':ADTITLEIID' => ADTITLEIID
     ];
 
     $orgEmployeeDataRes = $phonedb->prepared_query($orgEmployeeDataSql, $orgEmployeeDataVars);
