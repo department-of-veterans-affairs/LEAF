@@ -39,7 +39,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
         $startTime = time();
         // echo "Refresh Orgchart Employees Start\n";
 
-        //updateLocalOrgchartBatch();
+        updateLocalOrgchartBatch();
 
         $endTime = time();
         // echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
@@ -162,6 +162,10 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     		WHERE userName in(".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
 
     $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql,$localEmployeeUsernames);
+	
+    // get local empuids
+    $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
+    $localEmpUIDs = $db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
 
     //if for some reason there is no data, we need to stop right there.
     if(empty($orgEmployeeRes)){
@@ -190,7 +194,10 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','", $nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+    $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp 
+    				FROM employee_data 
+				LEFT JOIN employee USING (empUID) 
+				WHERE empUID in ('".implode("','", $nationalEmpUIDs)."') AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
         ':PHONEIID' => PHONEIID,
@@ -205,9 +212,10 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach($orgEmployeeDataRes as $orgEmployeeData){
-
+	$localEmployeeID = array_search($orgEmployeeData['userName'], array_column($localEmpUIDs, 'userName'));
+	    
         $localEmployeeDataArray[] = [
-                 'empUID' => $orgEmployeeData['empUID'],
+                 'empUID' => $localEmpUIDs[$localEmployeeID]['empUID'],
                  'indicatorID' => $orgEmployeeData['indicatorID'],
                  'data' => $orgEmployeeData['data'],
                  'author' => $orgEmployeeData['author'],
