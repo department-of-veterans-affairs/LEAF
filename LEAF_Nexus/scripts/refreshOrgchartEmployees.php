@@ -168,7 +168,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach ($orgEmployeeRes as $orgEmployee) {
-        $nationalEmpUIDs[] = $orgEmployee['empUID'];
+        $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
 
         $localEmployeeArray[] = [
             'empUID' => $orgEmployee['empUID'],
@@ -190,13 +190,14 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','",$nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in (':EMPUIDS') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
         ':PHONEIID' => PHONEIID,
         ':EMAILIID' => EMAILIID,
         ':LOCATIONIID' => LOCATIONIID,
-        ':ADTITLEIID' => ADTITLEIID
+        ':ADTITLEIID' => ADTITLEIID,
+	':EMPUIDS' => implode("','", $nationalEmpUIDs)
     ];
 
     $orgEmployeeDataRes = $phonedb->prepared_query($orgEmployeeDataSql, $orgEmployeeDataVars);
