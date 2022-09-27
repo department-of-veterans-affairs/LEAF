@@ -43,7 +43,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 		$startTime = time();
 		// echo "Refresh Orgchart Employees Start\n";
 
-		updateLocalOrgchart();
+		updateLocalOrgchartBatch();
 
 		$endTime = time();
 		// echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
@@ -52,9 +52,8 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 
 }
 
-
 /*
- *	Updates employee information from national orgchart to local orgchart
+ *	Updates single employee information from national orgchart to local orgchart
 */
 function updateUserInfo($userName, $empUID){
 	global $db, $phonedb;
@@ -113,80 +112,117 @@ function updateUserInfo($userName, $empUID){
 	}
 }
 
-/*
- *	Updates employee information from national orgchart to local orgchart
-*/
-function updateLocalOrgchart()
+function updateLocalOrgchartBatch()
 {
     global $db, $phonedb;
 
-    $localEmployees = getOrgchartEmployees();
+    // replace the separate function for getting employee
+    $localEmployeeSql = "SELECT userName FROM employee";
+    $localEmployees = $db->query($localEmployeeSql);
 
     if (count($localEmployees) == 0) {
         return;
     }
 
-    $userKeys = array_keys($localEmployees);
+    $localEmployeeUsernames = [];
 
-    $sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
-    		FROM employee
-    		WHERE userName=:userName";
+    // could we use a sub query? yes however if there are large amounts of data, I want to limit the bleeding a bit.
+    foreach ($localEmployees as $employee) {
+        $localEmployeeUsernames[] = htmlspecialchars_decode($employee['userName'], ENT_QUOTES);
+    }
 
-    $sql2 = "UPDATE employee
-			SET lastName=:lastName,
-			firstName=:firstName,
-			middleName=:midInit,
-			phoneticFirstName=:phoneticFname,
-			phoneticLastName=:phoneticLname,
-			domain=:domain,
-			deleted=:deleted,
-			lastUpdated=:lastUpdated
-			WHERE userName=:userName";
+    // chunk it so we can go over this data.
+    $localEmployeeUsernamesChunked = array_chunk($localEmployeeUsernames, 100);
 
-    // update each employee entry
-    foreach ($userKeys as $key) {
-        $userNameArr = array('userName' => htmlspecialchars_decode($localEmployees[$key]['userName'],ENT_QUOTES));
-
-        // gets national data
-        $res = $phonedb->prepared_query($sql, $userNameArr);
-
-        if (count($res) > 0) {
-            $vars = array(
-                ':userName' => $res[0]['userName'],
-                ':lastName' => $res[0]['lastName'],
-                ':firstName' => $res[0]['firstName'],
-                ':midInit' => $res[0]['middleName'],
-                ':phoneticFname' => $res[0]['phoneticFirstName'],
-                ':phoneticLname' => $res[0]['phoneticLastName'],
-                ':domain' => $res[0]['domain'],
-                ':deleted' => $res[0]['deleted'],
-                ':lastUpdated' => $res[0]['lastUpdated']
-            );
-
-            // sets local employee table
-            $db->prepared_query($sql2, $vars);
-
-            // sets local employee_data table
-            updateEmployeeData($res[0]['empUID'], $localEmployees[$key]['empUID']);
-        }
+    // loop over the chunked names so we can limit how much data this will be inserting at a time.
+    foreach ($localEmployeeUsernamesChunked as $localEmployeeUsernames) {
+        // get employees from the nexus based on the username
+        updateEmployeeDataBatch($localEmployeeUsernames);
     }
 }
 
-/*
- *	Gets the employees from local employee table
- *  @return array of local employees
-*/
-function getOrgchartEmployees()
+
+function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
-    global $db;
 
-    $sql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated FROM employee";
+    global $db, $phonedb;
 
-    $res = $db->query($sql);
+    if (empty($localEmployeeUsernames)) {
+        return FALSE;
+    }
 
-    return $res;
+    // you will need to gather the emp ids since we need to grab local data as well.
+    $nationalEmpUIDs = [];
+
+    // you will need to store the data for updating the batch of employees
+    $localEmployeeArray = [];
+    // as well as data
+    $localEmployeeDataArray = [];
+
+    // STEP 1: Get the employees updated
+    // get org employees
+    $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
+    		FROM employee
+    		WHERE userName in('".implode("','",$localEmployeeUsernames)."')";
+
+    $orgEmployeeRes = $phonedb->query($orgEmployeeSql);
+
+    //if for some reason there is no data, we need to stop right there.
+    if(empty($orgEmployeeRes)){
+        return FALSE;
+    }
+    foreach ($orgEmployeeRes as $orgEmployee) {
+        $nationalEmpUIDs[] = $orgEmployee['empUID'];
+
+        $localEmployeeArray[] = [
+            'empUID' => $orgEmployee['empUID'],
+            'userName' => $orgEmployee['userName'],
+            'lastName' => $orgEmployee['lastName'],
+            'firstName' => $orgEmployee['firstName'],
+            'middleName' => $orgEmployee['middleName'],
+            'phoneticFirstName' => $orgEmployee['phoneticFirstName'],
+            'phoneticLastName' => $orgEmployee['phoneticLastName'],
+            'domain' => $orgEmployee['domain'],
+            'deleted' => $orgEmployee['deleted'],
+            'lastUpdated' => $orgEmployee['lastUpdated']
+        ];
+
+    }
+
+    $db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
+
+    // STEP 2: Get employee_data updated
+    // get the employee data, we will need to get the employee ids first
+
+    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','",$nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+
+    $orgEmployeeDataVars = [
+        ':PHONEIID' => PHONEIID,
+        ':EMAILIID' => EMAILIID,
+        ':LOCATIONIID' => LOCATIONIID,
+        ':ADTITLEIID' => ADTITLEIID
+    ];
+
+    $orgEmployeeDataRes = $phonedb->prepared_query($orgEmployeeDataSql, $orgEmployeeDataVars);
+
+    if(empty($orgEmployeeDataRes)){
+        return FALSE;
+    }
+    foreach($orgEmployeeDataRes as $orgEmployeeData){
+
+        $localEmployeeDataArray[] = [
+                 'empUID' => $orgEmployeeData['empUID'],
+                 'indicatorID' => $orgEmployeeData['indicatorID'],
+                 'data' => $orgEmployeeData['data'],
+                 'author' => $orgEmployeeData['author'],
+                 'timestamp' => $orgEmployeeData['timestamp'],
+             ];
+    }
+
+    $db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+
+
 }
-
 
 /*
  *	Updates the individual indicators from national orgchart to local employee_data table. Emails, phone, etc
@@ -200,8 +236,8 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
     $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $selectVars = array(
-        ':nationalEmpUID' => $nationalEmpUID, 
-        ':PHONEIID' => PHONEIID, 
+        ':nationalEmpUID' => $nationalEmpUID,
+        ':PHONEIID' => PHONEIID,
         ':EMAILIID' => EMAILIID,
         ':LOCATIONIID' => LOCATIONIID,
         ':ADTITLEIID' => ADTITLEIID
