@@ -120,6 +120,7 @@ button.btn-confirm {
     position: absolute;
     margin: auto;
     width: auto;
+    min-width: 450px;
     resize: horizontal;
     z-index: 9999;
     min-width: 400px;
@@ -135,17 +136,6 @@ button.btn-confirm {
         padding: 0.75em;
     }
 
-    table {
-        border-collapse: separate; 
-        border-spacing: 0 0.5em;
-    
-        td {
-            white-space: nowrap;
-        }
-        td:not(:last-child) {
-            padding-right: 0.4em;
-        }
-    }
     .leaf-vue-dialog-title {
         color: $charcoal;
         border-top: 3px solid white;
@@ -182,8 +172,63 @@ button.btn-confirm {
     input[type='file'] {
         width: 100%;
     }
+}
+
+#indicator-editing-dialog-content {
+    > div,  #non-name-wrapper > div{
+        margin-bottom: 1rem;
+    }
+
+    label {
+        padding-right: 0.2rem;
+        margin-bottom: 0.2em;
+        white-space: nowrap;
+    }
+    label span {
+        font-family: PublicSans, sans-serif;
+    }
+    #name {
+        width: 100%;
+        margin: 0 0 0.4rem 0;
+        padding: 0.5rem 0.75rem;
+        display:block;
+    }
+    #non-name-wrapper {
+        /*max-width: 550px;
+        margin-right: auto;*/
+    }
+    #description, #indicatorType, #defaultValue {
+        width: 100%;
+        margin-top: 0.1rem;
+    }
+
+    #indicator-editing-attributes {
+        border-radius: 4px;
+        min-width: fit-content;
+        margin-bottom: 0;
+
+        label {
+            font-family: 'Source Sans Pro Web', sans-serif;
+            font-weight: bolder;
+            margin: 0;
+        }
+
+        .attribute-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 0.75rem;
+        }
+    }
+    #archived-warning, #deletion-warning {
+        color: #d00; 
+        padding-top: 0.2rem;
+        font-size: 90%;
+    }
+
     div.cell {
-        min-width: 150px;
+        width: 160px;
+        min-width: 160px;
         text-align: center;
         border: 1px grey solid;
         padding: 10px;
@@ -196,8 +241,6 @@ button.btn-confirm {
         }
     }
 }
-
-
 
 
 /* panel where edit properties modal is accessed from */
@@ -613,108 +656,107 @@ div#form_content_view {
                 .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
                     margin-bottom: 0.5em;
                 }
-
-                /* checkboxes and radio */
-                .checkable.leaf_check {
-                    font-family: Source Sans Pro Web, sans-serif;
-                    cursor: pointer;
-                    position: relative;
-                    display:flex;
-                    align-items: center;
-                    width: -moz-fit-content;
-                    width: fit-content;
-                    max-width: 600px;
-                    margin-bottom: 0.2em;
-                }
-                input[class*="icheck"][class*="leaf_check"], 
-                input[class*="ischecked"][class*="leaf_check"] { 
-                    opacity: 0;
-                    margin-right: 0.2em;
-                    cursor: pointer;
-                    width: 20px;
-                    flex: 0 0 20px;
-                    height: 20px;
-                    margin: 4px 10px 4px 0;
-                }
-                span.leaf_check {
-                    position: absolute;
-                    top: 50%;
-                    transform: translate(0, -50%);
-                    left: 4px;
-                    width: 20px;
-                    height: 20px;
-                    background-color: transparent;
-                    border: 1px solid rgb(151, 150, 149);
-                }
-                span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active,
-                input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check,
-                input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check {
-                    border: 2px solid #47e;
-                }
-                input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
-                    border-radius: 50%;
-                }
-                span.leaf_check::after {
-                    content: "";
-                    box-sizing: content-box; /* needed to fix leaf.css collision */
-                    position: absolute;
-                    top: 10%;
-                    left: 30%;
-                    width: 25%;
-                    height: 50%;
-                    background-color: transparent;
-                    border: 1px solid #FFF;
-                    border-width: 0px 3px 3px 0px;
-                    border-radius: 2px;
-                    transform: rotate(40deg);
-                    display: none;
-                }
-                input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check,
-                input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check {
-                    background-color: #47e;
-                    border: 1px solid #47e;
-                    opacity: 1;
-                }
-                input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
-                input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
-                    display: block;
-                }
-
-                /** modifications to choicesjs styles **/
-                .choices__inner div.choices__item.choices__item--selectable,
-                .choices__inner div.choices__item.is-highlighted  {
-                    background-color: #f6faff;
-                    background-image: linear-gradient(0, #eee 50%, #fff 53%);
-                    border: 1px solid #aaa;
-                    border-radius: 4px;
-                    color:black;
-                }
-                button.choices__button {
-                    filter: brightness(25%); 
-                }
-                button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
-                    filter: brightness(0);
-                    transform: scale(1.05);
-                }
-                .choices__list.choices__list--dropdown.is-active .is-highlighted {
-                    background-color: #E8F2FF;
-                    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
-                }
-                .choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
-                    opacity: 0.75;
-                }
-                .choices input {  /* prevent leaf.css corruption */
-                    float: none;
-                    &:hover, &:focus, &:active {
-                        outline: none;
-                    }
-                } 
             }
         }
     }
 }
 
+/* checkboxes and radio */
+.checkable.leaf_check {
+    font-family: Source Sans Pro Web, sans-serif;
+    cursor: pointer;
+    position: relative;
+    display:flex;
+    align-items: center;
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: 600px;
+    margin-bottom: 0.2em;
+}
+input[class*="icheck"][class*="leaf_check"], 
+input[class*="ischecked"][class*="leaf_check"] { 
+    opacity: 0;
+    margin-right: 0.2em;
+    cursor: pointer;
+    width: 1.1rem;
+    flex: 0 0 1.1rem;
+    height: 1.1rem;
+    margin: 2px;
+}
+span.leaf_check {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    left: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    background-color: transparent;
+    border: 1px solid rgb(151, 150, 149);
+    border-radius: 2px;
+}
+span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active,
+input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check,
+input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check {
+    border: 2px solid #47e;
+}
+input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
+    border-radius: 50%;
+}
+span.leaf_check::after {
+    content: "";
+    box-sizing: content-box; /* needed to fix leaf.css collision */
+    position: absolute;
+    top: 10%;
+    left: 30%;
+    width: 25%;
+    height: 50%;
+    background-color: transparent;
+    border: 1px solid #FFF;
+    border-width: 0px 3px 3px 0px;
+    border-radius: 2px;
+    transform: rotate(40deg);
+    display: none;
+}
+input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check,
+input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check {
+    background-color: #47e;
+    border: 1px solid #47e;
+    opacity: 1;
+}
+input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
+input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
+    display: block;
+}
 
+/** modifications to choicesjs styles **/
+.choices__inner div.choices__item.choices__item--selectable,
+.choices__inner div.choices__item.is-highlighted  {
+    background-color: #f6faff;
+    background-image: linear-gradient(0, #eee 50%, #fff 53%);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color:black;
+}
+button.choices__button {
+    filter: brightness(25%); 
+}
+button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
+    filter: brightness(0);
+    transform: scale(1.05);
+}
+.choices__list.choices__list--dropdown.is-active .is-highlighted {
+    background-color: #E8F2FF;
+    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
+}
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
+    opacity: 0.75;
+}
+.choices input {  /* prevent leaf.css corruption */
+    float: none;
+    &:hover, &:focus, &:active {
+        outline: none;
+    }
+} 
 
 @media only screen and (max-width: 550px) {
     #vue-formeditor-app {

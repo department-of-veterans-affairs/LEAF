@@ -20,11 +20,11 @@ export default {
         isSubform() {
             return this.currCategoryID !== null;
         },
-        nameChars(){
-            return this.categoryName.length;
+        nameCharsRemaining(){
+            return Math.max(50 - this.categoryName.length, 0);
         },
-        descrChars(){
-            return this.categoryDescription.length;
+        descrCharsRemaining(){
+            return Math.max(255 - this.categoryDescription.length, 0);
         }
     },
     methods: {
@@ -62,13 +62,12 @@ export default {
     template: `<div>
             <div style="display: flex; justify-content: space-between; padding: 0.25em 0">
                 <div><b>Form Name</b><span style="font-size:80%"> (up to 50 characters)</span></div>
-                <div>{{nameChars}}</div>
+                <div>{{nameCharsRemaining}}</div>
             </div>
             <input id="name" type="text" maxlength="50" v-model="categoryName" style="width: 100%;" />
-
             <div style="display: flex; justify-content: space-between; padding: 0.25em 0; margin-top: 1em;">
                 <div><b>Form Description</b><span style="font-size:80%"> (up to 255 characters)</span></div>
-                <div>{{descrChars}}</div>
+                <div>{{descrCharsRemaining}}</div>
             </div>
             <textarea id="description" maxlength="255" v-model="categoryDescription" 
                 style="width: 100%; height: 90px;">

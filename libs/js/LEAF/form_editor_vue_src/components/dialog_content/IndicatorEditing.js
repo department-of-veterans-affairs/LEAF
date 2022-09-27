@@ -117,6 +117,9 @@ export default {
             }
             return fullFormat;
         },
+        descrCharsRemaining(){
+            return Math.max(50 - this.description.length, 0)
+        }
     },
     methods: {
         getFormParentIDs() {
@@ -469,11 +472,14 @@ export default {
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
             $('.trumbowyg-box').css({
-                'min-height': '130px'
+                'min-height': '130px',
+                'max-width': '700px',
+                'margin': '0.5rem 0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
                 'min-height': '100px',
-                'height': '100px'
+                'height': '100px',
+                'padding': '1rem'
             });
         },
         rawNameEditorClick() {
@@ -482,107 +488,113 @@ export default {
             $('#name').trumbowyg('destroy');
         }
     },
-    template: `<div style="min-width: 500px;">
-        <fieldset>
-            <legend>Field Name</legend>
-            <textarea id="name" v-model="name" style="width: 99%; margin-bottom: 0.4em; height: 90px;">{{name}}</textarea>
+    template: `<div id="indicator-editing-dialog-content">
+        <div>
+            <label for="name">Field Name</label>
+            <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <button class="buttonNorm" id="rawNameEditor" @click="rawNameEditorClick" style="display: none;">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor" @click="advNameEditorClick">Advanced Formatting</button>
-        </fieldset>
-        <fieldset>
-            <legend>Short Label (Describe this field in 1-2 words)</legend>
-            <input type="text" id="description" v-model="description" maxlength="50" />
-        </fieldset>
-        <fieldset>
-            <legend>Input Format</legend>
-            <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
-                <option value="">None</option>
-                <option v-for="kv in Object.entries(formats)" 
-                :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
-            </select><br/>
-            <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer">
-                Text for checkbox:<br /> 
-                <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
-            </div>
-            <div v-if="isMultiOptionQuestion" id="container_indicatorMultiAnswer">
-                One option per line:<br />
-                <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="width: 80%; height: 150px">
-                </textarea>
-            </div>
-            <div v-if="format==='grid'" id="container_indicatorGrid">
-                <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
-                <br/>
-                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" @click="appAddCell">
-                    <img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>
-                    Add column
-                </button>
-                <br/><br/>
-                Columns:
-                <div border="1" style="overflow-x: scroll; max-width: 100%;">
-                <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
-                <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
+        </div>
+        <div id="non-name-wrapper">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="description">Short Label <span style="font-size: 80%">(What would you call this field in a spreadsheet?)</span></label>
+                <div>{{descrCharsRemaining}}</div>
                 </div>
-            </div>               
-            <fieldset>
-                <legend>Default Answer</legend>
-                <textarea id="defaultValue" v-model="defaultValue" style="width: 50%;"></textarea>
-            </fieldset>
-        </fieldset>
-        <fieldset><legend>Attributes</legend>
-            <table>
-                <tr>
-                    <td>Required</td>
-                    <td>
-                        <input id="required" v-model="required" name="required" type="checkbox" 
-                        @click="preventSelectionIfFormatNone" @keypress.enter="preventSelectionIfFormatNone"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Sensitive Data (PHI/PII)</td>
-                    <td>
-                        <input id="sensitive" v-model="is_sensitive" name="sensitive" type="checkbox" 
-                        @click="preventSelectionIfFormatNone" @keypress.enter="preventSelectionIfFormatNone"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Sort Priority</td>
-                    <td><input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px" /></td>
-                </tr>
+                <input type="text" id="description" v-model="description" maxlength="50" />
+            </div>
+            <div>
+                <label for="indicatorType">Input Format</label><br/>
+                <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
+                    <option value="">None</option>
+                    <option v-for="kv in Object.entries(formats)" 
+                    :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
+                </select><br/>
+                <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer">
+                    <label for="indicatorSingleAnswer">Text for checkbox:</label><br/> 
+                    <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
+                </div>
+                <div v-if="isMultiOptionQuestion" id="container_indicatorMultiAnswer">
+                    <label for="indicatorMultiAnswer">One option per line:</label><br/>
+                    <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 150px; margin-top: 0.2rem;">
+                    </textarea>
+                </div>
+                <div v-if="format==='grid'" id="container_indicatorGrid">
+                    <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
+                    <br/>
+                    <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" @click="appAddCell">
+                        <img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>
+                        Add column
+                    </button>
+                    <br/><br/>
+                    Columns:
+                    <div border="1" style="overflow-x: scroll;">
+                        <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
+                        <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
+                    </div>
+                </div>               
+            </div>
+            <div>
+                <label for="defaultValue">Default Answer</label><br/>
+                <textarea id="defaultValue" v-model="defaultValue"></textarea>
+            </div>
+            <fieldset id="indicator-editing-attributes">
+                <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
+                <div class="attribute-row">
+                    <div style="display: flex; align-items: center; margin-right: 1.5rem;">
+                        <label class="checkable leaf_check" for="required">
+                            <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
+                                @change="preventSelectionIfFormatNone" />
+                            <span class="leaf_check"></span>Required
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-right: 1.5rem;">
+                        <label class="checkable leaf_check" for="sensitive">
+                            <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
+                                @change="preventSelectionIfFormatNone" />
+                            <span class="leaf_check"></span>Sensitive Data (PHI/PII)
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 60px; padding: 0; margin-right:4px" />
+                        <label for="sort">Sort Priority</label> 
+                    </div>
+                </div>
                 <template v-if="isEditingModal">
-                <tr>
-                    <td>Parent Question ID</td>
-                    <td colspan="2">
-                        <div id="container_parentID">
-                            <select v-model.number="parentID">
-                                <template v-if="isLoadingParentIDs===false" v-for="kv in Object.entries(listForParentIDs)">
+                    <div class="attribute-row">
+                        <div style="display: flex; align-items: center; width:100%;">
+                            <select v-model.number="parentID" id="container_parentID" style="width:320px; margin-right: 4px">
+                            <template v-if="isLoadingParentIDs===false" v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" :value="kv[0]" :key="'parent'+kv[0]">{{kv[0]}}: {{truncateText(kv[1]['1'].name)}}</option>
-                                </template>
+                            </template>
                             </select>
+                            <label for="container_parentID">Parent Question ID</label>
                         </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Archive</td>
-                    <td colspan="1">
-                        <input id="archived" v-model="archived" name="disable_or_delete" type="checkbox" @change="radioBehavior"/>
-                    </td>
-                    <td style="width: 275px; position: relative;">
-                        <span v-show="archived" id="archived-warning" style="color: #d00; font-size: 80%; position: absolute; top:-6px; left: -18px;">
-                        This field will be archived.  It can be<br/>re-enabled by using Restore Fields.</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Delete</td>
-                    <td colspan="1">
-                        <input id="deleted" v-model="deleted" name="disable_or_delete" type="checkbox" @change="radioBehavior" />
-                    </td>
-                    <td style="width: 275px; position: relative;">
-                        <span v-show="deleted" id="deletion-warning" style="color: #d00; font-size: 80%; position: absolute; top:-6px; left: -18px;">
-                        Deleted items can only be re-enabled<br/>within 30 days by using Restore Fields.</span>
-                    </td>
-                </tr>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="margin-right: 1.5rem;">
+                            <label class="checkable leaf_check" for="archived">
+                                <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
+                                    v-model="archived" @change="radioBehavior" />
+                                <span class="leaf_check"></span>Archive
+                            </label>
+                        </div>
+                        <div style="margin-right: 0.5rem;">
+                            <label class="checkable leaf_check" for="deleted">
+                                <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"  
+                                    v-model="deleted" @change="radioBehavior" />
+                                <span class="leaf_check"></span>Delete
+                            </label>
+                        </div>
+                    </div>
                 </template>
-            </table>
-        </fieldset>
+            </fieldset>
+            <div v-show="archived" id="archived-warning">
+                This field will be archived.  It can be re-enabled by using Restore Fields.
+            </div>
+            <div v-show="deleted" id="deletion-warning">
+                Deleted items can only be re-enabled within 30 days by using Restore Fields.
+            </div>
+        </div>
     </div>`
 };

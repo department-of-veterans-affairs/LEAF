@@ -34,7 +34,6 @@ export default {
     },
     methods: {
         makeDraggable(el) {
-            const currWidth = el.clientWidth;
             let pos1 = 0; let pos2 = 0; let mouseX = 0; let mouseY = 0;
 
             const elementDrag = (e) => {
@@ -68,8 +67,8 @@ export default {
                 if (el.offsetLeft < 0) {
                     el.style.left = 0 + 'px';
                 }
-                if (el.offsetLeft + currWidth + scrollbarWidth > window.innerWidth) {  //extra space for scrollbar
-                    el.style.left = (window.innerWidth - currWidth - scrollbarWidth) + 'px';
+                if (el.offsetLeft + el.clientWidth + scrollbarWidth > window.innerWidth) {  //extra space for scrollbar
+                    el.style.left = (window.innerWidth - el.clientWidth - scrollbarWidth) + 'px';
                 }
             }
             if (document.getElementById(this.modalElementID + "_drag_handle")) {
