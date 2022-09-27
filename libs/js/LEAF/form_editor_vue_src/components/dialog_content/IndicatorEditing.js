@@ -498,8 +498,8 @@ export default {
         <div id="non-name-wrapper">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label for="description">Short Label <span style="font-size: 80%">(What would you call this field in a spreadsheet?)</span></label>
-                <div>{{descrCharsRemaining}}</div>
+                    <label for="description">Short Label. What would you call this field in a spreadsheet?</label>
+                    <div>{{descrCharsRemaining}}</div>
                 </div>
                 <input type="text" id="description" v-model="description" maxlength="50" />
             </div>
@@ -541,38 +541,42 @@ export default {
             <fieldset id="indicator-editing-attributes">
                 <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
                 <div class="attribute-row">
-                    <div style="display: flex; align-items: center; margin-right: 1.5rem;">
+                    <div style="display: flex; align-items: center; margin-right: 1.25rem;">
                         <label class="checkable leaf_check" for="required">
                             <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
                                 @change="preventSelectionIfFormatNone" />
                             <span class="leaf_check"></span>Required
                         </label>
                     </div>
-                    <div style="display: flex; align-items: center; margin-right: 1.5rem;">
+                    <div style="display: flex; align-items: center; margin-right: 1.25rem;">
                         <label class="checkable leaf_check" for="sensitive">
                             <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
                                 @change="preventSelectionIfFormatNone" />
                             <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                         </label>
                     </div>
-                    <div style="display: flex; align-items: center;">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 60px; padding: 0; margin-right:4px" />
+                    <div v-if="!isEditingModal" style="display: flex; align-items: center;">
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0; margin-right:4px" />
                         <label for="sort">Sort Priority</label> 
                     </div>
                 </div>
                 <template v-if="isEditingModal">
                     <div class="attribute-row">
-                        <div style="display: flex; align-items: center; width:100%;">
-                            <select v-model.number="parentID" id="container_parentID" style="width:320px; margin-right: 4px">
+                        <div style="display: flex; align-items: center; margin-right: 1.25rem;">
+                            <select v-model.number="parentID" id="container_parentID" style="width:225px; margin-right: 4px">
                             <template v-if="isLoadingParentIDs===false" v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" :value="kv[0]" :key="'parent'+kv[0]">{{kv[0]}}: {{truncateText(kv[1]['1'].name)}}</option>
                             </template>
                             </select>
                             <label for="container_parentID">Parent Question ID</label>
                         </div>
+                        <div style="display: flex; align-items: center;">
+                            <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0; margin-right:4px" />
+                            <label for="sort">Sort Priority</label> 
+                        </div>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div style="margin-right: 1.5rem;">
+                        <div style="margin-right: 1.25rem;">
                             <label class="checkable leaf_check" for="archived">
                                 <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
                                     v-model="archived" @change="radioBehavior" />

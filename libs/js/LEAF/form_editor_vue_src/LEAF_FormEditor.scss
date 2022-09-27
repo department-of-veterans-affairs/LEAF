@@ -180,12 +180,10 @@ button.btn-confirm {
     }
 
     label {
+        font-family: sans-serif;
+        font-weight: bolder;
         padding-right: 0.2rem;
-        margin-bottom: 0.2em;
         white-space: nowrap;
-    }
-    label span {
-        font-family: PublicSans, sans-serif;
     }
     #name {
         width: 100%;
@@ -206,12 +204,6 @@ button.btn-confirm {
         border-radius: 4px;
         min-width: fit-content;
         margin-bottom: 0;
-
-        label {
-            font-family: 'Source Sans Pro Web', sans-serif;
-            font-weight: bolder;
-            margin: 0;
-        }
 
         .attribute-row {
             display: flex;
