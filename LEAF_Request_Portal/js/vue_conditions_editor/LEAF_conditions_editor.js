@@ -18,7 +18,8 @@ const ConditionsEditor = Vue.createApp({
             selectedChildValue: '',
             showRemoveConditionModal: false,
             showConditionEditor: false,
-            editingCondition: ''
+            editingCondition: '',
+            enabledParentFormats: ['dropdown', 'multiselect']
         }
     },
     beforeMount(){
@@ -156,7 +157,18 @@ const ConditionsEditor = Vue.createApp({
         updateSelectedOperator(operator){
             this.selectedOperator = operator;
         },
-        updateSelectedParentValue(value){
+        updateSelectedParentValue(target){
+            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
+            let value = '';
+            if (parFormat==='multiselect') {
+                const arrSelections = Array.from(target.selectedOptions);
+                arrSelections.forEach(sel => {
+                    value += sel.label.replaceAll('\r', '').trim() + '\n';
+                });
+                value = value.trim();
+            } else {
+                value = target.value;
+            }
             this.selectedParentValue = value;
         },
         updateSelectedChildValue(target){
@@ -190,7 +202,7 @@ const ConditionsEditor = Vue.createApp({
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                             parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                            i.format.indexOf('dropdown') === 0;  //parents are currently dropdowns only
+                            i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect') === 0;  //dropdowns, multiselect parent only
                 });
             }
             $.ajax({
@@ -332,7 +344,7 @@ const ConditionsEditor = Vue.createApp({
             this.editingCondition = JSON.stringify(conditionObj);
             this.showConditionEditor = true;
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
-            if(this.parentFound && this.parentFormat === 'dropdown') {
+            if(this.parentFound && this.enabledParentFormats.includes(this.parentFormat)) {
                 this.selectedOperator = conditionObj?.selectedOp;
                 this.selectedParentValue = conditionObj?.selectedParentValue;
             }
@@ -487,7 +499,7 @@ ConditionsEditor.component('editor-main', {
             if (!currencyRegex.test(val)) { //TODO: userfeedback
                 document.getElementById('currency-format-input').value = '';
             } else {
-                this.$emit('update-selected-parent-value', event.target.value);
+                this.$emit('update-selected-parent-value', event.target);
             }
         },
         forceUpdate(){
@@ -511,10 +523,12 @@ ConditionsEditor.component('editor-main', {
         textValueDisplay(str) {
             return $('<div/>').html(str).text();
         },
-        getOperatorText(op){
+        getOperatorText(condition){
+            const op = condition.selectedOp;
+            const parFormat = condition.parentFormat;
             switch(op){
                 case '==':
-                    return 'is';
+                    return parFormat === 'multiselect' ? 'includes' : 'is';
                 case '!=':
                     return 'is not';
                 case '>':
@@ -547,8 +561,13 @@ ConditionsEditor.component('editor-main', {
 
             return {show,hide,prefill};
         },
-        arrMultiselectValues() {
+        arrChildMultiselectValues() {
             let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
+            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+            return arrValues;
+        },
+        arrParentMultiselectValues() {
+            let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
             arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
             return arrValues;
         }
@@ -570,7 +589,7 @@ ConditionsEditor.component('editor-main', {
                             :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                             <span v-if="!isOrphan(c.parentIndID)">
                                 If '{{getIndicatorName(c.parentIndID)}}' 
-                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                 then show this question.
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
@@ -592,7 +611,7 @@ ConditionsEditor.component('editor-main', {
                             :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                             <span v-if="!isOrphan(c.parentIndID)">
                                 If '{{getIndicatorName(c.parentIndID)}}' 
-                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                 then hide this question.
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
@@ -614,7 +633,7 @@ ConditionsEditor.component('editor-main', {
                             :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                             <span v-if="!isOrphan(c.parentIndID)">
                                 If '{{getIndicatorName(c.parentIndID)}}' 
-                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                 then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
@@ -663,7 +682,7 @@ ConditionsEditor.component('editor-main', {
                 <option v-if="conditions.selectedChildValue===''" value="" selected>{{childFormat==='multiselect' ? 'Select value(s)' : 'Select a value'}}</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="textValueDisplay(conditions.selectedChildValue)===val || childFormat==='multiselect' && arrMultiselectValues.includes(val)">
+                :selected="textValueDisplay(conditions.selectedChildValue)===val || childFormat==='multiselect' && arrChildMultiselectValues.includes(val)">
                 {{ val }} 
                 </option>
             </select>
@@ -704,26 +723,34 @@ ConditionsEditor.component('editor-main', {
                 <!-- COMPARED VALUE SELECTION -->
                 <input v-if="parentFormat==='date'" type="date"
                     :value="conditions.selectedParentValue"
-                    @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                    @change="$emit('update-selected-parent-value', $event.target)"/>
                 <input v-else-if="parentFormat==='number'" type="number"
                     :value="conditions.selectedParentValue"
-                    @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                    @change="$emit('update-selected-parent-value', $event.target)"/>
                 <input v-else-if="parentFormat.format==='currency'"
                     id="currency-format-input" 
                     type="number" step="0.01"
                     :value="conditions.selectedParentValue" 
                     @change="validateCurrency"/>
                 <select v-else-if="parentFormat==='dropdown'"
-                    @change="$emit('update-selected-parent-value', $event.target.value)">
+                    @change="$emit('update-selected-parent-value', $event.target)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                     <option v-for="val in selectedParentValueOptions"
                         :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                     </option>
                 </select>
                 <select v-else-if="parentFormat==='radio'"
-                    @change="$emit('update-selected-parent-value', $event.target.value)">
+                    @change="$emit('update-selected-parent-value', $event.target)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option> 
                     <option v-for="val in selectedParentValueOptions"> {{ val }} </option>
+                </select>
+                <!-- NOTE: multiselect -->
+                <select v-else-if="parentFormat==='multiselect'" multiple
+                    @change="$emit('update-selected-parent-value', $event.target)">
+                    <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
+                    <option v-for="val in selectedParentValueOptions"
+                        :selected="arrParentMultiselectValues.includes(val)"> {{ val }}
+                    </option>
                 </select>
                 <p v-else class="TEST">value selection still in progress for some formats</p>
             </div>

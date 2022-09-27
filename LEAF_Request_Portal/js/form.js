@@ -124,6 +124,18 @@ var LeafForm = function(containerID) {
             }
         }
 
+        const valIncludesMultiselOption = (selectedOptions = [], arrOptions) => {
+            let result = false;
+            let vals = selectedOptions.map(sel => sanitize(sel.label.replaceAll('\r', '').trim()));
+            
+            vals.forEach(v => {
+                if (arrOptions.includes(v)) {
+                    result = true;
+                }
+            });
+            return result;
+        }
+
         //conditions to assess per child
         const makeComparisons = (childID, arrConditions)=> {
             let prefillValue = '';
@@ -144,12 +156,20 @@ var LeafForm = function(containerID) {
                     ) arrCompVals.push({[c.parentIndID]:c.selectedParentValue.trim()});
                 });
 
+                const isMultiselectParent = cond.parentFormat.toLowerCase()==='multiselect';
                 switch (cond.selectedOp) {
                     case '==':
                         arrCompVals.forEach(entry => {
                             let id = Object.keys(entry)[0];
-                            let val = document.getElementById(id).value.trim();
-                            if (sanitize(val) === entry[id]) {
+                            if (isMultiselectParent) {
+                                entry[id] = entry[id].split('\n');
+                                entry[id] = entry[id].map(option => option.replaceAll('\r', '').trim());
+                            }
+                            let val = sanitize(document.getElementById(id).value.trim()) || '';
+                            let selectedOptions = Array.from(document.getElementById(id)?.selectedOptions);
+
+                            if (entry[id] === val || 
+                                isMultiselectParent && valIncludesMultiselOption(selectedOptions, entry[id])) {
                                 comparisonResult = true;
                                 if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
                                     prefillValue = cond.selectedChildValue.trim();
@@ -157,12 +177,22 @@ var LeafForm = function(containerID) {
                             }
                         });
                         break;
-                    case '!=':  //TODO: SOME or EVERY?
+                    case '!=':
                         arrCompVals.forEach(entry => {
                             let id = Object.keys(entry)[0];
-                            let val = document.getElementById(id).value.trim();
-                            if (sanitize(val) !== entry[id]) {
+                            if (isMultiselectParent) {
+                                entry[id] = entry[id].split('\n');
+                                entry[id] = entry[id].map(option => option.trim());
+                            }
+                            let val = sanitize(document.getElementById(id).value.trim()) || '';
+                            let selectedOptions = Array.from(document.getElementById(id)?.selectedOptions);
+
+                            if (!isMultiselectParent && entry[id] !== val || 
+                                isMultiselectParent && !valIncludesMultiselOption(selectedOptions, entry[id])) {
                                 comparisonResult = true;
+                                if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
+                                    prefillValue = cond.selectedChildValue.trim();
+                                }
                             }
                         });
                         break;
