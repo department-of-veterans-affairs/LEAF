@@ -69,9 +69,11 @@ var LeafForm = function(containerID) {
                 conditionsByChild[c.childIndID] ? conditionsByChild[c.childIndID].push(c) : conditionsByChild[c.childIndID] = [c];
             })
 
-            for (let childID in conditionsByChild) {
-                makeComparisons(childID, conditionsByChild[childID]);
-            }
+            setTimeout(() => {  //some multiselect updates don't work unless the stack is cleared
+                for (let childID in conditionsByChild) {
+                    makeComparisons(childID, conditionsByChild[childID]);
+                }
+            }, 0);
         }
 
         const getConditionsLinkedToParent = (parentID)=> {
@@ -124,7 +126,7 @@ var LeafForm = function(containerID) {
             }
         }
 
-        const valIncludesMultiselOption = (selectedOptions = [], arrOptions) => {
+        const valIncludesMultiselOption = (selectedOptions = [], arrOptions = []) => {
             let result = false;
             let vals = selectedOptions.map(sel => sanitize(sel.label.replaceAll('\r', '').trim()));
             
@@ -134,6 +136,19 @@ var LeafForm = function(containerID) {
                 }
             });
             return result;
+        }
+
+        const clearMultiSelectChild = (element, childID) => {
+            element[0]?.choicesjs?.removeActiveItems();
+            let elEmptyOption = document.getElementById(`${childID}_empty_value`);
+            if (elEmptyOption === null) {
+                let opt = document.createElement('option');
+                opt.id = `${childID}_empty_value`;
+                opt.value = '';
+                element[0].appendChild(opt);
+                elEmptyOption = document.getElementById(`${childID}_empty_value`);
+            }
+            elEmptyOption.selected = true;
         }
 
         //conditions to assess per child
@@ -161,18 +176,25 @@ var LeafForm = function(containerID) {
                     case '==':
                         arrCompVals.forEach(entry => {
                             let id = Object.keys(entry)[0];
-                            if (isMultiselectParent) {
+                            let val = sanitize(document.getElementById(id).value.trim()) || '';
+
+                            if(!isMultiselectParent) {
+                                if (entry[id] === val) {
+                                    comparisonResult = true;
+                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
+                                        prefillValue = cond.selectedChildValue.trim();
+                                    }
+                                }
+                            } else {
                                 entry[id] = entry[id].split('\n');
                                 entry[id] = entry[id].map(option => option.replaceAll('\r', '').trim());
-                            }
-                            let val = sanitize(document.getElementById(id).value.trim()) || '';
-                            let selectedOptions = Array.from(document.getElementById(id)?.selectedOptions);
+                                let selectedOptions = Array.from(document.getElementById(id)?.selectedOptions);
 
-                            if (entry[id] === val || 
-                                isMultiselectParent && valIncludesMultiselOption(selectedOptions, entry[id])) {
-                                comparisonResult = true;
-                                if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-                                    prefillValue = cond.selectedChildValue.trim();
+                                if (valIncludesMultiselOption(selectedOptions, entry[id])) {
+                                    comparisonResult = true;
+                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
+                                        prefillValue = cond.selectedChildValue.trim();
+                                    }
                                 }
                             }
                         });
@@ -180,18 +202,25 @@ var LeafForm = function(containerID) {
                     case '!=':
                         arrCompVals.forEach(entry => {
                             let id = Object.keys(entry)[0];
-                            if (isMultiselectParent) {
-                                entry[id] = entry[id].split('\n');
-                                entry[id] = entry[id].map(option => option.trim());
-                            }
                             let val = sanitize(document.getElementById(id).value.trim()) || '';
-                            let selectedOptions = Array.from(document.getElementById(id)?.selectedOptions);
 
-                            if (!isMultiselectParent && entry[id] !== val || 
-                                isMultiselectParent && !valIncludesMultiselOption(selectedOptions, entry[id])) {
-                                comparisonResult = true;
-                                if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-                                    prefillValue = cond.selectedChildValue.trim();
+                            if(!isMultiselectParent) {
+                                if (entry[id] !== val) {
+                                    comparisonResult = true;
+                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
+                                        prefillValue = cond.selectedChildValue.trim();
+                                    }
+                                }
+                            } else {
+                                entry[id] = entry[id].split('\n');
+                                entry[id] = entry[id].map(option => option.replaceAll('\r', '').trim());
+                                let selectedOptions = Array.from(document.getElementById(id)?.selectedOptions);
+
+                                if (!valIncludesMultiselOption(selectedOptions, entry[id])) {
+                                    comparisonResult = true;
+                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
+                                        prefillValue = cond.selectedChildValue.trim();
+                                    }
                                 }
                             }
                         });
@@ -212,6 +241,9 @@ var LeafForm = function(containerID) {
                     case 'hide':
                         if (comparisonResult === true) {
                             elJQChildID.val('');
+                            if (cond.childFormat === 'multiselect') {
+                                clearMultiSelectChild(elJQChildID, childID);
+                            }
                             //if this is a required question, re-point validator
                             $('.blockIndicator_' + childID).hide();
                             if (currentChildInfo[childID].validator !== undefined) {
@@ -226,6 +258,9 @@ var LeafForm = function(containerID) {
                             $('.blockIndicator_' + childID).show();
                         } else {
                             elJQChildID.val('');
+                            if (cond.childFormat === 'multiselect') {
+                                clearMultiSelectChild(elJQChildID, childID);
+                            }
                             $('.blockIndicator_' + childID).hide();
                             if (currentChildInfo[childID].validator !== undefined) {
                                 form.dialog().requirements[childID] = hideShowValidator;
@@ -235,15 +270,12 @@ var LeafForm = function(containerID) {
                     case 'pre-fill':
                         if (prefillValue !== '') {
                             if(cond.childFormat === 'multiselect') {
-                                setTimeout(()=> { //you need to clear the stack first or this won't work
-                                    const arrPrefills = prefillValue.split('\n');
-                                    const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
-                                    let elSelectChoices = elJQChildID[0].choicesjs;
-                                    elSelectChoices?.removeActiveItems();
-                                    elSelectChoices?.setChoiceByValue(arrChoices);
-                                    elSelectChoices?.disable();
-                                }, 0);
-                                
+                                const arrPrefills = prefillValue.split('\n');
+                                const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
+                                let elSelectChoices = elJQChildID[0].choicesjs;
+                                elSelectChoices?.removeActiveItems();
+                                elSelectChoices?.setChoiceByValue(arrChoices);
+                                elSelectChoices?.disable();
                             } else {
                                 const text = $('<div/>').html(prefillValue).text().trim();
                                 elJQChildID.val(text);
@@ -252,7 +284,7 @@ var LeafForm = function(containerID) {
                             
                         } else {
                             elJQChildID.removeAttr('disabled');
-                            elJQChildID.val('');
+                            //elJQChildID.val('');
                             elJQChildID[0]?.choicesjs?.enable();
                         }
                         break; 
