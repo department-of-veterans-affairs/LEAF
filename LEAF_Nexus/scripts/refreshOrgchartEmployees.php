@@ -193,7 +193,9 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
     $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (".implode(",",array_fill(1, count($localDeletedEmployees), '?')).")";
 
-    $db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
+    if (!empty($localDeletedEmployees)) {
+        $db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
+    }
 
     $db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
 
