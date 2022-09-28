@@ -219,8 +219,9 @@ function getIndicator(indicatorID, series) {
             $("#xhrIndicator_" + indicatorID + "_" + series).fadeOut(250, function() {
                 $("#xhrIndicator_" + indicatorID + "_" + series).fadeIn(250);
             });
+            let indicatorsHidden = {};
             for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
+                handlePrintConditionalIndicators(formPrintConditions[c], indicatorsHidden);
             }
         },
         cache: false
@@ -333,7 +334,8 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
     return result;
 }
 
-function handlePrintConditionalIndicators(formPrintConditions) { //called for each child question
+function handlePrintConditionalIndicators(formPrintConditions, indicatorsHidden = {}) { //called for each child question
+    
     const conditionalUpdateProgress = () => {
         const headings = Array.from(document.querySelectorAll('div.printheading'));
         const headingsMissing = Array.from(document.querySelectorAll('div.printheading_missing'));
@@ -342,9 +344,35 @@ function handlePrintConditionalIndicators(formPrintConditions) { //called for ea
 
         const totalQuestions = headings.length + headingsMissing.length + subheadings.length + subheadingsMissing.length;
         const totalFullfilled = headings.length + subheadings.length;
-        const progress = Math.round(100 * totalFullfilled/totalQuestions);
-        $('#progressBar').progressbar('option', 'value', progress);
-        $('#progressLabel').text(progress + '%');
+        const totalHidden = Object.keys(indicatorsHidden).length;
+        const progress = Math.floor(100 * totalFullfilled/totalQuestions);  //hidden questions are given the fullfilled class
+
+        //should improve the bar display if there are many hidden questions
+        const displayedProgress = Math.floor(100 * (totalFullfilled - totalHidden)/(totalQuestions - totalHidden));
+
+        $('#progressBar').progressbar('option', 'value', displayedProgress);
+        $('#progressLabel').text(displayedProgress + '%');
+
+        if('<!--{$submitted}-->' == '0' && progress===100) {
+            $('#progressLabel').text(progress + '%');
+            $('#progressSidebar').slideUp(500);
+            $.ajax({
+                type: 'GET',
+                url: "ajaxIndex.php?a=getsubmitcontrol&recordID=<!--{$recordID|strip_tags}-->",
+                dataType: 'text',
+                success: function(response) {
+                    $("#submitContent").empty().html(response);
+                    $("#submitContent").css({'border': '1px solid black',
+                        'text-align': 'center',
+                        'background-color': '#ffaeae'});
+                    $("#workflowcontent").css({'font-size': "80%", 'padding-top': "8px"});
+                },
+                error: function(response) {
+                    $("#xhr").html("Error: " + response);
+                },
+                cache: false
+            });
+        }
     }
 
     const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
@@ -361,32 +389,34 @@ function handlePrintConditionalIndicators(formPrintConditions) { //called for ea
         //multiselect li elements
         const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 li`));
         let arrParVals = [];
-        selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText));
+        selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
         
         const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
         const outcome = conditions[i].selectedOutcome.toLowerCase();
 
         if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+            const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;  //parent's current values entered into the form
 
-            const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;                                             //parent's current values
-            const compVal = parentFormat !== 'multiselect' ? conditions[i].selectedParentValue : conditions[i].selectedParentValue.split('\n');  //values listed in the conditions info
+            let compVal = '';
+            if (parentFormat !== 'multiselect') { //parent values specified in the condition, w encoding rm'd
+                compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+            } else {
+                compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                compVal = compVal.map(v => v.trim());
+            }
 
             switch (conditions[i].selectedOp) {
                 case '==':
                     if (parentFormat !== 'multiselect') {
                         comparison = comparison===false ? val === compVal : comparison;
-                        //comparison = val === compVal;
                     } else {
                         comparison = comparison===false ? valIncludesMultiselOption(val, compVal) : comparison;
-                        //comparison = valIncludesMultiselOption(val, compVal);
                     }
                     break;
                 case '!=':
                     if (parentFormat !== 'multiselect') {
-                        //comparison = val !== compVal;
                         comparison = comparison===false ? val !== compVal : comparison;
                     } else {
-                        //comparison = !valIncludesMultiselOption(val, compVal);
                         comparison = comparison===false ? !valIncludesMultiselOption(val, compVal) : comparison;
                     }
                     break;
@@ -412,6 +442,7 @@ function handlePrintConditionalIndicators(formPrintConditions) { //called for ea
                             elSubheadingMissing.classList.add('printsubheading');
                         }
                         elChildInd.style.display = "none";
+                        indicatorsHidden[conditions[i].childIndID] = true;
                     } else {
                         elChildInd.style.display = "block";
                     }
@@ -425,6 +456,7 @@ function handlePrintConditionalIndicators(formPrintConditions) { //called for ea
                             elSubheadingMissing.classList.add('printsubheading');
                         }
                         elChildInd.style.display = "none";
+                        indicatorsHidden[conditions[i].childIndID] = true;
                     }
                     break;
                 default:
@@ -464,8 +496,9 @@ function openContent(url) {
     				}
                 });
     		});
+            let indicatorsHidden = {};
             for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
+                handlePrintConditionalIndicators(formPrintConditions[c], indicatorsHidden);
             }
     	},
     	error: function(res) {
