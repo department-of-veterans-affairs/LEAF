@@ -159,7 +159,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // get org employees
     $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
     		FROM employee
-    		WHERE userName in(".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
+    		WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
 
     $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql,$localEmployeeUsernames);
 	
@@ -189,6 +189,11 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         ];
 
     }
+	
+    $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
+    $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (".implode(",",array_fill(1, count($localDeletedEmployees), '?')).")";
+
+    $db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
 
     $db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
 
@@ -198,7 +203,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp 
     				FROM employee_data 
 				LEFT JOIN employee USING (empUID) 
-				WHERE empUID in ('".implode("','", $nationalEmpUIDs)."') AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+				WHERE empUID IN ('".implode("','", $nationalEmpUIDs)."') AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
         ':PHONEIID' => PHONEIID,
@@ -238,7 +243,7 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
     global $db, $phonedb;
 
-    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $selectVars = array(
         ':nationalEmpUID' => $nationalEmpUID,
