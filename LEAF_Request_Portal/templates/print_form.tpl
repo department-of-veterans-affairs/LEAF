@@ -333,8 +333,7 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
     return result;
 }
 
-function handlePrintConditionalIndicators(formPrintConditions) {
-
+function handlePrintConditionalIndicators(formPrintConditions) { //called for each child question
     const conditionalUpdateProgress = () => {
         const headings = Array.from(document.querySelectorAll('div.printheading'));
         const headingsMissing = Array.from(document.querySelectorAll('div.printheading_missing'));
@@ -353,6 +352,7 @@ function handlePrintConditionalIndicators(formPrintConditions) {
     const childFormatIsEnabled = allowedChildFormats.some(f => f === childFormat);
     const conditions = formPrintConditions.conditions;
 
+    let comparison = false;
     for (let i in conditions) {
         const parentFormat = conditions[i].parentFormat;
 
@@ -365,25 +365,29 @@ function handlePrintConditionalIndicators(formPrintConditions) {
         
         const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
         const outcome = conditions[i].selectedOutcome.toLowerCase();
+
         if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
 
-            let comparison = false;
             const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;                                             //parent's current values
             const compVal = parentFormat !== 'multiselect' ? conditions[i].selectedParentValue : conditions[i].selectedParentValue.split('\n');  //values listed in the conditions info
 
             switch (conditions[i].selectedOp) {
                 case '==':
                     if (parentFormat !== 'multiselect') {
-                        comparison = val === compVal;
+                        comparison = comparison===false ? val === compVal : comparison;
+                        //comparison = val === compVal;
                     } else {
-                        comparison = valIncludesMultiselOption(val, compVal);
+                        comparison = comparison===false ? valIncludesMultiselOption(val, compVal) : comparison;
+                        //comparison = valIncludesMultiselOption(val, compVal);
                     }
                     break;
                 case '!=':
                     if (parentFormat !== 'multiselect') {
-                        comparison = val !== compVal;
+                        //comparison = val !== compVal;
+                        comparison = comparison===false ? val !== compVal : comparison;
                     } else {
-                        comparison = !valIncludesMultiselOption(val, compVal);
+                        //comparison = !valIncludesMultiselOption(val, compVal);
+                        comparison = comparison===false ? !valIncludesMultiselOption(val, compVal) : comparison;
                     }
                     break;
                 case '>':
@@ -396,7 +400,7 @@ function handlePrintConditionalIndicators(formPrintConditions) {
                     console.log(conditions[i].selectedOp);
                     break;
             }
-            
+
             //headers cannot have conditions directly set on them via the editor, so only need to check subquestions
             const elSubheadingMissing = document.querySelector(`#subIndicator_${conditions[i].childIndID}_1 div.printsubheading_missing`);
 
