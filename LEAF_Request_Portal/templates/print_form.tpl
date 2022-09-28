@@ -334,7 +334,7 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
     return result;
 }
 
-function handlePrintConditionalIndicators(formPrintConditions, indicatorsHidden = {}) { //called for each child question
+function handlePrintConditionalIndicators(formPrintConditions = {}, indicatorsHidden = {}) { //called for each child question
     
     const conditionalUpdateProgress = () => {
         const headings = Array.from(document.querySelectorAll('div.printheading'));
@@ -381,6 +381,7 @@ function handlePrintConditionalIndicators(formPrintConditions, indicatorsHidden 
     const conditions = formPrintConditions.conditions;
 
     let comparison = false;
+
     for (let i in conditions) {
         const parentFormat = conditions[i].parentFormat;
 
