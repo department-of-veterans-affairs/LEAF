@@ -202,7 +202,7 @@ const ConditionsEditor = Vue.createApp({
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                             parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                            i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect') === 0;  //dropdowns, multiselect parent only
+                            (i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect')) === 0;  //dropdowns, multiselect parent only
                 });
             }
             $.ajax({
