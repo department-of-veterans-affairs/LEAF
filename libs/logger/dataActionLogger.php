@@ -1,8 +1,5 @@
 <?php
 
-require_once 'logFormatter.php';
-require_once 'logItem.php';
-
 class DataActionLogger{
 
     protected $db;

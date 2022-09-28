@@ -8,14 +8,6 @@
     Date Created: September 8, 2016
 
 */
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
 
 class Service
 {
@@ -93,10 +85,8 @@ class Service
 
     public function addMember($groupID, $member)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -156,10 +146,8 @@ class Service
 
     public function removeMember($groupID, $member)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -220,7 +208,6 @@ class Service
         $members = array();
         if (count($res) > 0)
         {
-            require_once '../VAMC_Directory.php';
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
@@ -283,8 +270,6 @@ class Service
      */
     private function getEmployeeDisplay($employeeID)
     {
-        require_once '../VAMC_Directory.php';
-
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 

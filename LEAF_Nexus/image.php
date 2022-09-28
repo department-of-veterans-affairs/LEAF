@@ -3,14 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include 'globals.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Login.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 session_cache_limiter('');
 $login = new Orgchart\Login($db, $db);
@@ -19,18 +16,15 @@ $login->loginUser();
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
-        $type = new OrgChart\Employee($db, $login);
+        $type = new Orgchart\Employee($db, $login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
-        $type = new OrgChart\Position($db, $login);
+        $type = new Orgchart\Position($db, $login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
-        $type = new OrgChart\Group($db, $login);
+        $type = new Orgchart\Group($db, $login);
 
         break;
     default:

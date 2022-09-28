@@ -3,13 +3,6 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../form.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class FormController extends RESTfulResponse
 {
     public $index = array();
@@ -157,7 +150,7 @@ class FormController extends RESTfulResponse
             {
                 $formats[$i] = XSSHelpers::xscrub($formats[$i]);
             }
-            
+
             return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
         });
 
@@ -254,7 +247,7 @@ class FormController extends RESTfulResponse
         $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
             return $form->deleteRecord((int)$args[0]);
         });
-        
+
         $this->index['POST']->register('form/[digit]/delete', function ($args) use ($form) {
             return $form->permanentlyDeleteRecord((int)$args[0]);
         });

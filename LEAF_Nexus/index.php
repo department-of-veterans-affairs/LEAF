@@ -11,33 +11,18 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
-
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
+if (!$login->isLogin() || !$login->isInDb())
 {
     echo 'Your login is not recognized.';
     exit;
@@ -70,7 +55,6 @@ $main->assign('userID', $login->getUserID());
 
 switch ($action) {
     case 'navigator_service':
-        require 'sources/Group.php';
         $group = new Orgchart\Group($db, $login);
         $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
         // no break
@@ -83,7 +67,7 @@ switch ($action) {
 
         $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
-        require 'sources/Position.php';
+
         $position = new Orgchart\Position($db, $login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
@@ -115,7 +99,7 @@ switch ($action) {
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
-        require 'sources/Position.php';
+
         $position = new Orgchart\Position($db, $login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : 0;
@@ -161,7 +145,6 @@ switch ($action) {
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
         if ($empUID != 0)
         {
-            require 'sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
             $summary = $employee->getSummary($empUID);
 
@@ -207,7 +190,6 @@ switch ($action) {
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         if ($positionID != 0)
         {
-            require 'sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
             $summary = $position->getSummary($positionID);
@@ -255,8 +237,6 @@ switch ($action) {
 
         if ($groupID != 0)
         {
-            require 'sources/Group.php';
-            require 'sources/Tag.php';
             $group = new Orgchart\Group($db, $login);
             $tag = new Orgchart\Tag($db, $login);
             $resGroup = $group->getGroup($groupID);
@@ -294,7 +274,6 @@ switch ($action) {
                                            'css/view_employee.css', ));
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
 
-        require 'sources/Employee.php';
         $employee = new Orgchart\Employee($db, $login);
 
         $t_form->assign('empUID', $empUID);
@@ -359,7 +338,6 @@ switch ($action) {
 
         break;
     case 'view_permissions':
-        require 'sources/Indicators.php';
         $indicators = new Orgchart\Indicators($db, $login);
 
         $t_form = new Smarty;
@@ -399,7 +377,6 @@ switch ($action) {
 
         break;
     case 'view_group_permissions':
-        require 'sources/Group.php';
         $group = new Orgchart\Group($db, $login);
 
         $t_form = new Smarty;
@@ -430,7 +407,6 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
         $t_form = new Smarty;
@@ -522,9 +498,7 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            require 'sources/Employee.php';
             $employee = new Orgchart\Employee($db, $login);
-            require 'sources/Position.php';
             $position = new Orgchart\Position($db, $login);
 
             $currentEmployee = $employee->lookupLogin($login->getUserID());
@@ -538,7 +512,6 @@ switch ($action) {
             $groupLeader = '';
             if (count($resolvedService) > 0)
             {
-                require 'sources/Group.php';
                 $group = new Orgchart\Group($db, $login);
 
                 $groupLeader = $group->getGroupLeader($resolvedService[0]['groupID']);

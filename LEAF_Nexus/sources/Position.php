@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Position extends Data
 {
     protected $dataTable = 'position_data';
@@ -132,7 +130,7 @@ class Position extends Data
             throw new Exception('Invalid input: parentID');
         }
         if ($parentID == 0
-            && (!in_array(1, $memberships['groupID']))) 
+            && (!in_array(1, $memberships['groupID'])))
         {
             throw new Exception('Admin access required to add a position without a supervisor.');
         }
@@ -265,7 +263,6 @@ class Position extends Data
                                             WHERE positionID=:positionID
         									ORDER BY lastName ASC', $vars);
 
-        require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         $out = array();
         foreach ($res as $emp)
@@ -749,7 +746,6 @@ class Position extends Data
         if (count($result) == 0
             && $searchEmployees == 1)
         {
-            require_once 'Employee.php';
             $employee = new Employee($this->db, $this->login);
             $employee->position = $this;
             $employees = $employee->search($origInput);

@@ -5,24 +5,15 @@
 
 $currDir = dirname(__FILE__);
 
-include_once $currDir . '/../globals.php';
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
-include_once $currDir . '/../Login.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
-
-include_once $currDir . '/../' . Config::$orgchartPath . '/config.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
 $employee = new Orgchart\Employee($db_phonebook, $login);
 $group = new Orgchart\Group($db_phonebook, $login);

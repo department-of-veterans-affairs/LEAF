@@ -10,11 +10,6 @@
     Handler for user groups for the resource management web app
 */
 
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-
 class Group
 {
     private $db;
@@ -84,7 +79,6 @@ class Group
         $members = array();
         if (count($res) > 0)
         {
-            require_once '../VAMC_Directory.php';
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
@@ -95,7 +89,7 @@ class Group
                     $dirRes[0]['regionallyManaged'] = false;
                     if($groupID == 1)
                     {
-                      $dirRes[0]['primary_admin'] = $member['primary_admin'];  
+                      $dirRes[0]['primary_admin'] = $member['primary_admin'];
                     }
                     if($member['locallyManaged'] == 1) {
                         $dirRes[0]['backupID'] = null;
@@ -104,7 +98,7 @@ class Group
                     }
                     $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                     $dirRes[0]['active'] = $member['active'];
-                    
+
                     $members[] = $dirRes[0];
                 }
             }
@@ -118,10 +112,8 @@ class Group
 
     public function addMember($member, $groupID)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID)) {
@@ -133,9 +125,9 @@ class Group
                                                     VALUES (:userID, :groupID, null, 1, 1)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $sql_vars);
 
-            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             // include the backups of employees
@@ -164,10 +156,8 @@ class Group
 
     public function removeMember($member, $groupID)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -175,12 +165,12 @@ class Group
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-            ]);
-
             $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+
+            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
 
             // include the backups of employee
             $emp = $employee->lookupLogin($member);
@@ -237,7 +227,7 @@ class Group
     /**
      * Returns formatted group name.
      * @param string $groupID       The group id to find the formatted name of
-     * @return string 
+     * @return string
      */
     public function getGroupName($groupId)
     {
@@ -248,31 +238,29 @@ class Group
         }
         return "";
     }
-    
+
     /**
      * Returns formatted Employee name.
      * @param string $employeeID        The id to create the display name of.
-     * @return string 
+     * @return string
      */
     private function getEmployeeDisplay($employeeID)
     {
-        require_once '../VAMC_Directory.php';
-     
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
         $empData = $dirRes[0];
         $empDisplay =$empData["firstName"]." ".$empData["lastName"];
-        
+
         return $empDisplay;
     }
 
     /**
      * Returns Portal Group logs.
-     * 
+     *
      * @param string $filterById        The id of the Group to find the logs of
      *
-     * @return array 
+     * @return array
      */
     public function getHistory($filterById)
     {
@@ -281,7 +269,7 @@ class Group
 
     /**
      * Returns all history ids for all groups
-     * 
+     *
      * @return array all history ids for all groups
      */
     public function getAllHistoryIDs()

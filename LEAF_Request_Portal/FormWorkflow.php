@@ -8,11 +8,6 @@
     Date Created: May 25, 2011
 */
 
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
 class FormWorkflow
 {
     public $siteRoot = '';
@@ -68,8 +63,6 @@ class FormWorkflow
      */
     public function getCurrentSteps()
     {
-        // check privileges
-        require_once 'form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($this->recordID))
         {
@@ -137,7 +130,7 @@ class FormWorkflow
 
                         //check if the requester has any backups
                         //get nexus db
-                        $nexusDB = $this->login->getNexusDB();
+                        $nexusDB = $this->login->getNexusDb();
                         $vars4 = array(':empId' => $empUID);
                         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
@@ -158,7 +151,6 @@ class FormWorkflow
                         }
                     }
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
@@ -265,8 +257,6 @@ class FormWorkflow
      */
     public function getLastAction()
     {
-        // check privileges
-        require_once 'form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($this->recordID))
         {
@@ -313,7 +303,6 @@ class FormWorkflow
         if (isset($res[0])
             && $res[0]['dependencyID'] == -1)
         {
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $approver = $dir->lookupLogin($res[0]['userID']);
@@ -353,7 +342,6 @@ class FormWorkflow
 	    									WHERE recordID=:recordID', $vars);
 
         if(count($res) > 0) {
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $signedSteps = [];
@@ -460,7 +448,6 @@ class FormWorkflow
 
                     break;
                 case -1: // dependencyID -1 : person designated by requestor
-                    require_once 'form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
@@ -480,7 +467,6 @@ class FormWorkflow
 
                     break;
                 case -2: // dependencyID -2 : requestor followup
-                    require_once 'form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
@@ -501,7 +487,6 @@ class FormWorkflow
 
                     break;
                 case -3: // dependencyID -3 : group designated by requestor
-                    require_once 'form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsGroup = array(':recordID' => $this->recordID);
@@ -735,7 +720,7 @@ class FormWorkflow
       */
     public function getEmpUIDByUserName($userName)
     {
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':userName' => $userName);
         return $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars)[0]["empUID"];
     }
@@ -749,7 +734,7 @@ class FormWorkflow
     public function checkIfBackup($empUID)
     {
 
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':empId' => $empUID);
         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
 
@@ -790,13 +775,11 @@ class FormWorkflow
                                                   WHERE recordID=:recordID', $vars2);
             if (count($res) == 0)
             {	// if the workflow state is empty, it means the request has been sent back to the requestor
-                require_once 'form.php';
                 $form = new Form($this->db, $this->login);
                 $form->openForEditing($this->recordID);
             }
 
             // Send emails
-            require_once 'Email.php';
             $email = new Email();
 
             $vars = array(':recordID' => $this->recordID);
@@ -822,7 +805,6 @@ class FormWorkflow
             ));
             $email->setTemplateByID(\Email::SEND_BACK);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $requester = $dir->lookupLogin($record[0]['userID']);
@@ -831,7 +813,7 @@ class FormWorkflow
             $email->addRecipient($author[0]['Email']);
 
             // Get backups to requester so they can be notified as well
-            $nexusDB = $this->login->getNexusDB();
+            $nexusDB = $this->login->getNexusDb();
             $vars = array(
               ':reqEmpUID'  => $requester[0]['empUiD'],
               ':authEmpUID' => $author[0]['empUID']
@@ -875,14 +857,12 @@ class FormWorkflow
             }
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
-                    require_once 'Email.php';
                     $email = new Email();
 
                     $email->addSmartyVariables(array(
                         "comment" => $comment
                     ));
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $author = $dir->lookupLogin($this->login->getUserID());
@@ -892,7 +872,6 @@ class FormWorkflow
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
-                    require_once 'Email.php';
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
@@ -915,14 +894,13 @@ class FormWorkflow
                     ));
                     $email->setTemplateByID(\Email::NOTIFY_COMPLETE);
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $author = $dir->lookupLogin($this->login->getUserID());
                     $email->setSender($author[0]['Email']);
 
                     // Get backups to requester so they can be notified as well
-                    $nexusDB = $this->login->getNexusDB();
+                    $nexusDB = $this->login->getNexusDb();
                     $vars = array(':empUID' => $author[0]['empUID']);
                     $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
                         "WHERE empUID = :empUID";
@@ -941,7 +919,6 @@ class FormWorkflow
 
                     break;
                 case $customEvent: // For all custom events
-                    require_once 'Email.php';
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
@@ -966,7 +943,6 @@ class FormWorkflow
                     $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
                     $email->setTemplateByID($emailTemplateID);
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $author = $dir->lookupLogin($this->login->getUserID());
@@ -976,7 +952,7 @@ class FormWorkflow
 
                     if ($eventData->NotifyRequestor === 'true') {
                         // Get backups to requester so they can be notified as well
-                        $nexusDB = $this->login->getNexusDB();
+                        $nexusDB = $this->login->getNexusDb();
                         $vars = array(':empUID' => $author[0]['empUID']);
                         $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
                                         "WHERE empUID = :empUID";
@@ -1007,8 +983,6 @@ class FormWorkflow
                     if (is_file($eventFile))
                     {
                         require_once $eventFile;
-                        require_once 'VAMC_Directory.php';
-                        require_once 'Email.php';
                         $dir = new VAMC_Directory;
                         $email = new Email();
 

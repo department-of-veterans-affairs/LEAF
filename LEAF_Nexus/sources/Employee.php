@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Employee extends Data
 {
     public $debug = false;
@@ -142,10 +140,9 @@ class Employee extends Data
         $cacheHash = "lookupLogin{$userName}";
         unset($this->cache[$cacheHash]);
 
-        $db_nat = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $db_nat = new \Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $login_nat = new Login($db_nat, $db_nat);
 
-        require_once 'NationalEmployee.php';
         $natEmployee = new NationalEmployee($db_nat, $login_nat);
 
         $res = $natEmployee->lookupLogin($userName);
@@ -321,11 +318,11 @@ class Employee extends Data
         $sqlVars = array(':login' => $login);
 	$strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
 	$sqlVars = array(':empUID' => $result[0]['empUID']);
 	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
         if(isset($result[0]) && isset($resEmail[0])) {
             $result[0] = array_merge($result[0], $resEmail[0]);
         }
@@ -349,10 +346,10 @@ class Employee extends Data
         $strSQL = "SELECT * FROM {$this->tableName} WHERE empUID = :empUID AND deleted = 0";
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
 	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
         if(isset($result[0]) && isset($resEmail[0])) {
             $result[0] = array_merge($result[0], $resEmail[0]);
         }
@@ -551,7 +548,7 @@ class Employee extends Data
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
     										LEFT JOIN employee ON
-    											relation_employee_backup.backupEmpUID = employee.empUID 
+    											relation_employee_backup.backupEmpUID = employee.empUID
     										WHERE relation_employee_backup.empUID=:empUID', $vars);
 
         $this->cache["getBackups_{$empUID}"] = $res;
@@ -800,7 +797,6 @@ class Employee extends Data
         }
         else
         {
-            require_once 'Position.php';
             $position = new Position($this->db, $this->login);
         }
 

@@ -9,17 +9,6 @@
 
 */
 
-define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
-}
-
 class Form
 {
     public $employee;    // Org Chart
@@ -46,38 +35,14 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        // set up org chart assets
-        if (!class_exists('Orgchart\Config'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Login'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-        }
-        if (!class_exists('Orgchart\Employee'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-        }
-        if (!class_exists('Orgchart\Position'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Group'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
-        }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new OrgChart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->oc_dbName = $config->dbName;
-        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new OrgChart\Position($oc_db, $oc_login);
-        $this->group = new OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new Orgchart\Employee($oc_db, $oc_login);
+        $this->position = new Orgchart\Position($oc_db, $oc_login);
+        $this->group = new Orgchart\Group($oc_db, $oc_login);
     }
 
     /**
@@ -638,7 +603,6 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -908,7 +872,6 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -1645,7 +1608,7 @@ class Form
                 }
 
                 //check if the requester has any backups
-                $nexusDB = $this->login->getNexusDB();
+                $nexusDB = $this->login->getNexusDb();
                 $vars4 = array(':empId' => $empUID);
                 $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
@@ -1673,10 +1636,10 @@ class Form
                  }
                  else{
                     $empUID = $this->getEmpUID($resPerson[0]['userID']);
-                                                                
+
                     return $this->checkIfBackup($empUID);
                  }
-               
+
 
                 break;
             case -3: // dependencyID -3 : group designated by the requestor
@@ -1719,7 +1682,7 @@ class Form
     }
 
     public function getEmpUID($userName){
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':userName' => $userName);
         $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
         return $response[0]["empUID"];
@@ -1727,7 +1690,7 @@ class Form
 
     public function checkIfBackup($empUID){
 
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':empId' => $empUID);
         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
 
@@ -2064,15 +2027,15 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
-     * 
+     *
      * @return array on success | false on malformed input
-     */ 
+     */
     public function getCustomData(array $recordID_list, string|null $indicatorID_list)
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
         }
-	    
+
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
         $indicatorIdStructure = array();
@@ -2169,8 +2132,8 @@ class Form
         if (!empty($recordIDs))
         {
             // updated this from "Select * from to this
-	    $strSQL = "SELECT * FROM data 
-                    WHERE indicatorID IN ({$indicatorID_list}) 
+	    $strSQL = "SELECT * FROM data
+                    WHERE indicatorID IN ({$indicatorID_list})
                     AND recordID IN ({$recordIDs})";
             $res = $this->db->query($strSQL);
 
@@ -2213,7 +2176,7 @@ class Form
                             break;
                         case 'orgchart_group':
                             $groupTitle = $this->group->getTitle($item['data']);
-                            
+
                             $item['data'] = $groupTitle;
                             break;
                         case 'raw_data':
@@ -2319,7 +2282,6 @@ class Form
                                                 AND comment != ""
                                             ORDER BY time ASC', $vars);
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $total = count($res);
@@ -2472,7 +2434,6 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -3115,7 +3076,7 @@ class Form
 
             if ($joinCategoryID)
             {
-                $categorySQL = 'SELECT recordID,categoryName,categoryID 
+                $categorySQL = 'SELECT recordID,categoryName,categoryID
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3133,7 +3094,7 @@ class Form
             if ($joinAllCategoryID)
             {
 
-                $allCategorySQL = 'SELECT recordID,categoryName,categoryID 
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3149,7 +3110,7 @@ class Form
 
             if ($joinRecordsDependencies)
             {
-                $recordDependenciesSQL = 'SELECT recordID,dependencyID,time,description 
+                $recordDependenciesSQL = 'SELECT recordID,dependencyID,time,description
                 FROM records_dependencies
                 LEFT JOIN dependencies USING (dependencyID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3165,10 +3126,9 @@ class Form
 
             if ($joinActionHistory)
             {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment 
+                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment
                 FROM action_history
                 LEFT JOIN dependencies USING (dependencyID)
                 LEFT JOIN actions USING (actionType)
@@ -3189,7 +3149,7 @@ class Form
             if($joinRecordResolutionData)
             {
 
-                $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime 
+                $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime
                 FROM records
                 LEFT JOIN records_step_fulfillment USING (recordID)
                 LEFT JOIN records_workflow_state USING (recordID)
@@ -3217,19 +3177,18 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType 
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
                 FROM action_history
-                LEFT JOIN records USING (recordID) 
-                INNER JOIN workflow_routes USING (stepID) 
+                LEFT JOIN records USING (recordID)
+                INNER JOIN workflow_routes USING (stepID)
                 LEFT JOIN records_workflow_state USING (recordID)
-                WHERE recordID IN ($recordIDs) 
-                AND action_history.actionType = workflow_routes.actionType 
-                AND records_workflow_state.stepID IS NULL 
-                AND nextStepID = 0 
-                AND submitted > 0 
+                WHERE recordID IN ($recordIDs)
+                AND action_history.actionType = workflow_routes.actionType
+                AND records_workflow_state.stepID IS NULL
+                AND nextStepID = 0
+                AND submitted > 0
                 AND deleted = 0";
 
                 $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
@@ -3695,7 +3654,7 @@ class Form
                         error_log($te);
                     }
                 }
-        
+
                 // handle multiselect and checkboxes formats
                 // includes backwards compatibility for data stored as CSV
                 if (isset($data[$idx]['data']) && $data[$idx]['data'] != ''
@@ -3713,7 +3672,7 @@ class Form
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['htmlPrint']);
                 }
-		    
+
                 if ($child[$idx]['isMasked'])
                 {
                     $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
@@ -3801,7 +3760,7 @@ class Form
         if (!copy($sourceFile, $destFile)) {
             $errors = error_get_last();
             return $errors;
-        } 
+        }
         return 1;
     }
 
@@ -3815,12 +3774,12 @@ class Form
 
         return $data;
     }
-    
+
     public function permanentlyDeleteRecord($recordID) {
         /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
         }*/
-        
+
         $vars = array(
             ':time' => time(),
             ':date' => '0',
@@ -3833,7 +3792,7 @@ class Form
             ':isWritableUser' => '0',
             ':isWritableGroup' => '0',
             ':recordID' => $recordID);
-                          
+
         $res = $this->db->prepared_query('UPDATE records SET
         deleted=:time,
         date=:date,
@@ -3848,34 +3807,34 @@ class Form
         WHERE recordID=:recordID', $vars);
 
         $vars = array(':recordID' => $recordID);
-            
+
         $res = $this->db->prepared_query('DELETE FROM action_history WHERE recordID=:recordID', $vars);
-            
+
         $vars = array(':recordID' => $recordID,
             ':userID' => '',
             ':dependencyID' => 0,
             ':actionType' => 'deleted',
             ':actionTypeID' => 4,
             ':time' => time() );
-                
+
         $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
         VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
-            
-            
+
+
         $vars = array(':recordID' => $recordID);
-            
+
         $this->db->prepared_query('DELETE FROM records_workflow_state WHERE recordID=:recordID', $vars);
-            
-            
+
+
         $vars = array(':recordID' => $recordID);
-            
+
         $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
-            
-            
+
+
         $vars = array(':recordID' => $recordID);
-            
+
         $this->db->prepared_query('DELETE FROM records_dependencies WHERE recordID=:recordID', $vars);
-            
+
         return 1;
     }
 
@@ -3886,8 +3845,6 @@ class Form
      * @throws SmartyException
      */
     function sendReminderEmail($recordID, $days) {
-
-        require_once 'Email.php';
         $email = new Email();
         $email->setSender('leaf.noreply@va.gov');
         $email->addSmartyVariables(array(

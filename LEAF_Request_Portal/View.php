@@ -23,8 +23,6 @@ class View
 
     public function buildViewStatus($recordID)
     {
-        // check privileges
-        require_once 'form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($recordID))
         {
@@ -32,7 +30,7 @@ class View
         }
 
         $result = array();
-        require_once 'VAMC_Directory.php';
+
         $dir = new VAMC_Directory;
 
         $vars = array(':recordID' => $recordID);

@@ -11,23 +11,13 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-
-// Include XSSHelpers
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 function customTemplate($tpl)
@@ -54,7 +44,6 @@ $main->assign('emergency', '');
 
 switch ($action) {
     case 'newform':
-        require 'form.php';
         $form = new Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
@@ -69,7 +58,6 @@ switch ($action) {
 
         break;
     case 'getindicator':
-        require 'form.php';
         $form = new Form($db, $login);
         if (is_numeric($_GET['indicatorID']))
         {
@@ -104,7 +92,6 @@ switch ($action) {
 
         break;
     case 'getprintindicator':
-        require 'form.php';
         $form = new Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
@@ -130,7 +117,6 @@ switch ($action) {
 
         break;
     case 'getindicatorlog':
-        require 'form.php';
         $form = new Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
@@ -149,7 +135,6 @@ switch ($action) {
 
         break;
     case 'domodify':
-        require 'form.php';
         $form = new Form($db, $login);
         echo $form->doModify((int)$_POST['recordID']);
 
@@ -216,7 +201,6 @@ switch ($action) {
 
         break;
     case 'dosubmit': // legacy action
-        require 'form.php';
         $form = new Form($db, $login);
         $recordID = (int)$_GET['recordID'];
         if (is_numeric($recordID) && $form->getProgress($recordID) >= 100)
@@ -238,8 +222,6 @@ switch ($action) {
 
         break;
     case 'cancel':
-        require 'form.php';
-
         if (is_numeric($_POST['cancel']))
         {
             $form = new Form($db, $login);
@@ -248,8 +230,6 @@ switch ($action) {
 
         break;
     case 'restore':
-        require 'form.php';
-
         if (is_numeric($_POST['restore']))
         {
             $form = new Form($db, $login);
@@ -258,13 +238,8 @@ switch ($action) {
 
         break;
     case 'doapproval':
-        // old
-        //require 'Action.php';
-        //$approval = new Action($db, $login, $_GET['recordID']);
-        //$approval->addApproval($_POST['groupID'], $_POST['status'], $_POST['comment'], $_POST['dependencyID']);
         break;
     case 'doupload': // handle file upload
-        require 'form.php';
         $uploadOk = true;
         $uploadedFilename = '';
         foreach ($_FILES as $file)
@@ -357,15 +332,12 @@ switch ($action) {
 
         break;
     case 'deleteattachment':
-        require 'form.php';
         $form = new Form($db, $login);
 
         echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], XSSHelpers::xscrub($_POST['series']), XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
-        require 'form.php';
-        require 'View.php';
         $form = new Form($db, $login);
         $view = new View($db, $login);
 
@@ -391,7 +363,6 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require 'form.php';
             $form = new Form($db, $login);
             $recordIDToPrint = (int)$_GET['recordID'];
 
@@ -473,7 +444,6 @@ switch ($action) {
 
         break;
     case 'gettags':
-        require 'form.php';
         $form = new Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
@@ -488,7 +458,6 @@ switch ($action) {
 
         break;
     case 'getformtags':
-        require 'form.php';
         $form = new Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
@@ -503,7 +472,6 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        require 'form.php';
         $form = new Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -518,7 +486,6 @@ switch ($action) {
 
         break;
     case 'updatetags':
-        require 'form.php';
         $form = new Form($db, $login);
         $form->parseTags((int)$_POST['recordID'], XSSHelpers::xscrub($_POST['taginput']));
 
@@ -528,7 +495,7 @@ switch ($action) {
         {
             exit();
         }
-        require 'form.php';
+
         $form = new Form($db, $login);
         $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
@@ -538,7 +505,7 @@ switch ($action) {
         {
             exit();
         }
-        require 'form.php';
+
         $form = new Form($db, $login);
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 

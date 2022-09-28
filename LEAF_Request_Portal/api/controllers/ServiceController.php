@@ -3,20 +3,13 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Service.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class ServiceController extends RESTfulResponse
 {
     public $index = array();
 
     private $API_VERSION = 1;    // Integer
 
-    private $system;
+    private $service;
 
     private $db;
 
