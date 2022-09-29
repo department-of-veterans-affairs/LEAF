@@ -224,10 +224,9 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach($orgEmployeeDataRes as $orgEmployeeData){
-	$localEmployeeID = array_search($orgEmployeeData['userName'], array_column($localEmpUIDs, 'userName'));
 	    
         $localEmployeeDataArray[] = [
-                 'empUID' => $localEmpUIDs[$localEmployeeID]['empUID'],
+                 'empUID' => $localEmpArray[$orgEmployeeData['userName']],
                  'indicatorID' => $orgEmployeeData['indicatorID'],
                  'data' => $orgEmployeeData['data'],
                  'author' => $orgEmployeeData['author'],
