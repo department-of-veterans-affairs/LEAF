@@ -37,10 +37,10 @@ button.btn-general, button.btn-confirm {
     background-color: white;
     color: $base_navy;
     font-weight: bolder;
-    padding: 0.4em;
+    padding: 0.2em 0.4em;
     border: 2px solid $base_navy;
-    border-radius: 4px;
-    width: 95px;
+    border-radius: 3px;
+    
     white-space: nowrap;
 
     &.disabled {
@@ -48,7 +48,7 @@ button.btn-general, button.btn-confirm {
     }
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         border: 2px solid black !important;
-        box-shadow: 0 0 4px rgba(0,0,30,0.4);
+        box-shadow: 0 0 3px rgba(0,0,30,0.4);
     }
 }
 button.btn-confirm {
@@ -133,7 +133,7 @@ button.btn-confirm {
     overflow: hidden;
 
     > div {
-        padding: 0.75em;
+        padding: 0.75rem 1rem;
     }
 
     .leaf-vue-dialog-title {
@@ -141,7 +141,7 @@ button.btn-confirm {
         border-top: 3px solid white;
         border-left: 3px solid white;
         border-right: 3px solid #cadff0;
-        border-bottom: 3px solid #cadff0;
+        border-bottom: 2px solid #cadff0;
         border-radius: 3px;
         background-color: $lt_cyan;
         cursor: move;
@@ -160,6 +160,7 @@ button.btn-confirm {
         height: 25px;
         cursor: pointer;
         font-weight: bold;
+        font-size: 1.2rem;
     }
     #leaf-vue-dialog-cancel-save {
         display:flex; 
@@ -185,36 +186,53 @@ button.btn-confirm {
         padding-right: 0.2rem;
         white-space: nowrap;
     }
+
     #name {
         width: 100%;
-        margin: 0 0 0.4rem 0;
-        padding: 0.5rem 0.75rem;
+        margin: 0.2rem 0 0.4rem 0;
+        padding: 0.2rem 0.4rem;
         display:block;
     }
+    
     #non-name-wrapper {
-        /*max-width: 550px;
-        margin-right: auto;*/
-    }
-    #description, #indicatorType, #defaultValue {
-        width: 100%;
-        margin-top: 0.1rem;
-    }
+        position: relative;
+        margin-bottom: 1.75rem;
+    
+        #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
+            width: 100%;
+            margin-top: 0.1rem;
+        }
+        #editing-format-assist {
+            align-self: flex-end; 
+            font-size:80%;
+            margin-left: 0.4rem;
+            color: $charcoal;
+            border: 2px solid rgb(190, 190, 199);
+            border-radius: 2px;
+        }
+        #indicator-editing-attributes {
+            margin: 0;
+            padding: 1em 0.75em 0.5em 0.75em;
+            border-radius: 5px;
+            border: 1px solid #ccd;
+            min-width: fit-content;
+            label {
+                font-weight: normal;
+            }
 
-    #indicator-editing-attributes {
-        border-radius: 4px;
-        min-width: fit-content;
-        margin-bottom: 0;
-
-        .attribute-row {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            margin-bottom: 0.75rem;
+            .attribute-row {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                margin-bottom: 0.75rem;
+            }
         }
     }
     #archived-warning, #deletion-warning {
-        color: #d00; 
-        padding-top: 0.2rem;
+        position: absolute;
+        left: 2px;
+        bottom: -1.25rem;
+        color: #c00; 
         font-size: 90%;
     }
 
@@ -593,7 +611,7 @@ div#form_content_view {
                 color: white;
                 margin: 0 0.4em;
                 padding: 0.2em 0.6em;
-                font-size: 70%;
+                font-size: 80%;
                 height: 100%;
                 border-radius: 4px;
                 letter-spacing: 1px;
@@ -668,7 +686,6 @@ div#form_content_view {
 input[class*="icheck"][class*="leaf_check"], 
 input[class*="ischecked"][class*="leaf_check"] { 
     opacity: 0;
-    margin-right: 0.2em;
     cursor: pointer;
     width: 1.1rem;
     flex: 0 0 1.1rem;
