@@ -284,14 +284,15 @@ var LeafForm = function(containerID) {
                             
                         } else {
                             elJQChildID.removeAttr('disabled');
-                            //elJQChildID.val('');
                             elJQChildID[0]?.choicesjs?.enable();
+                            //just re-enable selection/editing.  resetting causes issues here.
                         }
                         break; 
                     default:
                         console.log(cond.selectedOutcome);
                         break;
                 }
+                elJQChildID.trigger('change');
                 if (chosenShouldUpdate) {
                     const val = elJQChildID.val();
                     elJQChildID.chosen().val(val);
