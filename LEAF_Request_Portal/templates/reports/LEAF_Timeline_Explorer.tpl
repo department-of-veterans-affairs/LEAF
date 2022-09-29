@@ -570,6 +570,7 @@ function flagActionDeterminingResolution() {
 }
     
 let chart_workload_timescale_numRequests;
+let chart_workload_timescale;
 
 /**
  * Purpose: Init Pie/Graph Charts
@@ -613,7 +614,7 @@ function setupChart() {
     
     // setup chart
     chart_workload_timescale_numRequests = dc.barChart("#chart_workload_timescale_numRequests");
-    let chart_workload_timescale = dc.barChart("#chart_workload_timescale");
+    chart_workload_timescale = dc.barChart("#chart_workload_timescale");
     let chart_pie_steps = dc.pieChart("#chart_pie_steps");
     let chart_row_steps = dc.rowChart("#chart_row_steps");
     let chart_pie_steps_total = dc.pieChart("#chart_pie_steps_total");
@@ -826,8 +827,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -858,8 +859,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -992,8 +993,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1003,8 +1004,8 @@ function setupChart() {
         .title(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1014,8 +1015,8 @@ function setupChart() {
         .ordering(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1039,8 +1040,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1050,8 +1051,8 @@ function setupChart() {
         .title(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1061,8 +1062,8 @@ function setupChart() {
         .ordering(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
