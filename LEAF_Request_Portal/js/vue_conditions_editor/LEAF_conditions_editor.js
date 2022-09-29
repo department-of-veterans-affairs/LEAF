@@ -253,7 +253,7 @@ const ConditionsEditor = Vue.createApp({
             if (this.conditionComplete) {
                 const conditionsJSON = JSON.stringify(this.conditionInputObject);
                 let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
-                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
+                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null || indToUpdate.conditions === 'null')
                     ? [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
 
