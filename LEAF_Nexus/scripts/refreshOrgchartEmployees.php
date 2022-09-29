@@ -26,29 +26,25 @@ $phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 
-$userName = $_GET['userName'];
-$empUID = $_GET['empUID'];
-
 // prevent updating if orgchart is the same
 if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
 
-	if(!empty($userName) && !empty($empUID)){
-
-		updateUserInfo($userName, $empUID);
+    if(!empty($_GET['userName']) && !empty($_GET['empUID'])){
+        updateUserInfo($_GET['userName'], $_GET['empUID']);
         echo 1;
-	}else{
+    }else{
 
-		$startTime = time();
-		// echo "Refresh Orgchart Employees Start\n";
+        $startTime = time();
+        // echo "Refresh Orgchart Employees Start\n";
 
-		updateLocalOrgchartBatch();
+        updateLocalOrgchartBatch();
 
-		$endTime = time();
-		// echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
+        $endTime = time();
+        // echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
         echo 1; // success value
-	}
+    }
 
 }
 
@@ -163,19 +159,24 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // get org employees
     $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
     		FROM employee
-    		WHERE userName in('".implode("','",$localEmployeeUsernames)."')";
+    		WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
 
-    $orgEmployeeRes = $phonedb->query($orgEmployeeSql);
+    $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql,$localEmployeeUsernames);
+	
+    // get local empuids
+    $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
+    $localEmpUIDs = $db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
 
     //if for some reason there is no data, we need to stop right there.
     if(empty($orgEmployeeRes)){
         return FALSE;
     }
     foreach ($orgEmployeeRes as $orgEmployee) {
-        $nationalEmpUIDs[] = $orgEmployee['empUID'];
+    	$localEmployeeID = array_search($orgEmployee['userName'], array_column($localEmpUIDs, 'userName'));
+        $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
 
         $localEmployeeArray[] = [
-            'empUID' => $orgEmployee['empUID'],
+            'empUID' => $localEmpUIDs[$localEmployeeID]['empUID'],
             'userName' => $orgEmployee['userName'],
             'lastName' => $orgEmployee['lastName'],
             'firstName' => $orgEmployee['firstName'],
@@ -188,13 +189,23 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         ];
 
     }
+	
+    $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
+    $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (".implode(",",array_fill(1, count($localDeletedEmployees), '?')).")";
+
+    if (!empty($localDeletedEmployees)) {
+        $db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
+    }
 
     $db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
 
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-    $orgEmployeeDataSql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID in ('".implode("','",$nationalEmpUIDs)."') AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+    $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp 
+    				FROM employee_data 
+				LEFT JOIN employee USING (empUID) 
+				WHERE empUID IN ('".implode("','", $nationalEmpUIDs)."') AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
         ':PHONEIID' => PHONEIID,
@@ -209,9 +220,10 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach($orgEmployeeDataRes as $orgEmployeeData){
-
+	$localEmployeeID = array_search($orgEmployeeData['userName'], array_column($localEmpUIDs, 'userName'));
+	    
         $localEmployeeDataArray[] = [
-                 'empUID' => $orgEmployeeData['empUID'],
+                 'empUID' => $localEmpUIDs[$localEmployeeID]['empUID'],
                  'indicatorID' => $orgEmployeeData['indicatorID'],
                  'data' => $orgEmployeeData['data'],
                  'author' => $orgEmployeeData['author'],
@@ -233,7 +245,7 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
     global $db, $phonedb;
 
-    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID in (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+    $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $selectVars = array(
         ':nationalEmpUID' => $nationalEmpUID,
