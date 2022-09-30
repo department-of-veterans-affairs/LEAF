@@ -224,10 +224,6 @@ class Group
                         {
                         $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
-                        foreach ($dirRes[0]['groups'] as $group)
-                        {
-                            $dirRes[0]['regionallyManaged'] = $groupID == $group['groupID'];
-                        }
                         if($member['locallyManaged'] == 1) {
                             $dirRes[0]['backupID'] = null;
                         } else {
