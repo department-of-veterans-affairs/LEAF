@@ -256,6 +256,7 @@ $(function() {
             if(response != '') {
                 $('#currentEmployeeBody').html(response);
                 $('#currentEmployeeBody img').css('max-width', '64px');
+                $('#data_28_1_1').css('word-break', 'break-word');
                 <!--{if $employeePositions[0].positionID > 0}-->
                 $.ajax({
                     url: './api/position/<!--{$employeePositions[0].positionID}-->',

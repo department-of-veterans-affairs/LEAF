@@ -2,7 +2,7 @@
     <a href="./" class="buttonNorm"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" role="button" alt=""/>Main Page</a>
 {/if}
 <div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" tabindex="0" class="buttonNorm" alt="Links Dropdown" title="Links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
+    <a id="button_showLinks" tabindex="0" class="buttonNorm" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
     <div id="headerMenu_links">
     {include file={$menu_links}}
     </div>
