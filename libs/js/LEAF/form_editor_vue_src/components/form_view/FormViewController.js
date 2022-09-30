@@ -30,6 +30,9 @@ export default {
         'currentCategorySelection',
         'currentCategoryIndicatorTotal'
     ],
+    mounted() {
+        console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID)
+    },
     provide() {
         return {
             listItems: Vue.computed(() => this.listItems),

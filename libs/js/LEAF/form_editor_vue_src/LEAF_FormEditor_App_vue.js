@@ -263,8 +263,6 @@ export default {
                     this.ajaxFormByCategoryID.forEach(section => {
                         this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
                     });
-
-                    document.getElementById(catID).focus();
                 }).catch(err => console.log('error getting form info: ', err));
 
                 this.getStapledFormsByCurrentCategory();

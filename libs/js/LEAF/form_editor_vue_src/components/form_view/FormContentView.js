@@ -78,7 +78,7 @@ export default {
             </div>
         </div>
 
-        <form-view-controller></form-view-controller>
+        <form-view-controller :key="currentCategorySelection.categoryID"></form-view-controller>
     </div>` 
         
 }

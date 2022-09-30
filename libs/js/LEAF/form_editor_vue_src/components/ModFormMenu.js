@@ -17,7 +17,7 @@ export default {
         'openImportFormDialog',
         'openFormHistoryDialog',
         'openStapleFormsDialog',
-        'openConfirmDeleteFormDialog'
+        'openConfirmDeleteFormDialog',
     ],
     computed: {
         internalForms() {
@@ -49,7 +49,7 @@ export default {
         },
         selectMainForm() {
             console.log('clicked main form', this.currCategoryID);
-            this.selectNewCategory(this.currCategoryID);
+            this.selectNewCategory(this.currCategoryID, false);
         },
         selectSubform(subformID){
             console.log('clicked subform', 'sub', subformID, 'main', this.currCategoryID);
