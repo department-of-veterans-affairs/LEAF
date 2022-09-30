@@ -1,4 +1,10 @@
 export default {
+    data() {
+        return {
+            menuOpen: false,
+            clickedOn: false
+        }
+    },
     inject: [
         'truncateText',
         'selectNewCategory',
@@ -26,8 +32,17 @@ export default {
         }
     },
     methods: {
-        deleteForm() {
-            console.log('clicked app menu nav deleteForm', this.currCategoryID);
+        toggleMenu() {
+            this.clickedOn = !this.clickedOn;
+            this.menuOpen = this.clickedOn;
+        },
+        showMenu() {
+            this.menuOpen = true;
+        },
+        hideMenu() {
+            if (!this.clickedOn) {
+                this.menuOpen = false;
+            }
         },
         exportForm() {
             console.log('clicked app menu nav exportForm', this.currCategoryID);
@@ -47,17 +62,21 @@ export default {
             return name;
         }
     },
-    template: `
-        <div id="menu" class="mod-form-menu-nav">
-            <ul v-if="currCategoryID===null || restoringFields===true">
+    template: `<header id="form-editor-header">
+        <div tabindex="0"
+            :title="(clickedOn ? 'close ' : 'pin ') + 'menu'"
+            id="form-editor-menu-toggle" 
+            @click="toggleMenu" @mouseenter="showMenu">
+            <span>{{menuOpen ? '⭱' : '⭳'}}</span>menu
+        </div>
+        <h2><a href="#" @click="selectNewCategory(null)" title="View All Forms">Form Editor</a></h2>
+        <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1rem;">❯</div>
+        <h3 v-if="currCategoryID!==null">{{formName(categories[currCategoryID].categoryName, 40)}}</h3>
+        <nav v-if="menuOpen" id="form-editor-nav" class="mod-form-menu-nav">
+            <ul v-if="currCategoryID===null" @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>
                     <a href="#" id="createFormButton" @click="openNewFormDialog">
                     Create Form<span>📄</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="./?a=formLibrary">
-                    LEAF Library<span>📘</span>
                     </a>
                 </li>
                 <li>
@@ -65,48 +84,45 @@ export default {
                     Import Form<span>📦</span>
                     </a>
                 </li>
-                <li v-if="!restoringFields">
+                <li>
                     <a href="#" @click="showRestoreFields">
                     Restore Fields<span>♻️</span>
                     </a>
                 </li>
-                <li v-else>
-                    <a href="#" @click="selectNewCategory(null)">
-                    View All Forms<span>💼</span>
+                <li>
+                    <a href="./?a=formLibrary">
+                    LEAF Library<span>📘</span>
                     </a>
                 </li>
             </ul>
-            <ul v-else>
+            <ul v-else @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>
-                    <a href="#" @click="selectNewCategory(null)">
-                    View All Forms<span>💼</span>
-                    </a>
+                    <ul><!-- MAIN AND INTERNAL FORMS -->
+                        <li>
+                            <a href="#" :id="currCategoryID" @click="selectMainForm" title="select form">
+                            {{formName(categories[currCategoryID].categoryName)}}<span>📂</span>
+                            </a>
+                        </li>
+                        <li v-for="i in internalForms" :key="i.categoryID">
+                            <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                            {{formName(i.categoryName, 20)}}<span>📋</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" @click="openNewFormDialog" title="add new internal use form">
+                            Add Internal-Use<span>➕</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <ul><!-- MAIN AND INTERNAL FORMS -->
-                    <li style="margin-bottom:0.1em">
-                        <a href="#" :id="currCategoryID" @click="selectMainForm" title="select form">
-                        {{formName(categories[currCategoryID].categoryName)}}<span>📂</span>
-                        </a>
-                    </li>
-                    <li v-for="i in internalForms" style="margin-bottom:0.1em" :key="i.categoryID">
-                        <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                        {{formName(i.categoryName, 20)}}<span>📋</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" @click="openNewFormDialog" title="add new internal use form">
-                        Add Internal-Use<span>➕</span>
-                        </a>
-                    </li>
-                </ul>
                 <li>
                     <a href="#" @click="openStapleFormsDialog" title="staple another form">
                     Stapled Forms<span>📌</span>
                     </a>
                 </li>
                 <div id="stapledArea">
-                    <ul v-if="ajaxSelectedCategoryStapled.length > 0" style="margin-top: -0.5em;">
-                        <li v-for="s in ajaxSelectedCategoryStapled" style="margin-bottom:0.2em;" :key="'staple_' + s.stapledCategoryID">
+                    <ul v-if="ajaxSelectedCategoryStapled.length > 0">
+                        <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_' + s.stapledCategoryID">
                         {{s.categoryName || 'Untitled'}}
                         </li>
                     </ul>
@@ -126,11 +142,7 @@ export default {
                     Delete this form<span>❌</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#" @click="showRestoreFields">
-                    Restore Fields<span>♻️</span>
-                    </a>
-                </li>
             </ul>
-        </div>`
+        </nav>
+    </header>`
 };

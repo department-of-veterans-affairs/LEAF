@@ -40,7 +40,7 @@ export default {
         :title="category.categoryID">
             <div class="formPreviewTitle" style="position: relative">{{categoryName}}
                 <img v-if="parseInt(category.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
-                title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px; z-index:10;"/>
+                title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px;"/>
             </div>
             <div class="formPreviewDescription" v-html="formDescription"></div>
             <div class="formPreviewStatus">{{ availability }}</div>

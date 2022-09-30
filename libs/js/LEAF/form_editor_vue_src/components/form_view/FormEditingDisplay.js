@@ -51,23 +51,18 @@ export default {
         },
         sensitiveImg() {
             return this.sensitive ? 
-                `<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt=""
+                `<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="" class="sensitive-icon"
                     title="This field is sensitive" />` : '';
         },
-        conditionallyShown() {
-            let isConditionalShow = false;
-            if(!this.isHeaderLocation && this.formNode.conditions !== null && this.formNode.conditions !== '') {
-                const conditions = JSON.parse(this.formNode.conditions) || [];
-                if (conditions.some(c => c.selectedOutcome?.toLowerCase() === 'show')) {
-                    isConditionalShow = true;
-                }
-            }
-            return isConditionalShow;
+        conditionalQuestion() {
+            return !this.isHeaderLocation && 
+                this.formNode.conditions !== null && this.formNode.conditions !== '' & this.formNode.conditions !== 'null';
+
         },
         conditionsAllowed() {
             return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
         },
-        indicatorName() {  //TODO: and label??
+        indicatorName() {
             const contentRequired = this.required ? `<span class="input-required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="input-required-sensitive">*&nbsp;Sensitive</span>` : '';
 
@@ -91,10 +86,13 @@ export default {
     template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" :style="{minHeight: depth===0 ? '50px': 0}">
 
             <!-- EDITING AREA FOR INDICATOR -->
-            <div class="form_editing_area" :class="{'conditional-show': conditionallyShown, 'form-header': isHeaderLocation}">
+            <div class="form_editing_area" 
+                :class="{'conditional': conditionalQuestion, 'form-header': isHeaderLocation}">
 
                 <!-- TOOLBAR -->
-                <div v-show="showToolbars" :id="'form_editing_toolbar_' + formNode.indicatorID">
+                <div v-show="showToolbars" 
+                    :id="'form_editing_toolbar_' + formNode.indicatorID"
+                    :class="{'conditional': conditionalQuestion}">
                     <div style="display: flex; align-items: center;">
                         <span tabindex="0" style="cursor: pointer; display: flex; align-items:center;"
                             @click="editQuestion(formNode.indicatorID, formNode.series)"
@@ -102,7 +100,7 @@ export default {
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
                         <span style="margin-left: 0.75rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
-                        <span v-if="sensitive" v-html="sensitiveImg" style="display:flex; align-items: center; margin-left: 0.4rem;"></span>
+                        <span v-if="sensitive" v-html="sensitiveImg" style="margin-left: 0.4rem;"></span>
                     </div>
                     <div style="display: flex; align-items:center;">
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
@@ -118,7 +116,7 @@ export default {
                             <img src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
                         </button>
                         <div style="padding-right: 0.5em; color: #007860; font-weight: bold; width:20px; display:flex; align-items:center;">
-                            <div v-if="formNode.has_code" tabindex="0" style="cursor:pointer" title="advanced options are present">✓</div>
+                            <div v-if="formNode.has_code" tabindex="0" style="cursor:pointer" class="adv-options-icon" title="advanced options are present">✓</div>
                         </div>
                         <button class="btn-general add-subquestion" title="Add Sub-question"
                             @click="newQuestion(formNode.indicatorID)">

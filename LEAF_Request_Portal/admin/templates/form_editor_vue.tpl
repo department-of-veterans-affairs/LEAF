@@ -1,7 +1,8 @@
-<div class="leaf-width-100pct" id="vue-formeditor-app">
-    <h2 style="margin: 1em 0.1em 0.75em 0.1em;" >Form Editor</h2>
+<div id="vue-formeditor-app">
+
+    <mod-form-menu></mod-form-menu>
+
     <div style="display:flex;">
-        <mod-form-menu></mod-form-menu>
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
         <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
