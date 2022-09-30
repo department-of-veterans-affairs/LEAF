@@ -83,7 +83,7 @@ $(function() {
             <tr>
                 <td><label for="priority">Priority</label></td>
                 <td>
-                    <select id="priority" name="priority" aria-label="priority" style="width: 150px;">
+                    <select id="priority" name="priority" style="width: 150px;">
                     <option value="-10">EMERGENCY</option>
                     <option value="0" selected="selected">Normal</option>
                     </select>

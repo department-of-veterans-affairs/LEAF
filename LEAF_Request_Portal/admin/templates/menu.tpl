@@ -2,7 +2,7 @@
 
     <!-- Menu tooggle on smaller screens  -->
     <li id="toggleMenu" role="button" aria-haspopup="true">
-        <a href="javascript:void(0);"><span aria-hidden="true" class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
+        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
     </li>
 
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
@@ -78,7 +78,7 @@
     </li>
 
     <li class="leaf-width-4rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
+        <a href="javascript:void(0);" title="user account menu"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
         <ul class="leaf-usernavmenu">
             <li><a href="javascript:void(0);">User:<br/><span class="leaf-user-menu-name">{$name}</span></a></li>
             <li><a href="javascript:void(0);">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></a></li>
