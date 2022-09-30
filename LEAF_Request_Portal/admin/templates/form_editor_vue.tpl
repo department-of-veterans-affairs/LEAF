@@ -5,27 +5,24 @@
     <div style="display:flex;">
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
-        <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
-            style="width: 100%; margin: 0 auto;">
-            <div id="forms" style="display:flex; flex-wrap:wrap">
-                <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
+            <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
+                style="width: 100%; margin: 0 auto;">
+                <div id="forms" style="display:flex; flex-wrap:wrap">
+                    <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
+                </div>
+                <hr style="margin-top: 32px; border-top:1px solid #556;" aria-label="Not associated with a workflow" />
+                <p>Not associated with a workflow:</p>
+                <div id="forms_inactive" style="display:flex; flex-wrap:wrap">
+                    <category-card v-for="c in inactiveCategories" :category="c" :key="c.categoryID"></category-card>
+                </div>
             </div>
-            <hr style="margin-top: 32px; border-top:1px solid #556;" aria-label="Not associated with a workflow" />
-            <p>Not associated with a workflow:</p>
-            <div id="forms_inactive" style="display:flex; flex-wrap:wrap">
-                <category-card v-for="c in inactiveCategories" :category="c" :key="c.categoryID"></category-card>
-            </div>
-        </div>
-        <!-- SPECIFIC CATEGORY / FORM CONTENT -->
-        <form-content-view v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
-            orgchart-path='<!--{$orgchartPath}-->'>
-        </form-content-view>
-        
+            <!-- SPECIFIC CATEGORY / FORM CONTENT -->
+            <form-content-view v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
+                orgchart-path='<!--{$orgchartPath}-->'>
+            </form-content-view>
         </template>
 
-        <template v-if="restoringFields===true">
-        <restore-fields></restore-fields>
-        </template>
+        <restore-fields v-else></restore-fields>
     </div>
 
     <!-- DIALOGS -->

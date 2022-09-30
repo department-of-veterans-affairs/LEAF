@@ -7,6 +7,7 @@ $charcoal: #252f3e;
 $BG_LightGray: #dcdee0;
 $BG_Pearl: #f0f2fd;
 /* $BG_Pearl: #f0f2fd; */
+$manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
 $lt_cyan: #E0F4FA;
@@ -64,10 +65,13 @@ button.btn-confirm {
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
-    padding: 0.5rem 0;
+    padding: 0.5rem 0.2rem;
 
     h2, h3 {
         margin: 0;
+        a {
+            text-decoration: underline;
+        }
     }
     a {
         text-decoration: none;
@@ -80,10 +84,10 @@ button.btn-confirm {
         display:flex;
         align-items: center;
         margin-right: 0.75rem;
-        padding: 0.2em 0.5em 0.2em 0.2em;
+        padding: 0.1em 0.5em 0.2em 0.2em;
         color: white;
         background-color: black;
-        border-radius: 3px;
+        border-radius: 4px;
         cursor: pointer;
 
         > span {
@@ -105,7 +109,7 @@ button.btn-confirm {
             width: 180px;
             background-color: #e8f2ff;
             background-clip: content-box;
-            box-shadow: 2px 2px 3px rgba(0,0,30,0.2);
+            box-shadow: 2px 2px 4px rgba(0,0,40,0.2);
 
             > li {
                 border-bottom: 1px solid black;
@@ -674,7 +678,7 @@ div#form_content_view {
             display: flex;
             justify-content: space-between; 
             align-items: center;
-            background-color: rgba($BG_Pearl, 0.75);
+            background-color: rgba($BG_Pearl, 0.8);
             border-top: 1px solid black;
             font-size: 90%;
             color: black;
@@ -686,7 +690,7 @@ div#form_content_view {
             }
 
             &.conditional {
-                background-color: rgba($BG_Pearl, 0.05);
+                background-color: rgba($BG_Pearl, 0.1);
                 color: white;
             }
 
@@ -706,7 +710,7 @@ div#form_content_view {
             }
         }
         &.form-header {
-            background-color: #ffffd4;
+            background-color: $manila;
         }
 
         &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {

@@ -19,6 +19,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'appIsLoadingCategoryInfo',
         'ajaxFormByCategoryID',
         'currSubformID',
         'selectNewCategory',
@@ -44,9 +45,6 @@ export default {
         }
     },
     computed: {
-        formName() {
-            return this.currentCategorySelection.categoryName || 'Untitled';
-        },
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID];
@@ -274,19 +272,21 @@ export default {
         }
     },
     template:`
-    <div id="form_index_and_editing">
+    <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
+        font-size: 24px; font-weight: bold; padding: 16px;">
+        Loading... 
+        <img src="../images/largespinner.gif" alt="loading..." />
+    </div>
+
+    <div v-else id="form_index_and_editing">
         <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            
             <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
                 id="can_update"
                 title="Apply form structure updates">Apply changes</button>
             <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
             
-            <h3 style="margin: 0; margin-bottom: 0.75em; color: black;">
-            Form Index
-            </h3>
-
+            <h3 style="margin: 0; margin-bottom: 0.75em; color: black;">Form Index</h3>
             <div style="margin: 1em 0">
                 <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
                     @click="selectNewFormNode($event, null)" 
@@ -294,7 +294,6 @@ export default {
                     title="Show entire form">Show entire form
                 </button>
                 <button v-else class="btn-general disabled" disabled="true" style="width: 100%; margin-bottom: 0.5em;">Viewing entire form</button>
-                
                 <button class="btn-general" style="width: 100%" 
                     @click="newQuestion(null)"
                     id="add_new_form_section"
@@ -303,10 +302,6 @@ export default {
                 </button>
             </div>
 
-            <!--<h3 style="margin: 0; margin-bottom: 0.5em; color: black;" :title="formName">
-            {{ formName }}
-            </h3>-->
-            
             <ul v-if="ajaxFormByCategoryID.length > 0"
                 id="base_drop_area"
                 class="form-index-listing-ul"
@@ -331,15 +326,34 @@ export default {
 
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
         <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
+            <div style="display:flex; flex-direction: column; width: 100%;">
 
-        
+                <!-- ENTIRE FORM EDIT / PREVIEW -->
+                <div v-if="selectedFormNode===null" id="form_entry_and_preview">
+                    <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
+                        <div class="form-section-header" style="display: flex;">
+                            <h3>Form Page {{i+1}}</h3>
+                            <button v-if="i===0" id="indicator_toolbar_toggle" 
+                                @click.stop="toggleToolbars($event)">
+                                {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                            </button>
+                        </div>
+                        <div class="printformblock">
+                            <form-editing-display 
+                                :depth="0"
+                                :formNode="formSection"
+                                :index="i"
+                                :key="'FED' + formSection.indicatorID">
+                            </form-editing-display>
+                        </div>
+                    </template>
+                </div>
 
-            <!-- ENTIRE FORM EDIT / PREVIEW -->
-            <div v-if="selectedFormNode===null" id="form_entry_and_preview">
-                <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
+                <!-- SUBSECTION EDIT / PREVIEW -->
+                <div v-else id="form_entry_and_preview">
                     <div class="form-section-header" style="display: flex;">
-                        <h3>Form Page {{i+1}}</h3>
-                        <button v-if="i===0" id="indicator_toolbar_toggle" 
+                        <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
+                        <button id="indicator_toolbar_toggle"
                             @click.stop="toggleToolbars($event)">
                             {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
                         </button>
@@ -347,30 +361,11 @@ export default {
                     <div class="printformblock">
                         <form-editing-display 
                             :depth="0"
-                            :formNode="formSection"
-                            :index="i"
-                            :key="'FED' + formSection.indicatorID">
+                            :formNode="selectedFormNode"
+                            :index="-1"
+                            :key="'FED' + selectedFormNode.indicatorID">
                         </form-editing-display>
                     </div>
-                </template>
-            </div>
-
-            <!-- SUBSECTION EDIT / PREVIEW -->
-            <div v-else id="form_entry_and_preview">
-                <div class="form-section-header" style="display: flex;">
-                    <h3>Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                    <button id="indicator_toolbar_toggle"
-                        @click.stop="toggleToolbars($event)">
-                        {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
-                    </button>
-                </div>
-                <div class="printformblock">
-                    <form-editing-display 
-                        :depth="0"
-                        :formNode="selectedFormNode"
-                        :index="-1"
-                        :key="'FED' + selectedFormNode.indicatorID">
-                    </form-editing-display>
                 </div>
             </div>
         </template>

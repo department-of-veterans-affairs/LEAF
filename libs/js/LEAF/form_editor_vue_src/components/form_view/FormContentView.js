@@ -25,7 +25,6 @@ export default {
         'currCategoryID',
         'currSubformID',
         'currentCategorySelection',
-        'appIsLoadingCategoryInfo',
         'editPropertiesClicked',
         'editPermissionsClicked'
     ],
@@ -79,15 +78,7 @@ export default {
             </div>
         </div>
 
-        <!-- NOTE: FORM AREA -->
-        <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
-            font-size: 24px; font-weight: bold; padding: 16px;">
-            Loading... 
-            <img src="../images/largespinner.gif" alt="loading..." />
-        </div>
-        <template v-else>
         <form-view-controller></form-view-controller>
-        </template>
     </div>` 
         
 }
