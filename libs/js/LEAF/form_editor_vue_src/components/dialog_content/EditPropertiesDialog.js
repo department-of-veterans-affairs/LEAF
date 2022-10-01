@@ -39,7 +39,6 @@ export default {
             this.description = currWorkflow?.description || '';
         },
         onSave(){
-            console.log('clicked edit properties save');
             let  editPropertyUpdates = [];
             const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
             const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;

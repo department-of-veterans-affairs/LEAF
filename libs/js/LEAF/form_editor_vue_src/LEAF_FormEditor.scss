@@ -375,8 +375,10 @@ table#edit-properties-modal {
 .browser-category-card {
     position: relative;
     margin: 0 1em 1em 0;
-    width: 300px;
-    height: 150px;
+    width: 360px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
     background-color: white;
     cursor: pointer;
     transition: box-shadow 0.3s ease;
@@ -389,26 +391,21 @@ table#edit-properties-modal {
         box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25); 
     }
     > div {
-        overflow: hidden;
-        white-space: normal;
-        text-overflow: ellipsis;
         padding: 0.2em 0.4em;
     }
     .formPreviewTitle {
         font-weight: bold;
     }
     .formPreviewDescription {
-        justify-self: end;
-        height: 80px;
         font-size: 14px;
         line-height: 1.2;
     }
     .formPreviewStatus {
+        margin-top: auto;
         font-size: 80%;
         color: rgb(200, 0, 0);
     }
     .formPreviewWorkflow {
-        justify-self: end;
         height: 26px;
         width: 100%;
         color: white;

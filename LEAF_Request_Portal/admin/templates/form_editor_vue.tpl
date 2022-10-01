@@ -8,12 +8,12 @@
             <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
                 style="width: 100%; margin: 0 auto;">
                 <div id="forms" style="display:flex; flex-wrap:wrap">
-                    <category-card v-for="c in activeCategories" :category="c" :key="c.categoryID"></category-card>
+                    <category-card v-for="c in activeCategories" :categories-record="c" :key="c.categoryID"></category-card>
                 </div>
                 <hr style="margin-top: 32px; border-top:1px solid #556;" aria-label="Not associated with a workflow" />
                 <p>Not associated with a workflow:</p>
                 <div id="forms_inactive" style="display:flex; flex-wrap:wrap">
-                    <category-card v-for="c in inactiveCategories" :category="c" :key="c.categoryID"></category-card>
+                    <category-card v-for="c in inactiveCategories" :categories-record="c" :key="c.categoryID"></category-card>
                 </div>
             </div>
             <!-- SPECIFIC CATEGORY / FORM CONTENT -->

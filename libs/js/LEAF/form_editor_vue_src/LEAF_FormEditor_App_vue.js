@@ -86,6 +86,7 @@ export default {
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             getStapledFormsByCurrentCategory: this.getStapledFormsByCurrentCategory,
+            setCurrCategoryStaples: this.setCurrCategoryStaples,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
@@ -193,16 +194,17 @@ export default {
                 });
             });
         },
-        getStapledFormsByCurrentCategory() {
-            const formID = this.currSubformID || this.currCategoryID;
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}formEditor/_${formID}/stapled`,
-                success: (res) => {
-                    console.log('setting stapled forms', res);
-                    this.ajaxSelectedCategoryStapled = res;
-                },
-                error: (err) => console.log(err)
+        getStapledFormsByCurrentCategory(formID) {
+            return new Promise((resolve, reject)=> {
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}formEditor/_${formID}/stapled`,
+                    success: (res) => {
+                        console.log('got stapled forms for',formID, res);
+                        resolve(res);
+                    },
+                    error: (err) => reject(err)
+                });
             });
         },
         getIndicatorByID(indID) { //get specific indicator info
@@ -220,6 +222,9 @@ export default {
             for(let i in obj) {
                 this.categories[obj[i].categoryID] = obj[i];
             }
+        },
+        setCurrCategoryStaples(stapledForms) {
+            this.ajaxSelectedCategoryStapled = stapledForms;
         },
         updateCategoriesProperty(catID, keyName, keyValue) {
             this.categories[catID][keyName] = keyValue;
@@ -265,7 +270,8 @@ export default {
                     });
                 }).catch(err => console.log('error getting form info: ', err));
 
-                this.getStapledFormsByCurrentCategory();
+                const formID = this.currSubformID || this.currCategoryID;
+                this.getStapledFormsByCurrentCategory(formID).then(res => this.ajaxSelectedCategoryStapled = res);
 
             } else {  //nav to form card browser.
                 this.appIsLoadingCategoryList = true;

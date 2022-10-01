@@ -71,7 +71,7 @@ export default {
         </div>
         <h2><a href="#" @click="selectNewCategory(null)" title="View All Forms">Form Editor</a></h2>
         <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1rem;">❯</div>
-        <h3 v-if="currCategoryID!==null">{{formName(categories[currCategoryID].categoryName, 40)}}</h3>
+        <h3 v-if="currCategoryID!==null">{{categories[currCategoryID].categoryName}}</h3>
         <nav v-if="menuOpen" id="form-editor-nav" class="mod-form-menu-nav">
             <ul v-if="currCategoryID===null" @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>

@@ -16,6 +16,7 @@ export default {
         'currSubformID',
         'ajaxSelectedCategoryStapled',
         'getStapledFormsByCurrentCategory',
+        'setCurrCategoryStaples',
         'closeFormDialog',
     ],
     mounted() {
@@ -42,7 +43,7 @@ export default {
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
-                    this.getStapledFormsByCurrentCategory();
+                    this.getStapledFormsByCurrentCategory(this.formID).then(res => this.setCurrCategoryStaples(res));
                 },
                 error: err => console.log(err)
             });
@@ -57,8 +58,10 @@ export default {
                         stapledCategoryID: this.catIDtoStaple
                     },
                     success: res => {
-                        this.closeFormDialog();
-                        this.getStapledFormsByCurrentCategory();
+                        this.getStapledFormsByCurrentCategory(this.formID).then(res => {
+                            this.setCurrCategoryStaples(res);
+                            this.closeFormDialog();
+                        });
                         if(res !== 1) {
                             alert(res);
                         }
@@ -66,6 +69,8 @@ export default {
                     error: err => console.log(err),
                     cache: false
                 });
+            } else {
+                this.closeFormDialog();
             }
         }
     },
