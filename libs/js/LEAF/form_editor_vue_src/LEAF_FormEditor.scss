@@ -282,11 +282,12 @@ button.btn-confirm {
             margin-top: 0.1rem;
         }
         #editing-format-assist {
-            align-self: flex-end; 
+            align-self: flex-end;
+            font-weight: normal;
             font-size:80%;
-            margin-left: 0.4rem;
+            margin-left: 0.2rem;
             color: $charcoal;
-            border: 2px solid rgb(190, 190, 199);
+            border: 2px solid $base_navy;
             border-radius: 2px;
         }
         #indicator-editing-attributes {
@@ -380,13 +381,12 @@ table#edit-properties-modal {
 
 
 
-
 /* form browser cards */
 .browser-category-card {
     position: relative;
-    margin: 0 1em 1em 0;
-    width: 360px;
-    height: 180px;
+    margin: 0 1rem 1rem 0;
+    width: 340px;
+    height: 190px;
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -401,12 +401,14 @@ table#edit-properties-modal {
         box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25); 
     }
     > div {
-        padding: 0.2em 0.4em;
+        padding: 0.2rem 0.4rem;
     }
     .formPreviewTitle {
         font-weight: bold;
+        padding: 0.4rem;
     }
     .formPreviewDescription {
+        height: 100%;
         font-size: 14px;
         line-height: 1.2;
     }
@@ -416,7 +418,8 @@ table#edit-properties-modal {
         color: #d00;
     }
     .formPreviewWorkflow {
-        height: 26px;
+        display: flex;
+        align-items: center;
         width: 100%;
         color: white;
         background-color: $BG-DarkNavy;

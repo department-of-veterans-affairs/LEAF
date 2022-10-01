@@ -9,7 +9,8 @@ export default {
     },
     inject: [
         'selectNewCategory',
-        'getStapledFormsByCurrentCategory'
+        'getStapledFormsByCurrentCategory',
+        'truncateText'
     ],
     mounted() {
         this.getStapledFormsByCurrentCategory(this.catID).then(res => this.staples = res);
@@ -32,7 +33,9 @@ export default {
             return list.join(', ');
         },
         categoryName() { //NOTE: XSSHelpers global
-            return this.categoriesRecord.categoryName === '' ? 'Untitled' : XSSHelpers.stripAllTags(this.categoriesRecord.categoryName);
+            let name = this.categoriesRecord.categoryName === '' ? 
+                'Untitled' : XSSHelpers.stripAllTags(this.categoriesRecord.categoryName);
+            return this.truncateText(name, 41);
         },
         formDescription() {
             return XSSHelpers.stripAllTags(this.categoriesRecord.categoryDescription);
@@ -56,13 +59,13 @@ export default {
         @keyup.enter="selectNewCategory(catID)"
         :class="cardLibraryClasses" class="browser-category-card"
         :id="catID" 
-        :title="catID + ': ' + categoryName">
+        :title="catID + ': ' + categoryName + (staplesList ? '. Stapled with: ' + staplesList : '')">
             <div class="formPreviewTitle" style="position: relative">{{categoryName}}
                 <img v-if="parseInt(categoriesRecord.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
                 title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px;"/>
             </div>
             <div class="formPreviewDescription" v-html="formDescription"></div>
-            <div style="display: flex; justify-content: space-between; margin-top:auto;">
+            <div style="display: flex; justify-content: space-between;">
                 <div class="formPreviewStatus">{{ availability }}</div>
                 <div v-if="staples.length > 0"
                     :title="'This form has stapled forms: ' + staplesList"

@@ -77,7 +77,7 @@ export default {
         }
     },
     template: `<Teleport to="body">
-        <div v-if="showFormDialog || showGeneralDialog" :id="showFormDialog ? 'leaf-vue-dialog-background' : ''">
+        <div v-if="showFormDialog" :id="showFormDialog ? 'leaf-vue-dialog-background' : ''">
         <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :style="{top: scrollY + initialTop + 'px'}">
             <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
             <div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" id="leaf-vue-dialog-close">&#10005;</div>

@@ -501,17 +501,17 @@ export default {
             <div style="display:flex; justify-content: space-between; font-size: 80%;">
                 <button class="btn-general" id="rawNameEditor"
                     title="use basic text editor"
-                    @click="rawNameEditorClick" style="display: none;">
+                    @click="rawNameEditorClick" style="display: none; width:135px">
                     Show formatted code
                 </button>
                 <button class="btn-general" id="advNameEditor"
-                    title="use advanced text editor"
+                    title="use advanced text editor" style="width:135px"
                     @click="advNameEditorClick">
                     Advanced Formatting
                 </button>
                 <button v-if="name.length <= shortLabelTrigger" 
                     class="btn-general" 
-                    style="margin-left: auto;"
+                    style="margin-left: auto; width:135px"
                     title="access short label field"
                     @click="toggleShortlabel">
                     {{showShortLabel ? 'Hide' : 'Show'}} Short Label
@@ -537,7 +537,7 @@ export default {
                         </select>
                         <button id="editing-format-assist" class="btn-general"
                             title="select for assistance with format selection">
-                            Help me Choose
+                            ℹ
                         </button>
                     </div>
                 </div>
