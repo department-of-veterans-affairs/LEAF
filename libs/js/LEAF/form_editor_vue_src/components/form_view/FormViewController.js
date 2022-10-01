@@ -8,8 +8,14 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
+            gridInstances: {},
             allowedConditionChildFormats: ['dropdown', 'text'],
             showToolbars: true
+        }
+    },
+    props: {
+        orgchartPath: {
+            type: String
         }
     },
     components: {
@@ -21,12 +27,15 @@ export default {
         'CSRFToken',
         'appIsLoadingCategoryInfo',
         'ajaxFormByCategoryID',
+        'currCategoryID',
         'currSubformID',
         'selectNewCategory',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'selectedFormNode',
         'newQuestion',
+        'editPropertiesClicked',
+        'editPermissionsClicked',
         'currentCategorySelection',
         'currentCategoryIndicatorTotal'
     ],
@@ -37,14 +46,17 @@ export default {
         return {
             listItems: Vue.computed(() => this.listItems),
             allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
+            gridInstances: Vue.computed(() => this.gridInstances),
             showToolbars: Vue.computed(() => this.showToolbars),
+            orgchartPath: this.orgchartPath,
             addToListItemsObject: this.addToListItemsObject,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListing: this.moveListing
+            moveListing: this.moveListing,
+            updateGridInstances: this.updateGridInstances,
         }
     },
     computed: {
@@ -52,6 +64,27 @@ export default {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID];
             return this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
+        },
+        formName() {
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryName) || 'Untitled';
+        },
+        formCatID() {
+            return this.currentCategorySelection.categoryID;
+        },
+        categoryDescription() {
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
+        },
+        workflow() {
+            return parseInt(this.currentCategorySelection.workflowID) === 0 ?
+            `<span style="color: red">No workflow. Users will not be able to select this form.</span>` :
+            `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
+        },
+        isSubForm(){
+            console.log('CURR CAT SELECTION', this.currentCategorySelection);
+            return this.currentCategorySelection.parentID !== '';
+        },
+        isNeedToKnow(){
+            return parseInt(this.currentCategorySelection.needToKnow) === 1;
         },
         allListItemsAreAdded() {
             return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
@@ -80,6 +113,9 @@ export default {
         }
     },
     methods: {
+        updateGridInstances(options, indicatorID, series) {
+            this.gridInstances[indicatorID] = new gridInput(options, indicatorID, series, ''); //NOTE: global LEAF class for grid format
+        },
         moveListing(event, indID, moveup) {
             if (event?.keyCode===32) event.preventDefault();
             const parentEl = event.currentTarget.closest('ul');
@@ -331,6 +367,33 @@ export default {
         <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
             <div style="display:flex; flex-direction: column; width: 100%;">
 
+                <!-- NOTE: TOP INFO PANEL -->
+                <div id="edit-properties-panel">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="margin-bottom: 0.75rem;"><b>Form Description</b></div>
+                        <div style="margin-bottom: 0.75rem;">{{categoryDescription}}</div>
+                        <div v-if="!isSubForm" style="margin-top: auto;">
+                            <div>Workflow: <b v-html="workflow"></b></div>
+                            <div>Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : 'black'}">
+                                {{ isNeedToKnow ? 'On' : 'Off' }}</b>
+                            </div>
+                        </div>
+                        <div v-else style="margin-top: auto;">Internal Form</div>
+                    </div>
+        
+                    <div id="form-actions" style="position: absolute; right: 0; display: flex; margin-right: 0.75rem;">
+                        <button id="editFormData" class="btn-general" style="margin-right: 0.75rem;" 
+                            @click="editPropertiesClicked">Edit Properties</button>
+        
+                        <button id="editFormPermissions" class="btn-general"
+                            @click="editPermissionsClicked">Edit Collaborators</button>
+                    </div>
+                    <div class="form-id-label">ID: {{currCategoryID}}
+                        <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
+                    </div>
+                </div>
+
+
                 <!-- ENTIRE FORM EDIT / PREVIEW -->
                 <div v-if="selectedFormNode===null" id="form_entry_and_preview">
                     <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
@@ -346,7 +409,7 @@ export default {
                                 :depth="0"
                                 :formNode="formSection"
                                 :index="i"
-                                :key="'FED' + formSection.indicatorID">
+                                :key="'FED_' + formSection.indicatorID">
                             </form-editing-display>
                         </div>
                     </template>
@@ -366,7 +429,7 @@ export default {
                             :depth="0"
                             :formNode="selectedFormNode"
                             :index="-1"
-                            :key="'FED' + selectedFormNode.indicatorID">
+                            :key="'FED_' + selectedFormNode.indicatorID">
                         </form-editing-display>
                     </div>
                 </div>

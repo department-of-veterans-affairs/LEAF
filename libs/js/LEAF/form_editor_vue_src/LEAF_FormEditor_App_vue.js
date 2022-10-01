@@ -10,7 +10,8 @@ import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
-import FormContentView from "./components/form_view/FormContentView";
+//import FormContentView from "./components/form_view/FormContentView";
+import FormViewController from "./components/form_view/FormViewController.js";
 
 import RestoreFields from "./components/RestoreFields.js";
 import './LEAF_FormEditor.scss';
@@ -116,7 +117,8 @@ export default {
         ConfirmDeleteDialog,
         ModFormMenu,
         CategoryCard,
-        FormContentView,
+        //FormContentView,
+        FormViewController,
         EditPropertiesDialog,
         RestoreFields
     },

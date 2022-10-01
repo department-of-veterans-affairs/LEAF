@@ -1,4 +1,4 @@
-export default {
+/*export default {
     name: 'PrintSubindicators',
     props: {
         depth: Number,
@@ -148,4 +148,4 @@ export default {
                 </div>
             </div> <!-- END MAIN/SUB LABEL -->
         </div> <!-- END MAIN/SUB BLOCK -->`
-}
+} */

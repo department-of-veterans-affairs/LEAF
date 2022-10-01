@@ -2,7 +2,7 @@
 
     <mod-form-menu></mod-form-menu>
 
-    <div style="display:flex;">
+    <div style="display:flex; max-width: 2000px; margin: auto;">
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
             <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
@@ -17,9 +17,12 @@
                 </div>
             </div>
             <!-- SPECIFIC CATEGORY / FORM CONTENT -->
-            <form-content-view v-if="currCategoryID !== null && appIsLoadingCategoryList === false" 
-                orgchart-path='<!--{$orgchartPath}-->'>
-            </form-content-view>
+            <div v-else id="form_content_view">
+                <form-view-controller v-if="currCategoryID !== null && appIsLoadingCategoryList === false"
+                    :key="currentCategorySelection.categoryID"
+                    orgchart-path='<!--{$orgchartPath}-->'>
+                </form-view-controller>
+            </div>
         </template>
 
         <restore-fields v-else></restore-fields>
@@ -335,7 +338,7 @@ function exportForm(categoryID) {
  * @param res
  */
 function renderSecureFormsInfo(res) {
-    $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: red; display:none; margin-bottom:1em;" ></div>');
+    $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: #d00; display:none; margin-bottom:1em;" ></div>');
     $('#secure_forms_info').append('<span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span> ');
     $('#secure_forms_info').append('<a id="secureBtn" class="buttonNorm">View Details</a>');
 

@@ -69,8 +69,10 @@ button.btn-confirm {
 
     h2, h3 {
         margin: 0;
+        
         a {
             text-decoration: underline;
+            border-radius: 3px;
         }
     }
     a {
@@ -78,23 +80,31 @@ button.btn-confirm {
         color: black;
         &:hover, &:focus, &:active {
             color: black;
+            outline: 2px solid #20a0f0 !important;
         }
     }
     #form-editor-menu-toggle {
         display:flex;
         align-items: center;
-        margin-right: 0.75rem;
-        padding: 0.1em 0.5em 0.2em 0.2em;
+        margin-right: 0.5rem;
+        padding: 0.1em 0.4em 0.2em 0.1em;
         color: white;
         background-color: black;
-        border-radius: 4px;
+        border-radius: 3px;
         cursor: pointer;
 
+        &:hover, &:focus, &:active { /* TODO: rebuild leaf.css without the rule to rm all borders from active a and buttons */
+            border: 2px solid black !important;
+            outline: 2px solid #20a0f0 !important;
+        }
+
         > span {
-            font-size: 1.5rem;
-            transform: scaleY(0.8) translate(0, 2px);
+            font-size: 1.2rem;
+            display: inline-block;
+            width: 8px;
+            transform: translate(0, 2px);
             color: $USWDS_Cyan;
-            margin-right: 0.1rem;
+            margin-right: 4px;
         }
     }
 
@@ -326,12 +336,12 @@ button.btn-confirm {
 #edit-properties-panel {
     position: relative; 
     display: flex;
-    min-height: 100px;
-    justify-content: space-between;
+    min-height: 130px;
     margin-bottom: 1em;
     background-color: white; 
-    padding: 0.5rem 0.75rem; 
-    border: 1px solid black;
+    padding: 0.75rem; 
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
     .form-id-label {
         position: absolute; 
@@ -403,7 +413,7 @@ table#edit-properties-modal {
     .formPreviewStatus {
         margin-top: auto;
         font-size: 80%;
-        color: rgb(200, 0, 0);
+        color: #d00;
     }
     .formPreviewWorkflow {
         height: 26px;
@@ -418,7 +428,6 @@ div#form_content_view {
     margin: 0 auto; 
     display:flex; 
     flex-direction: column; 
-    max-width: 1800px;
     width: 100%;
 }
 
@@ -650,7 +659,7 @@ div#form_content_view {
                 display: inline;
             }
             .input-required-sensitive {
-                color: #b00;
+                color: #d00;
                 margin-left: 0.4em;
             }
         }
@@ -702,8 +711,9 @@ div#form_content_view {
                 padding: 0.2em 0.6em;
                 font-size: 80%;
                 height: 100%;
-                border-radius: 4px;
+                border-radius: 3px;
                 letter-spacing: 1px;
+                border: 1px outset $base_navy;
             }
         }
         &.form-header {

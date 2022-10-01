@@ -63,14 +63,14 @@ export default {
         }
     },
     template: `<header id="form-editor-header">
-        <div tabindex="0"
+        <button
             :title="(clickedOn ? 'close ' : 'pin ') + 'menu'"
             id="form-editor-menu-toggle" 
             @click="toggleMenu" @mouseenter="showMenu">
-            <span>{{menuOpen ? '⭱' : '⭳'}}</span>menu
-        </div>
+            <span>{{clickedOn ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
+        </button>
         <h2><a href="#" @click="selectNewCategory(null)" title="View All Forms">Form Editor</a></h2>
-        <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1rem;">❯</div>
+        <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</div>
         <h3 v-if="currCategoryID!==null">{{categories[currCategoryID].categoryName}}</h3>
         <nav v-if="menuOpen" id="form-editor-nav" class="mod-form-menu-nav">
             <ul v-if="currCategoryID===null" @mouseenter="showMenu" @mouseleave="hideMenu">
