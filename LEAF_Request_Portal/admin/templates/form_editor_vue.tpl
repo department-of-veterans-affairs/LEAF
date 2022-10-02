@@ -19,7 +19,7 @@
             <!-- SPECIFIC CATEGORY / FORM CONTENT -->
             <div v-else id="form_content_view">
                 <form-view-controller v-if="currCategoryID !== null && appIsLoadingCategoryList === false"
-                    :key="currentCategorySelection.categoryID"
+                    :key="currentCategorySelection.categoryID + String(indicatorCountSwitch)"
                     orgchart-path='<!--{$orgchartPath}-->'>
                 </form-view-controller>
             </div>

@@ -41,8 +41,7 @@ export default {
         'currentCategoryIndicatorTotal'
     ],
     mounted() {
-        console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID)
-        console.log(this.currCategoryID, this.currSubformID);
+        console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID, this.currentCategoryIndicatorTotal);
     },
     provide() {
         return {
@@ -64,23 +63,9 @@ export default {
     computed: {
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
-            let item = this.listItems[ID];
-            return this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
-        }, /*
-        categoryDescription() {
-            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
-        },
-        workflow() {
-            return parseInt(this.currentCategorySelection.workflowID) === 0 ?
-            `<span style="color: red">No workflow. Users will not be able to select this form.</span>` :
-            `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
-        },
-        isSubForm(){
-            return this.currentCategorySelection.parentID !== '';
-        },
-        isNeedToKnow(){
-            return parseInt(this.currentCategorySelection.needToKnow) === 1;
-        }, */
+            let item = this.listItems[ID] || '';
+            return item !== '' && this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
+        }, 
         allListItemsAreAdded() {
             return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
         },
@@ -238,7 +223,7 @@ export default {
                     if(closestLI_id !== null) {
                         parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
                     } else {
-                        console.log('got a null id'); //it's at the end
+                        //it's at the end
                         parentEl.append(document.getElementById(draggedElID));
                     }
                     //check the new indexes
@@ -275,9 +260,9 @@ export default {
     },
     watch: {
         allListItemsAreAdded(newVal, oldVal){
-            console.log('watch triggered, all items have been added');
+            console.log('watch triggered, allListItemsAreAdded (New/Old value): ', newVal, oldVal);
             /*
-            //this would update legacy sort to from prev sort val to new index based value.  NOTE: possibly just use manual 'apply changes' btn
+            //this would auto update legacy sort to from prev sort val to new index based value.
             if(newVal===true) {
                 if (this.sortValuesToUpdate.length > 0) {
                     let updateSort = [];
@@ -360,13 +345,12 @@ export default {
         </div>
 
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-        <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
-            <div style="display:flex; flex-direction: column; width: 100%;">
+        <div style="display:flex; flex-direction: column; width: 100%;">
+        
+            <!-- TOP INFO PANEL -->
+            <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
 
-                <!-- NOTE: TOP INFO PANEL -->
-                <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
-
-
+            <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
                 <!-- ENTIRE FORM EDIT / PREVIEW -->
                 <div v-if="selectedFormNode===null" id="form_entry_and_preview">
                     <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
@@ -406,7 +390,7 @@ export default {
                         </form-editing-display>
                     </div>
                 </div>
-            </div>
-        </template>
+            </template>
+        </div>
     </div>`
 }

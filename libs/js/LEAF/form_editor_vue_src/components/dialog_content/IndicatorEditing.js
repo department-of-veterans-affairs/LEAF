@@ -39,7 +39,7 @@ export default {
             is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive)===1 || false,
             parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? 
                     parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
-            sort: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.sort) || 0,
+            sort: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.sort) || null,
             //checkboxes input
             singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
                 this.ajaxIndicatorByID[this.currIndicatorID].options : '',
@@ -69,7 +69,8 @@ export default {
         'selectNewCategory',
         'updateCategoriesProperty',
         'newIndicatorParentID',
-        'truncateText'
+        'truncateText',
+        'toggleIndicatorCountSwitch'
     ],
     provide() {
         return {
@@ -81,11 +82,15 @@ export default {
         GridCell
     },
     mounted() {
+        console.log('MOUNT IE');
         if (this.isEditingModal === true) {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
                 this.isLoadingParentIDs = false;
             });
+        }
+        if(this.sort===null){
+            this.sort = this.newQuestionSortValue;
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
             $('#advNameEditor').click();
@@ -121,11 +126,19 @@ export default {
         },
         descrCharsRemaining(){
             return Math.max(50 - this.description.length, 0)
+        },
+        newQuestionSortValue(){
+            const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
+            //set default sort to last question in current depth
+            const sortVal = (this.parentID===null) ?
+                this.ajaxFormByCategoryID.length :                                 //new sections/pages
+                Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
+            console.log(nonSectionSelector, sortVal)
+            return sortVal;
         }
     },
     methods: {
         toggleShortlabel() {
-            console.log(this.showShortLabel)
             this.showShortLabel = !this.showShortLabel;
         },
         getFormParentIDs() {
@@ -155,7 +168,6 @@ export default {
             }
         },
         onSave(){
-            console.log('clicked indicator-editing save');
             //check for advanced text formatting for name field
             const elTrumbow = document.querySelector('.trumbowyg-editor');
             if(elTrumbow !== undefined && elTrumbow !== null){
@@ -343,11 +355,6 @@ export default {
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 console.log('creating a new indicator on form ', this.formID);
-                const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
-                //set default sort to last question in current depth
-                const sortVal = (this.parentID===null) ?
-                    this.ajaxFormByCategoryID.length :                                 //new sections/pages
-                    Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
                 
                 if (+this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
@@ -379,7 +386,7 @@ export default {
                             categoryID: this.formID,
                             required: this.required ? 1 : 0,
                             is_sensitive: this.is_sensitive ? 1 : 0,
-                            sort: sortVal,
+                            sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
                         success: () => {},
@@ -390,12 +397,19 @@ export default {
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 console.log('promise all:', indicatorEditingUpdates, res);
-                this.closeFormDialog();
+                
                 if (res.length > 0) {
                     vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
-                    const subnodeIndID = (this.archived===true || this.deleted===true) && 
-                            this.currIndicatorID === this.selectedNodeIndicatorID ? null : this.selectedNodeIndicatorID
+                    let subnodeIndID = '';
+                    if ((this.archived===true || this.deleted===true) && this.currIndicatorID === this.selectedNodeIndicatorID) {
+                        subnodeIndID = null;
+                        this.toggleIndicatorCountSwitch();
+                    } else {
+                        subnodeIndID =this.selectedNodeIndicatorID;
+                    } 
+
                     this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
+                    this.closeFormDialog();
                 }
             });
 

@@ -42,6 +42,7 @@ export default {
             currentCategorySelection: {},  //current record from categories object
             ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
             selectedFormNode: null,
+            indicatorCountSwitch: true,    //TEST toggle to trigger form view controller remount if the total count changes
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             currentCategoryIndicatorTotal: 0,
@@ -100,7 +101,8 @@ export default {
             openStapleFormsDialog: this.openStapleFormsDialog,
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
-            showRestoreFields: this.showRestoreFields
+            showRestoreFields: this.showRestoreFields,
+            toggleIndicatorCountSwitch: this.toggleIndicatorCountSwitch
         }
     },
     components: {
@@ -148,12 +150,14 @@ export default {
         }
     },
     methods: {
-        //general use methods
         truncateText(str, maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
         addOrgSelector(selectorType) {
             this.orgSelectorClassesAdded[selectorType] = true;
+        },
+        toggleIndicatorCountSwitch() {
+            this.indicatorCountSwitch = !this.indicatorCountSwitch;
         },
         //DB GET
         getCategoryListAll() {
@@ -271,6 +275,7 @@ export default {
                 }).catch(err => console.log('error getting form info: ', err));
 
                 const formID = this.currSubformID || this.currCategoryID;
+                console.log('formID nodeID', formID, this.selectedNodeIndicatorID, this.currIndicatorID)
                 this.getStapledFormsByCurrentCategory(formID).then(res => this.ajaxSelectedCategoryStapled = res);
 
             } else {  //nav to form card browser.

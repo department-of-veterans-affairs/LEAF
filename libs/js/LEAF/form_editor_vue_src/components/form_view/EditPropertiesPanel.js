@@ -1,14 +1,14 @@
 export default {
     data() {
         return {
-            categoryName: this.currentCategorySelection.categoryName,
-            categoryDescription: this.currentCategorySelection.categoryDescription,
-            workflowID: parseInt(this.currentCategorySelection.workflowID),
-            description: this.currentCategorySelection.description || '',
-            needToKnow: parseInt(this.currentCategorySelection.needToKnow),
-            sort: parseInt(this.currentCategorySelection.sort),
-            visible: parseInt(this.currentCategorySelection.visible),
-            type: this.currentCategorySelection.type,
+            categoryName: this.currentCategorySelection?.categoryName || 'Untitled',
+            categoryDescription: this.currentCategorySelection?.categoryDescription || '',
+            workflowID: parseInt(this.currentCategorySelection?.workflowID) || 0,
+            description: this.currentCategorySelection?.description || '',
+            needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
+            sort: parseInt(this.currentCategorySelection?.sort) || 0,
+            visible: parseInt(this.currentCategorySelection?.visible) || 0,
+            type: this.currentCategorySelection?.type || '',
             formID: this.currSubformID || this.currCategoryID
         }
     },
@@ -205,11 +205,11 @@ export default {
         <div class="form-id">ID: {{currCategoryID}}
             <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
         </div>
-        <label for="categoryName">Name (up to 50 characters)</label>
+        <label for="categoryName">Form name (up to 50 characters)</label>
         <input id="categoryName" type="text" maxlength="50" v-model="categoryName" />
         
-        <label for="description">Form description (up to 255 characters)</label>
-        <textarea id="description" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
+        <label for="categoryDescription">Form description (up to 255 characters)</label>
+        <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
     </div>
     <div id="edit-properties-other-properties">
         <template v-if="!isSubForm">
