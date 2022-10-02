@@ -1,9 +1,6 @@
-/*
-
 export default {
     data() {
         return {
-            initialFocusElID: 'name',
             categoryName: this.currentCategorySelection.categoryName,
             categoryDescription: this.currentCategorySelection.categoryDescription,
             workflowID: parseInt(this.currentCategorySelection.workflowID),
@@ -25,15 +22,37 @@ export default {
         'currentCategorySelection',
         'currentCategoryIsSensitive',
         'updateCategoriesProperty',
+        'editPermissionsClicked',
         'closeFormDialog'
 	],
     computed: {
-        isSubform() {
+        categoryDescriptionDisplay() {
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
+        },
+        workflow() {
+            return parseInt(this.currentCategorySelection.workflowID) === 0 ?
+            `<span style="color: red">No workflow. Users will not be able to select this form.</span>` :
+            `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
+        },
+        isSubForm(){
             return this.currentCategorySelection.parentID !== '';
+        },
+        isNeedToKnow(){
+            return parseInt(this.needToKnow) === 1;
+        },
+        changesPending() {
+            const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
+            const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
+            const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
+            const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
+            const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
+            const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
+            const typeChanged = this.type !== this.currentCategorySelection.type;
+            const changes = [
+                nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, sortChanged, visibleChanged, typeChanged
+            ];
+            return changes.some(c => c === true);
         }
-    },
-    mounted() {
-        document.getElementById(this.initialFocusElID).focus();
     },
     methods: {
         updateWorkflowDescription() {
@@ -181,86 +200,77 @@ export default {
                 });
         }
     },
-    template: `<table id="edit-properties-modal">
-        <tr> <!--'b', 'i', 'u', 'ol', 'ul', 'li', 'br', 'p', 'table', 'td', 'tr', 'thead', 'tbody', 'span', 'strong', 'em', 'colgroup', 'col'-->
-            <td>Name</td>
-            <td>
-                <input id="name" type="text" maxlength="50" v-model="categoryName" />
-            </td>
-        </tr>
-        <tr>
-            <td>Description</td>
-            <td>
-                <textarea id="description" maxlength="255" v-model="categoryDescription">
-                </textarea>
-            </td>
-        </tr>
-        <template v-if="!isSubform">
-            <tr>
-                <td>Workflow</td>
-                <td id="container_workflowID">
-                    <select v-if="ajaxWorkflowRecords.length > 0" 
-                        id="workflowID" name="select-workflow" 
+    template: `<div id="edit-properties-panel">
+    <div id="edit-properties-description">
+        <div class="form-id">ID: {{currCategoryID}}
+            <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
+        </div>
+        <label for="categoryName">Name (up to 50 characters)</label>
+        <input id="categoryName" type="text" maxlength="50" v-model="categoryName" />
+        
+        <label for="description">Form description (up to 255 characters)</label>
+        <textarea id="description" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
+    </div>
+    <div id="edit-properties-other-properties">
+        <template v-if="!isSubForm">
+            <div style="display:flex;">
+                <button id="editFormPermissions" class="btn-general"
+                    style="width: fit-content;"
+                    @click="editPermissionsClicked">
+                    Edit Collaborators
+                </button>
+                <div v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</div>
+                <button v-else class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
+            </div>
+            <div class="panel-properties">
+                <template v-if="ajaxWorkflowRecords.length > 0">
+                    <label for="workflowID">Workflow&nbsp;
+                    <select id="workflowID" name="select-workflow" 
                         title="select workflow"
                         v-model.number="workflowID"
                         @change="updateWorkflowDescription">
                         <option value="0" :selected="workflowID===0">No Workflow</option>
-                        <template v-for="r in ajaxWorkflowRecords">
+                        <template v-for="r in ajaxWorkflowRecords" :key="r.workflowID">
                             <option v-if="parseInt(r.workflowID) > 0"
                                 :value="r.workflowID"
                                 :selected="workflowID===parseInt(r.workflowID)">
-                                ID#{{r.workflowID}}: {{truncateText(r.description)}}
+                                ID#{{r.workflowID}}: {{truncateText(r.description, 26)}}
                             </option>
                         </template>
-                    </select>
-                    <span v-else style="color: red">A workflow must be set up first</span>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" 
-                    title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information." />
-                    Need to Know mode  
-                </td>
-                <td>
-                    <select id="needToKnow" title="Need To Know" v-model.number="needToKnow" :style="{width: currentCategoryIsSensitive ? '100%' : 'auto'}">
-                        <option v-if="!currentCategoryIsSensitive" value="0" :selected="needToKnow===0">Off</option>
-                        <option value="1" :selected="currentCategoryIsSensitive===true || needToKnow===1">
-                        {{currentCategoryIsSensitive ? 'Forced on because sensitive fields are present' : 'On'}}
-                        </option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" 
-                    title="When hidden, users will not be able to select this form as an option." />
-                    Availability 
-                </td>
-                <td>
+                    </select></label>
+                </template>
+                <div v-else style="color: #d00; width: 100%;">A workflow must be set up first</div>
+
+                <label for="availability">Availability
+                    <span v-if="workflowID===0 && visible===1" title="this form will not be selectable without a workflow">⚠️</span>&nbsp;
                     <select id="availability" title="Select Availability" v-model.number="visible">
                         <option value="1" :selected="visible===1">Available</option>
                         <option value="0" :selected="visible===0">Hidden</option>
                     </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Sort Priority</td>
-                <td><input id="sort" type="number" v-model.number="sort"/></td>
-            </tr>
-            <tr>
-                <td>
-                    <img src="../../libs/dynicons/?img=emblem-notice.svg&w=16" 
-                    title="Change type of form" />
-                    Type  
-                </td>
-                <td>
-                    <select id="formType" title="Change type of form" v-model="type" >
-                        <option value="" :selected="type===''">Standard</option>
-                        <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
-                    </select>
-                </td>
-            </tr>
+                </label>
+
+                <label for="categorySort">Sort&nbsp;
+                    <input id="categorySort" type="number" v-model.number="sort" style="width:60px;"/>
+                </label>
+
+                <label for="formType">Form Type&nbsp;
+                <select id="formType" title="Change type of form" v-model="type" >
+                    <option value="" :selected="type===''">Standard</option>
+                    <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
+                </select></label>
+
+                <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know is forced on because sensitive fields are present</span>
+                <label v-else for="needToKnow"
+                    title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know&nbsp;
+                <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">
+                    <option value="0" :selected="!isNeedToKnow">Off</option>
+                    <option value="1" :selected="isNeedToKnow">On</option>
+                </select></label>
+            </div>
+
         </template>
-    </table>`
-} */
+        <div v-else style="margin-top: auto; padding-left: 0.75rem">This is an Internal Form</div>
+    </div>
+
+</div>`
+}

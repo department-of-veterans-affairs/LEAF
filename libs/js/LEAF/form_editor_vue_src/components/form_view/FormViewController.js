@@ -1,5 +1,6 @@
 import FormEditingDisplay from './FormEditingDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
+import EditPropertiesPanel from './EditPropertiesPanel.js';
 
 export default {
     data()  {
@@ -20,27 +21,28 @@ export default {
     },
     components: {
         FormEditingDisplay,
-        FormIndexListing
+        FormIndexListing,
+        EditPropertiesPanel
     },
     inject: [
         'APIroot',
         'CSRFToken',
         'appIsLoadingCategoryInfo',
         'ajaxFormByCategoryID',
-        'currCategoryID',
-        'currSubformID',
+        'currCategoryID',       //always a main form
+        'currSubformID',        //subform, if a subform
         'selectNewCategory',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'selectedFormNode',
         'newQuestion',
-        'editPropertiesClicked',
         'editPermissionsClicked',
-        'currentCategorySelection',
+        'currentCategorySelection',   //corresponds to currently selected form being viewed (form or subform)
         'currentCategoryIndicatorTotal'
     ],
     mounted() {
         console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID)
+        console.log(this.currCategoryID, this.currSubformID);
     },
     provide() {
         return {
@@ -64,13 +66,7 @@ export default {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID];
             return this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
-        },
-        formName() {
-            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryName) || 'Untitled';
-        },
-        formCatID() {
-            return this.currentCategorySelection.categoryID;
-        },
+        }, /*
         categoryDescription() {
             return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
         },
@@ -80,12 +76,11 @@ export default {
             `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
         },
         isSubForm(){
-            console.log('CURR CAT SELECTION', this.currentCategorySelection);
             return this.currentCategorySelection.parentID !== '';
         },
         isNeedToKnow(){
             return parseInt(this.currentCategorySelection.needToKnow) === 1;
-        },
+        }, */
         allListItemsAreAdded() {
             return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
         },
@@ -320,12 +315,13 @@ export default {
     <div v-else id="form_index_and_editing">
         <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
-                id="can_update"
-                title="Apply form structure updates">Apply changes</button>
-            <div v-else id="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
-            
-            <h3 style="margin: 0; margin-bottom: 0.75em; color: black;">Form Index</h3>
+            <div style="display:flex; align-items: center;">
+                <h3 style="margin: 0; color: black;">Form Index</h3>
+                <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
+                    class="can_update"
+                    title="Apply form structure updates">Apply changes</button>
+                <div v-else class="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
+            </div>
             <div style="margin: 1em 0">
                 <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
                     @click="selectNewFormNode($event, null)" 
@@ -368,30 +364,7 @@ export default {
             <div style="display:flex; flex-direction: column; width: 100%;">
 
                 <!-- NOTE: TOP INFO PANEL -->
-                <div id="edit-properties-panel">
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="margin-bottom: 0.75rem;"><b>Form Description</b></div>
-                        <div style="margin-bottom: 0.75rem;">{{categoryDescription}}</div>
-                        <div v-if="!isSubForm" style="margin-top: auto;">
-                            <div>Workflow: <b v-html="workflow"></b></div>
-                            <div>Need to Know mode: <b :style="{color: isNeedToKnow ? '#e00' : 'black'}">
-                                {{ isNeedToKnow ? 'On' : 'Off' }}</b>
-                            </div>
-                        </div>
-                        <div v-else style="margin-top: auto;">Internal Form</div>
-                    </div>
-        
-                    <div id="form-actions" style="position: absolute; right: 0; display: flex; margin-right: 0.75rem;">
-                        <button id="editFormData" class="btn-general" style="margin-right: 0.75rem;" 
-                            @click="editPropertiesClicked">Edit Properties</button>
-        
-                        <button id="editFormPermissions" class="btn-general"
-                            @click="editPermissionsClicked">Edit Collaborators</button>
-                    </div>
-                    <div class="form-id-label">ID: {{currCategoryID}}
-                        <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
-                    </div>
-                </div>
+                <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
 
 
                 <!-- ENTIRE FORM EDIT / PREVIEW -->

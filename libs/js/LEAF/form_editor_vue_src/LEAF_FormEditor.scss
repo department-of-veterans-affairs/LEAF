@@ -4,6 +4,7 @@ $BG-DarkNavy: #162e51;
 $base_navy: #005EA2;
 $LtNavy: #1476bd;
 $charcoal: #252f3e;
+$dk-gray: #4a5778;
 $BG_LightGray: #dcdee0;
 $BG_Pearl: #f0f2fd;
 /* $BG_Pearl: #f0f2fd; */
@@ -57,6 +58,24 @@ button.btn-confirm {
     color: white;
     background-color: $base_navy;
 }
+.can_update {
+    margin: 0;
+    margin-left:auto;
+    cursor: pointer;
+    font-size: 90%;
+    padding: 0.2em 0.4em;
+    border: 2px solid $base_navy;
+    border-radius: 3px;
+    color: $base_navy;
+    font-weight: bolder;
+    background-color: white;
+
+    &:hover, &:focus, &:active {
+        background-color: $base_navy;
+        color: white;
+        border: 2px solid $base_navy !important;
+    }
+}
 
 
 
@@ -67,34 +86,35 @@ button.btn-confirm {
     margin-bottom: 1rem;
     padding: 0.5rem 0.2rem;
 
-    h2, h3 {
+    h2 {
         margin: 0;
-        
+
         a {
             text-decoration: underline;
             border-radius: 3px;
-        }
-    }
-    a {
-        text-decoration: none;
-        color: black;
-        &:hover, &:focus, &:active {
             color: black;
-            outline: 2px solid #20a0f0 !important;
+            font-size: 110%;
+
+            &:hover, &:focus, &:active {
+                color: black;
+                outline: 2px solid #20a0f0 !important;
+            }
         }
     }
+
     #form-editor-menu-toggle {
         display:flex;
         align-items: center;
-        margin-right: 0.5rem;
-        padding: 0.1em 0.4em 0.2em 0.1em;
+        margin-right: 0.75rem;
+        padding: 0.2em 0.5em 0.3em 0.2em;
         color: white;
         background-color: black;
+        border: 2px outset $charcoal;
         border-radius: 3px;
         cursor: pointer;
 
         &:hover, &:focus, &:active { /* TODO: rebuild leaf.css without the rule to rm all borders from active a and buttons */
-            border: 2px solid black !important;
+            border: 2px outset $charcoal !important;
             outline: 2px solid #20a0f0 !important;
         }
 
@@ -104,7 +124,7 @@ button.btn-confirm {
             width: 8px;
             transform: translate(0, 2px);
             color: $USWDS_Cyan;
-            margin-right: 4px;
+            margin-right: 0.5rem;
         }
     }
 
@@ -295,6 +315,7 @@ button.btn-confirm {
             padding: 1em 0.75em 0.5em 0.75em;
             border-radius: 5px;
             border: 1px solid #ccd;
+            width: -moz-fit-content; /*firefox prior to nov 2021*/
             min-width: fit-content;
             label {
                 font-weight: normal;
@@ -335,22 +356,85 @@ button.btn-confirm {
 
 /* panel where edit properties modal is accessed from */
 #edit-properties-panel {
-    position: relative; 
+    padding: 0;
+    position: relative;
     display: flex;
-    min-height: 130px;
-    margin-bottom: 1em;
+    min-height: 127px;
+    margin-bottom: 1.5em;
     background-color: white; 
-    padding: 0.75rem; 
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
-    .form-id-label {
+    > div {
+        min-width: 350px;
+        padding: 0.75rem;
+        width:50%; 
+        display:flex; 
+        flex-direction:column; 
+    }
+
+    #edit-properties-description {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width:50%;
+        height: 100%;
+        align-self: center;
+        border-right: 2px solid #667;
+
+        #categoryName {
+            width: 100%;
+            margin: 2px 0 0.75rem;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            margin-top: 2px;
+            padding: 0.2rem 0.5rem;
+            border: 1px inset #dde;
+            border-radius: 2px;
+            resize: none;
+        }
+
+    }
+
+    .form-id {
         position: absolute; 
         right: 0.75rem;
-        bottom: 0.5rem;
-        font-size: 12px;
+        top: 0.75rem;
+        font-size: 0.75rem;
+    }
+    .panel-properties{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 0.5rem 0;
+        padding: 0.5rem 0;
+        row-gap: 1rem;
+        height: 100%;
+        align-content: center;
+
+        label {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+    }
+    input {
+        padding-left: 0.5rem;
+    }
+    input, select {
+        height: 1.7rem;
+        border: 1px inset #dde;
+        border-radius: 3px;
+        font-family: 'Source Sans Pro Web','Helvetica Neue',Helvetica,'Roboto',Arial,sans-serif;
+    }
+    #workflowID, #availability, #categorySort, #formType {
+        margin-right: 1.5rem;
     }
 }
+
+
 
 /*  edit-properties modal itself */
 table#edit-properties-modal {
@@ -386,7 +470,7 @@ table#edit-properties-modal {
     position: relative;
     margin: 0 1rem 1rem 0;
     width: 340px;
-    height: 190px;
+    height: 180px;
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -447,30 +531,10 @@ div#form_content_view {
     width: 375px;
     flex: 0 0 375px;
     align-self:flex-start;
-    margin-right: 1em;
+    margin-right: 1.5rem;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-
-    #can_update {
-        position: absolute;
-        right: 0.75rem;
-        cursor: pointer;
-        font-size: 90%;
-        margin: 0;
-        padding: 0.2em 0.4em;
-        border: 2px solid $base_navy;
-        border-radius: 3px;
-        color: $base_navy;
-        font-weight: bolder;
-        background-color: white;
-
-        &:hover, &:focus, &:active {
-            background-color: $base_navy;
-            color: white;
-            border: 2px solid $base_navy !important;
-        }
-    }
 
     .section_heading {
         font-weight: bolder;
@@ -903,6 +967,16 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
         div#form_content_view {
             margin: 0;
         }
+        #edit-properties-panel {
+            flex-direction: column;
+            > div {
+                width: 100%;
+            }
+            #edit-properties-description {
+                border-right: 0;
+            }
+        }
+
         #form_entry_and_preview {
             min-width: 400px;
         }

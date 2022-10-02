@@ -536,7 +536,7 @@ export default {
                             :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
                         </select>
                         <button id="editing-format-assist" class="btn-general"
-                            title="select for assistance with format selection">
+                            title="select for assistance with format choices">
                             ℹ
                         </button>
                     </div>
@@ -572,14 +572,14 @@ export default {
             <fieldset id="indicator-editing-attributes">
                 <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
                 <div class="attribute-row">
-                    <div style="display: flex; align-items: center; margin-right: 1.25rem;">
+                    <div style="display: flex; align-items: center; margin-right: 1rem;">
                         <label class="checkable leaf_check" for="required">
                             <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
                                 @change="preventSelectionIfFormatNone" />
                             <span class="leaf_check"></span>Required
                         </label>
                     </div>
-                    <div style="display: flex; align-items: center; margin-right: 1.25rem;">
+                    <div style="display: flex; align-items: center; margin-right: 1.5rem;">
                         <label class="checkable leaf_check" for="sensitive">
                             <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
                                 @change="preventSelectionIfFormatNone" />
@@ -590,7 +590,7 @@ export default {
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0; margin-right:3px" />
                         <label for="sort">Sort Priority</label> 
                     </div>
-                    <div v-if="isEditingModal" style="margin-right: 1.25rem;">
+                    <div v-if="isEditingModal" style="margin-right: 1rem;">
                         <label class="checkable leaf_check" for="archived">
                             <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
                                 v-model="archived" @change="radioBehavior" />

@@ -1,7 +1,6 @@
 import LeafFormDialog from "./components/LeafFormDialog.js";
 import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
 import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";
-import EditPropertiesDialog from "./components/dialog_content/EditPropertiesDialog.js";
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
 import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
@@ -10,7 +9,6 @@ import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
-//import FormContentView from "./components/form_view/FormContentView";
 import FormViewController from "./components/form_view/FormViewController.js";
 
 import RestoreFields from "./components/RestoreFields.js";
@@ -82,7 +80,6 @@ export default {
             orgSelectorClassesAdded: Vue.computed(() => this.orgSelectorClassesAdded),
             //static values
             APIroot: this.APIroot,
-            editPropertiesClicked: this.editPropertiesClicked,
             editPermissionsClicked: this.editPermissionsClicked,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
@@ -117,9 +114,7 @@ export default {
         ConfirmDeleteDialog,
         ModFormMenu,
         CategoryCard,
-        //FormContentView,
         FormViewController,
-        EditPropertiesDialog,
         RestoreFields
     },
     beforeMount(){
@@ -202,7 +197,6 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}formEditor/_${formID}/stapled`,
                     success: (res) => {
-                        console.log('got stapled forms for',formID, res);
                         resolve(res);
                     },
                     error: (err) => reject(err)
@@ -264,11 +258,15 @@ export default {
             if (catID !== null) {
                 this.currentCategorySelection = { ...this.categories[catID]};
                 this.selectedNodeIndicatorID = subnodeIndID;
+                this.currentCategoryIsSensitive = false;
 
                 this.getFormByCategoryID(catID).then(res => {
                     this.ajaxFormByCategoryID = res;
                     this.ajaxFormByCategoryID.forEach(section => {
                         this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
+                        if (this.currentCategoryIsSensitive === false) {
+                            this.currentCategoryIsSensitive = this.checkSensitive(section);
+                        }
                     });
                 }).catch(err => console.log('error getting form info: ', err));
 
@@ -299,18 +297,6 @@ export default {
         },
         editPermissionsClicked() {
             console.log('clicked edit Permissions');
-        },
-        editPropertiesClicked() {
-            this.getFormByCategoryID(this.currSubformID || this.currCategoryID).then(res => {
-                this.ajaxFormByCategoryID = res;
-                this.currentCategoryIsSensitive = false;
-                res.forEach(formSection => {
-                    if (this.currentCategoryIsSensitive === false) {
-                        this.currentCategoryIsSensitive = this.checkSensitive(formSection);
-                    }
-                });
-                this.openEditProperties();
-            }).catch(err => console.log('error updating category information', err));
         },
         editIndicatorPrivileges() {
             console.log('clicked edit privileges');
@@ -370,11 +356,6 @@ export default {
                 this.setFormDialogComponent('advanced-options-dialog');
                 this.showFormDialog = true;   
             }).catch(err => console.log('error getting indicator information', err));
-        },
-        openEditProperties() {
-            this.setCustomDialogTitle('<h2>Edit Properties</h2>');
-            this.setFormDialogComponent('edit-properties-dialog');
-            this.showFormDialog = true;  
         },
         openNewFormDialog() {
             const titleHTML = this.currCategoryID === null ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
