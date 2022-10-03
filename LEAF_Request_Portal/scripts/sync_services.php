@@ -35,4 +35,6 @@ $tag = new Orgchart\Tag($db_phonebook, $login);
 $group_portal = new Group($db, $login);
 $service_portal = new Service($db, $login);
 $system_portal = new System($db, $login);
-$system_portal->syncSystem($group_portal, $service_portal, $group, $employee, $tag, $position);
+$syncing = $system_portal->syncSystem($group_portal, $service_portal, $group, $employee, $tag, $position);
+
+echo $syncing;

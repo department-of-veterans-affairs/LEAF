@@ -91,9 +91,11 @@ class Group
                     ':parentGroupID' => $group['parentGroupID'],
                     ':name' => $group['name'],);
 
-        return $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
+        $return_value = $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
                                                     VALUES (:groupID, :parentGroupID, :name)
                                                     ON DUPLICATE KEY UPDATE name=:name', $sql_vars);
+
+        return (array) $return_value;
     }
 
     /**
@@ -189,7 +191,7 @@ class Group
                                 $sql_vars);
         }
 
-        return $result;
+        return (array) $result;
     }
 
     /**
@@ -324,7 +326,7 @@ class Group
                                                     VALUES (:groupID, :userID, :backupID)
                                                     ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
 
-        return $result;
+        return (array) $result;
     }
 
     /**
@@ -432,12 +434,14 @@ class Group
      * Purpose - Get list of groups for API display
      *
      * @return array
+     *
+     * Created at: 10/3/2022, 6:54:39 AM (America/New_York)
      */
     public function getGroupsList(): array
     {
         $res = $this->db->query('SELECT groupID, name FROM `groups` WHERE groupID > 1 AND parentGroupID IS NULL ORDER BY name', array());
 
-        return $res;
+        return (array) $res;
     }
 
     /**
@@ -462,10 +466,14 @@ class Group
 
     /**
      * Returns formatted group name.
-     * @param string $groupID - The group id to find the formatted name of
+     *
+     * @param int $groupId
+     *
      * @return string
+     *
+     * Created at: 10/3/2022, 6:55:31 AM (America/New_York)
      */
-    public function getGroupName($groupId)
+    public function getGroupName(int $groupId): string
     {
         $sql_vars = array(":groupID" => $groupId);
         $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $sql_vars);

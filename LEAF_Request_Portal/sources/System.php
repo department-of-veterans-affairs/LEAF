@@ -923,17 +923,19 @@ class System
     }
 
     /**
-     * [Description for syncSystem]
      *
      * @param \Group $org_group
      * @param \Service $org_service
-     * @param array $nexus
+     * @param \OrgChart\Group $nexus_group
+     * @param \OrgChart\Employee $nexus_employee
+     * @param \OrgChart\Tag $nexus_tag
+     * @param \OrgChart\Position $nexus_position
      *
-     * @return void
+     * @return string
      *
-     * Created at: 9/14/2022, 7:27:09 AM (America/New_York)
+     * Created at: 10/3/2022, 6:59:30 AM (America/New_York)
      */
-    public function syncSystem(\Group $org_group, \Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): void
+    public function syncSystem(\Group $org_group, \Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): string
     {
         $nexus_services = array();
         $nexus_chiefs = array();
@@ -942,16 +944,12 @@ class System
         $counter = 0;
         $group_counter = 0;
         $chief_counter = 0;
-        $query_counter = 0;
 
         // update services and service chiefs
         $services = $nexus_group->listGroupsByTag('service');
-        $query_counter++;
+
         foreach ($services as $service){
             $leader = $nexus_position->findRootPositionByGroupTag($nexus_group->getGroupLeader($service['groupID']), $nexus_tag->getParent('service'));
-            $query_counter++;
-            $query_counter++;
-            $query_counter++;
 
             $nexus_services[$counter]['serviceID'] = $service['groupID'];
             $nexus_services[$counter]['service'] = $service['groupTitle'];
@@ -960,8 +958,6 @@ class System
 
             $leaderGroupID = $nexus_group->getGroupLeader($service['groupID']);
             $serviceEmployee = $nexus_position->getEmployees($leaderGroupID);
-            $query_counter++;
-            $query_counter++;
 
             foreach($serviceEmployee as $employee){
                 $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
@@ -983,7 +979,6 @@ class System
 
             if ($service['groupID'] == $nexus_services[$counter]['groupID']) {
                 $chiefs = $org_service->getChiefs($service['groupID']);
-                $query_counter++;
 
                 foreach ($chiefs as $chief) {
                     $nexus_users[$group_counter]['userID'] = $chief['userID'];
@@ -999,16 +994,12 @@ class System
 
         $portal_services = $org_service->getAllQuadrads();
         $portal_chiefs = $org_service->getAllChiefs();
-        $query_counter++;
-        $query_counter++;
 
-        $query_counter += $this->processServices($portal_services, $portal_chiefs, $nexus_services, $nexus_chiefs, $org_service);
+        $this->processServices($portal_services, $portal_chiefs, $nexus_services, $nexus_chiefs, $org_service);
 
         // update groups and users
         $groups = $nexus_group->listGroupsByTag($nexus_tag->getParent('service'));
         $counter = 0;
-        $query_counter++;
-        $query_counter++;
 
         foreach ($groups as $group) {
             $nexus_groups[$counter]['groupID'] = $group['groupID'];
@@ -1016,11 +1007,8 @@ class System
             $nexus_groups[$counter]['name'] = $group['groupTitle'];
 
             $leaderGroupID = $nexus_group->getGroupLeader($group['groupID']);
-            $query_counter++;
 
             $employees = array_merge($nexus_position->getEmployees($leaderGroupID), $nexus_group->listGroupEmployees($group['groupID']));
-            $query_counter++;
-            $query_counter++;
 
             foreach ($employees as $employee) {
                 $nexus_users[$group_counter]['userID'] = $employee['userName'];
@@ -1044,7 +1032,6 @@ class System
         }
 
         $groups = $this->getOrgchartImportTags($nexus_group);
-        $query_counter++;
 
         foreach ($groups as $group) {
             $nexus_groups[$counter]['groupID'] = $group['groupID'];
@@ -1052,11 +1039,8 @@ class System
             $nexus_groups[$counter]['name'] = $group['groupTitle'];
 
             $leaderGroupID = $nexus_group->getGroupLeader($group['groupID']);
-            $query_counter++;
 
             $employees = array_merge($nexus_position->getEmployees($leaderGroupID), $nexus_group->listGroupEmployees($group['groupID']));
-            $query_counter++;
-            $query_counter++;
 
             foreach ($employees as $employee) {
                 $nexus_users[$group_counter]['userID'] = $employee['userName'];
@@ -1066,7 +1050,7 @@ class System
                 $group_counter++;
 
                 $backups = $nexus_employee->getBackups($employee['empUID']);
-                $query_counter++;
+
                 foreach ($backups as $backup) {
                     $nexus_users[$group_counter]['userID'] = $backup['userName'];
                     $nexus_users[$group_counter]['groupID'] = $group['groupID'];
@@ -1081,13 +1065,9 @@ class System
         $portal_groups = $org_group->getAllGroups();
         $portal_users = $org_group->getAllUsers();
 
-        $query_counter++;
-        $query_counter++;
+        $this->processGroups($portal_groups, $portal_users, $nexus_groups, $nexus_users, $org_group);
 
-        $query_counter += $this->processGroups($portal_groups, $portal_users, $nexus_groups, $nexus_users, $org_group);
-
-        echo 'Total number of queries run ' . $query_counter . '<br />';
-        echo 'Syncing has finished. You are set to go.';
+        return 'Syncing has finished. You are set to go.';
     }
 
     /**
@@ -1099,21 +1079,19 @@ class System
      * @param array $nexus_chiefs
      * @param \Service $org_service
      *
-     * @return int
+     * @return void
      *
      * Created at: 9/14/2022, 4:12:49 PM (America/New_York)
      */
-    private function processServices(array $portal_services, array $portal_chiefs, array $nexus_services, array $nexus_chiefs, \Service $org_service): int
+    private function processServices(array $portal_services, array $portal_chiefs, array $nexus_services, array $nexus_chiefs, \Service $org_service): void
     {
-        $query_counter = 0;
         // find service records to delete on portal side
         foreach($portal_services as $service) {
             if ($this->searchArray($nexus_services, $service)) {
                 // service exists do nothing
             } else {
                 // service does not exist remove from portal db
-                echo 'The service \'' . $service['service'] . '\' has been removed.<br/>';
-                $query_counter++;
+                //echo 'The service \'' . $service['service'] . '\' has been removed.<br/>';
                 $org_service->removeSyncService($service['serviceID']);
             }
         }
@@ -1124,8 +1102,7 @@ class System
                 // service exists do nothing
             } else {
                 // service does not exist add it to the portal db
-                echo 'The service \'' . $service['service'] . '\' was added.<br/>';
-                $query_counter++;
+                //echo 'The service \'' . $service['service'] . '\' was added.<br/>';
                 $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
             }
         }
@@ -1141,9 +1118,8 @@ class System
                 if ($chief['locallyManaged'] && $chief['active']) {
                     // this chief is locally managed and is active leave it here, do nothing
                 } else {
-                    echo 'The Service Chief with an userID of \'' . $chief['serviceID'] . '-' . $chief['userID'] . '\' was removed.<br/>';
-                    $query_counter++;
-                    $test = $org_service->removeChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
+                    //echo 'The Service Chief with an userID of \'' . $chief['serviceID'] . '-' . $chief['userID'] . '\' was removed.<br/>';
+                    $org_service->removeChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
                 }
             }
         }
@@ -1154,27 +1130,34 @@ class System
                 // chief exists do nothing
             } else {
                 // chief does not exist add them now
-                echo 'The Service Chief with userID of \'' . $chief['userID']. '\' was added.<br/>';
-                $query_counter++;
+                //echo 'The Service Chief with userID of \'' . $chief['userID']. '\' was added.<br/>';
                 $org_service->importChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
             }
         }
-
-        return $query_counter;
     }
 
-    private function processGroups(array $portal_groups, array $portal_users, array $nexus_groups, array $nexus_users, \Group $org_group): int
+    /**
+     * [Description for processGroups]
+     *
+     * @param array $portal_groups
+     * @param array $portal_users
+     * @param array $nexus_groups
+     * @param array $nexus_users
+     * @param \Group $org_group
+     *
+     * @return void
+     *
+     * Created at: 10/3/2022, 7:02:32 AM (America/New_York)
+     */
+    private function processGroups(array $portal_groups, array $portal_users, array $nexus_groups, array $nexus_users, \Group $org_group): void
     {
-        $query_counter = 0;
         // find group records to delete on portal side
         foreach($portal_groups as $group) {
             if ($this->searchArray($nexus_groups, $group, false)) {
                 // group exists do nothing
             } else {
                 // group does not exist remove from portal db
-                echo 'The group \'' . $group['name'] . '\' has been removed<br/>';
-                $query_counter++;
-                $query_counter++;
+                //echo 'The group \'' . $group['name'] . '\' has been removed<br/>';
                 $org_group->removeSyncGroup($group['groupID']);
             }
         }
@@ -1185,8 +1168,7 @@ class System
                 // group exists do nothing
             } else {
                 // group does not exist add it to the portal db
-                echo 'The group \'' . $group['name'] . '\' has been added<br/>';
-                $query_counter++;
+                //echo 'The group \'' . $group['name'] . '\' has been added<br/>';
                 $org_group->syncImportGroup($group);
             }
         }
@@ -1205,8 +1187,7 @@ class System
                     if ($user['backupID'] != '' && $this->imABackup($portal_users, $user)) {
                         // I'm a backup, do nothing
                     } else {
-                        echo 'User with userID of \'' . $user['userID'] . '\' and a groupID of ' . $user['groupID'] . ' has been removed.<br/>';
-                        $query_counter++;
+                        //echo 'User with userID of \'' . $user['userID'] . '\' and a groupID of ' . $user['groupID'] . ' has been removed.<br/>';
                         $org_group->removeUser($user['userID'], $user['groupID'], $user['backupID']);
                     }
 
@@ -1223,13 +1204,10 @@ class System
             } else {
                 // user does not exist add them now
                 //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
-                echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
-                $query_counter++;
+                //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
                 $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
             }
         }
-
-        return $query_counter;
     }
 
     /**
