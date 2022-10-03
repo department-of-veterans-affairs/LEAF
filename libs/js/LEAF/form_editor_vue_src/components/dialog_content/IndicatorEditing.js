@@ -400,13 +400,12 @@ export default {
                 
                 if (res.length > 0) {
                     vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
-                    let subnodeIndID = '';
-                    if ((this.archived===true || this.deleted===true) && this.currIndicatorID === this.selectedNodeIndicatorID) {
-                        subnodeIndID = null;
+                    const subnodeIndID = (this.archived===true || this.deleted===true) && 
+                            this.currIndicatorID === this.selectedNodeIndicatorID ? null: this.selectedNodeIndicatorID
+                        
+                    if (this.archived === true || this.deleted === true) {
                         this.toggleIndicatorCountSwitch();
-                    } else {
-                        subnodeIndID =this.selectedNodeIndicatorID;
-                    } 
+                    }
 
                     this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
                     this.closeFormDialog();

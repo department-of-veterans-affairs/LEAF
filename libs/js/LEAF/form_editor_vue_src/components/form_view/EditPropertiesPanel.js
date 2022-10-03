@@ -249,7 +249,7 @@ export default {
                     </select>
                 </label>
 
-                <label for="categorySort">Sort&nbsp;
+                <label for="categorySort" title="-128 to 127">Sort&nbsp;
                     <input id="categorySort" type="number" v-model.number="sort" style="width:60px;"/>
                 </label>
 
