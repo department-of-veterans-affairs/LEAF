@@ -52,6 +52,12 @@ export default {
                 nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, sortChanged, visibleChanged, typeChanged
             ];
             return changes.some(c => c === true);
+        },
+        formNameCharsRemaining() {
+            return 50 - this.categoryName.length;
+        },
+        formDescrCharsRemaining() {
+            return 255 - this.categoryDescription.length;
         }
     },
     methods: {
@@ -205,10 +211,10 @@ export default {
         <div class="form-id">ID: {{currCategoryID}}
             <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
         </div>
-        <label for="categoryName">Form name (up to 50 characters)</label>
+        <label for="categoryName">Form name ({{formNameCharsRemaining}})</label>
         <input id="categoryName" type="text" maxlength="50" v-model="categoryName" />
         
-        <label for="categoryDescription">Form description (up to 255 characters)</label>
+        <label for="categoryDescription">Form description ({{formDescrCharsRemaining}})</label>
         <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
     </div>
     <div id="edit-properties-other-properties">
@@ -241,7 +247,7 @@ export default {
                 </template>
                 <div v-else style="color: #d00; width: 100%;">A workflow must be set up first</div>
 
-                <label for="availability">Availability
+                <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
                     <span v-if="workflowID===0 && visible===1" title="this form will not be selectable without a workflow">⚠️</span>&nbsp;
                     <select id="availability" title="Select Availability" v-model.number="visible">
                         <option value="1" :selected="visible===1">Available</option>
@@ -262,14 +268,15 @@ export default {
                 <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know is forced on because sensitive fields are present</span>
                 <label v-else for="needToKnow"
                     title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know&nbsp;
-                <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">
-                    <option value="0" :selected="!isNeedToKnow">Off</option>
-                    <option value="1" :selected="isNeedToKnow">On</option>
-                </select></label>
+                    <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">
+                        <option value="0" :selected="!isNeedToKnow">Off</option>
+                        <option value="1" :selected="isNeedToKnow">On</option>
+                    </select>
+                </label>
             </div>
 
         </template>
-        <div v-else style="margin-top: auto; padding-left: 0.75rem">This is an Internal Form</div>
+        <div v-else style="margin-top: auto;">This is an Internal Form</div>
     </div>
 
 </div>`

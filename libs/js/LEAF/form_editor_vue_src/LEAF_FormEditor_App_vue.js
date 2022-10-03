@@ -272,6 +272,7 @@ export default {
                             this.currentCategoryIsSensitive = this.checkSensitive(section);
                         }
                     });
+                    document.getElementById(catID).focus(); //focus the main form
                 }).catch(err => console.log('error getting form info: ', err));
 
                 const formID = this.currSubformID || this.currCategoryID;

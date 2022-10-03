@@ -60,18 +60,40 @@ export default {
             elFilter.innerHTML = catName || 'untitled';
             const name = this.truncateText(elFilter.innerText, len);
             return name;
-        }
+        },
+        shortFormNameStripped(formName, len) { //NOTE: XSSHelpers global
+            let name = formName || 'Untitled';
+            name = XSSHelpers.stripAllTags(name);
+            return this.truncateText(name, len);
+        },
     },
     template: `<header id="form-editor-header">
-        <button
+        <button type="button"
             :title="(clickedOn ? 'close ' : 'pin ') + 'menu'"
             id="form-editor-menu-toggle" 
             @click="toggleMenu" @mouseenter="showMenu">
             <span>{{clickedOn ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
         </button>
-        <h2><a href="#" @click="selectNewCategory(null)" title="View All Forms">Form Editor</a></h2>
-        <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1.2rem; font-weight:bold;">❯</div>
-        <h2 v-if="currCategoryID!==null">{{categories[currCategoryID].categoryName}}</h2>
+        <h2>
+            <button type="button" 
+                @click="selectNewCategory(null)" title="View All Forms">
+                <span class="nav-icon">🗃️</span>
+                Form Editor
+            </button>
+        </h2>
+        <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</div>
+        <h2 v-if="currCategoryID!==null">
+            <button type="button" :id="currCategoryID"
+                @click="selectMainForm" title="main form">
+                <span class="nav-icon">📂</span>
+                {{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}
+            </button>
+        </h2>
+        <!--<template v-if="internalForms.length > 0">
+            <div style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</div>
+            <ul><span class="nav-icon">📋</span>Internal Forms</ul>
+        </template>-->
+
         <nav v-if="menuOpen" id="form-editor-nav" class="mod-form-menu-nav">
             <ul v-if="currCategoryID===null" @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>
@@ -98,11 +120,6 @@ export default {
             <ul v-else @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>
                     <ul><!-- MAIN AND INTERNAL FORMS -->
-                        <li>
-                            <a href="#" :id="currCategoryID" @click="selectMainForm" title="select form">
-                            {{formName(categories[currCategoryID].categoryName)}}<span>📂</span>
-                            </a>
-                        </li>
                         <li v-for="i in internalForms" :key="i.categoryID">
                             <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
                             {{formName(i.categoryName, 20)}}<span>📋</span>

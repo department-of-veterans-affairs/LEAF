@@ -124,8 +124,8 @@ export default {
             }
             return fullFormat;
         },
-        descrCharsRemaining(){
-            return Math.max(50 - this.description.length, 0)
+        shortlabelCharsRemaining(){ //short label
+            return 50 - this.description.length;
         },
         newQuestionSortValue(){
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
@@ -535,7 +535,7 @@ export default {
             <div v-if="name.length > shortLabelTrigger || showShortLabel===true">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <label for="description">What would you call this field in a spreadsheet?</label>
-                    <div>{{descrCharsRemaining}}</div>
+                    <div>{{shortlabelCharsRemaining}}</div>
                 </div>
                 <input type="text" id="description" v-model="description" maxlength="50" />
             </div>
@@ -603,7 +603,7 @@ export default {
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0; margin-right:3px" />
                         <label for="sort">Sort Priority</label> 
                     </div>
-                    <div v-if="isEditingModal" style="margin-right: 1rem;">
+                    <div v-if="isEditingModal" style="margin: 0 1rem 0 1.25rem;">
                         <label class="checkable leaf_check" for="archived">
                             <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
                                 v-model="archived" @change="radioBehavior" />
