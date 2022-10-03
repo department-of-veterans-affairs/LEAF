@@ -107,10 +107,6 @@ public class formsWorkflowPart2 extends setupFramework {
 		private void selectCurrentFormByXpath() {	
 			waitMethods.waiter(waitMethods.w1k);  //      
 			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-			
-			//WebElement ele = driver.findElement(By.xpath("//div[text() = 'AUT']"));
-			//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
-			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[2]"));
 	    	highlightElement.highLightElement(driver, ele);
 	    	ele.click();
 	   		waitMethods.waiter(waitMethods.w300);
