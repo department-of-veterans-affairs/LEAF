@@ -64,7 +64,7 @@ export default {
         shortFormNameStripped(formName, len) { //NOTE: XSSHelpers global
             let name = formName || 'Untitled';
             name = XSSHelpers.stripAllTags(name);
-            return this.truncateText(name, len);
+            return this.truncateText(name, len).trim();
         },
     },
     template: `<header id="form-editor-header">
@@ -74,21 +74,20 @@ export default {
             @click="toggleMenu" @mouseenter="showMenu">
             <span>{{clickedOn ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
         </button>
-        <h2>
-            <button type="button" 
-                @click="selectNewCategory(null)" title="View All Forms">
-                <span class="nav-icon">🗃️</span>
-                Form Editor
+        
+            <button type="button" @click="selectNewCategory(null)" title="View All Forms">
+                <h2><span class="nav-icon">🗃️</span>Form Editor</h2>
             </button>
-        </h2>
-        <div v-if="currCategoryID!==null" style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</div>
-        <h2 v-if="currCategoryID!==null">
-            <button type="button" :id="currCategoryID"
-                @click="selectMainForm" title="main form">
-                <span class="nav-icon">📂</span>
-                {{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}
+        
+        <div v-if="currCategoryID!==null" style="display:flex; align-items:center;">
+            <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
+        
+            <button type="button" :id="currCategoryID" @click="selectMainForm" title="main form">
+                <h2><span class="nav-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}
+                </h2>
             </button>
-        </h2>
+        </div>
+        
         <!--<template v-if="internalForms.length > 0">
             <div style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</div>
             <ul><span class="nav-icon">📋</span>Internal Forms</ul>

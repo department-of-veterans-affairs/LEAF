@@ -90,23 +90,20 @@ button.btn-confirm {
     h1, h2, h3 {
         margin: 0;
         @include flexcenter;
+       
+    }
+    button {
+        @include flexcenter;
+        border-radius: 3px;
+        color: black;
+        padding-left: 2px;
+        white-space: nowrap;
+        border: 2px solid $charcoal;
+        align-self: stretch;
 
-        button {
-            border-radius: 3px;
-            color: black;
-            @include flexcenter;
-            padding-left: 2px;
-            white-space: nowrap;
-            border: 2px solid $charcoal;
-
-            &:hover, &:focus, &:active {
-                color: black;
-                outline: 2px solid #20a0f0 !important;
-                border: 2px solid $charcoal !important;
-            }
-        }
-        .nav-icon {
-            font-size: 80%;
+        &:hover, &:focus, &:active { /* TODO: rebuild leaf.css without the rule to rm all borders from active a and buttons */
+            border: 2px outset $charcoal !important;
+            outline: 2px solid #20a0f0 !important;
         }
     }
 
@@ -118,14 +115,6 @@ button.btn-confirm {
         color: white;
         background-color: black;
         border: 2px outset #667;
-        border-radius: 3px;
-        align-self: stretch;
-        cursor: pointer;
-
-        &:hover, &:focus, &:active { /* TODO: rebuild leaf.css without the rule to rm all borders from active a and buttons */
-            border: 2px outset $charcoal !important;
-            outline: 2px solid #20a0f0 !important;
-        }
 
         > span {
             position: absolute;
@@ -138,6 +127,10 @@ button.btn-confirm {
             color: $USWDS_Cyan;
         }
     }
+    .nav-icon {
+        font-size: 80%;
+    }
+
 
     #form-editor-nav {
         display: flex;
@@ -145,7 +138,6 @@ button.btn-confirm {
         top: calc(100% - 2px);
 
         > ul {
-            /*padding-top: 0.5rem !important;*/
             z-index: 1;
             width: 180px;
             background-color: #e8f2ff;
@@ -202,13 +194,6 @@ button.btn-confirm {
                     }
                 }
             }
-        }
-
-
-        #stapledArea ul {
-            list-style-type: disc;
-            padding-inline-start: 35px;
-            margin-bottom: 2em;
         }
     }
 }
@@ -373,10 +358,11 @@ button.btn-confirm {
     min-height: 127px;
     margin-bottom: 1.5em;
     background-color: white;
-    border-top: 0.5rem solid $base_navy;
+    border: 4px solid $base_navy;
+    /*
     border-left: 0.75rem solid $base_navy;
     border-right: 0.75rem solid $BG-DarkNavy;
-    border-bottom: 0.5rem solid $BG-DarkNavy;
+    border-bottom: 0.5rem solid $BG-DarkNavy; */
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
@@ -964,7 +950,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
             margin: 0;
         }
         #edit-properties-panel {
-            flex-direction: column;
+            flex-direction: column-reverse;
             > div {
                 width: 100%;
             }

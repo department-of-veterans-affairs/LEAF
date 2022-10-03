@@ -218,16 +218,17 @@ export default {
         <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
     </div>
     <div id="edit-properties-other-properties">
+    <div style="display:flex;">
+        <button id="editFormPermissions" class="btn-general"
+            style="width: fit-content;"
+            @click="editPermissionsClicked">
+            Edit Collaborators
+        </button>
+        <div v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</div>
+            <button v-else class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
+        </div>
         <template v-if="!isSubForm">
-            <div style="display:flex;">
-                <button id="editFormPermissions" class="btn-general"
-                    style="width: fit-content;"
-                    @click="editPermissionsClicked">
-                    Edit Collaborators
-                </button>
-                <div v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</div>
-                <button v-else class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
-            </div>
+
             <div class="panel-properties">
                 <template v-if="ajaxWorkflowRecords.length > 0">
                     <label for="workflowID">Workflow&nbsp;
@@ -256,7 +257,7 @@ export default {
                 </label>
 
                 <label for="categorySort" title="-128 to 127">Sort&nbsp;
-                    <input id="categorySort" type="number" v-model.number="sort" style="width:60px;"/>
+                    <input id="categorySort" type="number" v-model.number="sort" min="-128" max="127" style="width:60px;"/>
                 </label>
 
                 <label for="formType">Form Type&nbsp;

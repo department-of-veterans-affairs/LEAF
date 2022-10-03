@@ -83,7 +83,8 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" :style="{minHeight: depth===0 ? '50px': 0}">
+    template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" 
+            :style="{minHeight: depth===0 ? '50px': 0, paddingLeft: depth===0 ? '0': '1rem'}">
 
             <!-- EDITING AREA FOR INDICATOR -->
             <div class="form_editing_area" 
