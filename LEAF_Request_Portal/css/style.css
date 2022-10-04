@@ -1,4 +1,4 @@
-#nav-skip-link {
+#nav-skip-link, #nav-skip-search-link {
     position: absolute;
     opacity: 0;
     color: black;
@@ -7,7 +7,7 @@
     border-radius: 2px;
     left: -9999px;
 }
-#nav-skip-link:focus, #nav-skip-link:active  {
+#nav-skip-link:focus, #nav-skip-link:active, #nav-skip-search-link:focus, #nav-skip-search-link:active  {
     opacity: 1;
     left: 0;
     z-index:100;
