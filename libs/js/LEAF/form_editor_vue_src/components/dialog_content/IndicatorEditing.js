@@ -151,20 +151,11 @@ export default {
                 });
             });
         },
-        preventSelectionIfFormatNone(event) {
-            if (event.target.id.toLowerCase() === "indicatortype") {
-                if (this.format === '' && (this.required === true || this.is_sensitive === true)) {
-                    this.required = false;
-                    this.is_sensitive = false;
-                    alert(`You can't mark a field as sensitive or required if the Input Format is "None".`);
-                }
-            } else {
-                if (this.format === '' && event.target.checked === true) {
-                    event.target.checked = false;
-                    const id = event.target.id;
-                    const text = id === 'sensitive' ? 'sensitive' : 'required';
-                    alert(`You can't mark a field as ${text} if the Input Format is "None".`);
-                }
+        preventSelectionIfFormatNone() {
+            if (this.format === '' && (this.required === true || this.is_sensitive === true)) {
+                this.required = false;
+                this.is_sensitive = false;
+                alert(`You can't mark a field as sensitive or required if the Input Format is "None".`);
             }
         },
         onSave(){
@@ -406,10 +397,9 @@ export default {
                     if (this.archived === true || this.deleted === true) {
                         this.toggleIndicatorCountSwitch();
                     }
-
                     this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
-                    this.closeFormDialog();
                 }
+                this.closeFormDialog();
             });
 
         },
