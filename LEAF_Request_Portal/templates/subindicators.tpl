@@ -27,7 +27,7 @@
             </div>
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
-            <label for="<!--{$indicator.indicatorID|strip_tags}-->">
+            <label tabIndex="0" for="<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
