@@ -49,11 +49,12 @@
         {/if}
     {/if}
 {section name=i loop=$javascripts}
-    <script type="text/javascript" src="{$javascripts[i]}"></script>
+    <script type="text/javascript" src="{$javascripts[i]}"></script>    
 {/section}
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
+<a href="#searchContainer" id="nav-skip-link">Skip to Search</a>
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}
