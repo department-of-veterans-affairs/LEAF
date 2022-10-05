@@ -21,13 +21,13 @@
                 <!--{if $depth == 0}-->
         <div class="mainlabel">
             <div>
-            <span>
+            <span tabIndex="0">
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
             </div>
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
-            <label tabIndex="0" for="<!--{$indicator.indicatorID|strip_tags}-->">
+            <label <!--{if $indicator.format !=='text' && $indicator.format !=='date'}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->

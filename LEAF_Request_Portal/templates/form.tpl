@@ -222,7 +222,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div tabindex="0" aria-label=description id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);
