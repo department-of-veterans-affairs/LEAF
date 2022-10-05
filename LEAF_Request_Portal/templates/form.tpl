@@ -5,7 +5,7 @@
     <div class="col span_3_of_5">
         <div style="background-color: white; border: 1px solid black; box-shadow: 0 2px 4px #8e8e8e">
             <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
-                <div id="progressControl" style="float: left">Form completion progress: <div id="progressBar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
+                <div id="progressControl" style="float: left">Form completion progress: <div tabIndex="0" id="progressBar" title="form progress bar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
                 <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" /> Next Question</button></div>
                 <br style="clear: both" />
