@@ -219,9 +219,7 @@ function getIndicator(indicatorID, series) {
             $("#xhrIndicator_" + indicatorID + "_" + series).fadeOut(250, function() {
                 $("#xhrIndicator_" + indicatorID + "_" + series).fadeIn(250);
             });
-            for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
-            }
+            handlePrintConditionalIndicators(formPrintConditions);
         },
         cache: false
     });
@@ -322,52 +320,142 @@ function removeBookmark() {
     });
 }
 
-function handlePrintConditionalIndicators(formPrintConditions) {
-    const conditions = formPrintConditions.conditions;
-    const format = formPrintConditions.format;
-    for (let i in conditions) {
-        const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
-        const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+const valIncludesMultiselOption = (values = [], arrOptions = []) => {
+    let result = false;
+    let vals = values.map(v => v.replaceAll('\r', '').trim());
+    vals.forEach(v => {
+        if (arrOptions.includes(v)) {
+            result = true;
+        }
+    });
+    return result;
+}
 
-        if ((format === 'dropdown' || format === 'text')
-            && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
-            //*NOTE: need format for various plugins (icheck, chosen, etc)
+function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
-            let comparison = false;
-            const val = elParentInd.innerHTML.trim();
-            const compVal = conditions[i].selectedParentValue;
-            //TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
-            switch (conditions[i].selectedOp) {
-                case '==':
-                    comparison = val === compVal;
-                    break;
-                case '!=':
-                    comparison = val !== compVal;
-                    break;
-                case '>':
-                    comparison = val > compVal;
-                    break;
-                case '<':
-                    comparison = val < compVal;
-                    break;
-                default:
-                    console.log(conditions[i].selectedOp);
-                    break;
-            }
+    const conditionalUpdateProgress = () => {
+        const headingsMissing = Array.from(document.querySelectorAll('div.printheading_missing')).length;
+        const subheadingsMissing = Array.from(document.querySelectorAll('div.printsubheading_missing')).length;
+        const remainingRequired = headingsMissing + subheadingsMissing;
+        const numberHiddenRequired = Object.keys(requiredIndicatorsHidden).length;
 
-            switch (conditions[i].selectedOutcome) {
-                case 'Hide':
-                    comparison ? elChildInd.style.display = "none" : elChildInd.style.display = "block";
-                    break;
-                case 'Show':
-                    comparison ? elChildInd.style.display = "block" : elChildInd.style.display = "none";
-                    break;
-                default:
-                    console.log(conditions[i].selectedOutcome);
-                    break;
+        if (remainingRequired === numberHiddenRequired && '<!--{$submitted}-->' == '0') {
+            $('#progressBar').progressbar('option', 'value', 100);
+            $('#progressLabel').text(100 + '%'); 
+            $('#progressSidebar').slideUp(500);
+
+            $.ajax({
+                type: 'GET',
+                url: "ajaxIndex.php?a=getsubmitcontrol&recordID=<!--{$recordID|strip_tags}-->",
+                dataType: 'text',
+                success: function(response) {
+                    $("#submitContent").empty().html(response);
+                    $("#submitContent").css({'border': '1px solid black',
+                        'text-align': 'center',
+                        'background-color': '#ffaeae'});
+                    $("#workflowcontent").css({'font-size': "80%", 'padding-top': "8px"});
+                },
+                error: function(response) {
+                    $("#xhr").html("Error: " + response);
+                },
+                cache: false
+            });
+        }
+    }
+
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
+    let requiredIndicatorsHidden = {};
+
+    for (c in formPrintConditions) {
+        const childFormat = formPrintConditions[c].format;  //current format of the controlled question
+        const childFormatIsEnabled = allowedChildFormats.some(f => f === childFormat);
+        const conditions = formPrintConditions[c].conditions;
+
+        let comparison = false;
+
+        for (let i in conditions) {
+            const parentFormat = conditions[i].parentFormat;
+
+            //dropdown element
+            const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
+            //multiselect li elements
+            const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 li`));
+            let arrParVals = [];
+            selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
+            
+            const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+            const outcome = conditions[i].selectedOutcome.toLowerCase();
+
+            if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+                const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;  //parent's current values entered into the form
+
+                let compVal = '';
+                if (parentFormat !== 'multiselect') { //parent values specified in the condition, w encoding rm'd
+                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+                } else {
+                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                    compVal = compVal.map(v => v.trim());
+                }
+
+                switch (conditions[i].selectedOp) {
+                    case '==':
+                        if (parentFormat !== 'multiselect') {
+                            comparison = comparison===false ? val === compVal : comparison;
+                        } else {
+                            comparison = comparison===false ? valIncludesMultiselOption(val, compVal) : comparison;
+                        }
+                        break;
+                    case '!=':
+                        if (parentFormat !== 'multiselect') {
+                            comparison = comparison===false ? val !== compVal : comparison;
+                        } else {
+                            comparison = comparison===false ? !valIncludesMultiselOption(val, compVal) : comparison;
+                        }
+                        break;
+                    case '>':
+                        comparison = val > compVal;
+                        break;
+                    case '<':
+                        comparison = val < compVal;
+                        break;
+                    default:
+                        console.log(conditions[i].selectedOp);
+                        break;
+                }
+
+                //headers cannot have conditions directly set on them via the editor, so only need to check subquestions
+                const elSubheadingMissing = document.querySelector(`#subIndicator_${conditions[i].childIndID}_1 div.printsubheading_missing`);
+
+                switch (outcome) {
+                    case 'hide':
+                        if(comparison===true) {
+                            if (elSubheadingMissing !== null) {
+                                requiredIndicatorsHidden[conditions[i].childIndID] = true;
+                            }
+                            elChildInd.style.display = "none";
+                            
+                        } else {
+                            elChildInd.style.display = "block";
+                        }
+                        break;
+                    case 'show':
+                        if(comparison===true) {
+                            elChildInd.style.display = "block";
+                        } else {
+                            if (elSubheadingMissing !== null) {
+                                requiredIndicatorsHidden[conditions[i].childIndID] = true;
+                            }
+                            elChildInd.style.display = "none";
+                        }
+                        break;
+                    default:
+                        console.log(conditions[i].selectedOutcome);
+                        break;
+                }
             }
         }
     }
+    conditionalUpdateProgress();
 }
 
 function openContent(url) {
@@ -398,9 +486,7 @@ function openContent(url) {
     				}
                 });
     		});
-            for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
-            }
+            handlePrintConditionalIndicators(formPrintConditions);
     	},
     	error: function(res) {
     		$('#formcontent').empty().html(res);
