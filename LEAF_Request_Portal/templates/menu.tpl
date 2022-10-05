@@ -1,14 +1,16 @@
 {if $action != ''}
-    <a href="./" class="buttonNorm"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" role="button" alt=""/>Main Page</a>
+    <a href="./" class="buttonNorm" title="nav to homepage"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
 {/if}
 <div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" tabindex="0" class="buttonNorm" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
+    <a id="button_showLinks" tabIndex="0" class="buttonNorm" title="other site links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
     <div id="headerMenu_links">
     {include file={$menu_links}}
     </div>
 </div>
 <div id="headerMenuHelp_container" style="display: inline-block">
-    <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help" aria-haspopup="true" aria-expanded="false" role="button"><img style="vertical-align: sub;" src="../libs/dynicons/?img=help-browser.svg&amp;w=16" alt="">&nbsp;Help</a>
+    <a id="button_showHelp" tabIndex="0" class="buttonNorm" title="primary admin contact information" aria-haspopup="true" aria-expanded="false" role="button">
+        <img style="vertical-align: sub;" src="../libs/dynicons/?img=help-browser.svg&amp;w=16" alt="" />&nbsp;Help
+    </a>
     <div id="headerMenu_help" tabindex="0">
     {include file={$menu_help}}
     </div>
@@ -20,24 +22,36 @@
 {/if}
 
 <script>
-    menu508($('#button_showLinks'), $('#headerMenu_links'), $('#headerMenu_links').find('a'));
-    menu508($('#button_showHelp'), $('#headerMenu_help'), $('#headerMenu_help'));
-
-    function menu508(menuButton, subMenu, subMenuButton)
-    {
-        $(menuButton).keydown(function(e) {
-            if (e.keyCode === 13) {
-                $(subMenu).css("display", "block");
-                $(menuButton).attr('aria-expanded', 'true');
-                subMenuButton.focus();
-            }
-        });
-
-        $(menuButton).focusout(function() {
-            $(subMenu).css("display", "none");
-            $(menuButton).attr('aria-expanded', 'false');
-        });
+    function focusout(e) {
+        e.stopPropagation();
+        let parEl = e.currentTarget.parentNode;
+        let anchor = parEl?.querySelector('a');
+        if (anchor) {
+            e.currentTarget.style.display = 'none';
+            anchor.setAttribute('aria-expanded', 'false');
+        }
     }
+    function toggleMenuPopup(e){
+        e.stopPropagation();
+        if(e.keyCode && (parseInt(e.keyCode)=== 32 || parseInt(e.keyCode)=== 13)) {
+            e.preventDefault();
+            let popupEl = document.querySelector('#' + e.currentTarget.id + ' + div');
+            if (popupEl) {
+                if(popupEl.style.display === '') {
+                    popupEl.style.display = 'block';
+                    e.currentTarget.setAttribute('aria-expanded', 'true');
+                } else {
+                    curDisplay = popupEl.style.display;
+                    popupEl.style.display = curDisplay === 'block' ? 'none' : 'block';
+                    e.currentTarget.setAttribute('aria-expanded', curDisplay === 'block' ? 'false' : 'true');
+                }
+            }
+        }
+    }
+    $('#button_showLinks').on('keypress', toggleMenuPopup);
+    $('#button_showHelp').on('keypress', toggleMenuPopup);
+    $('#headerMenu_links').on('focusout', focusout);
+    $('#headerMenu_help').on('focusout', focusout);
 </script>
 
 <br />

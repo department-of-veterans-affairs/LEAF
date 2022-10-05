@@ -110,7 +110,7 @@ $(function() {
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{if count($categories) > 0}-->
     <fieldset>
-        <legend tabIndex="0">Select a form from the list below</legend>
+        <legend tabIndex="0" style="color:black;">Select a form from the list below</legend>
     <!--{foreach from=$categories item=category}-->
         <label class="checkable leaf_check" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->">
         <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked leaf_check" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}--> />
