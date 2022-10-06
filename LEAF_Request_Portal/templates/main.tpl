@@ -54,7 +54,9 @@
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
+{if $smarty.get.a == ''}
 <a href="#searchContainer" id="nav-skip-link">Skip to Search</a>
+{/if}
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}

@@ -120,7 +120,7 @@ function updateProgress() {
                 $('#progressLabel').text(response + '%');
             }
             else {
-                savechange = '<div class="buttonNorm" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
+                savechange = '<button class="buttonNorm" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
                 $('#progressControl').html(savechange);
             }
         },

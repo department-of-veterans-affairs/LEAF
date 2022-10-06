@@ -25,8 +25,10 @@ function checkForm() {
 $(function() {
     <!--{if count($services) != 0}-->
     $('#service').chosen();
+    $('#service_chosen input.chosen-search-input').attr('aria-labelledby', 'service_label');
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5});
+    $('#priority_chosen input.chosen-search-input').attr('aria-labelledby', 'priority_label');
 
     $('#record').on('submit', function() {
         if(checkForm() == true) {
@@ -67,7 +69,7 @@ $(function() {
             </tr>
             <!--{if count($services) != 0}-->
             <tr>
-                <td><label for="service">Service</label></td>
+                <td><span id="service_label">Service</span></td>
                 <td>
                     <select id="service" name="service" style=" width: 150px;">
                     <option value=""></option>
@@ -81,7 +83,7 @@ $(function() {
             <input type="hidden" id="service" name="service" value="0" />
             <!--{/if}-->
             <tr>
-                <td><label for="priority">Priority</label></td>
+                <td><span id="priority_label">Priority</span></td>
                 <td>
                     <select id="priority" name="priority" style="width: 150px;">
                     <option value="-10">EMERGENCY</option>
@@ -109,8 +111,7 @@ $(function() {
         <div style="text-align: left; padding: 8px"><span>
           <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
     <!--{if count($categories) > 0}-->
-    <fieldset>
-        <legend tabIndex="0" style="color:black;">Select a form using the checkboxes below</legend>
+        <div tabIndex="0" style="color:black; padding: 0.1rem 0 0.5rem;"><b>Select a form using the checkboxes below</b></div>
     <!--{foreach from=$categories item=category}-->
         <label class="checkable leaf_check" style="float: none" for="num<!--{$category.categoryID|strip_tags}-->">
         <input name="num<!--{$category.categoryID|strip_tags|escape}-->" type="checkbox" class="ischecked leaf_check" id="num<!--{$category.categoryID|strip_tags}-->" <!--{if $category.disabled == 1}-->disabled="disabled" <!--{/if}--> />
@@ -121,7 +122,6 @@ $(function() {
         </label>
         <hr />
     <!--{/foreach}-->
-    </fieldset>
     <!--{else}-->
         <span tabindex="0" style="color: #d00;">Your forms must have an associated workflow before they can be selected here.<br /><br />Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span>
     <!--{/if}-->

@@ -27,7 +27,8 @@
             </div>
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
-            <label <!--{if $indicator.format !=='text' && $indicator.format !=='date'}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
+
+            <label <!--{if !$indicator.format|in_array:['text','date','currency','number']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
