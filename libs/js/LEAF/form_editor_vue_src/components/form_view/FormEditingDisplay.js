@@ -73,8 +73,8 @@ export default {
         bgColor() {
             return `rgb(${255-20*this.depth},${255-20*this.depth},${255-15*this.depth})`;
         },
-        suffix() {
-            return `${this.formNode.indicatorID}_${this.formNode.series}`;
+        printResponseID() {
+            return `xhrIndicator_${this.formNode.indicatorID}_${this.formNode.series}`;
         },
         required() {
             return parseInt(this.formNode.required) === 1;
@@ -83,7 +83,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="printResponse" :id="'xhrIndicator_' + suffix" 
+    template:`<div class="printResponse" :id="printResponseID" 
             :style="{minHeight: depth===0 ? '50px': 0, paddingLeft: depth===0 ? '0': '1rem'}">
 
             <!-- EDITING AREA FOR INDICATOR -->
@@ -127,7 +127,8 @@ export default {
                 </div>
 
                 <!-- NAME -->
-                <div v-html="indicatorName" class="indicator-name-preview"></div>
+                <div v-html="indicatorName" 
+                    class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                 
                 <!-- FORMAT PREVIEW -->
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">

@@ -24,7 +24,13 @@ export default {
         },
         selType() {
             return this.baseFormat.slice(this.baseFormat.indexOf('_') + 1);
-        }
+        },
+        labelSelector() {
+            return this.indicator.indicatorID + '_format_label';
+        },
+        printResponseID() {
+            return `xhrIndicator_${this.indicator.indicatorID}_${this.indicator.series}`;
+        },
     },
     mounted() {
         switch(this.baseFormat) {
@@ -36,6 +42,7 @@ export default {
                         $('#' + this.indicator.indicatorID + '_focusfix').focus();
                     }
                 });
+                document.getElementById(this.inputElID).setAttribute('aria-labelledby', this.labelSelector);
                 break;
             case 'dropdown':
                 $(`#${this.inputElID}`).chosen({
@@ -43,6 +50,7 @@ export default {
                     allow_single_deselect: true, 
                     width: '50%'
                 });
+                $(`#${this.inputElID}_chosen input.chosen-search-input`).attr('aria-labelledby', this.labelSelector);
                 break;
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
@@ -73,6 +81,7 @@ export default {
                         elEmptyOption.selected = elSelect.value === '';
                     });
                 }
+                $(`#${this.inputElID} ~ input.choices__input`).attr('aria-labelledby', this.labelSelector);
                 break;
             case 'orgchart_group':
             case 'orgchart_position':
@@ -101,7 +110,16 @@ export default {
                 this.updateGridInstances(options, this.indicator.indicatorID, this.indicator.series);
                 this.gridInstances[this.indicator.indicatorID].input();
                 break;
-            default: break;
+            case 'checkbox':
+                document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
+                break;
+            case 'checkboxes':
+            case 'radio':
+                document.querySelector(`#${this.printResponseID} .format-preview`)?.setAttribute('aria-labelledby', this.labelSelector);
+                break;
+            default: 
+                document.getElementById(this.inputElID).setAttribute('aria-labelledby', this.labelSelector);
+                break;
         
         }
     },

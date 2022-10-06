@@ -767,6 +767,7 @@ div#form_content_view {
         }
         &.form-header {
             background-color: $manila;
+            font-weight:  bolder;
         }
 
         &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
