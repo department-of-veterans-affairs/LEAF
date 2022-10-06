@@ -57,8 +57,6 @@ class Service
             $return_value = 'Admin access required';
         } else if ($groupName == '') {
             $return_value = 'Name cannot be blank';
-        } else if ($groupName == '') {
-            $return_value = 'Name cannot be blank';
         } else {
                 $newID = -99;
             $res = $this->db->prepared_query('SELECT * FROM services
