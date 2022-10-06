@@ -7,7 +7,7 @@ export default {
             description: this.currentCategorySelection?.description || '',
             needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
             sort: parseInt(this.currentCategorySelection?.sort) || 0,
-            visible: parseInt(this.currentCategorySelection?.visible) || 0,
+            visible: parseInt(this.currentCategorySelection?.visible) || (this.currSubformID ? 1 : 0),
             type: this.currentCategorySelection?.type || '',
             formID: this.currSubformID || this.currCategoryID
         }

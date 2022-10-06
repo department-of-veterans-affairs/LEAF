@@ -266,74 +266,6 @@ function editIndicatorPrivileges(indicatorID) {
 
 
 /**
- * Purpose: Export Form
- * @param categoryID
- */
-function exportForm(categoryID) {
-	let packet = {};
-	packet.form = {};
-	packet.subforms = {};
-
-	let defer = $.Deferred();
-	let promise = defer.promise();
-	promise = promise.then(function() {
-		return $.ajax({
-	        type: 'GET',
-	        url: '../api/?a=form/_' + categoryID + '/export',
-	        success: function(res) {
-	            packet.form = res;
-	            packet.categoryID = categoryID;
-	        }
-	    });
-	});
-
-    promise = promise.then(function() {
-        return $.ajax({
-            type: 'GET',
-            url: '../api/?a=form/_' + categoryID + '/workflow',
-            success: function(res) {
-                packet.workflowID = res[0].workflowID;
-            }
-        });
-    });
-
-	for(let i in categories) {
-        if(categories[i].parentID == categoryID) {
-        	promise = promise.then(
-            	function(subCategoryID) {
-                    return $.ajax({
-                        type: 'GET',
-                        url: '../api/?a=form/_' + subCategoryID + '/export',
-                        success: function(res) {
-                        	packet.subforms[subCategoryID] = {};
-                        	packet.subforms[subCategoryID].name = categories[subCategoryID].categoryName;
-                        	packet.subforms[subCategoryID].description = categories[subCategoryID].categoryDescription;
-                            packet.subforms[subCategoryID].packet = res;
-                        }
-                    });
-                }(categories[i].categoryID)
-            );
-        }
-	}
-	defer.resolve();
-
-	promise.done(function() {
-		let outPacket = {};
-		outPacket.version = 1;
-		outPacket.name = categories[categoryID].categoryName + ' (Copy)';
-		outPacket.description = categories[categoryID].categoryDescription;
-		outPacket.packet = packet;
-
-		let outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
-		saveAs(outBlob, 'LEAF_FormPacket_'+ categoryID +'.txt');
-	});
-}
-
-
-
-
-
-/**
  * Purpose: Show Secure Form Info
  * @param res
  */
@@ -438,7 +370,6 @@ function fetchFormSecureInfo() {
 
 
 
-
 $(function() {
     portalAPI = LEAFRequestPortalAPI();
     portalAPI.setBaseURL('../api/');
@@ -455,5 +386,4 @@ $(function() {
     //};
     <!--{/if}-->
 });
-
 </script>

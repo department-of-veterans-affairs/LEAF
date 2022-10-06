@@ -6,6 +6,7 @@ export default {
         }
     },
     inject: [
+        'APIroot',
         'truncateText',
         'selectNewCategory',
         'categories',
@@ -44,8 +45,65 @@ export default {
                 this.menuOpen = false;
             }
         },
+        //export the main form along with its internals
         exportForm() {
-            console.log('clicked app menu nav exportForm', this.currCategoryID);
+            const catID = this.currCategoryID;
+
+            let packet = {};
+            packet.form = {};
+            packet.subforms = {};
+
+            let exportCalls = [];
+
+            exportCalls.push(
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}form/_${catID}/export`,
+                    success: res => {
+                        packet.form = res;
+                        packet.categoryID = catID;
+                    },
+                    error: err => console.log(err)
+                })
+            );
+            this.internalForms.forEach(f => {
+                const subID = f.categoryID;
+                exportCalls.push(
+                    $.ajax({
+                        type: 'GET',
+                        url: `${this.APIroot}form/_${subID}/export`,
+                        success: res => {
+                            packet.subforms[subID] = {};
+                            packet.subforms[subID].name = f.categoryName;
+                            packet.subforms[subID].description = f.categoryDescription;
+                            packet.subforms[subID].packet = res;
+                        }
+                    })
+                );
+            });
+
+            exportCalls.push(
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}form/_${catID}/workflow`,
+                    success: res => {
+                        packet.workflowID = res[0].workflowID;
+                    }
+                })
+            );
+
+            Promise.all(exportCalls)
+            .then(()=> {
+                console.log('promise all:', exportCalls);
+                let outPacket = {};
+                outPacket.version = 1;
+                outPacket.name = this.categories[catID].categoryName + ' (Copy)';
+                outPacket.description = this.categories[catID].categoryDescription;
+                outPacket.packet = packet;
+
+                let outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
+                saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
+            });
         },
         selectMainForm() {
             console.log('clicked main form', this.currCategoryID);
