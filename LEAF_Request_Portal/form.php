@@ -1187,159 +1187,156 @@ class Form
 
     /**
      * Submit a request and start the workflow if it has not already been submitted
+     *
      * @param int $recordID
-     * @return array {status(int), errors[string]}
+     *
+     * @return int|array
+     *
+     * Created at: 10/3/2022, 7:40:04 AM (America/New_York)
      */
-    public function doSubmit($recordID)
+    public function doSubmit(int $recordID): int|array
     {
         $recordID = (int)$recordID;
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
-        {
-            return 0;
-        }
-        if (!is_numeric($recordID))
-        {
-            return 0;
-        }
 
-        if (!$this->hasWriteAccess($recordID))
-        {
-            return 0;
-        }
-
-        // make sure request isn't already submitted
         $vars = array(':recordID' => $recordID);
         $res = $this->db->prepared_query('SELECT * FROM records
-                                                     WHERE recordID=:recordID', $vars);
-        if ($res[0]['submitted'] > 0)
-        {
-            return $recordID;
-        }
+                                        WHERE recordID=:recordID', $vars);
 
-        $this->db->beginTransaction();
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            $return_value = 0;
+        } else if (!is_numeric($recordID)) {
+            $return_value = 0;
+        } else if (!$this->hasWriteAccess($recordID)) {
+            $return_value = 0;
+        } else if ($res[0]['submitted'] > 0) {
+            // make sure request isn't already submitted
+            $return_value = $recordID;
+        } else {
+            $this->db->beginTransaction();
 
-        // write new workflow states
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT * FROM category_count
-                                             LEFT JOIN categories USING (categoryID)
-                                             LEFT JOIN workflows USING (workflowID)
-                                             WHERE recordID=:recordID
-                                               AND count > 0', $vars);
-        $workflowIDs = array();
-        $hasInitialStep = false;
-        foreach ($res as $workflow)
-        {
-            if ($workflow['initialStepID'] != 0)
-            {
-                // make sure the initial step is valid
-                $vars = array(':stepID' => $workflow['initialStepID']);
-                $res = $this->db->prepared_query('SELECT * FROM workflow_steps
-                                                     WHERE stepID=:stepID', $vars);
-                if ($res[0]['workflowID'] == $workflow['workflowID'])
-                {
+            // write new workflow states
+            $vars = array(':recordID' => $recordID);
+            $res = $this->db->prepared_query('SELECT * FROM category_count
+                                                LEFT JOIN categories USING (categoryID)
+                                                LEFT JOIN workflows USING (workflowID)
+                                                WHERE recordID=:recordID
+                                                AND count > 0', $vars);
+
+            $workflowIDs = array();
+            $hasInitialStep = false;
+
+            foreach ($res as $workflow) {
+                if ($workflow['initialStepID'] != 0) {
+                    // make sure the initial step is valid
+                    $vars = array(':stepID' => $workflow['initialStepID']);
+                    $res = $this->db->prepared_query('SELECT * FROM workflow_steps
+                                                        WHERE stepID=:stepID', $vars);
+
+                    if ($res[0]['workflowID'] == $workflow['workflowID']) {
+                        $vars = array(':recordID' => $recordID,
+                                    ':stepID' => $workflow['initialStepID'], );
+                        $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
+                                                VALUES (:recordID, :stepID)', $vars);
+                        $hasInitialStep = true;
+                    }
+                }
+
+                // check if the request only needs to be marked as submitted (e.g.:for surveys)
+                if ($workflow['initialStepID'] == 0) {
+                    $vars = array(':workflowID' => $workflow['workflowID']);
+                    $res = $this->db->prepared_query('SELECT * FROM workflow_routes
+                                                    WHERE workflowID=:workflowID
+                                                    AND stepID=-1
+                                                    AND actionType="submit"', $vars);
+
+                    if (count($res) > 0) {
+                        $hasInitialStep = true;
+                    }
+                }
+
+                if ($workflow['workflowID'] != 0) {
+                    $workflowIDs[] = $workflow['workflowID'];
+                }
+            }
+
+            if (!$hasInitialStep) {
+                $return_value = array('status' => 1, 'errors' => array('Workflow is configured incorrectly'));
+            } else {
+                $vars = array(':recordID' => $recordID,
+                            ':time' => time(), );
+                $res = $this->db->prepared_query('UPDATE records SET
+                                                    submitted=:time,
+                                                    isWritableUser=0,
+                                                    lastStatus = "Submitted"
+                                                    WHERE recordID=:recordID', $vars);
+
+                // write history data, actionID 6 = filled dependency
+                $vars = array(':recordID' => $recordID,
+                            ':userID' => $this->login->getUserID(),
+                            ':dependencyID' => 5,
+                            ':actionType' => 'submit',
+                            ':actionTypeID' => 6,
+                            ':time' => time(),
+                            ':comment' => '', );
+                $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+                                                    VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars);
+
+                // populate dependency data using new workflow system
+                $vars = array(':recordID' => $recordID);
+                $res = $this->db->prepared_query('SELECT * FROM category_count
+                                                    LEFT JOIN categories USING (categoryID)
+                                                    LEFT JOIN workflows USING (workflowID)
+                                                    LEFT JOIN workflow_steps USING (workflowID)
+                                                    LEFT JOIN step_dependencies USING (stepID)
+                                                    WHERE recordID=:recordID
+                                                    AND count > 0
+                                                    AND workflowID > 0', $vars);
+
+                foreach ($res as $dep) {
                     $vars = array(':recordID' => $recordID,
-                                  ':stepID' => $workflow['initialStepID'], );
-                    $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
-                                             VALUES (:recordID, :stepID)', $vars);
-                    $hasInitialStep = true;
+                                ':dependencyID' => $dep['dependencyID'],
+                                ':filled' => 0,
+                                ':time' => time(), );
+                    $res = $this->db->prepared_query('INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
+                                                        VALUES (:recordID, :dependencyID, :filled, :time)
+                                                        ON DUPLICATE KEY UPDATE filled=:filled, time=:time', $vars);
                 }
-            }
-            // check if the request only needs to be marked as submitted (e.g.:for surveys)
-            if ($workflow['initialStepID'] == 0)
-            {
-                $vars = array(':workflowID' => $workflow['workflowID']);
-                $res = $this->db->prepared_query('SELECT * FROM workflow_routes
-            										WHERE workflowID=:workflowID
-            											AND stepID=-1
-            											AND actionType="submit"', $vars);
-                if (count($res) > 0)
-                {
-                    $hasInitialStep = true;
+
+                // mark form as submitted, dependencyID 5 = submitted form
+                $vars = array(':recordID' => $recordID,
+                            ':dependencyID' => 5,
+                            ':filled' => 1,
+                            ':time' => time(), );
+                $res = $this->db->prepared_query('INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
+                                                    VALUES (:recordID, :dependencyID, :filled, :time)
+                                                    ON DUPLICATE KEY UPDATE filled=:filled, time=:time', $vars);
+
+                $this->db->commitTransaction();
+
+                $errors = array();
+                // trigger initial submit event
+                include_once 'FormWorkflow.php';
+                $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
+                $FormWorkflow->setEventFolder('../scripts/events/');
+
+                foreach ($workflowIDs as $id) {
+                    // The initial step for Requestor is special step id -1
+                    $status = $FormWorkflow->handleEvents($id, -1, 'submit', '');
+
+                    if (count($status['errors']) > 0) {
+                        try {
+                            $errors = array_merge($errors, $status['errors']);
+                        } catch (TypeError $te) {
+                            error_log($te);
+                        }
+                    }
                 }
-            }
 
-            if ($workflow['workflowID'] != 0)
-            {
-                $workflowIDs[] = $workflow['workflowID'];
+                $return_value = array('status' => 1, 'errors' => $errors);
             }
         }
 
-        if (!$hasInitialStep)
-        {
-            return array('status' => 1, 'errors' => array('Workflow is configured incorrectly'));
-        }
-
-        $vars = array(':recordID' => $recordID,
-                      ':time' => time(), );
-        $res = $this->db->prepared_query('UPDATE records SET
-                                            submitted=:time,
-                                            isWritableUser=0,
-                                            lastStatus = "Submitted"
-                                            WHERE recordID=:recordID', $vars);
-
-        // write history data, actionID 6 = filled dependency
-        $vars = array(':recordID' => $recordID,
-                      ':userID' => $this->login->getUserID(),
-                      ':dependencyID' => 5,
-                      ':actionType' => 'submit',
-                      ':actionTypeID' => 6,
-                      ':time' => time(),
-                      ':comment' => '', );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars);
-
-        // populate dependency data using new workflow system
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT * FROM category_count
-                                             LEFT JOIN categories USING (categoryID)
-                                             LEFT JOIN workflows USING (workflowID)
-                                             LEFT JOIN workflow_steps USING (workflowID)
-                                             LEFT JOIN step_dependencies USING (stepID)
-                                             WHERE recordID=:recordID
-                                               AND count > 0
-                                               AND workflowID > 0', $vars);
-        foreach ($res as $dep)
-        {
-            $vars = array(':recordID' => $recordID,
-                          ':dependencyID' => $dep['dependencyID'],
-                          ':filled' => 0,
-                          ':time' => time(), );
-            $res = $this->db->prepared_query('INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
-                                                VALUES (:recordID, :dependencyID, :filled, :time)
-                                                ON DUPLICATE KEY UPDATE filled=:filled, time=:time', $vars);
-        }
-
-        // mark form as submitted, dependencyID 5 = submitted form
-        $vars = array(':recordID' => $recordID,
-                      ':dependencyID' => 5,
-                      ':filled' => 1,
-                      ':time' => time(), );
-        $res = $this->db->prepared_query('INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
-                                            VALUES (:recordID, :dependencyID, :filled, :time)
-                                            ON DUPLICATE KEY UPDATE filled=:filled, time=:time', $vars);
-
-        $this->db->commitTransaction();
-
-        $errors = array();
-        // trigger initial submit event
-        include_once 'FormWorkflow.php';
-        $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
-        $FormWorkflow->setEventFolder('../scripts/events/');
-        foreach ($workflowIDs as $id)
-        {
-            // The initial step for Requestor is special step id -1
-            $status = $FormWorkflow->handleEvents($id, -1, 'submit', '');
-            if (count($status['errors']) > 0)
-            {
-                try {
-                    $errors = array_merge($errors, $status['errors']);
-                } catch (TypeError $te) {
-                    error_log($te);
-                }
-            }
-        }
-
-        return array('status' => 1, 'errors' => $errors);
+        return $return_value;
     }
 
     /**
@@ -1673,10 +1670,10 @@ class Form
                  }
                  else{
                     $empUID = $this->getEmpUID($resPerson[0]['userID']);
-                                                                
+
                     return $this->checkIfBackup($empUID);
                  }
-               
+
 
                 break;
             case -3: // dependencyID -3 : group designated by the requestor
@@ -2064,15 +2061,15 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
-     * 
+     *
      * @return array on success | false on malformed input
-     */ 
+     */
     public function getCustomData(array $recordID_list, string|null $indicatorID_list)
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
         }
-	    
+
         $indicatorID_list = trim($indicatorID_list, ',');
         $tempIndicatorIDs = explode(',', $indicatorID_list);
         $indicatorIdStructure = array();
@@ -2169,8 +2166,8 @@ class Form
         if (!empty($recordIDs))
         {
             // updated this from "Select * from to this
-	    $strSQL = "SELECT * FROM data 
-                    WHERE indicatorID IN ({$indicatorID_list}) 
+	    $strSQL = "SELECT * FROM data
+                    WHERE indicatorID IN ({$indicatorID_list})
                     AND recordID IN ({$recordIDs})";
             $res = $this->db->query($strSQL);
 
@@ -2213,7 +2210,7 @@ class Form
                             break;
                         case 'orgchart_group':
                             $groupTitle = $this->group->getTitle($item['data']);
-                            
+
                             $item['data'] = $groupTitle;
                             break;
                         case 'raw_data':
@@ -2312,12 +2309,28 @@ class Form
         }
 
         $vars = array(':recordID' => $recordID);
+        /* Need to verify the 3 references to be sure this new query will work for all 3
+
         $res = $this->db->prepared_query('SELECT * FROM action_history
                                             LEFT JOIN dependencies USING (dependencyID)
                                             LEFT JOIN actions USING (actionType)
                                             WHERE recordID=:recordID
                                                 AND comment != ""
                                             ORDER BY time ASC', $vars);
+*/
+        $res = $this->db->prepared_query(
+            'SELECT actionTextPasttense, comment, time, userID
+             FROM action_history
+             LEFT JOIN dependencies USING (dependencyID)
+             LEFT JOIN actions USING (actionType)
+             WHERE recordID = :recordID
+             AND comment != ""
+             UNION
+             SELECT "Note Added", note, timestamp, userID
+             FROM notes
+             WHERE recordID = :recordID
+             AND deleted IS NULL
+             ORDER BY time DESC', $vars);
 
         require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
@@ -3115,7 +3128,7 @@ class Form
 
             if ($joinCategoryID)
             {
-                $categorySQL = 'SELECT recordID,categoryName,categoryID 
+                $categorySQL = 'SELECT recordID,categoryName,categoryID
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3133,7 +3146,7 @@ class Form
             if ($joinAllCategoryID)
             {
 
-                $allCategorySQL = 'SELECT recordID,categoryName,categoryID 
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3149,7 +3162,7 @@ class Form
 
             if ($joinRecordsDependencies)
             {
-                $recordDependenciesSQL = 'SELECT recordID,dependencyID,time,description 
+                $recordDependenciesSQL = 'SELECT recordID,dependencyID,time,description
                 FROM records_dependencies
                 LEFT JOIN dependencies USING (dependencyID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3168,7 +3181,7 @@ class Form
                 require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment 
+                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment
                 FROM action_history
                 LEFT JOIN dependencies USING (dependencyID)
                 LEFT JOIN actions USING (actionType)
@@ -3189,7 +3202,7 @@ class Form
             if($joinRecordResolutionData)
             {
 
-                $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime 
+                $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime
                 FROM records
                 LEFT JOIN records_step_fulfillment USING (recordID)
                 LEFT JOIN records_workflow_state USING (recordID)
@@ -3220,16 +3233,16 @@ class Form
                 require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType 
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
                 FROM action_history
-                LEFT JOIN records USING (recordID) 
-                INNER JOIN workflow_routes USING (stepID) 
+                LEFT JOIN records USING (recordID)
+                INNER JOIN workflow_routes USING (stepID)
                 LEFT JOIN records_workflow_state USING (recordID)
-                WHERE recordID IN ($recordIDs) 
-                AND action_history.actionType = workflow_routes.actionType 
-                AND records_workflow_state.stepID IS NULL 
-                AND nextStepID = 0 
-                AND submitted > 0 
+                WHERE recordID IN ($recordIDs)
+                AND action_history.actionType = workflow_routes.actionType
+                AND records_workflow_state.stepID IS NULL
+                AND nextStepID = 0
+                AND submitted > 0
                 AND deleted = 0";
 
                 $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
@@ -3695,7 +3708,7 @@ class Form
                         error_log($te);
                     }
                 }
-        
+
                 // handle multiselect and checkboxes formats
                 // includes backwards compatibility for data stored as CSV
                 if (isset($data[$idx]['data']) && $data[$idx]['data'] != ''
@@ -3713,7 +3726,7 @@ class Form
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['htmlPrint']);
                 }
-		    
+
                 if ($child[$idx]['isMasked'])
                 {
                     $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '')
@@ -3801,7 +3814,7 @@ class Form
         if (!copy($sourceFile, $destFile)) {
             $errors = error_get_last();
             return $errors;
-        } 
+        }
         return 1;
     }
 
@@ -3815,12 +3828,12 @@ class Form
 
         return $data;
     }
-    
+
     public function permanentlyDeleteRecord($recordID) {
         /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
         }*/
-        
+
         $vars = array(
             ':time' => time(),
             ':date' => '0',
@@ -3833,7 +3846,7 @@ class Form
             ':isWritableUser' => '0',
             ':isWritableGroup' => '0',
             ':recordID' => $recordID);
-                          
+
         $res = $this->db->prepared_query('UPDATE records SET
         deleted=:time,
         date=:date,
@@ -3848,34 +3861,34 @@ class Form
         WHERE recordID=:recordID', $vars);
 
         $vars = array(':recordID' => $recordID);
-            
+
         $res = $this->db->prepared_query('DELETE FROM action_history WHERE recordID=:recordID', $vars);
-            
+
         $vars = array(':recordID' => $recordID,
             ':userID' => '',
             ':dependencyID' => 0,
             ':actionType' => 'deleted',
             ':actionTypeID' => 4,
             ':time' => time() );
-                
+
         $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
         VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
-            
-            
+
+
         $vars = array(':recordID' => $recordID);
-            
+
         $this->db->prepared_query('DELETE FROM records_workflow_state WHERE recordID=:recordID', $vars);
-            
-            
+
+
         $vars = array(':recordID' => $recordID);
-            
+
         $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
-            
-            
+
+
         $vars = array(':recordID' => $recordID);
-            
+
         $this->db->prepared_query('DELETE FROM records_dependencies WHERE recordID=:recordID', $vars);
-            
+
         return 1;
     }
 

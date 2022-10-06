@@ -31,6 +31,9 @@
         <br />
         <!--{/if}-->
         <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
+
+        <button class="tools" onclick="viewNotes()" ><img src="../libs/dynicons/?img=document-new.svg&amp;w=32" alt="View Notes" title="View Notes" style="vertical-align: middle" /> View Notes</button>
+
         <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
         <button class="tools" id="btn_printForm"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
         <!--{if $bookmarked == ''}-->
@@ -43,6 +46,13 @@
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
     </div>
 
+    <div id="notes">
+        <form id='note_form'>
+            <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
+            <input type='text' name='note' placeholder='Enter a note!' />
+            <button id='add_note' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</button>
+        </form>
+    </div>
     <!--{if count($comments) > 0}-->
     <div id="comments">
     <h1>Comments</h1>
@@ -133,6 +143,19 @@ function doSubmit(recordID) {
                 $('#submitControl').empty().html('Error: ' + errors);
                 $('#submitStatus').text('Request can not be submmited');
             }
+		}
+	});
+}
+
+function submitNote(recordID){
+    var form = $("#note_form").serialize();
+    $.ajax({
+		type: 'POST',
+		url: "./api/note/" + recordID,
+		data: {form,
+        CSRFToken: '<!--{$CSRFToken}-->'},
+		success: function(response) {
+            location.reload();
 		}
 	});
 }

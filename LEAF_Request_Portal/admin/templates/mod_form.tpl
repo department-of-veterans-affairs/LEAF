@@ -627,13 +627,13 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                         <td>The contents of the current data field as stored in the database.</td>
                     </tr>
                 </table><br />
-                html (for pages where the user can edit data): 
+                html (for pages where the user can edit data):
                 <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
                     <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
                     Save Code<span id="codeSaveStatus_html"></span>
                 </button>
                 <textarea id="html"></textarea><br />
-                htmlPrint (for pages where the user can only read data): 
+                htmlPrint (for pages where the user can only read data):
                 <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
                     <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
                     Save Code<span id="codeSaveStatus_htmlPrint"></span>
@@ -912,7 +912,7 @@ function newQuestion(parentIndicatorID = null) {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
-                    vueData.updateIndicatorList = true; 
+                    vueData.updateIndicatorList = true;
                     document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
                     if($('#sort').val() != '') {
                         $.ajax({
@@ -1274,7 +1274,7 @@ function getForm(indicatorID, series) {
                 if(formatName === 'grid'){
                     gridJSON = JSON.parse(formatOptions[0]);  //NOTE: gridJSON and columns defined
                     columns = gridJSON.length;
-                } 
+                }
                 $('#name').html(res[indicatorID].name);
                 // auto select advanced editor if it was previously used
                 if(XSSHelpers.containsTags(res[indicatorID].name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
@@ -1295,7 +1295,7 @@ function getForm(indicatorID, series) {
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
-                
+
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
@@ -1346,7 +1346,7 @@ function getForm(indicatorID, series) {
         let sortChanged = (indicatorEditing.sort || "") !== $("#sort").val();
         let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
         let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
-        
+
         if(nameChanged){
             calls.push(
                 $.ajax({
@@ -1404,7 +1404,7 @@ function getForm(indicatorID, series) {
         }
 
         if(sensitiveChanged){
-            calls.push(            
+            calls.push(
                 $.ajax({
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/sensitive',
@@ -1414,7 +1414,7 @@ function getForm(indicatorID, series) {
         }
 
         if(archivedIndicator == 1){
-            calls.push(   	        
+            calls.push(
                 $.ajax({
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/disabled',
@@ -1449,7 +1449,7 @@ function getForm(indicatorID, series) {
         }
 
         if(sortChanged){
-            calls.push(            
+            calls.push(
                 $.ajax({
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/sort',
@@ -1469,7 +1469,7 @@ function getForm(indicatorID, series) {
         }
 
         if(htmlPrintChanged){
-            calls.push(            
+            calls.push(
                 $.ajax({
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/htmlPrint',
@@ -1809,8 +1809,8 @@ function buildMenu(categoryID) {
             }
         }
     });
-    
-    
+
+
 	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
     $('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
     $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
@@ -1875,7 +1875,7 @@ function showFormBrowser() {
                     }(res[i].categoryID));
                 }
             }
-            
+
             if(postRenderFormBrowser != undefined) {
                 postRenderFormBrowser();
             }
@@ -1905,7 +1905,7 @@ function renderSecureFormsInfo(res) {
                     mostRecentID = i;
                 }
             }
-            
+
             $('#secureBtn').attr('href', '../index.php?a=printview&recordID='+ mostRecentID);
             let mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
 

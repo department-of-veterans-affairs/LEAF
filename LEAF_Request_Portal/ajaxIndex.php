@@ -16,6 +16,7 @@ include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
 include 'db_mysql.php';
 include 'db_config.php';
+include '../libs/logger/dataActionLogger.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -36,6 +37,8 @@ function customTemplate($tpl)
 }
 
 $login = new Login($db_phonebook, $db);
+
+$dataActionLogger = new DataActionLogger($db, $login);
 
 $login->loginUser();
 if ($login)
@@ -384,6 +387,36 @@ switch ($action) {
         $t_form->assign('dependencies', $form->getDependencyStatus($_GET['recordID']));
 
         $t_form->display('view_status.tpl');
+
+        break;
+    case 'get_notes':
+        require 'sources/Note.php';
+        $notes = new Note($db, $login, $dataActionLogger);
+
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $recordInfo = $notes->getUndeletedNotesByRecordId((int)$_GET['recordID']);
+        $t_form->assign('recordID', $_GET['recordID']);
+        $t_form->assign('notes', $recordInfo);
+
+        $t_form->display('view_notes.tpl');
+
+        break;
+    case 'post_note':
+        $post_data = array();
+
+        require 'sources/Note.php';
+        $notes = new Note($db, $login, $dataActionLogger);
+
+        //sanitize form data
+        foreach ($_POST as $key => $data) {
+            $post_data[$key] = XSSHelpers::xscrub($data);
+        }
+
+        $post_data['userID'] = $login->getUserID();
+
+        $recordInfo = $notes->postNote($post_data);
 
         break;
     case 'internalview':
