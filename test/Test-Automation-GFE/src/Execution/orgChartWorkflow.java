@@ -63,13 +63,13 @@ public class orgChartWorkflow extends setupFramework {
  
 //create New Request Workflow
 	
-	@Test(priority = 102) //
+	@Test(priority = 102) //									TODO:May have to change name on Pre-prod
 	private void searchByEmployee() {
 		waitMethods.waiter(waitMethods.w300);       
 		WebElement ele = driver.findElement(By.id("search"));
     	highlightElement.highLightElement(driver, ele);
     	
-    	String name = "Scott Wagner";
+    	String name = "amanda turner";		//  Scott Wagner
    
     	for(int i = 0; i < name.length(); i++) {
     		char c = name.charAt(i);
@@ -79,16 +79,16 @@ public class orgChartWorkflow extends setupFramework {
     		waitMethods.waiter(waitMethods.w30);
     	}
     	
-    	driver.findElement(By.id("search")).clear();
+    	driver.findElement(By.id("search")).clear(); 
     	System.out.println("Search By Employee");			
 	}
 
 
-	@Test(priority = 104) //
+	@Test(priority = 104) //									TODO:May have to change name on Pre-prod
 	public void verifySearchByEmployee() {         
 		//waitMethods.implicitWait(waitMethods.w300);
 		waitMethods.waiter(waitMethods.w1k);	
-		WebElement ele = driver.findElement(By.partialLinkText("Wagner")); 
+		WebElement ele = driver.findElement(By.partialLinkText("Turner Sumner"));    //Wagner
 		highlightElement.highLightElement(driver, ele);
 		String verify = ele.toString();
 		System.out.println(verify);

@@ -227,7 +227,7 @@ public class formsWorkflowPart2 extends setupFramework {
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
-	   		//ele.click();
+	   		ele.click();
 			waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Test Question: Sensitive Data = N");
 		}
@@ -415,7 +415,7 @@ public class formsWorkflowPart2 extends setupFramework {
 			WebElement ele = driver.findElement(By.id("default"));
 	    	highlightElement.highLightElement(driver, ele);
 	    	
-	    	String name = "10/20/2021";
+	    	String name = "10/20/2022";
 	   
 	    	for(int i = 0; i < name.length(); i++) {
 	    		char c = name.charAt(i);
@@ -445,7 +445,7 @@ public class formsWorkflowPart2 extends setupFramework {
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
-	   		//ele.click();
+	   		ele.click();
 			waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Test Question: Sensitive Data = Y");
 		}
