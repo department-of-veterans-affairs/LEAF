@@ -133,25 +133,33 @@ export default {
             <span>{{clickedOn ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
         </button>
         
-            <button type="button" @click="selectNewCategory(null)" title="View All Forms">
-                <h2><span class="nav-icon">🗃️</span>Form Editor</h2>
-            </button>
+        <button type="button" @click="selectNewCategory(null)" title="View All Forms">
+            <h2><span class="header-icon">🗃️</span>Form Editor</h2>
+        </button>
         
-        <div v-if="currCategoryID!==null" style="display:flex; align-items:center;">
+        <template v-if="currCategoryID!==null">
             <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
         
             <button type="button" :id="currCategoryID" @click="selectMainForm" title="main form">
-                <h2><span class="nav-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}
-                </h2>
+                <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}</h2>
             </button>
-        </div>
+        </template>
         
-        <!--<template v-if="internalForms.length > 0">
-            <div style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</div>
-            <ul><span class="nav-icon">📋</span>Internal Forms</ul>
-        </template>-->
-
-        <nav v-if="menuOpen" id="form-editor-nav" class="mod-form-menu-nav">
+        <template v-if="internalForms.length > 0">
+            <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
+            <div style="display: flex; position: relative;">
+                <button type="button"><h2><span class="header-icon">📋</span>Internal Forms</h2></button>
+                <ul id="internalForms">
+                    <li v-for="i in internalForms" :key="i.categoryID">
+                        <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                        <span>📋</span>{{formName(i.categoryName, 26)}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </template>
+        
+        <nav v-if="menuOpen" id="form-editor-nav">
             <ul v-if="currCategoryID===null" @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>
                     <a href="#" id="createFormButton" @click="openNewFormDialog">
@@ -176,31 +184,20 @@ export default {
             </ul>
             <ul v-else @mouseenter="showMenu" @mouseleave="hideMenu">
                 <li>
-                    <ul><!-- MAIN AND INTERNAL FORMS -->
-                        <li v-for="i in internalForms" :key="i.categoryID">
-                            <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                            {{formName(i.categoryName, 20)}}<span>📋</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" @click="openNewFormDialog" title="add new internal use form">
-                            Add Internal-Use<span>➕</span>
-                            </a>
-                        </li>
-                    </ul>
+                    <a href="#" @click="openNewFormDialog" title="add new internal use form">
+                    Add Internal-Use<span>➕</span>
+                    </a>
                 </li>
                 <li>
                     <a href="#" @click="openStapleFormsDialog" title="staple another form">
                     Stapled Forms<span>📌</span>
                     </a>
-                </li>
-                <div id="stapledArea">
                     <ul v-if="ajaxSelectedCategoryStapled.length > 0">
                         <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_' + s.stapledCategoryID">
                         {{s.categoryName || 'Untitled'}}
                         </li>
                     </ul>
-                </div>
+                </li>
                 <li>
                     <a href="#" @click="openFormHistoryDialog" title="view form history">
                     View History<span>🕗</span>

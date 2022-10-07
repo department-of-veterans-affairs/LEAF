@@ -18,6 +18,7 @@ export default {
         'getStapledFormsByCurrentCategory',
         'setCurrCategoryStaples',
         'closeFormDialog',
+        'updateFormsStapledCatIDs'
     ],
     mounted() {
         document.getElementById('select-form-to-staple').focus();
@@ -44,6 +45,7 @@ export default {
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
                     this.getStapledFormsByCurrentCategory(this.formID).then(res => this.setCurrCategoryStaples(res));
+                    this.updateFormsStapledCatIDs(stapledCatID, true);
                 },
                 error: err => console.log(err)
             });
@@ -60,6 +62,7 @@ export default {
                     success: res => {
                         this.getStapledFormsByCurrentCategory(this.formID).then(res => {
                             this.setCurrCategoryStaples(res);
+                            this.updateFormsStapledCatIDs(this.catIDtoStaple);
                             this.closeFormDialog();
                         });
                         if(res !== 1) {

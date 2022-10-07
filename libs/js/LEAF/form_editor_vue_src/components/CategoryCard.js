@@ -10,10 +10,17 @@ export default {
     inject: [
         'selectNewCategory',
         'getStapledFormsByCurrentCategory',
-        'truncateText'
+        'truncateText',
+        'formsStapledCatIDs',
+        'updateFormsStapledCatIDs'
     ],
     mounted() {
-        this.getStapledFormsByCurrentCategory(this.catID).then(res => this.staples = res);
+        this.getStapledFormsByCurrentCategory(this.catID).then(res => {
+            this.staples = res;
+            for (let s in res) {
+                this.updateFormsStapledCatIDs(res[s].stapledCategoryID);
+            }
+        });
     },
     computed: {
         workflowID() {
@@ -31,6 +38,9 @@ export default {
                 list.push(staple.categoryID)
             });
             return list.join(', ');
+        },
+        isStapledToOtherForm() {
+            return this.formsStapledCatIDs.includes(this.categoriesRecord.categoryID);
         },
         categoryName() { //NOTE: XSSHelpers global
             let name = this.categoriesRecord.categoryName === '' ? 
@@ -59,7 +69,7 @@ export default {
         @keyup.enter="selectNewCategory(catID)"
         :class="cardLibraryClasses" class="browser-category-card"
         :id="catID" 
-        :title="catID + ': ' + categoryName + (staplesList ? '. Stapled with: ' + staplesList : '')">
+        :title="catID + ': ' + categoryName + (staplesList ? '. Stapled with: ' + staplesList : '') + (isStapledToOtherForm ? '. This form is stapled to another' : '')">
             <div class="formPreviewTitle" style="position: relative">{{categoryName}}
                 <img v-if="parseInt(categoriesRecord.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
                 title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px;"/>
@@ -70,6 +80,9 @@ export default {
                 <div v-if="staples.length > 0"
                     :title="'This form has stapled forms: ' + staplesList"
                 >📌</div>
+                <div v-if="isStapledToOtherForm"
+                    title="This form is stapled to another form"
+                >📑</div>
             </div>
             <div class="formPreviewWorkflow">{{ workflow }}</div>
         </div>`

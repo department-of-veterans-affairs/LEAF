@@ -47,7 +47,7 @@ export default {
     template:`<div>
         <div>Are you sure you want to delete this form?</div>
         <div style="margin: 1em 0;"><b>{{formName}}</b></div>
-        <div style="width:300px; height: 50px">{{formDescription}}</div>
-        <div v-if="ajaxSelectedCategoryStapled.length > 0">⚠️ This form has stapled forms attached</div>
+        <div style="min-width:300px; max-width: 500px; min-height: 50px; margin-bottom: 1rem;">{{formDescription}}</div>
+        <div v-if="ajaxSelectedCategoryStapled.length > 0">⚠️ This form still has stapled forms attached</div>
     </div>`
 }

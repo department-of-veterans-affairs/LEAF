@@ -106,6 +106,13 @@ button.btn-confirm {
             outline: 2px solid #20a0f0 !important;
         }
     }
+    ul#internalForms {
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        top: calc(100% - 2px);
+        list-style-type: none;
+    }
 
     #form-editor-menu-toggle {
         position: relative;
@@ -127,12 +134,12 @@ button.btn-confirm {
             color: $USWDS_Cyan;
         }
     }
-    .nav-icon {
+    .header-icon {
         font-size: 80%;
     }
 
 
-    #form-editor-nav {
+    nav#form-editor-nav {
         display: flex;
         position: absolute;
         top: calc(100% - 2px);
@@ -927,7 +934,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
         > div {
             flex-direction: column;
 
-            .mod-form-menu-nav {
+            #form-editor-nav {
                 width: 100%;
                 margin: 0;
 

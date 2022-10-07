@@ -46,6 +46,7 @@ export default {
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             currentCategoryIndicatorTotal: 0,
+            formsStapledCatIDs: [],  //cat IDs of forms stapled to anything
             ajaxSelectedCategoryStapled: [],
             ajaxWorkflowRecords: [],       //array of all 'workflows' table records
             ajaxIndicatorByID: {},         //'indicators' table record for a specific indicatorID
@@ -71,6 +72,7 @@ export default {
             ajaxFormByCategoryID: Vue.computed(() => this.ajaxFormByCategoryID),
             appIsLoadingCategoryInfo: Vue.computed(() => this.appIsLoadingCategoryInfo),
             ajaxSelectedCategoryStapled: Vue.computed(() => this.ajaxSelectedCategoryStapled),
+            formsStapledCatIDs: Vue.computed(() => this.formsStapledCatIDs),
             ajaxWorkflowRecords: Vue.computed(() => this.ajaxWorkflowRecords),
             showFormDialog: Vue.computed(() => this.showFormDialog),
             dialogTitle: Vue.computed(() => this.dialogTitle),
@@ -91,6 +93,7 @@ export default {
             selectNewCategory: this.selectNewCategory,
             selectNewFormNode: this.selectNewFormNode,
             updateCategoriesProperty: this.updateCategoriesProperty,
+            updateFormsStapledCatIDs: this.updateFormsStapledCatIDs,
             addNewCategory: this.addNewCategory,
             closeFormDialog: this.closeFormDialog,
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
@@ -119,7 +122,7 @@ export default {
         FormViewController,
         RestoreFields
     },
-    beforeMount(){
+    beforeMount() {
         this.getCategoryListAll().then(res => {
             this.setCategories(res);
             this.appIsLoadingCategoryList = false;
@@ -230,6 +233,18 @@ export default {
             this.categories[catID][keyName] = keyValue;
             this.currentCategorySelection = this.categories[catID];
             console.log('updated curr cat selection', keyName, this.currentCategorySelection);
+        },
+        updateFormsStapledCatIDs(stapledCatID, removeCatID = false) {
+            if(removeCatID === true) {
+                if(this.formsStapledCatIDs.includes(stapledCatID)) {
+                    const index = this.formsStapledCatIDs.indexOf(stapledCatID);
+                    this.formsStapledCatIDs = [...this.formsStapledCatIDs.slice(0, index), ...this.formsStapledCatIDs.slice(index + 1)];
+                }
+            } else {
+                if(!this.formsStapledCatIDs.includes(stapledCatID)) {
+                    this.formsStapledCatIDs = [...this.formsStapledCatIDs, stapledCatID];
+                } 
+            }
         },
         addNewCategory(catID, record = {}) {
             this.categories[catID] = record;

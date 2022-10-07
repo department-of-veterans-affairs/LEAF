@@ -225,7 +225,6 @@ export default {
         <template v-if="baseFormat==='date'">
             <input type="text" :id="inputElID" 
             style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="" />
-            <input class="ui-helper-hidden-accessible" :id="indicator.indicatorID + '_focusfix'" type="text" />
         </template>
 
         
