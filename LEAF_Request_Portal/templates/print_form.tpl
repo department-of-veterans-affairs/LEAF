@@ -166,8 +166,6 @@ function submitNote(recordID){
             new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
 
             $( new_note ).insertAfter( "#comment_header" );
-            console.log(response);
-            console.log(new_note);
         }
     });
 }

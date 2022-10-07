@@ -12,13 +12,33 @@ if (!class_exists('XSSHelpers'))
 
 class NotesController extends RESTfulResponse
 {
+    /**
+     *
+     * @var array
+     */
     public $index = array();
 
+    /**
+     *
+     * @var int
+     */
     private $API_VERSION = 1;
 
+    /**
+     *
+     * @var \Note
+     */
     private $note;
 
-    public function __construct($db, $login, $dataActionLogger)
+    /**
+     *
+     * @param \Db $db
+     * @param \Login $login
+     * @param \DataActionLogger $dataActionLogger
+     *
+     * Created at: 10/7/2022, 9:45:22 AM (America/New_York)
+     */
+    public function __construct(\Db $db, \Login $login, \DataActionLogger $dataActionLogger)
     {
         $this->note = new Note($db, $login, $dataActionLogger);
     }
