@@ -2301,49 +2301,52 @@ class Form
         return $out;
     }
 
-    public function getActionComments($recordID)
+    /**
+     * Retrieve workflow comments and record notes to display
+     *
+     * @param int $recordID
+     *
+     * @return array
+     *
+     * Created at: 10/7/2022, 7:56:06 AM (America/New_York)
+     */
+    public function getActionComments(int $recordID): array
     {
-        if (!$this->hasReadAccess($recordID))
-        {
-            return array();
+        if (!$this->hasReadAccess($recordID)) {
+            $return_value = array();
+        } else {
+            $vars = array(':recordID' => $recordID);
+
+            $sql = 'SELECT actionTextPasttense, comment, time, userID
+                    FROM action_history
+                    LEFT JOIN dependencies USING (dependencyID)
+                    LEFT JOIN actions USING (actionType)
+                    WHERE recordID = :recordID
+                    AND comment != ""
+                    UNION
+                    SELECT "Note Added", note, timestamp, userID
+                    FROM notes
+                    WHERE recordID = :recordID
+                    AND deleted IS NULL
+                    ORDER BY time DESC';
+
+            $res = $this->db->prepared_query($sql, $vars);
+
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
+
+            $total = count($res);
+
+            for ($i = 0; $i < $total; $i++) {
+                $user = $dir->lookupLogin($res[$i]['userID']);
+                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
+                $res[$i]['name'] = $name;
+            }
+
+            $return_value = $res;
         }
 
-        $vars = array(':recordID' => $recordID);
-        /* Need to verify the 3 references to be sure this new query will work for all 3
-
-        $res = $this->db->prepared_query('SELECT * FROM action_history
-                                            LEFT JOIN dependencies USING (dependencyID)
-                                            LEFT JOIN actions USING (actionType)
-                                            WHERE recordID=:recordID
-                                                AND comment != ""
-                                            ORDER BY time ASC', $vars);
-*/
-        $res = $this->db->prepared_query(
-            'SELECT actionTextPasttense, comment, time, userID
-             FROM action_history
-             LEFT JOIN dependencies USING (dependencyID)
-             LEFT JOIN actions USING (actionType)
-             WHERE recordID = :recordID
-             AND comment != ""
-             UNION
-             SELECT "Note Added", note, timestamp, userID
-             FROM notes
-             WHERE recordID = :recordID
-             AND deleted IS NULL
-             ORDER BY time DESC', $vars);
-
-        require_once 'VAMC_Directory.php';
-        $dir = new VAMC_Directory;
-
-        $total = count($res);
-        for ($i = 0; $i < $total; $i++)
-        {
-            $user = $dir->lookupLogin($res[$i]['userID']);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $field['userID'];
-            $res[$i]['name'] = $name;
-        }
-
-        return $res;
+        return (array) $return_value;
     }
 
     public function getTags($recordID)
