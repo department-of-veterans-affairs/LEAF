@@ -34,6 +34,8 @@ export default {
     },
     mounted() {
         switch(this.baseFormat) {
+            case 'raw_data':
+                break;
             case 'date': 
                 $(`#${this.inputElID}`).datepicker({
                     autoHide: true,

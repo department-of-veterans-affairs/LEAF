@@ -42,18 +42,12 @@ export default {
         }
     },
     computed: {
-        hasChildNode() {
-            const { child } = this.formNode;
-            return child !== null && Object.keys(child).length > 0;
-        },
         children() {
             let eles = [];
-            if(this.hasChildNode) {
-                for (let c in this.formNode.child) {
-                    eles.push(this.formNode.child[c]);
-                }
-                eles = eles.sort((a, b)=> a.sort - b.sort);
+            for (let c in this.formNode.child) {
+                eles.push(this.formNode.child[c]);
             }
+            eles = eles.sort((a, b)=> a.sort - b.sort);
             return eles;
         },
         headingNumber() {
@@ -126,7 +120,7 @@ export default {
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
-                <div v-if="hasChildNode" tabindex="0" class="sub-menu-chevron"
+                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron"
                     @click.stop="toggleSubMenu($event)"
                     @keydown.stop.enter.space="toggleSubMenu($event)">
                     {{subMenuOpen ? '︽' : '︾'}}
@@ -142,7 +136,7 @@ export default {
                 @dragenter.prevent="onDragEnter"
                 @dragleave="onDragLeave">
 
-                <template v-if="hasChildNode">
+                <template v-if="formNode.child">
                     <form-index-listing v-for="(child, i) in children"
                         :id="'index_listing_' + child.indicatorID"
                         :depth="depth + 1"

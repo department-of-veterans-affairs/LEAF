@@ -267,7 +267,7 @@ function editIndicatorPrivileges(indicatorID) {
 
 /**
  * Purpose: Show Secure Form Info
- * @param res
+ * @param res (settings)
  */
 function renderSecureFormsInfo(res) {
     $('#formEditor_content').prepend('<div id="secure_forms_info" style="padding: 8px; background-color: #d00; display:none; margin-bottom:1em;" ></div>');
@@ -276,6 +276,7 @@ function renderSecureFormsInfo(res) {
 
     if(res['leafSecure'] >= 1) { // Certified
         $.when(fetchIndicators(), fetchLEAFSRequests(true)).then(function(indicators, leafSRequests) {
+            console.log(indicators, leafSRequests); //all non DELETED ind and headers
             let mostRecentID = null;
             let newIndicator = false;
             let mostRecentDate = 0;
@@ -346,7 +347,7 @@ function fetchIndicators() {
     let deferred = $.Deferred();
     $.ajax({
         type: 'GET',
-        url: '../api/form/indicator/list',
+        url: '../api/form/indicator/list', //all non DELETED ind and headers
         cache: false,
         success: function(resp) {
             deferred.resolve(resp);
@@ -364,6 +365,7 @@ function fetchFormSecureInfo() {
         cache: false
     })
     .then(function(res) {
+        console.log(res)  //obj setting: data, from portal settings table
         renderSecureFormsInfo(res)
     });
 }

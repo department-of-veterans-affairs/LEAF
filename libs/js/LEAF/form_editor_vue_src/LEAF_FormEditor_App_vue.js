@@ -268,9 +268,7 @@ export default {
                     this.ajaxFormByCategoryID = res;
                     this.ajaxFormByCategoryID.forEach(section => {
                         this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
-                        if (this.currentCategoryIsSensitive === false) {
-                            this.currentCategoryIsSensitive = this.checkSensitive(section);
-                        }
+                        this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
                     document.getElementById(catID).focus(); //focus the main form
                 }).catch(err => console.log('error getting form info: ', err));
@@ -341,9 +339,9 @@ export default {
             this.setFormDialogComponent('staple-form-dialog');
             this.showFormDialog = true;
         },
-        openIndicatorEditing(indicatorID) { //gets passed the currentID on edit buttons, a parentID for subquestion buttons, and null for new form sections
+        openIndicatorEditing(indicatorID) { //curIndID when editing, a parIndID for add subquestion, and null for add section
             let title = ''
-            if (this.currIndicatorID === null && indicatorID === null) { //not an existing indicator, nor a child of an existing indicator
+            if (indicatorID === null) { //not an existing indicator, nor a child of an existing indicator
                 title = `<h2>Adding new question</h2>`;
             } else {
                 title = this.currIndicatorID === parseInt(indicatorID) ? 
@@ -354,7 +352,6 @@ export default {
             this.showFormDialog = true;
         },
         openAdvancedOptionsDialog(indicatorID) {
-            console.log('app called open Advanced with:', indicatorID);
             this.currIndicatorID = parseInt(indicatorID);
             this.getIndicatorByID(indicatorID).then(res => {
                 this.ajaxIndicatorByID = res;
@@ -398,20 +395,22 @@ export default {
             }).catch(err => console.log('error getting indicator information', err));
         },
         checkSensitive(node, isSensitive = false) {
-            if (parseInt(node.is_sensitive) === 1) {
-                isSensitive = true;
-            }
-            if (isSensitive === false && node.child) {
-                for (let c in node.child) {
-                    isSensitive = this.checkSensitive(node.child[c], isSensitive);
-                    if (isSensitive===true) break;
+            if (isSensitive === false) {
+                if (parseInt(node.is_sensitive) === 1) {
+                    isSensitive = true;
+                }
+                if (isSensitive === false && node.child) {
+                    for (let c in node.child) {
+                        isSensitive = this.checkSensitive(node.child[c], isSensitive);
+                        if (isSensitive === true) break;
+                    }
                 }
             }
             return isSensitive;
         },
         getIndicatorCountAndNodeSelection(node = {}, count = 0) {
             count++;
-            if (node.indicatorID===this.selectedNodeIndicatorID) {
+            if (node.indicatorID === this.selectedNodeIndicatorID) {
                 this.selectedFormNode = node;
                 console.log('found updated node from stored node ID', this.selectedNodeIndicatorID, this.selectedFormNode)
             }

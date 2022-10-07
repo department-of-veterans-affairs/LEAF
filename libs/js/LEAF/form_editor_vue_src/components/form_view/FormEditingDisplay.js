@@ -30,18 +30,12 @@ export default {
         }
     },
     computed: {
-        hasChildNode() {
-            const { child } = this.formNode;
-            return child !== null && Object.keys(child).length > 0;
-        },
         children() {
             let eles = [];
-            if(this.hasChildNode) {
-                for (let c in this.formNode.child) {
-                    eles.push(this.formNode.child[c]);
-                }
-                eles = eles.sort((a, b)=> a.sort - b.sort);
+            for (let c in this.formNode.child) {
+                eles.push(this.formNode.child[c]);
             }
+            eles = eles.sort((a, b)=> a.sort - b.sort);
             return eles;
         },
         isHeaderLocation() {
@@ -84,7 +78,7 @@ export default {
         }
     },
     template:`<div class="printResponse" :id="printResponseID" 
-            :style="{minHeight: depth===0 ? '50px': 0, paddingLeft: depth===0 ? '0': '1rem'}">
+            :style="{minHeight: depth===0 ? '50px': 0, marginLeft: depth===0 ? '0': '0.75rem'}">
 
             <!-- EDITING AREA FOR INDICATOR -->
             <div class="form_editing_area" 
@@ -137,7 +131,7 @@ export default {
             </div>
 
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
-            <template v-if="hasChildNode">
+            <template v-if="formNode.child">
                 <form-editing-display v-for="child in children"
                     :depth="depth + 1"
                     :formNode="child"
