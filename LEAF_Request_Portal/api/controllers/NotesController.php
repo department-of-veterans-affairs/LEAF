@@ -12,55 +12,55 @@ if (!class_exists('XSSHelpers'))
 
 class NotesController extends RESTfulResponse
 {
-	public $index = array();
+    public $index = array();
 
-	private $API_VERSION = 1;
+    private $API_VERSION = 1;
 
-	private $note;
+    private $note;
 
-	public function __construct($db, $login, $dataActionLogger)
-	{
+    public function __construct($db, $login, $dataActionLogger)
+    {
         $this->note = new Note($db, $login, $dataActionLogger);
-	}
+    }
 
-	public function get($act)
-	{
-		$note = $this->note;
-
-		$this->index['GET'] = new ControllerMap();
-
-		$this->index['GET']->register('note/groupID/[digit]', function ($args) use ($note) {
-            return $note->getUndeletedNotesByRecordId($args[0]);
-		});
-
-        $this->index['GET']->register('note/[digit]', function ($args) use ($note) {
-            return $note->getNotesById($args[0]);
-		});
-
-		return $this->index['GET']->runControl($act['key'], $act['args']);
-	}
-
-	public function post($act)
+    public function get($act)
     {
         $note = $this->note;
 
-		$this->index['POST'] = new ControllerMap();
+        $this->index['GET'] = new ControllerMap();
 
-		$this->index['POST']->register('note/[digit]', function ($args) use ($note) {
+        $this->index['GET']->register('note/groupID/[digit]', function ($args) use ($note) {
+            return $note->getUndeletedNotesByRecordId($args[0]);
+        });
+
+        $this->index['GET']->register('note/[digit]', function ($args) use ($note) {
+            return $note->getNotesById($args[0]);
+        });
+
+        return $this->index['GET']->runControl($act['key'], $act['args']);
+    }
+
+    public function post($act)
+    {
+        $note = $this->note;
+
+        $this->index['POST'] = new ControllerMap();
+
+        $this->index['POST']->register('note/[digit]', function ($args) use ($note) {
             $params = array();
             parse_str($_POST['form'], $params);
 
             $params['recordID'] = $args[0];
             $params['timestamp'] = time();
 
-			$posted_note_id = $note->postNote($params);
+            $posted_note_id = $note->postNote($params);
             $posted_note = $note->getNotesById($posted_note_id);
             $posted_note['user_name'] = $_SESSION['name'];
             $posted_note['date'] = date('M j', $posted_note['timestamp']);
 
             return $posted_note;
-		});
+        });
 
-		return $this->index['POST']->runControl($act['key'], $act['args']);
-	}
+        return $this->index['POST']->runControl($act['key'], $act['args']);
+    }
 }
