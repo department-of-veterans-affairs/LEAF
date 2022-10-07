@@ -389,36 +389,6 @@ switch ($action) {
         $t_form->display('view_status.tpl');
 
         break;
-    case 'get_notes':
-        require 'sources/Note.php';
-        $notes = new Note($db, $login, $dataActionLogger);
-
-        $t_form = new Smarty;
-        $t_form->left_delimiter = '<!--{';
-        $t_form->right_delimiter = '}-->';
-        $recordInfo = $notes->getUndeletedNotesByRecordId((int)$_GET['recordID']);
-        $t_form->assign('recordID', $_GET['recordID']);
-        $t_form->assign('notes', $recordInfo);
-
-        $t_form->display('view_notes.tpl');
-
-        break;
-    case 'post_note':
-        $post_data = array();
-
-        require 'sources/Note.php';
-        $notes = new Note($db, $login, $dataActionLogger);
-
-        //sanitize form data
-        foreach ($_POST as $key => $data) {
-            $post_data[$key] = XSSHelpers::xscrub($data);
-        }
-
-        $post_data['userID'] = $login->getUserID();
-
-        $recordInfo = $notes->postNote($post_data);
-
-        break;
     case 'internalview':
     case 'internalonlyview':
     case 'printview':
