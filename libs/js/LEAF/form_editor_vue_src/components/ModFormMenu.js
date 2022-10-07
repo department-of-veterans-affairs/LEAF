@@ -2,7 +2,7 @@ export default {
     data() {
         return {
             menuOpen: false,
-            clickedOn: false
+            menuPinned: false
         }
     },
     inject: [
@@ -34,14 +34,14 @@ export default {
     },
     methods: {
         toggleMenu() {
-            this.clickedOn = !this.clickedOn;
-            this.menuOpen = this.clickedOn;
+            this.menuPinned = !this.menuPinned;
+            this.menuOpen = this.menuPinned;
         },
         showMenu() {
             this.menuOpen = true;
         },
         hideMenu() {
-            if (!this.clickedOn) {
+            if (!this.menuPinned) {
                 this.menuOpen = false;
             }
         },
@@ -127,10 +127,10 @@ export default {
     },
     template: `<header id="form-editor-header">
         <button type="button"
-            :title="(clickedOn ? 'close ' : 'pin ') + 'menu'"
+            :title="(menuPinned ? 'close ' : 'pin ') + 'menu'"
             id="form-editor-menu-toggle" 
             @click="toggleMenu" @mouseenter="showMenu">
-            <span>{{clickedOn ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
+            <span>{{menuPinned ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
         </button>
         
         <button type="button" @click="selectNewCategory(null)" title="View All Forms">
@@ -152,7 +152,7 @@ export default {
                 <ul id="internalForms">
                     <li v-for="i in internalForms" :key="i.categoryID">
                         <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                        <span>📋</span>{{formName(i.categoryName, 26)}}
+                        {{formName(i.categoryName, 28)}}
                         </a>
                     </li>
                 </ul>
@@ -190,7 +190,7 @@ export default {
                 </li>
                 <li>
                     <a href="#" @click="openStapleFormsDialog" title="staple another form">
-                    Stapled Forms<span>📌</span>
+                    Edit Stapled Forms<span>📌</span>
                     </a>
                     <ul v-if="ajaxSelectedCategoryStapled.length > 0">
                         <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_' + s.stapledCategoryID">

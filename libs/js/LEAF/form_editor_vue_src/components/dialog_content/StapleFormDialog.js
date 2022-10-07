@@ -60,14 +60,15 @@ export default {
                         stapledCategoryID: this.catIDtoStaple
                     },
                     success: res => {
-                        this.getStapledFormsByCurrentCategory(this.formID).then(res => {
-                            this.setCurrCategoryStaples(res);
-                            this.updateFormsStapledCatIDs(this.catIDtoStaple);
-                            this.closeFormDialog();
-                        });
                         if(res !== 1) {
                             alert(res);
+                        } else {
+                            this.getStapledFormsByCurrentCategory(this.formID).then(res => {
+                                this.setCurrCategoryStaples(res);
+                                this.updateFormsStapledCatIDs(this.catIDtoStaple);
+                            });
                         }
+                        this.closeFormDialog();
                     },
                     error: err => console.log(err),
                     cache: false

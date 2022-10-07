@@ -350,7 +350,7 @@ export default {
             this.showFormDialog = true;
         },
         openStapleFormsDialog() {
-            this.setCustomDialogTitle('<h2>Staple Other Form</h2>');
+            this.setCustomDialogTitle('<h2>Editing Stapled Forms</h2>');
             this.setFormDialogComponent('staple-form-dialog');
             this.showFormDialog = true;
         },

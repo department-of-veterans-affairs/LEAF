@@ -2,7 +2,7 @@
 
     <mod-form-menu></mod-form-menu>
 
-    <div style="display:flex; max-width: 1800px; margin: auto;">
+    <div style="display:flex; max-width: 2000px; margin: auto;">
         <!-- CATEGORY BROWSER WITH CARDS / RESTORE FIELDS -->
         <template v-if="restoringFields===false">
             <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content"
