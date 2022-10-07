@@ -355,22 +355,16 @@ button.btn-confirm {
     padding: 0;
     position: relative;
     display: flex;
-    min-height: 127px;
     margin-bottom: 1.5em;
     background-color: white;
-    border: 4px solid $base_navy;
-    /*
-    border-left: 0.75rem solid $base_navy;
-    border-right: 0.75rem solid $BG-DarkNavy;
-    border-bottom: 0.5rem solid $BG-DarkNavy; */
+    border: 2px solid $charcoal;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
     > div {
-        min-width: 350px;
-        padding: 0.75rem;
-        width:50%; 
-        display:flex; 
+        min-width: 400px;
+        padding: 1rem;
+        display: flex; 
         flex-direction:column; 
     }
 
@@ -378,14 +372,13 @@ button.btn-confirm {
         position: relative;
         display: flex;
         flex-direction: column;
-        width:50%;
+        width: 40%;
         height: 100%;
         align-self: center;
-        border-right: 4px solid $base_navy;
+        border-right: 1px solid $charcoal;
 
         #categoryName {
             width: 100%;
-            margin: 2px 0 0.75rem;
         }
         textarea {
             width: 100%;
@@ -398,12 +391,21 @@ button.btn-confirm {
         }
 
     }
-
+    #edit-properties-other-properties {
+        width: 60%;
+    }
     .form-id {
         position: absolute; 
-        right: 0.75rem;
-        top: 0.75rem;
+        right: 1rem;
+        bottom: 1px;
         font-size: 0.75rem;
+    }
+    label {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        column-gap: 3px;
     }
     .panel-properties{
         display: flex;
@@ -412,22 +414,17 @@ button.btn-confirm {
         margin-top: 1rem;
         row-gap: 1rem;
         height: 100%;
-        align-content: flex-end;
-
-        label {
-            display: flex;
-            align-items: center;
-            flex-wrap: nowrap;
-        }
-    }
-    input {
-        padding-left: 0.5rem;
+        align-content: center;
     }
     input, select {
-        height: 1.7rem;
         border: 1px inset #dde;
-        border-radius: 3px;
+        border-radius: 2px;
         font-family: 'Source Sans Pro Web','Helvetica Neue',Helvetica,'Roboto',Arial,sans-serif;
+        line-height: normal;
+        min-height: 24px;
+    }
+    input {
+        padding-left: 0.4em;
     }
     #workflowID, #availability, #categorySort, #formType {
         margin-right: 1.5rem;
@@ -476,7 +473,7 @@ button.btn-confirm {
     .formPreviewDescription {
         height: 100%;
         font-size: 14px;
-        line-height: 1.2;
+        line-height: 1.3;
     }
     .formPreviewStatus {
         margin-top: auto;
@@ -500,6 +497,7 @@ div#form_content_view {
     width: 100%;
 }
 
+
 #form_index_and_editing {
     display: flex; 
 }
@@ -509,9 +507,9 @@ div#form_content_view {
 #form_index_display {
     position: relative;
     margin: 0;
-    padding: 0.75rem 0.75rem 0.25rem 0.75rem;
-    width: 375px;
-    flex: 0 0 375px;
+    padding: 1rem 1rem 0.25rem 1rem;
+    width: 400px;
+    flex: 0 0 400px;
     align-self:flex-start;
     margin-right: 1.5rem;
     background-color: white;
@@ -951,13 +949,22 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
             margin: 0;
         }
         #edit-properties-panel {
-            flex-direction: column-reverse;
+            flex-direction: column;
             > div {
                 width: 100%;
             }
             #edit-properties-description {
                 border-right: 0;
+                border-bottom: 1px solid $charcoal;
             }
+            #edit-properties-other-properties {
+                flex-direction: column-reverse;
+                .panel-properties {
+                    margin-top: 0;
+                    margin-bottom: 1rem;
+                }
+            }
+            
         }
 
         #form_entry_and_preview {

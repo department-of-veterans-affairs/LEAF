@@ -297,7 +297,12 @@ export default {
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
 
-    <div v-else id="form_index_and_editing">
+    <template v-else>
+    <!-- TOP INFO PANEL -->
+    <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
+
+    <div id="form_index_and_editing">
+
         <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
             <div style="display:flex; align-items: center;">
@@ -346,9 +351,6 @@ export default {
 
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
         <div style="display:flex; flex-direction: column; width: 100%;">
-        
-            <!-- TOP INFO PANEL -->
-            <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
 
             <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
                 <!-- ENTIRE FORM EDIT / PREVIEW -->
@@ -392,5 +394,6 @@ export default {
                 </div>
             </template>
         </div>
-    </div>`
+    </div>
+    </template>`
 }
