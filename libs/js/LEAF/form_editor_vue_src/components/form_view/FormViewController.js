@@ -310,7 +310,7 @@ export default {
                 <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
                     class="can_update"
                     title="Apply form structure updates">Apply changes</button>
-                <div v-else class="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</div>
+                <button v-else class="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</button>
             </div>
             <div style="margin: 1em 0">
                 <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 

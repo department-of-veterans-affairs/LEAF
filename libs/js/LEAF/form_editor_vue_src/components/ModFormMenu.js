@@ -2,7 +2,8 @@ export default {
     data() {
         return {
             menuOpen: false,
-            menuPinned: false
+            menuPinned: false,
+            internalFormsMenuOpen: false,
         }
     },
     inject: [
@@ -44,6 +45,12 @@ export default {
             if (!this.menuPinned) {
                 this.menuOpen = false;
             }
+        },
+        showInternalFormsMenu() {
+            this.internalFormsMenuOpen = true;
+        },
+        hideInternalFormsMenu() {
+            this.internalFormsMenuOpen = false;
         },
         //export the main form along with its internals
         exportForm() {
@@ -126,94 +133,112 @@ export default {
         },
     },
     template: `<header id="form-editor-header">
-        <button type="button"
-            :title="(menuPinned ? 'close ' : 'pin ') + 'menu'"
-            id="form-editor-menu-toggle" 
-            @click="toggleMenu" @mouseenter="showMenu">
-            <span>{{menuPinned ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
-        </button>
-        
-        <button type="button" @click="selectNewCategory(null)" title="View All Forms">
-            <h2><span class="header-icon">🗃️</span>Form Editor</h2>
-        </button>
-        
-        <template v-if="currCategoryID!==null">
-            <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
-        
-            <button type="button" :id="currCategoryID" @click="selectMainForm" title="main form">
-                <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}</h2>
-            </button>
-        </template>
-        
-        <template v-if="internalForms.length > 0">
-            <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
-            <div style="display: flex; position: relative;">
-                <button type="button"><h2><span class="header-icon">📋</span>Internal Forms</h2></button>
-                <ul id="internalForms">
-                    <li v-for="i in internalForms" :key="i.categoryID">
-                        <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                        {{formName(i.categoryName, 28)}}
-                        </a>
+        <nav>
+            <ul>
+                <li>
+                    <button type="button"
+                        :title="(menuPinned ? 'close ' : 'pin ') + 'menu'"
+                        id="form-editor-menu-toggle" 
+                        @click="toggleMenu" @mouseenter="showMenu">
+                        <span>{{menuPinned ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
+                    </button>
+                
+                    <template v-if="menuOpen">
+                        <ul v-if="currCategoryID===null" id="form-editor-nav"
+                            @mouseenter="showMenu" @mouseleave="hideMenu">
+                            <li>
+                                <a href="#" id="createFormButton" @click="openNewFormDialog">
+                                Create Form<span>📄</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click="openImportFormDialog">
+                                Import Form<span>📦</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click="showRestoreFields">
+                                Restore Fields<span>♻️</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="./?a=formLibrary">
+                                LEAF Library<span>📘</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul v-else id="form-editor-nav"
+                            @mouseenter="showMenu" 
+                            @mouseleave="hideMenu">
+                            <li>
+                                <a href="#" @click="openNewFormDialog" title="add new internal use form">
+                                Add Internal-Use<span>➕</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click="openStapleFormsDialog" title="staple another form">
+                                Edit Stapled Forms<span>📌</span>
+                                </a>
+                                <ul>
+                                    <li v-for="s in ajaxSelectedCategoryStapled" 
+                                        :key="'staple_' + s.stapledCategoryID"
+                                        class="stapled-form">
+                                        <a href="#">{{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<span>📑</span></a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#" @click="openFormHistoryDialog" title="view form history">
+                                View History<span>🕗</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click="exportForm" title="export form">
+                                Export Form<span>💾</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click="openConfirmDeleteFormDialog" title="delete this form">
+                                Delete this form<span>❌</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </template>
+                </li>
+                
+                <li>
+                    <button type="button" @click="selectNewCategory(null)" title="View All Forms">
+                        <h2><span class="header-icon">🗃️</span>Form Editor</h2>
+                    </button>
+                </li>
+                
+                <template v-if="currCategoryID!==null">
+                    <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
+                    <li>
+                        <button type="button" :id="currCategoryID" @click="selectMainForm" title="main form">
+                            <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}</h2>
+                        </button>
                     </li>
-                </ul>
-            </div>
-        </template>
-        
-        <nav v-if="menuOpen" id="form-editor-nav">
-            <ul v-if="currCategoryID===null" @mouseenter="showMenu" @mouseleave="hideMenu">
-                <li>
-                    <a href="#" id="createFormButton" @click="openNewFormDialog">
-                    Create Form<span>📄</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" @click="openImportFormDialog">
-                    Import Form<span>📦</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" @click="showRestoreFields">
-                    Restore Fields<span>♻️</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="./?a=formLibrary">
-                    LEAF Library<span>📘</span>
-                    </a>
-                </li>
-            </ul>
-            <ul v-else @mouseenter="showMenu" @mouseleave="hideMenu">
-                <li>
-                    <a href="#" @click="openNewFormDialog" title="add new internal use form">
-                    Add Internal-Use<span>➕</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" @click="openStapleFormsDialog" title="staple another form">
-                    Edit Stapled Forms<span>📌</span>
-                    </a>
-                    <ul v-if="ajaxSelectedCategoryStapled.length > 0">
-                        <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_' + s.stapledCategoryID">
-                        {{s.categoryName || 'Untitled'}}
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#" @click="openFormHistoryDialog" title="view form history">
-                    View History<span>🕗</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" @click="exportForm" title="export form">
-                    Export Form<span>💾</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" @click="openConfirmDeleteFormDialog" title="delete this form">
-                    Delete this form<span>❌</span>
-                    </a>
-                </li>
+                </template>
+                
+                <template v-if="internalForms.length > 0">
+                    <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
+                    <li>
+                        <button type="button" 
+                            @mouseenter="showInternalFormsMenu">
+                            <h2><span class="header-icon">📋</span>Internal Forms</h2>
+                        </button>
+                        <ul v-if="internalFormsMenuOpen" id="internalForms" @mouseleave="hideInternalFormsMenu">
+                            <li v-for="i in internalForms" :key="i.categoryID">
+                                <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                                {{shortFormNameStripped(i.categoryName, 28)}}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </template>
             </ul>
         </nav>
+        
     </header>`
 };

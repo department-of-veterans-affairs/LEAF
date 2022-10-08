@@ -225,7 +225,7 @@ export default {
                     @click="editPermissionsClicked">
                     Edit Collaborators
                 </button>
-                <div v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</div>
+                <button v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</button>
                 <button v-else class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
             </div>
             <template v-if="!isSubForm">
