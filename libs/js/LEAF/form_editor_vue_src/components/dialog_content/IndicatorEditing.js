@@ -418,24 +418,15 @@ export default {
             console.log('app added cell');
             this.gridJSON.push({});
         },
-        gridDropdown(dropDownOptions){ //TODO: edit
-            if(dropDownOptions == null || dropDownOptions.length === 0){
-                return [];
+        gridDropdown(dropDownOptions) {
+            let returnValue = []
+            if (dropDownOptions !== null && dropDownOptions.length !== 0) {
+                let uniqueOptions = dropDownOptions.split("\n");
+                uniqueOptions = uniqueOptions.map(option => option.trim());
+                uniqueOptions = uniqueOptions.map(option => option === 'no' ? 'No' : option); //this checks specifically for lower case no
+                returnValue = Array.from(new Set(uniqueOptions));
             }
-            let uniqueNames = dropDownOptions.split("\n");
-            let returnArray = [];
-            uniqueNames = uniqueNames.filter(function(elem, index, self) {
-                return index == self.indexOf(elem);
-            });
-        
-            $.each(uniqueNames, function(i, el){
-                if(el === "no") {
-                    uniqueNames[i] = "No";
-                }
-                returnArray.push(uniqueNames[i]);
-            });
-        
-            return returnArray;
+            return returnValue;
         },
         updateGridJSON() {  //FIX: TODO: rework
             let gridJSON = [];
@@ -464,7 +455,7 @@ export default {
         formatIndicatorMultiAnswer() {
             let optionsToArray = this.multiOptionValue.split('\n');
             optionsToArray = optionsToArray.map(option => option.trim());
-            optionsToArray = optionsToArray.map(option => option === 'no' ? 'No' : option); //this checks specifically for lower case values
+            optionsToArray = optionsToArray.map(option => option === 'no' ? 'No' : option); //this checks specifically for lower case no
             const uniqueArray = Array.from(new Set(optionsToArray));
             return uniqueArray.join('\n');
         },

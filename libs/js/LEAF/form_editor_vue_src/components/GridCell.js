@@ -16,9 +16,13 @@ export default {
         'updateGridJSON'
     ],
     mounted() {
-        console.log('mounted gridcell');
         if(this.gridJSON.length === 0) {
             this.updateGridJSON();
+        }
+    },
+    computed: {
+        gridJSONlength() {
+            return this.gridJSON.length;
         }
     },
     methods: {
@@ -67,20 +71,14 @@ export default {
          */
         moveRight(event) {
             let column = event.currentTarget.closest('div.cell');
-            const cells = Array.from(document.getElementById('gridcell_col_parent').children);
-            const nextColumn = column.nextElementSibling;
+            const nextColumnRight = column.nextElementSibling;
             const nextColumnRightImg = column.nextElementSibling.querySelector('[title="Move column right"]');
             
-            column.remove();
-            nextColumn.after(column);
-            setTimeout(()=> {
-                if(nextColumnRightImg === null) {
-                    column.querySelector('[title="Move column left"]')?.focus();
-                } else { 
-                    column.querySelector('[title="Move column right"]')?.focus();
-                }
-            },0);
-            document.getElementById('tableStatus').setAttribute('aria-label', `Moved right to column ${cells.indexOf(column) + 2} of ${cells.length}`);
+            nextColumnRight.after(column);
+            setTimeout(()=> {  //clear stack
+            column.querySelector(`[title="Move column ${nextColumnRightImg === null ? 'left' : 'right'}"]`)?.focus();
+            }, 0);
+            document.getElementById('tableStatus').setAttribute('aria-label', `Moved right to column ${this.column + 1} of ${this.gridJSONlength}`);
             this.updateGridJSON();
         },
         /**
@@ -88,21 +86,25 @@ export default {
          * @param event
          */
         moveLeft(event) {
-            let column = $(event.target).closest('div.cell');
-            let nextColumn = column.prev().find('[title="Move column left"]');
+            let column = event.currentTarget.closest('div.cell');
+            const nextColumnLeft = column.previousElementSibling;
+            const nextColumnLeftImg = column.previousElementSibling.querySelector('[title="Move column left"]');
 
-            column.insertBefore(column.prev());
-            setTimeout(()=> {  //need to clear stack
-                if(nextColumn.length===0) {
-                    column.find('[title="Move column right"]').focus();
-                } else {
-                    column.find('[title="Move column left"]').focus();
-                }
+            nextColumnLeft.before(column);
+            setTimeout(()=> {  //clear stack
+                column.querySelector(`[title="Move column ${nextColumnLeftImg === null ? 'right' : 'left'}"]`)?.focus();
             }, 0);
-            $('#tableStatus').attr('aria-label', 'Moved left to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
+            document.getElementById('tableStatus').setAttribute('aria-label', `Moved left to column ${this.column - 1} of ${this.gridJSONlength}`);
             this.updateGridJSON();
         },
 
+    },
+    watch: {
+        gridJSONlength(newVal, oldVal) {
+            if (newVal > oldVal) {
+                document.getElementById('tableStatus').setAttribute('aria-label', `Added a new column, ${this.gridJSONlength} total.`);
+            }
+        }
     },
     template:`<div :id="id" class="cell">
         <img v-if="column!==1" role="button" tabindex="0"
