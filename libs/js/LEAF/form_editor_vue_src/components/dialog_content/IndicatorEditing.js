@@ -512,17 +512,17 @@ export default {
                     @click="advNameEditorClick">
                     Advanced Formatting
                 </button>
-                <button v-if="name.length <= shortLabelTrigger" 
+                <button v-if="name.length <= shortLabelTrigger && description===''" 
                     class="btn-general" 
                     style="margin-left: auto; width:135px"
                     title="access short label field"
                     @click="toggleShortlabel">
-                    {{showShortLabel ? 'Hide' : 'Show'}} Short Label
+                    {{showShortLabel ? 'Hide' : 'Use'}} Short Label
                 </button>
             </div>
         </div>
         <div id="non-name-wrapper">
-            <div v-if="name.length > shortLabelTrigger || showShortLabel===true">
+            <div v-if="description!=='' || name.length > shortLabelTrigger || showShortLabel===true">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <label for="description">What would you call this field in a spreadsheet?</label>
                     <div>{{shortlabelCharsRemaining}}</div>
@@ -556,9 +556,9 @@ export default {
                 <div v-if="format==='grid'" id="container_indicatorGrid">
                     <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
                     <br/>
-                    <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" @click="appAddCell">
-                        <img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>
-                        Add column
+                    <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                        @click="appAddCell">
+                        ➕ Add column
                     </button>
                     <br/><br/>
                     Columns:
@@ -567,7 +567,7 @@ export default {
                         <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                     </div>
                 </div>
-                <div style="margin-top:0.5rem;">
+                <div style="margin-top:0.75rem;">
                     <label for="defaultValue">Default Answer</label><br/>
                     <textarea id="defaultValue" v-model="defaultValue"></textarea> 
                 </div>

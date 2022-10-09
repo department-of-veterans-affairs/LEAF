@@ -3,7 +3,7 @@ export default {
         return {
             name: this.cell?.name || 'No title',
             id: this.cell?.id || this.makeColumnID(),
-            gridType: this.cell?.type || '',
+            gridType: this.cell?.type || 'text',
             textareaDropOptions: this.cell?.options?.join('\n') || '',
         }
     },
@@ -65,12 +65,12 @@ export default {
          * Purpose: Move Column Right
          * @param event
          */
-        moveRight(event){
-            let column = $(event.target).closest('div');
-            let nextColumnLast = column.next().find('[title="Move column right"]').css('display') === 'none';
-
+        moveRight(event) {
+            let column = $(event.target).closest('div.cell');
+            let nextColumn = column.next().find('[title="Move column right"]');
+            
             column.insertAfter(column.next());
-            if(nextColumnLast) {
+            if(nextColumn.length===0) {
                 column.find('[title="Move column left"]').focus();
             } else {
                 column.find('[title="Move column right"]').focus();
@@ -82,43 +82,51 @@ export default {
          * Purpose: Move Column Left
          * @param event
          */
-        moveLeft(event){
+        moveLeft(event) {
             let column = $(event.target).closest('div.cell');
-            let nextColumnFirst = column.prev().find('[title="Move column left"]').css('display') === 'none';
+            let nextColumn = column.prev().find('[title="Move column left"]');
 
             column.insertBefore(column.prev());
-            if(nextColumnFirst){
-                column.find('[title="Move column right"]').focus();
-            } else {
-                column.find('[title="Move column left"]').focus();
-            }
+            setTimeout(()=> {  //need to clear stack for left
+                if(nextColumn.length===0) {
+                    column.find('[title="Move column right"]').focus();
+                } else {
+                    column.find('[title="Move column left"]').focus();
+                }
+            }, 0);
             $('#tableStatus').attr('aria-label', 'Moved left to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
             this.updateGridJSON();
         },
 
     },
-    template:`<div tabindex="0" :id="id" class="cell">
+    template:`<div :id="id" class="cell">
         <img v-if="column!==1" role="button" tabindex="0"
-            @click="moveLeft" src="../../libs/dynicons/?img=go-previous.svg&w=16" 
+            @click="moveLeft" @keypress.space.enter.prevent="moveLeft"
+            src="../../libs/dynicons/?img=go-previous.svg&w=16" 
             title="Move column left" alt="Move column left" style="cursor: pointer" />
         <img v-if="column!==gridJSON.length" role="button" tabindex="0" 
-            @click="moveRight" src="../../libs/dynicons/?img=go-next.svg&w=16" 
+            @click="moveRight"  @keypress.space.enter.prevent="moveRight" 
+            src="../../libs/dynicons/?img=go-next.svg&w=16" 
             title="Move column right" alt="Move column right" style="cursor: pointer" /><br />
-        <span class="columnNumber">Column #{{column}}: </span>
-        <img role="button" tabindex="0"
-            @click="deleteColumn" src="../../libs/dynicons/?img=process-stop.svg&w=16" 
-            title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" /><br/>
-        <input type="text" v-model="name" /><br />
-        <div style="text-align: left">Type:</div>
-        <select v-model="gridType">
+        <span class="columnNumber">
+            <span>Column #{{column}}:</span>
+            <img role="button" tabindex="0"
+            @click="deleteColumn" @keypress.space.enter.prevent="deleteColumn"
+            src="../../libs/dynicons/?img=process-stop.svg&w=16" 
+            title="Delete column" alt="Delete column" />
+        </span>
+        <label :for="'gridcell_title_' + id">Title:</label>
+        <input type="text" v-model="name" :id="'gridcell_title_' + id" />
+        <label :for="'gridcell_type_' + id">Type:</label>
+        <select v-model="gridType" :id="'gridcell_type_' + id">
             <option value="text">Single line input</option>
             <option value="date">Date</option>
             <option value="dropdown">Drop Down</option>
             <option value="textarea">Multi-line text</option>
         </select>
         <span v-if="gridType==='dropdown'" class="dropdown">
-            <div style="text-align: left">One option per line</div>
-            <textarea  
+            <label for="'gridcell_options_' + id">One option per line</label>
+            <textarea :id="'gridcell_options_' + id" 
                 v-model="textareaDropOptions"
                 aria-label="Dropdown options, one option per line"
                 style="width: 100%; height: 60px; resize:vertical">

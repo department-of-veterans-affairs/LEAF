@@ -47,6 +47,7 @@ button.btn-general, button.btn-confirm, button.can_update {
     color: $base_navy;
     font-weight: bolder;
     padding: 0.2em 0.4em;
+    border-radius: 3px;
     border: 2px solid $base_navy;
 
     &.disabled {
@@ -249,6 +250,7 @@ button.can_update {
     }
 }
 
+
 #indicator-editing-dialog-content {
     > div,  #non-name-wrapper > div{
         margin-bottom: 1rem;
@@ -259,6 +261,9 @@ button.can_update {
         font-weight: bolder;
         padding-right: 0.2rem;
         white-space: nowrap;
+    }
+    input, select {
+        height: 24px;
     }
 
     #name {
@@ -276,14 +281,11 @@ button.can_update {
             width: 100%;
             margin-top: 0.1rem;
         }
-        #editing-format-assist {
+        button#editing-format-assist {
             align-self: flex-end;
             font-weight: normal;
             font-size:80%;
             margin-left: 0.2rem;
-            color: $charcoal;
-            border: 2px solid $base_navy;
-            border-radius: 2px;
         }
         #indicator-editing-attributes {
             margin: 0;
@@ -311,19 +313,33 @@ button.can_update {
         color: #d00; 
         font-size: 90%;
     }
-
+    #addColumnBtn {
+        padding: 0.4em;
+    }
     div.cell {
-        width: 160px;
-        min-width: 160px;
+        width: 200px;
+        min-width: 200px;
         text-align: center;
         border: 1px grey solid;
         padding: 10px;
         vertical-align: top;
         display: table-cell;
 
+        span.columnNumber {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-weight: bolder;
+        }
         input, select {
             width: 100%;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        label {
+            padding: 0;
+            display: flex;
+            margin-bottom: 3px;
         }
     }
 }
