@@ -420,7 +420,7 @@ export default {
         },
         gridDropdown(dropDownOptions){ //TODO: edit
             if(dropDownOptions == null || dropDownOptions.length === 0){
-                return dropDownOptions;
+                return [];
             }
             let uniqueNames = dropDownOptions.split("\n");
             let returnArray = [];
@@ -450,7 +450,7 @@ export default {
                 }
                 properties.id = $(this).attr('id');
                 properties.type = $(this).find('select').val();
-                if(properties.type !== undefined && properties.type !==null){
+                if(properties.type !== undefined && properties.type !== null){
                     if(properties.type.toLowerCase() === 'dropdown') {
                         properties.options = t.gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
                     }

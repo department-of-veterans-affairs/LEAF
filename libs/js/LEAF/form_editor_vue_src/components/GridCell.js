@@ -17,6 +17,9 @@ export default {
     ],
     mounted() {
         console.log('mounted gridcell');
+        if(this.gridJSON.length === 0) {
+            this.updateGridJSON();
+        }
     },
     methods: {
         /**
@@ -32,22 +35,13 @@ export default {
          */
         deleteColumn(event) {
             let column = event.currentTarget.closest('div.cell');
-            let cellsParent = document.getElementById('gridcell_col_parent');
-            let cells = Array.from(cellsParent.querySelectorAll('div.cell'));
+            const cellsParent = document.getElementById('gridcell_col_parent');
+            const cells = Array.from(cellsParent.querySelectorAll('div.cell'));
             
-            let colNumber = '';
-            cells.forEach((c, i) => {
-                if (c === column) { 
-                    colNumber = i + 1;
-                }
-            })
-
+            const colNumber = cells.indexOf(column) + 1;
             let numcells = cells.length;
             let focus;
             switch(numcells) {
-                case 1:
-                    alert('Cannot remove initial column.');
-                    break;
                 case 2:
                     column.remove();
                     numcells--;
@@ -72,16 +66,21 @@ export default {
          * @param event
          */
         moveRight(event) {
-            let column = $(event.target).closest('div.cell');
-            let nextColumn = column.next().find('[title="Move column right"]');
+            let column = event.currentTarget.closest('div.cell');
+            const cells = Array.from(document.getElementById('gridcell_col_parent').children);
+            const nextColumn = column.nextElementSibling;
+            const nextColumnRightImg = column.nextElementSibling.querySelector('[title="Move column right"]');
             
-            column.insertAfter(column.next());
-            if(nextColumn.length===0) {
-                column.find('[title="Move column left"]').focus();
-            } else {
-                column.find('[title="Move column right"]').focus();
-            }
-            $('#tableStatus').attr('aria-label', 'Moved right to column ' + (parseInt($(column).index()) + 1) + ' of ' + column.parent().children().length);
+            column.remove();
+            nextColumn.after(column);
+            setTimeout(()=> {
+                if(nextColumnRightImg === null) {
+                    column.querySelector('[title="Move column left"]')?.focus();
+                } else { 
+                    column.querySelector('[title="Move column right"]')?.focus();
+                }
+            },0);
+            document.getElementById('tableStatus').setAttribute('aria-label', `Moved right to column ${cells.indexOf(column) + 2} of ${cells.length}`);
             this.updateGridJSON();
         },
         /**
