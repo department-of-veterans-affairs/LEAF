@@ -554,15 +554,16 @@ export default {
                     </textarea>
                 </div>
                 <div v-if="format==='grid'" id="container_indicatorGrid">
-                    <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
+                    <span id="tableStatus" style="position: absolute; color: transparent" 
+                        aria-atomic="true" aria-live="polite"  role="status"></span>
                     <br/>
                     <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
                         @click="appAddCell">
                         ➕ Add column
                     </button>
                     <br/><br/>
-                    Columns:
-                    <div style="overflow-x: scroll;">
+                    Columns ({{gridJSON.length}}):
+                    <div style="overflow-x: scroll;" id="gridcell_col_parent">
                         <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
                         <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                     </div>

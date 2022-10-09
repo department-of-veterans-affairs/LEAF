@@ -15,6 +15,9 @@ export default {
         'gridJSON',
         'updateGridJSON'
     ],
+    mounted() {
+        console.log('mounted gridcell');
+    },
     methods: {
         /**
          * Purpose: Generates Unique ID to track columns to update user input with grid format
@@ -27,39 +30,42 @@ export default {
          * Purpose: Delete a column from Grid
          * @param event
          */
-        deleteColumn(event){
-            console.log('app clicked del col')
-            let column = $(event.target).closest('div');
-            let tbody = $(event.target).closest('div').parent('div');
-            let columnDeleted = parseInt($(column).index()) + 1;
+        deleteColumn(event) {
+            let column = event.currentTarget.closest('div.cell');
+            let cellsParent = document.getElementById('gridcell_col_parent');
+            let cells = Array.from(cellsParent.querySelectorAll('div.cell'));
+            
+            let colNumber = '';
+            cells.forEach((c, i) => {
+                if (c === column) { 
+                    colNumber = i + 1;
+                }
+            })
+
+            let numcells = cells.length;
             let focus;
-            switch(tbody.find('div').length){
+            switch(numcells) {
                 case 1:
                     alert('Cannot remove initial column.');
                     break;
                 case 2:
                     column.remove();
-                    focus = $('div.cell:first');
-                    this.rightArrows(tbody.find('div'), false);
-                    this.leftArrows(tbody.find('div'), false);
+                    numcells--;
+                    focus = cells[0];
                     break;
-                default:
-                    focus = column.next().find('[title="Delete column"]');
-                    if(column.find('[title="Move column right"]').css('display') === 'none'){
-                        this.rightArrows(column.prev(), false);
-                        this.leftArrows(column.prev(), true);
-                        focus = column.prev().find('[title="Delete column"]');
-                    }
-                    if(column.find('[title="Move column left"]').css('display') === 'none'){
-                        this.leftArrows(column.next(), false);
-                        this.rightArrows(column.next(), true);
+                default: 
+                    if(column.querySelector('[title="Move column right"]')===null){
+                        focus = column.previousElementSibling.querySelector('[title="Delete column"]');
+                    } else {
+                        focus = column.nextElementSibling.querySelector('[title="Delete column"]');
                     }
                     column.remove();
+                    numcells--;
                     break;
-            }
-            $('#tableStatus').attr('aria-label', 'Row ' + columnDeleted + ' removed, ' + $(tbody).children().length + ' total.');
+            } 
+            document.getElementById('tableStatus').setAttribute('aria-label', `column ${colNumber} removed, ${numcells} total.`);
             focus.focus();
-            this.updateGridJSON();
+            this.updateGridJSON(); 
         },
         /**
          * Purpose: Move Column Right
@@ -87,7 +93,7 @@ export default {
             let nextColumn = column.prev().find('[title="Move column left"]');
 
             column.insertBefore(column.prev());
-            setTimeout(()=> {  //need to clear stack for left
+            setTimeout(()=> {  //need to clear stack
                 if(nextColumn.length===0) {
                     column.find('[title="Move column right"]').focus();
                 } else {
@@ -110,7 +116,7 @@ export default {
             title="Move column right" alt="Move column right" style="cursor: pointer" /><br />
         <span class="columnNumber">
             <span>Column #{{column}}:</span>
-            <img role="button" tabindex="0"
+            <img v-if="gridJSON.length !==1" role="button" tabindex="0"
             @click="deleteColumn" @keypress.space.enter.prevent="deleteColumn"
             src="../../libs/dynicons/?img=process-stop.svg&w=16" 
             title="Delete column" alt="Delete column" />

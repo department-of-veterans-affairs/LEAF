@@ -60,6 +60,11 @@ button.btn-general, button.btn-confirm, button.can_update {
         box-shadow: 0 0 3px rgba(0,0,30,0.4);
     }
 }
+button.buttonNorm {
+    &:hover, &:focus, &:active {
+        border: 1px solid black !important;
+    }
+}
 button.btn-confirm {
     color: white;
     background-color: $base_navy;
