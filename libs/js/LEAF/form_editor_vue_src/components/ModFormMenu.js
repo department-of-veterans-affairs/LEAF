@@ -144,7 +144,7 @@ export default {
                     </button>
                 
                     <template v-if="menuOpen">
-                        <ul v-if="currCategoryID===null" id="form-editor-nav"
+                        <ul v-if="currCategoryID===null" id="form-editor-menu"
                             @mouseenter="showMenu" @mouseleave="hideMenu">
                             <li>
                                 <a href="#" id="createFormButton" @click="openNewFormDialog">
@@ -167,7 +167,7 @@ export default {
                                 </a>
                             </li>
                         </ul>
-                        <ul v-else id="form-editor-nav"
+                        <ul v-else id="form-editor-menu"
                             @mouseenter="showMenu" 
                             @mouseleave="hideMenu">
                             <li>
@@ -210,19 +210,19 @@ export default {
                     <button type="button" @click="selectNewCategory(null)" title="View All Forms">
                         <h2><span class="header-icon">🗃️</span>Form Editor</h2>
                     </button>
+                    <span v-if="currCategoryID!==null" class="header-arrow">❯</span>
                 </li>
                 
                 <template v-if="currCategoryID!==null">
-                    <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
                     <li>
                         <button type="button" :id="currCategoryID" @click="selectMainForm" title="main form">
                             <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}</h2>
                         </button>
+                        <span v-if="internalForms.length > 0" class="header-arrow">❯</span>
                     </li>
                 </template>
                 
                 <template v-if="internalForms.length > 0">
-                    <span style="font-size: 1.5rem; margin: 0 1rem; font-weight:bold;">❯</span>
                     <li>
                         <button type="button" 
                             @mouseenter="showInternalFormsMenu">

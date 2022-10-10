@@ -20,9 +20,10 @@ export default {
         return {
             APIroot: '../api/',
             CSRFToken: CSRFToken,
+            siteSettings: {},
+            showCertificationStatus: false,
             dialogTitle: '',
             dialogFormContent: '',
-            dialogContentIsComponent: false,
             dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             showFormDialog: false,
             //this sets the method associated with the save btn to the onSave method of the modal's current component
@@ -134,6 +135,14 @@ export default {
             this.ajaxWorkflowRecords = res;
         }).catch(err => console.log('error getting workflow records', err));
     },
+    mounted() {
+        this.getSiteSettings().then(res => {
+            this.siteSettings = res;
+            if (res.leafSecure >=1) {
+                this.getSecureFormsInfo();
+            }
+        }).catch(err => console.log('error getting site settings', err));
+    },
     computed: {
         activeCategories() {
             let active = [];
@@ -164,7 +173,6 @@ export default {
         toggleIndicatorCountSwitch() {
             this.indicatorCountSwitch = !this.indicatorCountSwitch;
         },
-        //DB GET
         getCategoryListAll() {
             this.appIsLoadingCategoryList = true;
             return new Promise((resolve, reject)=> {
@@ -185,6 +193,92 @@ export default {
                     error: (err) => reject(err)
                 });
             });
+        },
+        getSiteSettings() {
+            return new Promise((resolve, reject)=> {
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}system/settings`,
+                    success: (res) => resolve(res),
+                    error: (err) => reject(err),
+                    cache: false
+                })
+            });
+        },
+        fetchLEAFSRequests(searchResolved) {
+            return new Promise((resolve, reject)=> {
+                let query = new LeafFormQuery();
+                query.setRootURL('../');
+                query.addTerm('categoryID', '=', 'leaf_secure');
+            
+                if (searchResolved === true) {
+                    query.addTerm('stepID', '=', 'resolved');
+                    query.join('recordResolutionData');
+                } else {
+                    query.addTerm('stepID', '!=', 'resolved');
+                }
+                query.onSuccess((data) => {
+                    resolve(data);
+                });
+                query.execute();
+            });
+        },
+        getSecureFormsInfo() {
+            let secureCalls = [
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}form/indicator/list`, //all non DELETED ind and headers
+                    success: (res)=> {},
+                    error: (err) => console.log(err),
+                    cache: false,
+                }),
+
+                this.fetchLEAFSRequests(true)
+            ];
+
+            Promise.all(secureCalls)
+            .then((res)=> {
+                const indicatorList = res[0];
+                const leafSecureRecords = res[1];
+                this.checkLeafSRequestStatus(indicatorList, leafSecureRecords);
+            });
+
+        },
+        checkLeafSRequestStatus(indicatorList, leafSRequests) {
+            let mostRecentID = null;
+            let newIndicator = false;
+            let mostRecentDate = 0;
+
+            for(let i in leafSRequests) {
+                if(leafSRequests[i].recordResolutionData.lastStatus.toLowerCase() === 'approved'
+                    && leafSRequests[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
+                    mostRecentDate = leafSRequests[i].recordResolutionData.fulfillmentTime;
+                    mostRecentID = i;
+                }
+            }
+            document.getElementById('secureBtn').setAttribute('href', '../index.php?a=printview&recordID=' + mostRecentID);
+            const mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
+            for(let i in indicatorList) {
+                if(new Date(indicatorList[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
+                    newIndicator = true;
+                    break;
+                }
+            }
+            if (newIndicator === true) {
+                this.showCertificationStatus = true;
+                this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
+                    if (unresolvedLeafSRequests.length === 0) { // if no new request, create one
+                        document.getElementById('secureStatus').innerText = 'Forms have been modified.';
+                        document.getElementById('secureBtn').innerText = 'Please Recertify Your Site';
+                        document.getElementById('secureBtn').setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                    } else {
+                        const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
+                        document.getElementById('secureStatus').innerText = 'Re-certification in progress.';
+                        document.getElementById('secureBtn').innerText = 'Check Certification Progress';
+                        document.getElementById('secureBtn').setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
+                    }
+                })
+            }
         },
         getFormByCategoryID(catID = this.currCategoryID) {
             this.appIsLoadingCategoryInfo = true;
@@ -222,8 +316,8 @@ export default {
                 });
             });
         },
-        //local data
-        setCategories(obj) {  //build categories object from getCatListAll res on success
+        //builds categories object from getCatListAll res on success, for local data use
+        setCategories(obj) {
             for(let i in obj) {
                 this.categories[obj[i].categoryID] = obj[i];
             }
@@ -253,15 +347,14 @@ export default {
         },
         //categoryID of the form to select, whether it is a subform, indicatorID associated with the current selection in the form index 
         selectNewCategory(catID, isSubform = false, subnodeIndID = null) {
-            console.log('selecting new form');
             this.restoringFields = false;  //nav from Restore Fields subview
 
             if(!isSubform) {
-                console.log('setting new currCatID', catID);
+                console.log('setting new currCatID and setting subformID to null', catID);
                 this.currCategoryID = catID; //set main form catID
                 this.currSubformID = null;   //clear the subform ID
             } else {
-                console.log('setting new subCatID', catID);
+                console.log(`currCatID remains ${this.currCategoryID} setting new subCatID`, catID);
                 this.currSubformID = catID;  //update the subformID, but keep the main form ID
             }
             console.log('RESET: currentCategorySelection, ajaxFormByCategoryID, staples, selectednode, nodeIndID, indicatorTotal');
@@ -275,7 +368,7 @@ export default {
             vueData.formID = catID || ''; //NOTE: update of other vue app TODO: mv?
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
-            //switch to specified record, get info for the newly selected form, update variable values
+            //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
             if (catID !== null) {
                 this.currentCategorySelection = { ...this.categories[catID]};
                 this.selectedNodeIndicatorID = subnodeIndID;
@@ -287,11 +380,10 @@ export default {
                         this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
                         this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
-                    document.getElementById(catID).focus(); //focus the main form
+                    document.getElementById(catID).focus(); //focus the button for the main form
                 }).catch(err => console.log('error getting form info: ', err));
 
                 const formID = this.currSubformID || this.currCategoryID;
-                console.log('formID nodeID', formID, this.selectedNodeIndicatorID, this.currIndicatorID)
                 this.getStapledFormsByCurrentCategory(formID).then(res => this.ajaxSelectedCategoryStapled = res);
 
             } else {  //nav to form card browser.
@@ -310,32 +402,27 @@ export default {
         },
         selectNewFormNode(event, node) {
             if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
-                return //prevents enter/space activation from list item move and menu toggle buttons
+                return //prevents enter/space activation from move and menu toggle buttons
             }
             this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
             console.log('setting form node and indID from list selection', this.selectedNodeIndicatorID)
         },
         editIndicatorPrivileges() {
+            //TODO:
             console.log('clicked edit privileges');
         },
         setCustomDialogTitle(htmlContent) {
             this.dialogTitle = htmlContent;
         },
-        //takes comp name as string, eg 'edit-properties-dialog'
+        //takes comp name as string, eg 'confirm-delete-dialog'
         //components must be registered to this app
         setFormDialogComponent(component) {
-            this.dialogContentIsComponent = true;
             this.dialogFormContent = component;
-        },
-        setFormDialogHTML(htmlContent) {
-            this.dialogContentIsComponent = false;
-            this.dialogFormContent = htmlContent;
         },
         clearCustomDialog() {
             this.setCustomDialogTitle('');
             this.setFormDialogComponent('');
-            this.setFormDialogHTML('');
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
         },
         closeFormDialog() {
@@ -351,14 +438,16 @@ export default {
         openStapleFormsDialog() {
             this.setCustomDialogTitle('<h2>Editing Stapled Forms</h2>');
             this.setFormDialogComponent('staple-form-dialog');
+            this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
             this.showFormDialog = true;
         },
         openEditCollaboratorsDialog() {
             this.setCustomDialogTitle('<h2>Editing Collaborators</h2>');
             this.setFormDialogComponent('edit-collaborators-dialog');
+            this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
             this.showFormDialog = true;
         },
-        openIndicatorEditing(indicatorID) { //curIndID when editing, a parIndID for add subquestion, and null for add section
+        openIndicatorEditing(indicatorID) { //equal to curIndID when editing, a parIndID for add subquestion, and null for add section
             let title = ''
             if (indicatorID === null) { //not an existing indicator, nor a child of an existing indicator
                 title = `<h2>Adding new question</h2>`;

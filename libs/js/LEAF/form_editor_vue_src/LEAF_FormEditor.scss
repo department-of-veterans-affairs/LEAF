@@ -109,15 +109,24 @@ button.can_update {
         > span {
             margin-right: 4px;
             font-size: 1.2rem;
+            font-weight: normal;
             display: inline-block;
             width: 10px;
-            transform: translate(0, 2px);
+            transform: translate(0, 1px);
             color: $USWDS_Cyan;
         }
     }
 
     .header-icon {
         font-size: 80%;
+    }
+    .header-arrow {
+        position: absolute;
+        font-size: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        right: -1.5rem; 
+        font-weight: bold;
     }
 
     nav {
@@ -127,6 +136,9 @@ button.can_update {
             > li {
                 position: relative;
                 align-self: stretch;
+                &:not(:first-child) {
+                    margin-right: 2.25rem;
+                }
             }
         }
         ul {
@@ -137,7 +149,7 @@ button.can_update {
         }
     }
 
-    ul#form-editor-nav, ul#internalForms {
+    ul#form-editor-menu, ul#internalForms {
         display: flex;
         flex-direction: column;
         position: absolute;
@@ -148,11 +160,12 @@ button.can_update {
         border: 1px solid black;
         border-bottom: 0;
         border-radius: 3px;
-        box-shadow: 2px 2px 4px rgba(0,0,40,0.2);
+        box-shadow: 1px 1px 4px 1px rgba(0,0,30,0.3);
 
         li {
             display: flex;
             flex-direction: column;
+            color: $charcoal;
 
             a {
                 @include flexcenter;
@@ -160,11 +173,12 @@ button.can_update {
                 height: 100%;
                 min-height: 36px;
                 text-decoration: none;
-                color: $charcoal;
+                color: inherit;
                 padding: 0 0.2em 0 0.4em;
                 border-bottom: 1px solid black;
         
                 &.selected, &:hover, &:focus, &:active {
+                    z-index: 1;
                     background-color:  $base_navy;
                     outline: 2px solid #20a0f0 !important;
                     color: white;
@@ -177,7 +191,8 @@ button.can_update {
             }
         }
         li.stapled-form {
-           background-color: white;
+           color: #e8f2ff;
+           background-color: #4f6685;
         }
     }
 }
@@ -369,7 +384,7 @@ button.can_update {
 
     > div {
         min-width: 400px;
-        padding: 1rem;
+        padding: 0.75rem;
         display: flex; 
         flex-direction:column; 
     }
@@ -933,7 +948,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
         > div {
             flex-direction: column;
 
-            #form-editor-nav {
+            #form-editor-menu {
                 width: 100%;
                 margin: 0;
 
@@ -945,14 +960,25 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
         #form-editor-header {
             height: auto;
             padding: 0;
-            
-            nav > ul {
-                flex-direction: column;
-                > span {
-                    display: none;
-                }
-                > li button {
-                    margin: 0.5rem 0;
+            nav {
+                width: 100%;
+                justify-content: flex-start;
+                > ul {
+                    flex-direction: column;
+                    width: 100%;
+
+                    > li {
+                        align-self: flex-start;
+                        &:first-child {
+                            margin-left: auto;
+                        }
+                        button {
+                            margin: 0.5rem 0;
+                        }
+                        #form-editor-menu {
+                            left: -132px;
+                        }
+                    }
                 }
             }
         }
