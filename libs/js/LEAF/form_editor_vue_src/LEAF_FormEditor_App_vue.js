@@ -5,6 +5,7 @@ import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
 import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
 import StapleFormDialog from "./components/dialog_content/StapleFormDialog.js";
+import EditCollaboratorsDialog from "./components/dialog_content/EditCollaboratorsDialog.js";
 import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
@@ -83,7 +84,6 @@ export default {
             orgSelectorClassesAdded: Vue.computed(() => this.orgSelectorClassesAdded),
             //static values
             APIroot: this.APIroot,
-            editPermissionsClicked: this.editPermissionsClicked,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             getStapledFormsByCurrentCategory: this.getStapledFormsByCurrentCategory,
@@ -102,6 +102,7 @@ export default {
             openFormHistoryDialog: this.openFormHistoryDialog,
             openConfirmDeleteFormDialog: this.openConfirmDeleteFormDialog,
             openStapleFormsDialog: this.openStapleFormsDialog,
+            openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
@@ -116,6 +117,7 @@ export default {
         ImportFormDialog,
         FormHistoryDialog,
         StapleFormDialog,
+        EditCollaboratorsDialog,
         ConfirmDeleteDialog,
         ModFormMenu,
         CategoryCard,
@@ -314,9 +316,6 @@ export default {
             this.selectedNodeIndicatorID = node?.indicatorID || null;
             console.log('setting form node and indID from list selection', this.selectedNodeIndicatorID)
         },
-        editPermissionsClicked() {
-            console.log('clicked edit Permissions');
-        },
         editIndicatorPrivileges() {
             console.log('clicked edit privileges');
         },
@@ -352,6 +351,11 @@ export default {
         openStapleFormsDialog() {
             this.setCustomDialogTitle('<h2>Editing Stapled Forms</h2>');
             this.setFormDialogComponent('staple-form-dialog');
+            this.showFormDialog = true;
+        },
+        openEditCollaboratorsDialog() {
+            this.setCustomDialogTitle('<h2>Editing Collaborators</h2>');
+            this.setFormDialogComponent('edit-collaborators-dialog');
             this.showFormDialog = true;
         },
         openIndicatorEditing(indicatorID) { //curIndID when editing, a parIndID for add subquestion, and null for add section

@@ -61,96 +61,7 @@ let vueData = {
 <script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
 
 
-
 <script>
-/**
- * Purpose: Add Permissions to Form
- * @param categoryID
- */
-function addPermission(categoryID) {
-    let formTitle = categories[categoryID].categoryName == '' ? 'Untitled' : categories[categoryID].categoryName;
-    dialog.setTitle('Edit Collaborators');
-    dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
-    dialog.indicateBusy();
-
-    $.ajax({
-        type: 'GET',
-        url: '../api/?a=system/groups',
-        success: function(res) {
-            let buffer = '<select id="groupID">';
-            for(let i in res) {
-                buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
-            }
-            buffer += '</select>';
-            $('#groups').html(buffer);
-            dialog.indicateIdle();
-        },
-        cache: false
-    });
-
-    dialog.setSaveHandler(function() {
-        $.ajax({
-            type: 'POST',
-            url: '../api/?a=formEditor/_'+ categoryID +'/privileges',
-            data: {CSRFToken: '<!--{$CSRFToken}-->',
-            	   groupID: $('#groupID').val(),
-                   read: 1,
-                   write: 1},
-            success: function(res) {
-            	dialog.hide();
-                editPermissions();
-            },
-            cache: false
-        });
-    });
-    dialog.show();
-}
-/**
- * Purpose: Remove Permissions from Form
- * @param groupID
- */
-function removePermission(groupID) {
-    $.ajax({
-        type: 'POST',
-        url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
-        data: {CSRFToken: '<!--{$CSRFToken}-->',
-        	   groupID: groupID,
-        	   read: 0,
-        	   write: 0},
-        success: function(res) {
-            editPermissions();
-        }
-    });
-}
-/**
- * Purpose: Edit existing Permissions
- */
-function editPermissions() {
-	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-
-	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
-	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
-	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />'
-	                             + '<div id="formPrivs"></div>');
-	dialog_simple.indicateBusy();
-
-	$.ajax({
-		type: 'GET',
-		url: '../api/?a=formEditor/_'+ currCategoryID +'/privileges',
-		success: function(res) {
-			let buffer = '<ul>';
-			for(let i in res) {
-				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
-			}
-			buffer += '</ul>';
-			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addPermission(currCategoryID);" role="button">Add Group</span>';
-			$('#formPrivs').html(buffer);
-			dialog_simple.indicateIdle();
-		},
-		cache: false
-	});
-	dialog_simple.show();
-}
 /**
  * Purpose: Remove specific Indicator Privileges
  * @param indicatorID
@@ -260,7 +171,6 @@ function editIndicatorPrivileges(indicatorID) {
         }
     );
 }
-
 
 
 

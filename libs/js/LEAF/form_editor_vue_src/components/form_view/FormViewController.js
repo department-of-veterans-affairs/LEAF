@@ -36,7 +36,6 @@ export default {
         'selectedNodeIndicatorID',
         'selectedFormNode',
         'newQuestion',
-        'editPermissionsClicked',
         'currentCategorySelection',   //corresponds to currently selected form being viewed (form or subform)
         'currentCategoryIndicatorTotal'
     ],

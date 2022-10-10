@@ -22,7 +22,7 @@ export default {
         'currentCategorySelection',
         'currentCategoryIsSensitive',
         'updateCategoriesProperty',
-        'editPermissionsClicked',
+        'openEditCollaboratorsDialog',
         'closeFormDialog'
 	],
     computed: {
@@ -222,7 +222,7 @@ export default {
             <div style="display:flex;">
                 <button id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
-                    @click="editPermissionsClicked">
+                    @click="openEditCollaboratorsDialog">
                     Edit Collaborators
                 </button>
                 <button v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</button>
