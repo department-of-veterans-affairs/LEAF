@@ -269,7 +269,8 @@ var LeafFormGrid = function(containerID, options) {
                 }
             }
 
-            if(scrollPos > (tableHeight - pageHeight * .8)
+            // render additional segment right before the user scrolls to it
+            if(scrollPos + (pageHeight * 1.2) > tableHeight
                 && isDataLoaded
                 && isRenderingBody) {
                 if(renderRequest[currentRenderIndex] == undefined) {
