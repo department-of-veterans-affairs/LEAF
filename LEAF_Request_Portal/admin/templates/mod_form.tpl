@@ -47,7 +47,7 @@ function checkSensitive(indicator) {
     let result = 0;
     $.each(indicator, function( index, value )
     {
-        if (value.is_sensitive === '1') {
+        if (parseInt(value.is_sensitive) === 1) {
             result = 1;
         } else if(result === 0 && !$.isEmptyObject(value.child)){
             result = checkSensitive(value.child);
