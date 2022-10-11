@@ -661,7 +661,6 @@ ConditionsEditor.component('editor-main', {
             </div>
         </div>
         <div v-if="!showRemoveConditionModal && showConditionEditor" id="outcome-editor">
-            <!-- childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome-->
             <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
             <select v-if="conditions.childIndID" title="select outcome"
                     name="child-outcome-selector"
@@ -672,16 +671,26 @@ ConditionsEditor.component('editor-main', {
                     <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
-            <!-- TODO: other formats - only testing dropdown for now -->
-            <select v-if="conditions.selectedOutcome==='Pre-fill' && (childFormat==='dropdown' || childFormat==='multiselect')"
-                :multiple="childFormat==='multiselect'"
+            <!-- PRE-FILLS dropdown, multidropdown, text -->
+            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
                 name="child-prefill-value-selector"
                 @change="$emit('update-selected-child-value', $event.target)">
-                <option v-if="conditions.selectedChildValue===''" value="" selected>{{childFormat==='multiselect' ? 'Select value(s)' : 'Select a value'}}</option>    
+                <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="textValueDisplay(conditions.selectedChildValue)===val || childFormat==='multiselect' && arrChildMultiselectValues.includes(val.trim())">
+                :selected="textValueDisplay(conditions.selectedChildValue)===val">
                 {{ val }} 
+                </option>
+            </select>
+            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='multiselect'"
+                multiple="true"
+                name="child-prefill-value-selector"
+                @change="$emit('update-selected-child-value', $event.target)">
+                <option v-if="conditions.selectedChildValue===''" value="" selected>Select value(s)</option>    
+                <option v-for="val in selectedChildValueOptions" 
+                    :value="val"
+                    :selected="childFormat==='multiselect' && arrChildMultiselectValues.includes(val.trim())">
+                    {{ val }} 
                 </option>
             </select>
             <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
@@ -718,7 +727,7 @@ ConditionsEditor.component('editor-main', {
                 </select>
             </div>
             <div>    
-                <!-- COMPARED VALUE SELECTION -->
+                <!-- COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
                 <input v-if="parentFormat==='date'" type="date"
                     :value="conditions.selectedParentValue"
                     @change="$emit('update-selected-parent-value', $event.target)"/>
@@ -742,7 +751,6 @@ ConditionsEditor.component('editor-main', {
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option> 
                     <option v-for="val in selectedParentValueOptions"> {{ val }} </option>
                 </select>
-                <!-- NOTE: multiselect -->
                 <select v-else-if="parentFormat==='multiselect'" multiple
                     @change="$emit('update-selected-parent-value', $event.target)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
