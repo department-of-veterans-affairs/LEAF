@@ -594,7 +594,6 @@ ConditionsEditor.component('editor-main', {
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
                                 Please review and save it to update</span>
-                                </span>
                             </span>
                             <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
@@ -616,7 +615,6 @@ ConditionsEditor.component('editor-main', {
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
                                 Please review and save it to update</span>
-                                </span>
                             </span>
                             <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
