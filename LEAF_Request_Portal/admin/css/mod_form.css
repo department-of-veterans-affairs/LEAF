@@ -99,8 +99,8 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     opacity: 0.75;
 }
 .choices input {  /* prevent leaf.css corruption */
-    float: none;
+    float: none !important;
 }
 .choices input:hover, .choices input:focus, .choices input:active {
-    outline: none;
+    outline: none !important;
 }

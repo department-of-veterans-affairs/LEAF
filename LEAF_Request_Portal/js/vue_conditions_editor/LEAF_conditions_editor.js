@@ -82,7 +82,13 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildValue = '';
             this.editingCondition = '';
         },
-        updateSelectedParentIndicator(indicatorID){
+        updateSelectedParentIndicator(indicatorID) {
+            //get rid of possible multiselect choices instances (both parent and child)
+            const elSelectParent = document.getElementById('parent_multiselect_entry');
+            const elSelectChild = document.getElementById('child_multiselect_prefill_entry');
+            if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
+            if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
+            
             const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
@@ -150,7 +156,11 @@ const ConditionsEditor = Vue.createApp({
                     break;
             }
         },
-        updateSelectedOutcome(outcome){
+        updateSelectedOutcome(outcome) {
+            //get rid of possible multiselect choices instances for child prefill values
+            const elSelectChild = document.getElementById('child_multiselect_prefill_entry');
+            if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
+            
             this.selectedChildOutcome = outcome;
             this.selectedChildValue = '';  //reset possible prefill
         },
@@ -492,6 +502,11 @@ ConditionsEditor.component('editor-main', {
         editingCondition: String,
         conditionInputComplete: Boolean,
     },
+    updated() {
+        if(this.conditions.selectedOutcome !== '') {
+            this.updateChoicesJS();
+        }
+    },
     methods: {
         validateCurrency(event) {
             const currencyRegex = /^(\d*)(\.\d{0,2})?$/;
@@ -547,7 +562,48 @@ ConditionsEditor.component('editor-main', {
             const childIndicator = this.indicators.find(ind => parseInt(ind.indicatorID) === childID);
             const currentIndicatorFormat = childIndicator?.format?.split('\n')[0];
             return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
+        },
+        updateChoicesJS() {
+            const elSelectParent = document.getElementById('parent_multiselect_entry');
+            const elSelectChild = document.getElementById('child_multiselect_prefill_entry');
+            
+            const childFormat = this.conditions.childFormat.toLowerCase();
+            const parentFormat = this.conditions.parentFormat.toLowerCase();
+            const outcome = this.conditions.selectedOutcome.toLowerCase();
+           
+            if(parentFormat === 'multiselect' && elSelectParent !== null && !elSelectParent.choicesjs) {
+                let options = this.selectedParentValueOptions || [];
+                options = options.map(o =>({
+                    value: o.trim(),
+                    label: o.trim(),
+                    selected: this.arrParentMultiselectValues.includes(o.trim())
+                }));
+                const choices = new Choices(elSelectParent, {
+                    allowHTML: false,
+                    removeItemButton: true,
+                    editItems: true,
+                    choices: options.filter(o => o.value !== "")
+                });
+                elSelectParent.choicesjs = choices;
+            }
+
+            if(outcome==='pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && !elSelectChild?.choicesjs) {
+                let options = this.selectedChildValueOptions || [];
+                options = options.map(o =>({
+                    value: o.trim(),
+                    label: o.trim(),
+                    selected: this.arrChildMultiselectValues.includes(o.trim())
+                }));
+                const choices = new Choices(elSelectChild, {
+                    allowHTML: false,
+                    removeItemButton: true,
+                    editItems: true,
+                    choices: options.filter(o => o.value !== "")
+                });
+                elSelectChild.choicesjs = choices;
+            }
         }
+
     },
     computed: {
         savedConditions(){
@@ -670,9 +726,9 @@ ConditionsEditor.component('editor-main', {
                     <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Show this question except ...</option>
                     <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
             </select>
-            <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
+            <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
             <!-- PRE-FILLS dropdown, multidropdown, text -->
-            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
+            <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && childFormat==='dropdown'"
                 name="child-prefill-value-selector"
                 @change="$emit('update-selected-child-value', $event.target)">
                 <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
@@ -682,16 +738,14 @@ ConditionsEditor.component('editor-main', {
                 {{ val }} 
                 </option>
             </select>
-            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='multiselect'"
+            <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && conditions.childFormat==='multiselect'"
+                placeholder="select some options"
                 multiple="true"
+                id="child_multiselect_prefill_entry"
+                style="display: none;"
+                :key="conditions.selectedOutcome + '_' + conditions.parentIndID"
                 name="child-prefill-value-selector"
-                @change="$emit('update-selected-child-value', $event.target)">
-                <option v-if="conditions.selectedChildValue===''" value="" selected>Select value(s)</option>    
-                <option v-for="val in selectedChildValueOptions" 
-                    :value="val"
-                    :selected="childFormat==='multiselect' && arrChildMultiselectValues.includes(val.trim())">
-                    {{ val }} 
-                </option>
+                @change="$emit('update-selected-child-value', $event.target)">   
             </select>
             <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
                 @change="$emit('update-selected-child-value', $event.target)"
@@ -751,14 +805,11 @@ ConditionsEditor.component('editor-main', {
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option> 
                     <option v-for="val in selectedParentValueOptions"> {{ val }} </option>
                 </select>
-                <select v-else-if="parentFormat==='multiselect'" multiple
+                <select v-else-if="parentFormat==='multiselect'" placeholder="select some options" multiple="true"
+                    style="display: none;"
+                    id="parent_multiselect_entry"
                     @change="$emit('update-selected-parent-value', $event.target)">
-                    <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
-                    <option v-for="val in selectedParentValueOptions"
-                        :selected="arrParentMultiselectValues.includes(val.trim())"> {{ val }}
-                    </option>
                 </select>
-                <p v-else class="TEST">value selection still in progress for some formats</p>
             </div>
         </div>
         <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'

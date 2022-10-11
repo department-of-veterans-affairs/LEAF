@@ -95,7 +95,7 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-#condition_editor_content div.if-then-setup div {
+#condition_editor_content div.if-then-setup > div {
     display: inline-block;
     width: 30%;
 }
