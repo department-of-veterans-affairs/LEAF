@@ -467,15 +467,20 @@ const ConditionsEditor = Vue.createApp({
                 @cancel-delete="showRemoveConditionModal=false"
                 @update-selected-child-value="updateSelectedChildValue">
             </editor-main>
-            <editor-actions
-                :conditionInputComplete="conditionComplete"
-                :parentIndicator="selectedParentIndicator"
-                :childIndicator="childIndicator"
-                :conditions="conditionInputObject"
-                :showRemoveConditionModal="showRemoveConditionModal"
-                @save-condition="postCondition"
-                @cancel-entry="clearSelections(true)">
-            </editor-actions>
+
+            <!--NOTE: save cancel panel  -->
+            <div v-if="!showRemoveConditionModal" id="condition_editor_actions">
+                <div>
+                    <ul style="display: flex; justify-content: space-between;">
+                        <li style="width: 30%;">
+                            <button v-if="conditionComplete" id="btn_add_condition" @click="postCondition">Save</button>
+                        </li>
+                        <li style="width: 30%;">
+                            <button id="btn_cancel" @click="clearSelections(true)">Cancel</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>` 
 });
@@ -768,7 +773,7 @@ ConditionsEditor.component('editor-main', {
                 </select>
             </div>
             <div>
-                <!-- OPERATOR SELECTION -->
+                <!-- NOTE: OPERATOR SELECTION -->
                 <select
                     @change="$emit('update-selected-operator', $event.target.value)">
                     <option v-if="conditions.selectedOp===''" value="" selected>Select a condition</option>
@@ -780,7 +785,7 @@ ConditionsEditor.component('editor-main', {
                 </select>
             </div>
             <div>    
-                <!-- COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
+                <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
                 <input v-if="parentFormat==='date'" type="date"
                     :value="conditions.selectedParentValue"
                     @change="$emit('update-selected-parent-value', $event.target)"/>
@@ -825,47 +830,4 @@ ConditionsEditor.component('editor-main', {
     </div>`
 });
 
-
-ConditionsEditor.component('editor-actions', {
-    props: {
-        conditionInputComplete: Boolean,
-        parentIndicator: Object,
-        childIndicator: Object,
-        conditions: Object,
-        showRemoveConditionModal: Boolean
-    },
-    methods: {
-        toFormEditor(){
-            window.location.assign('./?a=form#');
-        }
-    },
-    computed: {
-        operatorText(){
-            const op = this.conditions.selectedOp;
-            switch(op){
-                case '==':
-                    return 'is';
-                case '!=':
-                    return 'is not';
-                case '>':
-                    return 'is greater than';
-                case '<':
-                    return 'is less than';    
-                default: return op;
-            }
-        }
-    },
-    template: `<div v-if="!showRemoveConditionModal" id="condition_editor_actions">
-            <div>
-                <ul style="display: flex; justify-content: space-between;">
-                    <li style="width: 30%;">
-                        <button v-if="conditionInputComplete" id="btn_add_condition" @click="$emit('save-condition')">Save</button>
-                    </li>
-                    <li style="width: 30%;">
-                        <button id="btn_cancel" @click="$emit('cancel-entry','')">Cancel</button>
-                    </li>
-                </ul>
-            </div>
-        </div>`
-});
 ConditionsEditor.mount('#LEAF_conditions_editor');
