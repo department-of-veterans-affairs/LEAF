@@ -447,7 +447,7 @@ const ConditionsEditor = Vue.createApp({
             <editor-main
                 :vueData="vueData"
                 :indicators="indicators"
-                :selectedChild="childIndicator"
+                :childIndicator="childIndicator"
                 :selectableParents="selectableParents"
                 :selectedParentValueOptions="selectedParentValueOptions"
                 :selectedParentOperators="selectedParentOperators"
@@ -495,7 +495,7 @@ const ConditionsEditor = Vue.createApp({
 ConditionsEditor.component('editor-main', {
     props: {
         vueData: Object,
-        selectedChild: Object,
+        childIndicator: Object,
         selectableParents: Array,
         indicators: Array,
         selectedParentOperators: Array,       //available operators, based on format of above ind
@@ -554,11 +554,9 @@ ConditionsEditor.component('editor-main', {
         isOrphan(childIndID) {
             return !this.selectableParents.some(p => parseInt(p.indicatorID) === parseInt(childIndID));
         },
-        childFormatChangedSinceSave(condition){
+        childFormatChangedSinceSave(condition) {
             const childConditionFormat = condition.childFormat;
-            const childID = parseInt(condition.childIndID);
-            const childIndicator = this.indicators.find(ind => parseInt(ind.indicatorID) === childID);
-            const currentIndicatorFormat = childIndicator?.format?.split('\n')[0];
+            const currentIndicatorFormat = this.childIndicator?.format?.split('\n')[0];
             return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
         },
         updateChoicesJS() {
@@ -605,7 +603,7 @@ ConditionsEditor.component('editor-main', {
     },
     computed: {
         savedConditions(){
-            return this.selectedChild.conditions ? JSON.parse(this.selectedChild.conditions)
+            return this.childIndicator.conditions ? JSON.parse(this.childIndicator.conditions)
                     : [];
         },
         conditionTypes(){
