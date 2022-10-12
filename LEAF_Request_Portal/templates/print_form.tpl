@@ -46,8 +46,8 @@
     <div id="notes">
         <form id='note_form'>
             <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
-            <input type='text' id='note' name='note' placeholder='Enter a note!' />
-            <div id='add_note' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+            <textarea id='note' name='note' row=2 placeholder='Enter a note!'></textarea>
+            <div id='add_note' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post Note</div>
         </form>
     </div>
     <!--{if count($comments) > 0}-->
@@ -127,6 +127,7 @@ $(document).ready(function() {
   $(window).keydown(function(event){
     if(event.keyCode == 13) {
       event.preventDefault();
+      submitNote(<!--{$recordID|strip_tags}-->);
       return false;
     }
   });
