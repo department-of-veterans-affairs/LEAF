@@ -259,7 +259,7 @@ const ConditionsEditor = Vue.createApp({
             if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
             const elSelectParent = document.getElementById('parent_compValue_entry');
             if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
-            
+
             if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         },
         postCondition(){
@@ -640,6 +640,7 @@ ConditionsEditor.component('editor-main', {
         <div>
             <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
                 id="savedConditionsList">
+                <!-- NOTE: SHOW LIST -->
                 <div v-if="conditionTypes.show.length > 0">
                     <p><b>This field will be hidden except:</b></p>
                     <li v-for="c in conditionTypes.show" key="c" class="savedConditionsCard">
@@ -661,6 +662,7 @@ ConditionsEditor.component('editor-main', {
                         </button>
                     </li>
                 </div>
+                <!-- NOTE: HIDE LIST -->
                 <div v-if="conditionTypes.hide.length > 0">
                     <p style="margin-top: 1em"><b>This field will be shown except:</b></p>
                     <li v-for="c in conditionTypes.hide" key="c" class="savedConditionsCard">
@@ -682,6 +684,7 @@ ConditionsEditor.component('editor-main', {
                         </button>
                     </li>
                 </div>
+                <!-- NOTE: PREFILL LIST -->
                 <div v-if="conditionTypes.prefill.length > 0">
                     <p style="margin-top: 1em"><b>This field will be pre-filled:</b></p>
                     <li v-for="c in conditionTypes.prefill" key="c" class="savedConditionsCard">
