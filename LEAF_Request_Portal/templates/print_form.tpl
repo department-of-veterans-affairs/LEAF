@@ -515,23 +515,28 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
 function openContent(url) {
     $("#formcontent").html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>');
     $.ajax({
-        type: 'GET',
-        url: url,
-        dataType: 'text',  // IE9 issue
-        success: function(res) {
-            $('#formcontent').empty().html(res);
-
-            // make box size more predictable
-            $('.printmainblock').each(function() {
+    	type: 'GET',
+    	url: url,
+    	dataType: 'text',  // IE9 issue
+    	success: function(res) {
+    		$('#formcontent').empty().html(res);
+    		// make box size more predictable
+    		$('.printmainblock').each(function() {
                 var boxSizer = {};
-                $(this).find('.printsubheading').each(function() {
-                    layer = $(this).position().top;
-                    if(boxSizer[layer] == undefined) {
-                        boxSizer[layer] = $(this).height();
-                    }
-                    if($(this).height() > boxSizer[layer]) {
-                        boxSizer[layer] = $(this).height();
-                    }
+    			$(this).find('.printsubheading').each(function() {
+    				layer = $(this).position().top;
+    				if(boxSizer[layer] == undefined) {
+    					boxSizer[layer] = $(this).height();
+    				}
+    				if($(this).height() > boxSizer[layer]) {
+    					boxSizer[layer] = $(this).height();
+    				}
+    			});
+    			$(this).find('.printsubheading').each(function() {
+    				layer = $(this).position().top;
+    				if(boxSizer[layer] != undefined) {
+                        $(this).height(boxSizer[layer]);
+    				}
                 });
     		});
             handlePrintConditionalIndicators(formPrintConditions);
