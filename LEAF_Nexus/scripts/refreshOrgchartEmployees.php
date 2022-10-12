@@ -167,16 +167,20 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
     $localEmpUIDs = $db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
 
+    $localEmpArray = [];
+    foreach ($localEmpUIDs as $localUsername) {
+        $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
+    }
+	
     //if for some reason there is no data, we need to stop right there.
     if(empty($orgEmployeeRes)){
         return FALSE;
     }
     foreach ($orgEmployeeRes as $orgEmployee) {
-    	$localEmployeeID = array_search($orgEmployee['userName'], array_column($localEmpUIDs, 'userName'));
         $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
 
         $localEmployeeArray[] = [
-            'empUID' => $localEmpUIDs[$localEmployeeID]['empUID'],
+            'empUID' => $localEmpArray[$orgEmployee['userName']],
             'userName' => $orgEmployee['userName'],
             'lastName' => $orgEmployee['lastName'],
             'firstName' => $orgEmployee['firstName'],
@@ -220,10 +224,9 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach($orgEmployeeDataRes as $orgEmployeeData){
-	$localEmployeeID = array_search($orgEmployeeData['userName'], array_column($localEmpUIDs, 'userName'));
 	    
         $localEmployeeDataArray[] = [
-                 'empUID' => $localEmpUIDs[$localEmployeeID]['empUID'],
+                 'empUID' => $localEmpArray[$orgEmployeeData['userName']],
                  'indicatorID' => $orgEmployeeData['indicatorID'],
                  'data' => $orgEmployeeData['data'],
                  'author' => $orgEmployeeData['author'],

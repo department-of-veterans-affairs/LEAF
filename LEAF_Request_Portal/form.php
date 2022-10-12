@@ -1368,7 +1368,7 @@ class Form
         														AND indicators.disabled = 0
                                                                 AND data != ""', $vars);
 
-        $resCount = $this->db->prepared_query("SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 AND (conditions IS NULL OR conditions = '') GROUP BY categoryID", array());
+        $resCount = $this->db->prepared_query("SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 GROUP BY categoryID", array());
         $countData = array();
         $sum = 0;
         foreach ($resCount as $cat)

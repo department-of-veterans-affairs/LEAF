@@ -18,7 +18,8 @@ const ConditionsEditor = Vue.createApp({
             selectedChildValue: '',
             showRemoveConditionModal: false,
             showConditionEditor: false,
-            editingCondition: ''
+            editingCondition: '',
+            enabledParentFormats: ['dropdown', 'multiselect']
         }
     },
     beforeMount(){
@@ -111,6 +112,12 @@ const ConditionsEditor = Vue.createApp({
                     ];
                     break;
                 case 'multiselect':
+                case 'checkboxes':
+                    this.selectedParentOperators = [
+                        {val:"==", text: "includes"}, 
+                        {val:"!=", text: "does not include"}
+                    ];
+                    break;                   
                 case 'dropdown':
                 case 'radio':
                     this.selectedParentOperators = [
@@ -150,10 +157,32 @@ const ConditionsEditor = Vue.createApp({
         updateSelectedOperator(operator){
             this.selectedOperator = operator;
         },
-        updateSelectedParentValue(value){
+        updateSelectedParentValue(target){
+            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
+            let value = '';
+            if (parFormat==='multiselect') {
+                const arrSelections = Array.from(target.selectedOptions);
+                arrSelections.forEach(sel => {
+                    value += sel.label.replaceAll('\r', '').trim() + '\n';
+                });
+                value = value.trim();
+            } else {
+                value = target.value;
+            }
             this.selectedParentValue = value;
         },
-        updateSelectedChildValue(value){
+        updateSelectedChildValue(target){
+            const childFormat = this.childIndicator.format.split('\n')[0].trim();
+            let value = '';
+            if (childFormat==='multiselect') {
+                const arrSelections = Array.from(target.selectedOptions);
+                arrSelections.forEach(sel => {
+                    value += sel.label.replaceAll('\r', '').trim() + '\n';
+                });
+                value = value.trim();
+            } else {
+                value = target.value;
+            }
             this.selectedChildValue = value;
         }, 
         updateSelectedChildIndicator(){
@@ -173,7 +202,7 @@ const ConditionsEditor = Vue.createApp({
                 this.selectableParents = this.indicators.filter(i => {
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                             parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                            i.format.indexOf('dropdown') === 0;  //parents are currently dropdowns only
+                            (i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect') === 0);  //dropdowns, multiselect parent only
                 });
             }
             $.ajax({
@@ -224,7 +253,7 @@ const ConditionsEditor = Vue.createApp({
             if (this.conditionComplete) {
                 const conditionsJSON = JSON.stringify(this.conditionInputObject);
                 let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
-                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null)
+                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null || indToUpdate.conditions === 'null')
                     ? [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
 
@@ -315,7 +344,7 @@ const ConditionsEditor = Vue.createApp({
             this.editingCondition = JSON.stringify(conditionObj);
             this.showConditionEditor = true;
             this.updateSelectedParentIndicator(conditionObj?.parentIndID);
-            if(this.parentFound && this.parentFormat === 'dropdown') {
+            if(this.parentFound && this.enabledParentFormats.includes(this.parentFormat)) {
                 this.selectedOperator = conditionObj?.selectedOp;
                 this.selectedParentValue = conditionObj?.selectedParentValue;
             }
@@ -470,7 +499,7 @@ ConditionsEditor.component('editor-main', {
             if (!currencyRegex.test(val)) { //TODO: userfeedback
                 document.getElementById('currency-format-input').value = '';
             } else {
-                this.$emit('update-selected-parent-value', event.target.value);
+                this.$emit('update-selected-parent-value', event.target);
             }
         },
         forceUpdate(){
@@ -487,17 +516,19 @@ ConditionsEditor.component('editor-main', {
         },
         getIndicatorName(id) {
             if (id !== 0) {
-                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name;
+                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name || '';
                 return this.applyMaxTextLength(indicatorName);
             }
         },
         textValueDisplay(str) {
             return $('<div/>').html(str).text();
         },
-        getOperatorText(op){
+        getOperatorText(condition){
+            const op = condition.selectedOp;
+            const parFormat = condition.parentFormat;
             switch(op){
                 case '==':
-                    return 'is';
+                    return parFormat === 'multiselect' ? 'includes' : 'is';
                 case '!=':
                     return 'is not';
                 case '>':
@@ -529,6 +560,16 @@ ConditionsEditor.component('editor-main', {
             const prefill = this.savedConditions.filter(i => i.selectedOutcome === 'Pre-fill');
 
             return {show,hide,prefill};
+        },
+        arrChildMultiselectValues() {
+            let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
+            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+            return arrValues;
+        },
+        arrParentMultiselectValues() {
+            let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
+            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+            return arrValues;
         }
     },
     template: `<div id="condition_editor_inputs">
@@ -548,7 +589,7 @@ ConditionsEditor.component('editor-main', {
                             :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                             <span v-if="!isOrphan(c.parentIndID)">
                                 If '{{getIndicatorName(c.parentIndID)}}' 
-                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                 then show this question.
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
@@ -570,7 +611,7 @@ ConditionsEditor.component('editor-main', {
                             :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                             <span v-if="!isOrphan(c.parentIndID)">
                                 If '{{getIndicatorName(c.parentIndID)}}' 
-                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                 then hide this question.
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
@@ -592,7 +633,7 @@ ConditionsEditor.component('editor-main', {
                             :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                             <span v-if="!isOrphan(c.parentIndID)">
                                 If '{{getIndicatorName(c.parentIndID)}}' 
-                                {{getOperatorText(c.selectedOp)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                 then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
                                 <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
                                 The format of this question has changed.  
@@ -634,17 +675,19 @@ ConditionsEditor.component('editor-main', {
             </select>
             <span v-if="conditions.selectedOutcome==='Pre-fill'" class="input-info">Enter a pre-fill value</span>
             <!-- TODO: other formats - only testing dropdown for now -->
-            <select v-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='dropdown'"
-                @change="$emit('update-selected-child-value', $event.target.value)">
-                <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
+            <select v-if="conditions.selectedOutcome==='Pre-fill' && (childFormat==='dropdown' || childFormat==='multiselect')"
+                :multiple="childFormat==='multiselect'"
+                name="child-prefill-value-selector"
+                @change="$emit('update-selected-child-value', $event.target)">
+                <option v-if="conditions.selectedChildValue===''" value="" selected>{{childFormat==='multiselect' ? 'Select value(s)' : 'Select a value'}}</option>    
                 <option v-for="val in selectedChildValueOptions" 
                 :value="val"
-                :selected="textValueDisplay(conditions.selectedChildValue)===val">
+                :selected="textValueDisplay(conditions.selectedChildValue)===val || childFormat==='multiselect' && arrChildMultiselectValues.includes(val.trim())">
                 {{ val }} 
                 </option>
             </select>
             <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
-                @change="$emit('update-selected-child-value', $event.target.value)"
+                @change="$emit('update-selected-child-value', $event.target)"
                 :value="textValueDisplay(conditions.selectedChildValue)" />
         </div>
         <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0"
@@ -680,33 +723,41 @@ ConditionsEditor.component('editor-main', {
                 <!-- COMPARED VALUE SELECTION -->
                 <input v-if="parentFormat==='date'" type="date"
                     :value="conditions.selectedParentValue"
-                    @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                    @change="$emit('update-selected-parent-value', $event.target)"/>
                 <input v-else-if="parentFormat==='number'" type="number"
                     :value="conditions.selectedParentValue"
-                    @change="$emit('update-selected-parent-value', $event.target.value)"/>
+                    @change="$emit('update-selected-parent-value', $event.target)"/>
                 <input v-else-if="parentFormat.format==='currency'"
                     id="currency-format-input" 
                     type="number" step="0.01"
                     :value="conditions.selectedParentValue" 
                     @change="validateCurrency"/>
                 <select v-else-if="parentFormat==='dropdown'"
-                    @change="$emit('update-selected-parent-value', $event.target.value)">
+                    @change="$emit('update-selected-parent-value', $event.target)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                     <option v-for="val in selectedParentValueOptions"
                         :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                     </option>
                 </select>
                 <select v-else-if="parentFormat==='radio'"
-                    @change="$emit('update-selected-parent-value', $event.target.value)">
+                    @change="$emit('update-selected-parent-value', $event.target)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option> 
                     <option v-for="val in selectedParentValueOptions"> {{ val }} </option>
+                </select>
+                <!-- NOTE: multiselect -->
+                <select v-else-if="parentFormat==='multiselect'" multiple
+                    @change="$emit('update-selected-parent-value', $event.target)">
+                    <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
+                    <option v-for="val in selectedParentValueOptions"
+                        :selected="arrParentMultiselectValues.includes(val.trim())"> {{ val }}
+                    </option>
                 </select>
                 <p v-else class="TEST">value selection still in progress for some formats</p>
             </div>
         </div>
         <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
             <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
-            <span style="color: #00A91C; font-weight: bold;"> have the value '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+            <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
             </span>
             <span v-else>will 
                 <span style="color: #00A91C; font-weight: bold;">
