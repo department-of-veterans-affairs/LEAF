@@ -356,6 +356,10 @@ const ConditionsEditor = Vue.createApp({
                 this.selectedOperator = conditionObj?.selectedOp;
                 this.selectedParentValue = conditionObj?.selectedParentValue;
             }
+            //rm possible child choicesjs instance associated with prior list item
+            const elSelectChild = document.getElementById('child_prefill_entry');
+            if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
+
             this.selectedChildOutcome = conditionObj?.selectedOutcome;
             this.selectedChildValue = conditionObj?.selectedChildValue;
         },
