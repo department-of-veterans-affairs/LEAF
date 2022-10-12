@@ -542,9 +542,9 @@ const ConditionsEditor = Vue.createApp({
                     : [];
         },
         conditionTypes(){
-            const show = this.savedConditions.filter(i => i.selectedOutcome === 'Show');
-            const hide = this.savedConditions.filter(i => i.selectedOutcome === 'Hide');
-            const prefill = this.savedConditions.filter(i => i.selectedOutcome === 'Pre-fill');
+            const show = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'show');
+            const hide = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'hide');
+            const prefill = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'pre-fill');
 
             return {show,hide,prefill};
         },
@@ -660,9 +660,9 @@ const ConditionsEditor = Vue.createApp({
                             name="child-outcome-selector"
                             @change="updateSelectedOutcome($event.target.value)">
                             <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
-                            <option value="Show" :selected="conditions.selectedOutcome==='Show'">Hide this question except ...</option>
-                            <option value="Hide" :selected="conditions.selectedOutcome==='Hide'">Show this question except ...</option>
-                            <option value="Pre-fill" :selected="conditions.selectedOutcome==='Pre-fill'">Pre-fill this Question</option>
+                            <option value="Show" :selected="conditions.selectedOutcome.toLowerCase()==='show'">Hide this question except ...</option>
+                            <option value="Hide" :selected="conditions.selectedOutcome.toLowerCase()==='hide'">Show this question except ...</option>
+                            <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question</option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
                     <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text -->
@@ -686,7 +686,7 @@ const ConditionsEditor = Vue.createApp({
                         name="child-prefill-value-selector"
                         @change="updateSelectedChildValue($event.target)">   
                     </select>
-                    <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
+                    <input v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && childFormat==='text'" 
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)"
                         :value="textValueDisplay(conditions.selectedChildValue)" />
@@ -742,7 +742,7 @@ const ConditionsEditor = Vue.createApp({
                     </div>
                 </div>
                 <div v-if="conditionComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
-                    <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
+                    <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'">will 
                     <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
                     </span>
                     <span v-else>will 
