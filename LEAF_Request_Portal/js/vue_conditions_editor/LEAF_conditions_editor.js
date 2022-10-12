@@ -254,12 +254,18 @@ const ConditionsEditor = Vue.createApp({
             this.selectedParentValueOptions = [];
             this.selectedChildOutcome = '';
             this.selectedChildValue = '';
+            //rm possible child choicesjs instances associated with prior item
+            const elSelectChild = document.getElementById('child_prefill_entry');
+            if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
+            const elSelectParent = document.getElementById('parent_compValue_entry');
+            if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
+            
             if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         },
         postCondition(){
-            const { childIndID }  = this.conditionInputObject;
+            const { childIndID }  = this.conditions;
             if (this.conditionComplete) {
-                const conditionsJSON = JSON.stringify(this.conditionInputObject);
+                const conditionsJSON = JSON.stringify(this.conditions);
                 let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
                 let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null || indToUpdate.conditions === 'null')
                     ? [] : JSON.parse(indToUpdate.conditions);
@@ -267,7 +273,7 @@ const ConditionsEditor = Vue.createApp({
 
                 const isUnique = newConditions.every(c => JSON.stringify(c) !== conditionsJSON);
                 if (isUnique){
-                    newConditions.push(this.conditionInputObject);
+                    newConditions.push(this.conditions);
                     
                     $.ajax({
                         type: 'POST',
@@ -292,9 +298,9 @@ const ConditionsEditor = Vue.createApp({
                 }
             }
         },
-        removeCondition(data) {  //data is  {confirmDelete: <bool>, condition: object}
-            //updates conditionInputObject
-            this.selectConditionFromList(data.condition);
+        //param data object  {confirmDelete: <bool>, condition: object}
+        removeCondition(data) {  
+            this.selectConditionFromList(data.condition); //updates conditions object
 
             if(data.confirmDelete === true) { //if user pressed delete btn on the confirm modal
                 const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
@@ -403,20 +409,20 @@ const ConditionsEditor = Vue.createApp({
         }
     },
     computed: {
-        parentFormat(){
+        parentFormat() {
             if(this.selectedParentIndicator?.format){
                 const f = this.selectedParentIndicator.format
                 return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
             } else return '';
 
         },
-        childFormat(){
+        childFormat() {
             if(this.childIndicator?.format){
                 const f = this.childIndicator.format;
                 return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
             } else return '';
         },
-        conditionInputObject(){
+        conditions() {
             const childIndID  = this.childIndicator?.indicatorID || 0;
             const parentIndID = this.selectedParentIndicator?.indicatorID || 0;            
             const selectedOp = this.selectedOperator;
@@ -432,7 +438,7 @@ const ConditionsEditor = Vue.createApp({
         },
         conditionComplete(){
             const {childIndID, parentIndID, selectedOp, selectedParentValue, 
-                selectedChildValue, selectedOutcome} = this.conditionInputObject;
+                selectedChildValue, selectedOutcome} = this.conditions;
             
             return (
                     childIndID !== 0 && parentIndID !== 0 && 
@@ -454,11 +460,11 @@ const ConditionsEditor = Vue.createApp({
                 :parentFormat="parentFormat"
                 :childFormat="childFormat"
                 :selectedChildValueOptions="selectedChildValueOptions"
-                :conditions="conditionInputObject"
+                :conditions="conditions"
                 :showConditionEditor="showConditionEditor"
                 :showRemoveConditionModal="showRemoveConditionModal"
                 :editingCondition="editingCondition"
-                :conditionInputComplete="conditionComplete"
+                :conditionComplete="conditionComplete"
                 @new-condition="newCondition"
                 @update-indicator-list="getAllIndicators"
                 @update-selected-parent="updateSelectedParentIndicator"
@@ -507,7 +513,7 @@ ConditionsEditor.component('editor-main', {
         showConditionEditor: Boolean,
         showRemoveConditionModal: Boolean,
         editingCondition: String,
-        conditionInputComplete: Boolean,
+        conditionComplete: Boolean,
     },
     updated() {
         if(this.conditions.selectedOutcome !== '') {
@@ -796,7 +802,7 @@ ConditionsEditor.component('editor-main', {
                 </select>
             </div>
         </div>
-        <div v-if="conditionInputComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
+        <div v-if="conditionComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
             <span v-if="conditions.selectedOutcome==='Pre-fill'">will 
             <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
             </span>
