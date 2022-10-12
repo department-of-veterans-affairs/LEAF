@@ -84,7 +84,7 @@ const ConditionsEditor = Vue.createApp({
         },
         updateSelectedParentIndicator(indicatorID) {
             //get rid of possible multiselect choices instance and reset parent comparison value
-            const elSelectParent = document.getElementById('parent_multiselect_entry');
+            const elSelectParent = document.getElementById('parent_compValue_entry');
             if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
             this.selectedParentValue = '';  
             
@@ -511,15 +511,6 @@ ConditionsEditor.component('editor-main', {
         }
     },
     methods: {
-        validateCurrency(event) {
-            const currencyRegex = /^(\d*)(\.\d{0,2})?$/;
-            const val = event.target.value;
-            if (!currencyRegex.test(val)) { //TODO: userfeedback
-                document.getElementById('currency-format-input').value = '';
-            } else {
-                this.$emit('update-selected-parent-value', event.target);
-            }
-        },
         forceUpdate(){
             this.$forceUpdate();
             if(this.vueData.updateIndicatorList === true){ //set to T in mod_form if new ind or ind edited, then to F after new fetch
@@ -568,7 +559,7 @@ ConditionsEditor.component('editor-main', {
         },
         updateChoicesJS() {
             const elExistingChoicesChild = document.querySelector('#outcome-editor > div.choices');
-            const elSelectParent = document.getElementById('parent_multiselect_entry');
+            const elSelectParent = document.getElementById('parent_compValue_entry');
             const elSelectChild = document.getElementById('child_prefill_entry');
             
             const childFormat = this.conditions.childFormat.toLowerCase();
@@ -751,7 +742,8 @@ ConditionsEditor.component('editor-main', {
                 name="child-prefill-value-selector"
                 @change="$emit('update-selected-child-value', $event.target)">   
             </select>
-            <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" id="child_prefill_entry"
+            <input v-else-if="conditions.selectedOutcome==='Pre-fill' && childFormat==='text'" 
+                id="child_prefill_entry"
                 @change="$emit('update-selected-child-value', $event.target)"
                 :value="textValueDisplay(conditions.selectedChildValue)" />
         </div>
@@ -786,32 +778,18 @@ ConditionsEditor.component('editor-main', {
             </div>
             <div>    
                 <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
-                <input v-if="parentFormat==='date'" type="date"
-                    :value="conditions.selectedParentValue"
-                    @change="$emit('update-selected-parent-value', $event.target)"/>
-                <input v-else-if="parentFormat==='number'" type="number"
-                    :value="conditions.selectedParentValue"
-                    @change="$emit('update-selected-parent-value', $event.target)"/>
-                <input v-else-if="parentFormat.format==='currency'"
-                    id="currency-format-input" 
-                    type="number" step="0.01"
-                    :value="conditions.selectedParentValue" 
-                    @change="validateCurrency"/>
-                <select v-else-if="parentFormat==='dropdown'"
+                <select v-if="parentFormat==='dropdown'"
+                    id="parent_compValue_entry"
                     @change="$emit('update-selected-parent-value', $event.target)">
                     <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                     <option v-for="val in selectedParentValueOptions"
                         :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                     </option>
                 </select>
-                <select v-else-if="parentFormat==='radio'"
-                    @change="$emit('update-selected-parent-value', $event.target)">
-                    <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option> 
-                    <option v-for="val in selectedParentValueOptions"> {{ val }} </option>
-                </select>
-                <select v-else-if="parentFormat==='multiselect'" placeholder="select some options" multiple="true"
+                <select v-else-if="parentFormat==='multiselect'"
+                    id="parent_compValue_entry"
+                    placeholder="select some options" multiple="true"
                     style="display: none;"
-                    id="parent_multiselect_entry"
                     @change="$emit('update-selected-parent-value', $event.target)">
                 </select>
             </div>
