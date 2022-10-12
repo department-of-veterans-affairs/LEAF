@@ -4,6 +4,7 @@
  */
 
 require '../sources/Note.php';
+require '../form.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -17,6 +18,10 @@ class NotesController extends RESTfulResponse
      * @var array
      */
     public $index = array();
+
+    private $db;
+
+    private $login;
 
     /**
      *
@@ -40,47 +45,71 @@ class NotesController extends RESTfulResponse
      */
     public function __construct(\Db $db, \Login $login, \DataActionLogger $dataActionLogger)
     {
+        $this->db = $db;
+        $this->login = $login;
         $this->note = new Note($db, $login, $dataActionLogger);
     }
 
     public function get($act)
     {
-        $note = $this->note;
+        if (is_numeric($act['args'][0])) {
+            $query[$act['args']['recordID']]['recordID'] = $act['args'][0];
 
-        $this->index['GET'] = new ControllerMap();
+            $form = new Form($this->db, $this->login);
+            $resRead = $form->checkReadAccess($query);
 
-        $this->index['GET']->register('note/groupID/[digit]', function ($args) use ($note) {
-            return $note->getUndeletedNotesByRecordId($args[0]);
-        });
+            if (isset($resRead[$act['args'][0]])) {
+                $note = $this->note;
 
-        $this->index['GET']->register('note/[digit]', function ($args) use ($note) {
-            return $note->getNotesById($args[0]);
-        });
+                $this->index['GET'] = new ControllerMap();
 
-        return $this->index['GET']->runControl($act['key'], $act['args']);
+                $this->index['GET']->register('note/groupID/[digit]', function ($args) use ($note) {
+                    return $note->getUndeletedNotesByRecordId($args[0]);
+                });
+
+                $this->index['GET']->register('note/[digit]', function ($args) use ($note) {
+                    return $note->getNotesById($args[0]);
+                });
+
+                return $this->index['GET']->runControl($act['key'], $act['args']);
+            } else {
+                return 'Access denied';
+            }
+        }
     }
 
     public function post($act)
     {
-        $note = $this->note;
+        if (is_numeric($act['args'][0])) {
+            $query[$act['args']['recordID']]['recordID'] = $act['args'][0];
 
-        $this->index['POST'] = new ControllerMap();
+            $form = new Form($this->db, $this->login);
+            $resRead = $form->checkReadAccess($query);
 
-        $this->index['POST']->register('note/[digit]', function ($args) use ($note) {
-            $params = array();
-            parse_str($_POST['form'], $params);
+            if (isset($resRead[$act['args'][0]])) {
+                $note = $this->note;
 
-            $params['recordID'] = $args[0];
-            $params['timestamp'] = time();
+                $this->index['POST'] = new ControllerMap();
 
-            $posted_note_id = $note->postNote($params);
-            $posted_note = $note->getNotesById($posted_note_id);
-            $posted_note['user_name'] = $_SESSION['name'];
-            $posted_note['date'] = date('M j', $posted_note['timestamp']);
+                $this->index['POST']->register('note/[digit]', function ($args) use ($note) {
+                    $params = array();
+                    parse_str($_POST['form'], $params);
 
-            return $posted_note;
-        });
+                    $params['recordID'] = $args[0];
+                    $params['timestamp'] = time();
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+                    $posted_note_id = $note->postNote($params);
+                    $posted_note = $note->getNotesById($posted_note_id);
+                    $posted_note['user_name'] = $_SESSION['name'];
+                    $posted_note['date'] = date('M j', $posted_note['timestamp']);
+
+                    return $posted_note;
+                });
+
+                return $this->index['POST']->runControl($act['key'], $act['args']);
+            } else {
+                return 'Access denied';
+            }
+        }
     }
 }

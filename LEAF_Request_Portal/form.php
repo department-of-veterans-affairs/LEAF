@@ -3184,12 +3184,20 @@ class Form
                 require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
-                $actionHistorySQL = 'SELECT recordID, stepID, userID, time, description, actionTextPasttense, actionType, comment
-                FROM action_history
-                LEFT JOIN dependencies USING (dependencyID)
-                LEFT JOIN actions USING (actionType)
-                WHERE recordID IN (' . $recordIDs . ')
-                ORDER BY time';
+                $actionHistorySQL =
+                       'SELECT recordID, stepID, userID, time, description,
+                            actionTextPasttense, actionType, comment
+                        FROM action_history
+                        LEFT JOIN dependencies USING (dependencyID)
+                        LEFT JOIN actions USING (actionType)
+                        WHERE recordID IN (' . $recordIDs . ')
+                        UNION
+                        SELECT recordID, "N/A", userID, timestamp, "Note Added",
+                             "Note Added", "N/A", note
+                        FROM notes
+                        WHERE recordID IN (' . $recordIDs . ')
+                        AND deleted IS NULL
+                        ORDER BY time';
 
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
