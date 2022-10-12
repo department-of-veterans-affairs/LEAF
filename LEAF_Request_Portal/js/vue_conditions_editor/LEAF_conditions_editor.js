@@ -576,7 +576,7 @@ const ConditionsEditor = Vue.createApp({
                         <!-- NOTE: SHOW LIST -->
                         <div v-if="conditionTypes.show.length > 0">
                             <p><b>This field will be hidden except:</b></p>
-                            <li v-for="c in conditionTypes.show" key="c" class="savedConditionsCard">
+                            <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                                     <span v-if="!isOrphan(c.parentIndID)">
@@ -598,7 +598,7 @@ const ConditionsEditor = Vue.createApp({
                         <!-- NOTE: HIDE LIST -->
                         <div v-if="conditionTypes.hide.length > 0">
                             <p style="margin-top: 1em"><b>This field will be shown except:</b></p>
-                            <li v-for="c in conditionTypes.hide" key="c" class="savedConditionsCard">
+                            <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                                     <span v-if="!isOrphan(c.parentIndID)">
@@ -620,7 +620,7 @@ const ConditionsEditor = Vue.createApp({
                         <!-- NOTE: PREFILL LIST -->
                         <div v-if="conditionTypes.prefill.length > 0">
                             <p style="margin-top: 1em"><b>This field will be pre-filled:</b></p>
-                            <li v-for="c in conditionTypes.prefill" key="c" class="savedConditionsCard">
+                            <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
                                     <span v-if="!isOrphan(c.parentIndID)">
@@ -672,9 +672,10 @@ const ConditionsEditor = Vue.createApp({
                         @change="updateSelectedChildValue($event.target)">
                         <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
                         <option v-for="val in selectedChildValueOptions" 
-                        :value="val"
-                        :selected="textValueDisplay(conditions.selectedChildValue)===val">
-                        {{ val }} 
+                            :value="val"
+                            :key="val"
+                            :selected="textValueDisplay(conditions.selectedChildValue)===val">
+                            {{ val }} 
                         </option>
                     </select>
                     <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && conditions.childFormat==='multiselect'"
@@ -682,7 +683,6 @@ const ConditionsEditor = Vue.createApp({
                         multiple="true"
                         id="child_prefill_entry"
                         style="display: none;"
-                        :key="conditions.selectedOutcome + '_' + conditions.parentIndID"
                         name="child-prefill-value-selector"
                         @change="updateSelectedChildValue($event.target)">   
                     </select>
@@ -704,7 +704,7 @@ const ConditionsEditor = Vue.createApp({
                             :title="i.name" 
                             :value="i.indicatorID"
                             :selected="parseInt(conditions.parentIndID)===parseInt(i.indicatorID)"
-                            key="i.indicatorID">
+                            :key="i.indicatorID">
                             {{getIndicatorName(i.indicatorID) }} (indicator {{i.indicatorID}})
                             </option>
                         </select>
@@ -716,6 +716,7 @@ const ConditionsEditor = Vue.createApp({
                             <option v-if="conditions.selectedOp===''" value="" selected>Select a condition</option>
                             <option v-for="o in selectedParentOperators" 
                             :value="o.val"
+                            :key="o.val"
                             :selected="conditions.selectedOp===o.val">
                             {{ o.text }}
                             </option>
@@ -728,6 +729,7 @@ const ConditionsEditor = Vue.createApp({
                             @change="updateSelectedParentValue($event.target)">
                             <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
                             <option v-for="val in selectedParentValueOptions"
+                                :key="val"
                                 :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                             </option>
                         </select>
