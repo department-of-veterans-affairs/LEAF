@@ -21,88 +21,101 @@ class View
         $this->login = $login;
     }
 
-    public function buildViewStatus($recordID)
+    public function buildViewStatus(int $recordID): array
     {
         // check privileges
         require_once 'form.php';
         $form = new Form($this->db, $this->login);
-        if (!$form->hasReadAccess($recordID))
-        {
-            return 0;
-        }
 
-        $result = array();
-        require_once 'VAMC_Directory.php';
-        $dir = new VAMC_Directory;
+        if (!$form->hasReadAccess($recordID)) {
+            $return_value = array();
+        } else {
+            $result = array();
+            require_once 'VAMC_Directory.php';
+            $dir = new VAMC_Directory;
 
-        $vars = array(':recordID' => $recordID);
+            $vars = array(':recordID' => $recordID);
+            $sql1 = 'SELECT time, description, actionText, stepTitle,
+                        dependencyID, comment, userID
+                     FROM action_history
+                     LEFT JOIN dependencies USING (dependencyID)
+                     LEFT JOIN workflow_steps USING (stepID)
+                     LEFT JOIN actions USING (actionType)
+                     WHERE recordID=:recordID
+                     UNION
+                     SELECT timestamp, "Note Added", "N/A", "N/A",
+                        "N/A", note, userID
+                     FROM notes
+                     WHERE recordID = :recordID
+                     AND deleted IS NULL
+                     ORDER BY time ASC';
 
-        $res = $this->db->prepared_query('SELECT * FROM action_history
-        									LEFT JOIN dependencies USING (dependencyID)
-                                            LEFT JOIN workflow_steps USING (stepID)
-        									LEFT JOIN actions USING (actionType)
-        									WHERE recordID=:recordID
-                                            ORDER BY time ASC', $vars);
+            $res = $this->db->prepared_query($sql1, $vars);
 
-        foreach ($res as $tmp)
-        {
-            $packet = [];
-            $packet['time'] = $tmp['time'];
-            if($tmp['stepTitle'] != ''
-                && $tmp['dependencyID'] < 0) {
-                $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
-            }
-            else {
-                $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];
-            }
-            if($tmp['description'] == ''
-                && $tmp['actionText'] == ''
-            ) {
-                $packet['description'] = 'Action';
-            }
-            $packet['comment'] = $tmp['comment'];
-            if ($tmp['userID'] != '')
+            foreach ($res as $tmp)
             {
-                $user = $dir->lookupLogin($tmp['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
-                $packet['userName'] = $name;
+                $packet = [];
+                $packet['time'] = $tmp['time'];
+
+                if ($tmp['description'] == 'Note Added') {
+                    $packet['description'] = 'Note Added: ';
+                } else if ($tmp['description'] == '' && $tmp['actionText'] == '' ) {
+                    $packet['description'] = 'Action';
+                } else if($tmp['stepTitle'] != '' && $tmp['dependencyID'] < 0) {
+                    $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
+                } else {
+                    $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];
+                }
+
+                $packet['comment'] = $tmp['comment'];
+
+                if ($tmp['userID'] != '') {
+                    $user = $dir->lookupLogin($tmp['userID']);
+                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
+                    $packet['userName'] = $name;
+                }
+
+                $result[] = $packet;
             }
-            $result[] = $packet;
+
+            $sql2 = 'SELECT signatureID, signature, recordID, stepID,
+                        dependencyID, userID, timestamp, stepTitle
+                     FROM signatures
+                     LEFT JOIN workflow_steps USING (stepID)
+                     WHERE recordID=:recordID';
+
+            $res = $this->db->prepared_query($sql2, $vars);
+
+            foreach ($res as $tmp) {
+                $packet = [];
+                $packet['time'] = $tmp['timestamp'];
+                $packet['description'] = $tmp['stepTitle'] . ': Digitally Signed';
+                $packet['comment'] = 'Signature Hash: ' . $tmp['signature'];
+
+                if ($tmp['userID'] != '') {
+                    $user = $dir->lookupLogin($tmp['userID']);
+                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
+                    $packet['userName'] = $name;
+                }
+
+                $result[] = $packet;
+            }
+
+            usort($result, function($a, $b) {
+                if($a['time'] == $b['time']) {
+                    return 0;
+                } else if($a['time'] > $b['time']) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+
+            $return_value = $result;
         }
 
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle FROM signatures
-                                            LEFT JOIN workflow_steps USING (stepID)
-	    									WHERE recordID=:recordID', $vars);
+        return $return_value;
 
-        foreach ($res as $tmp)
-        {
-            $packet = [];
-            $packet['time'] = $tmp['timestamp'];
-            $packet['description'] = $tmp['stepTitle'] . ': Digitally Signed';
-            $packet['comment'] = 'Signature Hash: ' . $tmp['signature'];
-
-            if ($tmp['userID'] != '')
-            {
-                $user = $dir->lookupLogin($tmp['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
-                $packet['userName'] = $name;
-            }
-            $result[] = $packet;
-        }
-
-        usort($result, function($a, $b) {
-            if($a['time'] == $b['time']) {
-                return 0;
-            }
-            else if($a['time'] > $b['time']) {
-                return 1;
-            }
-            else {
-                return -1;
-            }
-        });
-        return $result;
     }
 
     public function buildViewBookmarks($userID)
