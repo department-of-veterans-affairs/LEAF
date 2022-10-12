@@ -79,7 +79,7 @@ body {
 }
 
 /* option tags cannot be styled easily  */
-#condition_editor_content select, #condition_editor_content input {
+#condition_editor_content select, #condition_editor_content input:not(.choices__input) {
     font-size: 85%;
     padding: 0.15em;
     text-overflow: ellipsis;
@@ -249,6 +249,44 @@ button.btn-condition-select {
     height: 250px;
     background-color: white;
     box-shadow: 1px 1px 6px 2px rgba(0,0,25,0.5);
+}
+
+
+/** modifications to choicesjs styles **/
+.choices__inner div.choices__item.choices__item--selectable,
+.choices__inner div.choices__item.is-highlighted  {
+    background-color: #f6faff;
+    background-image: linear-gradient(0, #eee 50%, #fff 53%);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color:black;
+}
+button.choices__button {
+    filter: brightness(25%); 
+}
+button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
+    filter: brightness(0);
+    transform: scale(1.05);
+    border-left: 1px solid black !important;
+}
+.choices__list {
+    color: black;
+}
+.choices__list.choices__list--dropdown.is-active .is-highlighted {
+    background-color: #E8F2FF;
+    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
+}
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
+    opacity: 0.75;
+}
+ /* prevent leaf.css corruption */
+.choices input {
+    float: none !important;
+    width: 1ch;
+    min-width: 1ch;
+}
+.choices input:hover, .choices input:focus, .choices input:active {
+    outline: none !important;
 }
 
 @media only screen and (max-width: 768px) {

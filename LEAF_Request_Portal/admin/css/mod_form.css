@@ -70,37 +70,3 @@ div.cell {
 #button_cancelchange:hover, #button_cancelchange:focus, #button_cancelchange:active {
     box-shadow: inset 0 0 0 2px #003;
 }
-
-/** modifications to choicesjs styles **/
-.choices__inner div.choices__item.choices__item--selectable,
-.choices__inner div.choices__item.is-highlighted  {
-    background-color: #f6faff;
-    background-image: linear-gradient(0, #eee 50%, #fff 53%);
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    color:black;
-}
-button.choices__button {
-    filter: brightness(25%); 
-}
-button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
-    filter: brightness(0);
-    transform: scale(1.05);
-    border-left: 1px solid black !important;
-}
-.choices__list {
-    color: black;
-}
-.choices__list.choices__list--dropdown.is-active .is-highlighted {
-    background-color: #E8F2FF;
-    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
-}
-.choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
-    opacity: 0.75;
-}
-.choices input {  /* prevent leaf.css corruption */
-    float: none !important;
-}
-.choices input:hover, .choices input:focus, .choices input:active {
-    outline: none !important;
-}
