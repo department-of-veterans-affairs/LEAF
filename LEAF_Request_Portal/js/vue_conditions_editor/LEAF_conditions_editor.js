@@ -88,6 +88,7 @@ const ConditionsEditor = Vue.createApp({
             const elSelectChild = document.getElementById('child_multiselect_prefill_entry');
             if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
             if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
+            this.selectedChildValue = '';  //reset possible prefill
             
             const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //handle scenario if a parent is archived/deleted
