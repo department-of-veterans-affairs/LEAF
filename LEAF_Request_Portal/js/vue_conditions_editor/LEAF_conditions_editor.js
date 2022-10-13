@@ -1,7 +1,7 @@
 const ConditionsEditor = Vue.createApp({
     data() {
         return {
-            vueData: vueData,  //init {formID: 0, indicatorID: 0, updateIndicatorList: false}  indID is always set to a number
+            vueData: vueData,  //init {formID: string || 0, indicatorID: number || 0, updateIndicatorList: false}
             windowTop: 0,
             //indicatorOrg: {},  NOTE: keep
             indicators: [],
@@ -87,7 +87,12 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildValue = '';
             this.editingCondition = '';
         },
-        updateSelectedParentIndicator(indicatorID) {
+        /**
+         * 
+         * @param {number | string} indicatorID 
+         * @returns 
+         */
+        updateSelectedParentIndicator(indicatorID = 0) {
             //get rid of possible multiselect choices instance and reset parent comparison value
             const elSelectParent = document.getElementById('parent_compValue_entry');
             if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
@@ -97,7 +102,7 @@ const ConditionsEditor = Vue.createApp({
             //handle scenario if a parent is archived/deleted
             if(indicator===undefined) {
                 this.parentFound = false;
-                this.selectedDisabledParentID = indicatorID===0 ? this.selectedDisabledParentID : indicatorID;
+                this.selectedDisabledParentID = indicatorID===0 ? this.selectedDisabledParentID : parseInt(indicatorID);
                 return;
             } else {
                 this.parentFound = true;
@@ -148,7 +153,7 @@ const ConditionsEditor = Vue.createApp({
                         {val:"<=", text: "on and before"}
                     ];
                     break;
-                case 'orgchart_employee': //NOTE: currently excluded from indicator selection
+                case 'orgchart_employee':
                 case 'orgchart_group':  
                 case 'orgchart_position':
                     break;  
@@ -160,17 +165,21 @@ const ConditionsEditor = Vue.createApp({
                     break;
             }
         },
-        updateSelectedOutcome(outcome) {
+        /**
+         * 
+         * @param {string} outcome (condition outcome options: Hide, Show, Pre-Fill)
+         */
+        updateSelectedOutcome(outcome = '') {
             //get rid of possible multiselect choices instances for child prefill values
             const elSelectChild = document.getElementById('child_prefill_entry');
             if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
             this.selectedChildOutcome = outcome;
             this.selectedChildValue = '';  //reset possible prefill
         },
-        updateSelectedOperator(operator){
-            this.selectedOperator = operator;
-        },
-        updateSelectedParentValue(target){
+        /**
+         * @param {Object} target (DOM element)
+         */
+        updateSelectedParentValue(target = {}) {
             const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
             let value = '';
             if (parFormat==='multiselect') {
@@ -184,7 +193,10 @@ const ConditionsEditor = Vue.createApp({
             }
             this.selectedParentValue = value;
         },
-        updateSelectedChildValue(target){
+        /**
+         * @param {Object} target (DOM element)
+         */
+        updateSelectedChildValue(target = {}) {
             const childFormat = this.childIndicator.format.split('\n')[0].trim();
             let value = '';
             if (childFormat==='multiselect') {
@@ -198,7 +210,7 @@ const ConditionsEditor = Vue.createApp({
             }
             this.selectedChildValue = value;
         }, 
-        updateSelectedChildIndicator(){
+        updateSelectedChildIndicator() {
             this.clearSelections();
             this.selectedChildOutcome = '';
             this.selectedChildValue = '';
@@ -236,7 +248,7 @@ const ConditionsEditor = Vue.createApp({
                 }
             });
         },
-        crawlParents(indicator, initialIndicator) { //ind to get parentID from, 
+        crawlParents(indicator = {}, initialIndicator = {}) { //ind to get parentID from, 
             const parentIndicatorID = parseInt(indicator.parentIndicatorID);
             const parent = this.indicators.find(i => parseInt(i.indicatorID) === parentIndicatorID);
 
@@ -249,7 +261,7 @@ const ConditionsEditor = Vue.createApp({
                 this.crawlParents(parent, initialIndicator);
             }
         },
-        newCondition(){
+        newCondition() {
             this.editingCondition = '';
             this.showConditionEditor = true;
             this.selectedParentIndicator = {};
@@ -267,19 +279,19 @@ const ConditionsEditor = Vue.createApp({
 
             if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         },
-        postCondition(){
+        postCondition() {
             const { childIndID }  = this.conditions;
             if (this.conditionComplete) {
                 const conditionsJSON = JSON.stringify(this.conditions);
                 let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
-                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null || indToUpdate.conditions === 'null')
-                    ? [] : JSON.parse(indToUpdate.conditions);
+                let currConditions = (indToUpdate.conditions === '' || indToUpdate.conditions === null || indToUpdate.conditions === 'null') ?
+                    [] : JSON.parse(indToUpdate.conditions);
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.editingCondition);
 
                 const isUnique = newConditions.every(c => JSON.stringify(c) !== conditionsJSON);
                 if (isUnique){
                     newConditions.push(this.conditions);
-                    
+
                     $.ajax({
                         type: 'POST',
                         url: `../api/formEditor/${childIndID}/conditions`,
@@ -303,9 +315,12 @@ const ConditionsEditor = Vue.createApp({
                 }
             }
         },
-        //param data object  {confirmDelete: <bool>, condition: object}
-        removeCondition(data) {  
-            this.selectConditionFromList(data.condition); //updates conditions object
+        /**
+         * 
+         * @param {Object} data ({confirmDelete:boolean, condition:Object})
+         */
+        removeCondition(data = {}) {  
+            this.selectConditionFromList(data.condition);
 
             if(data.confirmDelete === true) { //if user pressed delete btn on the confirm modal
                 const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
@@ -358,11 +373,14 @@ const ConditionsEditor = Vue.createApp({
                 this.showRemoveConditionModal = true;
             }
         },
-        selectConditionFromList(conditionObj){
+        /**
+         * @param {Object} conditionObj 
+         */
+        selectConditionFromList(conditionObj = {}){
             //update par and chi ind, other values
             this.editingCondition = JSON.stringify(conditionObj);
             this.showConditionEditor = true;
-            this.updateSelectedParentIndicator(conditionObj?.parentIndID);
+            this.updateSelectedParentIndicator(parseInt(conditionObj?.parentIndID));
             if(this.parentFound && this.enabledParentFormats.includes(this.parentFormat)) {
                 this.selectedOperator = conditionObj?.selectedOp;
                 this.selectedParentValue = conditionObj?.selectedParentValue;
@@ -374,7 +392,11 @@ const ConditionsEditor = Vue.createApp({
             this.selectedChildOutcome = conditionObj?.selectedOutcome;
             this.selectedChildValue = conditionObj?.selectedChildValue;
         },
-        dragElement(el) {
+        /**
+         * 
+         * @param {Object} el (DOM element)
+         */
+        dragElement(el = {}) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
             if (document.getElementById(el.id + "_header")) {
@@ -420,20 +442,28 @@ const ConditionsEditor = Vue.createApp({
                 this.updateSelectedChildIndicator();
             }
         },
-        applyMaxTextLength(text) {
+        applyMaxTextLength(text = '') {
             let maxTextLength = 40;
             return text?.length > maxTextLength ? text.slice(0,maxTextLength) + '... ' : text || '';
         },
-        getIndicatorName(id) {
+        /**
+         * @param {number} id 
+         * @returns {string}
+         */
+        getIndicatorName(id = 0) {
             if (id !== 0) {
-                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === parseInt(id))?.name || '';
+                let indicatorName = this.indicators.find(indicator => parseInt(indicator.indicatorID) === id)?.name || '';
                 return this.applyMaxTextLength(indicatorName);
             }
         },
-        textValueDisplay(str) {
+        textValueDisplay(str = '') {
             return $('<div/>').html(str).text();
         },
-        getOperatorText(condition){
+        /**
+         * @param {Object} condition 
+         * @returns {string}
+         */
+        getOperatorText(condition = {}) {
             const op = condition.selectedOp;
             const parFormat = condition.parentFormat;
             switch(op){
@@ -448,14 +478,26 @@ const ConditionsEditor = Vue.createApp({
                 default: return op;
             }
         },
-        isOrphan(childIndID) {
-            return !this.selectableParents.some(p => parseInt(p.indicatorID) === parseInt(childIndID));
+        /**
+         * returns true if the parentID of the condition is no longer in the list (due to archive or delete)
+         * @param {number} childIndID 
+         * @returns {boolean}
+         */
+        isOrphan(childIndID = 0) {
+            return !this.selectableParents.some(p => parseInt(p.indicatorID) === childIndID);
         },
-        childFormatChangedSinceSave(condition) {
+        /**
+         * @param {Object} condition 
+         * @returns {boolean}
+         */
+        childFormatChangedSinceSave(condition = {}) {
             const childConditionFormat = condition.childFormat;
             const currentIndicatorFormat = this.childIndicator?.format?.split('\n')[0];
             return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
         },
+        /**
+         * called when the app updates if the outcome is selected.  Creates choicejs combobox instances for multiselect format select boxes
+         */
         updateChoicesJS() {
             const elExistingChoicesChild = document.querySelector('#outcome-editor > div.choices');
             const elSelectParent = document.getElementById('parent_compValue_entry');
@@ -499,19 +541,30 @@ const ConditionsEditor = Vue.createApp({
         }
     },
     computed: {
+        /**
+         * 
+         * @returns {string} base format of the parent question (dropdown, multiselect)
+         */
         parentFormat() {
-            if(this.selectedParentIndicator?.format){
+            if(this.selectedParentIndicator?.format) {
                 const f = this.selectedParentIndicator.format
                 return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
             } else return '';
-
         },
+        /**
+         * 
+         * @returns {string} base format of the child question (dropdown, multiselect, text)
+         */
         childFormat() {
             if(this.childIndicator?.format){
                 const f = this.childIndicator.format;
                 return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
             } else return '';
         },
+        /**
+         * 
+         * @returns {Object} current conditions object
+         */
         conditions() {
             const childIndID  = this.childIndicator?.indicatorID || 0;
             const parentIndID = this.selectedParentIndicator?.indicatorID || 0;            
@@ -522,11 +575,16 @@ const ConditionsEditor = Vue.createApp({
             const childFormat = this.childFormat;
             const parentFormat = this.parentFormat;
             return {
-                childIndID, parentIndID, selectedOp, selectedParentValue, selectedChildValue, selectedOutcome,
+                childIndID, parentIndID, selectedOp, 
+                selectedParentValue, selectedChildValue, selectedOutcome,
                 childFormat, parentFormat
             }    
         },
-        conditionComplete(){
+        /**
+         * 
+         * @returns {boolean} if all required fields are entered for the current condition type
+         */
+        conditionComplete() {
             const {childIndID, parentIndID, selectedOp, selectedParentValue, 
                 selectedChildValue, selectedOutcome} = this.conditions;
             
@@ -537,22 +595,38 @@ const ConditionsEditor = Vue.createApp({
                     (selectedOutcome.toLowerCase()==="pre-fill" && selectedChildValue !== ''))
                 );
         },
-        savedConditions(){
+        /**
+         * 
+         * @returns {Array} of condition objects
+         */
+        savedConditions() {
             return this.childIndicator.conditions ? JSON.parse(this.childIndicator.conditions)
                     : [];
         },
-        conditionTypes(){
+        /**
+         * 
+         * @returns {Object}
+         */
+        conditionTypes() {
             const show = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'show');
             const hide = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'hide');
             const prefill = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'pre-fill');
 
             return {show,hide,prefill};
         },
+        /**
+         * 
+         * @returns {Array}
+         */
         arrChildMultiselectValues() {
             let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
             arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
             return arrValues;
         },
+        /**
+         * 
+         * @returns {Array}
+         */
         arrParentMultiselectValues() {
             let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
             arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
@@ -578,9 +652,9 @@ const ConditionsEditor = Vue.createApp({
                             <p><b>This field will be hidden except:</b></p>
                             <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
-                                    <span v-if="!isOrphan(c.parentIndID)">
-                                        If '{{getIndicatorName(c.parentIndID)}}' 
+                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
+                                    <span v-if="!isOrphan(parseInt(c.parentIndID))">
+                                        If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                         {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                         then show this question.
                                         <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
@@ -600,9 +674,9 @@ const ConditionsEditor = Vue.createApp({
                             <p style="margin-top: 1em"><b>This field will be shown except:</b></p>
                             <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
-                                    <span v-if="!isOrphan(c.parentIndID)">
-                                        If '{{getIndicatorName(c.parentIndID)}}' 
+                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
+                                    <span v-if="!isOrphan(parseInt(c.parentIndID))">
+                                        If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                         {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                         then hide this question.
                                         <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
@@ -622,9 +696,9 @@ const ConditionsEditor = Vue.createApp({
                             <p style="margin-top: 1em"><b>This field will be pre-filled:</b></p>
                             <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(c.parentIndID)}">
-                                    <span v-if="!isOrphan(c.parentIndID)">
-                                        If '{{getIndicatorName(c.parentIndID)}}' 
+                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
+                                    <span v-if="!isOrphan(parseInt(c.parentIndID))">
+                                        If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                         {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
                                         then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
                                         <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
@@ -705,14 +779,14 @@ const ConditionsEditor = Vue.createApp({
                             :value="i.indicatorID"
                             :selected="parseInt(conditions.parentIndID)===parseInt(i.indicatorID)"
                             :key="i.indicatorID">
-                            {{getIndicatorName(i.indicatorID) }} (indicator {{i.indicatorID}})
+                            {{getIndicatorName(parseInt(i.indicatorID)) }} (indicator {{i.indicatorID}})
                             </option>
                         </select>
                     </div>
                     <div>
                         <!-- NOTE: OPERATOR SELECTION -->
                         <select
-                            @change="updateSelectedOperator($event.target.value)">
+                            v-model="selectedOperator">
                             <option v-if="conditions.selectedOp===''" value="" selected>Select a condition</option>
                             <option v-for="o in selectedParentOperators" 
                             :value="o.val"
