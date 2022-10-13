@@ -195,20 +195,27 @@
                     <!--{assign var='option' value=$option[0]}-->
                     <!--{if $option|escape == $indicator.value}-->
                         <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                            class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                         <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                     <!--{else}-->
                         <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
+                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                            class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" 
+                            aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                         <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                     <!--{/if}-->
                 <!--{elseif $option|escape == $indicator.value}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                        class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" 
+                        checked="checked"  aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{else}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
+                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                        class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" 
+                         aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"/>
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
                 <!--{counter print=false}-->
@@ -562,11 +569,11 @@
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if $option|escape == $indicator.value}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked"  aria-labelledby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{else}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->"  aria-labelledby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
             <!--{/foreach}-->
@@ -608,11 +615,15 @@
 
                 <!--{if $found}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" 
+                        name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked"  
+                        aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{else}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" 
+                        name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" 
+                        aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
                 
