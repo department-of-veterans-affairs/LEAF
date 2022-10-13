@@ -73,7 +73,7 @@
         <!--{if $submitted != 0}-->
             <button class="AdminButton" onclick="admin_changeStep()" title="Change Current Step" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=go-jump.svg&w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Current Step</button>
         <!--{/if}-->
-        <button class="AdminButton" onclick="createFrom()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Create From</button>
+        <button class="AdminButton" onclick="duplicateFrom()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Duplicate From</button>
         <button class="AdminButton" onclick="changeService()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Service</button>
         <button class="AdminButton" onclick="admin_changeForm()" title="Change Forms" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=system-file-manager.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Form(s)</button>
         <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"/> Change Initiator</button>
@@ -490,65 +490,212 @@ function changeTitle() {
     });
 }
 
-function createFrom(){
-    dialog.setTitle('Create From');
-    dialog.setContent('Select new service: <br /><div id="changeService"></div>');
-    // populate the drop down with the 2 requests types
-    // give a palce to update title
-    dialog.setContent('Choose which form: <br /><div id="changeStep"></div><br /><br />'
-        + 'Form Type:<br /><select id="type" name="type"><option value="form_d6a41">Recruitment</option></select>'
-        + '<br /><br />'
-        + 'Update Title:<br />'
-        + '<input type="text" id="title" name="title" value="<!--{$title|escape:'quotes'}-->" />');
-    dialog.show();
-    dialog.indicateBusy();
+/**
+ *
+ * @param {object} indicator
+ * @returns {array}
+ */
+function getChildrenIndicatorIDs(indicators) {
+    let children = [];
+    Object.values(indicators).forEach(function (indicator) {
+        children.push(indicator.indicatorID);
+        if(indicator.child){
+            var subchildren = getChildrenIndicatorIDs(indicator.child);
+            // well this took me a bit to realize concat returns the value of results
+            children = children.concat(subchildren);
+        }
+    });
+
+    return children;
+}
+
+/**
+ * popup for duplicating the current form
+ * will allow an end user to choose which sections they would like to copy over
+ */
+function duplicateFrom(){
+
+    $('.chosen').chosen({disable_search_threshold: 6});
+    // this should be written in pure JS but 1. VUEjs, 2. Need to get it done.
+    $('body').on('click','.pickAndChooseAll',function(event){
+        $(".pickAndChoose").prop( "checked", event.target.checked );
+    });
+    $('body').on('click','.pickAndChoose',function(event){
+        if($(".pickAndChoose").length==$(".pickAndChoose:checked").length){
+            $(".pickAndChooseAll").prop( "checked", true );
+        }
+        else{
+            $(".pickAndChooseAll").prop( "checked", false );
+        }
+    });
+
+    // options for the service dropdown
+    let serviceOptions = '';
+    // how is this supposed to work? Old functionality that is no longer used?
+    let series = 1;
+    // allow the end user to choose what should be copied.
+    let pickAndChoose = [];
+    // give it all, make it a bit easier
+    let pickAndChooseOptions = '<label><input class="pickAndChooseAll" checked="checked" type="checkbox" >All</label><br />';
+
+    // get our service list
+    $.ajax({
+        type: 'GET',
+        url: 'api/service',
+        async: false, // I am not going to nest these to make things easier to follow.
+        CSRFToken: '<!--{$CSRFToken}-->',
+        success: function(res) {
+            Object.values(res).forEach(function(resultValue){
+                let selected = (resultValue.serviceID == serviceID) ? 'selected="selected"' : '';
+                serviceOptions += '<option value="'+resultValue.serviceID+'" '+selected+'>'+resultValue.service+'</option>';
+            });
+        },
+        error: function(){ console.log('Failed to gather services for dropdown!') }
+    });
+
+    // but for now the fields for pick and choose will be done likewise...
     $.ajax({
         type: 'GET',
         url: 'api/form/<!--{$recordID|strip_tags}-->/data/tree',
         CSRFToken: '<!--{$CSRFToken}-->',
+        async: false, // I am not going to nest these to make things easier to follow.
         success: function(res) {
-         console.log(res);
-        }
+            Object.values(res).forEach(function(resultValue) {
+
+                let children = getChildrenIndicatorIDs(resultValue.child);
+
+                pickAndChoose.push({
+                    'name' :resultValue.name,
+                    'children' : children
+                });
+
+            });
+        },
+        error: function(){ console.log('Failed to gather data to copy as well as make dropdowns')}
     });
 
-    $('.chosen').chosen({disable_search_threshold: 6});
+    // i probably can do this in the loop above but trying to keep things readable at this point
+    if(pickAndChoose){
+        pickAndChoose.forEach(function(option){
+            // wow, not sure how to work with these entries. was hoping to just get some text here.
+            let doc = new DOMParser().parseFromString(option.name, 'text/html');
+            let finalName =  doc.body.textContent || "";
+            pickAndChooseOptions += '<label><input class="pickAndChoose" checked="checked" name="pickAndChoose[]" type="checkbox"  value="'+JSON.stringify(option.children)+'" >'+finalName+'</label><br />';
+        });
+    }
+
+    dialog.setTitle('Duplicate From <!--{$title|escape:'quotes'}-->');
+    dialog.setContent('Select new service: <br /><div id="changeService"></div>');
+    dialog.setContent(''
+        + 'Title:<br />'
+        + '<input id="title" name="title" type="text" value="<!--{$title|escape:'quotes'}-->" /><br /><br />'
+        + 'Service:<br />'
+        + '<select class="chosen" id="service" name="service"> <option value=""></option>'+serviceOptions+'</select><br /><br />'
+        + 'Priority:<br />'
+        + '<select class="chosen" id="priority" name="priority"><option value="-10">EMERGENCY</option><option value="0" selected="selected">Normal</option></select><br /><br />'
+        + 'Sections to Copy:<br />'
+        + pickAndChooseOptions
+        + '<br /><br />'
+
+    );
+    dialog.show();
+    dialog.indicateBusy();
     dialog.indicateIdle();
     dialog.setSaveHandler(function() {
 
-        //<!--{$userID}-->
+        // we will add on the categories in the first ajax call, this takes in what data the end user updates
+        let createData = {
+            title: $('#title').val(),
+            service: $('#service').val(),
+            priority: $('#priority').val(),
+            CSRFToken: '<!--{$CSRFToken}-->'
+        };
 
-        let theForm = "num"+$('#type option:selected').val(),
+        let updateData = {
+            series: series,
+            CSRFToken: '<!--{$CSRFToken}-->'
+        };
+
+        let chosenSections = [];
+        let pickAndChooseValues = $("input[name='pickAndChoose[]']:checked")
+            .map(function(){
+
+                return chosenSections.concat(JSON.parse($(this).val()));
+            }).get();
+        console.log(pickAndChooseValues);
+
+        // get our data for submission
+        // i can probably use this to also allow for pick and choose
+        if(pickAndChooseValues.length > 0) {
+            $.ajax({
+                type: 'GET',
+                url: 'api/form/<!--{$recordID|strip_tags}-->/data',
+                CSRFToken: '<!--{$CSRFToken}-->',
+                async: false, // I am not going to nest these to make things easier to follow.
+                success: function (res) {
+                    Object.values(res).forEach(function (resultValue) {
+
+                        if (pickAndChooseValues.includes(resultValue[series].indicatorID)) {
+                            updateData[resultValue[series].indicatorID] = resultValue[series].value
+                        }
+
+                    });
+                },
+                error: function () {
+                    console.log('Failed to gather data to copy as well as make dropdowns')
+                }
+            });
+        }
+
+        // need the "categories" and attach them to the createData
+        $.ajax({
+            type: 'GET',
+            url: 'api/form/<!--{$recordID|strip_tags}-->/recordinfo',
+            CSRFToken: '<!--{$CSRFToken}-->',
+            async: false, // I am not going to nest these to make things easier to follow.
+            success: function(res) {
+                // categories attached to the createData, need this to create a new form
+                Object.values(res.categories).forEach(function(category) {
+                    // your what hurts? value is ignored afaik
+                    createData['num'+category] = 'num'+category
+                });
+
+            },
+            error: function(){ console.log('Failed to gather categories before creating new form')}
+        });
+
+        // create the new record, we will update the existing data once we get a complete.
         $.ajax({
             type: 'POST',
             url: './api/form/new',
-            data: {
-                title: $('#title').val(),
-                service: '<!--{$serviceID|strip_tags}-->',
-                priority: 0,
-                numleaf_secure: 1,
-                CSRFToken: '<!--{$CSRFToken}-->'
-            }
-        })
-            .then(function(res) {
+            data: createData,
+            success: function(res) {
                 var recordID = parseFloat(res);
                 if(!isNaN(recordID) && isFinite(recordID) && recordID != 0) {
-                    //window.location = "index.php?a=view&recordID=" + recordID;
+                    // save the contents, could not tell if this could be done in one call.
+                    if(pickAndChooseValues.length > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            url: './api/form/' + recordID,
+                            data: updateData,
+                            success: function (res) {
+                                // then redirect
+                                window.location = "index.php?a=view&recordID=" + recordID;
+                                dialog.hide();
+                            },
+                            error: function () {
+                                console.log('Failed to copy data to new form!')
+                            }
+                        });
+                    }
                 }
-            });
-
-        // get the data from the existing form we will be copying.
-
-        /*$.ajax({
-            type: 'POST',
-            url: 'api/formWorkflow/<!--{$recordID|strip_tags}-->/step',
-            data: {stepID: $('#newStep').val(),
-            comment: $('#changeStep_comment').val(),
-            CSRFToken: CSRFToken},
-            success: function() {
-                window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
-            }
+                else{
+                    console.log('Unknown error occurred, could not save contents to form!');
+                }
+            },
+            error: function(){ console.log('Failed to create new form!')}
         });
-        dialog.hide();*/
+
     });
 }
 
