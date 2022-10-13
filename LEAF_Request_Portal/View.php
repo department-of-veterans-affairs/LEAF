@@ -21,6 +21,14 @@ class View
         $this->login = $login;
     }
 
+    /**
+     *
+     * @param int $recordID
+     *
+     * @return array
+     *
+     * Created at: 10/13/2022, 12:21:13 PM (America/New_York)
+     */
     public function buildViewStatus(int $recordID): array
     {
         // check privileges
@@ -57,11 +65,11 @@ class View
                 $packet = [];
                 $packet['time'] = $tmp['time'];
 
-                if ($tmp['description'] == 'Note Added') {
+                if (strtolower($tmp['description']) == 'note added') {
                     $packet['description'] = 'Note Added: ';
-                } else if ($tmp['description'] == '' && $tmp['actionText'] == '' ) {
+                } else if (empty($tmp['description']) && empty($tmp['actionText'])) {
                     $packet['description'] = 'Action';
-                } else if($tmp['stepTitle'] != '' && $tmp['dependencyID'] < 0) {
+                } else if(!empty($tmp['stepTitle']) && $tmp['dependencyID'] < 0) {
                     $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
                 } else {
                     $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];
@@ -69,7 +77,7 @@ class View
 
                 $packet['comment'] = $tmp['comment'];
 
-                if ($tmp['userID'] != '') {
+                if (!empty($tmp['userID'])) {
                     $user = $dir->lookupLogin($tmp['userID']);
                     $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
                     $packet['userName'] = $name;
@@ -92,7 +100,7 @@ class View
                 $packet['description'] = $tmp['stepTitle'] . ': Digitally Signed';
                 $packet['comment'] = 'Signature Hash: ' . $tmp['signature'];
 
-                if ($tmp['userID'] != '') {
+                if (!empty($tmp['userID'])) {
                     $user = $dir->lookupLogin($tmp['userID']);
                     $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
                     $packet['userName'] = $name;

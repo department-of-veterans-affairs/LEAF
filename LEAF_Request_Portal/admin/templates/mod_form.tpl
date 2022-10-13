@@ -1353,7 +1353,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/name',
                     data: {name: $('#name').val(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 })
             );
         }
@@ -1366,6 +1369,9 @@ function getForm(indicatorID, series) {
                     data: {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
+                    },
+                    error: function(response) {
+                        console.log(response);
                     }
                 })
             );
@@ -1377,7 +1383,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/description',
                     data: {description: $('#description').val(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 })
             );
         }
@@ -1388,7 +1397,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/default',
                     data: {default: $('#default').val(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 })
             );
         }
@@ -1399,7 +1411,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/required',
                     data: {required: requiredIndicator,
-                    CSRFToken: '<!--{$CSRFToken}-->'}
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 }));
         }
 
@@ -1409,7 +1424,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/sensitive',
                     data: {is_sensitive: sensitiveIndicator,
-                    CSRFToken: '<!--{$CSRFToken}-->'}
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 }));
         }
 
@@ -1419,7 +1437,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/disabled',
                     data: {disabled: archivedIndicator,
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 }));
         }
         if(deletedIndicator == 2) {
@@ -1428,7 +1449,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/deleted',
                     data: {deleted: deletedIndicator,
-                    CSRFToken: '<!--{$CSRFToken}-->'}
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 }));
         }
 
@@ -1443,6 +1467,9 @@ function getForm(indicatorID, series) {
                         if(res != null) {
                             alert(res);
                         }
+                    },
+                    error: function(response) {
+                        console.log(response);
                     }
                 })
             );
@@ -1454,7 +1481,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/sort',
                     data: {sort: $('#sort').val(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
             }));
         }
 
@@ -1464,7 +1494,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/html',
                     data: {html: codeEditorHtml.getValue(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
             }));
         }
 
@@ -1474,7 +1507,10 @@ function getForm(indicatorID, series) {
                     type: 'POST',
                     url: '../api/formEditor/' + indicatorID + '/htmlPrint',
                     data: {htmlPrint: codeEditorHtmlPrint.getValue(),
-                        CSRFToken: '<!--{$CSRFToken}-->'}
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                    error: function(response) {
+                        console.log(response);
+                    }
                 }));
         }
 

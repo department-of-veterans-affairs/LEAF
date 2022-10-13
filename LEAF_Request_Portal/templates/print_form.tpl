@@ -151,8 +151,7 @@ function doSubmit(recordID) {
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
                 workflow.getWorkflow(recordID);
-            }
-            else {
+            } else {
                 var errors = '';
                 for(var i in response.errors) {
                     errors += response.errors[i] + '<br />';
@@ -160,6 +159,9 @@ function doSubmit(recordID) {
                 $('#submitControl').empty().html('Error: ' + errors);
                 $('#submitStatus').text('Request can not be submmited');
             }
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
@@ -176,6 +178,9 @@ function submitNote(recordID){
             $("#note").val('');
 
             addNote(response);
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
@@ -205,6 +210,9 @@ function updateTags() {
 
             $('#tags').empty().html(buffer);
             $('#tags').fadeIn(250);
+        },
+        error: function(res) {
+            console.log(res);
         },
         cache: false
     });
@@ -276,6 +284,9 @@ function getIndicator(indicatorID, series) {
             });
             handlePrintConditionalIndicators(formPrintConditions);
         },
+        error: function(res) {
+            console.log(res);
+        },
         cache: false
     });
 }
@@ -312,6 +323,9 @@ function updateProgress() {
                 });
             }
         },
+        error: function(res) {
+            console.log(res);
+        },
         cache: false
     });
 }
@@ -330,6 +344,9 @@ function restoreRequest() {
             if(response > 0) {
                 window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
             }
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
@@ -360,6 +377,9 @@ function addBookmark() {
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateTags();
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
@@ -371,6 +391,9 @@ function removeBookmark() {
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateTags();
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
