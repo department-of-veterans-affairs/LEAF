@@ -1,3 +1,4 @@
+
 body {
     background-color: #f3f3f3;
     font-family: verdana;
@@ -5,7 +6,20 @@ body {
     margin: 0px;
 }
 
-
+#nav-skip-link {
+    position: absolute;
+    opacity: 0;
+    color: black;
+    background-color: #e0e0e0;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+    left: -9999px;
+}
+#nav-skip-link:focus, #nav-skip-link:active  {
+    opacity: 1;
+    left: 0;
+    z-index:100;
+}
 
 body a:link, body a:visited {
     color: #004b76;
@@ -1400,14 +1414,14 @@ div.sensitiveIndicator > .printResponse {
 .input-required {
     margin-left: 8px;
     background-color: white;
-    color: red;
+    color: #d00;
     padding: 0;
     font-weight: normal;
 }
 
 .input-required.input-required-error {
     margin-left: 8px;
-    background-color: red;
+    background-color: #d00;
     color: white;
     padding: 4px;
     font-weight: bold;
