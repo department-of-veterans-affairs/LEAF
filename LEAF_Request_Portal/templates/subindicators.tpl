@@ -12,29 +12,40 @@
     <div class="formblock">
     <!--{foreach from=$form item=indicator}-->
 
-                <!--{if $indicator.format == null || $indicator.format == 'textarea'}-->
-                <!--{assign var='colspan' value=2}-->
-                <!--{else}-->
-                <!--{assign var='colspan' value=1}-->
-                <!--{/if}-->
+        <!--{if $indicator.format == null || $indicator.format == 'textarea'}-->
+        <!--{assign var='colspan' value=2}-->
+        <!--{else}-->
+        <!--{assign var='colspan' value=1}-->
+        <!--{/if}-->
 
-                <!--{if $depth == 0}-->
+        <!--{if $depth == 0}-->
         <div class="mainlabel">
             <div>
-            <span tabIndex="0">
+            <!--{if $indicator.format|in_array:['text','date','currency','number']}-->
+            <label for="<!--{$indicator.indicatorID|strip_tags}-->">
+                <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
+            </label>
+            <!--{else}-->
+            <span <!--{if $indicator.format == null}-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
+            <!--{/if}-->
             </div>
-                <!--{else}-->
+        <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
-
-            <label <!--{if !$indicator.format|in_array:['text','date','currency','number']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
+            <!--{if $indicator.format|in_array:['text','date','currency','number']}-->
+            <label for="<!--{$indicator.indicatorID|strip_tags}-->">
+                <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
+            </label>
+            <!--{else}-->
+            <span <!--{if $indicator.format == null}-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
                         <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
-            </label>
+            </span>
+            <!--{/if}-->
             <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('/libs/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
@@ -141,6 +152,7 @@
                 }
                 else {
                 	indicator.val(indicator.val().replace(/\<br\s?\/?>/g, "\n"));
+                    document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 }
                 function useAdvancedEditor() {
                     indicator.val(XSSHelpers.stripTags(indicator.val(), ['<script>']));
@@ -148,6 +160,7 @@
                         btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
                     });
                     $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
+                    document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> .trumbowyg-editor')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 }
                 $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function() {
                     useAdvancedEditor();
@@ -267,6 +280,7 @@
                             }
                             elEmptyOption.selected = elSelect.value === '';
                         });
+                        document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> input.choices__input')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     }
                 });
                 <!--{if $indicator.required == 1}-->
@@ -311,6 +325,7 @@
                 <script>
                 $(function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -484,7 +499,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'currency' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <br />$<input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
+                $<input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
                 <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Value must be a valid currency</span>
             </span>
             <script type="text/javascript">
