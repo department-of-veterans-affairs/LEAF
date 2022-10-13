@@ -812,7 +812,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_group' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="grpSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
-            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none"></input>
+            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none" />
             <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Invalid Group</span>
             <script>
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
@@ -878,6 +878,7 @@
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
                             });
                         	grpSel.initialize();
+                            $('#grpSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                             <!--{if $indicator.value != ''}-->
                             grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
                             <!--{/if}-->
@@ -898,6 +899,7 @@
                     });
 
                 	grpSel.initialize();
+                    $('#grpSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     <!--{if $indicator.value != ''}-->
                     grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
                     <!--{/if}-->
@@ -952,7 +954,7 @@
             Search and select:
             <!--{/if}--><br />
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
-            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden"></input>
+            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden" />
             <script>
             $(function() {
             	var posSel;
@@ -976,6 +978,7 @@
                             });
 
                             posSel.initialize();
+                            $('#posSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                             <!--{if $indicator.value != ''}-->
                             posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
                             <!--{/if}-->
@@ -996,6 +999,7 @@
                     });
 
                     posSel.initialize();
+                    $('#posSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     <!--{if $indicator.value != ''}-->
                     posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
                     <!--{/if}-->
@@ -1025,7 +1029,7 @@
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
-            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
+            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
 
             <script>
             $(function() {
@@ -1073,6 +1077,7 @@
                         importFromNational(empSel);
                     });
                     empSel.initialize();
+                    $('#empSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
