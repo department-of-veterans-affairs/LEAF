@@ -56,7 +56,7 @@ span#headerLabel {
     font-size: 16px;
 }
 
-span#headerDescription {
+#headerDescription {
     position: absolute;
     font-size: 24px;
     color: black;
