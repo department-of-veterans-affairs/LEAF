@@ -1931,6 +1931,8 @@ class Form
 
                 $return_value = $records;
             }
+        } else {
+            $return_value = $records;
         }
 
         return $return_value;
