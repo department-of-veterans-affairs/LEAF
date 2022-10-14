@@ -43,15 +43,16 @@
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
     </div>
 
-    <div id="notes">
-        <form id='note_form'>
-            <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
-            <input type='text' id='note' name='note' placeholder='Enter a note!' />
-            <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
-        </form>
-    </div>
+
     <div id="comments">
     <h1 id='comment_header'>Comments</h1>
+        <div id="notes">
+            <form id='note_form'>
+                <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
+                <input type='text' id='note' name='note' placeholder='Enter a note!' />
+                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+            </form>
+        </div>
         <!--{section name=i loop=$comments}-->
             <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
                 <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
@@ -179,7 +180,7 @@ function addNote(response) {
 
         new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
 
-        $( new_note ).insertAfter( "#comment_header" );
+        $( new_note ).insertAfter( "#notes" );
     } else {
         console.log('An object was not returned');
     }
