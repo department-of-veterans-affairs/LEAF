@@ -46,11 +46,10 @@
     <div id="notes">
         <form id='note_form'>
             <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
-            <textarea id='note' name='note' row=2 placeholder='Enter a note!'></textarea>
-            <div id='add_note' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post Note</div>
+            <input type='text' id='note' name='note' placeholder='Enter a note!' />
+            <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
         </form>
     </div>
-    <!--{if count($comments) > 0}-->
     <div id="comments">
     <h1 id='comment_header'>Comments</h1>
         <!--{section name=i loop=$comments}-->
@@ -60,17 +59,6 @@
             </div>
         <!--{/section}-->
     </div>
-    <!--{else}-->
-    <div id="comments" style="display: none;">
-    <h1 id='comment_header'>Comments</h1>
-        <!--{section name=i loop=$comments}-->
-            <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
-                <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
-                <div class="comments_message"><!--{$comments[i].comment|sanitize}--></div>
-            </div>
-        <!--{/section}-->
-    </div>
-    <!--{/if}-->
 
     <div id="category_list">
         <h1>Internal Use</h1>
@@ -186,15 +174,16 @@ function submitNote(recordID){
 }
 
 function addNote(response) {
-    var new_note;
+    if (typeof response === 'object' && response !== null) {
+        var new_note;
 
-    new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
+        new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
 
-    $( new_note ).insertAfter( "#comment_header" );
-    console.log($("#comments").css("display"));
-    if ($("#comments").css("display") == 'none') {
-        $("#comments").css("display", 'block');
+        $( new_note ).insertAfter( "#comment_header" );
+    } else {
+        console.log('An object was not returned');
     }
+
 }
 
 function updateTags() {

@@ -1454,21 +1454,15 @@ div [id^="LeafForm"][id$="_loadIndicator"] {
     min-width: 120px;  max-width: 175px
 }
 
+#add_note {
+    float: right;
+    border: solid 1px;
+}
+
+#notes {
+    padding: 1px 3px 12px 3px;
+}
+
 #note {
-    width: 95%;
-    resize: vertical;
-}
-
-#add_note{
-    border: 1px solid black;
-    padding: 6px;
-    margin: 4px;
-    text-align: center;
-    cursor: pointer;
-    background-color: #e8f2ff;
-    color: black;
-}
-
-#add_note:hover {
-    background-color: #2372b0;
+    width: 60%;
 }

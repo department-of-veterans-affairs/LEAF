@@ -81,7 +81,7 @@ class NotesController extends RESTfulResponse
     public function post($act)
     {
         if (is_numeric($act['args'][0])) {
-            $query[$act['args']['recordID']]['recordID'] = $act['args'][0];
+            $query[$act['args'][0]]['recordID'] = $act['args'][0];
 
             $form = new Form($this->db, $this->login);
             $resRead = $form->checkReadAccess($query);
@@ -110,6 +110,8 @@ class NotesController extends RESTfulResponse
             } else {
                 return 'Access denied';
             }
+        } else {
+            return 'Invalid data passed';
         }
     }
 }

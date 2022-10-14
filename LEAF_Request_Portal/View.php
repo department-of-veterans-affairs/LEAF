@@ -11,11 +11,26 @@
 
 class View
 {
+    /**
+     *
+     * @var \Db
+     */
     private $db;
 
+    /**
+     *
+     * @var \Login
+     */
     private $login;
 
-    public function __construct($db, $login)
+    /**
+     *
+     * @param \Db $db
+     * @param \Login $login
+     *
+     * Created at: 10/14/2022, 8:25:14 AM (America/New_York)
+     */
+    public function __construct(\Db $db, \Login $login)
     {
         $this->db = $db;
         $this->login = $login;
@@ -86,8 +101,7 @@ class View
                 $result[] = $packet;
             }
 
-            $sql2 = 'SELECT signatureID, signature, recordID, stepID,
-                        dependencyID, userID, timestamp, stepTitle
+            $sql2 = 'SELECT signature, userID, timestamp, stepTitle
                      FROM signatures
                      LEFT JOIN workflow_steps USING (stepID)
                      WHERE recordID=:recordID';
@@ -109,15 +123,7 @@ class View
                 $result[] = $packet;
             }
 
-            usort($result, function($a, $b) {
-                if($a['time'] == $b['time']) {
-                    return 0;
-                } else if($a['time'] > $b['time']) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            });
+            usort($result, [self::class, 'sortArray']);
 
             $return_value = $result;
         }
@@ -126,20 +132,48 @@ class View
 
     }
 
-    public function buildViewBookmarks($userID)
+    /**
+     *
+     * @param string $userID
+     *
+     * @return array
+     *
+     * Created at: 10/14/2022, 8:25:46 AM (America/New_York)
+     */
+    public function buildViewBookmarks(string $userID): array
     {
         $var = array(':bookmarkID' => 'bookmark_' . $userID);
+        $sql =
+           'SELECT tags.recordID, stepBgColor, stepFontColor, actionIcon, stepTitle,
+                actionTextPasttense, title, submitted, lastStatus
+            FROM tags
+            LEFT JOIN records USING (recordID)
+            LEFT JOIN (
+                SELECT recordID, actionType, dependencyID
+                FROM action_history
+                ORDER BY actionID DESC) lj1 USING (recordID)
+            LEFT JOIN actions USING (actionType)
+            LEFT JOIN step_dependencies USING (dependencyID)
+            LEFT JOIN workflow_steps USING (stepID)
+            WHERE tag = :bookmarkID
+            GROUP BY recordID';
 
-        $res = $this->db->prepared_query('SELECT * FROM tags
-        									LEFT JOIN records USING (recordID)
-        									LEFT JOIN (SELECT recordID, actionType, dependencyID FROM action_history
-        												ORDER BY actionID DESC) lj1 USING (recordID)
-        									LEFT JOIN actions USING (actionType)
-        									LEFT JOIN step_dependencies USING (dependencyID)
-        									LEFT JOIN workflow_steps USING (stepID)
-        									WHERE tag = :bookmarkID
-        									GROUP BY recordID', $var);
+        $res = $this->db->prepared_query($sql, $var);
 
-        return $res;
+        return (array) $res;
+    }
+
+    /**
+     *
+     * @param array $a
+     * @param array $b
+     *
+     * @return int
+     *
+     * Created at: 10/14/2022, 8:41:59 AM (America/New_York)
+     */
+    private static function sortArray(array $a, array $b): int
+    {
+        return $a['time'] - $b['time'];
     }
 }
