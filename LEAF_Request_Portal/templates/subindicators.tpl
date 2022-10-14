@@ -21,24 +21,24 @@
         <!--{if $depth == 0}-->
         <div class="mainlabel">
             <div>
-            <!--{if $indicator.format|in_array:['text','date','currency','number']}-->
+            <!--{if $indicator.format|in_array:['text','date','currency','number','orgchart_employee','orgchart_group','orgchart_position']}-->
             <label for="<!--{$indicator.indicatorID|strip_tags}-->">
                 <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
             </label>
             <!--{else}-->
-            <span <!--{if $indicator.format == null}-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
+            <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
             <!--{/if}-->
             </div>
         <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
-            <!--{if $indicator.format|in_array:['text','date','currency','number']}-->
+            <!--{if $indicator.format|in_array:['text','date','currency','number','orgchart_employee','orgchart_group','orgchart_position']}-->
             <label for="<!--{$indicator.indicatorID|strip_tags}-->">
                 <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
             </label>
             <!--{else}-->
-            <span <!--{if $indicator.format == null}-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
+            <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
@@ -878,7 +878,6 @@
                                 $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
                             });
                         	grpSel.initialize();
-                            $('#grpSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                             <!--{if $indicator.value != ''}-->
                             grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
                             <!--{/if}-->
@@ -899,7 +898,6 @@
                     });
 
                 	grpSel.initialize();
-                    $('#grpSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     <!--{if $indicator.value != ''}-->
                     grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
                     <!--{/if}-->
@@ -978,7 +976,6 @@
                             });
 
                             posSel.initialize();
-                            $('#posSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                             <!--{if $indicator.value != ''}-->
                             posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
                             <!--{/if}-->
@@ -999,7 +996,6 @@
                     });
 
                     posSel.initialize();
-                    $('#posSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     <!--{if $indicator.value != ''}-->
                     posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
                     <!--{/if}-->
@@ -1077,7 +1073,6 @@
                         importFromNational(empSel);
                     });
                     empSel.initialize();
-                    $('#empSel_<!--{$indicator.indicatorID}--> input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',

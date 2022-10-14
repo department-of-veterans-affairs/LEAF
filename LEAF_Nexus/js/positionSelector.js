@@ -29,11 +29,14 @@ function positionSelector(containerID) {
 
 positionSelector.prototype.initialize = function() {
     var t = this;
+    const id = this.containerID.split("_")[1];
+	const labelText = $("[for='" + id + "']").text().trim();
+	const arialLabelText = labelText.split("*")[0];
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="positionSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
-			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput" aria-label="Search"/></div>\
+			<input id="'+this.prefixID+'input" type="search" class="positionSelectorInput" aria-label="Search for user to add as ' + arialLabelText + '" /></div>\
 			<div tabindex="0" id="'+this.prefixID+'result"></div>');
 
 	$('#' + this.prefixID+ 'input').on('keydown', function(e) {
