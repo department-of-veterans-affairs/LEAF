@@ -63,14 +63,14 @@ $(function() {
 </script>
 
 <main style="padding: 1rem;">
-    <header style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
+    <header tabindex="0" style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
         <h2 style="margin: 0 0 0.5rem 0;">Welcome, <b><!--{$recorder|sanitize}--></b>, to the <!--{$city|sanitize}--> request website.</h2>
         After clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result
         in delays. Upon completion of the request, you will be given an opportunity to print the submission.
     </header>
     <form id="record" style="display: flex;" method="post" action="ajaxIndex.php?a=newform">
         <section style="margin-right: 1rem;">
-            <h3 style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 1 - General Information</h3>
+            <h3 tabindex="0" style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 1 - General Information</h3>
             <table id="step1_questions" style="width: 100%; margin: 0; padding: 1rem 0.5rem">
                 <tr>
                     <td>Contact Info</td>
@@ -110,7 +110,7 @@ $(function() {
             </table>
         </section>
         <section>
-            <h3 style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 2 - Select type of request</h3>
+            <h3 tabindex="0" style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 2 - Select type of request</h3>
             <div style="padding: 0.5rem">
                 <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
                 <!--{if count($categories) > 0}-->
