@@ -436,6 +436,19 @@ switch ($action) {
         $tabText = 'Recover disabled fields';
 
         break;
+    case 'access_matrix':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+
+        $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
+
+        $tabText = 'Access Matrix';
+
+        break;
     case 'import_data':
 
         $t_form = new Smarty;

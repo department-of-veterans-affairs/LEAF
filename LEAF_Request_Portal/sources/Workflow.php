@@ -182,6 +182,47 @@ class Workflow
         return $res;
     }
 
+    // retrieve a list of user-generate dependencies and their associated groups
+    public function getCustomDependenciesAndGroups()
+    {
+        $vars = array();
+        $res = $this->db->prepared_query('SELECT * FROM `dependencies`
+                                            LEFT JOIN `dependency_privs` USING (`dependencyID`)
+                                            LEFT JOIN `groups` USING (`groupID`)
+                                            ORDER BY description', $vars);
+
+        $result = [];
+        foreach($res as $dep) {
+            $depID = $dep['dependencyID'];
+
+            // skip non-user generated dependencyIDs
+            switch($depID) {
+                case $depID < 0:
+                case 1: // service chief
+                case 5: // request submitted
+                case 8: // quadrad
+                    continue 2;
+                default:
+                    break;
+            }
+
+            if(!isset($result[$depID])) {
+                $result[$depID]['dependencyID'] = $dep['dependencyID'];
+                $result[$depID]['description'] = $dep['description'];
+            }
+
+            if($dep['groupID'] != null) {
+                $result[$depID]['groups'][] = array(
+                    'groupID' => $dep['groupID'],
+                    'name' => $dep['name'],
+                    'groupDescription' => $dep['groupDescription']
+                );
+            }
+        }
+
+        return $result;
+    }
+
     public function getDependencies($stepID)
     {
         $vars = array(':stepID' => $stepID);
@@ -1093,7 +1134,7 @@ class Workflow
         $firstElement = array_slice($steps, 0, 1)[0];
         if (count($steps) == 0)
         {
-            return 0;
+            return [];
         }
         $initialStepID = $firstElement['initialStepID'];
 
