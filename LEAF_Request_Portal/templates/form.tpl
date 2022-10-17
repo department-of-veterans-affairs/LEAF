@@ -108,6 +108,11 @@ function treeClick(indicatorID, series) {
     });
     form.dialog().clickSave();
 }
+function onKeyPressClick(event){
+    if(event?.keyCode === 13 || event?.keyCode === 32) {
+        $(event.target).trigger('click');
+    }
+}
 
 function updateProgress() {
     $.ajax({
@@ -222,7 +227,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');" onkeypress="onKeyPressClick(event)">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);
