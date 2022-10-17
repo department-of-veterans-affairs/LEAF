@@ -3197,8 +3197,8 @@ class Form
                         LEFT JOIN actions USING (actionType)
                         WHERE recordID IN (' . $recordIDs . ')
                         UNION
-                        SELECT recordID, "N/A", userID, timestamp, "Note Added",
-                             "Note Added", "N/A", note
+                        SELECT recordID, "-5", userID, timestamp, "Note Added",
+                             "Note Added", "LEAF_note", note
                         FROM notes
                         WHERE recordID IN (' . $recordIDs . ')
                         AND deleted IS NULL
