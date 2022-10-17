@@ -132,7 +132,7 @@ class Position extends Data
             throw new Exception('Invalid input: parentID');
         }
         if ($parentID == 0
-            && (!in_array(1, $memberships['groupID']))) 
+            && (!in_array(1, $memberships['groupID'])))
         {
             throw new Exception('Admin access required to add a position without a supervisor.');
         }
@@ -583,10 +583,12 @@ class Position extends Data
     /**
      * Recursively search positions until a matching group is found with the specified tag
      * @param int $positionID
+     * @param string $tag
      * @param array $listOfPositionsExamined
-     * return array, null if search is exhausted
+     *
+     * @return array, null if search is exhausted
      */
-    public function findRootPositionByGroupTag($positionID, $tag, $examinedPositions = array())
+    public function findRootPositionByGroupTag($positionID, $tag, $examinedPositions = array()): array
     {
         $positionID = (int)$positionID;
         if ($positionID == 0)

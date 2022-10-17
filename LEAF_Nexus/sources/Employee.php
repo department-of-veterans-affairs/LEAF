@@ -319,13 +319,15 @@ class Employee extends Data
         }
 
         $sqlVars = array(':login' => $login);
-	$strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
+	    $strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-	    
-	$sqlVars = array(':empUID' => $result[0]['empUID']);
-	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
-        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
+        if (is_array($result) && isset($result[0]['empUID'])) {
+            $sqlVars = array(':empUID' => $result[0]['empUID']);
+            $strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
+            $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
+        }
+
         if(isset($result[0]) && isset($resEmail[0])) {
             $result[0] = array_merge($result[0], $resEmail[0]);
         }
@@ -349,10 +351,10 @@ class Employee extends Data
         $strSQL = "SELECT * FROM {$this->tableName} WHERE empUID = :empUID AND deleted = 0";
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
 	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
         if(isset($result[0]) && isset($resEmail[0])) {
             $result[0] = array_merge($result[0], $resEmail[0]);
         }
@@ -551,7 +553,7 @@ class Employee extends Data
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
     										LEFT JOIN employee ON
-    											relation_employee_backup.backupEmpUID = employee.empUID 
+    											relation_employee_backup.backupEmpUID = employee.empUID
     										WHERE relation_employee_backup.empUID=:empUID', $vars);
 
         $this->cache["getBackups_{$empUID}"] = $res;
