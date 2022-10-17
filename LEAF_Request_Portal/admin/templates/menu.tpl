@@ -47,7 +47,7 @@
             <li><a href="../report.php?a=LEAF_Timeline_Explorer">Timeline Explorer<i class="leaf-nav-icon-space"></i></a></li>
 
             <!--{if $siteType == 'national_primary'}-->
-                <li><a href="javascript:void(0)">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
+                <li><a href="../report.php?a=LEAF_National_Distribution">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
             <!--{/if}-->
 
             <li class="lev3">
