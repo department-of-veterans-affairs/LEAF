@@ -118,7 +118,7 @@ var LeafFormSearch = function(containerID) {
 		renderUI();
 
 		intervalID = setInterval(function(){inputLoop();}, 200);
-		if(!(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
+		if(!(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) && window.location.search !== '') {
 			focus();
 		}
 		if(getLastSearch() == null) {
