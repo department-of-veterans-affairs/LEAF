@@ -538,7 +538,7 @@ function getChildrenIndicatorIDs(indicators) {
  */
 function duplicateFrom(){
 
-    $('.chosen').chosen({disable_search_threshold: 6});
+
     // this should be written in pure JS but 1. VUEjs, 2. Need to get it done.
     $('body').on('click','.pickAndChooseAll',function(event){
         $(".pickAndChoose").prop( "checked", event.target.checked );
@@ -558,7 +558,7 @@ function duplicateFrom(){
     // allow the end user to choose what should be copied.
     let pickAndChoose = [];
     // give it all, make it a bit easier
-    let pickAndChooseOptions = '<label><input class="pickAndChooseAll" checked="checked" type="checkbox" >All</label><br />';
+    let pickAndChooseOptions = '<label class="checkable leaf_check" style="float: none"> <input class="ischecked leaf_check pickAndChooseAll" checked="checked" type="checkbox"> <span class="leaf_check"> </span>All</label>';
 
     // get our service list
     $.ajax({
@@ -601,7 +601,7 @@ function duplicateFrom(){
             let finalName =  doc.body.textContent || "";
             finalName = XSSHelpers.stripAllTags(finalName);
 
-            pickAndChooseOptions += '<label><input class="pickAndChoose" checked="checked" name="pickAndChoose[]" type="checkbox"  value="'+JSON.stringify(option.children)+'" >'+finalName+'</label><br />';
+            pickAndChooseOptions += '<label class="checkable leaf_check" style="float: none"> <input checked="checked" class="ischecked leaf_check pickAndChoose" name="pickAndChoose[]" type="checkbox" value="'+JSON.stringify(option.children)+'"> <span class="leaf_check"> </span>'+finalName+'</label>';
         });
     }
 
@@ -626,7 +626,7 @@ function duplicateFrom(){
     if(!(serviceOptions.length > 0)){
         $('#serviceWrapper').hide();
     }
-
+    $('.chosen').chosen({disable_search_threshold: 6});
     dialog.setSaveHandler(function() {
 
         // we will add on the categories in the first ajax call, this takes in what data the end user updates
