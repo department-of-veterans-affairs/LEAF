@@ -20,8 +20,8 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         return gridInfo;
     }
     function makeDropdown(options, selected, headerName=''){
-        var dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
-        for(var i = 0; i < options.length; i++){
+        let dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
+        for(let i = 0; i < options.length; i++){
             if(selected === options[i]){
                 dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
             } else {
