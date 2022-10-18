@@ -517,14 +517,17 @@ function changeTitle() {
  */
 function getChildrenIndicatorIDs(indicators) {
     let children = [];
-    Object.values(indicators).forEach(function (indicator) {
-        children.push(indicator.indicatorID);
-        if(indicator.child){
-            let subchildren = getChildrenIndicatorIDs(indicator.child);
-            // well this took me a bit to realize concat returns the value of results
-            children = children.concat(subchildren);
-        }
-    });
+
+    if(indicators !== null) {
+        Object.values(indicators).forEach(function (indicator) {
+            children.push(indicator.indicatorID);
+            if (indicator.child) {
+                let subchildren = getChildrenIndicatorIDs(indicator.child);
+                // well this took me a bit to realize concat returns the value of results
+                children = children.concat(subchildren);
+            }
+        });
+    }
 
     return children;
 }
@@ -580,14 +583,11 @@ function duplicateFrom(){
         async: false, // I am not going to nest these to make things easier to follow.
         success: function(res) {
             Object.values(res).forEach(function(resultValue) {
-
                 let children = getChildrenIndicatorIDs(resultValue.child);
-
                 pickAndChoose.push({
                     'name' :resultValue.name,
                     'children' : children
                 });
-
             });
         },
         error: function(){ console.log('Failed to gather data to copy as well as make dropdowns'); }
@@ -610,8 +610,8 @@ function duplicateFrom(){
     dialog.setContent(''
         + 'Title:<br />'
         + '<input id="title" name="title" type="text" value="<!--{$title|escape:'quotes'}-->" /><br /><br />'
-        + 'Service:<br />'
-        + '<select class="chosen" id="service" name="service"> <option value=""></option>'+serviceOptions+'</select><br /><br />'
+        + '<div id="serviceWrapper">Service:<br />'
+        + '<select class="chosen" id="service" name="service"> <option value=""></option>'+serviceOptions+'</select><br /><br /></div>'
         + 'Priority:<br />'
         + '<select class="chosen" id="priority" name="priority"><option value="-10">EMERGENCY</option><option value="0" selected="selected">Normal</option></select><br /><br />'
         + 'Sections to Copy:<br />'
@@ -621,6 +621,12 @@ function duplicateFrom(){
     dialog.show();
     dialog.indicateBusy();
     dialog.indicateIdle();
+
+    // hide service options if they are not available to choose from.
+    if(!(serviceOptions.length > 0)){
+        $('#serviceWrapper').hide();
+    }
+
     dialog.setSaveHandler(function() {
 
         // we will add on the categories in the first ajax call, this takes in what data the end user updates
