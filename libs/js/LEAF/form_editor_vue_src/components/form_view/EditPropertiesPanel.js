@@ -4,7 +4,6 @@ export default {
             categoryName: this.currentCategorySelection?.categoryName || 'Untitled',
             categoryDescription: this.currentCategorySelection?.categoryDescription || '',
             workflowID: parseInt(this.currentCategorySelection?.workflowID) || 0,
-            description: this.currentCategorySelection?.description || '',
             needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
             sort: parseInt(this.currentCategorySelection?.sort) || 0,
             visible: parseInt(this.currentCategorySelection?.visible) || (this.currSubformID ? 1 : 0),
@@ -29,10 +28,13 @@ export default {
         categoryDescriptionDisplay() {
             return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
         },
-        workflow() {
-            return parseInt(this.currentCategorySelection.workflowID) === 0 ?
-            `<span style="color: red">No workflow. Users will not be able to select this form.</span>` :
-            `${this.currentCategorySelection.description} (ID #${this.currentCategorySelection.workflowID})`;
+        workflowDescription() {
+            let returnValue = '';
+            if (this.workflowID !== 0) {
+                const currWorkflow = this.ajaxWorkflowRecords.find(rec => parseInt(rec.workflowID) === this.workflowID);
+                returnValue = currWorkflow?.description || '';
+            }
+            return returnValue;
         },
         isSubForm(){
             return this.currentCategorySelection.parentID !== '';
@@ -61,10 +63,6 @@ export default {
         }
     },
     methods: {
-        updateWorkflowDescription() {
-            const currWorkflow = this.ajaxWorkflowRecords.find(rec => parseInt(rec.workflowID) === this.workflowID);
-            this.description = currWorkflow?.description || '';
-        },
         onSave(){
             let  editPropertyUpdates = [];
             const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
@@ -124,7 +122,7 @@ export default {
                                 alert('The workflow could not be set because this form is stapled to another form');
                             } else {
                                 this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
-                                this.updateCategoriesProperty(this.formID, 'description', this.description);
+                                this.updateCategoriesProperty(this.formID, 'description', this.workflowDescription);
                             }
                         },
                         error: err => console.log('workflow post err', err)
@@ -234,14 +232,13 @@ export default {
                         <label for="workflowID">Workflow
                         <select id="workflowID" name="select-workflow" 
                             title="select workflow"
-                            v-model.number="workflowID"
-                            @change="updateWorkflowDescription">
-                            <option value="0" :selected="workflowID===0">No Workflow</option>
+                            v-model.number="workflowID">
+                            <option value="0" :selected="workflowID===0">No Workflow.  Users cannot submit requests</option>
                             <template v-for="r in ajaxWorkflowRecords" :key="r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
                                     :selected="workflowID===parseInt(r.workflowID)">
-                                    ID#{{r.workflowID}}: {{truncateText(r.description, 30)}}
+                                    ID#{{r.workflowID}}: {{truncateText(r.description, 32)}}
                                 </option>
                             </template>
                         </select></label>
@@ -266,12 +263,12 @@ export default {
                         <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
                     </select></label>
 
-                    <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know is forced on because sensitive fields are present</span>
+                    <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know: ({{isNeedToKnow ? 'on' : 'off'}}) Forced on because sensitive fields are present</span>
                     <label v-else for="needToKnow"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
                         <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">
                             <option value="0" :selected="!isNeedToKnow">Off</option>
-                            <option value="1" :selected="isNeedToKnow">On</option>
+                            <option value="1" style="color: #d00;" :selected="isNeedToKnow">On</option>
                         </select>
                     </label>
                 </div>
