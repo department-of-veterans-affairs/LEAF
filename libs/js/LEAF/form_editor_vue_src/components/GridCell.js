@@ -16,6 +16,9 @@ export default {
         'updateGridJSON'
     ],
     mounted() {
+        /**
+         * adds the first column to a new grid format indicator
+         */
         if(this.gridJSON.length === 0) {
             this.updateGridJSON();
         }
@@ -35,9 +38,9 @@ export default {
         },
         /**
          * Purpose: Delete a column from Grid
-         * @param event
+         * @param {Object} event DOM event
          */
-        deleteColumn(event) {
+        deleteColumn(event = {}) {
             let column = event.currentTarget.closest('div.cell');
             const cellsParent = document.getElementById('gridcell_col_parent');
             const cells = Array.from(cellsParent.querySelectorAll('div.cell'));
@@ -67,9 +70,9 @@ export default {
         },
         /**
          * Purpose: Move Column Right
-         * @param event
+         * @param {Object} event DOM event
          */
-        moveRight(event) {
+        moveRight(event = {}) {
             let column = event.currentTarget.closest('div.cell');
             const nextColumnRight = column.nextElementSibling;
             const nextColumnRightImg = column.nextElementSibling.querySelector('[title="Move column right"]');
@@ -83,9 +86,9 @@ export default {
         },
         /**
          * Purpose: Move Column Left
-         * @param event
+         * @param {Object} event DOM event
          */
-        moveLeft(event) {
+        moveLeft(event = {}) {
             let column = event.currentTarget.closest('div.cell');
             const nextColumnLeft = column.previousElementSibling;
             const nextColumnLeftImg = column.previousElementSibling.querySelector('[title="Move column left"]');
@@ -100,6 +103,11 @@ export default {
 
     },
     watch: {
+        /**
+         * updates aria when a grid column is added when editing grid format indicators
+         * @param {number} newVal 
+         * @param {number} oldVal 
+         */
         gridJSONlength(newVal, oldVal) {
             if (newVal > oldVal) {
                 document.getElementById('tableStatus').setAttribute('aria-label', `Added a new column, ${this.gridJSONlength} total.`);

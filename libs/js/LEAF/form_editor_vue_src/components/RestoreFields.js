@@ -1,13 +1,16 @@
 export default {
     data() {
         return {
-            disabledFields: 0
+            disabledFields: null
         }
     },
     inject: [
         'APIroot',
         'CSRFToken'
     ],
+    /**
+     * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
+     */
     beforeMount() { 
         $.ajax({
             type: 'GET',
@@ -20,6 +23,10 @@ export default {
         });
     },
     methods: {
+        /**
+         * 
+         * @param {number} indicatorID 
+         */
         restoreField(indicatorID) {
             $.ajax({
                 type: 'POST',
@@ -29,7 +36,7 @@ export default {
                     disabled: 0
                 },
                 success: () => {
-                    this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
+                    this.disabledFields = this.disabledFields.filter(f => parseInt(f.indicatorID) !== indicatorID);
                     alert('The field has been restored.');
                 },
                 error: (err) => console.log(err)
@@ -40,7 +47,7 @@ export default {
             <h3 style="margin: 0;">List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will be not display in the Report Builder</div>
             <div>
-                <table v-if="disabledFields !== 0" class="usa-table leaf-whitespace-normal">
+                <table v-if="disabledFields !== null" class="usa-table leaf-whitespace-normal">
                     <thead>
                         <tr>
                             <th>indicatorID</th>
@@ -59,7 +66,7 @@ export default {
                             <td>{{ f.format }}</td>
                             <td>{{ f.disabled }}</td>
                             <td><button class="buttonNorm" 
-                                @click="restoreField(f.indicatorID)">
+                                @click="restoreField(parseInt(f.indicatorID))">
                                 Restore this field</button>
                             </td>
                         </tr>

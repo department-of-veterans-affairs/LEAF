@@ -33,7 +33,11 @@ export default {
         this.makeDraggable(elModal);
     },
     methods: {
-        makeDraggable(el) {
+        /**
+         * makes the modal draggable
+         * @param {Object} el DOM element
+         */
+        makeDraggable(el = {}) {
             let pos1 = 0; let pos2 = 0; let mouseX = 0; let mouseY = 0;
 
             const elementDrag = (e) => {
@@ -78,30 +82,29 @@ export default {
     },
     template: `<Teleport to="body">
         <div v-if="showFormDialog" :id="showFormDialog ? 'leaf-vue-dialog-background' : ''">
-        <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :style="{top: scrollY + initialTop + 'px'}">
-            <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
-            <div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" id="leaf-vue-dialog-close">&#10005;</div>
-            <div id="record">
-                <div role="document" style="position: relative;">
-                    <div id="loadIndicator" class="leaf-dialog-loader"></div><!-- TODO: -->
-                    <main id="xhr" class="leaf-vue-dialog-content" role="main">
-                        <slot name="dialog-content-slot"></slot>
-                    </main>
-                </div>
-                <div id="leaf-vue-dialog-cancel-save">
-                    <button style="width: 90px;"
-                        id="button_save" class="btn-confirm" :title="dialogButtonText.confirm"
-                        @click="formSaveFunction">
-                        {{dialogButtonText.confirm}}
-                    </button>
-                    <button style="width: 90px;"
-                        id="button_cancelchange" class="btn-general" :title="dialogButtonText.cancel"
-                        @click="closeFormDialog">
-                        {{dialogButtonText.cancel}}
-                    </button>
+            <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :style="{top: scrollY + initialTop + 'px'}">
+                <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
+                <div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" id="leaf-vue-dialog-close">&#10005;</div>
+                <div id="record">
+                    <div role="document" style="position: relative;">
+                        <main id="xhr" class="leaf-vue-dialog-content" role="main">
+                            <slot name="dialog-content-slot"></slot>
+                        </main>
+                    </div>
+                    <div id="leaf-vue-dialog-cancel-save">
+                        <button style="width: 90px;"
+                            id="button_save" class="btn-confirm" :title="dialogButtonText.confirm"
+                            @click="formSaveFunction">
+                            {{dialogButtonText.confirm}}
+                        </button>
+                        <button style="width: 90px;"
+                            id="button_cancelchange" class="btn-general" :title="dialogButtonText.cancel"
+                            @click="closeFormDialog">
+                            {{dialogButtonText.cancel}}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </Teleport>`
 }

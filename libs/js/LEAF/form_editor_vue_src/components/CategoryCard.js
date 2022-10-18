@@ -15,6 +15,9 @@ export default {
         'updateFormsStapledCatIDs'
     ],
     mounted() {
+        /**
+         * get stapled forms associated with this card's catID and update staples (array)
+         */
         this.getStapledFormsByCurrentCategory(this.catID).then(res => {
             this.staples = res;
             for (let s in res) {
@@ -32,6 +35,10 @@ export default {
         catID() {
             return this.categoriesRecord.categoryID;
         },
+        /**
+         * 
+         * @returns {string} of formIDs for display on card
+         */
         staplesList() {
             let list = [];
             this.staples.forEach(staple => {
@@ -42,7 +49,11 @@ export default {
         isStapledToOtherForm() {
             return this.formsStapledCatIDs.includes(this.categoriesRecord.categoryID);
         },
-        categoryName() { //NOTE: XSSHelpers global
+        /**
+         * NOTE: uses LEAF XSSHelpers.js
+         * @returns {string} truncated category name for card title
+         */
+        categoryName() {
             let name = this.categoriesRecord.categoryName === '' ? 
                 'Untitled' : XSSHelpers.stripAllTags(this.categoriesRecord.categoryName);
             return this.truncateText(name, 41);
@@ -54,6 +65,10 @@ export default {
             return parseInt(this.categoriesRecord.visible) === 1 && this.workflowID > 0 ? 
             'This form is available' : 'Hidden. Users cannot submit new requests.';
         },
+        /**
+         * 
+         * @returns {string} truncated workflow name for card bottom
+         */
         workflow() {
             let msg = ''
             if (this.workflowID===0) {

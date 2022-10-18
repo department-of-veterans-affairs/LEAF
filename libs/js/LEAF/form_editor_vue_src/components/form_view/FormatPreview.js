@@ -108,7 +108,7 @@ export default {
                 break;
             case 'grid':
                 const options = JSON.parse(this.indicator.options);
-                this.updateGridInstances(options, this.indicator.indicatorID, this.indicator.series);
+                this.updateGridInstances(options, parseInt(this.indicator.indicatorID), parseInt(this.indicator.series));
                 this.gridInstances[this.indicator.indicatorID].input();
                 break;
             case 'checkbox':

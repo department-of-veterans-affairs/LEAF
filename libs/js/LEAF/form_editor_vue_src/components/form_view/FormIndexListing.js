@@ -110,12 +110,12 @@ export default {
                 {{headingNumber}}&nbsp;{{shortLabel}}
                 <div class="icon_move_container">
                     <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
-                        tabindex="0" class="icon_move up" title="move item up"
+                        tabindex="0" class="icon_move up" role="button" title="move item up"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, true)">
                     </div>
                     <div v-show="formNode.indicatorID===selectedNodeIndicatorID"
-                        tabindex="0" class="icon_move down" title="move item down"
+                        tabindex="0" class="icon_move down" role="button" title="move item down"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
                     </div>

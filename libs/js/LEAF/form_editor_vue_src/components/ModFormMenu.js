@@ -22,6 +22,10 @@ export default {
         'openConfirmDeleteFormDialog',
     ],
     computed: {
+        /**
+         * 
+         * @returns {array} of internal forms associated with the main form
+         */
         internalForms() {
             let internalForms = [];
             for(let c in this.categories){
@@ -52,7 +56,9 @@ export default {
         hideInternalFormsMenu() {
             this.internalFormsMenuOpen = false;
         },
-        //export the main form along with its internals
+        /**
+         * resolve main form, internal form, and workflow info, then export
+         */
         exportForm() {
             const catID = this.currCategoryID;
 
@@ -101,7 +107,6 @@ export default {
 
             Promise.all(exportCalls)
             .then(()=> {
-                console.log('promise all:', exportCalls);
                 let outPacket = {};
                 outPacket.version = 1;
                 outPacket.name = this.categories[catID].categoryName + ' (Copy)';
@@ -120,13 +125,13 @@ export default {
             console.log('clicked subform', 'sub', subformID, 'main', this.currCategoryID);
             this.selectNewCategory(subformID, true);
         },
-        formName(catName, len = 16) {
-            let elFilter = document.createElement('div')
-            elFilter.innerHTML = catName || 'untitled';
-            const name = this.truncateText(elFilter.innerText, len);
-            return name;
-        },
-        shortFormNameStripped(formName, len) { //NOTE: XSSHelpers global
+        /**
+         * //NOTE: uses XSSHelpers.js
+         * @param {string} formName 
+         * @param {number} len 
+         * @returns 
+         */
+        shortFormNameStripped(formName = '', len = 21) {
             let name = formName || 'Untitled';
             name = XSSHelpers.stripAllTags(name);
             return this.truncateText(name, len).trim();

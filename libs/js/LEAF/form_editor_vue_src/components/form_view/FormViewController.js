@@ -92,10 +92,22 @@ export default {
         }
     },
     methods: {
-        updateGridInstances(options, indicatorID, series) {
-            this.gridInstances[indicatorID] = new gridInput(options, indicatorID, series, ''); //NOTE: global LEAF class for grid format
+        /**
+         * NOTE: uses LEAF gridInput class for form data entry preview of grid format questions
+         * @param {array} options array of objects with grid format properties (name, id, type)
+         * @param {number} indicatorID 
+         * @param {number} series 
+         */
+        updateGridInstances(options = [], indicatorID = 0, series = 1) {
+            this.gridInstances[indicatorID] = new gridInput(options, indicatorID, series, '');
         },
-        moveListing(event, indID, moveup) {
+        /**
+         * moves an item in the Form Index via the buttons that appear when the item is selected
+         * @param {Object} event 
+         * @param {number} indID of the list item to move
+         * @param {boolean} moveup click/enter moves the item up (false moves it down)
+         */
+        moveListing(event = {}, indID = 0, moveup = false) {
             if (event?.keyCode===32) event.preventDefault();
             const parentEl = event.currentTarget.closest('ul');
             const elToMove = document.getElementById(`index_listing_${indID}`);
@@ -132,7 +144,10 @@ export default {
                 }
             }
         },
-        applySortAndParentID_Updates(){
+        /**
+         * posts sort and parentID values when user confirms updates with 'apply updates' in Form Index
+         */
+        applySortAndParentID_Updates() {
             let updateSort = [];
             this.sortValuesToUpdate.forEach(item => {
                 updateSort.push(
@@ -166,31 +181,41 @@ export default {
 
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
-                console.log('promise all applied changes:', all, res);
                 if (res.length > 0) {
                     this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                 }
             });
 
         },
-        addToListItemsObject(formNode, parentID, listIndex) {
+        /**
+         * adds initial sort and parentID values to app listItems object
+         * @param {Object} formNode from the Form Index listing
+         * @param {number|null} parentID parent ID of the index listing (null for form sections)
+         * @param {number} listIndex current index for that depth in the form index
+         */
+        addToListItemsObject(formNode = {}, parentID = null, listIndex = 0) {
             const { indicatorID, sort } = formNode;
             const item = { sort, parentID, listIndex, newParentID: '' }
             this.listItems[indicatorID] = item;
         },
-        //update the listIndex and parentID values for a specific indicator
-        updateListItems(indID, formParIndID, listIndex) {
+        /**
+         * updates the listIndex and parentID values for a specific indicator in app listItems when moved via the Form Index
+         * @param {number} indID 
+         * @param {number|null} formParIndID null for form Sections
+         * @param {number} listIndex 
+         */
+        updateListItems(indID = 0, formParIndID = 0, listIndex = 0) {
             let item = {...this.listItems[indID]};
             item.listIndex = listIndex;
             item.newParentID = formParIndID;
             this.listItems[indID] = item;
         },
-        startDrag(evt) {
+        startDrag(evt = {}) {
             evt.dataTransfer.dropEffect = 'move';
             evt.dataTransfer.effectAllowed = 'move';
             evt.dataTransfer.setData('text/plain', evt.target.id);
         },
-        onDrop(evt) {
+        onDrop(evt = {}) {
             evt.preventDefault();
             const draggedElID = evt.dataTransfer.getData('text');
             const parentEl = evt.currentTarget; //drop event is on the parent ul
@@ -222,7 +247,7 @@ export default {
                     if(closestLI_id !== null) {
                         parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
                     } else {
-                        //it's at the end
+                        //it's at the end of the list
                         parentEl.append(document.getElementById(draggedElID));
                     }
                     //check the new indexes
@@ -239,19 +264,25 @@ export default {
                 evt.target.classList.remove('entered-drop-zone');
             }
         },
-        onDragLeave(evt) { //@dragleave="onDragLeave"
+        /**
+         * 
+         * @param {Object} evt removes the drop zone hilite if target is ul
+         */
+        onDragLeave(evt = {}) {
             if(evt.target.classList.contains('form-index-listing-ul')){
-               //if target is ul, rm drop zone hilite
                 evt.target.classList.remove('entered-drop-zone');
             }
         },
-        onDragEnter(evt) {
+        /**
+         * 
+         * @param {Object} evt adds the drop zone hilite if target is ul
+         */
+        onDragEnter(evt = {}) {
             if(evt.target.classList.contains('form-index-listing-ul')){
-                //if target is ul, apply style to hilite drop zone
                 evt.target.classList.add('entered-drop-zone');
             }
         },
-        toggleToolbars(event) {
+        toggleToolbars(event = {}) {
             event.stopPropagation();
             if (event?.keyCode===32) event.preventDefault();
             this.showToolbars=!this.showToolbars;

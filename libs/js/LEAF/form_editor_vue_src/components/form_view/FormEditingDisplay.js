@@ -16,7 +16,6 @@ export default {
         'editQuestion',
         'openAdvancedOptionsDialog',
         'editIndicatorPrivileges',
-        'gridInstances',
         'updateGridInstances',
         'listItems',
         'allListItemsAreAdded',
@@ -126,7 +125,7 @@ export default {
                 
                 <!-- FORMAT PREVIEW -->
                 <div v-if="formNode.format!==''" class="form_data_entry_preview">
-                    <format-preview :indicator="formNode" :key="'FP' + formNode.indicatorID"></format-preview>
+                    <format-preview :indicator="formNode" :key="'FP_' + formNode.indicatorID"></format-preview>
                 </div>
             </div>
 
@@ -135,7 +134,7 @@ export default {
                 <form-editing-display v-for="child in children"
                     :depth="depth + 1"
                     :formNode="child"
-                    :key="'FED' + child.indicatorID">
+                    :key="'FED_' + child.indicatorID">
                 </form-editing-display>
             </template>
         </div>`

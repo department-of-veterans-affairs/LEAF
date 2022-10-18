@@ -400,7 +400,7 @@ export default {
             console.log('updated curr cat selection', keyName, this.currentCategorySelection);
         },
         /**
-         * updates app staples for the currently selected form if staples are added or removed
+         * updates app formsStapledCatIDs to track which forms have staples for card info
          * @param {string} stapledCatID 
          * @param {string} removeCatID 
          */
