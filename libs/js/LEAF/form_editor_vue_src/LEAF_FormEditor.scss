@@ -50,14 +50,14 @@ button.btn-general, button.btn-confirm, button.can_update {
     border-radius: 3px;
     border: 2px solid $base_navy;
 
-    &.disabled {
-        cursor: auto;
-    }
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         background-color: $base_navy;
         color: white;
         border: 2px solid black !important;
         box-shadow: 0 0 3px rgba(0,0,30,0.4);
+    }
+    &.disabled {
+        cursor: auto !important;
     }
 }
 button.buttonNorm {

@@ -89,9 +89,9 @@ export default {
                     :id="'form_editing_toolbar_' + formNode.indicatorID"
                     :class="{'conditional': conditionalQuestion}">
                     <div style="display: flex; align-items: center;">
-                        <span tabindex="0" style="cursor: pointer; display: flex; align-items:center;"
-                            @click="editQuestion(formNode.indicatorID, formNode.series)"
-                            @keypress.enter="editQuestion(formNode.indicatorID, formNode.series)"
+                        <span tabindex="0" role="button" style="cursor: pointer; display: flex; align-items:center;"
+                            @click="editQuestion(parseInt(formNode.indicatorID))"
+                            @keypress.enter="editQuestion(parseInt(formNode.indicatorID))"
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
                         <span style="margin-left: 0.75rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
@@ -106,7 +106,7 @@ export default {
                             :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
                             <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
                         </button>
-                        <button @click="openAdvancedOptionsDialog(formNode.indicatorID)"
+                        <button @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
                             title="Open Advanced Options" class="icon">
                             <img src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
                         </button>

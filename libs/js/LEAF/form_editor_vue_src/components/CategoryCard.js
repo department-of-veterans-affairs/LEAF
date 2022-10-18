@@ -61,7 +61,7 @@ export default {
             } else {
                 msg = this.categoriesRecord.description !== null ? 'Workflow: ' + this.categoriesRecord.description : '';
             }
-            return msg;
+            return this.truncateText(msg, 43);
         }
     },
     template:`<div tabindex="0" 

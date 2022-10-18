@@ -33,7 +33,6 @@ export default {
             type: 'GET',
             url: `${this.APIroot}formEditor/_${this.formID}/privileges`,
             success: (res) => {
-                console.log('collabs', res)
                 this.collaborators = res
             },
             error: err => console.log(err),
@@ -43,7 +42,7 @@ export default {
     methods: {
         /**
         * Purpose: Remove Permissions from Form
-        * @param groupID number
+        * @param {number} groupID
         */
         removePermission(groupID = 0) {
             $.ajax({
@@ -85,7 +84,6 @@ export default {
                         if (group === undefined) {
                             this.collaborators.push({groupID: this.group.groupID, name: this.group.name})
                         }
-                        //this.closeFormDialog();
                     },
                     error: err => console.log(err),
                     cache: false

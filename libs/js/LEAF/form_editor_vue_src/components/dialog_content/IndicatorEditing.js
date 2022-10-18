@@ -82,7 +82,6 @@ export default {
         GridCell
     },
     mounted() {
-        console.log('MOUNT IE');
         if (this.isEditingModal === true) {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
@@ -133,7 +132,6 @@ export default {
             const sortVal = (this.parentID===null) ?
                 this.ajaxFormByCategoryID.length :                                 //new sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
-            console.log(nonSectionSelector, sortVal)
             return sortVal;
         }
     },

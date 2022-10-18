@@ -26,7 +26,7 @@ export default {
             dialogFormContent: '',
             dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             showFormDialog: false,
-            //this sets the method associated with the save btn to the onSave method of the modal's current component
+            //this sets the method associated with the save btn of a dialog to the onSave method of its current component
             formSaveFunction: ()=> {
                 if(this.$refs[this.dialogFormContent]) {
                     this.$refs[this.dialogFormContent].onSave();
@@ -44,7 +44,7 @@ export default {
             currentCategorySelection: {},  //current record from categories object
             ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
             selectedFormNode: null,
-            indicatorCountSwitch: true,    //TEST toggle to trigger form view controller remount if the total count changes
+            indicatorCountSwitch: true,    //toggled to trigger form view controller remount if an indicator is archived or deleted
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             currentCategoryIndicatorTotal: 0,
@@ -144,6 +144,10 @@ export default {
         }).catch(err => console.log('error getting site settings', err));
     },
     computed: {
+        /**
+         * 
+         * @returns {array} of categories object records
+         */
         activeCategories() {
             let active = [];
             for (let c in this.categories) {
@@ -153,6 +157,10 @@ export default {
             }
             return active;
         },
+        /**
+         * 
+         * @returns {array} of categories object records
+         */
         inactiveCategories() {
             let inactive = [];
             for (let c in this.categories) {
@@ -164,15 +172,26 @@ export default {
         }
     },
     methods: {
-        truncateText(str, maxlength = 40, overflow = '...') {
+        truncateText(str='', maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
-        addOrgSelector(selectorType) {
+        /**
+         * used to track whether js code and styles for orgchart formats have been downloaded from the nexus
+         * @param {string} selectorType group, employee, position
+         */
+        addOrgSelector(selectorType = '') {
             this.orgSelectorClassesAdded[selectorType] = true;
         },
+        /**
+         * used to force rerender of the form view controller component
+         */
         toggleIndicatorCountSwitch() {
             this.indicatorCountSwitch = !this.indicatorCountSwitch;
         },
+        /**
+         * 
+         * @returns {array} of objects with all fields from categories and workflow tables for enabled forms
+         */
         getCategoryListAll() {
             this.appIsLoadingCategoryList = true;
             return new Promise((resolve, reject)=> {
@@ -184,6 +203,10 @@ export default {
                 });
             });
         },
+        /**
+         * 
+         * @returns {array} of objects with all fields from the workflows table
+         */
         getWorkflowRecords() {
             return new Promise((resolve, reject)=> {
                 $.ajax({
@@ -194,6 +217,10 @@ export default {
                 });
             });
         },
+        /**
+         * 
+         * @returns {Object} of all records from the portal's settings table
+         */
         getSiteSettings() {
             return new Promise((resolve, reject)=> {
                 $.ajax({
@@ -205,7 +232,12 @@ export default {
                 })
             });
         },
-        fetchLEAFSRequests(searchResolved) {
+        /**
+         * 
+         * @param {boolean} searchResolved 
+         * @returns {Object} of LEAF Secure Certification requests
+         */
+        fetchLEAFSRequests(searchResolved = false) {
             return new Promise((resolve, reject)=> {
                 let query = new LeafFormQuery();
                 query.setRootURL('../');
@@ -223,11 +255,15 @@ export default {
                 query.execute();
             });
         },
+        /**
+         *  resolves both all non deleted indicators (includes headers and archived indicators) and LEAFSRequests
+         *  and when done, uses the resolved information to check the portals LEAFSRequest status
+         */
         getSecureFormsInfo() {
             let secureCalls = [
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/indicator/list`, //all non DELETED ind and headers
+                    url: `${this.APIroot}form/indicator/list`,
                     success: (res)=> {},
                     error: (err) => console.log(err),
                     cache: false,
@@ -244,7 +280,12 @@ export default {
             });
 
         },
-        checkLeafSRequestStatus(indicatorList, leafSRequests) {
+        /**
+         * checks status of LEAF Secure Certification requests and adds HTML contents based on status
+         * @param {array} indicatorList 
+         * @param {Object} leafSRequests
+         */
+        checkLeafSRequestStatus(indicatorList = [], leafSRequests = {}) {
             let mostRecentID = null;
             let newIndicator = false;
             let mostRecentDate = 0;
@@ -280,7 +321,12 @@ export default {
                 })
             }
         },
-        getFormByCategoryID(catID = this.currCategoryID) {
+        /**
+         * 
+         * @param {string} catID 
+         * @returns {array} of objects with information about the form (indicators and structure relations)
+         */
+        getFormByCategoryID(catID = '') {
             this.appIsLoadingCategoryInfo = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
@@ -294,11 +340,16 @@ export default {
                 });
             });
         },
-        getStapledFormsByCurrentCategory(formID) {
+        /**
+         * 
+         * @param {string} catID 
+         * @returns {array} of objects with information about forms stapled to CatID
+         */
+        getStapledFormsByCurrentCategory(catID = '') {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}formEditor/_${formID}/stapled`,
+                    url: `${this.APIroot}formEditor/_${catID}/stapled`,
                     success: (res) => {
                         resolve(res);
                     },
@@ -306,7 +357,12 @@ export default {
                 });
             });
         },
-        getIndicatorByID(indID) { //get specific indicator info
+        /**
+         * 
+         * @param {number} indID 
+         * @returns {Object} with property information about the specific indicator
+         */
+        getIndicatorByID(indID) {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
@@ -316,21 +372,39 @@ export default {
                 });
             });
         },
-        //builds categories object from getCatListAll res on success, for local data use
-        setCategories(obj) {
+        /**
+         * builds the categories object from the array resolved by getCategoryListAll, for local data use
+         * @param {array} obj 
+         */
+        setCategories(obj = []) {
             for(let i in obj) {
                 this.categories[obj[i].categoryID] = obj[i];
             }
         },
-        setCurrCategoryStaples(stapledForms) {
+        /**
+         * sets app data for staples associated with the currently selected form
+         * @param {array} stapledForms 
+         */
+        setCurrCategoryStaples(stapledForms = []) {
             this.ajaxSelectedCategoryStapled = stapledForms;
         },
-        updateCategoriesProperty(catID, keyName, keyValue) {
+        /**
+         * updates app categories object property value
+         * @param {string} catID 
+         * @param {string} keyName 
+         * @param {string} keyValue 
+         */
+        updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             this.categories[catID][keyName] = keyValue;
             this.currentCategorySelection = this.categories[catID];
             console.log('updated curr cat selection', keyName, this.currentCategorySelection);
         },
-        updateFormsStapledCatIDs(stapledCatID, removeCatID = false) {
+        /**
+         * updates app staples for the currently selected form if staples are added or removed
+         * @param {string} stapledCatID 
+         * @param {string} removeCatID 
+         */
+        updateFormsStapledCatIDs(stapledCatID = '', removeCatID = false) {
             if(removeCatID === true) {
                 if(this.formsStapledCatIDs.includes(stapledCatID)) {
                     const index = this.formsStapledCatIDs.indexOf(stapledCatID);
@@ -342,20 +416,30 @@ export default {
                 } 
             }
         },
-        addNewCategory(catID, record = {}) {
+        /**
+         * adds an entry to the app's categories object when a new form is created
+         * @param {string} catID 
+         * @param {Object} record of properties for the new form
+         */
+        addNewCategory(catID = '', record = {}) {
             this.categories[catID] = record;
         },
-        //categoryID of the form to select, whether it is a subform, indicatorID associated with the current selection in the form index 
-        selectNewCategory(catID, isSubform = false, subnodeIndID = null) {
+        /**
+         * 
+         * @param {string|null} catID of the form to select TODO: see if this can be refact to empty str
+         * @param {boolean} isSubform whether it is a main or a subform
+         * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
+         */
+        selectNewCategory(catID = '', isSubform = false, subnodeIndID = null) {
             this.restoringFields = false;  //nav from Restore Fields subview
 
             if(!isSubform) {
-                console.log('setting new currCatID and setting subformID to null', catID);
-                this.currCategoryID = catID; //set main form catID
-                this.currSubformID = null;   //clear the subform ID
+                console.log(`setting new currCatID to ${catID} and setting subformID to null`);
+                this.currCategoryID = catID;
+                this.currSubformID = null;
             } else {
-                console.log(`currCatID remains ${this.currCategoryID} setting new subCatID`, catID);
-                this.currSubformID = catID;  //update the subformID, but keep the main form ID
+                console.log(`currCatID remains ${this.currCategoryID} setting new subCatID to ${catID}`);
+                this.currSubformID = catID;
             }
             console.log('RESET: currentCategorySelection, ajaxFormByCategoryID, staples, selectednode, nodeIndID, indicatorTotal');
             this.currentCategorySelection = {};
@@ -365,7 +449,7 @@ export default {
             this.selectedNodeIndicatorID = null;
             this.currentCategoryIndicatorTotal = 0;
 
-            vueData.formID = catID || ''; //NOTE: update of other vue app TODO: mv?
+            vueData.formID = catID || ''; //NOTE: update of other vue app TODO: IFTHEN should eventually be a component of the Form Editor app
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
             //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
@@ -400,7 +484,12 @@ export default {
                 }).catch(err => console.log('error getting workflow records', err));
             }
         },
-        selectNewFormNode(event, node) {
+        /**
+         * 
+         * @param {Object} event
+         * @param {Object} node of the form section selected in the Form Index
+         */
+        selectNewFormNode(event = {}, node = {}) {
             if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
                 return //prevents enter/space activation from move and menu toggle buttons
             }
@@ -412,14 +501,19 @@ export default {
             //TODO:
             console.log('clicked edit privileges');
         },
-        setCustomDialogTitle(htmlContent) {
+        setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;
         },
-        //takes comp name as string, eg 'confirm-delete-dialog'
-        //components must be registered to this app
-        setFormDialogComponent(component) {
+        /**
+         * set the component for the dialog modal's main content. Components must be registered to this app
+         * @param {string} component name as string, eg 'confirm-delete-dialog'
+         */
+        setFormDialogComponent(component = '') {
             this.dialogFormContent = component;
         },
+        /**
+         * reset title, content and button text values of the modal
+         */
         clearCustomDialog() {
             this.setCustomDialogTitle('');
             this.setFormDialogComponent('');
@@ -447,11 +541,16 @@ export default {
             this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
             this.showFormDialog = true;
         },
-        openIndicatorEditing(indicatorID) { //equal to curIndID when editing, a parIndID for add subquestion, and null for add section
+        /**
+         * 
+         * @param {number|null} indicatorID 
+         */
+        openIndicatorEditing(indicatorID = null) {
             let title = ''
-            if (indicatorID === null) { //not an existing indicator, nor a child of an existing indicator
+            if (indicatorID === null) { //this is a new form section
                 title = `<h2>Adding new question</h2>`;
             } else {
+                //if equal, this is being called to edit an existing question.  If not, the indicatorID passed is the parIndID of a new subquestion
                 title = this.currIndicatorID === parseInt(indicatorID) ? 
                 `<h2>Editing indicator ${indicatorID}</h2>` : `<h2>Adding question to ${indicatorID}</h2>`;
             }
@@ -459,8 +558,12 @@ export default {
             this.setFormDialogComponent('indicator-editing');
             this.showFormDialog = true;
         },
-        openAdvancedOptionsDialog(indicatorID) {
-            this.currIndicatorID = parseInt(indicatorID);
+        /**
+         * get indicator info for indicatorID, and then open advanced options for that indicator
+         * @param {number} indicatorID 
+         */
+        openAdvancedOptionsDialog(indicatorID = 0) {
+            this.currIndicatorID = indicatorID;
             this.getIndicatorByID(indicatorID).then(res => {
                 this.ajaxIndicatorByID = res;
                 this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicatorID}</h2>`);
@@ -484,7 +587,11 @@ export default {
             this.setFormDialogComponent('form-history-dialog');
             this.showFormDialog = true;
         },
-        newQuestion(parentIndID) {
+        /**
+         * add a new section or new subquestion to a form
+         * @param {number|null} parentIndID of the new subquestion.  null for new sections.
+         */
+        newQuestion(parentIndID = null) {
             this.currIndicatorID = null;
             this.newIndicatorParentID = parentIndID !== null ? parseInt(parentIndID) : null;
             this.isEditingModal = false;
@@ -492,17 +599,20 @@ export default {
                 'parentID (null for new sections):', this.newIndicatorParentID, 'FORM:', this.currCategoryID);
             this.openIndicatorEditing(parentIndID);
         },
-        editQuestion(indicatorID, series) {
-            this.currIndicatorID = parseInt(indicatorID);
+        /**
+         * get information about the indicator and open indicator editing
+         * @param {number} indicatorID 
+         */
+        editQuestion(indicatorID = 0) {
+            this.currIndicatorID = indicatorID;
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
                 this.isEditingModal = true;
                 this.ajaxIndicatorByID = res;
                 this.openIndicatorEditing(indicatorID);
-                console.log('app called editQuestion with:', indicatorID, series);
             }).catch(err => console.log('error getting indicator information', err));
         },
-        checkSensitive(node, isSensitive = false) {
+        checkSensitive(node = {}, isSensitive = false) {
             if (isSensitive === false) {
                 if (parseInt(node.is_sensitive) === 1) {
                     isSensitive = true;

@@ -88,8 +88,7 @@ export default {
             case 'orgchart_group':
             case 'orgchart_position':
             case 'orgchart_employee':
-                if(this.orgSelectorClassesAdded[this.selType]===false) {
-                    console.log(`get and track addition of ${this.selType} class and styles`);
+                if(this.orgSelectorClassesAdded[this.selType] === false) {
                     $('head').append(`<link type="text/css" rel="stylesheet" href="${this.orgchartPath}/css/${this.selType}Selector.css" />`);
 
                     $.ajax({
@@ -97,7 +96,7 @@ export default {
                         url: `${this.orgchartPath}/js/${this.selType}Selector.js`,
                         dataType: 'script',
                         success: ()=> {
-                            this.addOrgSelector(this.selType, true);
+                            this.addOrgSelector(this.selType);
                             this.createOrgSelector();
                         }
                     });

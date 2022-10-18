@@ -595,7 +595,6 @@ ConditionsEditor.component('editor-main', {
                                 The format of this question has changed.  
                                 Please review and save it to update</span>
                                 </span>
-                            </span>
                             <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
                         <button style="width: 1.75em;"
@@ -617,7 +616,6 @@ ConditionsEditor.component('editor-main', {
                                 The format of this question has changed.  
                                 Please review and save it to update</span>
                                 </span>
-                            </span>
                             <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                         </button>
                         <button style="width: 1.75em;"
