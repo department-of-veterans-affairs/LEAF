@@ -53,8 +53,8 @@ let vueData = {
 }
 </script>
 
-<script src="https://unpkg.com/vue@3"></script> <!--DEV -->
-<!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>-->
+<!--<script src="https://unpkg.com/vue@3"></script>  DEV -->
+<script src="../../libs/js/vue3/vue.global.prod.js"></script>
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
