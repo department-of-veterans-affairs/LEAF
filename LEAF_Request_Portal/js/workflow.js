@@ -97,7 +97,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
                 new_note = '<div> <span class="comments_time"> ' + response.comment.date + '</span> <span class="comments_name">' + response.comment.responder + ' ' + response.comment.user_name + '</span> <div class="comments_message">' + response.comment.comment + '</div> </div>';
 
-                $( new_note ).insertAfter( "#comment_header" );
+                $( new_note ).insertAfter( "#notes" );
 
                 if ($("#comments").css("display") == 'none') {
                     $("#comments").css("display", 'block');
