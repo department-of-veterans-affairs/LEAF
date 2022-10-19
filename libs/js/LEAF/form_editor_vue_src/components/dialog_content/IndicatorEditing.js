@@ -31,7 +31,7 @@ export default {
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
             name: this.ajaxIndicatorByID[this.currIndicatorID]?.name || '',
-            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],//options property is arr of options (if present)
+            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
             format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property here is just the format name
             description: this.ajaxIndicatorByID[this.currIndicatorID]?.description || '',
             defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
@@ -39,7 +39,8 @@ export default {
             is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive)===1 || false,
             parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? 
                     parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
-            sort: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.sort) || null,
+            //sort can be 0, need to compare specifically against undefined
+            sort: this.ajaxIndicatorByID[this.currIndicatorID]?.sort !== undefined ? parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort) : null,
             //checkboxes input
             singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
                 this.ajaxIndicatorByID[this.currIndicatorID].options : '',
@@ -123,14 +124,17 @@ export default {
             }
             return fullFormat;
         },
-        shortlabelCharsRemaining(){ //short label
+        shortlabelCharsRemaining(){
             return 50 - this.description.length;
         },
+        /**
+         * used to set the default sort value of a new question to last index in current depth
+         * @returns {number} 
+         */
         newQuestionSortValue(){
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
-            //set default sort to last question in current depth
             const sortVal = (this.parentID===null) ?
-                this.ajaxFormByCategoryID.length :                                 //new sections/pages
+                this.ajaxFormByCategoryID.length :                                 //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
             return sortVal;
         }
@@ -181,7 +185,7 @@ export default {
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
-            
+                console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
                 console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,sortChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
@@ -193,7 +197,6 @@ export default {
                                 name: this.name,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => console.log('name success'),
                             error: err => console.log('ind name post err', err)
                         })
                     );
@@ -207,7 +210,6 @@ export default {
                                 description: this.description,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => console.log('description success'),
                             error: err => console.log('ind desciption post err', err)
                         })
                     );
@@ -221,7 +223,6 @@ export default {
                                 format: this.fullFormatForPost,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind format post err', err)
                         })
                     );
@@ -235,7 +236,6 @@ export default {
                                 default: this.defaultValue,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind default value post err', err)
                         })
                     );
@@ -249,7 +249,6 @@ export default {
                                 required: this.required ? 1 : 0,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind required post err', err)
                         })
                     );
@@ -263,7 +262,6 @@ export default {
                                 is_sensitive: this.is_sensitive ? 1 : 0,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err =>  console.log('ind is_sensitive post err', err)
                         })
                     );
@@ -294,7 +292,6 @@ export default {
                                 disabled: 1,  //can't undelete from there so this should be fine
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind disabled (archive) post err', err)
                         })
                     );
@@ -308,7 +305,6 @@ export default {
                                 disabled: 2,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind disabled (deletion) post err', err)
                         })
                     );
@@ -322,7 +318,6 @@ export default {
                                 parentID: this.parentID,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind parentID post err', err)
                         })
                     );
@@ -336,7 +331,6 @@ export default {
                                 sort: this.sort,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: () => {},
                             error: err => console.log('ind sort post err', err)
                         })
                     );
@@ -385,7 +379,6 @@ export default {
             }
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
-                console.log('promise all:', indicatorEditingUpdates, res);
                 
                 if (res.length > 0) {
                     vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
@@ -401,7 +394,7 @@ export default {
             });
 
         },
-        radioBehavior(event) {
+        radioBehavior(event = {}) {
             const targetId = event.target.id;
             if (targetId.toLowerCase() === 'archived' && this.deleted) {
                 document.getElementById('deleted').checked = false
@@ -413,20 +406,24 @@ export default {
             }
         },
         appAddCell(){
-            console.log('app added cell');
             this.gridJSON.push({});
         },
-        gridDropdown(dropDownOptions) {
+        /**
+         * 
+         * @param {string} dropDownOptions from grid dropdown question textarea
+         * @returns {array} of unique options with possible 'no' values updated to 'No'
+         */
+        gridDropdown(dropDownOptions = '') {
             let returnValue = []
             if (dropDownOptions !== null && dropDownOptions.length !== 0) {
                 let uniqueOptions = dropDownOptions.split("\n");
                 uniqueOptions = uniqueOptions.map(option => option.trim());
-                uniqueOptions = uniqueOptions.map(option => option === 'no' ? 'No' : option); //this checks specifically for lower case no
+                uniqueOptions = uniqueOptions.map(option => option === 'no' ? 'No' : option);
                 returnValue = Array.from(new Set(uniqueOptions));
             }
             return returnValue;
         },
-        updateGridJSON() {  //FIX: TODO: rework
+        updateGridJSON() {  // TODO: try to rework wo jQuery
             let gridJSON = [];
             let t = this;
             //gather column names and column types. if type is dropdown, adds property.options
@@ -603,13 +600,13 @@ export default {
                         <div v-if="isLoadingParentIDs===false" style="display: flex; align-items: center; margin-right: 1.25rem;">
                             <select v-model.number="parentID" id="container_parentID" style="width:230px; margin-right: 3px">
                                 <option :value="null" :selected="parentID===null">None</option> 
-                            <template v-for="kv in Object.entries(listForParentIDs)">
-                                <option v-if="currIndicatorID !== parseInt(kv[0])" 
-                                    :value="kv[0]" 
-                                    :key="'parent'+kv[0]">
-                                    {{kv[0]}}: {{truncateText(kv[1]['1'].name)}}
-                                </option>
-                            </template>
+                                <template v-for="kv in Object.entries(listForParentIDs)">
+                                    <option v-if="currIndicatorID !== parseInt(kv[0])" 
+                                        :value="kv[0]" 
+                                        :key="'parent'+kv[0]">
+                                        {{kv[0]}}: {{truncateText(kv[1]['1'].name)}}
+                                    </option>
+                                </template>
                             </select>
                             <label for="container_parentID">Parent Question ID</label>
                         </div>

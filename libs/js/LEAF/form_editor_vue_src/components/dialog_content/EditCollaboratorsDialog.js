@@ -5,7 +5,7 @@ export default {
             formID: this.currSubformID || this.currCategoryID,
             group: '',
             groups: [],
-            collaborators: [] 
+            collaborators: []
         }
     },
     inject: [
@@ -14,34 +14,37 @@ export default {
         'categories',
         'currCategoryID',
         'currSubformID',
-        'closeFormDialog',
-        'openEditCollaboratorsDialog'
+        'closeFormDialog'
     ],
-    beforeMount() {
-        $.ajax({
-            type: 'GET',
-            url: `${this.APIroot}system/groups`,
-            success: res => {
-                this.groups = res
-                const elSelect = document.getElementById('selectFormCollaborators');
-                if(elSelect!==null) elSelect.focus();
-            },
-            error: err => console.log(err),
-            cache: false
-        });
-        $.ajax({
-            type: 'GET',
-            url: `${this.APIroot}formEditor/_${this.formID}/privileges`,
-            success: (res) => {
-                this.collaborators = res
-            },
-            error: err => console.log(err),
-            cache: false
+    mounted() {
+        const loadCalls = [
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}system/groups`,
+                success: res => {
+                    this.groups = res
+                },
+                error: err => console.log(err),
+                cache: false
+            }),
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}formEditor/_${this.formID}/privileges`,
+                success: (res) => {
+                    this.collaborators = res;
+                },
+                error: err => console.log(err),
+                cache: false
+            })
+        ];
+        Promise.all(loadCalls).then(()=> {
+            const elSelect = document.getElementById('selectFormCollaborators');
+            if(elSelect!==null) elSelect.focus();
         });
     },
     methods: {
         /**
-        * Purpose: Remove Permissions from Form
+        * Remove form permissions for the group and update the collaborators array on success
         * @param {number} groupID
         */
         removePermission(groupID = 0) {
@@ -55,13 +58,16 @@ export default {
                     write: 0
                 },
                 success: res => {
-                    console.log(res);
                     this.collaborators = this.collaborators.filter(c => parseInt(c.groupID) !== groupID);
                 },
                 error: err => console.log(err)
             });
         },
-        formNameStripped() { //NOTE: XSSHelpers global
+        /**
+         * uses LEAF XSSHelpers
+         * @returns form name with tags stripped
+         */
+        formNameStripped() {
             const formName = this.categories[this.formID].categoryName;
             return XSSHelpers.stripAllTags(formName) || 'Untitled';
         },

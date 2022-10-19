@@ -29,7 +29,6 @@ export default {
     },
     methods: {
         onSave() {
-            console.log('clicked save for new form modal');
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/new`,

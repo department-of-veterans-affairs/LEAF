@@ -41,7 +41,7 @@ export default {
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
-            currentCategorySelection: {},  //current record from categories object
+            currentCategorySelection: {},  //current record from categories object (main or internal forms)
             ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
             selectedFormNode: null,
             indicatorCountSwitch: true,    //toggled to trigger form view controller remount if an indicator is archived or deleted
@@ -397,7 +397,7 @@ export default {
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             this.categories[catID][keyName] = keyValue;
             this.currentCategorySelection = this.categories[catID];
-            console.log('updated curr cat selection', keyName, this.currentCategorySelection);
+            console.log('updated currentCategorySelection property', this.categories[catID], keyName, this.categories[catID][keyName]);
         },
         /**
          * updates app formsStapledCatIDs to track which forms have staples for card info
@@ -563,6 +563,7 @@ export default {
          * @param {number} indicatorID 
          */
         openAdvancedOptionsDialog(indicatorID = 0) {
+            this.ajaxIndicatorByID = {};
             this.currIndicatorID = indicatorID;
             this.getIndicatorByID(indicatorID).then(res => {
                 this.ajaxIndicatorByID = res;
@@ -604,6 +605,7 @@ export default {
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
+            this.ajaxIndicatorByID = {};
             this.currIndicatorID = indicatorID;
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
@@ -630,7 +632,7 @@ export default {
             count++;
             if (node.indicatorID === this.selectedNodeIndicatorID) {
                 this.selectedFormNode = node;
-                console.log('found updated node from stored node ID', this.selectedNodeIndicatorID, this.selectedFormNode)
+                console.log('found updated node from stored node ID', this.selectedNodeIndicatorID)
             }
             if (node.child) {
                 for (let c in node.child) {

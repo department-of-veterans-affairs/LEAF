@@ -29,7 +29,7 @@ export default {
                     cache: false,
                     data: pkg,
                     success: (res) => {
-                        if(res===true) { //NOTE: false if issues, newCatID on success would be better
+                        if(res===true) { //NOTE: false if there were issues, newCatID on success would be better
                             console.log('form import success');
                         } else {
                             console.log(res);
@@ -44,9 +44,9 @@ export default {
                 console.log('no attachment');
             }
         },
-        attachForm(e) {
-            const files = e.target.files || e.dataTransfer.files;
-            if(files.length > 0) {
+        attachForm(e = {}) {
+            const files = e.target?.files || e.dataTransfer?.files;
+            if(files?.length > 0) {
                 this.files = files;
             }
         }

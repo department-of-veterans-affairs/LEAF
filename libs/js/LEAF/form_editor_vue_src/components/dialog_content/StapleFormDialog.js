@@ -39,7 +39,7 @@ export default {
         }
     },
     methods: {
-        unmergeForm(stapledCatID) {
+        unmergeForm(stapledCatID = '') {
             $.ajax({
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),

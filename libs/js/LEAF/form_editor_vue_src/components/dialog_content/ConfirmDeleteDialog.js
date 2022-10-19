@@ -15,7 +15,11 @@ export default {
         'closeFormDialog'
     ],
     computed: {
-        formName() {  //NOTE: global LEAF class
+        /**
+         * uses LEAF XSSHelpers.js
+         * @returns {string} category name / description with all tages stripped
+         */
+        formName() {
             return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryName);
         },
         formDescription() {
@@ -40,6 +44,7 @@ export default {
                 });
 
             } else {
+                //prevents some issues, as deleting a form with staples attached makes the stapled forms ineligible for workflow assignment 
                 alert('Please remove all stapled forms before deleting.')
             }
         }

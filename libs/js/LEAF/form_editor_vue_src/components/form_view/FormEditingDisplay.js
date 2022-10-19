@@ -63,9 +63,6 @@ export default {
             name = `${name}${contentRequired}${contentSensitive}  &nbsp;${this.sensitiveImg}`;
             return name;
         },
-        bgColor() {
-            return `rgb(${255-20*this.depth},${255-20*this.depth},${255-15*this.depth})`;
-        },
         printResponseID() {
             return `xhrIndicator_${this.formNode.indicatorID}_${this.formNode.series}`;
         },

@@ -24,12 +24,15 @@ export default {
         'selectedNodeIndicatorID'
     ],
     mounted(){
-        console.log('Advanced Options mounted', this.currIndicatorID, this.formID);
+        console.log(`Advanced Options mounted for ${this.currIndicatorID} on form ${this.formID}`);
         if(parseInt(this.hasDevConsoleAccess)===1) {
             this.setupAdvancedOptions();
         }
     },
     methods: {
+        /**
+         * html and htmlPrint fields use CodeMirror
+         */
         setupAdvancedOptions() {
             this.codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
                 mode: "htmlmixed",
@@ -63,7 +66,7 @@ export default {
             });
             $('.CodeMirror').css('border', '1px solid black');
         },
-        /* via save code buttons in the modal */
+        /* save with the modal's html and htmlPrint 'save code' buttons  */
         saveCodeHTML() {
             const htmlValue = this.codeEditorHtml.getValue();
             $.ajax({
@@ -100,9 +103,8 @@ export default {
                 error: (err) => console.log(err)
             });
         },
-        /* on save button of base modal */
-        onSave(){
-            console.log('clicked advanced options save');
+        /* called with the 'save' button of base modal */
+        onSave() {
             let advancedOptionsUpdates = [];
             const htmlChanged = this.html !== this.codeEditorHtml.getValue();
             const htmlPrintChanged = this.htmlPrint !== this.codeEditorHtmlPrint.getValue();
@@ -138,7 +140,6 @@ export default {
             }
 
             Promise.all(advancedOptionsUpdates).then((res)=> {
-                console.log('promise all:', advancedOptionsUpdates, res);
                 this.closeFormDialog();
                 if (res.length > 0) {
                     this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
@@ -175,7 +176,7 @@ export default {
                         Save Code<span id="codeSaveStatus_html"></span>
                     </button>
                 </div>
-                <textarea id="html">{{html}}</textarea><br />  <!-- NOTE: can't seem to v-model these areas html and htmlPrint properties updated after save -->
+                <textarea id="html">{{html}}</textarea><br />
                 <div style="display:flex; justify-content: space-between;">
                     htmlPrint (for pages where the user can only read data): 
                     <button id="btn_codeSave_htmlPrint" @click="saveCodeHTMLPrint" class="buttonNorm" title="Save Code">

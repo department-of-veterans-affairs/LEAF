@@ -10,7 +10,7 @@ export default {
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
             gridInstances: {},
-            allowedConditionChildFormats: ['dropdown', 'text'],
+            allowedConditionChildFormats: ['dropdown', 'text', 'multiselect'],
             showToolbars: true
         }
     },
