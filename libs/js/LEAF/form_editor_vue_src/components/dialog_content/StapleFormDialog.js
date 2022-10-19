@@ -2,8 +2,7 @@ export default {
     data() {
         return {
             catIDtoStaple: '',
-            formID: this.currSubformID || this.currCategoryID   
-            //NOTE: subforms can have staples.  subformID will be null if the selected form is not a subform.  currCategoryID will always be a main form.
+            formID: this.currCategoryID  //staples are added to the main form.
 
         }
     },
@@ -76,7 +75,8 @@ export default {
         }
     },
     template:`<div>
-        <p>Stapled forms will show up on the same page as the primary form</p>
+        <p>Stapled forms will show up on the same page as the primary form.</p>
+        <p>The order of the forms will be determined by the forms' assigned sort values.</p>
         <div id="mergedForms">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
                 <li v-for="s in ajaxSelectedCategoryStapled">

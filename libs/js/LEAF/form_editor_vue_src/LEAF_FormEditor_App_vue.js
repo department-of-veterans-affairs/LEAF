@@ -48,10 +48,10 @@ export default {
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             currentCategoryIndicatorTotal: 0,
-            formsStapledCatIDs: [],  //cat IDs of forms stapled to anything
-            ajaxSelectedCategoryStapled: [],
-            ajaxWorkflowRecords: [],       //array of all 'workflows' table records
-            ajaxIndicatorByID: {},         //'indicators' table record for a specific indicatorID
+            formsStapledCatIDs: [],         //cat IDs of forms stapled to anything
+            ajaxSelectedCategoryStapled: [],//forms stapled to the main form
+            ajaxWorkflowRecords: [],        //array of all 'workflows' table records
+            ajaxIndicatorByID: {},          //'indicators' table record for a specific indicatorID
             orgSelectorClassesAdded: { group: false, position: false, employee: false },
             restoringFields: false        //TODO:?? there are a few pages that could be view here, page_views: [restoringFields: false, leafLibrary: false etc]
         }
@@ -467,8 +467,7 @@ export default {
                     document.getElementById(catID).focus(); //focus the button for the main form
                 }).catch(err => console.log('error getting form info: ', err));
 
-                const formID = this.currSubformID || this.currCategoryID;
-                this.getStapledFormsByCurrentCategory(formID).then(res => this.ajaxSelectedCategoryStapled = res);
+                this.getStapledFormsByCurrentCategory(this.currCategoryID).then(res => this.ajaxSelectedCategoryStapled = res);
 
             } else {  //nav to form card browser.
                 this.appIsLoadingCategoryList = true;

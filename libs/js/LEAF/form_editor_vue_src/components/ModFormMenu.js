@@ -117,12 +117,12 @@ export default {
                 saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
             });
         },
-        selectMainForm() {
-            console.log('clicked main form', this.currCategoryID);
-            this.selectNewCategory(this.currCategoryID, false);
+        selectMainForm(catID = this.currCategoryID) {
+            console.log('clicked a main form or main form staple', catID);
+            this.selectNewCategory(catID, false);
         },
         selectSubform(subformID){
-            console.log('clicked subform', 'sub', subformID, 'main', this.currCategoryID);
+            console.log('clicked a subform', 'sub', subformID, 'main', this.currCategoryID);
             this.selectNewCategory(subformID, true);
         },
         /**
@@ -182,13 +182,14 @@ export default {
                             </li>
                             <li>
                                 <a href="#" @click="openStapleFormsDialog" title="staple another form">
-                                Edit Stapled Forms<span>📌</span>
+                                Edit Main Form Staples<span>📌</span>
                                 </a>
                                 <ul>
                                     <li v-for="s in ajaxSelectedCategoryStapled" 
                                         :key="'staple_' + s.stapledCategoryID"
                                         class="stapled-form">
-                                        <a href="#">{{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<span>📑</span></a>
+                                        <a href="#" @click="selectMainForm(s.categoryID)">{{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<span>📑</span>
+                                        </a>
                                     </li>
                                 </ul>
                             </li>

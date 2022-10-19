@@ -32,7 +32,7 @@ export default {
                         if(res===true) { //NOTE: false if there were issues, newCatID on success would be better
                             console.log('form import success');
                         } else {
-                            console.log(res);
+                            alert(res);
                         }
                         this.closeFormDialog();
                         this.selectNewCategory(null);

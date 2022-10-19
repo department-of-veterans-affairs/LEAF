@@ -1,7 +1,7 @@
 export default {
     data() {
         return {
-            initialFocusElID: 'TODO:',
+            initialFocusElID: '#advanced legend',
             left: '{{',
             right: '}}',
             formID: this.currSubformID || this.currCategoryID,
@@ -25,6 +25,7 @@ export default {
     ],
     mounted(){
         console.log(`Advanced Options mounted for ${this.currIndicatorID} on form ${this.formID}`);
+        document.querySelector(this.initialFocusElID)?.focus();
         if(parseInt(this.hasDevConsoleAccess)===1) {
             this.setupAdvancedOptions();
         }
@@ -148,7 +149,7 @@ export default {
         }
     },
     template: `<div v-if="parseInt(hasDevConsoleAccess)===1">
-            <fieldset id="advanced" style="min-width: 700px; padding: 0.5em; margin:0"><legend>Template Variables and Controls</legend>
+            <fieldset id="advanced" style="min-width: 700px; padding: 0.5em; margin:0"><legend tabindex="0">Template Variables and Controls</legend>
                 <table class="table" style="border-collapse: collapse; margin: 0; width: 100%;">
                     <tr>
                         <td><b>{{ left }} iID {{ right }}</b></td>

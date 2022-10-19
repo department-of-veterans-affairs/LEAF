@@ -83,6 +83,7 @@ export default {
         GridCell
     },
     mounted() {
+        console.log(`Indicator Editing mounted for ${this.currIndicatorID} on form ${this.formID}`);
         if (this.isEditingModal === true) {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
