@@ -311,12 +311,12 @@ export default {
                     if (unresolvedLeafSRequests.length === 0) { // if no new request, create one
                         document.getElementById('secureStatus').innerText = 'Forms have been modified.';
                         document.getElementById('secureBtn').innerText = 'Please Recertify Your Site';
-                        document.getElementById('secureBtn').setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                        document.getElementById('secureBtn')?.setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
                     } else {
                         const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
                         document.getElementById('secureStatus').innerText = 'Re-certification in progress.';
                         document.getElementById('secureBtn').innerText = 'Check Certification Progress';
-                        document.getElementById('secureBtn').setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
+                        document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
                     }
                 })
             }
@@ -604,6 +604,7 @@ export default {
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
+            console.log('app EQ', typeof indicatorID)
             this.ajaxIndicatorByID = {};
             this.currIndicatorID = indicatorID;
             this.newIndicatorParentID = null;

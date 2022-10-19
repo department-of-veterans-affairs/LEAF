@@ -13,6 +13,7 @@ export default {
         'categories',
         'currCategoryID',
         'ajaxSelectedCategoryStapled',
+        'formsStapledCatIDs',
         'restoringFields',
         'showRestoreFields',
         'openNewFormDialog',
@@ -180,15 +181,24 @@ export default {
                                 Add Internal-Use<span>➕</span>
                                 </a>
                             </li>
-                            <li>
+                            <li v-if="!formsStapledCatIDs.includes(currCategoryID)">
                                 <a href="#" @click="openStapleFormsDialog" title="staple another form">
-                                Edit Main Form Staples<span>📌</span>
+                                    <div>
+                                        Edit Main Form Staples<br/>
+                                        form sort value: {{categories[currCategoryID].sort}}
+                                    </div>
+                                    <span>📌</span>
                                 </a>
                                 <ul>
                                     <li v-for="s in ajaxSelectedCategoryStapled" 
                                         :key="'staple_' + s.stapledCategoryID"
                                         class="stapled-form">
-                                        <a href="#" @click="selectMainForm(s.categoryID)">{{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<span>📑</span>
+                                        <a href="#" @click="selectMainForm(s.categoryID)">
+                                            <div>
+                                                {{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<br/>
+                                                <span class="staple-sort-info">staple sort value: {{s.sort}}</span>
+                                            </div>
+                                            <span>📑</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -221,8 +231,8 @@ export default {
                 
                 <template v-if="currCategoryID!==null">
                     <li>
-                        <button type="button" :id="currCategoryID" @click="selectMainForm" title="main form">
-                            <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 26)}}</h2>
+                        <button type="button" :id="currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
+                            <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 23)}}</h2>
                         </button>
                         <span v-if="internalForms.length > 0" class="header-arrow">❯</span>
                     </li>

@@ -102,7 +102,6 @@ export default {
                     });
 
                 } else {
-                    console.log("already fetched");
                     this.createOrgSelector(); 
                 }
                 break;
