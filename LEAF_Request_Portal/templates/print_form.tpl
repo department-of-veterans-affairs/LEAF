@@ -156,22 +156,24 @@ function doSubmit(recordID) {
 }
 
 function submitNote(recordID){
-    var form = $("#note_form").serialize();
+    if ($('#note').val().trim() !== '') {
+        var form = $("#note_form").serialize();
 
-    $.ajax({
-        type: 'POST',
-        url: "./api/note/" + recordID,
-        data: {form,
-        CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(response) {
-            $("#note").val('');
+        $.ajax({
+            type: 'POST',
+            url: "./api/note/" + recordID,
+            data: {form,
+            CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(response) {
+                $("#note").val('');
 
-            addNote(response);
-        },
-        error: function(res) {
-            console.log(res);
-        }
-    });
+                addNote(response);
+            },
+            error: function(res) {
+                console.log(res);
+            }
+        });
+    }
 }
 
 function addNote(response) {
