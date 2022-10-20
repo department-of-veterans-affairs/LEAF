@@ -397,7 +397,7 @@ export default {
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             this.categories[catID][keyName] = keyValue;
             this.currentCategorySelection = this.categories[catID];
-            console.log('updated currentCategorySelection property', this.categories[catID], keyName, this.categories[catID][keyName]);
+            console.log('updated currentCategorySelection property', keyName, this.categories[catID][keyName]);
         },
         /**
          * updates app formsStapledCatIDs to track which forms have staples for card info

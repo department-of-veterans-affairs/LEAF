@@ -153,19 +153,19 @@ export default {
                         <ul v-if="currCategoryID===null" id="form-editor-menu"
                             @mouseenter="showMenu" @mouseleave="hideMenu">
                             <li>
-                                <a href="#" id="createFormButton" @click="openNewFormDialog">
+                                <button id="createFormButton" @click="openNewFormDialog">
                                 Create Form<span>📄</span>
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" @click="openImportFormDialog">
+                                <button @click="openImportFormDialog">
                                 Import Form<span>📦</span>
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" @click="showRestoreFields">
+                                <button @click="showRestoreFields">
                                 Restore Fields<span>♻️</span>
-                                </a>
+                                </button>
                             </li>
                             <li>
                                 <a href="./?a=formLibrary">
@@ -177,46 +177,45 @@ export default {
                             @mouseenter="showMenu" 
                             @mouseleave="hideMenu">
                             <li>
-                                <a href="#" @click="openNewFormDialog" title="add new internal use form">
+                                <button @click="openNewFormDialog" title="add new internal use form">
                                 Add Internal-Use<span>➕</span>
-                                </a>
+                                </button>
                             </li>
                             <li v-if="!formsStapledCatIDs.includes(currCategoryID)">
-                                <a href="#" @click="openStapleFormsDialog" title="staple another form">
+                                <button @click="openStapleFormsDialog" title="staple another form">
                                     <div>
                                         Edit Main Form Staples<br/>
                                         form sort value: {{categories[currCategoryID].sort}}
                                     </div>
                                     <span>📌</span>
-                                </a>
+                                </button>
                                 <ul>
                                     <li v-for="s in ajaxSelectedCategoryStapled" 
-                                        :key="'staple_' + s.stapledCategoryID"
-                                        class="stapled-form">
-                                        <a href="#" @click="selectMainForm(s.categoryID)">
+                                        :key="'staple_' + s.stapledCategoryID">
+                                        <button @click="selectMainForm(s.categoryID)" class="stapled-form">
                                             <div>
                                                 {{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<br/>
                                                 <span class="staple-sort-info">staple sort value: {{s.sort}}</span>
                                             </div>
                                             <span>📑</span>
-                                        </a>
+                                        </button>
                                     </li>
                                 </ul>
                             </li>
                             <li>
-                                <a href="#" @click="openFormHistoryDialog" title="view form history">
+                                <button @click="openFormHistoryDialog" title="view form history">
                                 View History<span>🕗</span>
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" @click="exportForm" title="export form">
+                                <button @click="exportForm" title="export form">
                                 Export Form<span>💾</span>
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" @click="openConfirmDeleteFormDialog" title="delete this form">
+                                <button @click="openConfirmDeleteFormDialog" title="delete this form">
                                 Delete this form<span>❌</span>
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </template>
@@ -246,9 +245,9 @@ export default {
                         </button>
                         <ul v-if="internalFormsMenuOpen" id="internalForms" @mouseleave="hideInternalFormsMenu">
                             <li v-for="i in internalForms" :key="i.categoryID">
-                                <a href="#" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                                <button :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
                                 {{shortFormNameStripped(i.categoryName, 28)}}
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </li>

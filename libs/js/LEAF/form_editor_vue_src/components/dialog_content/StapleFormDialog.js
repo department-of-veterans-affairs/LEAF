@@ -20,7 +20,10 @@ export default {
         'updateFormsStapledCatIDs'
     ],
     mounted() {
-        document.getElementById('select-form-to-staple').focus();
+        if(this.mergeableForms.length > 0) {
+            const focusEl = document.getElementById('select-form-to-staple');
+            if(focusEl !== null) focusEl.focus();
+        }
     },
     computed: {
         mergeableForms() {
@@ -91,7 +94,7 @@ export default {
         </div><hr/>
         <div style="min-height: 50px; margin: 1em 0;">
             <template v-if="mergeableForms.length > 0">
-                <label for="select-form-to-staple" style="margin-bottom: 0.2em;">Select a form to merge</label>
+                <label for="select-form-to-staple" style="padding-right: 0.3em;">Select a form to merge</label>
                 <select v-model="catIDtoStaple" title="select a form to merge" id="select-form-to-staple">
                     <option value="">Select a Form</option>
                     <option v-for="f in mergeableForms" :value="f.categoryID" :key="'staple_'+f.categoryID">{{truncateText(f.categoryName) || 'Untitled'}}</option>
