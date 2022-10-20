@@ -213,7 +213,7 @@ export default {
                 <input id="categoryName" type="text" maxlength="50" v-model="categoryName" />
             </label>
             
-            <label for="categoryDescription">Form description</label>
+            <label for="categoryDescription">Form description<span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formDescrCharsRemaining}})</span></label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
         </div>
         <div id="edit-properties-other-properties">
@@ -232,7 +232,8 @@ export default {
                         <label for="workflowID">Workflow
                         <select id="workflowID" name="select-workflow" 
                             title="select workflow"
-                            v-model.number="workflowID">
+                            v-model.number="workflowID"
+                            :style="{color: workflowID===0 ? '#d00' : 'black'}">
                             <option value="0" :selected="workflowID===0">No Workflow.  Users cannot submit requests</option>
                             <template v-for="r in ajaxWorkflowRecords" :key="r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
@@ -246,7 +247,6 @@ export default {
                     <div v-else style="color: #d00; width: 100%;">A workflow must be set up first</div>
 
                     <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
-                        <span v-if="workflowID===0 && visible===1" title="this form will not be selectable without a workflow">⚠️</span>
                         <select id="availability" title="Select Availability" v-model.number="visible">
                             <option value="1" :selected="visible===1">Available</option>
                             <option value="0" :selected="visible===0">Hidden</option>
@@ -263,7 +263,7 @@ export default {
                         <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
                     </select></label>
 
-                    <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know: ({{isNeedToKnow ? 'on' : 'off'}}) Forced on because sensitive fields are present</span>
+                    <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know: {{isNeedToKnow ? 'on' : 'off'}}. Forced on because sensitive fields are present</span>
                     <label v-else for="needToKnow"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
                         <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">

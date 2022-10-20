@@ -475,6 +475,7 @@ export default {
 
                 this.getCategoryListAll().then(res => {
                     this.setCategories(res);
+                    this.getSecureFormsInfo();
                     this.appIsLoadingCategoryList = false;
                 }).catch(err => console.log('error getting category list', err));
 

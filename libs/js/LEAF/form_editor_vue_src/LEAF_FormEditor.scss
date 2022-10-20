@@ -429,7 +429,7 @@ button.can_update {
     }
     .form-id {
         position: absolute; 
-        right: 1rem;
+        right: 0.75rem;
         bottom: 1px;
         font-size: 0.75rem;
     }
@@ -660,6 +660,7 @@ div#form_content_view {
     width: 100%;
     background-color: white;
     border: 1px solid black;
+    border-radius: 4px;
 
     .form-section-header {
         display: flex;
