@@ -160,18 +160,18 @@ function submitNote(recordID){
         var form = $("#note_form").serialize();
 
         $.ajax({
-        type: 'POST',
-        url: "./api/note/" + recordID,
-        data: {form,
-                    CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        $("#note").val('');
+            type: 'POST',
+            url: "./api/note/" + recordID,
+            data: {form,
+            CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(response) {
+                $("#note").val('');
 
-        addNote(response);
-        },
-        error: function(res) {
-        console.log(res);
-        }
+                addNote(response);
+            },
+            error: function(res) {
+                console.log(res);
+            }
         });
     }
 }
