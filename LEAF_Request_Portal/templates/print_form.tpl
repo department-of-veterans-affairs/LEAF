@@ -113,13 +113,13 @@
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-  $(window).keydown(function(event){
-    if(event.keyCode == 13) {
-      event.preventDefault();
-      submitNote(<!--{$recordID|strip_tags}-->);
-      return false;
-    }
-  });
+    $(window).keydown(function(event){
+        if(event.keyCode == 13 && ($('#note').is(":focus") || $('#add_note').is(":focus"))) {
+            event.preventDefault();
+            submitNote(<!--{$recordID|strip_tags}-->);
+            return false;
+        }
+    });
 });
 
 var currIndicatorID;
