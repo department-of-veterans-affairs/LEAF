@@ -7,7 +7,6 @@ $charcoal: #252f3e;
 $dk-gray: #4a5778;
 $BG_LightGray: #dcdee0;
 $BG_Pearl: #f0f2fd;
-/* $BG_Pearl: #f0f2fd; */
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
@@ -32,7 +31,7 @@ body { /* fixes header not extending entire width */
     * {
         box-sizing: border-box;
     }
-    button {
+    button:not(.choices__button) {
         @include flexcenter;
         cursor: pointer;
         border-radius: 3px;
@@ -197,7 +196,7 @@ button.can_update {
                 }
                 span.staple-sort-info {
                     font-size: 90%;
-                    font-weight: 300;
+                    font-weight: 400;
                 }
             }
 
@@ -481,7 +480,7 @@ button.can_update {
 .browser-category-card {
     position: relative;
     margin: 0 1rem 1rem 0;
-    width: 340px;
+    width: 350px;
     height: 180px;
     display: flex;
     flex-direction: column;
@@ -667,7 +666,7 @@ div#form_content_view {
         align-items: center;
         padding: 0.4rem 0.75rem;
         background-color: $base_navy;
-        border-top: 2px solid black;
+        border-top: 1px solid black;
 
         h3 {
             margin: 0;
@@ -724,6 +723,10 @@ div#form_content_view {
         font-size: 90%;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         width: fit-content;
+        border: 1px solid $LtNavy;
+        &:hover, &:focus, &:active {
+            border: 1px solid black !important;
+        }
     }
 
 
@@ -989,7 +992,10 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
                             margin: 0.5rem 0;
                         }
                         #form-editor-menu {
-                            left: -132px;
+                            right: 0;
+                            button { 
+                                margin: 0;
+                            }
                         }
                     }
                 }

@@ -185,7 +185,7 @@ export default {
                                 <button @click="openStapleFormsDialog" title="staple another form">
                                     <div>
                                         Edit Main Form Staples<br/>
-                                        form sort value: {{categories[currCategoryID].sort}}
+                                        <span class="staple-sort-info">form sort value: {{categories[currCategoryID].sort}}</span>
                                     </div>
                                     <span>📌</span>
                                 </button>
@@ -231,7 +231,7 @@ export default {
                 <template v-if="currCategoryID!==null">
                     <li>
                         <button type="button" :id="currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
-                            <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 23)}}</h2>
+                            <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 22)}}</h2>
                         </button>
                         <span v-if="internalForms.length > 0" class="header-arrow">❯</span>
                     </li>
