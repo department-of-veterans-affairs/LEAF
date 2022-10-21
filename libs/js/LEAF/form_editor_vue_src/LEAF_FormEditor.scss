@@ -279,12 +279,6 @@ button.can_update {
         justify-content: space-between; 
         margin-top: 1em;
     }
-    select, input:not([type='checkbox']) {
-        width: 50%;
-    }
-    input[type='file'] {
-        width: 100%;
-    }
 }
 
 
@@ -389,7 +383,6 @@ button.can_update {
     display: flex;
     margin-bottom: 1.5em;
     background-color: white;
-    border: 2px solid $charcoal;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
@@ -539,7 +532,7 @@ div#form_content_view {
 #form_index_display {
     position: relative;
     margin: 0;
-    padding: 1rem 1rem 0.25rem 1rem;
+    padding: 0.75rem;
     width: 400px;
     flex: 0 0 400px;
     align-self:flex-start;
@@ -658,49 +651,38 @@ div#form_content_view {
     align-self: flex-start;
     width: 100%;
     background-color: white;
-    border: 1px solid black;
+    padding: 0.75rem 0.5rem 0.75rem 0.75rem;
     border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: hidden;
 
     .form-section-header {
-        display: flex;
         align-items: center;
-        padding: 0.4rem 0.75rem;
-        background-color: $base_navy;
-        border-top: 1px solid black;
+        justify-content: space-between;
+        padding-right: 0.25rem;
+        margin-bottom: 0.75rem;
 
-        h3 {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            color: white;
-        }
         #indicator_toolbar_toggle {
-            cursor: pointer;
-            width: 100px;
-            flex: 0 0 100px;
-            background-color: $BG-DarkNavy;
-            color: $BG_Pearl;
-            padding: 0.15em 0.4em;
-            border: 1px solid black;
-            border-radius: 2px;
-            font-size: 90%;
-    
-            &:hover, &:focus, &:active {
-                background-color: black;
-                color: white;
-                border: 1px solid white !important;
-            }
+            width: 120px;
         }
     }
 
     div.printformblock {
         page-break-inside: avoid;
+        
+        &:not(:last-child) {
+            border-bottom: 1px solid black;
+        }
     }
 
     div.printResponse {
-        /*width: 100%;*/
         padding: 0;
+        min-height: 50px;
         float: none; /* style.css style collision */
+
+        &:not(.form-header) {
+            margin-left: 0.75rem;
+        }
     }
 
     button.icon {
@@ -719,8 +701,8 @@ div#form_content_view {
     }
 
     button.add-subquestion {
-        padding: 0.2em 0.4em 0.1em 0.4em;
-        font-size: 90%;
+        padding: 0.2em 0.4em;
+        font-size: 95%;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         width: fit-content;
         border: 1px solid $LtNavy;
@@ -729,15 +711,21 @@ div#form_content_view {
         }
     }
 
-
     .form_editing_area {
         padding-bottom: 1rem;
+        background-color: white;
 
         > div {
-            padding: 0.5rem 0.75rem;
+            padding: 0.5rem 0.25rem;
+        }
+        div[class*="SelectorBorder"] {
+            background-color: transparent;
+        }
+        tr[class*="Selector"]:hover {
+            background-color: #e1f3f8;
         }
         .indicator-name-preview {
-            padding: 0.75rem 0.75rem 0 0.75rem;
+            padding: 0.75rem 0.25rem 0 0.25rem;
             /* text editor can insert p tags when used.  this keeps them from disrupting icons in the indicator name display */
             > p {
                 display: inline;
@@ -757,21 +745,28 @@ div#form_content_view {
             .input-required-sensitive {
                 color: #f88;
             }
-            
+            .indicator-name-preview {
+                font-weight: 300;
+            }
             img.sensitive-icon  {
                 filter: brightness(400%); 
             }
         }
 
         div[id^="form_editing_toolbar_"] {
-            padding: 0.2rem 0.75rem;
+            padding: 0.25rem;
             display: flex;
             justify-content: space-between; 
             align-items: center;
-            background-color: rgba($BG_Pearl, 0.8);
-            border-top: 1px solid black;
+            background-color: $BG_Pearl;
             font-size: 90%;
             color: black;
+
+            > div {
+                display: flex; 
+                align-items: center;
+                align-self: stretch;
+            }
 
             span.sensitive-icon {
                 display:flex; 
@@ -780,15 +775,15 @@ div#form_content_view {
             }
 
             &.conditional {
-                background-color: rgba($BG_Pearl, 0.1);
+                background-color: rgba($BG_Pearl, 0.12);
                 color: white;
             }
 
             img {
                 max-width: none;
             }
-
-            .toolbar-edit {
+            span.toolbar-edit {
+                display: inline-block;
                 background-color: $base_navy; 
                 color: white;
                 margin: 0 0.4em;
@@ -806,11 +801,11 @@ div#form_content_view {
         }
 
         &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
-            font-size: 116%;
+            font-size: 112%;
         }
 
         .form_data_entry_preview {
-            padding: 0 0.75rem;
+            padding: 0 0.25rem;
 
             .format-preview {
                 position: relative;

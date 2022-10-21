@@ -297,7 +297,7 @@ export default {
                     mostRecentID = i;
                 }
             }
-            document.getElementById('secureBtn').setAttribute('href', '../index.php?a=printview&recordID=' + mostRecentID);
+            document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + mostRecentID);
             const mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
             for(let i in indicatorList) {
                 if(new Date(indicatorList[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {

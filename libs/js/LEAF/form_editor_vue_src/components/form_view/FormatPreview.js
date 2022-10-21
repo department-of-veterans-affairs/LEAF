@@ -44,7 +44,7 @@ export default {
                         $('#' + this.indicator.indicatorID + '_focusfix').focus();
                     }
                 });
-                document.getElementById(this.inputElID).setAttribute('aria-labelledby', this.labelSelector);
+                document.getElementById(this.inputElID)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
             case 'dropdown':
                 $(`#${this.inputElID}`).chosen({
@@ -56,7 +56,7 @@ export default {
                 break;
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
-                if (elSelect !== null && elSelect.multiple === true && elSelect.getAttribute('data-choice') !== 'active') {
+                if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
 
                     let options = this.indicator.options || [];
                     options = options.map(o =>({
@@ -222,7 +222,7 @@ export default {
 
         <template v-if="baseFormat==='date'">
             <input type="text" :id="inputElID" 
-            style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="" />
+            style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace; background-color: white;" value="" />
         </template>
 
         

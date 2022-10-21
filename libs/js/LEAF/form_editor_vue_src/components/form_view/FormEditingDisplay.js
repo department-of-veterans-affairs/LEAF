@@ -50,7 +50,6 @@ export default {
         conditionalQuestion() {
             return !this.isHeaderLocation && 
                 this.formNode.conditions !== null && this.formNode.conditions !== '' & this.formNode.conditions !== 'null';
-
         },
         conditionsAllowed() {
             return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
@@ -73,8 +72,9 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="printResponse" :id="printResponseID" 
-            :style="{minHeight: depth===0 ? '50px': 0, marginLeft: depth===0 ? '0': '0.75rem'}">
+    template:`<div class="printResponse" 
+            :class="{'form-header': isHeaderLocation}"
+            :id="printResponseID">
 
             <!-- EDITING AREA FOR INDICATOR -->
             <div class="form_editing_area" 
@@ -84,16 +84,17 @@ export default {
                 <div v-show="showToolbars" 
                     :id="'form_editing_toolbar_' + formNode.indicatorID"
                     :class="{'conditional': conditionalQuestion}">
-                    <div style="display: flex; align-items: center;">
+                    <div>
                         <span tabindex="0" role="button" style="cursor: pointer; display: flex; align-items:center;"
                             @click="editQuestion(parseInt(formNode.indicatorID))"
                             @keypress.enter="editQuestion(parseInt(formNode.indicatorID))"
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
-                        <span style="margin-left: 0.75rem; white-space:nowrap">{{formNode.format || 'no format'}}</span>
+                        <span style="margin-left: 0.75rem; white-space:nowrap">
+                            {{formNode.format || 'no format'}}{{conditionalQuestion ? ', has conditions' : ''}}</span>
                         <span v-if="sensitive" v-html="sensitiveImg" style="margin-left: 0.4rem;"></span>
                     </div>
-                    <div style="display: flex; align-items:center;">
+                    <div>
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
                             @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
                             <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
