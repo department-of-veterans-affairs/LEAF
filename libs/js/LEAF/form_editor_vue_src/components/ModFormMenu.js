@@ -194,7 +194,7 @@ export default {
                                         :key="'staple_' + s.stapledCategoryID">
                                         <button @click="selectMainForm(s.categoryID)" class="stapled-form">
                                             <div>
-                                                {{shortFormNameStripped(s.categoryName, 21) || 'Untitled'}}<br/>
+                                                {{shortFormNameStripped(s.categoryName, 20) || 'Untitled'}}<br/>
                                                 <span class="staple-sort-info">staple sort value: {{s.sort}}</span>
                                             </div>
                                             <span>📑</span>

@@ -56,7 +56,7 @@ export default {
         categoryName() {
             let name = this.categoriesRecord.categoryName === '' ? 
                 'Untitled' : XSSHelpers.stripAllTags(this.categoriesRecord.categoryName);
-            return this.truncateText(name, 41);
+            return this.truncateText(name, 44);
         },
         formDescription() {
             return XSSHelpers.stripAllTags(this.categoriesRecord.categoryDescription);

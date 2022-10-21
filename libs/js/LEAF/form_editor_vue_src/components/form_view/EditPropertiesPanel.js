@@ -209,7 +209,7 @@ export default {
             <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
         </span>
         <div id="edit-properties-description">
-            <label for="categoryName" style="margin-bottom: 1rem; font-size: 1rem;">Form name
+            <label for="categoryName" style="margin-bottom: 1rem;">Form name
                 <input id="categoryName" type="text" maxlength="50" v-model="categoryName" />
             </label>
             

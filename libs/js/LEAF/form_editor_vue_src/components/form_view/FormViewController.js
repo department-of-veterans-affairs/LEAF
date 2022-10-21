@@ -384,7 +384,7 @@ export default {
             <!-- ENTIRE FORM EDIT / PREVIEW -->
             <div v-if="selectedFormNode===null" id="form_entry_and_preview">
                 <div class="form-section-header" style="display: flex;">
-                    <h3 style="margin: 0;">Full Form</h3>
+                    <h3 style="margin: 0;">{{currentCategorySelection.categoryName}}</h3>
                     <button id="indicator_toolbar_toggle" class="btn-general"
                         @click.stop="toggleToolbars($event)">
                         {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
