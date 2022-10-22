@@ -1,5 +1,3 @@
- /* NOTE: TODO: consolidate variables */
-
 $BG-DarkNavy: #162e51;
 $base_navy: #005EA2;
 $LtNavy: #1476bd;
@@ -24,6 +22,7 @@ body { /* fixes header not extending entire width */
     min-width: fit-content;
 } 
 
+
 #vue-formeditor-app {
     padding: 2rem 1rem;
     min-height: 100vh;
@@ -37,6 +36,10 @@ body { /* fixes header not extending entire width */
         border-radius: 3px;
         white-space: nowrap;
         font-weight: bolder;
+
+        &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+            outline: 2px solid #20a0f0 !important;
+        }
     }
 }
 
@@ -53,13 +56,16 @@ button.btn-general, button.btn-confirm, button.can_update {
         background-color: $base_navy;
         color: white;
         border: 2px solid black !important;
-        box-shadow: 0 0 3px rgba(0,0,30,0.4);
     }
     &.disabled {
         cursor: auto !important;
+        &:active {
+            border: 2px solid $base_navy !important;
+        }
     }
 }
 button.buttonNorm {
+    padding: 0.2em 0.4em;
     &:hover, &:focus, &:active {
         border: 1px solid black !important;
     }
@@ -74,34 +80,33 @@ button.can_update {
 
 
 
+
 #form-editor-header {
     position: relative;
     display: flex;
     align-items: center;
     margin-bottom: 1.5rem;
-    padding: 0.5rem 0.2rem;
     height: 50px;
 
     h1, h2, h3 {
         margin: 0;
         @include flexcenter;
-       
     }
     button {
         color: black;
-        padding-left: 2px;
+        padding: 0.2em 0.4em 0.2em 0.2em;
         border: 2px solid $charcoal;
-        height: 2rem;
+        height: 36px;
 
         &:hover, &:focus, &:active { /* TODO: rebuild leaf.css without the rule to rm all borders from active a and buttons */
             border: 2px outset $charcoal !important;
-            outline: 2px solid #20a0f0 !important;
         }
     }
     button#form-editor-menu-toggle {
-        padding: 0.2em;
+        padding: 0.2em 0.4em;
         margin-right: 0.4rem;
         color: white;
+        font-weight: normal;
         background-color: black;
         border: 2px outset #667;
 
@@ -111,15 +116,14 @@ button.can_update {
             font-weight: normal;
             display: inline-block;
             width: 10px;
-            transform: translate(0, 1px);
             color: $USWDS_Cyan;
         }
     }
 
-    .header-icon {
+    span.header-icon {
         font-size: 80%;
     }
-    .header-arrow {
+    span.header-arrow {
         position: absolute;
         font-size: 1.5rem;
         top: 50%;
@@ -393,11 +397,22 @@ button.can_update {
         flex-direction:column; 
     }
 
+    input, select {
+        border: 1px inset #dde;
+        border-radius: 2px;
+        font-family: 'Source Sans Pro Web','Helvetica Neue',Helvetica,'Roboto',Arial,sans-serif;
+        line-height: normal;
+        min-height: 24px;
+    }
+    input {
+        padding-left: 0.4em;
+    }
+
     #edit-properties-description {
         position: relative;
         display: flex;
         flex-direction: column;
-        width: 40%;
+        width: 50%;
         height: 100%;
         align-self: center;
         border-right: 1px solid $charcoal;
@@ -417,7 +432,7 @@ button.can_update {
 
     }
     #edit-properties-other-properties {
-        width: 60%;
+        width: 50%;
     }
     .form-id {
         position: absolute; 
@@ -426,33 +441,18 @@ button.can_update {
         font-size: 0.75rem;
     }
     label {
-        display: flex;
-        align-items: center;
-        flex-wrap: nowrap;
         white-space: nowrap;
         font-size: 1rem;
         column-gap: 3px;
     }
     .panel-properties{
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
+        flex-direction: column;
+        justify-content: space-between;
         margin-top: 1rem;
-        row-gap: 1rem;
-        height: 100%;
-        align-content: center;
+        min-height: 100px;
     }
-    input, select {
-        border: 1px inset #dde;
-        border-radius: 2px;
-        font-family: 'Source Sans Pro Web','Helvetica Neue',Helvetica,'Roboto',Arial,sans-serif;
-        line-height: normal;
-        min-height: 24px;
-    }
-    input {
-        padding-left: 0.4em;
-    }
-    #workflowID, #availability, #categorySort, #formType {
+    #availability, #categorySort {
         margin-right: 1.5rem;
     }
 }
@@ -1016,13 +1016,13 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
                 border-right: 0;
                 border-bottom: 1px solid $charcoal;
             }
-            #edit-properties-other-properties {
+            /*#edit-properties-other-properties {
                 flex-direction: column-reverse;
                 .panel-properties {
                     margin-top: 0;
                     margin-bottom: 1rem;
                 }
-            }
+            }*/
             
         }
 

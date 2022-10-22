@@ -16,7 +16,6 @@ export default {
         'CSRFToken',
         'currCategoryID',
         'currSubformID',
-        'truncateText',
         'ajaxWorkflowRecords',
         'currentCategorySelection',
         'currentCategoryIsSensitive',
@@ -209,11 +208,14 @@ export default {
             <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
         </span>
         <div id="edit-properties-description">
-            <label for="categoryName" style="margin-bottom: 1rem;">Form name
-                <input id="categoryName" type="text" maxlength="50" v-model="categoryName" />
+            <label for="categoryName">Form name
+                <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formNameCharsRemaining}})</span>
             </label>
+            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" style="margin-bottom: 1rem;"/>
             
-            <label for="categoryDescription">Form description<span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formDescrCharsRemaining}})</span></label>
+            <label for="categoryDescription">Form description
+                <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formDescrCharsRemaining}})</span>
+            </label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
         </div>
         <div id="edit-properties-other-properties">
@@ -223,8 +225,7 @@ export default {
                     @click="openEditCollaboratorsDialog">
                     Edit Collaborators
                 </button>
-                <button v-if="!changesPending" class="can_update" title="properties can be edited directly in the info panel">ℹ</button>
-                <button v-else class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
+                <button v-if="changesPending" class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
@@ -239,31 +240,16 @@ export default {
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
                                     :selected="workflowID===parseInt(r.workflowID)">
-                                    ID#{{r.workflowID}}: {{truncateText(r.description, 32)}}
+                                    ID#{{r.workflowID}}: {{r.description}}
                                 </option>
                             </template>
                         </select></label>
                     </template>
                     <div v-else style="color: #d00; width: 100%;">A workflow must be set up first</div>
 
-                    <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
-                        <select id="availability" title="Select Availability" v-model.number="visible">
-                            <option value="1" :selected="visible===1">Available</option>
-                            <option value="0" :selected="visible===0">Hidden</option>
-                        </select>
-                    </label>
-
-                    <label for="categorySort" title="-128 to 127">Sort
-                        <input id="categorySort" type="number" v-model.number="sort" min="-128" max="127" style="width:60px;"/>
-                    </label>
-
-                    <label for="formType">Form Type
-                    <select id="formType" title="Change type of form" v-model="type" >
-                        <option value="" :selected="type===''">Standard</option>
-                        <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
-                    </select></label>
-
-                    <span v-if="currentCategoryIsSensitive" style="color: #d00;">Need to know: {{isNeedToKnow ? 'on' : 'off'}}. Forced on because sensitive fields are present</span>
+                    <div v-if="currentCategoryIsSensitive" style="color: #d00;">
+                        <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b>. &nbsp;Forced on because sensitive fields are present
+                    </div>
                     <label v-else for="needToKnow"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
                         <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">
@@ -271,6 +257,25 @@ export default {
                             <option value="1" style="color: #d00;" :selected="isNeedToKnow">On</option>
                         </select>
                     </label>
+
+                    <div style="display: flex; flex-wrap: wrap">
+                        <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
+                            <select id="availability" title="Select Availability" v-model.number="visible">
+                                <option value="1" :selected="visible===1">Available</option>
+                                <option value="0" :selected="visible===0">Hidden</option>
+                            </select>
+                        </label>
+
+                        <label for="categorySort" title="-128 to 127">Sort
+                            <input id="categorySort" type="number" v-model.number="sort" min="-128" max="127" style="width:60px;"/>
+                        </label>
+
+                        <label for="formType">Form Type
+                        <select id="formType" title="Change type of form" v-model="type" >
+                            <option value="" :selected="type===''">Standard</option>
+                            <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
+                        </select></label>
+                    </div>
                 </div>
             </template>
             <div v-else style="margin-top: auto;">This is an Internal Form</div>
