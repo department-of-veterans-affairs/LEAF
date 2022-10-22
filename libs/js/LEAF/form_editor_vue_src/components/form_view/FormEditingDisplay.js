@@ -90,8 +90,8 @@ export default {
                             @keypress.enter="editQuestion(parseInt(formNode.indicatorID))"
                             :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
                         </span>
-                        <span style="margin-left: 0.75rem; white-space:nowrap">
-                            {{formNode.format || 'no format'}}{{conditionalQuestion ? ', has conditions' : ''}}</span>
+                        <span style="margin-left: 0.5rem; white-space:nowrap">
+                            {{formNode?.format}}{{conditionalQuestion ? ', has conditions' : ''}}</span>
                         <span v-if="sensitive" v-html="sensitiveImg" style="margin-left: 0.4rem;"></span>
                     </div>
                     <div>
@@ -110,9 +110,9 @@ export default {
                         <div style="padding-right: 0.5em; color: #007860; font-weight: bold; width:20px; display:flex; align-items:center;">
                             <div v-if="formNode.has_code" tabindex="0" style="cursor:pointer" class="adv-options-icon" title="advanced options are present">✓</div>
                         </div>
-                        <button class="btn-general add-subquestion" title="Add Sub-question"
+                        <button class="btn-general add-subquestion" :title="isHeaderLocation ? 'Add Section Question' : 'Add Sub-Question'"
                             @click="newQuestion(formNode.indicatorID)">
-                            + Add Sub-question
+                            + {{isHeaderLocation ? 'Add Section Question' : 'Add Sub-Question'}}
                         </button>
                     </div>
                 </div>

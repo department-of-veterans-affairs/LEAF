@@ -21,7 +21,8 @@ export default {
         'currentCategoryIsSensitive',
         'updateCategoriesProperty',
         'openEditCollaboratorsDialog',
-        'closeFormDialog'
+        'closeFormDialog',
+        'truncateText'
 	],
     computed: {
         categoryDescriptionDisplay() {
@@ -230,7 +231,7 @@ export default {
             <template v-if="!isSubForm">
                 <div class="panel-properties">
                     <template v-if="ajaxWorkflowRecords.length > 0">
-                        <label for="workflowID">Workflow
+                        <label for="workflowID" style="margin-bottom: 0.5rem;">Workflow
                         <select id="workflowID" name="select-workflow" 
                             title="select workflow"
                             v-model.number="workflowID"
@@ -240,17 +241,17 @@ export default {
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
                                     :selected="workflowID===parseInt(r.workflowID)">
-                                    ID#{{r.workflowID}}: {{r.description}}
+                                    ID#{{r.workflowID}}: {{truncateText(r.description,40)}}
                                 </option>
                             </template>
                         </select></label>
                     </template>
-                    <div v-else style="color: #d00; width: 100%;">A workflow must be set up first</div>
+                    <div v-else style="color: #d00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
-                    <div v-if="currentCategoryIsSensitive" style="color: #d00;">
-                        <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b>. &nbsp;Forced on because sensitive fields are present
+                    <div v-if="currentCategoryIsSensitive" style="color: #d00; margin-bottom: 0.5rem;">
+                        <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b> &nbsp;&nbsp;Forced on because sensitive fields are present
                     </div>
-                    <label v-else for="needToKnow"
+                    <label v-else for="needToKnow" style="margin-bottom: 0.5rem;"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
                         <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#d00' : 'black'}">
                             <option value="0" :selected="!isNeedToKnow">Off</option>
@@ -258,7 +259,7 @@ export default {
                         </select>
                     </label>
 
-                    <div style="display: flex; flex-wrap: wrap">
+                    <div style="display: flex; flex-wrap: wrap; row-gap: 0.5rem;">
                         <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
                             <select id="availability" title="Select Availability" v-model.number="visible">
                                 <option value="1" :selected="visible===1">Available</option>

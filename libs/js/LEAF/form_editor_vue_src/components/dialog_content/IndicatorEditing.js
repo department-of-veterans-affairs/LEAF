@@ -555,7 +555,7 @@ export default {
                         <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                     </div>
                 </div>
-                <div v-show="format!==''" style="margin-top:0.75rem;">
+                <div v-show="format!=='' && format!=='raw_data'" style="margin-top:0.75rem;">
                     <label for="defaultValue">Default Answer</label><br/>
                     <textarea id="defaultValue" v-model="defaultValue"></textarea> 
                 </div>

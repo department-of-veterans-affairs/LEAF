@@ -4,7 +4,7 @@ $LtNavy: #1476bd;
 $charcoal: #252f3e;
 $dk-gray: #4a5778;
 $BG_LightGray: #dcdee0;
-$BG_Pearl: #f4f4f4;
+$BG_Pearl: #f0f0f1;
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
@@ -389,12 +389,14 @@ button.can_update {
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: hidden;
 
     > div {
         min-width: 400px;
         padding: 0.75rem;
         display: flex; 
-        flex-direction:column; 
+        flex-direction:column;
+        width: 50%;
     }
 
     input, select {
@@ -412,7 +414,6 @@ button.can_update {
         position: relative;
         display: flex;
         flex-direction: column;
-        width: 50%;
         height: 100%;
         align-self: center;
         border-right: 1px solid $charcoal;
@@ -431,9 +432,6 @@ button.can_update {
         }
 
     }
-    #edit-properties-other-properties {
-        width: 50%;
-    }
     .form-id {
         position: absolute; 
         right: 0.75rem;
@@ -443,14 +441,13 @@ button.can_update {
     label {
         white-space: nowrap;
         font-size: 1rem;
-        column-gap: 3px;
     }
-    .panel-properties{
+    .panel-properties {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         margin-top: 1rem;
-        min-height: 100px;
+        height: 100%;
     }
     #availability, #categorySort {
         margin-right: 1.5rem;
@@ -652,7 +649,7 @@ div#form_content_view {
     align-self: flex-start;
     width: 100%;
     background-color: white;
-    padding: 0.75rem 0.5rem 0.75rem 0.75rem;
+    padding: 0.75rem;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     overflow: hidden;
@@ -660,7 +657,6 @@ div#form_content_view {
     .form-section-header {
         align-items: center;
         justify-content: space-between;
-        padding-right: 0.25rem;
         margin-bottom: 0.75rem;
 
         #indicator_toolbar_toggle {
@@ -680,9 +676,11 @@ div#form_content_view {
         padding: 0;
         min-height: 50px;
         float: none; /* style.css style collision */
+        border-radius: 4px;
+        border-left: 0.25rem solid $BG_Pearl;
 
         &:not(.form-header) {
-            margin-left: 1rem;
+            margin-left: 0.75rem;
         }
     }
 
@@ -702,19 +700,14 @@ div#form_content_view {
     }
 
     button.add-subquestion {
-        padding: 0.2em 0.4em;
-        font-size: 95%;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         width: fit-content;
-        border: 1px solid $LtNavy;
-        &:hover, &:focus, &:active {
-            border: 1px solid black !important;
-        }
     }
 
     .form_editing_area {
         padding-bottom: 1rem;
         background-color: white;
+        margin: 0.3rem 0;
 
         div[class*="SelectorBorder"] {
             background-color: transparent;
@@ -752,7 +745,7 @@ div#form_content_view {
         }
 
         div[id^="form_editing_toolbar_"] {
-            padding: 0.25rem;
+            padding: 0.25rem 0;
             display: flex;
             justify-content: space-between; 
             align-items: center;
@@ -790,7 +783,6 @@ div#form_content_view {
                 height: 100%;
                 border-radius: 3px;
                 letter-spacing: 1px;
-               /* border: 1px outset $base_navy; */
             }
         }
         &.form-header {
@@ -826,7 +818,7 @@ div#form_content_view {
                     font-family: monospace;
                 }
                 div.tableinput { /* fixes for grid tables */
-                    overflow: scroll;
+                    overflow-x: scroll;
                     max-width: 900px;
                     
                     table {
@@ -839,7 +831,6 @@ div#form_content_view {
                         }
                     }
                 }
-
 
                 .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
                     margin-bottom: 0.5em;
@@ -1016,14 +1007,6 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
                 border-right: 0;
                 border-bottom: 1px solid $charcoal;
             }
-            /*#edit-properties-other-properties {
-                flex-direction: column-reverse;
-                .panel-properties {
-                    margin-top: 0;
-                    margin-bottom: 1rem;
-                }
-            }*/
-            
         }
 
         #form_entry_and_preview {
