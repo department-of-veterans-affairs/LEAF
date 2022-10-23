@@ -4,7 +4,7 @@ $LtNavy: #1476bd;
 $charcoal: #252f3e;
 $dk-gray: #4a5778;
 $BG_LightGray: #dcdee0;
-$BG_Pearl: #f0f0f1;
+$BG_Pearl: #f0f0f2;
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
@@ -287,14 +287,13 @@ button.can_update {
 
 
 #indicator-editing-dialog-content {
-    > div,  #non-name-wrapper > div{
+    > div {
         margin-bottom: 1rem;
     }
 
     label {
         font-family: sans-serif;
         font-weight: bolder;
-        padding-right: 0.2rem;
         white-space: nowrap;
     }
     input, select {
@@ -307,47 +306,45 @@ button.can_update {
         padding: 0.2rem 0.4rem;
         display:block;
     }
-    
-    #non-name-wrapper {
+    #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
+        width: 100%;
+        margin-top: 2px;
+    }
+    button#editing-format-assist {
+        align-self: flex-end;
+        font-weight: normal;
+        font-size: 80%;
+        margin-left: 3px;
+    }
+    #indicator-editing-attributes {
         position: relative;
-        margin-bottom: 1.75rem;
-    
-        #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
-            width: 100%;
-            margin-top: 0.1rem;
-        }
-        button#editing-format-assist {
-            align-self: flex-end;
+        margin: 0;
+        padding: 1.25rem 0.75rem 0.5rem 0.75rem;
+        border-radius: 5px;
+        border: 1px solid #ccd;
+        width: -moz-fit-content; /*firefox prior to nov 2021*/
+        min-width: fit-content;
+        label {
+            @include flexcenter();
             font-weight: normal;
-            font-size:80%;
-            margin-left: 0.2rem;
+            margin-bottom: 0;
         }
-        #indicator-editing-attributes {
-            margin: 0;
-            padding: 1em 0.75em 0.5em 0.75em;
-            border-radius: 5px;
-            border: 1px solid #ccd;
-            width: -moz-fit-content; /*firefox prior to nov 2021*/
-            min-width: fit-content;
-            label {
-                font-weight: normal;
-            }
+        .attribute-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        #archived-warning, #deletion-warning {
+            position: absolute;
+            left: 0.75rem;
+            top: 2px;
+            color: #d00; 
+            font-size: 90%;
+        }
+    }
+    
 
-            .attribute-row {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                margin-bottom: 0.75rem;
-            }
-        }
-    }
-    #archived-warning, #deletion-warning {
-        position: absolute;
-        left: 2px;
-        bottom: -1.25rem;
-        color: #d00; 
-        font-size: 90%;
-    }
     #addColumnBtn {
         padding: 0.4em;
     }
@@ -707,7 +704,7 @@ div#form_content_view {
     .form_editing_area {
         padding-bottom: 1rem;
         background-color: white;
-        margin: 0.3rem 0;
+        margin: 0.4rem 0;
 
         div[class*="SelectorBorder"] {
             background-color: transparent;
@@ -745,7 +742,7 @@ div#form_content_view {
         }
 
         div[id^="form_editing_toolbar_"] {
-            padding: 0.25rem 0;
+            padding: 2px 0;
             display: flex;
             justify-content: space-between; 
             align-items: center;
@@ -774,11 +771,12 @@ div#form_content_view {
                 max-width: none;
             }
             span.toolbar-edit {
-                display: inline-block;
+                @include flexcenter();
                 background-color: $base_navy;
                 color: white;
-                margin: 0 0.4em;
-                padding: 0.2em 0.6em;
+                font-weight: normal;
+                margin: 0 0.25em;
+                padding: 0.25em 0.5em;
                 font-size: 80%;
                 height: 100%;
                 border-radius: 3px;

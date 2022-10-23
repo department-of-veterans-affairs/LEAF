@@ -508,97 +508,94 @@ export default {
                 </button>
             </div>
         </div>
-        <div id="non-name-wrapper">
-            <div v-if="description!=='' || name.length > shortLabelTrigger || showShortLabel===true">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <label for="description">What would you call this field in a spreadsheet?</label>
-                    <div>{{shortlabelCharsRemaining}}</div>
-                </div>
-                <input type="text" id="description" v-model="description" maxlength="50" />
+        <div v-if="description!=='' || name.length > shortLabelTrigger || showShortLabel===true">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="description">What would you call this field in a spreadsheet?</label>
+                <div>{{shortlabelCharsRemaining}}</div>
             </div>
+            <input type="text" id="description" v-model="description" maxlength="50" />
+        </div>
+        <div>
             <div>
-                <div>
-                    <label for="indicatorType">Input Format</label><br/>
-                    <div style="display:flex;">
-                        <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
-                            <option value="">None</option>
-                            <option v-for="kv in Object.entries(formats)" 
-                            :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
-                        </select>
-                        <button id="editing-format-assist" class="btn-general"
-                            title="select for assistance with format choices">
-                            ℹ
-                        </button>
-                    </div>
-                </div>
-                <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
-                    <label for="indicatorSingleAnswer">Text for checkbox:</label><br/> 
-                    <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
-                </div>
-                <div v-if="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
-                    <label for="indicatorMultiAnswer">One option per line:</label><br/>
-                    <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
-                    </textarea>
-                </div>
-                <div v-if="format==='grid'" id="container_indicatorGrid">
-                    <span id="tableStatus" style="position: absolute; color: transparent" 
-                        aria-atomic="true" aria-live="polite"  role="status"></span>
-                    <br/>
-                    <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
-                        @click="appAddCell">
-                        ➕ Add column
+                <label for="indicatorType">Input Format</label><br/>
+                <div style="display:flex;">
+                    <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
+                        <option value="">None</option>
+                        <option v-for="kv in Object.entries(formats)" 
+                        :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
+                    </select>
+                    <button id="editing-format-assist" class="btn-general"
+                        title="select for assistance with format choices">
+                        ℹ
                     </button>
-                    <br/><br/>
-                    Columns ({{gridJSON.length}}):
-                    <div style="overflow-x: scroll;" id="gridcell_col_parent">
-                        <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
-                        <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
-                    </div>
-                </div>
-                <div v-show="format!=='' && format!=='raw_data'" style="margin-top:0.75rem;">
-                    <label for="defaultValue">Default Answer</label><br/>
-                    <textarea id="defaultValue" v-model="defaultValue"></textarea> 
                 </div>
             </div>
-            <fieldset id="indicator-editing-attributes">
-                <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
-                <div class="attribute-row">
-                    <div style="display: flex; align-items: center; margin-right: 1rem;">
-                        <label class="checkable leaf_check" for="required">
-                            <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
-                                @change="preventSelectionIfFormatNone" />
-                            <span class="leaf_check"></span>Required
-                        </label>
-                    </div>
-                    <div style="display: flex; align-items: center; margin-right: 1.5rem;">
-                        <label class="checkable leaf_check" for="sensitive">
-                            <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
-                                @change="preventSelectionIfFormatNone" />
-                            <span class="leaf_check"></span>Sensitive Data (PHI/PII)
-                        </label>
-                    </div>
-                    <div v-if="!isEditingModal" style="display: flex; align-items: center;">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0; margin-right:3px" />
-                        <label for="sort">Sort Priority</label> 
-                    </div>
-                    <div v-if="isEditingModal" style="margin: 0 1rem 0 1.25rem;">
-                        <label class="checkable leaf_check" for="archived">
-                            <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
-                                v-model="archived" @change="radioBehavior" />
-                            <span class="leaf_check"></span>Archive
-                        </label>
-                    </div>
-                    <div v-if="isEditingModal">
-                        <label class="checkable leaf_check" for="deleted">
-                            <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"  
-                                v-model="deleted" @change="radioBehavior" />
-                            <span class="leaf_check"></span>Delete
-                        </label>
-                    </div>
+            <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
+                <label for="indicatorSingleAnswer">Text for checkbox:</label><br/> 
+                <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
+            </div>
+            <div v-if="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
+                <label for="indicatorMultiAnswer">One option per line:</label><br/>
+                <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
+                </textarea>
+            </div>
+            <div v-if="format==='grid'" id="container_indicatorGrid">
+                <span id="tableStatus" style="position: absolute; color: transparent" 
+                    aria-atomic="true" aria-live="polite"  role="status"></span>
+                <br/>
+                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                    @click="appAddCell">
+                    ➕ Add column
+                </button>
+                <br/><br/>
+                Columns ({{gridJSON.length}}):
+                <div style="overflow-x: scroll;" id="gridcell_col_parent">
+                    <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
+                    <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                 </div>
+            </div>
+            <div v-show="format!=='' && format!=='raw_data'" style="margin-top:0.75rem;">
+                <label for="defaultValue">Default Answer</label><br/>
+                <textarea id="defaultValue" v-model="defaultValue"></textarea> 
+            </div>
+        </div>
+        <fieldset id="indicator-editing-attributes">
+            <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
+            <div class="attribute-row">
+                <label class="checkable leaf_check" for="required"
+                    style="margin-right: 1rem;">
+                    <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
+                        @change="preventSelectionIfFormatNone" />
+                    <span class="leaf_check"></span>Required
+                </label>
+                <label class="checkable leaf_check" for="sensitive"
+                    style="margin-right: 1.5rem;">
+                    <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
+                        @change="preventSelectionIfFormatNone" />
+                    <span class="leaf_check"></span>Sensitive Data (PHI/PII)
+                </label>
+                <template v-if="!isEditingModal">
+                    <label for="sort">
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px" />Sort Priority
+                    </label>
+                </template>
                 <template v-if="isEditingModal">
-                    <div class="attribute-row" style="margin-bottom: 0.5rem;">
-                        <div v-if="isLoadingParentIDs===false" style="display: flex; align-items: center; margin-right: 1.25rem;">
+                    <label class="checkable leaf_check" for="archived" style="margin-right: 1rem; margin-left: 1.5rem;">
+                        <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
+                            v-model="archived" @change="radioBehavior" />
+                        <span class="leaf_check"></span>Archive
+                    </label>
+                    <label class="checkable leaf_check" for="deleted">
+                        <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"  
+                            v-model="deleted" @change="radioBehavior" />
+                        <span class="leaf_check"></span>Delete
+                    </label>
+                </template>
+            </div>
+            <template v-if="isEditingModal">
+                <div class="attribute-row">
+                    <template v-if="isLoadingParentIDs===false">
+                        <label for="container_parentID" style="margin-right: 1.25rem;">
                             <select v-model.number="parentID" id="container_parentID" style="width:230px; margin-right: 3px">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
@@ -608,22 +605,20 @@ export default {
                                         {{kv[0]}}: {{truncateText(kv[1]['1'].name)}}
                                     </option>
                                 </template>
-                            </select>
-                            <label for="container_parentID">Parent Question ID</label>
-                        </div>
-                        <div style="display: flex; align-items: center;">
-                            <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0; margin-right:3px" />
-                            <label for="sort">Sort Priority</label> 
-                        </div>
-                    </div>
-                </template>
-            </fieldset>
+                            </select>Parent Question ID
+                        </label>
+                    </template>
+                    <label for="sort">
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px" />Sort Priority
+                    </label>
+                </div>
+            </template>
             <span v-show="archived" id="archived-warning">
                 This field will be archived.  It can be re-enabled by using Restore Fields.
             </span>
             <span v-show="deleted" id="deletion-warning">
                 Deleted items can only be re-enabled within 30 days by using Restore Fields.
             </span>
-        </div>
+        </fieldset>
     </div>`
 };

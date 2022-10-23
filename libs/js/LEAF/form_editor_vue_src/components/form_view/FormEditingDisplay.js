@@ -110,9 +110,9 @@ export default {
                         <div style="padding-right: 0.5em; color: #007860; font-weight: bold; width:20px; display:flex; align-items:center;">
                             <div v-if="formNode.has_code" tabindex="0" style="cursor:pointer" class="adv-options-icon" title="advanced options are present">✓</div>
                         </div>
-                        <button class="btn-general add-subquestion" :title="isHeaderLocation ? 'Add Section Question' : 'Add Sub-Question'"
+                        <button class="btn-general add-subquestion" :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
                             @click="newQuestion(formNode.indicatorID)">
-                            + {{isHeaderLocation ? 'Add Section Question' : 'Add Sub-Question'}}
+                            + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
                         </button>
                     </div>
                 </div>
