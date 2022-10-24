@@ -1040,7 +1040,7 @@ class System
 
             $leaderGroupID = $nexus_group->getGroupLeader($group['groupID']);
 
-            $employees = array_merge($nexus_position->getEmployees($leaderGroupID), $nexus_group->listGroupEmployees($group['groupID']));
+            $employees = array_merge($nexus_group->listGroupPositions($group['groupID']), $nexus_group->listGroupEmployees($group['groupID']));
 
             foreach ($employees as $employee) {
                 $nexus_users[$group_counter]['userID'] = $employee['userName'];
