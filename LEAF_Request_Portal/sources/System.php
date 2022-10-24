@@ -1038,8 +1038,6 @@ class System
             $nexus_groups[$counter]['parentGroupID'] = null;
             $nexus_groups[$counter]['name'] = $group['groupTitle'];
 
-            $leaderGroupID = $nexus_group->getGroupLeader($group['groupID']);
-
             $employees = array_merge($nexus_group->listGroupPositions($group['groupID']), $nexus_group->listGroupEmployees($group['groupID']));
 
             foreach ($employees as $employee) {
