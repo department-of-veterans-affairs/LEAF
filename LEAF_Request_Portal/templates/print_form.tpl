@@ -333,38 +333,7 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
 
 function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
-    const conditionalUpdateProgress = () => {
-        const headingsMissing = Array.from(document.querySelectorAll('div.printheading_missing')).length;
-        const subheadingsMissing = Array.from(document.querySelectorAll('div.printsubheading_missing')).length;
-        const remainingRequired = headingsMissing + subheadingsMissing;
-        const numberHiddenRequired = Object.keys(requiredIndicatorsHidden).length;
-
-        if (remainingRequired === numberHiddenRequired && '<!--{$submitted}-->' == '0') {
-            $('#progressBar').progressbar('option', 'value', 100);
-            $('#progressLabel').text(100 + '%'); 
-            $('#progressSidebar').slideUp(500);
-
-            $.ajax({
-                type: 'GET',
-                url: "ajaxIndex.php?a=getsubmitcontrol&recordID=<!--{$recordID|strip_tags}-->",
-                dataType: 'text',
-                success: function(response) {
-                    $("#submitContent").empty().html(response);
-                    $("#submitContent").css({'border': '1px solid black',
-                        'text-align': 'center',
-                        'background-color': '#ffaeae'});
-                    $("#workflowcontent").css({'font-size': "80%", 'padding-top': "8px"});
-                },
-                error: function(response) {
-                    $("#xhr").html("Error: " + response);
-                },
-                cache: false
-            });
-        }
-    }
-
     const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
-    let requiredIndicatorsHidden = {};
 
     for (c in formPrintConditions) {
         const childFormat = formPrintConditions[c].format;  //current format of the controlled question
@@ -423,30 +392,12 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
                         break;
                 }
 
-                //headers cannot have conditions directly set on them via the editor, so only need to check subquestions
-                const elSubheadingMissing = document.querySelector(`#subIndicator_${conditions[i].childIndID}_1 div.printsubheading_missing`);
-
                 switch (outcome) {
                     case 'hide':
-                        if(comparison===true) {
-                            if (elSubheadingMissing !== null) {
-                                requiredIndicatorsHidden[conditions[i].childIndID] = true;
-                            }
-                            elChildInd.style.display = "none";
-                            
-                        } else {
-                            elChildInd.style.display = "block";
-                        }
+                        elChildInd.style.display = comparison===true ? 'none' : 'block';
                         break;
                     case 'show':
-                        if(comparison===true) {
-                            elChildInd.style.display = "block";
-                        } else {
-                            if (elSubheadingMissing !== null) {
-                                requiredIndicatorsHidden[conditions[i].childIndID] = true;
-                            }
-                            elChildInd.style.display = "none";
-                        }
+                        elChildInd.style.display = comparison===true ? 'block' : 'none';
                         break;
                     default:
                         console.log(conditions[i].selectedOutcome);
@@ -455,7 +406,6 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             }
         }
     }
-    conditionalUpdateProgress();
 }
 
 function openContent(url) {
