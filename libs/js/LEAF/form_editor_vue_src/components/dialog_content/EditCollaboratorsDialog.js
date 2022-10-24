@@ -4,7 +4,7 @@ export default {
             //subformID will be null if the selected form is not a subform.  currCategoryID will always be a main form.
             formID: this.currSubformID || this.currCategoryID,
             group: '',
-            groups: [],
+            allGroups: [],
             collaborators: []
         }
     },
@@ -22,7 +22,7 @@ export default {
                 type: 'GET',
                 url: `${this.APIroot}system/groups`,
                 success: res => {
-                    this.groups = res
+                    this.allGroups = res
                 },
                 error: err => console.log(err),
                 cache: false
@@ -39,8 +39,16 @@ export default {
         ];
         Promise.all(loadCalls).then(()=> {
             const elSelect = document.getElementById('selectFormCollaborators');
+            console.log(this.allGroups, this.collaborators);
             if(elSelect!==null) elSelect.focus();
         });
+    },
+    computed: {
+        availableGroups() {
+            const collabGroupIDs = [];
+            this.collaborators.map(c => collabGroupIDs.push(parseInt(c.groupID)));
+            return this.allGroups.filter(g => !collabGroupIDs.includes(parseInt(g.groupID)));
+        }
     },
     methods: {
         /**
@@ -88,7 +96,8 @@ export default {
                     success: (res) => { //returns null uwu
                         const group = this.collaborators.find(c => parseInt(c.groupID)===parseInt(this.group.groupID));
                         if (group === undefined) {
-                            this.collaborators.push({groupID: this.group.groupID, name: this.group.name})
+                            this.collaborators.push({groupID: this.group.groupID, name: this.group.name});
+                            this.group = '';
                         }
                     },
                     error: err => console.log(err),
@@ -116,11 +125,11 @@ export default {
             </template>
         </div><hr/>
         <div style="min-height: 50px; margin: 1em 0;">
-            <template v-if="groups.length > 0">
+            <template v-if="availableGroups.length > 0">
                 <label for="selectFormCollaborators" style="display:block; margin-bottom:2px;">Select a group to add</label>
-                <select v-model="group" id="selectFormCollaborators">
+                <select v-model="group" id="selectFormCollaborators" style="width:100%;">
                     <option value="">Select a Group</option>
-                    <option v-for="g in groups" :value="g" :key="'group_' + g.groupID">{{g.name}}</option>
+                    <option v-for="g in availableGroups" :value="g" :key="'group_' + g.groupID">{{g.name}}</option>
                 </select>
             </template>
             <div v-else>There are no available groups to add</div>

@@ -68,6 +68,7 @@ export default {
                             this.getStapledFormsByCurrentCategory(this.formID).then(res => {
                                 this.setCurrCategoryStaples(res);
                                 this.updateFormsStapledCatIDs(this.catIDtoStaple);
+                                this.catIDtoStaple = '';
                             });
                         }
                     },
@@ -95,7 +96,7 @@ export default {
         <div style="min-height: 50px; margin: 1em 0;">
             <template v-if="mergeableForms.length > 0">
                 <label for="select-form-to-staple" style="padding-right: 0.3em;">Select a form to merge</label>
-                <select v-model="catIDtoStaple" title="select a form to merge" id="select-form-to-staple">
+                <select v-model="catIDtoStaple" title="select a form to merge" id="select-form-to-staple" style="width:100%;">
                     <option value="">Select a Form</option>
                     <option v-for="f in mergeableForms" :value="f.categoryID" :key="'staple_'+f.categoryID">{{truncateText(f.categoryName) || 'Untitled'}}</option>
                 </select>
