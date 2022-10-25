@@ -10,6 +10,7 @@ include 'Login.php';
 include 'db_mysql.php';
 include 'db_config.php';
 include 'form.php';
+include 'sources/Note.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
