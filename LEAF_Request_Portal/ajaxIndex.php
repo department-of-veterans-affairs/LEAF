@@ -81,6 +81,7 @@ switch ($action) {
 
             $indicator = $form->getIndicator($indicatorID, $series, $recordID);
             $recordInfo = $form->getRecordInfo($recordID);
+            $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
             if ($indicator[$_GET['indicatorID']]['isWritable'] == 1)
             {
                 $t_form->left_delimiter = '<!--{';
@@ -95,6 +96,7 @@ switch ($action) {
                 $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
+
             }
             else
             {
@@ -263,7 +265,7 @@ switch ($action) {
         //$approval = new Action($db, $login, $_GET['recordID']);
         //$approval->addApproval($_POST['groupID'], $_POST['status'], $_POST['comment'], $_POST['dependencyID']);
         break;
-    case 'doupload': // handle file upload
+    case 'doupload': // legacy handle file upload (retained for older custom files)
         require 'form.php';
         $uploadOk = true;
         $uploadedFilename = '';

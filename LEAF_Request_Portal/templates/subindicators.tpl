@@ -668,13 +668,16 @@
                                     });
                                 });
                                 dialog_confirm.show();
-                            }
-                            function addFile(recordID=0, indicatorID=0, series=1) {
+                            } 
+                            function addFile(recordID = 0, indicatorID = 0, series = 1) {
+
                                 console.log(recordID, indicatorID, series, '<!--{$CSRFToken}-->');
+                                //$('#record_<!--{$indicator.indicatorID|strip_tags}-->').submit();
                             }
                         </script>
                         <!--{assign "counter" $counter+1}-->
                     <!--{/foreach}-->
+                <!--{/if}-->
                     <form id="record_<!--{$indicator.indicatorID|strip_tags}-->" enctype="multipart/form-data" 
                             action="ajaxIndex.php?a=doupload&amp;recordID=<!--{$recordID|strip_tags}-->" method="post">
                         <input name="CSRFToken" type="hidden" value="<!--{$CSRFToken}-->" />
@@ -682,7 +685,8 @@
                         <input type="hidden" name="indicatorID" value="<!--{$indicator.indicatorID|strip_tags}-->" />
                         <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control">Select File to attach: 
                             <input id="file<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" 
-                            type="file" onchange="$('#record_<!--{$indicator.indicatorID|strip_tags}-->').submit()" multiple />
+                            type="file"  multiple />
+                            <button type="submit">Submit Files</button>
                         </div>
                         <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px">
                             <img src="images/indicator.gif" alt="loading..." /> Attaching file...
@@ -690,10 +694,7 @@
                         <div style="font-family: verdana; font-size: 10px">
                             <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
                         </div>
-                    </form>                    
-                <!--{else}-->
-                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="480px" height="100px"></iframe><br />
-                <!--{/if}-->
+                    </form>                
                 </span>
             </fieldset>
             <!--{if $indicator.required == 1}-->
