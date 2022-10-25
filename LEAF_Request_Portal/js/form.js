@@ -320,36 +320,6 @@ var LeafForm = function(containerID) {
         });
         
     }
-    function uploadFile(file = {}, indicatorID = 0, series = 1) {
-        if(recordID == 0) {
-            console.log('recordID not set');
-            return 0;
-        }
-        
-        let formData = new FormData();
-        formData.append(`${indicatorID}`, file);
-        formData.append('CSRFToken', CSRFToken);
-        formData.append('indicatorID', indicatorID);
-        formData.append('series', series);
-
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: 'POST',
-                url: `./api/form/${recordID}`,
-                data: formData,
-                success: function(res) {
-                    resolve(res);
-                },
-                error: function(err) {
-                    reject(err);
-                },
-                processData: false,
-                contentType: false,
-                cache: false
-            });
-        });
-        
-    }
 
     function doModify() {
         if(recordID == 0) {
@@ -364,7 +334,6 @@ var LeafForm = function(containerID) {
         $('#' + htmlFormID).find(':input:disabled').removeAttr('disabled');
         var data = {recordID: recordID};
         $('#' + htmlFormID).serializeArray().map(function(x) {
-            console.log(x);
             if (x.name.includes('_multiselect')) {
                 const i = x.name.indexOf('_multiselect');
                 if (x.value === '') { //selected if no options are chosen
@@ -502,7 +471,6 @@ var LeafForm = function(containerID) {
         doModify: doModify,
         getForm: getForm,
         initCustom: initCustom,
-        setHtmlFormID: setHtmlFormID,
-        uploadFile: uploadFile
+        setHtmlFormID: setHtmlFormID
     }
 };

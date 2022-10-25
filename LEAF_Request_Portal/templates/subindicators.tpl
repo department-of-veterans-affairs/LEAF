@@ -638,14 +638,35 @@
             <script>
                 function addFile(indicatorID = 0, series = 1) {
                     const inputEl = document.getElementById(`file${indicatorID}`);
-                    if (inputEl.files[0]) {
-                        const fileName = inputEl.files[0].name;
+                    if (inputEl?.files[0]) {
                         const statusEl = document.getElementById(`file${indicatorID}_status`);
                         statusEl.style.display = 'block';
-                        form.uploadFile(inputEl.files[0], parseInt(indicatorID), series).then(res => {
-                            if(res === 1) {
-                                statusEl.innerText = `File ${fileName} has been attached`;
-                            }
+
+                        const file = inputEl?.files[0];
+                        const fileName = inputEl.files[0].name;
+                        
+                        let formData = new FormData();
+                        formData.append(`${indicatorID}`, file);
+                        formData.append('CSRFToken', CSRFToken);
+                        formData.append('indicatorID', indicatorID);
+                        formData.append('series', series);
+                        formData.append('isAPI', true);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: `./api/form/${recordID}`,
+                            data: formData,
+                            success: function(res) {
+                                if(res === 1) {
+                                    statusEl.innerText = `File ${fileName} has been attached`;
+                                }
+                            },
+                            error: function(err) {
+                                console.log(err);
+                            },
+                            processData: false,
+                            contentType: false,
+                            cache: false
                         });
                     }
                 }
