@@ -659,6 +659,8 @@
                             success: function(res) {
                                 if(res === 1) {
                                     statusEl.innerText = `File ${fileName} has been attached`;
+                                } else {
+                                    statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span> Please make sure the file you are uploading is either a PDF, Word Document or similar format.`;
                                 }
                             },
                             error: function(err) {
