@@ -1011,18 +1011,22 @@ class System
             $employees = array_merge($nexus_position->getEmployees($leaderGroupID), $nexus_group->listGroupEmployees($group['groupID']));
 
             foreach ($employees as $employee) {
-                $nexus_users[$group_counter]['userID'] = $employee['userName'];
-                $nexus_users[$group_counter]['groupID'] = $group['groupID'];
-                $nexus_users[$group_counter]['backupID'] = null;
+                if ($employee['userName'] != '') {
+                    $nexus_users[$group_counter]['userID'] = $employee['userName'];
+                    $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                    $nexus_users[$group_counter]['backupID'] = null;
 
-                $group_counter++;
-
-                if (isset($employee['backups'])) {
-                    foreach ($employee['backups'] as $backup) {
-                        $nexus_users[$group_counter]['userID'] = $backup['userName'];
-                        $nexus_users[$group_counter]['groupID'] = $group['groupID'];
-                        $nexus_users[$group_counter]['backupID'] = $employee['userName'];
                     $group_counter++;
+
+                    if (isset($employee['backups'])) {
+                        foreach ($employee['backups'] as $backup) {
+                            if ($backup['userName'] != '') {
+                                $nexus_users[$group_counter]['userID'] = $backup['userName'];
+                                $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                                $nexus_users[$group_counter]['backupID'] = $employee['userName'];
+                                $group_counter++;
+                            }
+                        }
                     }
                 }
             }
@@ -1038,24 +1042,26 @@ class System
             $nexus_groups[$counter]['parentGroupID'] = null;
             $nexus_groups[$counter]['name'] = $group['groupTitle'];
 
-            $leaderGroupID = $nexus_group->getGroupLeader($group['groupID']);
-
-            $employees = array_merge($nexus_position->getEmployees($leaderGroupID), $nexus_group->listGroupEmployees($group['groupID']));
+            $employees = array_merge($nexus_group->listGroupPositions($group['groupID']), $nexus_group->listGroupEmployees($group['groupID']));
 
             foreach ($employees as $employee) {
-                $nexus_users[$group_counter]['userID'] = $employee['userName'];
-                $nexus_users[$group_counter]['groupID'] = $group['groupID'];
-                $nexus_users[$group_counter]['backupID'] = null;
-
-                $group_counter++;
-
-                $backups = $nexus_employee->getBackups($employee['empUID']);
-
-                foreach ($backups as $backup) {
-                    $nexus_users[$group_counter]['userID'] = $backup['userName'];
+                if ($employee['userName'] != '') {
+                    $nexus_users[$group_counter]['userID'] = $employee['userName'];
                     $nexus_users[$group_counter]['groupID'] = $group['groupID'];
-                    $nexus_users[$group_counter]['backupID'] = $employee['userName'];
+                    $nexus_users[$group_counter]['backupID'] = null;
+
                     $group_counter++;
+
+                    $backups = $nexus_employee->getBackups($employee['empUID']);
+
+                    foreach ($backups as $backup) {
+                        if ($backup['userName'] != '') {
+                            $nexus_users[$group_counter]['userID'] = $backup['userName'];
+                            $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                            $nexus_users[$group_counter]['backupID'] = $employee['userName'];
+                            $group_counter++;
+                        }
+                    }
                 }
             }
 
