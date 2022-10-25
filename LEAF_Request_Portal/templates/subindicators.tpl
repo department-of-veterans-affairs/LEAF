@@ -635,14 +635,32 @@
                 
         <!--{/if}-->
         <!--{if $indicator.format == 'fileupload' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <script>
+                function addFile(indicatorID = 0, series = 1) {
+                    const inputEl = document.getElementById(`file${indicatorID}`);
+                    if (inputEl.files[0]) {
+                        const fileName = inputEl.files[0].name;
+                        const statusEl = document.getElementById(`file${indicatorID}_status`);
+                        statusEl.style.display = 'block';
+                        form.uploadFile(inputEl.files[0], parseInt(indicatorID), series).then(res => {
+                            if(res === 1) {
+                                statusEl.innerText = `File ${fileName} has been attached`;
+                            }
+                        });
+                    }
+                }
+            </script>
             <fieldset>
                 <legend>File Attachment(s)</legend>
                 <span class="text">
                 <!--{if $indicator.value[0] != ''}-->
                     <!--{assign "counter" 0}-->
                     <!--{foreach from=$indicator.value item=file}-->
-                        <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" style="background-color: #b7c5ff; padding: 4px"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
-                            <span style="float: right; padding: 4px">
+                        <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
+                        style="background-color: #d7e5ff; padding: 4px; display: flex; align-items: center" >
+                            <img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> 
+                            <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
+                            <span style="display: inline-block; margin-left: auto; padding: 4px">
                             [ <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">Delete</button> ]
                             </span>
                         </div>
@@ -669,32 +687,21 @@
                                 });
                                 dialog_confirm.show();
                             } 
-                            function addFile(recordID = 0, indicatorID = 0, series = 1) {
-
-                                console.log(recordID, indicatorID, series, '<!--{$CSRFToken}-->');
-                                //$('#record_<!--{$indicator.indicatorID|strip_tags}-->').submit();
-                            }
                         </script>
                         <!--{assign "counter" $counter+1}-->
                     <!--{/foreach}-->
-                <!--{/if}-->
-                    <form id="record_<!--{$indicator.indicatorID|strip_tags}-->" enctype="multipart/form-data" 
-                            action="ajaxIndex.php?a=doupload&amp;recordID=<!--{$recordID|strip_tags}-->" method="post">
-                        <input name="CSRFToken" type="hidden" value="<!--{$CSRFToken}-->" />
-                        <input type="hidden" name="series" value="<!--{$indicator.series}-->" />
-                        <input type="hidden" name="indicatorID" value="<!--{$indicator.indicatorID|strip_tags}-->" />
-                        <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control">Select File to attach: 
-                            <input id="file<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" 
-                            type="file"  multiple />
-                            <button type="submit">Submit Files</button>
-                        </div>
-                        <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px">
-                            <img src="images/indicator.gif" alt="loading..." /> Attaching file...
-                        </div>
-                        <div style="font-family: verdana; font-size: 10px">
-                            <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
-                        </div>
-                    </form>                
+                <!--{/if}-->  
+                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select File to attach: 
+                    <input id="file<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
+                        onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->)" />
+                </div>
+                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px">
+                    <img src="images/indicator.gif" alt="loading..." /> Attaching file...
+                </div>
+                <div style="font-family: verdana; font-size: 10px">
+                    <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
+                </div>
+                                
                 </span>
             </fieldset>
             <!--{if $indicator.required == 1}-->
