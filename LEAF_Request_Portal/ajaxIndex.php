@@ -96,7 +96,6 @@ switch ($action) {
                 $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
-
             }
             else
             {

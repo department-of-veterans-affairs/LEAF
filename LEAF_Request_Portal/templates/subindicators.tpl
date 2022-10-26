@@ -28,7 +28,7 @@
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
 
-            <label <!--{if !$indicator.format|in_array:['text','date','currency','number']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
+            <label <!--{if !$indicator.format|in_array:['text','date','currency','number','fileupload','image']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
@@ -674,7 +674,7 @@
                 }
             </script>
             <fieldset>
-                <legend>File Attachment(s)</legend>
+                <legend><!--{if $indicator.format == 'fileupload'}-->File<!--{else}-->Image<!--{/if}--> Attachment(s)</legend>
                 <span class="text">
                 <!--{assign "counter" 0}-->
                 <!--{if $indicator.value[0] != ''}-->
@@ -716,18 +716,16 @@
                         <!--{assign "counter" $counter+1}-->
                     <!--{/foreach}-->
                 <!--{/if}-->  
-                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
-                    <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
-                        onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->)" 
-                        <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
-                </div>
-                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem;">
-                    <img src="images/indicator.gif" alt="loading..." /> Attaching file...
-                </div>
-                <div style="font-family: verdana; font-size: 10px">
-                    <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
-                </div>
-                                
+                    <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
+                        <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
+                            onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->)" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
+                    </div>
+                    <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem;">
+                        <img src="images/indicator.gif" alt="loading..." /> Attaching file...
+                    </div>
+                    <div style="font-family: verdana; font-size: 10px">
+                        <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
+                    </div>
                 </span>
             </fieldset>
             <!--{if $indicator.required == 1}-->
