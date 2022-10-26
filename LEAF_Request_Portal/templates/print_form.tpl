@@ -111,7 +111,7 @@ let currIndicatorID;
 let currSeries;
 // There is another spot this is being set, the error does not always shows, and it is the only record id on the tpl
 var recordID = <!--{$recordID|strip_tags}-->;
-let serviceID = <!--{$serviceID|strip_tags}-->;
+var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
 function doSubmit(recordID) {
