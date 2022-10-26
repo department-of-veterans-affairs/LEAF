@@ -38,6 +38,7 @@
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
+        <button class="tools" onclick="duplicateFrom()" title="Duplicate From" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Duplicate From</button>
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
@@ -73,7 +74,6 @@
         <!--{if $submitted != 0}-->
             <button class="AdminButton" onclick="admin_changeStep()" title="Change Current Step" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=go-jump.svg&w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Change Current Step</button>
         <!--{/if}-->
-        <button class="AdminButton" onclick="duplicateFrom()" title="Duplicate From" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Duplicate From</button>
         <button class="AdminButton" onclick="changeService()" title="Change Service" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=user-home.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Change Service</button>
         <button class="AdminButton" onclick="admin_changeForm()" title="Change Forms" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=system-file-manager.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Change Form(s)</button>
         <button class="AdminButton" onclick="admin_changeInitiator()" title="Change Initiator" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=gnome-stock-person.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Change Initiator</button>
@@ -109,7 +109,8 @@
 <script type="text/javascript">
 let currIndicatorID;
 let currSeries;
-let recordID = <!--{$recordID|strip_tags}-->;
+// There is another spot this is being set, the error does not always shows, and it is the only record id on the tpl
+var recordID = <!--{$recordID|strip_tags}-->;
 let serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
@@ -538,7 +539,6 @@ function getChildrenIndicatorIDs(indicators) {
  */
 function duplicateFrom(){
 
-
     // this should be written in pure JS but 1. VUEjs, 2. Need to get it done.
     $('body').on('click','.pickAndChooseAll',function(event){
         $(".pickAndChoose").prop( "checked", event.target.checked );
@@ -611,7 +611,7 @@ function duplicateFrom(){
         + 'Title:<br />'
         + '<input id="title" name="title" type="text" value="<!--{$title|escape:'quotes'}-->" /><br /><br />'
         + '<div id="serviceWrapper">Service:<br />'
-        + '<select class="chosen" id="service" name="service"> <option value=""></option>'+serviceOptions+'</select><br /><br /></div>'
+        + '<select class="chosen" id="service" name="service">'+serviceOptions+'</select><br /><br /></div>'
         + 'Priority:<br />'
         + '<select class="chosen" id="priority" name="priority"><option value="-10">EMERGENCY</option><option value="0" selected="selected">Normal</option></select><br /><br />'
         + 'Sections to Copy:<br />'
@@ -642,6 +642,7 @@ function duplicateFrom(){
             CSRFToken: '<!--{$CSRFToken}-->'
         };
 
+        let fileData = [];
         let chosenSections = [];
         let pickAndChooseValues = $("input[name='pickAndChoose[]']:checked")
             .map(function(){
@@ -660,7 +661,26 @@ function duplicateFrom(){
                     Object.values(res).forEach(function (resultValue) {
 
                         if (pickAndChooseValues.includes(resultValue[series].indicatorID)) {
-                            updateData[resultValue[series].indicatorID] = resultValue[series].value;
+
+                            // uploaded files will need to have a special case done to them to copy them over to the new record
+                            if(resultValue[series].format == 'fileupload'){
+                                if(resultValue[series].value.length > 0){
+                                    resultValue[series].value.forEach(function(currentFile){
+                                        var fileDat = {
+                                            fileName: currentFile,
+                                            series: series,
+                                            indicatorID: resultValue[series].indicatorID
+                                        }
+                                        fileData.push(fileDat);
+                                    });
+                                }
+                                // also need to pull this out of an array since it would then move this to an object which breaks everything.
+                                updateData[resultValue[series].indicatorID] = resultValue[series].value.join('\r\n');
+                            }
+                            else{
+                                updateData[resultValue[series].indicatorID] = resultValue[series].value;
+                            }
+
                         }
 
                     });
@@ -700,16 +720,45 @@ function duplicateFrom(){
                             type: 'POST',
                             url: './api/form/' + newRecordID,
                             data: updateData,
+                            async: false, // I am not going to nest these to make things easier to follow.
                             success: function () {
-                                // then redirect
-                                window.location = "index.php?a=view&recordID=" + newRecordID;
-                                dialog.hide();
+                               console.log('Questions copied over to new record.');
                             },
                             error: function () {
                                 console.log('Failed to copy data to new form!')
                             }
                         });
                     }
+
+                    // copy over some files!
+                    if(fileData.length > 0) {
+                        fileData.forEach(function(theFile){
+                            $.ajax({
+                                type: 'POST',
+                                url: './api/form/files/copy',
+                                data: {
+                                    CSRFToken: '<!--{$CSRFToken}-->',
+                                    recordID: <!--{$recordID|strip_tags}-->,
+                                    newRecordID: newRecordID,
+                                    indicatorID: theFile.indicatorID,
+                                    fileName: theFile.fileName,
+                                    series: theFile.series
+                                },
+                                async: false, // I am not going to nest these to make things easier to follow.
+                                success: function () {
+                                    console.log('Files copied over to new record.');
+                                },
+                                error: function () {
+                                    console.log('Failed to copy data to new form!')
+                                }
+                            });
+                        });
+                    }
+
+                    // then redirect, not sure how to really structure this since we do have a bit of if checking here.
+                    window.location = "index.php?a=view&recordID=" + newRecordID;
+                    dialog.hide();
+
                 }
                 else{
                     console.log('Unknown error occurred, could not save contents to form!');
