@@ -637,16 +637,14 @@
         <!--{if ($indicator.format == 'fileupload' || $indicator.format == 'image') && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <script>
                 function addFile(indicatorID = 0, series = 1) {
-                    const inputEl = document.getElementById(`file${indicatorID}`);
-                    if (inputEl?.files[0]) {
+                    const inputEl = document.getElementById(`${indicatorID}`);
+                    if (inputEl?.files !== null) {
+                        const fileName = inputEl.files[0].name;
                         const statusEl = document.getElementById(`file${indicatorID}_status`);
                         statusEl.style.display = 'block';
 
-                        const file = inputEl?.files[0];
-                        const fileName = inputEl.files[0].name;
-                        
                         let formData = new FormData();
-                        formData.append(`${indicatorID}`, file);
+                        formData.append(`${indicatorID}`, inputEl?.files[0]);
                         formData.append('CSRFToken', CSRFToken);
                         formData.append('indicatorID', indicatorID);
                         formData.append('series', series);
@@ -656,19 +654,16 @@
                             type: 'POST',
                             url: `./api/form/${recordID}`,
                             data: formData,
-                            success: function(res) {
-                                if(res === 1) {
+                            success: (res) => {
+                                if(parseInt(res) === 1) {
                                     statusEl.innerText = `File ${fileName} has been attached`;
                                 } else {
-                                    statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span> Please make sure the file you are uploading is either a PDF, Word Document or similar format.`;
+                                    statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>Please make sure the file you are uploading is either a PDF, Word Document or similar format.`;
                                 }
                             },
-                            error: function(err) {
-                                console.log(err);
-                            },
+                            error: (err) => console.log(err),
                             processData: false,
-                            contentType: false,
-                            cache: false
+                            contentType: false
                         });
                     }
                 }
@@ -676,15 +671,17 @@
             <fieldset>
                 <legend>File Attachment(s)</legend>
                 <span class="text">
+                <!--{assign "counter" 0}-->
                 <!--{if $indicator.value[0] != ''}-->
-                    <!--{assign "counter" 0}-->
                     <!--{foreach from=$indicator.value item=file}-->
                         <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
                         style="background-color: #d7e5ff; padding: 4px; display: flex; align-items: center" >
-                            <img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /> 
+                            <img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
                             <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
-                            <span style="display: inline-block; margin-left: auto; padding: 4px">
-                            [ <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">Delete</button> ]
+                            <span style="display: inline-block; margin-left: auto; padding: 4px">[ 
+                                <button type="button" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">
+                                    Delete
+                                </button> ]
                             </span>
                         </div>
                         <script>
@@ -714,12 +711,12 @@
                         <!--{assign "counter" $counter+1}-->
                     <!--{/foreach}-->
                 <!--{/if}-->  
-                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select File to attach: 
-                    <input id="file<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
+                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
+                    <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
                         onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->)" 
-                        <!--{if $indicator.format == 'image'}-->accept="image/*"<!--{/if}--> />
+                        <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                 </div>
-                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px">
+                <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem;">
                     <img src="images/indicator.gif" alt="loading..." /> Attaching file...
                 </div>
                 <div style="font-family: verdana; font-size: 10px">
