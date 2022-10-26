@@ -74,6 +74,10 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getAllDependencies();
         });
 
+        $this->index['GET']->register('workflow/dependencies/groups', function ($args) use ($workflow) {
+            return $workflow->getCustomDependenciesAndGroups();
+        });
+
         $this->index['GET']->register('workflow/step/[digit]/dependencies', function ($args) use ($workflow) {
             return $workflow->getDependencies($args[0]);
         });

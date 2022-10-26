@@ -50,8 +50,8 @@ input {
 }
 /*keeping prev class names.  used as handle in many form advanced options*/
 /*additional class name leaf_check used to avoid hitting custom files*/
-input[class*="icheck"][class*="leaf_check"], 
-input[class*="ischecked"][class*="leaf_check"] { 
+input[class*="icheck"][class*="leaf_check"],
+input[class*="ischecked"][class*="leaf_check"] {
     opacity: 0;
     margin-right: 0.2em;
     cursor: pointer;
@@ -114,7 +114,7 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     color:black;
 }
 button.choices__button {
-    filter: brightness(25%); 
+    filter: brightness(25%);
 }
 button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
     filter: brightness(0);
@@ -1466,4 +1466,17 @@ div [id^="LeafForm"][id$="_loadIndicator"] {
 }
 #searchRequestsContainer .chosen-container a.chosen-single span {
     min-width: 120px;  max-width: 175px
+}
+
+#add_note {
+    float: right;
+    border: solid 1px;
+}
+
+#notes {
+    padding: 1px 3px 12px 3px;
+}
+
+#note {
+    width: 75%;
 }

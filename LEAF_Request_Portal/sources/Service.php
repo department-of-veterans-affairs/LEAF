@@ -31,56 +31,104 @@ class Service
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
     }
 
-    public function addService($groupName, $parentGroupID = null)
+    /**
+     * [Description for addService]
+     *
+     * @param mixed $groupName
+     * @param int $parentGroupID
+     *
+     * @return int|string
+     *
+     * Created at: 9/14/2022, 11:07:39 AM (America/New_York)
+     */
+    public function addService(string $groupName, int $parentGroupID = null): int|string
     {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-
         $groupName = trim($groupName);
 
-        if ($groupName == '')
-        {
-            return 'Name cannot be blank';
-        }
-        $newID = -99;
-        $res = $this->db->prepared_query('SELECT * FROM services
-											WHERE serviceID < 0
-											ORDER BY serviceID ASC', array());
-        if (isset($res[0]['serviceID']))
-        {
-            $newID = $res[0]['serviceID'] - 1;
-        }
-        else
-        {
-            $newID = -1;
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required';
+        } else if ($groupName == '') {
+            $return_value = 'Name cannot be blank';
+        } else {
+                $newID = -99;
+            $res = $this->db->prepared_query('SELECT * FROM services
+                                                WHERE serviceID < 0
+                                                ORDER BY serviceID ASC', array());
+
+            if (isset($res[0]['serviceID'])) {
+                $newID = $res[0]['serviceID'] - 1;
+            } else {
+                $newID = -1;
+            }
+
+            if (!is_null($parentGroupID)) {
+                $parentGroupID = (int)$parentGroupID;
+            }
+
+            $sql_vars = array(':serviceID' => (int)$newID,
+                        ':service' => $groupName,
+                        ':groupID' => $parentGroupID, );
+
+            $res = $this->db->prepared_query("INSERT INTO services (serviceID, service, abbreviatedService, groupID)
+                                                VALUES (:serviceID, :service, '', :groupID)", $sql_vars);
+
+            $return_value = $newID;
         }
 
-        if (!is_null($parentGroupID))
-        {
-            $parentGroupID = (int)$parentGroupID;
-        }
-        $sql_vars = array(':serviceID' => (int)$newID,
-                      ':service' => $groupName,
-                      ':groupID' => $parentGroupID, );
-        $res = $this->db->prepared_query("INSERT INTO services (serviceID, service, abbreviatedService, groupID)
-                                            VALUES (:serviceID, :service, '', :groupID)", $sql_vars);
-
-        return $newID;
+        return $return_value;
     }
 
-    public function removeService($groupID)
+    public function importService(int $serviceID, string $service, string $abbrService, int|null $groupID)
     {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
+        $sql_vars = array(':serviceID' => $serviceID,
+                  ':service' => $service,
+                  ':abbrService' => $abbrService,
+                  ':groupID' => $groupID, );
+
+        $this->db->prepared_query('INSERT INTO services (serviceID, service, abbreviatedService, groupID)
+                            VALUES (:serviceID, :service, :abbrService, :groupID)
+    						ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID', $sql_vars);
+    }
+
+    /**
+     * [Description for removeService]
+     *
+     * @param int $groupID
+     *
+     * @return bool|string
+     *
+     * Created at: 9/14/2022, 11:36:25 AM (America/New_York)
+     */
+    public function removeService(int $groupID): bool|string
+    {
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required';
+        } else {
+            $sql_vars = array(':groupID' => $groupID);
+            $this->db->prepared_query('DELETE FROM services WHERE serviceID=:groupID', $sql_vars);
+            $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:groupID', $sql_vars);
+
+            $return_value = 1;
         }
+
+        return $return_value;
+    }
+
+    /**
+     * [Description for removeSyncService]
+     *
+     * @param int $groupID
+     *
+     * @return bool
+     *
+     * Created at: 9/16/2022, 7:06:55 AM (America/New_York)
+     */
+    public function removeSyncService(int $groupID): bool
+    {
         $sql_vars = array(':groupID' => $groupID);
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:groupID', $sql_vars);
-        $this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:groupID', $sql_vars);
 
-        return 1;
+        return true;
     }
 
     public function addMember($groupID, $member)
@@ -89,8 +137,7 @@ class Service
         $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
-        if (is_numeric($groupID) && $member != '')
-        {
+        if (is_numeric($groupID) && $member != '') {
             $sql_vars = array(':userID' => $member,
                     ':serviceID' => $groupID,);
 
@@ -142,6 +189,33 @@ class Service
         }
 
         return 1;
+    }
+
+    /**
+     * [Description for importChief]
+     *
+     * @param int $serviceID
+     * @param string $userID
+     * @param string $backupID
+     *
+     * @return array
+     *
+     * Created at: 9/14/2022, 11:57:18 AM (America/New_York)
+     */
+    public function importChief(int $serviceID, string $userID, string|null $backupID): array
+    {
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::SERVICE_CHIEF, [
+            new LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
+            new LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID)),
+            new LogItem("service_chiefs", "locallyManaged", "false")
+        ]);
+        $sql_vars = array(':userID' => $userID,
+                    ':serviceID' => $serviceID,
+                    ':backupID' => $backupID,);
+
+        return $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
+                                                    VALUES (:serviceID, :userID, :backupID, 0, 1)
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=:backupID, locallyManaged=0, active=1', $sql_vars);
     }
 
     public function removeMember($groupID, $member)
@@ -196,6 +270,48 @@ class Service
         return 1;
     }
 
+    /**
+     * [Description for removeChief]
+     *
+     * @param int $serviceID
+     * @param string $userID
+     * @param string $backupID
+     *
+     * @return array
+     *
+     * Created at: 9/14/2022, 11:33:53 AM (America/New_York)
+     */
+    public function removeChief(int $serviceID, string $userID, string|null $backupID): array
+    {
+        $this->dataActionLogger->logAction(\DataActions::DELETE,\LoggableTypes::SERVICE_CHIEF,[
+            new LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
+            new LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID))
+        ]);
+
+        if ($backupID == NULL){
+            $sql_vars = array(':userID' => $userID,
+                          ':serviceID' => $serviceID,);
+
+            $result = $this->db->prepared_query('DELETE FROM service_chiefs
+                                            WHERE userID=:userID
+                                            AND serviceID=:serviceID
+                                            AND backupID IS NULL',
+                                            $sql_vars);
+        } else {
+            $sql_vars = array(':userID' => $userID,
+                          ':serviceID' => $serviceID,
+                          ':backupID' => $backupID, );
+
+            $result = $this->db->prepared_query('DELETE FROM service_chiefs
+                                            WHERE userID=:userID
+                                            AND serviceID=:serviceID
+                                            AND backupID=:backupID',
+                                            $sql_vars);
+        }
+
+        return $result;
+    }
+
     public function getMembers($groupID)
     {
         if (!is_numeric($groupID))
@@ -231,6 +347,16 @@ class Service
         return $members;
     }
 
+    public function getChiefs(int $serviceID, bool $active = true): array
+    {
+        $sql_vars = array(':serviceID' => $serviceID,
+                          ':active' => $active,);
+
+        return $this->db->prepared_query('SELECT * FROM service_chiefs
+    										WHERE serviceID=:serviceID
+    										AND active=:active', $sql_vars);
+    }
+
     public function getQuadrads()
     {
         $res = $this->db->prepared_query('SELECT groupID, name FROM services
@@ -240,6 +366,16 @@ class Service
     								ORDER BY name', array());
 
         return $res;
+    }
+
+    public function getAllQuadrads()
+    {
+        return $this->db->prepared_query('SELECT * FROM services', array());
+    }
+
+    public function getAllChiefs()
+    {
+        return $this->db->prepared_query('SELECT * FROM service_chiefs', array());
     }
 
     public function getGroups()
@@ -273,8 +409,12 @@ class Service
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
-        $empData = $dirRes[0];
-        $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
+        if (is_array($dirRes && isset($dirRes[0]))) {
+            $empData = $dirRes[0];
+            $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
+        } else {
+            $empDisplay = 'No Employee Found';
+        }
 
         return $empDisplay;
     }

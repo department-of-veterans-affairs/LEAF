@@ -12,12 +12,26 @@
 
 class Group
 {
+    /**
+     * @var \DB
+     */
     private $db;
 
+    /**
+     * @var \Login
+     */
     private $login;
 
+    /**
+     * @var \DataActionLogger
+     */
     private $dataActionLogger;
 
+    /**
+     * @param \DB $db
+     * @param \Login $login
+     * @param \DataActionLogger $dataActionLogger
+     */
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -25,7 +39,13 @@ class Group
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
-    public function importGroup($groupName, $groupDesc = '', $parentGroupID = null)
+    /**
+     * Logging the imported group
+     * @param string $groupName
+     *
+     * @return void
+     */
+    public function importGroup($groupName): void
     {
         // Log group imports
         $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
@@ -33,7 +53,13 @@ class Group
         ]);
     }
 
-    public function addGroup($groupName, $groupDesc = '', $parentGroupID = null)
+    /**
+     * Logging the add group
+     * @param string $groupName
+     *
+     * @return void
+     */
+    public function addGroup($groupName): void
     {
         // Log group creates
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
@@ -41,15 +67,45 @@ class Group
         ]);
     }
 
-    public function removeGroup($groupID)
+    /**
+     * [Description for syncImportGroup]
+     *
+     * @param array $group
+     *
+     * @return array
+     *
+     * Created at: 9/15/2022, 8:37:30 AM (America/New_York)
+     */
+    public function syncImportGroup(array $group): array
+    {
+        $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("users", "groupID", $group['name'], $group['name'])
+        ]);
+
+        $sql_vars = array(':groupID' => $group['groupID'],
+                    ':parentGroupID' => $group['parentGroupID'],
+                    ':name' => $group['name'],);
+
+        $return_value = $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
+                                                    VALUES (:groupID, :parentGroupID, :name)
+                                                    ON DUPLICATE KEY UPDATE name=:name', $sql_vars);
+
+        return (array) $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return bool|string
+     */
+    public function removeGroup($groupID): bool|string
     {
         if ($groupID != 1)
         {
             $sql_vars = array(':groupID' => $groupID);
             $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $sql_vars);
 
-            if (isset($res[0])
-                && $res[0]['parentGroupID'] == null)
+            if (isset($res[0]) && $res[0]['parentGroupID'] == null)
             {
                 // Log group deletes
                 $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
@@ -59,58 +115,140 @@ class Group
                 $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
                 $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $sql_vars);
 
-                return 1;
+                $return_value = true;
+            } else {
+                $return_value = false;
             }
+        } else {
+            $return_value = 'Cannot remove group.';
         }
 
-        return 'Cannot remove group.';
+        return $return_value;
     }
 
-    // getMembers returns a list of members associated with $groupID
-    public function getMembers($groupID)
+    /**
+     * [Description for removeSyncGroup]
+     *
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 9/16/2022, 3:23:53 PM (America/New_York)
+     */
+    public function removeSyncGroup(int $groupID): array
+    {
+        $sql_vars = array(':groupID' => $groupID);
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
+            new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+        ]);
+
+        $result = $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
+
+        return $result;
+    }
+
+    /**
+     * [Description for removeUser]
+     *
+     * @param string $userID
+     * @param int $groupID
+     * @param string $backupID
+     *
+     * @return array
+     *
+     * Created at: 9/15/2022, 8:51:59 AM (America/New_York)
+     */
+    public function removeUser(string $userID, int $groupID, string|null $backupID): array
+    {
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
+
+        if ($backupID == null) {
+            $sql_vars = array(':userID' => $userID,
+                            ':groupID' => $groupID,);
+
+            $result = $this->db->prepared_query('DELETE FROM users
+                                WHERE userID=:userID
+                                AND groupID=:groupID
+                                AND backupID IS NULL',
+                                $sql_vars);
+        } else {
+            $sql_vars = array(':userID' => $userID,
+                            ':groupID' => $groupID,
+                            ':backupID' => $backupID, );
+
+            $result = $this->db->prepared_query('DELETE FROM users
+                                WHERE userID=:userID
+                                AND groupID=:groupID
+                                AND backupID=:backupID',
+                                $sql_vars);
+        }
+
+        return (array) $result;
+    }
+
+    /**
+     * return array of userIDs
+     * @param int $groupID
+     *
+     * @return array|string
+     */
+    public function getMembers($groupID): array|string
+
     {
         if (!is_numeric($groupID))
         {
-            return;
-        }
-        $sql_vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
+            $return_value = "invalid group ID";
+        } else {
+            $sql_vars = array(':groupID' => $groupID);
+            $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
 
-        $members = array();
-        if (count($res) > 0)
-        {
-            $dir = new VAMC_Directory();
-            foreach ($res as $member)
-            {
-                $dirRes = $dir->lookupLogin($member['userID'], true, false);
+            $members = array();
 
-                if (isset($dirRes[0]))
-                {
-                    $dirRes[0]['regionallyManaged'] = false;
-                    if($groupID == 1)
+            if (count($res) > 0) {
+                $dir = new VAMC_Directory();
+
+                foreach ($res as $member) {
+                    $dirRes = $dir->lookupLogin($member['userID'], false, true);
+
+                    if (isset($dirRes[0]))
                     {
-                      $dirRes[0]['primary_admin'] = $member['primary_admin'];
-                    }
-                    if($member['locallyManaged'] == 1) {
-                        $dirRes[0]['backupID'] = null;
-                    } else {
-                        $dirRes[0]['backupID'] = $member['backupID'];
-                    }
-                    $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
-                    $dirRes[0]['active'] = $member['active'];
+                        $dirRes[0]['regionallyManaged'] = false;
+                        if($groupID == 1)
+                        {
+                        $dirRes[0]['primary_admin'] = $member['primary_admin'];
+                        }
+                        if($member['locallyManaged'] == 1) {
+                            $dirRes[0]['backupID'] = null;
+                        } else {
+                            $dirRes[0]['backupID'] = $member['backupID'];
+                        }
+                        $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
+                        $dirRes[0]['active'] = $member['active'];
 
-                    $members[] = $dirRes[0];
+                        $members[] = $dirRes[0];
+                    }
                 }
             }
+
+            $col = array_column( $members, "lastName" );
+            array_multisort( $col, SORT_ASC, $members );
+
+            $return_value = $members;
         }
 
-        $col = array_column( $members, "lastName" );
-        array_multisort( $col, SORT_ASC, $members );
-
-        return $members;
+        return $return_value;
     }
 
-    public function addMember($member, $groupID)
+    /**
+     * @param string $member
+     * @param int $groupID
+     *
+     * @return void
+     */
+    public function addMember($member, $groupID): void
     {
         $config = new Config();
         $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -155,6 +293,35 @@ class Group
     }
 
     /**
+     * [Description for importUser]
+     *
+     * @param string $userID
+     * @param int $groupID
+     * @param string $backupID
+     *
+     * @return array
+     *
+     * Created at: 9/15/2022, 9:30:20 AM (America/New_York)
+     */
+    public function importUser(string $userID, int $groupID, string|null $backupID): array
+    {
+        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+            new \LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
+            new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+        ]);
+
+        $sql_vars = array(':userID' => $userID,
+                        ':groupID' => $groupID,
+                        ':backupID' => $backupID,);
+
+        $result = $this->db->prepared_query('INSERT INTO users (groupID, userID, backupID)
+                                                    VALUES (:groupID, :userID, :backupID)
+                                                    ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
+
+        return (array) $result;
+    }
+
+    /**
      * @param string $member
      * @param int $groupID
      *
@@ -171,7 +338,7 @@ class Group
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EMPLOYEE, [
                 new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
@@ -197,7 +364,13 @@ class Group
         }
     }
 
-    public function removeMember($member, $groupID)
+    /**
+     * @param string $member
+     * @param int $groupID
+     *
+     * @return void
+     */
+    public function removeMember($member, $groupID): void
     {
         $config = new Config();
         $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -233,8 +406,12 @@ class Group
         }
     }
 
-    // exclude: 0 (no group), 24, (everyone), 16 (service chief)
-    public function getGroups()
+    /**
+     * exclude: 0 (no group), 24, (everyone), 16 (service chief)
+     *
+     * @return array
+     */
+    public function getGroups(): array
     {
         $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID != 0 ORDER BY name ASC', array());
 
@@ -243,14 +420,22 @@ class Group
 
     /**
      * Purpose - Get list of groups for API display
+     *
+     * @return array
+     *
+     * Created at: 10/3/2022, 6:54:39 AM (America/New_York)
      */
-    public function getGroupsList() {
+    public function getGroupsList(): array
+    {
         $res = $this->db->query('SELECT groupID, name FROM `groups` WHERE groupID > 1 AND parentGroupID IS NULL ORDER BY name', array());
 
-        return $res;
+        return (array) $res;
     }
 
-    public function getGroupsAndMembers()
+    /**
+     * @return array
+     */
+    public function getGroupsAndMembers(): array
     {
         $groups = $this->getGroups();
 
@@ -269,25 +454,34 @@ class Group
 
     /**
      * Returns formatted group name.
-     * @param string $groupID       The group id to find the formatted name of
+     *
+     * @param int $groupId
+     *
      * @return string
+     *
+     * Created at: 10/3/2022, 6:55:31 AM (America/New_York)
      */
-    public function getGroupName($groupId)
+    public function getGroupName(int $groupId): string
     {
         $sql_vars = array(":groupID" => $groupId);
         $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $sql_vars);
+
         if($res[0] != null){
-            return $res[0]["name"];
+            $return_value = $res[0]["name"];
+        } else {
+            $return_value = "";
         }
-        return "";
+
+        return $return_value;
     }
 
     /**
      * Returns formatted Employee name.
-     * @param string $employeeID        The id to create the display name of.
+     * @param string $employeeID - The id to create the display name of.
+     *
      * @return string
      */
-    private function getEmployeeDisplay($employeeID)
+    private function getEmployeeDisplay($employeeID): string
     {
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
@@ -300,13 +494,47 @@ class Group
 
     /**
      * Returns Portal Group logs.
-     *
-     * @param string $filterById        The id of the Group to find the logs of
+     * @param string $filterById - The id of the Group to find the logs of
      *
      * @return array
      */
-    public function getHistory($filterById)
+    public function getHistory($filterById): array
     {
         return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
     }
+
+    /**
+     * Returns all history ids for all groups
+     *
+     * @return array all history ids for all groups
+     */
+    public function getAllHistoryIDs(): array
+    {
+        return $this->dataActionLogger->getAllHistoryIDs("groupID", \LoggableTypes::PORTAL_GROUP);
+    }
+
+    /**
+     * retrieve all the groups
+     *
+     * @return array|false
+     *
+     * Created at: 9/12/2022, 10:22:25 AM (America/New_York)
+     */
+    public function getAllGroups(): array|bool
+    {
+        return $this->db->prepared_query('SELECT * FROM groups WHERE groupID > 1 ORDER BY groupID', array());
+    }
+
+    /**
+     * retrieve all the users
+     *
+     * @return array|bool
+     *
+     * Created at: 9/12/2022, 10:21:54 AM (America/New_York)
+     */
+    public function getAllUsers(): array|bool
+    {
+        return $this->db->prepared_query('SELECT * FROM users WHERE groupID > 1 ORDER BY userID', array());
+    }
+
 }

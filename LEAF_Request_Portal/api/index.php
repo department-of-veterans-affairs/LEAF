@@ -157,6 +157,15 @@ $controllerMap->register('userActivity', function() use ($db, $login, $action) {
     $SignatureController->handler($action);
 });
 
+$controllerMap->register('note', function() use ($db, $login, $action) {
+    require 'controllers/NotesController.php';
+
+    $dataActionLogger = new DataActionLogger($db, $login);
+
+    $NotesController = new NotesController($db, $login, $dataActionLogger);
+    $NotesController->handler($action);
+});
+
 $controllerMap->runControl($key);
 
 //echo '<br />' . memory_get_peak_usage();

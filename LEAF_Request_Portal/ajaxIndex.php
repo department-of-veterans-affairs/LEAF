@@ -27,6 +27,8 @@ function customTemplate($tpl)
 
 $login = new Login($db_phonebook, $db);
 
+$dataActionLogger = new DataActionLogger($db, $login);
+
 $login->loginUser();
 if ($login)
 {

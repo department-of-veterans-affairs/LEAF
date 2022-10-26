@@ -193,6 +193,7 @@ switch ($action) {
                                             '../../libs/js/codemirror/addon/display/fullscreen.js',
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                            '../../libs/js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js'
         ));
@@ -200,6 +201,7 @@ switch ($action) {
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
                                             '../../libs/js/codemirror/addon/display/fullscreen.css',
+                                            '../../libs/js/choicesjs/choices.min.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -415,6 +417,19 @@ switch ($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_disabled_fields.tpl')));
 
         $tabText = 'Recover disabled fields';
+
+        break;
+    case 'access_matrix':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+
+        $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
+
+        $tabText = 'Access Matrix';
 
         break;
     case 'import_data':

@@ -43,9 +43,16 @@
         <button type="button" class="tools" id="btn_cancelRequest" title="Cancel Request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
     </div>
 
-    <!--{if count($comments) > 0}-->
+
     <div id="comments">
-    <h1>Comments</h1>
+    <h1 id='comment_header'>Comments</h1>
+        <div id="notes">
+            <form id='note_form'>
+                <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
+                <input type='text' id='note' name='note' placeholder='Enter a note!' />
+                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+            </form>
+        </div>
         <!--{section name=i loop=$comments}-->
             <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
                 <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
@@ -53,7 +60,6 @@
             </div>
         <!--{/section}-->
     </div>
-    <!--{/if}-->
 
     <div id="category_list">
         <h1>Internal Use</h1>
@@ -106,6 +112,16 @@
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
+$(document).ready(function() {
+  $(window).keydown(function(event){
+    if(event.keyCode == 13) {
+      event.preventDefault();
+      submitNote(<!--{$recordID|strip_tags}-->);
+      return false;
+    }
+  });
+});
+
 var currIndicatorID;
 var currSeries;
 var recordID = <!--{$recordID|strip_tags}-->;
@@ -113,63 +129,102 @@ var serviceID = <!--{$serviceID|strip_tags}-->;
 var CSRFToken = '<!--{$CSRFToken}-->';
 var formPrintConditions = {};
 function doSubmit(recordID) {
-	$('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
-	$.ajax({
-		type: 'POST',
-		url: "./api/form/" + recordID + "/submit",
-		data: {CSRFToken: '<!--{$CSRFToken}-->'},
-		success: function(response) {
+    $('#submitControl').empty().html('<img src="./images/indicator.gif" />Submitting...');
+    $.ajax({
+        type: 'POST',
+        url: "./api/form/" + recordID + "/submit",
+        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+        success: function(response) {
             if(response.errors.length == 0) {
                 $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
                 workflow.getWorkflow(recordID);
-            }
-            else {
-            	var errors = '';
-            	for(var i in response.errors) {
-            		errors += response.errors[i] + '<br />';
-            	}
+            } else {
+                var errors = '';
+                for(var i in response.errors) {
+                    errors += response.errors[i] + '<br />';
+                }
                 $('#submitControl').empty().html('Error: ' + errors);
                 $('#submitStatus').text('Request can not be submmited');
             }
-		}
-	});
+        },
+        error: function(res) {
+            console.log(res);
+        }
+    });
+}
+
+function submitNote(recordID){
+    if ($('#note').val().trim() !== '') {
+        var form = $("#note_form").serialize();
+
+        $.ajax({
+            type: 'POST',
+            url: "./api/note/" + recordID,
+            data: {form,
+            CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(response) {
+                $("#note").val('');
+
+                addNote(response);
+            },
+            error: function(res) {
+                console.log(res);
+            }
+        });
+    }
+}
+
+function addNote(response) {
+    if (typeof response === 'object' && response !== null) {
+        var new_note;
+
+        new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
+
+        $( new_note ).insertAfter( "#notes" );
+    } else {
+        console.log('An object was not returned');
+    }
+
 }
 
 function updateTags() {
-	$('#tags').fadeOut(250);
-	$.ajax({
-		type: 'GET',
-		url: "./api/form/<!--{$recordID|strip_tags}-->/tags",
-		success: function(res) {
-			var buffer = '';
-			if(res.length > 0) {
-				buffer = res.length + ' Bookmarks'
-			}
+    $('#tags').fadeOut(250);
+    $.ajax({
+        type: 'GET',
+        url: "./api/form/<!--{$recordID|strip_tags}-->/tags",
+        success: function(res) {
+            var buffer = '';
+            if(res.length > 0) {
+                buffer = res.length + ' Bookmarks'
+            }
 
-			$('#tags').empty().html(buffer);
-			$('#tags').fadeIn(250);
-		},
-		cache: false
-	});
+            $('#tags').empty().html(buffer);
+            $('#tags').fadeIn(250);
+        },
+        error: function(res) {
+            console.log(res);
+        },
+        cache: false
+    });
 }
 
 function getForm(indicatorID, series) {
   //ie11 fix
   setTimeout(function () {
-	   form.dialog().show();
+       form.dialog().show();
   }, 0);
-	form.setPostModifyCallback(function() {
+    form.setPostModifyCallback(function() {
         getIndicator(indicatorID, series);
         updateProgress();
         form.dialog().hide();
-	});
-	form.getForm(indicatorID, series);
+    });
+    form.getForm(indicatorID, series);
 }
 
 function getIndicatorLog(indicatorID, series) {
-	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
+    dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
     //ie11 fix
     setTimeout(function () {
@@ -180,20 +235,20 @@ function getIndicatorLog(indicatorID, series) {
         type: 'GET',
         url: "api/form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
         success: function(res) {
-        	var numChanges = res.length;
-        	var prev = '';
-        	for(var i = 0; i < numChanges; i++) {
-        		curr = res.pop();
-        		date = new Date(curr.timestamp * 1000);
-        		data = curr.data;
+            var numChanges = res.length;
+            var prev = '';
+            for(var i = 0; i < numChanges; i++) {
+                curr = res.pop();
+                date = new Date(curr.timestamp * 1000);
+                data = curr.data;
 
-        		if(i != 0) {
-        			data = diffString(prev, data);
-        		}
+                if(i != 0) {
+                    data = diffString(prev, data);
+                }
 
-        		$('#history_' + indicatorID).prepend('<tr><td>'+ date.toString() +'<br /><b>'+ curr.name +'</b></td><td><span class="printResponse" style="font-size: 16px">'+ data +'</span></td></tr>');
-        		prev = curr.data;
-        	}
+                $('#history_' + indicatorID).prepend('<tr><td>'+ date.toString() +'<br /><b>'+ curr.name +'</b></td><td><span class="printResponse" style="font-size: 16px">'+ data +'</span></td></tr>');
+                prev = curr.data;
+            }
 
             dialog_message.indicateIdle();
         },
@@ -220,6 +275,9 @@ function getIndicator(indicatorID, series) {
                 $("#xhrIndicator_" + indicatorID + "_" + series).fadeIn(250);
             });
             handlePrintConditionalIndicators(formPrintConditions);
+        },
+        error: function(res) {
+            console.log(res);
         },
         cache: false
     });
@@ -251,11 +309,14 @@ function updateProgress() {
                         $("#workflowcontent").css({'font-size': "80%", 'padding-top': "8px"});
                     },
                     error: function(response) {
-                    	$("#xhr").html("Error: " + response);
+                        $("#xhr").html("Error: " + response);
                     },
                     cache: false
                 });
             }
+        },
+        error: function(res) {
+            console.log(res);
         },
         cache: false
     });
@@ -266,17 +327,20 @@ function hideForm() {
 }
 
 function restoreRequest() {
-	$.ajax({
-		type: 'POST',
-		url: "ajaxIndex.php?a=restore",
-		data: {restore: <!--{$recordID|strip_tags|escape}-->,
+    $.ajax({
+        type: 'POST',
+        url: "ajaxIndex.php?a=restore",
+        data: {restore: <!--{$recordID|strip_tags|escape}-->,
             CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             if(response > 0) {
                 window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
             }
+        },
+        error: function(res) {
+            console.log(res);
         }
-	});
+    });
 }
 
 <!--{if $bookmarked == ''}-->
@@ -304,7 +368,10 @@ function addBookmark() {
         url: "ajaxIndex.php?a=addbookmark&recordID=<!--{$recordID|strip_tags}-->",
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
-        	updateTags();
+            updateTags();
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
@@ -316,6 +383,9 @@ function removeBookmark() {
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
             updateTags();
+        },
+        error: function(res) {
+            console.log(res);
         }
     });
 }
@@ -341,7 +411,7 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
         if (remainingRequired === numberHiddenRequired && '<!--{$submitted}-->' == '0') {
             $('#progressBar').progressbar('option', 'value', 100);
-            $('#progressLabel').text(100 + '%'); 
+            $('#progressLabel').text(100 + '%');
             $('#progressSidebar').slideUp(500);
 
             $.ajax({
@@ -382,7 +452,7 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 li`));
             let arrParVals = [];
             selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
-            
+
             const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
             const outcome = conditions[i].selectedOutcome.toLowerCase();
 
@@ -433,7 +503,7 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
                                 requiredIndicatorsHidden[conditions[i].childIndID] = true;
                             }
                             elChildInd.style.display = "none";
-                            
+
                         } else {
                             elChildInd.style.display = "block";
                         }
@@ -466,7 +536,6 @@ function openContent(url) {
     	dataType: 'text',  // IE9 issue
     	success: function(res) {
     		$('#formcontent').empty().html(res);
-
     		// make box size more predictable
     		$('.printmainblock').each(function() {
                 var boxSizer = {};
@@ -516,61 +585,61 @@ function viewAccessLogsWrite() {
 }
 
 function viewHistory() {
-	dialog_message.setContent('');
-	dialog_message.show();
-	dialog_message.indicateBusy();
-	$.ajax({
-		type: 'GET',
-		url: 'ajaxIndex.php?a=getstatus&recordID=<!--{$recordID|strip_tags}-->',
-		dataType: 'text',
-		success: function(res) {
-			 dialog_message.setContent(res);
-			 dialog_message.indicateIdle();
-		},
-		cache: false
-	});
+    dialog_message.setContent('');
+    dialog_message.show();
+    dialog_message.indicateBusy();
+    $.ajax({
+        type: 'GET',
+        url: 'ajaxIndex.php?a=getstatus&recordID=<!--{$recordID|strip_tags}-->',
+        dataType: 'text',
+        success: function(res) {
+             dialog_message.setContent(res);
+             dialog_message.indicateIdle();
+        },
+        cache: false
+    });
 }
 
 function cancelRequest() {
-	dialog_confirm.setContent('<img src="../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
+    dialog_confirm.setContent('<img src="../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
 
-	dialog_confirm.setSaveHandler(function() {
-		$.ajax({
-			type: 'POST',
-			url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
-			data: {CSRFToken: '<!--{$CSRFToken}-->'},
+    dialog_confirm.setSaveHandler(function() {
+        $.ajax({
+            type: 'POST',
+            url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
+            data: {CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
-            	if(response == 1) {
+                if(response == 1) {
                     window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags}-->";
                 }
-            	else {
-            		alert(response);
-            	}
+                else {
+                    alert(response);
+                }
             },
             cache: false
-		});
-	});
-	dialog_confirm.show();
+        });
+    });
+    dialog_confirm.show();
 }
 
 function changeTitle() {
-	dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+    dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
   //ie11 fix
   setTimeout(function () {
     dialog.show();
   }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
-        	type: 'POST',
-        	url: 'api/form/<!--{$recordID|strip_tags}-->/title',
-        	data: {title: $('#title').val(),
+            type: 'POST',
+            url: 'api/form/<!--{$recordID|strip_tags}-->/title',
+            data: {title: $('#title').val(),
                 CSRFToken: '<!--{$CSRFToken}-->'},
-        	success: function(res) {
-        		if(res != null) {
-        			  $('#requestTitle').empty().html(res);
-        		}
+            success: function(res) {
+                if(res != null) {
+                      $('#requestTitle').empty().html(res);
+                }
                 dialog.hide();
-        	}
+            }
         });
     });
 }
@@ -635,12 +704,12 @@ function admin_changeStep() {
         url: 'api/formWorkflow/<!--{$recordID|strip_tags}-->/currentStep',
         dataType: 'json',
         success: function(res) {
-        	var workflows = {};
-        	for(var i in res) {
-        		workflows[res[i].workflowID] = 1;
-        	}
+            var workflows = {};
+            for(var i in res) {
+                workflows[res[i].workflowID] = 1;
+            }
 
-        	$.ajax({
+            $.ajax({
                 type: 'GET',
                 url: 'api/workflow/steps',
                 dataType: 'json',
@@ -648,18 +717,18 @@ function admin_changeStep() {
                     var steps = '<select id="newStep" class="chosen" style="width: 250px">';
                     var steps2 = '';
                     var stepCounter = 0;
-                	for(var i in res) {
-                		if(Object.keys(workflows).length == 0
-                			|| workflows[res[i].workflowID] != undefined) {
+                    for(var i in res) {
+                        if(Object.keys(workflows).length == 0
+                            || workflows[res[i].workflowID] != undefined) {
                             steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
                             stepCounter++;
-                		}
+                        }
                         steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
-                	}
-                	if(stepCounter == 0) {
-                		steps += steps2;
-                	}
-                	steps += '</select>';
+                    }
+                    if(stepCounter == 0) {
+                        steps += steps2;
+                    }
+                    steps += '</select>';
                     $('#changeStep').html(steps);
 
                     $('#showAllSteps').on('click', function() {
@@ -678,7 +747,7 @@ function admin_changeStep() {
                             type: 'POST',
                             url: 'api/formWorkflow/<!--{$recordID|strip_tags}-->/step',
                             data: {stepID: $('#newStep').val(),
-                            	   comment: $('#changeStep_comment').val(),
+                                   comment: $('#changeStep_comment').val(),
                                    CSRFToken: CSRFToken},
                             success: function() {
                                 window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
@@ -688,7 +757,7 @@ function admin_changeStep() {
                     });
                 },
                 cache: false
-        	});
+            });
         },
         cache: false
     });
@@ -709,17 +778,17 @@ function admin_changeForm() {
         success: function(res) {
             var categories = '';
             for(var i in res) {
-            	categories += '<label class="checkable leaf_check" for="category_'+ res[i].categoryID +'">';
+                categories += '<label class="checkable leaf_check" for="category_'+ res[i].categoryID +'">';
                 categories += '<input type="checkbox" class="icheck admin_changeForm leaf_check" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
                 categories += '<span class="leaf_check"></span>'+ res[i].categoryName +'</label>';
             }
             $('#changeForm').html(categories);
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
-            	var data = {'categories[]' : [], CSRFToken: CSRFToken};
-            	$('.admin_changeForm:checked').each(function() {
-            		data['categories[]'].push($(this).val());
-            	});
+                var data = {'categories[]' : [], CSRFToken: CSRFToken};
+                $('.admin_changeForm:checked').each(function() {
+                    data['categories[]'].push($(this).val());
+                });
                 $.ajax({
                     type: 'POST',
                     url: 'api/form/<!--{$recordID|strip_tags}-->/types',
@@ -739,14 +808,14 @@ function admin_changeForm() {
                 data: {q: JSON.stringify(query)},
                 dataType: 'json',
                 success: function(res) {
-                	var temp = res[<!--{$recordID|strip_tags|escape}-->].categoryNamesUnabridged;
-                	$('label.checkable').each(function() {
-                		for(var i in temp) {
+                    var temp = res[<!--{$recordID|strip_tags|escape}-->].categoryNamesUnabridged;
+                    $('label.checkable').each(function() {
+                        for(var i in temp) {
                             if($(this).text() === temp[i]) {
                                 $('#' + $(this).attr('for')).prop('checked', true);
                             }
-                		}
-                	});
+                        }
+                    });
                 },
                 cache: false
             });
@@ -762,20 +831,20 @@ function admin_changeInitiator() {
     dialog.indicateBusy();
 
     dialog.setSaveHandler(function() {
-    	if($('#changeInitiator').val() != '') {
+        if($('#changeInitiator').val() != '') {
             $.ajax({
                 type: 'POST',
                 url: './api/form/<!--{$recordID|strip_tags}-->/initiator',
                 data: {CSRFToken: CSRFToken,
-                	   initiator: $('#changeInitiator').val()},
+                       initiator: $('#changeInitiator').val()},
                 success: function() {
                     location.reload();
                 }
             });
-    	}
-    	else {
-    		alert('An employee needs to be selected');
-    	}
+        }
+        else {
+            alert('An employee needs to be selected');
+        }
     });
 
     var empSel;
@@ -785,12 +854,12 @@ function admin_changeInitiator() {
         empSel.rootPath = '<!--{$orgchartPath}-->/';
 
         empSel.setSelectHandler(function() {
-        	if(empSel.selectionData[empSel.selection] != undefined) {
-        		$('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
-        	}
+            if(empSel.selectionData[empSel.selection] != undefined) {
+                $('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
+            }
         });
         empSel.setResultHandler(function() {
-        	if(empSel.selectionData[empSel.selection] != undefined) {
+            if(empSel.selectionData[empSel.selection] != undefined) {
                 $('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
             }
         });
@@ -810,16 +879,16 @@ function admin_changeInitiator() {
         });
     }
     else {
-    	init_empSel();
+        init_empSel();
     }
 
 }
 <!--{/if}-->
 
 function scrollPage(id) {
-	if($(document).height() < $('#'+id).offset().top + 100) {
-		$('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);
-	}
+    if($(document).height() < $('#'+id).offset().top + 100) {
+        $('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);
+    }
 }
 
 // attempt to force a consistent width for the sidebar if there is enough desktop resolution
@@ -836,8 +905,8 @@ function sideBar() {
             $('#toolbar').css("width", "98%");
         }
         else {
-        	$('#toolbar').removeClass("toolbar_inline");
-        	$('#toolbar').addClass("toolbar_right");
+            $('#toolbar').removeClass("toolbar_inline");
+            $('#toolbar').addClass("toolbar_right");
             // effective width of toolbar becomes around 205px
             mywidth = Math.floor((1 - 250/lastScreenSize) * 100);
             $('#maincontent').css("width", mywidth + "%");

@@ -136,7 +136,7 @@ function viewHistory(){
     dialog_message.setTitle('Access Group History');
 	dialog_message.show();
 	dialog_message.indicateBusy();
-    
+
     $.ajax({
         type: 'GET',
         url: 'ajaxIndex.php?a=gethistory&categoryID=3&itemID=<!--{$groupID}-->'+'&tz='+tz,
