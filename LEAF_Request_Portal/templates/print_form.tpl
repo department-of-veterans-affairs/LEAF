@@ -663,7 +663,7 @@ function duplicateFrom(){
                         if (pickAndChooseValues.includes(resultValue[series].indicatorID)) {
 
                             // uploaded files will need to have a special case done to them to copy them over to the new record
-                            if(resultValue[series].format == 'fileupload'){
+                            if(resultValue[series].format == 'fileupload' || resultValue[series].format == 'image'){
                                 if(resultValue[series].value.length > 0){
                                     resultValue[series].value.forEach(function(currentFile){
                                         var fileDat = {
