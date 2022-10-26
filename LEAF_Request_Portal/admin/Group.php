@@ -162,8 +162,6 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
