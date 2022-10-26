@@ -648,7 +648,6 @@
                         formData.append('CSRFToken', CSRFToken);
                         formData.append('indicatorID', indicatorID);
                         formData.append('series', series);
-                        formData.append('isAPI', true);
 
                         $.ajax({
                             type: 'POST',
@@ -662,7 +661,11 @@
                                 }
                             },
                             error: (err) => {
-                                statusEl.innerHTML = `${err.responseText}`;
+                                if (err?.status === 413) {
+                                    statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+                                } else {
+                                    statusEl.innerHTML = `${err?.responseText ? err?.responseText : ''}`;
+                                }
                             },
                             processData: false,
                             contentType: false

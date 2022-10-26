@@ -1105,9 +1105,6 @@ class Form
                     {
                         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
                         
-                        if(isset($_POST['isAPI']) && $_POST['series'] == true) {
-                            $uploadDir = '../'. $uploadDir;
-                        }
                         if (!is_dir($uploadDir))
                         {
                             mkdir($uploadDir, 0755, true);
