@@ -586,7 +586,7 @@ function duplicateFrom(){
                 let children = getChildrenIndicatorIDs(resultValue.child);
                 pickAndChoose.push({
                     'name' :resultValue.name,
-                    'children' : children
+                    'children' : children.concat(resultValue.indicatorID) // need to include the parent here as well.
                 });
             });
         },
