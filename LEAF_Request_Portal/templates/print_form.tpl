@@ -11,7 +11,7 @@
     <!--{if $submitted == 0}-->
     <div id="progressSidebar" style="border: 1px solid black">
         <div style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Form completion progress</div>
-        <div id="progressControl" style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div id="progressBar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
+        <div id="progressControl" style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div tabIndex="0" id="progressBar" title="Progress Bar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
     </div>
     <!--{/if}-->
     <span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="submitStatus" role="status"></span>
@@ -30,17 +30,17 @@
         <br />
         <br />
         <!--{/if}-->
-        <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
-        <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
-        <button class="tools" id="btn_printForm"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
+        <button type="button" class="tools" onclick="viewHistory()" title="View History"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" style="vertical-align: middle" /> View History</button>
+        <button type="button" class="tools" title="Write Email" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" style="vertical-align: middle"/> Write Email</button>
+        <button type="button" class="tools" id="btn_printForm" title="Print this Form"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: #d00; border: 1px solid black; padding: 4px">BETA</span></button>
         <!--{if $bookmarked == ''}-->
-        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
+        <button type="button" class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" title="Add Bookmark" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
         <!--{else}-->
-        <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
+        <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Delete Bookmark" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
         <br />
         <br />
-        <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
+        <button type="button" class="tools" id="btn_cancelRequest" title="Cancel Request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
     </div>
 
     <!--{if count($comments) > 0}-->
@@ -219,9 +219,7 @@ function getIndicator(indicatorID, series) {
             $("#xhrIndicator_" + indicatorID + "_" + series).fadeOut(250, function() {
                 $("#xhrIndicator_" + indicatorID + "_" + series).fadeIn(250);
             });
-            for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
-            }
+            handlePrintConditionalIndicators(formPrintConditions);
         },
         cache: false
     });
@@ -322,52 +320,142 @@ function removeBookmark() {
     });
 }
 
-function handlePrintConditionalIndicators(formPrintConditions) {
-    const conditions = formPrintConditions.conditions;
-    const format = formPrintConditions.format;
-    for (let i in conditions) {
-        const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
-        const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+const valIncludesMultiselOption = (values = [], arrOptions = []) => {
+    let result = false;
+    let vals = values.map(v => v.replaceAll('\r', '').trim());
+    vals.forEach(v => {
+        if (arrOptions.includes(v)) {
+            result = true;
+        }
+    });
+    return result;
+}
 
-        if ((format === 'dropdown' || format === 'text')
-            && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
-            //*NOTE: need format for various plugins (icheck, chosen, etc)
+function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
-            let comparison = false;
-            const val = elParentInd.innerHTML.trim();
-            const compVal = conditions[i].selectedParentValue;
-            //TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
-            switch (conditions[i].selectedOp) {
-                case '==':
-                    comparison = val === compVal;
-                    break;
-                case '!=':
-                    comparison = val !== compVal;
-                    break;
-                case '>':
-                    comparison = val > compVal;
-                    break;
-                case '<':
-                    comparison = val < compVal;
-                    break;
-                default:
-                    console.log(conditions[i].selectedOp);
-                    break;
-            }
+    const conditionalUpdateProgress = () => {
+        const headingsMissing = Array.from(document.querySelectorAll('div.printheading_missing')).length;
+        const subheadingsMissing = Array.from(document.querySelectorAll('div.printsubheading_missing')).length;
+        const remainingRequired = headingsMissing + subheadingsMissing;
+        const numberHiddenRequired = Object.keys(requiredIndicatorsHidden).length;
 
-            switch (conditions[i].selectedOutcome) {
-                case 'Hide':
-                    comparison ? elChildInd.style.display = "none" : elChildInd.style.display = "block";
-                    break;
-                case 'Show':
-                    comparison ? elChildInd.style.display = "block" : elChildInd.style.display = "none";
-                    break;
-                default:
-                    console.log(conditions[i].selectedOutcome);
-                    break;
+        if (remainingRequired === numberHiddenRequired && '<!--{$submitted}-->' == '0') {
+            $('#progressBar').progressbar('option', 'value', 100);
+            $('#progressLabel').text(100 + '%'); 
+            $('#progressSidebar').slideUp(500);
+
+            $.ajax({
+                type: 'GET',
+                url: "ajaxIndex.php?a=getsubmitcontrol&recordID=<!--{$recordID|strip_tags}-->",
+                dataType: 'text',
+                success: function(response) {
+                    $("#submitContent").empty().html(response);
+                    $("#submitContent").css({'border': '1px solid black',
+                        'text-align': 'center',
+                        'background-color': '#ffaeae'});
+                    $("#workflowcontent").css({'font-size': "80%", 'padding-top': "8px"});
+                },
+                error: function(response) {
+                    $("#xhr").html("Error: " + response);
+                },
+                cache: false
+            });
+        }
+    }
+
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
+    let requiredIndicatorsHidden = {};
+
+    for (c in formPrintConditions) {
+        const childFormat = formPrintConditions[c].format;  //current format of the controlled question
+        const childFormatIsEnabled = allowedChildFormats.some(f => f === childFormat);
+        const conditions = formPrintConditions[c].conditions;
+
+        let comparison = false;
+
+        for (let i in conditions) {
+            const parentFormat = conditions[i].parentFormat;
+
+            //dropdown element
+            const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
+            //multiselect li elements
+            const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 li`));
+            let arrParVals = [];
+            selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
+            
+            const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+            const outcome = conditions[i].selectedOutcome.toLowerCase();
+
+            if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+                const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;  //parent's current values entered into the form
+
+                let compVal = '';
+                if (parentFormat !== 'multiselect') { //parent values specified in the condition, w encoding rm'd
+                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+                } else {
+                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                    compVal = compVal.map(v => v.trim());
+                }
+
+                switch (conditions[i].selectedOp) {
+                    case '==':
+                        if (parentFormat !== 'multiselect') {
+                            comparison = comparison===false ? val === compVal : comparison;
+                        } else {
+                            comparison = comparison===false ? valIncludesMultiselOption(val, compVal) : comparison;
+                        }
+                        break;
+                    case '!=':
+                        if (parentFormat !== 'multiselect') {
+                            comparison = comparison===false ? val !== compVal : comparison;
+                        } else {
+                            comparison = comparison===false ? !valIncludesMultiselOption(val, compVal) : comparison;
+                        }
+                        break;
+                    case '>':
+                        comparison = val > compVal;
+                        break;
+                    case '<':
+                        comparison = val < compVal;
+                        break;
+                    default:
+                        console.log(conditions[i].selectedOp);
+                        break;
+                }
+
+                //headers cannot have conditions directly set on them via the editor, so only need to check subquestions
+                const elSubheadingMissing = document.querySelector(`#subIndicator_${conditions[i].childIndID}_1 div.printsubheading_missing`);
+
+                switch (outcome) {
+                    case 'hide':
+                        if(comparison===true) {
+                            if (elSubheadingMissing !== null) {
+                                requiredIndicatorsHidden[conditions[i].childIndID] = true;
+                            }
+                            elChildInd.style.display = "none";
+                            
+                        } else {
+                            elChildInd.style.display = "block";
+                        }
+                        break;
+                    case 'show':
+                        if(comparison===true) {
+                            elChildInd.style.display = "block";
+                        } else {
+                            if (elSubheadingMissing !== null) {
+                                requiredIndicatorsHidden[conditions[i].childIndID] = true;
+                            }
+                            elChildInd.style.display = "none";
+                        }
+                        break;
+                    default:
+                        console.log(conditions[i].selectedOutcome);
+                        break;
+                }
             }
         }
     }
+    conditionalUpdateProgress();
 }
 
 function openContent(url) {
@@ -398,9 +486,7 @@ function openContent(url) {
     				}
                 });
     		});
-            for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
-            }
+            handlePrintConditionalIndicators(formPrintConditions);
     	},
     	error: function(res) {
     		$('#formcontent').empty().html(res);

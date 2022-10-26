@@ -195,7 +195,7 @@ class FormStack
         $records = $this->db->query($strSQL);
 
         foreach($records as $rec) {
-            if($rec['conditions'] !== '')
+            if($rec['conditions'] !== '' && $rec['conditions'] !== null)
             {
                 $conditions = json_decode($rec['conditions']);
                 foreach($conditions as $c)

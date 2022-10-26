@@ -154,6 +154,51 @@ class Group
         }
     }
 
+    /**
+     * @param string $member
+     * @param int $groupID
+     *
+     * @return void
+     */
+    public function deactivateMember($member, $groupID): void
+    {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
+        $config = new Config();
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+
+        if (is_numeric($groupID) && $member != '')
+        {
+            $sql_vars = array(':userID' => $member,
+                          ':groupID' => $groupID, );
+
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
+
+            $this->db->prepared_query('UPDATE users SET active = 0, locallyManaged = 1 WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+
+            // include the backups of employee
+
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $sql_vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID,
+                    ':backupID' => $member,);
+
+                $res = $this->db->prepared_query('SELECT locallyManaged FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+
+                // Check for locallyManaged users
+                if ($res[0]['locallyManaged'] == 0) {
+                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
+                }
+            }
+        }
+    }
+
     public function removeMember($member, $groupID)
     {
         $config = new Config();
@@ -265,15 +310,5 @@ class Group
     public function getHistory($filterById)
     {
         return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
-    }
-
-    /**
-     * Returns all history ids for all groups
-     *
-     * @return array all history ids for all groups
-     */
-    public function getAllHistoryIDs()
-    {
-        return $this->dataActionLogger->getAllHistoryIDs("groupID", \LoggableTypes::PORTAL_GROUP);
     }
 }

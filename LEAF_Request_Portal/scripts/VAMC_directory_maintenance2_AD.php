@@ -13,23 +13,51 @@
 */
 class VAMC_Directory_maintenance_AD
 {
+    /**
+     * @var string
+     */
     private $sortBy = 'Lname';          // Sort by... ?
 
+    /**
+     * @var string
+     */
     private $sortDir = 'ASC';           // Sort ascending/descending?
 
+    /**
+     * @var bool
+     */
     private $debug = true;             // Are we debugging?
 
+    /**
+     * @var \DB
+     */
     private $db;                        // The database object
 
+    /**
+     * @var string
+     */
     private $tableName = 'Employee';    // Table of employee contact info
 
+    /**
+     * @var array
+     */
     private $log = array('Debug Log is ON');          // error log for debugging
 
+    /**
+     * @var int
+     */
     private $time;
 
+    /**
+     * @var array
+     */
     private $users = array();
 
-    // Connect to the database
+    /**
+     * Connect to the database
+     * @param string $currDir
+     * @param \Config $config
+     */
     public function __construct()
     {
         $this->time = time();
@@ -52,6 +80,9 @@ class VAMC_Directory_maintenance_AD
         }
     }
 
+    /**
+     * @todo is this correct?
+     */
     public function __destruct()
     {
         if ($this->debug)
@@ -60,15 +91,26 @@ class VAMC_Directory_maintenance_AD
         }     // debugging
     }
 
-    public function setSort($sortBy, $sortDir)
+    /**
+     * @param string $sortBy
+     * @param string $sortDir
+     *
+     * @return void
+     */
+    public function setSort($sortBy, $sortDir): void
     {
         $this->sortBy = $sortBy;
         $this->sortDir = $sortDir;
     }
 
-    // Raw Queries the database and returns an associative array
-    // For debugging only
-    public function query($sql)
+    /**
+     * Raw Queries the database and returns an associative array
+     * For debugging only
+     * @param string $sql
+     *
+     * @return void
+     */
+    public function query($sql):void
     {
         if ($this->debug)
         {
@@ -82,8 +124,15 @@ class VAMC_Directory_maintenance_AD
         }
     }
 
-    // Imports data from ^ and \n delimited file of format:
-    public function importVistaData($file)
+    //
+    /**
+     * Imports data from ^ and \n delimited file of format:
+     * @param string $file
+     *
+     * @return string
+     * @todo refactor so that there is a return for all code paths
+     */
+    public function importVistaData($file): string
     {
         $rawdata = file($file);
         $count = 0;
@@ -138,9 +187,16 @@ class VAMC_Directory_maintenance_AD
         $this->importData(); // import any remaining entries
     }
 
-    // Imports data from \t and \n delimited file of format:
-    // Name	Business Phone	Description	Modified	E-Mail Address	User Logon Name
-    public function importADData($file)
+    /**
+     * Imports data from \t and \n delimited file of format:
+     * Name, Business Phone, Description, Modified, E-Mail Address,
+     * User Logon Name
+     * @param string $file
+     *
+     * @return mixed
+     * @todo refactor to only one return statement, can this have only one return type?
+     */
+    public function importADData($file): mixed
     {
         $rawdata = file($file);
         // workaround for microsoft's crappy inconsistent software
@@ -212,9 +268,16 @@ class VAMC_Directory_maintenance_AD
         $this->importData(); // import any remaining entries
     }
 
-    // Imports data from \t and \n delimited file of format:
-    // Lname\t Fname Mid_Initial\t Email\t Phone\t Pager\t Room#\t Title\t Service\t MailCode\n
-    public function importData()
+    /**
+     * Imports data from \t and \n delimited file of format:
+     * Lname\t Fname Mid_Initial\t Email\t Phone\t Pager\t Room#\t Title\t Service\t MailCode\n
+     * @param int $time
+     * @param string $sql
+     *
+     * @return void
+     * @todo should this return bool?
+     */
+    public function importData(): void
     {
         $time = $this->time;
 
@@ -275,7 +338,14 @@ class VAMC_Directory_maintenance_AD
         echo "Total: $count";
     }
 
-    public function deleteOld()
+    /**
+     * @param string $sql
+     * @param \DB $pq
+     *
+     * @return void
+     * @todo should this return bool?
+     */
+    public function deleteOld(): void
     {
         $sql = 'DELETE FROM Employee WHERE lastUpdated < :time';
         $pq = $this->db->prepare($sql);
@@ -283,8 +353,23 @@ class VAMC_Directory_maintenance_AD
         $pq->execute();
     }
 
-    // custom
-    public function importExtra($lname, $fname, $midIni, $email, $phone, $pager, $roomNum, $title, $service, $mailcode, $loginName)
+    /**
+     * @param string $lname
+     * @param string $fname
+     * @param string $midIni
+     * @param string $email
+     * @param string $phone
+     * @param string $pager
+     * @param string $roomNum
+     * @param string $title
+     * @param string $service
+     * @param string $mailcode
+     * @param string $loginName
+     *
+     * @return bool
+     * @todo refactor so all code paths return a value
+     */
+    public function importExtra($lname, $fname, $midIni, $email, $phone, $pager, $roomNum, $title, $service, $mailcode, $loginName): bool
     {
         $sql = 'SELECT * FROM Employee WHERE loginName = :loginName';
         $pq2 = $this->db->prepare($sql);
@@ -335,8 +420,14 @@ class VAMC_Directory_maintenance_AD
         echo "Inserted Extra: $lname, $fname";
     }
 
-    // Updates phonetic cache
-    public function updatePhoneticNames()
+    /**
+     * Updates phonetic cache
+     * @param string $sql
+     * @param array $res
+     *
+     * @return void
+     */
+    public function updatePhoneticNames(): void
     {
         $sql = "SELECT * FROM {$this->tableName}";
 

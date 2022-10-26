@@ -35,15 +35,20 @@ else
 }
 
 // exclude some controllers from login requirement
-if ($key != 'classicphonebook'
-    && $key != 'telemetry')
-{
-    $login->loginUser();
+switch($key) {
+    case 'classicphonebook':
+    case 'telemetry':
+    case 'userActivity':
+        break;
+    default:
+        $login->loginUser();
+        break;
 }
 
 // Used for the 15min session timeout period UX
 if ($key != 'userActivity') {
     $_SESSION['lastAction'] = time();
+    $_SESSION['expireTime'] = null;
 }
 
 $controllerMap = new ControllerMap();

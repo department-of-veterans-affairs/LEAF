@@ -5,7 +5,7 @@
     <div class="col span_3_of_5">
         <div style="background-color: white; border: 1px solid black; box-shadow: 0 2px 4px #8e8e8e">
             <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
-                <div id="progressControl" style="float: left">Form completion progress: <div id="progressBar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
+                <div id="progressControl" style="float: left">Form completion progress: <div tabIndex="0" id="progressBar" title="form progress bar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
                 <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" /> Next Question</button></div>
                 <br style="clear: both" />
@@ -29,7 +29,7 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div id="showSinglePage" aria-role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'"><a aria-label="Show single page" id="showSinglePageLink" style="display: block; font-size: 120%; cursor: pointer" href='?a=printview&amp;recordID=<!--{$recordID}-->'></a><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form" title="View full form" /> Show single page</div>
+            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form"  /> Show single page</div>
             <br /><br />
             <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
@@ -120,7 +120,7 @@ function updateProgress() {
                 $('#progressLabel').text(response + '%');
             }
             else {
-                savechange = '<div class="buttonNorm" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
+                savechange = '<button class="buttonNorm" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
                 $('#progressControl').html(savechange);
             }
         },
@@ -222,7 +222,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div tabindex="0" aria-label=description id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);

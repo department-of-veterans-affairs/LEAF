@@ -38,6 +38,8 @@
     {/if}
     {if $leafSecure >= 1}
         <script type="text/javascript" src="../../libs/js/LEAF/sessionTimeout.js"></script>
+    {else}
+        <script type="text/javascript" src="../../libs/js/LEAF/sessionAnnounce.js"></script>
     {/if}
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
@@ -46,6 +48,7 @@
 </head>
 
 <body>
+    <a href="#bodyarea" id="nav-skip-link">Skip to main content</a>
     {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
         <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
     {/if}

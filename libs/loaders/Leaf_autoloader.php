@@ -4,13 +4,13 @@ spl_autoload_register("auto_load");
 
 function auto_load($class)
 {
-    // work in Nexus root first
-    $path = './';
+    $path = dirname(__FILE__) .'/../../';
     $ext = '.php';
     $fullPath = $path . $class . $ext;
     /*if ($class == 'DataActions') {
         error_log($class);
     }*/
+    //error_log($fullPath);
 
     if (file_exists($fullPath)) {
         // error_log('Full Path');

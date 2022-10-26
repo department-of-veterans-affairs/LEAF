@@ -3,11 +3,13 @@
     <div id="menu" style="float: left; width: 180px"></div>
     <div id="formEditor_content" style="margin-left: 184px; padding-left: 8px"></div>
 </div>
-<div id="LEAF_conditions_editor"></div><!-- vue mount -->
+<div id="LEAF_conditions_editor"></div><!-- vue IFTHEN app mount -->
+<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
-var CSRFToken = '<!--{$CSRFToken}-->';
-const vueData = {
+let vueData = {
     formID: 0,
     formTitle: '',
     indicatorID: 0,
@@ -15,19 +17,26 @@ const vueData = {
     icons: [],
     updateIndicatorList: false
 }
+
+//variables used within this scope, type, and approx. locations of def/redef (if applicable)
+const CSRFToken = '<!--{$CSRFToken}-->';
+const gridBodyElement = 'div#container_indicatorGrid > div';
+let currCategoryID = '';            //string, def @ ~1762, 1774, 1818, 1864, 2055
+let indicatorEditing = {}           //object, def @ ~1261
+let gridJSON = [];                  //array of objects, def @ ~1267
+let postRenderFormBrowser;          //func @ ~2104
+let categories = {};                //object, def @ ~1853
+let dialog, dialog_confirm, dialog_simple;   //dialogController instances, @ready
+let portalAPI;                      //@ready
+let columns = 0;                    //number, def @ ~1268
 </script>
 
-<!--<script src="https://unpkg.com/vue@3"></script> DEV -->
 <script src="../../libs/js/vue3/vue.global.prod.js"></script>
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
-<script>
 
-var indicatorEditing;
+<script>
 
 /**
  * Purpose: Check if an indicator is sensitive (needs to be masked)
@@ -38,7 +47,7 @@ function checkSensitive(indicator) {
     let result = 0;
     $.each(indicator, function( index, value )
     {
-        if (value.is_sensitive === '1') {
+        if (parseInt(value.is_sensitive) === 1) {
             result = 1;
         } else if(result === 0 && !$.isEmptyObject(value.child)){
             result = checkSensitive(value.child);
@@ -87,193 +96,216 @@ function editProperties(isSubForm) {
                             	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
-        $.ajax({
-            type: 'GET',
-            url: '../api/form/_' + currCategoryID,
-            success: function(res) {
-                if(res.length > 0) {
-                    if(checkSensitive(res) === 1) {
-                        $("#needToKnow option[value='0']").remove();
-                        $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
-                    }
+    $.ajax({
+        type: 'GET',
+        url: '../api/form/_' + currCategoryID,
+        success: function(res) {
+            if(res.length > 0) {
+                if(checkSensitive(res) === 1) {
+                    $("#needToKnow option[value='0']").remove();
+                    $("#needToKnow option[value='1']").html('Forced on because sensitive fields are present');
                 }
             }
-        });
-        $('#name').val(categories[currCategoryID].categoryName);
-        $('#description').val(categories[currCategoryID].categoryDescription);
-        $('#workflowID').val(categories[currCategoryID].workflowID);
-        $('#needToKnow').val(categories[currCategoryID].needToKnow);
-        $('#visible').val(categories[currCategoryID].visible);
-        $('#sort').val(categories[currCategoryID].sort);
-        $('#formType').val(categories[currCategoryID].type);if(isSubForm) {
-        	$('.isSubForm').css('display', 'none');
         }
-        //ie11 fix
-		setTimeout(function () {dialog.show();}, 0);
+    });
+    $('#name').val(categories[currCategoryID].categoryName);
+    $('#description').val(categories[currCategoryID].categoryDescription);
+    $('#workflowID').val(categories[currCategoryID].workflowID);
+    $('#needToKnow').val(categories[currCategoryID].needToKnow);
+    $('#visible').val(categories[currCategoryID].visible);
+    $('#sort').val(categories[currCategoryID].sort);
+    $('#formType').val(categories[currCategoryID].type);
+    if(isSubForm) {
+        $('.isSubForm').css('display', 'none');
+    }
+    //ie11 fix
+    setTimeout(function () {dialog.show();}, 0);
 
-        // load workflow data
-        dialog.indicateBusy();
-        $.ajax({
-        	type: 'GET',
-        	url: '../api/workflow',
-        	success: function(res) {
-        		if(res.length > 0) {
-                    var buffer = '<select id="workflowID">';
-                    buffer += '<option value="0">No Workflow</option>';
-                    for(let i in res) {
-                        if(res[i].workflowID > 0) {
-                            buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
-                        }
+    // load workflow data
+    dialog.indicateBusy();
+    $.ajax({
+        type: 'GET',
+        url: '../api/workflow',
+        success: function(res) {
+            if(res.length > 0) {
+                let buffer = '<select id="workflowID">';
+                buffer += '<option value="0">No Workflow</option>';
+                for(let i in res) {
+                    if(res[i].workflowID > 0) {
+                        buffer += '<option value="'+ res[i].workflowID +'">'+ res[i].description +' (ID: #'+ res[i].workflowID +')</option>';
                     }
-                    buffer += '</select>';
-                    $('#container_workflowID').html(buffer);
-                    $('#workflowID').val(categories[currCategoryID].workflowID);
-        		}
-        		else {
-        			$('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
-        		}
-        		dialog.indicateIdle();
-        	},
-        	cache: false
+                }
+                buffer += '</select>';
+                $('#container_workflowID').html(buffer);
+                $('#workflowID').val(categories[currCategoryID].workflowID);
+            }
+            else {
+                $('#container_workflowID').html('<span style="color: red">A workflow must be set up first</span>');
+            }
+            dialog.indicateIdle();
+        },
+        error: function(err) {
+            console.error(err?.responseText);
+        },
+        cache: false
+    });
+
+    dialog.setSaveHandler(function() {
+        let calls = [];
+        let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
+        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
+        let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
+        let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
+        let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
+        let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
+        let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+
+        if(nameChanged){
+            calls.push($.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formName',
+                data: {name: $('#name').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].name = $('#name').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            }));
+        }
+
+        if(descriptionChanged){
+            calls.push($.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formDescription',
+                data: {description: $('#description').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].description = $('#description').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            }));
+        }
+
+        if(workflowChanged){
+            calls.push(
+                $.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formWorkflow',
+                data: {workflowID: $('#workflowID').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    if(res == false) {
+                        alert('Workflow cannot be set because this form has been merged into another form');
+                    }
+                    categories[currCategoryID].workflowID = $('#workflowID').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            }));
+        }
+
+        if(needToKnowChanged){
+            calls.push(
+            $.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formNeedToKnow',
+                data: {needToKnow: $('#needToKnow').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].needToKnow = $('#needToKnow').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            }));
+        }
+
+        if(sortChanged){
+            calls.push(
+            $.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formSort',
+                data: {sort: $('#sort').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].sort = $('#sort').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            }));
+        }
+
+        if(visibleChanged){
+            $.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formVisible',
+                data: {visible: $('#visible').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].visible= $('#visible').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            });
+        }
+
+        if(typeChanged){
+            calls.push(
+                $.ajax({
+                type: 'POST',
+                url: '../api/formEditor/formType',
+                data: {type: $('#formType').val(),
+                    categoryID: currCategoryID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    categories[currCategoryID].formType = $('#formType').val();
+                },
+                error: function(err) {
+                    console.error(err?.responseText);
+                }
+            }));
+        }
+        $.when.apply(undefined, calls).then(function() {
+            categories[currCategoryID].categoryName = $('#name').val();
+            categories[currCategoryID].categoryDescription = $('#description').val();
+            categories[currCategoryID].description = '';
+            categories[currCategoryID].workflowID = $('#workflowID').val();
+            categories[currCategoryID].needToKnow = $('#needToKnow').val();
+            categories[currCategoryID].visible = $('#visible').val();
+            categories[currCategoryID].type = $('#formType').val();
+            categories[currCategoryID].sort = $('#sort').val();
+            openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
+            dialog.hide();
         });
-
-        dialog.setSaveHandler(function() {
-            let calls = [];
-            
-            let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
-            let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
-            let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
-            let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
-            let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
-            let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-            let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
-
-            if(nameChanged){
-                calls.push($.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formName',
-                    data: {name: $('#name').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].name = $('#name').val();
-                    }
-                }));
-            }
-
-            if(descriptionChanged){
-                calls.push($.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formDescription',
-                    data: {description: $('#description').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].description = $('#description').val();
-                    }
-                }));
-            }
-
-            if(workflowChanged){
-                calls.push(
-                    $.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formWorkflow',
-                    data: {workflowID: $('#workflowID').val(),
-                    	categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        if(res == false) {
-                        	alert('Workflow cannot be set because this form has been merged into another form');
-                        }
-                        categories[currCategoryID].workflowID = $('#workflowID').val();
-                    }
-                }));
-            }
-
-            if(needToKnowChanged){
-                calls.push(
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formNeedToKnow',
-                    data: {needToKnow: $('#needToKnow').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].needToKnow = $('#needToKnow').val();
-                    }
-                }));
-            }
-
-            if(sortChanged){
-                calls.push(                
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formSort',
-                    data: {sort: $('#sort').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].sort = $('#sort').val();
-                    }
-                }));
-            }
-
-            if(visibleChanged){
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formVisible',
-                    data: {visible: $('#visible').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].visible= $('#visible').val();
-                    }
-                });
-            }
-
-            if(typeChanged){
-                calls.push( 
-                    $.ajax({
-                    type: 'POST',
-                    url: '../api/formEditor/formType',
-                    data: {type: $('#formType').val(),
-                        categoryID: currCategoryID,
-                        CSRFToken: '<!--{$CSRFToken}-->'},
-                    success: function(res) {
-                        categories[currCategoryID].formType = $('#formType').val();
-                    }
-                }));
-            }
-            $.when.apply(undefined, calls).then(function() {
-                categories[currCategoryID].categoryName = $('#name').val();
-                categories[currCategoryID].categoryDescription = $('#description').val();
-                categories[currCategoryID].description = '';
-                categories[currCategoryID].workflowID = $('#workflowID').val();
-                categories[currCategoryID].needToKnow = $('#needToKnow').val();
-                categories[currCategoryID].visible = $('#visible').val();categories[currCategoryID].type = $('#formType').val();
-                categories[currCategoryID].sort = $('#sort').val();
-                openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
-                dialog.hide();
-             });
-        });}
-var currCategoryID = '';
+    });
+}
 
 /**
  * Purpose: Opens form content
  * @param url
  */
 function openContent(url) {
-	let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
-	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-	let workflow = '';
-
-	if(categories[currCategoryID].workflowID != 0) {
-		workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
-	}
-	else {
-		workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
-	}
+    let isSubForm = categories[currCategoryID].parentID == '' ? false : true;
+    let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
+    let workflow = '';
+    if(categories[currCategoryID].workflowID != 0) {
+        workflow = categories[currCategoryID].description + ' (ID #' + categories[currCategoryID].workflowID + ')';
+    } else {
+        workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
+    }
     $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
     		                      '<div style="float: right"><div id="editFormData" tabindex="0" onkeypress="onKeyPressClick(event)" class="buttonNorm">Edit Properties</div><br /><div tabindex="0" id="editFormPermissions" onkeypress="onKeyPressClick(event)" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
     		                      '<div style="padding: 8px">' +
@@ -320,9 +352,9 @@ function openContent(url) {
 /**
  * Purpose: Add Permissions to Form
  * @param categoryID
- * @param group
  */
-function addPermission(categoryID, group) {
+function addPermission(categoryID) {
+    let formTitle = categories[categoryID].categoryName == '' ? 'Untitled' : categories[categoryID].categoryName;
     dialog.setTitle('Edit Collaborators');
     dialog.setContent('Add collaborators to the <b>'+ formTitle +'</b> form:<div id="groups"></div>');
     dialog.indicateBusy();
@@ -331,7 +363,7 @@ function addPermission(categoryID, group) {
         type: 'GET',
         url: '../api/system/groups',
         success: function(res) {
-            var buffer = '<select id="groupID">';
+            let buffer = '<select id="groupID">';
             for(let i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
             }
@@ -345,7 +377,7 @@ function addPermission(categoryID, group) {
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
-            url: '../api/formEditor/_'+ currCategoryID +'/privileges',
+            url: '../api/formEditor/_'+ categoryID +'/privileges',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	   groupID: $('#groupID').val(),
                    read: 1,
@@ -357,12 +389,10 @@ function addPermission(categoryID, group) {
             cache: false
         });
     });
-
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
-
+    //ie11 fix
+    setTimeout(function () {
+        dialog.show();
+    }, 0);
 }
 
 /**
@@ -387,8 +417,7 @@ function removePermission(groupID) {
  * Purpose: Edit existing Permissions
  */
 function editPermissions() {
-	formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
-
+	let formTitle = categories[currCategoryID].categoryName == '' ? 'Untitled' : categories[currCategoryID].categoryName;
 	dialog_simple.setTitle('Edit Collaborators - ' + formTitle);
 	dialog_simple.setContent('<h2>Collaborators have access to fill out data fields at any time in the workflow.</h2><br />'
 	                             + 'This is typically used to give groups access to fill out internal-use fields.<br />'
@@ -399,12 +428,12 @@ function editPermissions() {
 		type: 'GET',
 		url: '../api/formEditor/_'+ currCategoryID +'/privileges',
 		success: function(res) {
-			var buffer = '<ul>';
+			let buffer = '<ul>';
 			for(let i in res) {
 				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
-			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addPermission();" role="button">Add Group</span>';
+			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addPermission(currCategoryID);" role="button">Add Group</span>';
 			$('#formPrivs').html(buffer);
 			dialog_simple.indicateIdle();
 		},
@@ -440,16 +469,16 @@ function removeIndicatorPrivilege(indicatorID, groupID) {
  * Purpose: Add specific Indicator Privileges
  * @param indicatorID
  */
-function addIndicatorPrivilege(indicatorID) {
-    dialog.setTitle('Edit Privileges');
-    dialog.setContent('Add privileges to the <b>'+ currentIndicator.name +'</b> form:<div id="groups"></div>');
+function addIndicatorPrivilege(indicatorID, indicatorName = '[blank]') {
+    dialog.setTitle(`Edit Privileges - ${indicatorID}`);
+    dialog.setContent(`What group should have access to the following?<div style="max-width:500px; margin-top:0.25em"><b>${indicatorName}</b></div><hr/><div id="groups" style="margin: 0.25em 0"></div>`);
     dialog.indicateBusy();
 
     $.ajax({
         type: 'GET',
         url: '../api/system/groups',
         success: function(res) {
-            var buffer = '<select id="groupID">';
+            let buffer = '<select id="groupID">';
             buffer += '<option value="1">System Administrators</option>';
             for(let i in res) {
                 buffer += '<option value="'+ res[i].groupID +'">'+ res[i].name +'</option>';
@@ -466,18 +495,11 @@ function addIndicatorPrivilege(indicatorID) {
             indicatorID,
             [$('#groupID').val()],
             function(results) {
-                console.log(results);
-                if (results == true) {
-
-                    console.log('it worked!');
-                } else {
-                    console.log('it NO work: ' + results);
-                }
                 dialog.hide();
                 editIndicatorPrivileges(indicatorID);
             },
             function (error) {
-                console.log('it no work!: ' + error);
+                console.log('an error has occurred: ', error);
                 dialog.hide();
                 editIndicatorPrivileges(indicatorID);
             }
@@ -487,7 +509,6 @@ function addIndicatorPrivilege(indicatorID) {
     dialog.show();
 }
 
-var currentIndicator = {};
 
 /**
  * Purpose: Edit exisitng Indicator Privileges
@@ -504,13 +525,11 @@ function editIndicatorPrivileges(indicatorID) {
     portalAPI.FormEditor.getIndicator(
         indicatorID,
         function(indicator) {
-            currentIndicator = indicator[indicatorID];
-
+            const indicatorName = indicator[indicatorID]?.name || '[blank]';
             dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicatorID);
-
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
-                    var buffer = '<ul>';
+                    let buffer = '<ul>';
                     let count = 0;
                     for (let group in groups) {
                         if (groups[group].id !== undefined) {
@@ -519,12 +538,12 @@ function editIndicatorPrivileges(indicatorID) {
                         }
                     }
                     buffer += '</ul>';
-                    buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(' + indicatorID + ');">Add Group</span>';
+                    buffer += `<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(${indicatorID},'${indicatorName}');">Add Group</span>`;
                     let statusMessage = "Special access restrictions are not enabled. Normal access rules apply.";
                     if(count > 0) {
                         statusMessage = "Special access restrictions are enabled!";
                     }
-                    buffer += '<p>'+ statusMessage +'</p>';
+                    buffer += '<p style="margin-top: 1em">'+ statusMessage +'</p>';
                     $('#indicatorPrivs').html(buffer);
                     dialog_simple.indicateIdle();
                     dialog_simple.show();
@@ -536,14 +555,8 @@ function editIndicatorPrivileges(indicatorID) {
             );
         },
         function(err) {
-
         }
     );
-}
-var gridJSON = [];
-var gridBodyElement = 'div#container_indicatorGrid > div';
-if(columns === undefined) {
-    var columns = 0;
 }
 
 /**
@@ -555,107 +568,205 @@ function makeColumnID(){
 }
 
 /**
- * Purpose: Add a new question to Form
- * @param parentIndicatorID
+ * Purpose: common listener methods
  */
-function newQuestion(parentIndicatorID) {
-	let title = '';
-	if(parentIndicatorID == null) {
-		title = 'Adding New Question';
-	}
-	else {
-		title = 'Adding Question to ' + parentIndicatorID;
-	}
-    dialog.setTitle(title);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
-            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
-                <input type="text" id="description" maxlength="50"></input>\
-            </fieldset>\
-            <fieldset><legend>Input Format</legend>\
-                <select id="indicatorType">\
-                    <option value="">None</option>\
-                    <option value="text">Single line text</option>\
-                    <option value="textarea">Multi-line text</option>\
-                    <option value="grid">Grid (Table with rows and columns)</option>\
-                    <option value="number">Numeric</option>\
-                    <option value="currency">Currency</option>\
-                    <option value="date">Date</option>\
-                    <option value="radio">Radio (single select, multiple options)</option>\
-                    <option value="checkbox">Checkbox (A single checkbox)</option>\
-                    <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
-                    <option value="multiselect">Multi-Select Dropdown</option>\
-                    <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
-                    <option value="fileupload">File Attachment</option>\
-                    <option value="image">Image Attachment</option>\
-                    <option value="orgchart_group">Orgchart Group</option>\
-                    <option value="orgchart_position">Orgchart Position</option>\
-                    <option value="orgchart_employee">Orgchart Employee</option>\
-                    <option value="raw_data">Raw Data (for programmers)</option>\
-                </select>\
-                <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
-                <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
-                </br><button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" onclick="addCells()"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>\
-                <br/><br/>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\n                <fieldset><legend>Default Answer</legend><textarea id="default" style="width: 50%;"></textarea></fieldset></fieldset>\
-                    <fieldset><legend>Attributes</legend>\
-                        <table>\
-                            <tr>\
-                                <td>Required</td>\
-                                <td><input id="required" name="required" type="checkbox" /></td>\
-                            </tr>\
-                            <tr>\
-                                <td>Sensitive Data (PHI/PII)</td>\
-                                <td><input id="sensitive" name="sensitive" type="checkbox" /></td>\
-                            </tr>\
-                            <tr>\
-                                <td>Sort Priority</td>\
-                                <td><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
-                            </tr>\
-                        </table>\
-                </fieldset>');
-    $('#indicatorType').on('change', function() {
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                $('#container_indicatorGrid').css('display', 'block');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                $('#xhr').css('width', '100%');
-                makeGrid(0);
-                break;
-            case 'radio':
-            case 'checkboxes':
-            case 'multiselect':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                break;
-            case 'dropdown':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                break;
-            case 'checkbox':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-            	$('#container_indicatorSingleAnswer').css('display', 'block');
-            	break;
-            default:
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                break;
+function preventEnterDefault(event) {
+    if(event.keyCode === 13) {
+        event.preventDefault();
+    }
+}
+function onKeyPressClick(event){
+    if(event.keyCode === 13) {
+        $(event.target).trigger('click');
+    }
+}
+
+
+/**
+ * Purpose: returns template for the indicator modal
+ * @param isEditingModal (bool) adds content associated with editing (vs new) to the template
+ */
+function getIndicatorModalTemplate(isEditingModal = false) {
+    const parentArchDel = `<tr>
+            <td>Parent Question ID</td>
+            <td colspan="2"><div id="container_parentID"></div></td>
+        </tr>
+        <tr>
+            <td>Archive</td>
+            <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" onkeypress="onKeyPressClick(event)" /></td>
+            <td style="width: 275px;">
+                <span id="archived-warning" style="color: red; visibility: hidden;">
+                This field will be archived.  It can be<br/>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>Delete</td>
+            <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" onkeypress="onKeyPressClick(event)" /></td>
+            <td style="width: 275px;">
+                <span id="deletion-warning" style="color: red; visibility: hidden;">
+                Deleted items can only be re-enabled<br/>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
+                </span>
+            </td>
+        </tr>`;
+    const advancedOptions = `<span id="button_advanced" class="buttonNorm" tabindex="0" onkeypress="onKeyPressClick(event)">Advanced Options</span>
+        <div>
+            <fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>
+                Template Variables:<br />
+                <table class="table" style="border-collapse: inherit">
+                    <tr>
+                        <td><b>{{ iID }}</b></td>
+                        <td>The indicatorID # of the current data field.</td>
+                    </tr>
+                    <tr>
+                        <td><b>{{ recordID }}</b></td>
+                        <td>The record ID # of the current request.</td>
+                    </tr>
+                    <tr>
+                        <td><b>{{ data }}</b></td>
+                        <td>The contents of the current data field as stored in the database.</td>
+                    </tr>
+                </table><br />
+                html (for pages where the user can edit data): 
+                <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
+                    <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    Save Code<span id="codeSaveStatus_html"></span>
+                </button>
+                <textarea id="html"></textarea><br />
+                htmlPrint (for pages where the user can only read data): 
+                <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
+                    <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    Save Code<span id="codeSaveStatus_htmlPrint"></span>
+                </button>
+                <textarea id="htmlPrint"></textarea>
+            </fieldset>
+        </div>`;
+    return `<fieldset><legend>Field Name</legend>
+            <textarea id="name" style="width: 99%"></textarea>
+            <button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button>
+            <button class="buttonNorm" id="advNameEditor">Advanced Formatting</button>
+        </fieldset>
+        <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>
+            <input type="text" id="description" maxlength="50" />
+        </fieldset>
+        <fieldset><legend>Input Format</legend>
+            <select id="indicatorType" style="margin-bottom:1em;">
+                <option value="">None</option>
+                <option value="text">Single line text</option>
+                <option value="textarea">Multi-line text</option>
+                <option value="grid">Grid (Table with rows and columns)</option>
+                <option value="number">Numeric</option>
+                <option value="currency">Currency</option>
+                <option value="date">Date</option>
+                <option value="radio">Radio (single select, multiple options)</option>
+                <option value="checkbox">Checkbox (A single checkbox)</option>
+                <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>
+                <option value="multiselect">Multi-Select Dropdown</option>
+                <option value="dropdown">Dropdown Menu (single select, multiple options)</option>
+                <option value="fileupload">File Attachment</option>
+                <option value="image">Image Attachment</option>
+                <option value="orgchart_group">Orgchart Group</option>
+                <option value="orgchart_position">Orgchart Position</option>
+                <option value="orgchart_employee">Orgchart Employee</option>
+                <option value="raw_data">Raw Data (for programmers)</option>
+            </select>
+            <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox:<br/>
+                <input type="text" id="indicatorSingleAnswer" />
+            </div>
+            <div id="container_indicatorMultiAnswer" style="display: none">One option per line:<br/>
+                <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea>
+                <textarea style="display: none" id="format"></textarea>
+            </div>
+            <div id="container_indicatorGrid" style="display: none">
+                <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span><br/>
+                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button><br/><br/>
+                Columns:
+                <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
+            </div>
+            <fieldset><legend>Default Answer</legend>
+                <textarea id="default" style="width: 50%;"></textarea>
+            </fieldset>
+        </fieldset>
+        <fieldset><legend>Attributes</legend>
+            <table>
+                <tr>
+                    <td>Required</td>
+                    <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" onkeypress="onKeyPressClick(event)" /></td>
+                </tr>
+                </tr>
+                    <td>Sensitive Data (PHI/PII)</td>
+                    <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" onkeypress="onKeyPressClick(event)" /></td>
+                </tr>
+                <tr>
+                    <td>Sort Priority</td>
+                    <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>
+                </tr>
+                ${isEditingModal ? parentArchDel : ''}
+            </table>
+        </fieldset>
+        ${isEditingModal ? advancedOptions : ''}`;
+}
+
+/**
+ * Purpose: Renders the UI for input entry for each format type
+ * @param indFormat - indicator's format type
+ * @formatOptionsStr - option values as string (when loading saved options)
+ * @gridCols - number of grid columns (when loading saved options)
+ */
+function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
+    $('#container_indicatorGrid').css('display', 'none');
+    $('#container_indicatorMultiAnswer').css('display', 'none');
+    $('#container_indicatorSingleAnswer').css('display', 'none');
+    switch(indFormat?.toLowerCase()) {
+        case 'grid':
+            $('#container_indicatorGrid').css('display', 'block');
+            makeGrid(gridCols);
+            break;
+        case 'checkbox':   //single option entry box
+            $('#container_indicatorSingleAnswer').css('display', 'block');
+            if (formatOptionsStr !== '') $('#indicatorSingleAnswer').val(formatOptionsStr);
+            break;
+        case 'radio':      //multiple option entry box
+        case 'checkboxes':
+        case 'multiselect':
+        case 'dropdown':
+            $('#container_indicatorMultiAnswer').css('display', 'block');
+            if (formatOptionsStr !== '') $('#indicatorMultiAnswer').val(formatOptionsStr);
+            break;
+        default:
+            break;
+    }
+}
+/**
+ * Purpose: adds listeners to indicator modal.
+ * adds archive, del and advanced options if editing (vs new question)
+ */
+function addIndicatorModalListeners(isEditingModal = false) {
+    //all indicator modals have format render, description, required, sensitive and raw/adv (text formatter)
+    $('#indicatorType').on('change', event => renderFormatEntryUI(event.target.value));
+    $('#description').on('keypress', preventEnterDefault);
+    $('#required').on('keypress', preventEnterDefault);
+    $('#required').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#required').prop('checked', false);
+            alert('You can\'t mark a field as required if the Input Format is "None".');
         }
+    });
+    $('#sensitive').on('keypress', preventEnterDefault);
+    $('#sensitive').on('click', function() {
+        if($('#indicatorType').val() == '') {
+            $('#sensitive').prop('checked', false);
+            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
+        }
+    });
+    $('#rawNameEditor').on('click', function() {
+        $('#advNameEditor').css('display', 'inline');
+        $('#rawNameEditor').css('display', 'none');
+        $('#name').trumbowyg('destroy');
     });
     $('#advNameEditor').on('click', function() {
         $('#advNameEditor').css('display', 'none');
+        $('#rawNameEditor').css('display', 'inline');
         $('#name').trumbowyg({
             resetCss: true,
             btns: ['formatting', 'bold', 'italic', 'underline', '|',
@@ -664,7 +775,6 @@ function newQuestion(parentIndicatorID) {
                 'foreColor', '|',
                 'justifyLeft', 'justifyCenter', 'justifyRight']
         });
-
         $('.trumbowyg-box').css({
             'min-height': '130px'
         });
@@ -673,50 +783,105 @@ function newQuestion(parentIndicatorID) {
             'height': '100px'
         });
     });
-    $('#description').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#archived').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(e){
-        let keyC = e.keyCode ? e.keyCode : e.which;
-        if(keyC === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#archived').keypress(function(e){
-        let keyC = e.keyCode ? e.keyCode : e.which;
-        if(keyC === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#required').on('click', function() {
-    	if($('#indicatorType').val() == '') {
-    		$('#required').prop('checked', false);
-    		alert('You can\'t mark a field as required if the Input Format is "None".');
-    	}
-    });
-    $('#sensitive').on('click', function() {
-        if($('#indicatorType').val() == '') {
-            $('#sensitive').prop('checked', false);
-            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
-        }
-    });
+    if (isEditingModal === true) {  //archive, delete, advanced options
+        $('#archived').on('keypress', preventEnterDefault);
+        $('#archived').on('change', function(event) {
+            if($(this).is(':checked')) {
+                $('#deleted').prop('checked', false);
+                $('#deletion-warning').css('visibility','hidden');
+                $('#archived-warning').css('visibility','visible');
+            } else {
+                $('#archived').prop('checked', false);
+                $('#archived-warning').css('visibility','hidden');
+            }
+        });
+        $('#deleted').keypress(preventEnterDefault);
+        $('#deleted').on("change", function(event) {
+            if($(this).is(':checked')) {
+                $('#archived').prop('checked', false);
+                $('#deletion-warning').css('visibility','visible');
+                $('#archived-warning').css('visibility','hidden');
+            } else {
+                $('#deleted').prop('checked', false);
+                $('#deletion-warning').css('visibility','hidden');
+            }
+        });
+        $('#button_advanced').on('click', function() {
+            if(<!--{$hasDevConsoleAccess}--> == 1) {
+                $('#button_advanced').css('display', 'none');
+                $('#advanced').css('height', 'auto');
+                $('#advanced').css('visibility', 'visible');
+                $('.table').css('border-collapse', 'collapse');
+            } else {
+                alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
+                $('#button_advanced').css('display', 'none');
+                $('#advanced').css('visibility', 'visible');
+            }
+        });
+    }
+}
+
+/**
+ * Purpose: called in save handler callback for indicator modal.  uses #indicatorType val,
+ * and option values from respective elements to update #format value for subsequent POST
+ */
+function setFormatElementValue() {
+    const formatName = $('#indicatorType').val();
+
+    let fullFormat = formatName;
+    switch(formatName?.toLowerCase()) {
+        case 'grid':
+            let gridJSON = [];
+            //gather column names and column types
+            //if column type is dropdown, adds property.options
+            $(gridBodyElement).find('div.cell').each(function() {
+                let properties = new Object();
+                if($(this).children('input:eq(0)').val() === 'undefined'){
+                    properties.name = 'No title';
+                } else {
+                    properties.name = $(this).children('input:eq(0)').val();
+                }
+                properties.id = $(this).attr('id');
+                properties.type = $(this).find('select').val();
+                if(properties.type !== undefined){
+                    if(properties.type === 'dropdown'){
+                        properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                    }
+                } else {
+                    properties.type = 'textarea';
+                }
+                gridJSON.push(properties);
+            });
+            fullFormat += "\n" + JSON.stringify(gridJSON);
+            break;
+        case 'radio':
+        case 'checkboxes':
+        case 'multiselect':
+        case 'dropdown':
+            fullFormat += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
+            break;
+        case 'checkbox':
+            fullFormat += "\n" + $('#indicatorSingleAnswer').val();
+            break;
+        default:
+            break;
+    }
+    $('#format').val(fullFormat);
+}
+
+/**
+ * Purpose: Add a new question to Form
+ * @param parentIndicatorID
+ */
+function newQuestion(parentIndicatorID = null) {
+    const title = parentIndicatorID === null ? 'Adding New Question': `Adding Question to ${parentIndicatorID}`;
+    dialog.setTitle(title);
+    dialog.setContent(getIndicatorModalTemplate(false));
+    addIndicatorModalListeners(false);
     //ie11 fix
     setTimeout(function () {
         dialog.show();
     }, 0);
-
     dialog.setSaveHandler(function() {
     	let isRequired = $('#required').is(':checked') ? 1 : 0;
         let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
@@ -724,65 +889,15 @@ function newQuestion(parentIndicatorID) {
             $.ajax({
                 type: 'POST',
                 url: '../api/formEditor/formNeedToKnow',
-                data: {needToKnow: '1',
+                data: {
+                    needToKnow: '1',
                     categoryID: currCategoryID,
-                    CSRFToken: '<!--{$CSRFToken}-->'}
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                }
             });
             categories[currCategoryID].needToKnow = 1;
         }
-
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                let gridJSON = [];
-
-                //gather column names and column types
-                //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('div.cell').each(function() {
-                    let properties = new Object();
-                    if($(this).children('input:eq(0)').val() === 'undefined'){
-                        properties.name = 'No title';
-                    } else {
-                        properties.name = $(this).children('input:eq(0)').val();
-                    }
-                    properties.id = $(this).attr('id');
-                    properties.type = $(this).find('select').val();
-                    if(properties.type !== undefined){
-                        if(properties.type === 'dropdown'){
-                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                        }
-                    } else {
-                        properties.type = 'textarea';
-                    }
-                    gridJSON.push(properties);
-                });
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + JSON.stringify(gridJSON);
-                $('#format').val(buffer);
-                break;
-            case 'radio':
-            case 'checkboxes':
-            case 'multiselect':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'dropdown':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'checkbox':
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + $('#indicatorSingleAnswer').val();
-                $('#format').val(buffer);
-            	break;
-            default:
-                $('#format').val($('#indicatorType').val());
-                break;
-        }
-
+        setFormatElementValue();
         $.ajax({
             type: 'POST',
             url: '../api/formEditor/newIndicator',
@@ -845,9 +960,9 @@ function makeGrid(columns) {
         let name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         let id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
         $(gridBodyElement).append(
-            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
-            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
+            '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
+            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
             '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
             '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
         );
@@ -931,9 +1046,9 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
-        '<img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
-        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="triggerClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
+        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../../libs/dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
+        '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../../libs/dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
+        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../../libs/dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
         '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
         '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
     );
@@ -972,7 +1087,6 @@ function deleteColumn(event){
             break;
         default:
             focus = column.next().find('[title="Delete column"]');
-            // column.next().focus();
             if(column.find('[title="Move column right"]').css('display') === 'none'){
                 rightArrows(column.prev(), false);
                 leftArrows(column.prev(), true);
@@ -1053,251 +1167,9 @@ function moveLeft(event){
  * @param series
  */
 function getForm(indicatorID, series) {
-	dialog.setTitle('Editing indicatorID: ' + indicatorID);
-    dialog.setContent('<fieldset><legend>Field Name</legend><textarea id="name" style="width: 99%"></textarea><button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button><button class="buttonNorm" id="advNameEditor">Advanced Formatting</button></fieldset> \
-            <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>\
-                <input type="text" id="description" maxlength="50"></input>\
-            </fieldset>\
-            <fieldset><legend>Input Format</legend>\
-                <select id="indicatorType">\
-                    <option value="">None</option>\
-                    <option value="text">Single line text</option>\
-                    <option value="textarea">Multi-line text</option>\
-                    <option value="grid">Grid (Table with rows and columns)</option>\
-                    <option value="number">Numeric</option>\
-                    <option value="currency">Currency</option>\
-                    <option value="date">Date</option>\
-                    <option value="radio">Radio (single select, multiple options)</option>\
-                    <option value="checkbox">Checkbox (A single checkbox)</option>\
-                    <option value="checkboxes">Checkboxes (Multiple Checkboxes)</option>\
-                    <option value="multiselect">Multi-Select Dropdown</option>\
-                    <option value="dropdown">Dropdown Menu (single select, multiple options)</option>\
-                    <option value="fileupload">File Attachment</option>\
-                    <option value="image">Image Attachment</option>\
-                    <option value="orgchart_group">Orgchart Group</option>\
-                    <option value="orgchart_position">Orgchart Position</option>\
-                    <option value="orgchart_employee">Orgchart Employee</option>\
-                    <option value="raw_data">Raw Data (for programmers)</option>\
-                </select>\
-                <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox: <input type="text" id="indicatorSingleAnswer"></input></div>\
-                <div id="container_indicatorMultiAnswer" style="display: none">One option per line: <textarea id="indicatorMultiAnswer" style="width: 80%; height: 150px"></textarea><textarea style="display: none" id="format"></textarea></div>\
-                <div id="container_indicatorGrid" style="display: none"><span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>\
-                </br><button class="buttonNorm" onclick="addCells(\'column\')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button>&nbsp;\
-                </br></br>Columns:<div border="1" style="overflow-x: scroll; max-width: 100%; border: 1px black;"></div></div>\
-                <fieldset><legend>Default Answer</legend><textarea id="default" style="width: 50%;"></textarea></fieldset></fieldset>\
-            <fieldset><legend>Attributes</legend>\
-                <table>\
-                    <tr>\
-                        <td>Required</td>\
-                        <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" /></td>\
-                    </tr>\
-                    </tr>\
-                        <td>Sensitive Data (PHI/PII)</td>\
-                        <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" /></td>\
-                    </tr>\
-                    <tr>\
-                        <td>Sort Priority</td>\
-                        <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>\
-                    </tr>\
-                    <tr>\
-                        <td>Parent Question ID</td>\
-                        <td colspan="2"><div id="container_parentID"></div></td>\
-                    </tr>\
-                    <tr>\
-                        <td>Archive</td>\
-                        <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" /></td>\
-                        <td style="width: 275px;">\
-                            <span id="archived-warning" style="color: red; visibility: hidden;">This field will be archived.  It can be</br>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>\
-                        </td>\
-                    </tr>\
-                    <tr>\
-                        <td>Delete</td>\
-                        <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" /></td>\
-                        <td style="width: 275px;">\
-                            <span id="deletion-warning" style="color: red; visibility: hidden;">Deleted items can only be re-enabled</br>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.</span>\
-                        </td>\
-                    </tr>\
-                </table>\
-        </fieldset>\
-        <span class="buttonNorm" id="button_advanced">Advanced Options</span>\
-        <div><fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>\
-            Template Variables:<br />\
-            <table class="table" style="border-collapse: inherit">\
-            <tr>\
-                <td><b>{{ iID }}</b></td>\
-                <td>The indicatorID # of the current data field.</td>\
-            </tr>\
-            <tr>\
-                <td><b>{{&nbsp;recordID&nbsp;}}</b></td>\
-                <td>The record ID # of the current request.</td>\
-            </tr>\
-            <tr>\
-                <td><b>{{ data }}</b></td>\
-                <td>The contents of the current data field as stored in the database.</td>\
-            </tr>\
-            </table><br />\
-            html (for pages where the user can edit data): <button id="btn_codeSave_html" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_html"></span></button><textarea id="html"></textarea><br />\
-            htmlPrint (for pages where the user can only read data): <button id="btn_codeSave_htmlPrint" class="buttonNorm"><img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" /> Save Code<span id="codeSaveStatus_htmlPrint"></span></button><textarea id="htmlPrint"></textarea><br />\
-        </fieldset></div></div>');
-    $('#indicatorType').on('change', function() {
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                $('#xhr').css('width', '100%');
-                $('#container_indicatorGrid').css('display', 'block');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                makeGrid(0);
-                break;
-    	    case 'radio':
-    	    case 'checkboxes':
-            case 'multiselect':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                $('#container_indicatorSingleAnswer').css('display', 'none');
-                break;
-    	    case 'dropdown':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-    	    	$('#container_indicatorMultiAnswer').css('display', 'block');
-    	    	$('#container_indicatorSingleAnswer').css('display', 'none');
-    		    break;
-    	    case 'checkbox':
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-    	    	$('#container_indicatorMultiAnswer').css('display', 'none');
-    	    	$('#container_indicatorSingleAnswer').css('display', 'block');
-    	    	break;
-    	    default:
-                $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                $('#xhr').css('width', 'auto');
-                $('#container_indicatorGrid').css('display', 'none');
-                $('#container_indicatorMultiAnswer').css('display', 'none');
-    	        $('#container_indicatorSingleAnswer').css('display', 'none');
-    	    	break;
-    	}
-    });
-    $('#description').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#required').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#archived').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#archived').keypress(function(e){
-        let keyC = e.keyCode ? e.keyCode : e.which;
-        if(keyC === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#archived').on("change", function(event) {
-        if($(this).is(':checked'))
-        {
-            $('#deleted').prop('checked', false);
-            $('#deletion-warning').css('visibility','hidden');
-            $('#archived-warning').css('visibility','visible');
-        }
-        else
-        {
-            $('#archived').prop('checked', false);
-            $('#archived-warning').css('visibility','hidden');
-        }
-    });
-    $('#deleted').keypress(function(event) {
-        if(event.keyCode === 13) {
-            event.preventDefault();
-        }
-    });
-    $('#deleted').keypress(function(e){
-        let keyC = e.keyCode ? e.keyCode : e.which;
-        if(keyC === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#deleted').on("change", function(event) {
-        if($(this).is(':checked'))
-        {
-            $('#archived').prop('checked', false);
-            $('#deletion-warning').css('visibility','visible');
-            $('#archived-warning').css('visibility','hidden');
-        }
-        else
-        {
-            $('#deleted').prop('checked', false);
-            $('#deletion-warning').css('visibility','hidden');
-        }
-    });
-
-    $('#required').keypress(function(e){
-        let keyC = e.keyCode ? e.keyCode : e.which;
-        if(keyC === 13){
-            $(this).trigger('click');
-        }
-    });
-    $('#required').on('click', function() {
-        if($('#indicatorType').val() == '') {
-            $('#required').prop('checked', false);
-            alert('You can\'t mark a field as required if the Input Format is "None".');
-        }
-    });
-    $('#sensitive').on('click', function() {
-        if($('#indicatorType').val() == '') {
-            $('#sensitive').prop('checked', false);
-            alert('You can\'t mark a field as sensitive if the Input Format is "None".');
-        }
-    });
-    $('#rawNameEditor').on('click', function() {
-        $('#advNameEditor').css('display', 'inline');
-        $('#rawNameEditor').css('display', 'none');
-    	$('#name').trumbowyg('destroy');
-    });
-    $('#advNameEditor').on('click', function() {
-    	$('#advNameEditor').css('display', 'none');
-    	$('#rawNameEditor').css('display', 'inline');
-        $('#name').trumbowyg({
-            resetCss: true,
-            btns: ['formatting', 'bold', 'italic', 'underline', '|',
-            	'unorderedList', 'orderedList', '|',
-            	'link', '|',
-            	'foreColor', '|',
-            	'justifyLeft', 'justifyCenter', 'justifyRight']
-        });
-
-        $('.trumbowyg-box').css({
-            'min-height': '130px'
-        });
-        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-            'min-height': '100px',
-            'height': '100px'
-        });
-    });
-
-    $('#button_advanced').on('click', function() {
-        if(<!--{$hasDevConsoleAccess}--> == 1) {
-            $('#button_advanced').css('display', 'none');
-            $('#advanced').css('height', 'auto');
-    	    $('#advanced').css('visibility', 'visible');
-    	    $('.table').css('border-collapse', 'collapse');
-        }
-        else {
-            alert('Notice: Please go to Admin Panel -> LEAF Programmer to ensure continued access to this area.');
-            $('#button_advanced').css('display', 'none');
-    	    $('#advanced').css('visibility', 'visible');
-        }
-    });
-
-
+    dialog.setTitle('Editing indicatorID: ' + indicatorID);
+    dialog.setContent(getIndicatorModalTemplate(true));
+    addIndicatorModalListeners(true);
     /**
      * Purpose: Save custom HTML Code
      */
@@ -1305,15 +1177,19 @@ function getForm(indicatorID, series) {
         $.ajax({
             type: 'POST',
             url: '../api/formEditor/' + indicatorID + '/html',
-            data: {html: codeEditorHtml.getValue(),
-                CSRFToken: '<!--{$CSRFToken}-->'},
+            data: {
+                html: codeEditorHtml.getValue(),
+                CSRFToken: '<!--{$CSRFToken}-->'
+            },
             success: function(res) {
-                let time = new Date().toLocaleTimeString();
+                const time = new Date().toLocaleTimeString();
                 $('#codeSaveStatus_html').html('<br /> Last saved: ' + time);
+            },
+            error: function(err) {
+                console.error(err?.responseText);
             }
         });
     }
-
     /**
      * Purpose: Save custom HTML Print Code
      */
@@ -1321,29 +1197,27 @@ function getForm(indicatorID, series) {
         $.ajax({
             type: 'POST',
             url: '../api/formEditor/' + indicatorID + '/htmlPrint',
-            data: {htmlPrint: codeEditorHtmlPrint.getValue(),
-                CSRFToken: '<!--{$CSRFToken}-->'},
+            data: {
+                htmlPrint: codeEditorHtmlPrint.getValue(),
+                CSRFToken: '<!--{$CSRFToken}-->'
+            },
             success: function(res) {
-            	let time = new Date().toLocaleTimeString();
-            	$('#codeSaveStatus_htmlPrint').html('<br /> Last saved: ' + time);
+                const time = new Date().toLocaleTimeString();
+                $('#codeSaveStatus_htmlPrint').html('<br /> Last saved: ' + time);
             }
         });
     }
-    $('#btn_codeSave_html').on('click', function() {
-    	saveCodeHTML();
-    });
-    $('#btn_codeSave_htmlPrint').on('click', function() {
-        saveCodeHTMLPrint();
-    });
+    $('#btn_codeSave_html').on('click', saveCodeHTML);
+    $('#btn_codeSave_htmlPrint').on('click', saveCodeHTMLPrint);
     let codeEditorHtml = CodeMirror.fromTextArea(document.getElementById("html"), {
         mode: "htmlmixed",
         lineNumbers: true,
         extraKeys: {
             "F11": function(cm) {
-              cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
             },
             "Esc": function(cm) {
-              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
             },
             "Ctrl-S": function(cm) {
                 saveCodeHTML();
@@ -1355,10 +1229,10 @@ function getForm(indicatorID, series) {
         lineNumbers: true,
         extraKeys: {
             "F11": function(cm) {
-              cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
             },
             "Esc": function(cm) {
-              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
             },
             "Ctrl-S": function(cm) {
                 saveCodeHTMLPrint();
@@ -1371,49 +1245,44 @@ function getForm(indicatorID, series) {
     dialog.indicateBusy();
 
     $.when(
-    	    // populate indicator list for parentIDs
-    	    $.ajax({
-    	        type: 'GET',
-    	        url: '../api/form/_' + currCategoryID + '/flat',
-    	        success: function(res) {
-    	            var buffer = '<select id="parentID" style="width: 300px">';
-    	            buffer += '<option value="">None</option>';
-    	            for(let i in res) {
-    	                if(indicatorID != i) {
-    	                    buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
-    	                }
-    	            }
-    	            buffer += '</select>';
-    	            $('#container_parentID').html(buffer);
-    	        },
-    	        cache: false
-    	    })
+        // populate indicator list for parentIDs
+        $.ajax({
+            type: 'GET',
+            url: '../api/form/_' + currCategoryID + '/flat',
+            success: function(res) {
+                let buffer = '<select id="parentID" style="width: 300px">';
+                buffer += '<option value="">None</option>';
+                for(let i in res) {
+                    if(indicatorID != i) {
+                        buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
+                    }
+                }
+                buffer += '</select>';
+                $('#container_parentID').html(buffer);
+            },
+            cache: false
+        })
     ).done(function() {
         $.ajax({
             type: 'GET',
             url: '../api/formEditor/indicator/' + indicatorID,
             success: function(res) {
-                indicatorEditing = res[indicatorID];
-                let format = res[indicatorID].format;
-                if(res[indicatorID].options != undefined
-                    && res[indicatorID].options.length > 0
-                        && format != 'grid') {
-                    for(let i in res[indicatorID].options) {
-                        format += "\n" + res[indicatorID].options[i];
-                    }
-                }
-                if(format === 'grid'){
-                    gridJSON = JSON.parse(res[indicatorID].options[0]);
+                indicatorEditing = res[indicatorID]; //NOTE: indicatorEditing defined
+                const formatName = res[indicatorID]?.format || '';
+                const formatOptions = res[indicatorID]?.options || [];
+                const formatOptionsStr = formatOptions.join('\n');
+                if(formatName === 'grid'){
+                    gridJSON = JSON.parse(formatOptions[0]);  //NOTE: gridJSON and columns defined
                     columns = gridJSON.length;
-                }
-
+                } 
                 $('#name').html(res[indicatorID].name);
                 // auto select advanced editor if it was previously used
                 if(XSSHelpers.containsTags(res[indicatorID].name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
                     $('#advNameEditor').click();
                 }
-                $('#format').val(format);
-                $('#indicatorType').val(format);
+                //#format looks like it gets redefined on the save handler, might not be needed here
+                $('#format').val(`${formatName}${formatOptionsStr}`);
+                $('#indicatorType').val(formatName);
                 $('#description').val(res[indicatorID].description);
                 $('#default').val(res[indicatorID].default);
                 if(res[indicatorID].required == 1) {
@@ -1426,46 +1295,17 @@ function getForm(indicatorID, series) {
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
-
-                // render input format UI
-                let formatIdx = format === 'grid' ? 4 : format.indexOf('\n');
-                if(formatIdx != -1 && format.substr(0, formatIdx) != '') {
-                    switch(format.substr(0, formatIdx)) {
-                        case 'grid':
-                            $('#xhr').css('width', '100%');
-                            $('#indicatorType').val(format.substr(0, formatIdx));
-                            $('#container_indicatorGrid').css('display', 'block');
-                            $('#container_indicatorMultiAnswer').css('display', 'none');
-                            $('#container_indicatorSingleAnswer').css('display', 'none');
-                            makeGrid(columns);
-                            break;
-                        case 'checkbox':
-                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                            $('#xhr').css('width', 'auto');
-                            $('#indicatorType').val(format.substr(0, formatIdx));
-                            $('#indicatorSingleAnswer').val(format.substr(formatIdx + 1));
-                            $('#container_indicatorSingleAnswer').css('display', 'block');
-                            break;
-                        case 'radio':
-                        case 'checkboxes':
-                        case 'multiselect':
-                        case 'dropdown':
-                        default:
-                            $(gridBodyElement).closest('div[role="dialog"]').css('width', 'auto');
-                            $('#xhr').css('width', 'auto');
-                            $('#indicatorType').val(format.substr(0, formatIdx));
-                            $('#indicatorMultiAnswer').val(format.substr(formatIdx + 1));
-                            $('#container_indicatorMultiAnswer').css('display', 'block');
-                            break;
-                    }
-                }
+                
+                renderFormatEntryUI(formatName, formatOptionsStr, columns);
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
+            },
+            error: function(err) {
+                console.error(err?.responseText);
             },
             cache: false
         });
     });
-
     dialog.setSaveHandler(function() {
         /*the below values are used by the indicators table*/
         let requiredIndicator = $('#required').is(':checked') ? 1 : 0;
@@ -1483,74 +1323,20 @@ function getForm(indicatorID, series) {
             });
             categories[currCategoryID].needToKnow = 1;
         }
-
-        switch($('#indicatorType').val()) {
-            case 'grid':
-                let gridJSON = [];
-
-                //gather column names and column types
-                //if column type is dropdown, adds property.options
-                $(gridBodyElement).find('div.cell').each(function() {
-                    let properties = new Object();
-                    if($(this).children('input:eq(0)').val() === 'undefined'){
-                        properties.name = 'No title';
-                    } else {
-                        properties.name = $(this).children('input:eq(0)').val();
-                    }
-                    properties.id = $(this).attr('id');
-                    properties.type = $(this).find('select').val();
-                    if(properties.type !== undefined){
-                        if(properties.type === 'dropdown'){
-                            properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                        }
-                    } else {
-                        properties.type = 'textarea';
-                    }
-                    gridJSON.push(properties);
-                });
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + JSON.stringify(gridJSON);
-                $('#format').val(buffer);
-                break;
-            case 'radio':
-            case 'checkboxes':
-            case 'multiselect':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'dropdown':
-                $('#container_indicatorMultiAnswer').css('display', 'block');
-                var buffer = $('#indicatorType').val();
-                buffer += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
-                $('#format').val(buffer);
-                break;
-            case 'checkbox':
-            	var buffer = $('#indicatorType').val();
-                buffer += "\n" + $('#indicatorSingleAnswer').val();
-                $('#format').val(buffer);
-            	break;
-            default:
-                $('#format').val($('#indicatorType').val());
-                break;
-        }
-    	dialog.indicateBusy();
+        setFormatElementValue();
+        dialog.indicateBusy();
 
         // check if the user is trying to set an invalid parent ID
         if(indicatorID == $('#parentID').val()) {
-        	alert('Invalid parentID.');
-        	$('#parentID').val('');
-        	dialog.indicateIdle();
-        	return false;
+            alert('Invalid parentID.');
+            $('#parentID').val('');
+            dialog.indicateIdle();
+            return false;
         }
 
         let calls = [];
         let nameChanged = (indicatorEditing.name || "") !== $('#name').val();
-        let options = '';
-        if (indicatorEditing?.options) { 
-            indicatorEditing.options.forEach(o => options += `\n${o}`);
-        }
+        let options = (indicatorEditing?.options) ? '\n' + indicatorEditing?.options.join('\n') : '';
         let formatChanged = (indicatorEditing.format || "") + options !== $('#format').val();
         let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
@@ -1581,16 +1367,7 @@ function getForm(indicatorID, series) {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
                     }
-                })/*,
-                // TODO: Handle Format Changes for Conditions
-                $.ajax({
-                    type: 'POST',
-                    url: `../api/formEditor/${indicatorID}/conditions`,
-                    data: {
-                        conditions: "",
-                        CSRFToken: '<!--{$CSRFToken}-->'
-                    }
-                })*/
+                })
             );
         }
 
@@ -1617,18 +1394,13 @@ function getForm(indicatorID, series) {
         }
 
         if(requiredChanged){
-            /*if (hasCondition && requiredIndicator === 1 && indicatorEditing.format === 'dropdown') {
-                alert('This question has Conditions on it, currently questions with conditions are not supported for required questions. ' +
-                    'Please remove your conditions and set the question to required again.');
-            } else { */
-                calls.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/formEditor/' + indicatorID + '/required',
-                        data: {required: requiredIndicator,
-                        CSRFToken: '<!--{$CSRFToken}-->'}
-                    }));
-            /*}*/
+            calls.push(
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/formEditor/' + indicatorID + '/required',
+                    data: {required: requiredIndicator,
+                    CSRFToken: '<!--{$CSRFToken}-->'}
+                }));
         }
 
         if(sensitiveChanged){
@@ -1802,7 +1574,7 @@ function mergeForm(categoryID) {
         type: 'GET',
         url: '../api/formStack/categoryList/all',
         success: function(res) {
-            var buffer = '<select id="stapledCategoryID">';
+            let buffer = '<select id="stapledCategoryID">';
             for(let i in res) {
             	if(res[i].workflowID == 0
             		&& res[i].categoryID != categoryID
@@ -1872,7 +1644,7 @@ function mergeFormDialog(categoryID) {
         type: 'GET',
         url: '../api/formEditor/_'+ categoryID +'/stapled',
         success: function(res) {
-            var buffer = '<ul>';
+            let buffer = '<ul>';
             for(let i in res) {
                 buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="onKeyPressClick(event)" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
@@ -1953,12 +1725,6 @@ function exportForm(categoryID) {
 		saveAs(outBlob, 'LEAF_FormPacket_'+ categoryID +'.txt');
 	});
 }
-// click function for 508 compliance
-function triggerClick(event){
-    if(event.keyCode === 13){
-        $(event.target).trigger('click');
-    }
-}
 
 /**
  * Purpose: Delete Form
@@ -2025,7 +1791,7 @@ function buildMenu(categoryID) {
                           <div id="stapledArea"></div><br />');
 
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
-                        <div id="stapledArea"></div><br />');
+                        <div id="viewHistory"></div><br />');
 
 
     // show stapled forms in the menu area
@@ -2033,7 +1799,7 @@ function buildMenu(categoryID) {
         type: 'GET',
         url: '../api/formEditor/_'+ categoryID + '/stapled',
         success: function(res) {
-            var buffer = '<ul>';
+            let buffer = '<ul>';
             for(let i in res) {
                 buffer += '<li>'+ res[i].categoryName +'</li>';
             }
@@ -2047,7 +1813,7 @@ function buildMenu(categoryID) {
     
 	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../../libs/dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
     $('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../../libs/dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -2061,48 +1827,44 @@ function selectForm(categoryID) {
     openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
 }
 
-var postRenderFormBrowser;
-
-var categories = {};
-
 /**
  * Purpose: Show Form Nav
  */
 function showFormBrowser() {
     window.location = '#';
-	$('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-	$('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="buttz"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../../libs/dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
+    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../../libs/dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../../libs/dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../../libs/dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '../api/formStack/categoryList/all',
         success: function(res) {
-            var buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
+            let buffer = '<div id="forms" style="padding: 8px"></div><br style="clear: both" /><hr style="margin-top: 32px" tabindex="0" aria-label="Not associated with a workflow" />Not associated with a workflow:<div id="forms_inactive" style="padding: 8px"></div>';
             $('#formEditor_content').html(buffer);
             for(let i in res) {
-            	categories[res[i].categoryID] = res[i];
-            	if(res[i].parentID == '') {
-            		formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
-            		availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
-            		let needToKnow = '';
-            		if(res[i].needToKnow == 1) {
-            			needToKnow = ' <img src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
-            		}
-            		let formActiveID = '';
-            		if(res[i].workflowID > 0) {
-            			formActiveID = '#forms';
-            		}
-            		else {
-            			formActiveID = '#forms_inactive';
-            		}
-            		let workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
-                    $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)"class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
-                    		<div tabindex="0" class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
-                    		<div tabindex="0" class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
-                    		<div tabindex="0" class="formPreviewStatus">'+ availability +'</div>\
-                    		<div tabindex="0" class="formPreviewWorkflow">'+ workflow +'</div>\
-                    		</div>');
+                categories[res[i].categoryID] = res[i];  //NOTE: categories set
+                if(res[i].parentID == '') {
+                    const formTitle = res[i].categoryName == '' ? 'Untitled' : res[i].categoryName;
+                    const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
+                    let needToKnow = '';
+                    if(res[i].needToKnow == 1) {
+                        needToKnow = ' <img style="position:absolute; right: 6px;" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
+                    }
+                    let formActiveID = '';
+                    if(res[i].workflowID > 0) {
+                        formActiveID = '#forms';
+                    }
+                    else {
+                        formActiveID = '#forms_inactive';
+                    }
+                    const workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
+                    $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
+                            <div class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
+                            <div class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
+                            <div class="formPreviewStatus">'+ availability +'</div>\
+                            <div class="formPreviewWorkflow">'+ workflow +'</div>\
+                            </div>');
                     $('#' + res[i].categoryID).on('click', function(categoryID) {
                         return function() {
                             currCategoryID = categoryID;
@@ -2111,11 +1873,11 @@ function showFormBrowser() {
                             openContent('ajaxIndex.php?a=printview&categoryID='+ categoryID);
                         };
                     }(res[i].categoryID));
-            	}
+                }
             }
             
             if(postRenderFormBrowser != undefined) {
-            	postRenderFormBrowser();
+                postRenderFormBrowser();
             }
         },
         cache: false
@@ -2185,7 +1947,7 @@ function viewHistory(categoryId){
     dialog_simple.setContent('');
     dialog_simple.setTitle('Form History');
     dialog_simple.show();
-	dialog_simple.indicateBusy();
+    dialog_simple.indicateBusy();
 
     $.ajax({
         type: 'GET',
@@ -2261,59 +2023,59 @@ function fetchFormSecureInfo() {
  * @param parentID
  */
 function createForm(parentID) {
-	if(parentID == undefined) {
-		parentID = '';
-		dialog.setTitle('New Form');
-	}
-	else {
-	    dialog.setTitle('New Internal-Use Form');
-	}
+    if(parentID == undefined) {
+        parentID = '';
+        dialog.setTitle('New Form');
+    }
+    else {
+        dialog.setTitle('New Internal-Use Form');
+    }
     dialog.setContent('<table>\
-    		             <tr>\
-    		                 <td>Form Label</td>\
-    		                 <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
-    		             </tr>\
-    		             <tr>\
-    		                 <td>Form Description</td>\
-                             <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
-                         </tr>\
-    		           </table>');
-			//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+                            <tr>\
+                                <td>Form Label</td>\
+                                <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
+                            </tr>\
+                            <tr>\
+                                <td>Form Description</td>\
+                                <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
+                            </tr>\
+                        </table>');
+            //ie11 fix
+        setTimeout(function () {
+            dialog.show();
+        }, 0);
 
 
     dialog.setSaveHandler(function() {
-    	let categoryName = $('#name').val();
-    	let categoryDescription = $('#description').val();
-    	$.ajax({
-    		type: 'POST',
-    		url: '../api/formEditor/new',
-    		data: {name: $('#name').val(),
-    			   description: $('#description').val(),
-    			   parentID: parentID,
-    			   CSRFToken: '<!--{$CSRFToken}-->'},
-    		success: function(res) {
-    			dialog.hide();
-    			currCategoryID = res;
+        let categoryName = $('#name').val();
+        let categoryDescription = $('#description').val();
+        $.ajax({
+            type: 'POST',
+            url: '../api/formEditor/new',
+            data: {name: $('#name').val(),
+                    description: $('#description').val(),
+                    parentID: parentID,
+                    CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                dialog.hide();
+                currCategoryID = res;
                 categories[res] = {};
                 categories[res].categoryID = res;
                 categories[res].categoryName = categoryName;
                 categories[res].categoryDescription = categoryDescription;
                 categories[res].workflowID = 0;
                 categories[res].parentID = '';
-    			if(parentID != '') {
-    			    categories[res].parentID = parentID;
-    				buildMenu(parentID);
-    				// hightlight the newly created form in the menu
-    				$('#menu>div').removeClass('buttonNormSelected');
-    	            $('#' + res).addClass('buttonNormSelected');
-    			}
-    			buildMenu(res);
+                if(parentID != '') {
+                    categories[res].parentID = parentID;
+                    buildMenu(parentID);
+                    // hightlight the newly created form in the menu
+                    $('#menu>div').removeClass('buttonNormSelected');
+                    $('#' + res).addClass('buttonNormSelected');
+                }
+                buildMenu(res);
                 openContent('ajaxIndex.php?a=printview&categoryID='+ res);
-    		}
-    	});
+            }
+        });
     });
 }
 
@@ -2331,12 +2093,11 @@ function formLibrary() {
     window.location.href = './?a=formLibrary';
 }
 
-var dialog, dialog_confirm, dialog_simple;
-var portalAPI;
+
 $(function() {
-	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+    dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
     $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     portalAPI = LEAFRequestPortalAPI();
@@ -2351,21 +2112,13 @@ $(function() {
     <!--{/if}-->
 
     <!--{if $referFormLibraryID != 0}-->
-    postRenderFormBrowser = function() { $('.formLibraryID_<!--{$referFormLibraryID}-->')
+    postRenderFormBrowser = function() {
+        $('.formLibraryID_<!--{$referFormLibraryID}-->')
         .animate({'background-color': 'yellow'}, 1000)
         .animate({'background-color': 'white'}, 1000)
         .animate({'background-color': 'yellow'}, 1000);
     };
     <!--{/if}-->
-    var CSRFToken = '<!--{$CSRFToken}-->';
 });
 
-
-// keypress functions for 508 compliance
-function onKeyPressClick(e){
-    let keyC = e.keyCode ? e.keyCode : e.which;
-    if(keyC === 13){
-        $(e.target).trigger('click');
-    }
-}
 </script>

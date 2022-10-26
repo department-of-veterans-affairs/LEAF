@@ -2,7 +2,7 @@
     <a href="./" class="buttonNorm"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" alt="Main Page" title="Main Page" />Main Page</a>
 {/if}
     <div id="headerMenuHelp_container" style="display: inline-block">
-        <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help" aria-haspopup="true" aria-expanded="false" role="button"><img style="vertical-align: sub;" src="../../libs/dynicons/?img=help-browser.svg&amp;w=16">&nbsp;Help</a>
+        <a id="button_showHelp" tabindex="0" class="buttonNorm" alt="Help Popup" title="Help" aria-haspopup="true" aria-expanded="false" role="button"><img style="vertical-align: sub;" src="../../libs/dynicons/?img=help-browser.svg&amp;w=16" alt=""/>&nbsp;Help</a>
         <div id="headerMenu_help" tabindex="0">
             For Help contact your primary admin:
             <div id="help-primary-admin" style="font-weight:bold;">
