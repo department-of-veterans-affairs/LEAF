@@ -661,7 +661,9 @@
                                     statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>Please make sure the file you are uploading is either a PDF, Word Document or similar format.`;
                                 }
                             },
-                            error: (err) => console.log(err),
+                            error: (err) => {
+                                statusEl.innerHTML = `${err.responseText}`;
+                            },
                             processData: false,
                             contentType: false
                         });
@@ -679,7 +681,7 @@
                             <img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
                             <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
                             <span style="display: inline-block; margin-left: auto; padding: 4px">[ 
-                                <button type="button" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">
+                                <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">
                                     Delete
                                 </button> ]
                             </span>
