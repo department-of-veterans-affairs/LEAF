@@ -830,8 +830,28 @@
                 }
             };
             <!--{/if}-->
+            var grpSel_<!--{$indicator.indicatorID}-->;
             $(function() {
-                var grpSel;
+                function initGroupSelector() {
+                    let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
+                    grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    grpSel.rootPath = '<!--{$orgchartPath}-->/';
+                    grpSel.searchTag('<!--{$orgchartImportTag}-->');
+
+                    grpSel.setSelectHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(grpSel.selection);
+                        $('#grpSel_<!--{$indicator.indicatorID}--> input.groupSelectorInput').val('group#'+grpSel.selection);
+                    });
+                    grpSel.setResultHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(grpSel.selection);
+                    });
+                    grpSel.initialize();
+                    <!--{if $indicator.value != ''}-->
+                    grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
+                    <!--{/if}-->
+                    return grpSel;
+                }
+
                 if(typeof groupSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
                     $.ajax({
@@ -839,42 +859,12 @@
                         url: "<!--{$orgchartPath}-->/js/groupSelector.js",
                         dataType: 'script',
                         success: function() {
-                        	grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                        	grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                        	grpSel.rootPath = '<!--{$orgchartPath}-->/';
-                        	grpSel.searchTag('<!--{$orgchartImportTag}-->');
-
-                        	grpSel.setSelectHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                                $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
-                            });
-                        	grpSel.setResultHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                            });
-                        	grpSel.initialize();
-                            <!--{if $indicator.value != ''}-->
-                            grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
-                            <!--{/if}-->
+                        	grpSel_<!--{$indicator.indicatorID}--> = initGroupSelector();
                         }
                     });
                 }
                 else {
-                	grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                	grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                	grpSel.rootPath = '<!--{$orgchartPath}-->/';
-
-                	grpSel.setSelectHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                        $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
-                    });
-                	grpSel.setResultHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                    });
-
-                	grpSel.initialize();
-                    <!--{if $indicator.value != ''}-->
-                    grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
-                    <!--{/if}-->
+                	grpSel_<!--{$indicator.indicatorID}--> = initGroupSelector();
                 }
             });
             </script>
@@ -928,8 +918,29 @@
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden"></input>
             <script>
+            var posSel_<!--{$indicator.indicatorID}-->;
             $(function() {
-            	var posSel;
+                function initPositionSelector() {
+                    let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
+                    posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    posSel.enableEmployeeSearch();
+
+                    posSel.setSelectHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(posSel.selection)
+                        $('#posSel_<!--{$indicator.indicatorID}--> input.positionSelectorInput').val('#'+posSel.selection);
+                    });
+                    posSel.setResultHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(posSel.selection)
+                    });
+
+                    posSel.initialize();
+                    <!--{if $indicator.value != ''}-->
+                    posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
+                    <!--{/if}-->
+
+                    return posSel;
+                }
+
                 if(typeof positionSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
                     $.ajax({
@@ -937,42 +948,12 @@
                         url: "<!--{$orgchartPath}-->/js/positionSelector.js",
                         dataType: 'script',
                         success: function() {
-                            posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                            posSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                            posSel.enableEmployeeSearch();
-
-                            posSel.setSelectHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
-                                $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
-                            });
-                            posSel.setResultHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
-                            });
-
-                            posSel.initialize();
-                            <!--{if $indicator.value != ''}-->
-                            posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
-                            <!--{/if}-->
+                            posSel_<!--{$indicator.indicatorID}--> = initPositionSelector();
                         }
                     });
                 }
                 else {
-                    posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    posSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    posSel.enableEmployeeSearch();
-
-                    posSel.setSelectHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection);
-                        $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
-                    });
-                    posSel.setResultHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection);
-                    });
-
-                    posSel.initialize();
-                    <!--{if $indicator.value != ''}-->
-                    posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
-                    <!--{/if}-->
+                    posSel_<!--{$indicator.indicatorID}--> = initPositionSelector();
                 }
             });
             <!--{if $indicator.required == 1}-->
@@ -1002,6 +983,7 @@
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
 
             <script>
+            var empSel_<!--{$indicator.indicatorID}-->;
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
@@ -1012,7 +994,7 @@
                 }
                 function importFromNational(empSel) {
                     if (empSel.selection === '') {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
+                        $('#<!--{$indicator.indicatorID}-->').val('');
                     } else {
                         $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
 
@@ -1036,17 +1018,17 @@
                 }
 
                 function empSearchSuccess() {
-                    var empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel_<!--{$indicator.indicatorID}--> = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                    empSel_<!--{$indicator.indicatorID}-->.apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel_<!--{$indicator.indicatorID}-->.rootPath = '<!--{$orgchartPath}-->/';
 
-                    empSel.setSelectHandler(function() {
-                        importFromNational(empSel);
+                    empSel_<!--{$indicator.indicatorID}-->.setSelectHandler(function() {
+                        importFromNational(empSel_<!--{$indicator.indicatorID}-->);
                     });
-                    empSel.setResultHandler(function() {
-                        importFromNational(empSel);
+                    empSel_<!--{$indicator.indicatorID}-->.setResultHandler(function() {
+                        importFromNational(empSel_<!--{$indicator.indicatorID}-->);
                     });
-                    empSel.initialize();
+                    empSel_<!--{$indicator.indicatorID}-->.initialize();
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
@@ -1059,11 +1041,11 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                            var query = empSel_<!--{$indicator.indicatorID}-->.runSearchQuery("userName:" + res.employee.userName);
                             //here, updates search field value when modal is opened
-                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
+                            $("#"+ empSel_<!--{$indicator.indicatorID}-->.prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
-                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                                empSel_<!--{$indicator.indicatorID}-->.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });
                         }
                     });
