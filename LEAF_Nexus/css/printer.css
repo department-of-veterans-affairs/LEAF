@@ -44,7 +44,8 @@ span#headerLabel {
     font-size: 16px;
 }
 
-span#headerDescription {
+#headerDescription {
+    margin: 0;
     position: absolute;
     font-size: 24px;
     color: black;
