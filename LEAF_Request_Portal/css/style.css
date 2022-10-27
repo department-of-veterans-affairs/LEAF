@@ -190,7 +190,8 @@ span#headerLabel {
     font-size: 16px;
 }
 
-span#headerDescription {
+#headerDescription {
+    margin: 0;
     position: absolute;
     font-size: 24px;
     color: black;
@@ -1206,7 +1207,7 @@ button.buttonNorm {
         margin-bottom: 4px;
     }
 
-    span#headerDescription {
+    #headerDescription {
         font-size: 16px;
     }
 

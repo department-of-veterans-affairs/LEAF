@@ -49,7 +49,7 @@
         {/if}
     {/if}
 {section name=i loop=$javascripts}
-    <script type="text/javascript" src="{$javascripts[i]}"></script>    
+    <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
@@ -67,7 +67,7 @@
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
       <span id="headerLabel">{$city|sanitize}</span>
-      <span id="headerDescription">{$title|sanitize}</span>
+      <h1 id="headerDescription">{$title|sanitize}</h1>
     </div>
     <span id="headerHelp">
         {if $leafSecure == 0}
