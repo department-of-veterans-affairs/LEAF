@@ -28,7 +28,7 @@
                 <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
 
-            <label <!--{if !$indicator.format|in_array:['text','date','currency','number','fileupload','image']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
+            <label <!--{if !$indicator.format|in_array:['text','date','currency','number']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
@@ -639,7 +639,7 @@
                 function addFile(indicatorID = 0, series = 1) {
                     const inputEl = document.getElementById(`${indicatorID}`);
                     if (inputEl?.files !== null) {
-                        const fileName = inputEl.files[0].name;
+                        const fileName = XSSHelpers.stripAllTags(inputEl.files[0].name);
                         const statusEl = document.getElementById(`file${indicatorID}_status`);
                         statusEl.style.display = 'block';
 
@@ -655,7 +655,8 @@
                             data: formData,
                             success: (res) => {
                                 if(parseInt(res) === 1) {
-                                    statusEl.innerText = `File ${fileName} has been attached`;
+                                    const msg = `File ${fileName} has been attached\r\n`;
+                                    statusEl.innerText = statusEl.querySelector('img') !== null ? msg : statusEl.innerText + msg;
                                 } else {
                                     statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>Please make sure the file you are uploading is either a PDF, Word Document or similar format.`;
                                 }
