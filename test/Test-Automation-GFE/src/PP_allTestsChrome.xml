@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="RegressionSuite-PreProd">
+
 <!--    -->
   
-   
+  <!--    
 	<test name="Home Page">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/">
 		<parameter name="browser" value="chrome"/>
@@ -13,7 +14,8 @@
 		</parameter>
 	</test>   
 
- <!--      		
+ 
+    		
 	<test name="User Access Groups">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
@@ -23,8 +25,7 @@
 		</parameter>
 	</test>
 
-	
- 	
+ 
 	
 	<test name="Admin Page">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/">
@@ -34,7 +35,9 @@
 			</classes>
 		</parameter>
 	</test>      
+ 
 
+ 
 
      
 	<test name="New Request Workflow">
@@ -46,8 +49,7 @@
 		</parameter>
 	</test>    
 
-
--->
+ -->
 
 	<test name="Org Chart Workflow">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/orgchart/">
@@ -59,7 +61,7 @@
 	</test>    
  
  
-
+ <!--  
  	<test name="Report Builder Workflow">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=reports">
 		<parameter name="browser" value="chrome"/>
@@ -69,7 +71,7 @@
 		</parameter>
 	</test>    
 
- 
+  -->
 
  	<test name="Forms Workflow">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">

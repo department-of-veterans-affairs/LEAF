@@ -226,9 +226,9 @@ public class formsWorkflowPart2 extends setupFramework {
 			waitMethods.waiter(waitMethods.w300);       
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+	   		//ele.click();
+	   		//ele.click();
+			//waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Test Question: Sensitive Data = N");
 		}
 		
@@ -444,9 +444,9 @@ public class formsWorkflowPart2 extends setupFramework {
 			waitMethods.waiter(waitMethods.w300);       
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+	   		//ele.click();
+	   		//ele.click();
+			//waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Test Question: Sensitive Data = Y");
 		}
 		
@@ -612,9 +612,9 @@ public class formsWorkflowPart2 extends setupFramework {
 			waitMethods.waiter(waitMethods.w300);       
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+	   		//ele.click();
+	   		//ele.click();
+	    	//waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Q2 Sub-Question 2: Sensitive Data = N");
 		}
 		
@@ -770,9 +770,9 @@ public class formsWorkflowPart2 extends setupFramework {
 			waitMethods.waiter(waitMethods.w300);       
 			WebElement ele = driver.findElement(By.id("sensitive"));
 	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+	   		//ele.click();
+	   		//ele.click();
+	    	//waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Q2 Sub-Question 3: Sensitive Data = N");
 		}
 		
@@ -934,9 +934,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q3: Sensitive Data = N");
 			}
 			
@@ -1098,9 +1098,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q3: Sensitive Data = N");
 			}
 			
@@ -1264,9 +1264,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q3S01: Sensitive Data = N");
 			}
 			
@@ -1425,9 +1425,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q3S02: Sensitive Data = N");
 			}
 			
@@ -1587,9 +1587,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+				//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q3S03: Sensitive Data = N");
 			}
 			
@@ -1747,9 +1747,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+				//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q4: Sensitive Data = N");
 			}
 			
@@ -1908,9 +1908,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q4S01: Sensitive Data = N");
 			}
 			
@@ -2070,9 +2070,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q4S02: Sensitive Data = N");
 			}
 			
@@ -2230,9 +2230,9 @@ public class formsWorkflowPart2 extends setupFramework {
 				waitMethods.waiter(waitMethods.w300);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
-		   		ele.click();
-		   		ele.click();
-				waitMethods.waiter(waitMethods.w300);
+		   		//ele.click();
+		   		//ele.click();
+		    	//waitMethods.waiter(waitMethods.w300);
 		    	System.out.println("Q5: Sensitive Data = N");
 			}
 			
