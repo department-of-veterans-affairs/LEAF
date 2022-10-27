@@ -519,10 +519,16 @@ function changeTitle() {
 function getChildrenIndicatorIDs(indicators) {
     let children = [];
 
-    if(indicators !== null) {
+    if(indicators !== null && typeof indicators === 'object') {
         Object.values(indicators).forEach(function (indicator) {
-            children.push(indicator.indicatorID);
-            if (indicator.child) {
+
+            // make sure indicatorID exists
+            if(indicator.indicatorID !== undefined){
+                children.push(indicator.indicatorID);
+            }
+
+            // make sure child exists
+            if (indicator.child !== undefined) {
                 let subchildren = getChildrenIndicatorIDs(indicator.child);
                 // well this took me a bit to realize concat returns the value of results
                 children = children.concat(subchildren);
@@ -666,7 +672,7 @@ function duplicateFrom(){
                             if(resultValue[series].format == 'fileupload' || resultValue[series].format == 'image'){
                                 if(resultValue[series].value.length > 0){
                                     resultValue[series].value.forEach(function(currentFile){
-                                        var fileDat = {
+                                        let fileDat = {
                                             fileName: currentFile,
                                             series: series,
                                             indicatorID: resultValue[series].indicatorID
