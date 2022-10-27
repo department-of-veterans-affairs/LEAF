@@ -597,14 +597,14 @@ abstract class RESTfulResponse
     /**
      * filterData is an experimental output filter used to lower data transfer to clients.
      * $_GET['x-filterData'] is a CSV of desired array keys. All other keys will be filtered out.
-     * 
+     *
      * id_timestamp is a special key to signal a need for s1.id##_timestamp values.
      * id_htmlPrint is a special key to signal a need for s1.id##_htmlPrint values.
-     * 
+     *
      * Arrays nested within first level keys can be retrieved via [key].[subkey]
      * For example, action_history.approverName would enable all approverNames within
      * each action_history item.
-     * 
+     *
      * The experimental parameter x-filterData is subject to change and use of this
      * should be limited.
      */
