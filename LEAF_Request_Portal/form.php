@@ -1373,7 +1373,8 @@ class Form
                                                                 USING (indicatorID)
                                                                 WHERE recordID=:recordID
                                                                     AND indicators.disabled = 0
-                                                                    AND data != ""', $vars);
+                                                                    AND data != ""
+                                                                    AND data IS NOT NULL', $vars);
             //use to count the number of required completions and organize completed data for possible condition checks                              
             $resCountCompletedRequired = 0;
             $resCompletedIndIDs = array();
@@ -1406,8 +1407,7 @@ class Form
 
                 foreach ($resRequestRequired as $ind) {
                     //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
-                    if(!in_array((int)$ind['indicatorID'], array_keys($resCompletedIndIDs)) && 
-                        $ind['conditions'] !== '' && $ind['conditions'] !== null && $ind['conditions'] !== 'null') {
+                    if(!in_array((int)$ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
                         
                         $conditions = json_decode(strip_tags($ind['conditions']));
                         $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
