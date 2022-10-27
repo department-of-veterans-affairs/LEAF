@@ -44,7 +44,7 @@ body { /* fixes header not extending entire width */
 }
 
 
-button.btn-general, button.btn-confirm, button.can_update {
+button.btn-general, button.btn-confirm {
     background-color: white;
     color: $base_navy;
     font-weight: bolder;
@@ -74,11 +74,6 @@ button.btn-confirm {
     color: white;
     background-color: $base_navy;
 }
-button.can_update {
-    margin-left: auto;
-}
-
-
 
 
 #form-editor-header {
@@ -339,7 +334,7 @@ button.can_update {
             position: absolute;
             left: 0.75rem;
             top: 2px;
-            color: #d00; 
+            color: #cb0000;
             font-size: 90%;
         }
     }
@@ -498,7 +493,7 @@ button.can_update {
     .formPreviewStatus {
         margin-top: auto;
         font-size: 80%;
-        color: #d00;
+        color: #cb0000;
     }
     .formPreviewWorkflow {
         display: flex;
@@ -663,10 +658,6 @@ div#form_content_view {
 
     div.printformblock {
         page-break-inside: avoid;
-        
-        &:not(:last-child) {
-            border-bottom: 1px solid black;
-        }
     }
 
     div.printResponse {
@@ -681,30 +672,11 @@ div#form_content_view {
         }
     }
 
-    button.icon {
-        margin-right: 0.3em;
-        padding: 0;
-        background-color: transparent;
-        border-radius: 2px;
-        border: 0;
-
-        &:hover, &:focus, &:active {
-            outline: 3px solid $LtNavy !important;
-        }
-        img {
-            display: block;
-        }
-    }
-
-    button.add-subquestion {
-        width: -moz-fit-content; /*firefox prior to nov 2021*/
-        width: fit-content;
-    }
 
     .form_editing_area {
         padding-bottom: 1rem;
         background-color: white;
-        margin: 0.4rem 0;
+        margin-bottom: 0.6rem;
 
         div[class*="SelectorBorder"] {
             background-color: transparent;
@@ -713,36 +685,23 @@ div#form_content_view {
             background-color: #e1f3f8;
         }
         .indicator-name-preview {
-            padding: 0.75rem 0.25rem 0 0.5rem;
+            padding: 0.75rem 0.25rem 0 0.75rem;
             /* text editor can insert p tags when used.  this keeps them from disrupting icons in the indicator name display */
             > p {
                 display: inline;
             }
             .input-required-sensitive {
-                color: #d00;
+                color: #cb0000;
                 margin-left: 0.4em;
             }
         }
 
         &.conditional {
-            color: white;
-            background-color: $BG-DarkNavy;
-            .adv-options-icon {
-                color: #b0ffd0;
-            }
-            .input-required-sensitive {
-                color: #f88;
-            }
-            .indicator-name-preview {
-                font-weight: 300;
-            }
-            img.sensitive-icon  {
-                filter: brightness(400%); 
-            }
+            background-color: saturate(darken($BG_Pearl, 2%), 15%);
         }
 
         div[id^="form_editing_toolbar_"] {
-            padding: 2px 0;
+            padding: 3px 0;
             display: flex;
             justify-content: space-between; 
             align-items: center;
@@ -753,34 +712,33 @@ div#form_content_view {
             > div {
                 display: flex; 
                 align-items: center;
-                align-self: stretch;
+                /*align-self: stretch;*/
             }
-
             span.sensitive-icon {
                 display:flex; 
                 align-items: center; 
                 margin-left: 0.4rem;
             }
-
-            &.conditional {
-                background-color: rgba($BG_Pearl, 0.12);
-                color: white;
-            }
-
             img {
                 max-width: none;
             }
-            span.toolbar-edit {
-                @include flexcenter();
-                background-color: $base_navy;
-                color: white;
-                font-weight: normal;
-                margin: 0 0.25em;
-                padding: 0.25em 0.5em;
-                font-size: 80%;
-                height: 100%;
-                border-radius: 3px;
-                letter-spacing: 1px;
+            button {
+                padding: 2px 0.4rem;
+            }
+            button.icon {
+                margin-right: 0.3em;
+                padding: 0;
+                background-color: transparent;
+                border-radius: 2px;
+                border: 0;
+
+                img {
+                    display: block;
+                }
+            }
+            button.add-subquestion {
+                width: -moz-fit-content; /*firefox prior to nov 2021*/
+                width: fit-content;
             }
         }
         &.form-header {
@@ -793,7 +751,7 @@ div#form_content_view {
         }
 
         .form_data_entry_preview {
-            padding: 0 0.25rem 0 0.5rem;
+            padding: 0 0.25rem 0 0.75rem;
 
             .format-preview {
                 position: relative;

@@ -220,13 +220,13 @@ export default {
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
         </div>
         <div id="edit-properties-other-properties">
-            <div style="display:flex;">
+            <div style="display:flex; justify-content: space-between;">
                 <button id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
                     @click="openEditCollaboratorsDialog">
                     Edit Collaborators
                 </button>
-                <button v-if="changesPending" class="can_update" title="Apply form property updates" @click="onSave">Apply updates</button>
+                <button v-if="changesPending" class="btn-general" title="Apply form property updates" @click="onSave">Apply updates</button>
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">

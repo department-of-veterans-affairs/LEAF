@@ -335,12 +335,12 @@ export default {
 
         <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <div style="display:flex; align-items: center;">
+            <div style="display:flex; align-items: center; justify-content: space-between;">
                 <h3 style="margin: 0;">Form Index</h3>
                 <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
-                    class="can_update"
+                    class="btn-general"
                     title="Apply form structure updates">Apply changes</button>
-                <button v-else class="can_update" title="drag and drop sections and apply updates to change form structure">ℹ</button>
+                <button v-else class="btn-general" title="drag and drop sections and apply updates to change form structure">ℹ</button>
             </div>
             <div style="margin: 1em 0">
                 <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 

@@ -109,6 +109,8 @@ export default {
                 const options = JSON.parse(this.indicator.options);
                 this.updateGridInstances(options, parseInt(this.indicator.indicatorID), parseInt(this.indicator.series));
                 this.gridInstances[this.indicator.indicatorID].input();
+                this.gridInstances[this.indicator.indicatorID].addRow();
+                this.updateGridPreview();
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
@@ -149,32 +151,21 @@ export default {
             if(orgSelector.enableEmployeeSearch !== undefined) orgSelector.enableEmployeeSearch();
             orgSelector.initialize();
         },
-        addGridRow() {
-            this.gridInstances[this.indicator.indicatorID].addRow();
-
-            //update hardcoded img paths, and listeners to use methods from the gridinstances object
+        /**
+         * removes images associated with grid data entry (preview shows only one row). Initially updating the src attributes avoids an error
+         */
+        updateGridPreview() {
             const elSelector = `#grid_${this.indicator.indicatorID}_${this.indicator.series}_input tbody > tr > td`;
             const elTDs = document.querySelectorAll(elSelector);
             const arrowIndex = elTDs.length - 1;
             const rmRowIndex = elTDs.length - 2;
-            let arrowImgs = elTDs[arrowIndex].querySelectorAll('img');  //[up, down ]
+            let arrowImgs = elTDs[arrowIndex].querySelectorAll('img');//[up, down ]
             let rmRowImg = elTDs[rmRowIndex].querySelector('img');
-
-            const deleteRow = this.gridInstances[this.indicator.indicatorID].deleteRow;
-            const moveUp = this.gridInstances[this.indicator.indicatorID].moveUp;
-            const moveDown = this.gridInstances[this.indicator.indicatorID].moveDown;
-            const triggerClick = this.gridInstances[this.indicator.indicatorID].triggerClick;
-
             arrowImgs[0]?.setAttribute('src', '../' + arrowImgs[0]?.getAttribute('src'));
-            arrowImgs[0].onclick = ()=> moveUp(event);
-            arrowImgs[0].onkeydown = ()=> triggerClick(event);
             arrowImgs[1]?.setAttribute('src', '../' + arrowImgs[1]?.getAttribute('src'));
-            arrowImgs[1].onclick = ()=> moveDown(event);
-            arrowImgs[1].onkeydown = ()=> triggerClick(event);
-
             rmRowImg?.setAttribute('src', '../' + rmRowImg.getAttribute('src'));
-            rmRowImg.onclick = ()=> deleteRow(event);
-            rmRowImg.onkeydown = ()=> triggerClick(event);
+            elTDs[arrowIndex].innerText = '';
+            elTDs[rmRowIndex].innerText = '';
         }
     },
     template: `<div class="format-preview">
@@ -256,11 +247,6 @@ export default {
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="buttonNorm" :id="'addRowBtn_' + indicator.indicatorID" 
-                title="Grid input add row" aria-label="Grid input add row" 
-                @click="addGridRow">
-                + Add row
-            </button>
         </template>
 
     </div>`

@@ -85,11 +85,7 @@ export default {
                     :id="'form_editing_toolbar_' + formNode.indicatorID"
                     :class="{'conditional': conditionalQuestion}">
                     <div>
-                        <span tabindex="0" role="button" style="cursor: pointer; display: flex; align-items:center;"
-                            @click="editQuestion(parseInt(formNode.indicatorID))"
-                            @keypress.enter="editQuestion(parseInt(formNode.indicatorID))"
-                            :title="'edit indicator ' + formNode.indicatorID">📝 <span class="toolbar-edit">EDIT</span>
-                        </span>
+                        <button @click="editQuestion(parseInt(formNode.indicatorID))" class="btn-general" :title="'edit indicator ' + formNode.indicatorID">Edit</button>
                         <span style="margin-left: 0.5rem; white-space:nowrap">
                             {{formNode?.format}}{{conditionalQuestion ? ', has conditions' : ''}}</span>
                         <span v-if="sensitive" v-html="sensitiveImg" style="margin-left: 0.4rem;"></span>
