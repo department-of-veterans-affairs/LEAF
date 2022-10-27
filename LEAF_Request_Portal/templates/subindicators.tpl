@@ -636,7 +636,7 @@
         <!--{/if}-->
         <!--{if ($indicator.format == 'fileupload' || $indicator.format == 'image') && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <script>
-                function addFile(indicatorID = 0, series = 1) {
+                function addFile(indicatorID = 0, series = 1, indFormat = '') {
                     const inputEl = document.getElementById(`${indicatorID}`);
                     if (inputEl?.files !== null) {
                         const fileName = XSSHelpers.stripAllTags(inputEl.files[0].name);
@@ -656,17 +656,22 @@
                             success: (res) => {
                                 if(parseInt(res) === 1) {
                                     const msg = `File ${fileName} has been attached\r\n`;
-                                    statusEl.innerText = statusEl.querySelector('img') !== null ? msg : statusEl.innerText + msg;
+                                    statusEl.innerText = statusEl.querySelector('img') !== null || statusEl.classList.contains('status_error') ? msg : statusEl.innerText + msg;
+                                    statusEl.classList.remove('status_error');
                                 } else {
-                                    statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>Please make sure the file you are uploading is either a PDF, Word Document or similar format.`;
+                                    const msg = indFormat.toLowerCase() === 'fileupload' ? 'Please ensure the file you are uploading is either a PDF, Word Document or similar format' :
+                                                                                           `Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG`;
+                                    statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>${msg}`;
+                                    statusEl.classList.add('status_error');
                                 }
                             },
                             error: (err) => {
                                 if (err?.status === 413) {
-                                    statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+                                    statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The file upload is too large.  The maximum upload size is <!--{$max_filesize|strip_tags}-->B';
                                 } else {
                                     statusEl.innerHTML = `${err?.responseText ? err?.responseText : ''}`;
                                 }
+                                statusEl.classList.add('status_error');
                             },
                             processData: false,
                             contentType: false
@@ -719,7 +724,8 @@
                 <!--{/if}-->  
                     <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
                         <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
-                            onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->)" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
+                            onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" 
+                                    <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
                     <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem;">
                         <img src="images/indicator.gif" alt="loading..." /> Attaching file...
