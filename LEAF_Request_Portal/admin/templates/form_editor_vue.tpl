@@ -5,7 +5,7 @@
         <template v-if="restoringFields===false">
             <div v-if="currCategoryID===null && appIsLoadingCategoryList === false" id="formEditor_content">
                 <!-- secure form section -->
-                <div v-show="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #d00; margin-bottom:1em;">
+                <div v-show="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #cb0000; margin-bottom:1em;">
                     <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span>
                     <a id="secureBtn" class="buttonNorm">View Details</a>
                 </div>

@@ -2,8 +2,7 @@ export default {
     data() {
         return {
             menuOpen: false,
-            menuPinned: false,
-            internalFormsMenuOpen: false,
+            menuPinned: false
         }
     },
     inject: [
@@ -12,6 +11,7 @@ export default {
         'selectNewCategory',
         'categories',
         'currCategoryID',
+        'currSubformID',
         'ajaxSelectedCategoryStapled',
         'formsStapledCatIDs',
         'restoringFields',
@@ -50,12 +50,6 @@ export default {
             if (!this.menuPinned) {
                 this.menuOpen = false;
             }
-        },
-        showInternalFormsMenu() {
-            this.internalFormsMenuOpen = true;
-        },
-        hideInternalFormsMenu() {
-            this.internalFormsMenuOpen = false;
         },
         /**
          * resolve main form, internal form, and workflow info, then export
@@ -122,18 +116,19 @@ export default {
             console.log('clicked a main form or main form staple', catID);
             this.selectNewCategory(catID, false);
         },
-        selectSubform(subformID){
+        selectSubform(subformID = ''){
             console.log('clicked a subform', 'sub', subformID, 'main', this.currCategoryID);
             this.selectNewCategory(subformID, true);
         },
         /**
          * //NOTE: uses XSSHelpers.js
-         * @param {string} formName 
+         * @param {string} categoryID 
          * @param {number} len 
          * @returns 
          */
-        shortFormNameStripped(formName = '', len = 21) {
-            let name = formName || 'Untitled';
+        shortFormNameStripped(catID = '', len = 21) {
+            const form = this.categories[catID] || '';
+            let name = form.categoryName || 'Untitled';
             name = XSSHelpers.stripAllTags(name);
             return this.truncateText(name, len).trim();
         },
@@ -180,6 +175,13 @@ export default {
                                 <button @click="openNewFormDialog" title="add new internal use form">
                                 Add Internal-Use<span>➕</span>
                                 </button>
+                                <ul v-if="internalForms.length > 0" id="internalForms">
+                                    <li v-for="i in internalForms" :key="i.categoryID">
+                                        <button :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                                        {{shortFormNameStripped(i.categoryID, 28)}}
+                                        </button>
+                                    </li>
+                                </ul>
                             </li>
                             <li v-if="!formsStapledCatIDs.includes(currCategoryID)">
                                 <button @click="openStapleFormsDialog" title="staple another form">
@@ -189,12 +191,12 @@ export default {
                                     </div>
                                     <span>📌</span>
                                 </button>
-                                <ul>
+                                <ul v-if="ajaxSelectedCategoryStapled.length > 0" id="stapledForms">
                                     <li v-for="s in ajaxSelectedCategoryStapled" 
                                         :key="'staple_' + s.stapledCategoryID">
-                                        <button @click="selectMainForm(s.categoryID)" class="stapled-form">
+                                        <button @click="selectMainForm(s.categoryID)">
                                             <div>
-                                                {{shortFormNameStripped(s.categoryName, 20) || 'Untitled'}}<br/>
+                                                {{shortFormNameStripped(s.categoryID, 20) || 'Untitled'}}<br/>
                                                 <span class="staple-sort-info">staple sort value: {{s.sort}}</span>
                                             </div>
                                             <span>📑</span>
@@ -227,31 +229,18 @@ export default {
                     </button>
                     <span v-if="currCategoryID!==null" class="header-arrow">❯</span>
                 </li>
-                
-                <template v-if="currCategoryID!==null">
-                    <li>
-                        <button type="button" :id="currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
-                            <h2><span class="header-icon">📂</span>{{shortFormNameStripped(categories[currCategoryID].categoryName, 22)}}</h2>
-                        </button>
-                        <span v-if="internalForms.length > 0" class="header-arrow">❯</span>
-                    </li>
-                </template>
-                
-                <template v-if="internalForms.length > 0">
-                    <li>
-                        <button type="button" 
-                            @mouseenter="showInternalFormsMenu">
-                            <h2><span class="header-icon">📋</span>Internal Forms</h2>
-                        </button>
-                        <ul v-if="internalFormsMenuOpen" id="internalForms" @mouseleave="hideInternalFormsMenu">
-                            <li v-for="i in internalForms" :key="i.categoryID">
-                                <button :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                                {{shortFormNameStripped(i.categoryName, 28)}}
-                                </button>
-                            </li>
-                        </ul>
-                    </li>
-                </template>
+                <li v-if="currCategoryID!==null">
+                    <button type="button" :id="currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
+                        <h2>{{shortFormNameStripped(currCategoryID, 22)}}</h2>
+                    </button>
+                    <span v-if="currSubformID!==null" class="header-arrow">❯</span>
+                </li>
+                <li v-if="currSubformID!==null">
+                    <button :id="currSubformID" @click="selectSubform(currSubformID)" title="select internal form">
+                        <h2>{{shortFormNameStripped(currSubformID, 28)}}</h2>
+                    </button>
+                </li>
+
             </ul>
         </nav>
         

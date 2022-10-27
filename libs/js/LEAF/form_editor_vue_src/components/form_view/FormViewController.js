@@ -348,7 +348,6 @@ export default {
                     id="show_entire_form" 
                     title="Show entire form">Show entire form
                 </button>
-                <button v-else class="btn-general disabled" disabled="true" style="width: 100%; margin-bottom: 0.5em;">Viewing entire form</button>
                 <button class="btn-general" style="width: 100%" 
                     @click="newQuestion(null)"
                     id="add_new_form_section"
