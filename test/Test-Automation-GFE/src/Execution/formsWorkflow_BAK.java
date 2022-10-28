@@ -31,7 +31,7 @@ import Framework.highlightElement;
 import Framework.dateAndTimeMethods;
 //import Framework.utilities;
 
-public class formsWorkflow extends setupFramework {
+public class formsWorkflow_BAK extends setupFramework {
 
 	//private static final DateFormat Calendar = null;
 	Date date = new Date();
@@ -1032,7 +1032,7 @@ public class formsWorkflow extends setupFramework {
 		
 		
 		
-		@Test(priority = 236) //  Select textarea element (actually the div above it)  //ERR HERE
+		@Test(priority = 236) //  Select textarea element (actually the div above it)
 		private void selectTextToFormat01() {			//
 			selectTextToFormat();
 		}	

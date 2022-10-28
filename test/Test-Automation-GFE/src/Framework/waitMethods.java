@@ -11,7 +11,6 @@ public class waitMethods {
 		try {
 			Thread.sleep(milli);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -28,6 +27,29 @@ public class waitMethods {
 		}
 	}
 	
+	
+	
+	public static void explicitWait() {
+		
+		try {
+			
+		} catch (Exception e) {
+			System.out.println("explicitWait caught");
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/*throws InterruptedException */ 
+	
+	
+	/*
+	 
+	  new WebDriverWait(driver, Duration.ofSeconds(3)).until(ExpectedConditions.elementToBeClickable(By.xpath("//a/h3")));
+	  
+	  
+	 
+	 * */
 	
 	
 	
