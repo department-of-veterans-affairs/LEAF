@@ -1,5 +1,5 @@
 import LeafFormDialog from "./components/LeafFormDialog.js";
-import IndicatorEditing from "./components/dialog_content/IndicatorEditing.js";
+import IndicatorEditingDialog from "./components/dialog_content/IndicatorEditingDialog.js";
 import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
@@ -112,7 +112,7 @@ export default {
     },
     components: {
         LeafFormDialog,
-        IndicatorEditing,
+        IndicatorEditingDialog,
         AdvancedOptionsDialog,
         NewFormDialog,
         ImportFormDialog,
@@ -464,7 +464,7 @@ export default {
                         this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
                         this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
-                    document.getElementById(catID).focus(); //focus the button for the main form
+                    document.getElementById('header_' + catID)?.focus(); //focus the breadcrumb/button for the main form
                 }).catch(err => console.log('error getting form info: ', err));
 
                 this.getStapledFormsByCurrentCategory(this.currCategoryID).then(res => this.ajaxSelectedCategoryStapled = res);
@@ -545,7 +545,7 @@ export default {
          * 
          * @param {number|null} indicatorID 
          */
-        openIndicatorEditing(indicatorID = null) {
+        openIndicatorEditingDialog(indicatorID = null) {
             let title = ''
             if (indicatorID === null) { //this is a new form section
                 title = `<h2>Adding new question</h2>`;
@@ -555,7 +555,7 @@ export default {
                 `<h2>Editing indicator ${indicatorID}</h2>` : `<h2>Adding question to ${indicatorID}</h2>`;
             }
             this.setCustomDialogTitle(title);
-            this.setFormDialogComponent('indicator-editing');
+            this.setFormDialogComponent('indicator-editing-dialog');
             this.showFormDialog = true;
         },
         /**
@@ -598,7 +598,7 @@ export default {
             this.isEditingModal = false;
             console.log('Adding new indicator.', 'currID should be null:', this.currIndicatorID, 
                 'parentID (null for new sections):', this.newIndicatorParentID, 'FORM:', this.currCategoryID);
-            this.openIndicatorEditing(parentIndID);
+            this.openIndicatorEditingDialog(parentIndID);
         },
         /**
          * get information about the indicator and open indicator editing
@@ -612,7 +612,7 @@ export default {
             this.getIndicatorByID(indicatorID).then(res => {
                 this.isEditingModal = true;
                 this.ajaxIndicatorByID = res;
-                this.openIndicatorEditing(indicatorID);
+                this.openIndicatorEditingDialog(indicatorID);
             }).catch(err => console.log('error getting indicator information', err));
         },
         checkSensitive(node = {}, isSensitive = false) {

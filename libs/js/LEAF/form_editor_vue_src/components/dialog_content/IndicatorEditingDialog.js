@@ -6,6 +6,8 @@ export default {
             initialFocusElID: 'name',
             showShortLabel: false,
             shortLabelTrigger: 50,
+            showAdditionalOptions: false,
+            showDetailedFormatInfo: false,
             formID: this.currSubformID || this.currCategoryID,
             formats: {
                 text: "Single line text",
@@ -141,8 +143,10 @@ export default {
         }
     },
     methods: {
-        toggleShortlabel() {
-            this.showShortLabel = !this.showShortLabel;
+        toggleSelection(event, dataPropertyName = 'showShortLabel') {
+            if(typeof this[dataPropertyName] === 'boolean') {
+                this[dataPropertyName] = !this[dataPropertyName];
+            }
         },
         getFormParentIDs() {
             return new Promise((resolve, reject)=> {
@@ -503,7 +507,7 @@ export default {
                     class="btn-general" 
                     style="margin-left: auto; width:135px"
                     title="access short label field"
-                    @click="toggleShortlabel">
+                    @click="toggleSelection($event, 'showShortLabel')">
                     {{showShortLabel ? 'Hide' : 'Use'}} Short Label
                 </button>
             </div>
@@ -562,14 +566,12 @@ export default {
         <fieldset id="indicator-editing-attributes">
             <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
             <div class="attribute-row">
-                <label class="checkable leaf_check" for="required"
-                    style="margin-right: 1rem;">
+                <label class="checkable leaf_check" for="required" style="margin-right: 1.25rem;">
                     <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
                         @change="preventSelectionIfFormatNone" />
                     <span class="leaf_check"></span>Required
                 </label>
-                <label class="checkable leaf_check" for="sensitive"
-                    style="margin-right: 1.5rem;">
+                <label class="checkable leaf_check" for="sensitive" style="margin-right: 2rem;">
                     <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
                         @change="preventSelectionIfFormatNone" />
                     <span class="leaf_check"></span>Sensitive Data (PHI/PII)
@@ -580,7 +582,7 @@ export default {
                     </label>
                 </template>
                 <template v-if="isEditingModal">
-                    <label class="checkable leaf_check" for="archived" style="margin-right: 1rem; margin-left: 1.5rem;">
+                    <label class="checkable leaf_check" for="archived" style="margin-right: 1.25rem; margin-left: 1.5rem;">
                         <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
                             v-model="archived" @change="radioBehavior" />
                         <span class="leaf_check"></span>Archive
@@ -592,11 +594,18 @@ export default {
                     </label>
                 </template>
             </div>
-            <template v-if="isEditingModal">
-                <div class="attribute-row">
+            <button v-if="isEditingModal" 
+                class="btn-general" 
+                style="width:155px; font-size: 80%;"
+                title="edit additional options"
+                @click="toggleSelection($event, 'showAdditionalOptions')">
+                {{showAdditionalOptions ? 'Hide' : 'Show'}} Additional Options
+            </button>
+            <template v-if="isEditingModal && showAdditionalOptions">
+                <div class="attribute-row" style="margin-top: 1rem;">
                     <template v-if="isLoadingParentIDs===false">
                         <label for="container_parentID" style="margin-right: 1.25rem;">
-                            <select v-model.number="parentID" id="container_parentID" style="width:230px; margin-right: 3px">
+                            <select v-model.number="parentID" id="container_parentID" style="width:200px; margin-right: 3px">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 
@@ -612,6 +621,7 @@ export default {
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px" />Sort Priority
                     </label>
                 </div>
+                <div>EDIT PRIVS</div>
             </template>
             <span v-show="archived" id="archived-warning">
                 This field will be archived.  It can be re-enabled by using Restore Fields.

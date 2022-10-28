@@ -85,12 +85,12 @@ button.btn-confirm {
 
     h1, h2, h3 {
         margin: 0;
+        color: black;
         @include flexcenter;
     }
     button {
-        color: black;
         background-color: transparent;
-        padding: 0.2rem 0.4rem 0.2rem 0.2rem;
+        padding: 0.2rem 0.4rem;
         border: 0;
         height: 36px;
     }
@@ -116,11 +116,9 @@ button.btn-confirm {
         }
     }
 
-    span.header-icon {
-        font-size: 80%;
-    }
     span.header-arrow {
         position: absolute;
+        color: $BG-DarkNavy;
         font-size: 1.5rem;
         top: 50%;
         transform: translateY(-50%);

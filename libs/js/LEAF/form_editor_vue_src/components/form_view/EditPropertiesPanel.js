@@ -224,7 +224,7 @@ export default {
                 <button id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
                     @click="openEditCollaboratorsDialog">
-                    Edit Collaborators
+                    Edit Special Write Access
                 </button>
                 <button v-if="changesPending" class="btn-general" title="Apply form property updates" @click="onSave">Apply updates</button>
             </div>
