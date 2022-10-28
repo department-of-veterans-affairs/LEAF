@@ -320,13 +320,14 @@ button.btn-confirm {
     #indicator-editing-attributes {
         position: relative;
         margin: 0;
-        padding: 1.25rem 0.75rem 0.5rem 0.75rem;
+        padding: 0.75rem;
         border-radius: 5px;
         border: 1px solid #ccd;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         min-width: fit-content;
         label {
-            @include flexcenter();
+            display: flex;
+            align-items: center;
             font-weight: normal;
             margin-bottom: 0;
         }
@@ -342,6 +343,14 @@ button.btn-confirm {
             top: 2px;
             color: #cb0000;
             font-size: 90%;
+        }
+        #indicatorPrivileges {
+            font-size: 90%;
+            line-height: 1.4;
+            max-width:650px;
+            label {
+                font-weight: bold;
+            }
         }
     }
     

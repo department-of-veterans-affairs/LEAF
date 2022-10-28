@@ -1,4 +1,5 @@
 import GridCell from "../GridCell";
+import IndicatorPrivileges from "../IndicatorPrivileges";
 
 export default {
     data() {
@@ -82,7 +83,8 @@ export default {
         }
     },
     components: {
-        GridCell
+        GridCell,
+        IndicatorPrivileges
     },
     mounted() {
         console.log('Indicator Editing mounted for', this.currIndicatorID, 'on form', this.formID);
@@ -604,7 +606,7 @@ export default {
             <template v-if="isEditingModal && showAdditionalOptions">
                 <div class="attribute-row" style="margin-top: 1rem;">
                     <template v-if="isLoadingParentIDs===false">
-                        <label for="container_parentID" style="margin-right: 1.25rem;">
+                        <label for="container_parentID" style="margin-right: 1.5rem;">
                             <select v-model.number="parentID" id="container_parentID" style="width:200px; margin-right: 3px">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
@@ -621,7 +623,7 @@ export default {
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px" />Sort Priority
                     </label>
                 </div>
-                <div>EDIT PRIVS</div>
+                <indicator-privileges></indicator-privileges>
             </template>
             <span v-show="archived" id="archived-warning">
                 This field will be archived.  It can be re-enabled by using Restore Fields.
