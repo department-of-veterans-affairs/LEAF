@@ -858,7 +858,9 @@
                 }
             };
             <!--{/if}-->
-            var grpSel_<!--{$indicator.indicatorID}-->;
+            if(grpSel != undefined) {
+                var grpSel = {};
+            }
             $(function() {
                 function initGroupSelector() {
                     let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
@@ -887,12 +889,12 @@
                         url: "<!--{$orgchartPath}-->/js/groupSelector.js",
                         dataType: 'script',
                         success: function() {
-                        	grpSel_<!--{$indicator.indicatorID}--> = initGroupSelector();
+                        	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
                         }
                     });
                 }
                 else {
-                	grpSel_<!--{$indicator.indicatorID}--> = initGroupSelector();
+                	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
                 }
             });
             </script>
@@ -946,7 +948,9 @@
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden" />
             <script>
-            var posSel_<!--{$indicator.indicatorID}-->;
+            if(posSel == undefined) {
+                var posSel = {};
+            }
             $(function() {
                 function initPositionSelector() {
                     let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
@@ -976,12 +980,12 @@
                         url: "<!--{$orgchartPath}-->/js/positionSelector.js",
                         dataType: 'script',
                         success: function() {
-                            posSel_<!--{$indicator.indicatorID}--> = initPositionSelector();
+                            posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
                         }
                     });
                 }
                 else {
-                    posSel_<!--{$indicator.indicatorID}--> = initPositionSelector();
+                    posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
                 }
             });
             <!--{if $indicator.required == 1}-->
@@ -1011,7 +1015,9 @@
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
 
             <script>
-            var empSel_<!--{$indicator.indicatorID}-->;
+            if(empSel == undefined) {
+                var empSel = {};
+            }
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
@@ -1046,17 +1052,17 @@
                 }
 
                 function empSearchSuccess() {
-                    empSel_<!--{$indicator.indicatorID}--> = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
-                    empSel_<!--{$indicator.indicatorID}-->.apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel_<!--{$indicator.indicatorID}-->.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel[<!--{$indicator.indicatorID}-->] = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                    empSel[<!--{$indicator.indicatorID}-->].apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel[<!--{$indicator.indicatorID}-->].rootPath = '<!--{$orgchartPath}-->/';
 
-                    empSel_<!--{$indicator.indicatorID}-->.setSelectHandler(function() {
-                        importFromNational(empSel_<!--{$indicator.indicatorID}-->);
+                    empSel[<!--{$indicator.indicatorID}-->].setSelectHandler(function() {
+                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
                     });
-                    empSel_<!--{$indicator.indicatorID}-->.setResultHandler(function() {
-                        importFromNational(empSel_<!--{$indicator.indicatorID}-->);
+                    empSel[<!--{$indicator.indicatorID}-->].setResultHandler(function() {
+                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
                     });
-                    empSel_<!--{$indicator.indicatorID}-->.initialize();
+                    empSel[<!--{$indicator.indicatorID}-->].initialize();
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
@@ -1069,11 +1075,11 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel_<!--{$indicator.indicatorID}-->.runSearchQuery("userName:" + res.employee.userName);
+                            var query = empSel[<!--{$indicator.indicatorID}-->].runSearchQuery("userName:" + res.employee.userName);
                             //here, updates search field value when modal is opened
-                            $("#"+ empSel_<!--{$indicator.indicatorID}-->.prefixID+"input").val("userName:" + res.employee.userName);
+                            $("#"+ empSel[<!--{$indicator.indicatorID}-->].prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
-                                empSel_<!--{$indicator.indicatorID}-->.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                                empSel[<!--{$indicator.indicatorID}-->].select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });
                         }
                     });
