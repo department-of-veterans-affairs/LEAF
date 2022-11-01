@@ -64,7 +64,7 @@ class Workflow
             unset($out[$item['stepID']]['moduleConfig']);
             if($item['moduleName'] != '') {
                 $out[$item['stepID']]['stepModules'][] = array('moduleName' => $item['moduleName'],
-                                                               'moduleConfig' => $item['moduleConfig']);
+                    'moduleConfig' => $item['moduleConfig']);
             }
         }
 
@@ -103,13 +103,32 @@ class Workflow
     										WHERE nextStepID = :stepID', $vars);
         $res = $this->db->prepared_query('DELETE FROM workflow_steps
                                             WHERE stepID = :stepID', $vars);
-                                            
+
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW_STEP, [
             new LogItem("workflow_steps", "stepID", $stepID),
             new LogItem("workflow_steps", "workflowID", $workflowID)
-        ]);  
+        ]);
 
         return 1;
+    }
+
+    public function getStep(int $stepID): array
+    {
+        $vars = array(':stepID' => $stepID);
+        $workflowStepsRes = $this->db->prepared_query('SELECT 
+            workflowID,stepID,stepTitle,stepBgColor,stepFontColor,stepBorder,jsSrc,posX,posY,
+            indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID,requiresDigitalSignature,stepData 
+            FROM workflow_steps 
+            WHERE stepID=:stepID;', $vars);
+
+        $workflowStep = [];
+
+        // all I want is the first item, we are grabbing it by its primary key
+        if (!empty($workflowStepsRes)) {
+            $workflowStep = current($workflowStepsRes);
+        }
+
+        return $workflowStep;
     }
 
     public function getAllSteps()
@@ -198,8 +217,8 @@ class Workflow
     public function getEvents($stepID, $action)
     {
         $vars = array(':workflowID' => $this->workflowID,
-                      ':stepID' => $stepID,
-                      ':action' => $action, );
+            ':stepID' => $stepID,
+            ':action' => $action, );
 
         $res = $this->db->prepared_query('SELECT * FROM route_events
                 LEFT JOIN events USING (eventID)
@@ -223,9 +242,9 @@ class Workflow
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-                      ':stepID' => $stepID,
-                      ':x' => $x,
-                      ':y' => $y, );
+            ':stepID' => $stepID,
+            ':x' => $x,
+            ':y' => $y, );
         $res = $this->db->prepared_query('UPDATE workflow_steps
                                             SET posX=:x, posY=:y
         									WHERE workflowID=:workflowID
@@ -249,36 +268,36 @@ class Workflow
 
         // clear out route events
         $vars = array(':workflowID' => $this->workflowID,
-                      ':stepID' => $stepID,
-                      ':action' => $action, );
+            ':stepID' => $stepID,
+            ':action' => $action, );
         $res = $this->db->prepared_query('DELETE FROM route_events
     										WHERE workflowID=:workflowID
     											AND stepID=:stepID
                                                 AND actionType=:action', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ROUTE_EVENTS, [
             new LogItem("route_events", "workflowID", $this->workflowID),
             new LogItem("route_events", "stepID", $stepID),
             new LogItem("route_events", "action", $action)
-        ]);          
+        ]);
 
         // clear out routes
         $vars = array(':workflowID' => $this->workflowID,
-                ':stepID' => $stepID,
-                ':nextStepID' => $nextStepID,
-                ':action' => $action, );
+            ':stepID' => $stepID,
+            ':nextStepID' => $nextStepID,
+            ':action' => $action, );
         $res = $this->db->prepared_query('DELETE FROM workflow_routes
     										WHERE workflowID=:workflowID
     											AND stepID=:stepID
     											AND nextStepID=:nextStepID
                                                 AND actionType=:action', $vars);
-                                                
+
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW_ROUTE, [
             new LogItem("workflow_routes", "workflowID", $this->workflowID),
             new LogItem("workflow_routes", "stepID", $stepID),
             new LogItem("workflow_routes", "nextStepID", $nextStepID),
             new LogItem("workflow_routes", "actionType", $action)
-        ]);  
+        ]);
 
         return true;
     }
@@ -297,21 +316,21 @@ class Workflow
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-                      ':stepID' => $stepID,
-                      ':nextStepID' => $nextStepID,
-                      ':action' => $action,
-                      ':displayConditional' => '',
+            ':stepID' => $stepID,
+            ':nextStepID' => $nextStepID,
+            ':action' => $action,
+            ':displayConditional' => '',
         );
         $res = $this->db->prepared_query('INSERT INTO workflow_routes (workflowID, stepID, nextStepID, actionType, displayConditional)
     										VALUES (:workflowID, :stepID, :nextStepID, :action, :displayConditional)', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW_ROUTE, [
             new LogItem("workflow_routes", "workflowID", $this->workflowID),
             new LogItem("workflow_routes", "stepID", $stepID),
             new LogItem("workflow_routes", "nextStepID", $nextStepID),
             new LogItem("workflow_routes", "actionType", $action),
             new LogItem("workflow_routes", "displayConditional", "")
-        ]);  
+        ]);
 
         return true;
     }
@@ -400,8 +419,11 @@ class Workflow
             ':newEventID' => $newName,
             ':eventType' => $type,
             ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                                              'NotifyNext' => $data['Notify Next'],
-                                              'NotifyGroup' => $data['Notify Group'])));
+                'NotifyNext' => $data['Notify Next'],
+                'NotifyGroup' => $data['Notify Group'],
+                'AutomateEmailGroup' => $data['Automate Email Group'],
+                'DateSelected' => $data['Date Selected'],
+                'DaysSelected' => $data['Days Selected'])));
 
         $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
 
@@ -454,15 +476,15 @@ class Workflow
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-                      ':stepID' => $stepID,
+            ':stepID' => $stepID,
         );
         $res = $this->db->prepared_query('UPDATE workflows SET initialStepID=:stepID
                                             WHERE workflowID=:workflowID', $vars);
-                                            
+
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW, [
             new LogItem("workflows", "initialStepID",  $stepID),
             new LogItem("workflows", "workflowID",  $this->workflowID)
-        ]);  
+        ]);
 
         if ($stepID != 0)
         {
@@ -491,21 +513,21 @@ class Workflow
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-                        ':stepTitle' => $stepTitle,
-                        ':jsSrc' => '',
+            ':stepTitle' => $stepTitle,
+            ':jsSrc' => '',
         );
         $res = $this->db->prepared_query('INSERT INTO workflow_steps (workflowID, stepTitle, jsSrc)
                                             VALUES (:workflowID, :stepTitle, :jsSrc)', $vars);
 
         $stepId = $this->db->getLastInsertID();
-        
+
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW_STEP, [
             new LogItem("workflow_steps", "stepID",  $stepId),
             new LogItem("workflow_steps", "stepTitle",  $stepTitle),
             new LogItem("workflow_steps", "jsSrc",  "", "empty"),
             new LogItem("workflow_steps", "workflowID",  $this->workflowID)
-        ]);          
-        
+        ]);
+
 
         return $stepId;
     }
@@ -529,20 +551,49 @@ class Workflow
         }
 
         $vars = array(':stepID' => $stepID,
-                      ':stepTitle' => $stepTitle,
+            ':stepTitle' => $stepTitle,
         );
         $res = $this->db->prepared_query('UPDATE workflow_steps
     										SET stepTitle=:stepTitle
     										WHERE stepID=:stepID', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
             new LogItem("workflows", "stepID", $stepID),
             new LogItem("workflows", "stepTitle",  $stepTitle),
             new LogItem("workflows", "jsSrc",  "", "empty"),
             new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
-        ]);    
+        ]);
 
         return 1;
+    }
+
+    public function saveStepData($stepID, $data){
+
+        // everything that seems to modify this stuff is run through here.
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required.';
+        }
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
+        $vars = [
+            ':stepID' => $stepID,
+            ':stepData' => json_encode([
+                'AutomateEmailGroup' => $data['Automate Email Group'],
+                'DateSelected' => $data['Date Selected'],
+                'DaysSelected' => $data['Days Selected']
+            ])
+        ];
+
+        $strSQL = "UPDATE workflow_steps SET stepData=:stepData WHERE stepID=:stepID";
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        return 1;
+
     }
 
     /**
@@ -634,15 +685,15 @@ class Workflow
         }
 
         $vars = array(':stepID' => $stepID,
-                      ':dependencyID' => $dependencyID,
+            ':dependencyID' => $dependencyID,
         );
         $res = $this->db->prepared_query('INSERT INTO step_dependencies (stepID, dependencyID)
                                             VALUES (:stepID, :dependencyID)', $vars);
-                                            
+
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::STEP_DEPENDENCY, [
             new LogItem("step_dependencies", "stepID",  $stepID),
             new LogItem("step_dependencies", "dependencyID",  $dependencyID)
-        ]);   
+        ]);
 
         // populate records_dependencies so we can filter on items immediately
         $this->db->prepared_query('INSERT IGNORE INTO records_dependencies (recordID, dependencyID, filled)
@@ -667,7 +718,7 @@ class Workflow
         }
 
         $vars = array(':stepID' => $stepID,
-                      ':dependencyID' => $dependencyID,
+            ':dependencyID' => $dependencyID,
         );
         $res = $this->db->prepared_query('DELETE FROM step_dependencies
     										WHERE stepID=:stepID
@@ -682,12 +733,12 @@ class Workflow
     									AND dependencyID=:dependencyID
     									AND filled=0
                                         AND records_dependencies.time IS NULL', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::STEP_DEPENDENCY, [
             new LogItem("step_dependencies", "stepID",  $stepID),
             new LogItem("step_dependencies", "dependencyID",  $dependencyID)
-        ]); 
-        
+        ]);
+
         return true;
     }
 
@@ -699,7 +750,7 @@ class Workflow
         }
 
         $vars = array(':dependencyID' => $dependencyID,
-                      ':description' => $description,
+            ':description' => $description,
         );
         $res = $this->db->prepared_query('UPDATE dependencies
     										SET description=:description
@@ -708,7 +759,7 @@ class Workflow
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::DEPENDENCY, [
             new LogItem("dependencies", "description",  $description),
             new LogItem("dependencies", "dependencyID",  $dependencyID)
-        ]); 
+        ]);
 
         return 1;
     }
@@ -730,7 +781,7 @@ class Workflow
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::DEPENDENCY, [
             new LogItem("dependencies", "description",  $description),
             new LogItem("dependencies", "dependencyID",  $insertedID)
-        ]); 
+        ]);
 
         return $insertedID;
     }
@@ -743,15 +794,15 @@ class Workflow
         }
 
         $vars = array(':dependencyID' => $dependencyID,
-                      ':groupID' => $groupID,
+            ':groupID' => $groupID,
         );
         $res = $this->db->prepared_query('INSERT INTO dependency_privs (dependencyID, groupID)
                                             VALUES (:dependencyID, :groupID)', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
             new LogItem("dependency_privs", "dependencyID",  $dependencyID)
-        ]); 
+        ]);
 
         return true;
     }
@@ -764,17 +815,17 @@ class Workflow
         }
 
         $vars = array(':dependencyID' => $dependencyID,
-                      ':groupID' => $groupID,
+            ':groupID' => $groupID,
         );
         $res = $this->db->prepared_query('DELETE FROM dependency_privs
     										WHERE dependencyID=:dependencyID
     											AND groupID=:groupID', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
             new LogItem("dependency_privs", "dependencyID",  $dependencyID)
-        ]); 
-        
+        ]);
+
         return true;
     }
 
@@ -805,21 +856,24 @@ class Workflow
         }
 
         $vars = array(':eventID' => $name,
-                      ':description' => $desc,
-                      ':eventType' => $type,
-                      ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                                                        'NotifyNext' => $data['Notify Next'],
-                                                        'NotifyGroup' => $data['Notify Group'])));
+            ':description' => $desc,
+            ':eventType' => $type,
+            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
+                'NotifyNext' => $data['Notify Next'],
+                'NotifyGroup' => $data['Notify Group'],
+                'AutomateEmailGroup' => $data['Automate Email Group'],
+                'DateSelected' => $data['Date Selected'],
+                'DaysSelected'=> $data['Days Selected'])));
 
         $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
 
         $this->db->prepared_query($strSQL, $vars);
 
         $vars = array(':description' => $desc,
-                      ':emailTo' => $name . '_emailTo.tpl',
-                      ':emailCc' => $name . '_emailCc.tpl',
-                      ':subject' => $name . '_subject.tpl',
-                      ':body' => $name . '_body.tpl');
+            ':emailTo' => $name . '_emailTo.tpl',
+            ':emailCc' => $name . '_emailCc.tpl',
+            ':subject' => $name . '_subject.tpl',
+            ':body' => $name . '_body.tpl');
 
         $strSQL = 'INSERT INTO email_templates (label, emailTo, emailCc, subject, body) VALUES (:description, :emailTo, :emailCc, :subject, :body)';
 
@@ -899,20 +953,20 @@ class Workflow
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-                      ':stepID' => $stepID,
-                      ':actionType' => $actionType,
-                      ':eventID' => $eventID,
+            ':stepID' => $stepID,
+            ':actionType' => $actionType,
+            ':eventID' => $eventID,
         );
         $res = $this->db->prepared_query('INSERT INTO route_events (workflowID, stepID, actionType, eventID)
     										VALUES (:workflowID, :stepID, :actionType, :eventID)', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::ROUTE_EVENTS, [
             new LogItem("route_events", "workflowID",  $this->workflowID),
             new LogItem("route_events", "actionType",  $actionType),
             new LogItem("route_events", "eventID",  $eventID),
             new LogItem("route_events", "stepID",  $stepID)
-        ]); 
-        
+        ]);
+
         return true;
     }
 
@@ -928,22 +982,22 @@ class Workflow
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-                ':stepID' => $stepID,
-                ':actionType' => $actionType,
-                ':eventID' => $eventID,
+            ':stepID' => $stepID,
+            ':actionType' => $actionType,
+            ':eventID' => $eventID,
         );
         $res = $this->db->prepared_query('DELETE FROM route_events
     										WHERE workflowID=:workflowID
     											AND stepID=:stepID
     											AND actionType=:actionType
     											AND eventID=:eventID', $vars);
-       
-       $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ROUTE_EVENTS, [
+
+        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ROUTE_EVENTS, [
             new LogItem("route_events", "workflowID",  $this->workflowID),
             new LogItem("route_events", "actionType",  $actionType),
             new LogItem("route_events", "eventID",  $eventID),
             new LogItem("route_events", "stepID",  $stepID)
-        ]); 
+        ]);
 
         return true;
     }
@@ -978,11 +1032,11 @@ class Workflow
 
         $res = $this->db->prepared_query('DELETE FROM workflows
     										WHERE workflowID = :workflowID', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW, [
             new LogItem("workflows", "workflowID",  $this->workflowID)
-        ]); 
-        
+        ]);
+
         return true;
     }
 
@@ -1002,7 +1056,7 @@ class Workflow
 
         $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW, [
             new LogItem("workflows", "workflowID",  $workflowID)
-        ]); 
+        ]);
 
         return $workflowID;
     }
@@ -1020,26 +1074,26 @@ class Workflow
         }
 
         $vars = array(':stepID' => $stepID,
-                      ':indicatorID' => $indicatorID, );
+            ':indicatorID' => $indicatorID, );
         $this->db->prepared_query('UPDATE workflow_steps
                                             SET indicatorID_for_assigned_empUID=:indicatorID
                                             WHERE stepID=:stepID', $vars);
-                                            
+
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
             new LogItem("workflow_steps", "stepID",  $stepID),
             new LogItem("workflow_steps", "indicatorID_for_assigned_empUID",  $indicatorID),
             new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
-        ]); 
+        ]);
 
         $vars = array(':indicatorID' => $indicatorID);
         $this->db->prepared_query('UPDATE indicators
     										SET required=1
                                             WHERE indicatorID=:indicatorID', $vars);
-       
-       $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
+
+        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
             new LogItem("indicators", "required",  1, "True"),
             new LogItem("indicators", "indicatorID",  $indicatorID)
-        ]);        
+        ]);
 
         return true;
     }
@@ -1057,16 +1111,16 @@ class Workflow
         }
 
         $vars = array(':stepID' => $stepID,
-                ':indicatorID' => $indicatorID, );
+            ':indicatorID' => $indicatorID, );
         $this->db->prepared_query('UPDATE workflow_steps
                                             SET indicatorID_for_assigned_groupID=:indicatorID
         									WHERE stepID=:stepID', $vars);
-        
+
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
             new LogItem("workflow_steps", "indicatorID_for_assigned_groupID",  $indicatorID),
             new LogItem("workflow_steps", "stepID",  $stepID),
             new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
-        ]);   
+        ]);
 
         $vars = array(':indicatorID' => $indicatorID);
         $this->db->prepared_query('UPDATE indicators
@@ -1076,7 +1130,7 @@ class Workflow
         $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
             new LogItem("indicators", "required",  1, "True"),
             new LogItem("indicators", "indicatorID",  $indicatorID)
-        ]);     
+        ]);
 
         return true;
     }
@@ -1206,7 +1260,7 @@ class Workflow
                     $hasEnd = true;
                 }
                 if (!isset($routeData[$step['nextStepID']])
-                        && $step['nextStepID'] != 0)
+                    && $step['nextStepID'] != 0)
                 {
                     unset($routeData[$key]['routes'][$stepKey]);
                 }
@@ -1265,13 +1319,13 @@ class Workflow
         }
 
         $vars = array(
-                ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
-                ':actionText' => strip_tags($_POST['actionText']),
-                ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
-                ':actionIcon' => $_POST['actionIcon'],
-                ':actionAlignment' => $alignment,
-                ':sort' => 0,
-                ':fillDependency' => $_POST['fillDependency'],
+            ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
+            ':actionText' => strip_tags($_POST['actionText']),
+            ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
+            ':actionIcon' => $_POST['actionIcon'],
+            ':actionAlignment' => $alignment,
+            ':sort' => 0,
+            ':fillDependency' => $_POST['fillDependency'],
         );
 
         $this->db->prepared_query('UPDATE actions SET actionText=:actionText, actionTextPasttense=:actionTextPasttense, actionIcon=:actionIcon, actionAlignment=:actionAlignment, sort=:sort, fillDependency=:fillDependency WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
@@ -1283,7 +1337,7 @@ class Workflow
             new LogItem("actions", "sort",  0),
             new LogItem("actions", "fillDependency",  $_POST['fillDependency']),
             new LogItem("actions", "actionTextPasttense",   strip_tags($_POST['actionTextPasttense']))
-        ]); 
+        ]);
 
         return 1;
     }
@@ -1309,7 +1363,7 @@ class Workflow
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ACTIONS, [
             new LogItem("actions", "actionType",  strip_tags($actionType)),
             new LogItem("actions", "deleted",  1, true)
-        ]); 
+        ]);
 
         return 1;
     }
@@ -1346,13 +1400,13 @@ class Workflow
             ':emailTemplate' => $emailTemplate,
             ':startDateIndicatorID' => (int)$startDateIndicatorID
         );
-        
+
         $res = $this->db->prepared_query(
             'INSERT INTO email_reminders (workflowID, stepID, actionType, frequency, recipientGroupID, emailTemplate, startDateIndicatorID)
             VALUES (:workflowID, :stepID, :actionType, :frequency, :recipientGroupID, :emailTemplate, :startDateIndicatorID)
             ON DUPLICATE KEY UPDATE frequency = :frequency, recipientGroupID = :recipientGroupID, emailTemplate = :emailTemplate, startDateIndicatorID = :startDateIndicatorID;',
             $vars);
-            
+
         return 1;
     }
 
@@ -1377,7 +1431,7 @@ class Workflow
             ':stepID' => (int)$stepID,
             ':actionType' => $actionType
         );
-        
+
         $res = $this->db->prepared_query(
             'DELETE FROM email_reminders WHERE (workflowID = :workflowID AND stepID = :stepID AND actionType = :actionType);',
             $vars);
