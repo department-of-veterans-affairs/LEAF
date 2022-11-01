@@ -65,7 +65,7 @@ export default {
                             <td>{{ f.name }}</td>
                             <td>{{ f.format }}</td>
                             <td>{{ f.disabled }}</td>
-                            <td><button class="buttonNorm" 
+                            <td><button class="btn-general" 
                                 @click="restoreField(parseInt(f.indicatorID))">
                                 Restore this field</button>
                             </td>

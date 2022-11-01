@@ -494,7 +494,7 @@ export default {
         <div>
             <label for="name">Field Name</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
-            <div style="display:flex; justify-content: space-between; font-size: 80%;">
+            <div style="display:flex; justify-content: space-between;">
                 <button class="btn-general" id="rawNameEditor"
                     title="use basic text editor"
                     @click="rawNameEditorClick" style="display: none; width:135px">
@@ -523,7 +523,7 @@ export default {
         </div>
         <div>
             <div>
-                <label for="indicatorType">Input Format</label><br/>
+                <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
                         <option value="">None</option>
@@ -531,7 +531,7 @@ export default {
                         :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
                     <button id="editing-format-assist" class="btn-general"
-                        title="select for assistance with format choices">
+                        title="select for assistance with format choices" style=" align-self:stretch;">
                         ℹ
                     </button>
                 </div>
@@ -565,26 +565,26 @@ export default {
                 <textarea id="defaultValue" v-model="defaultValue"></textarea> 
             </div>
         </div>
-        <fieldset id="indicator-editing-attributes">
-            <legend style="font-family:'PublicSans-Bold';">Attributes</legend>
+        <div id="indicator-editing-attributes">
+            <div><b>Indicator Attributes</b></div>
             <div class="attribute-row">
-                <label class="checkable leaf_check" for="required" style="margin-right: 1.25rem;">
+                <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
                     <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
                         @change="preventSelectionIfFormatNone" />
                     <span class="leaf_check"></span>Required
                 </label>
-                <label class="checkable leaf_check" for="sensitive" style="margin-right: 2rem;">
+                <label class="checkable leaf_check" for="sensitive" style="margin-right: 4rem;">
                     <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
                         @change="preventSelectionIfFormatNone" />
                     <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                 </label>
                 <template v-if="!isEditingModal">
                     <label for="sort">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px" />Sort Priority
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px;" />Sort Priority
                     </label>
                 </template>
                 <template v-if="isEditingModal">
-                    <label class="checkable leaf_check" for="archived" style="margin-right: 1.25rem; margin-left: 1.5rem;">
+                    <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
                         <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
                             v-model="archived" @change="radioBehavior" />
                         <span class="leaf_check"></span>Archive
@@ -598,16 +598,15 @@ export default {
             </div>
             <button v-if="isEditingModal" 
                 class="btn-general" 
-                style="width:155px; font-size: 80%;"
                 title="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
-                {{showAdditionalOptions ? 'Hide' : 'Show'}} Additional Options
+                {{showAdditionalOptions ? 'Hide' : 'Show'}} Advanced Attributes
             </button>
-            <template v-if="isEditingModal && showAdditionalOptions">
+            <template v-if="showAdditionalOptions">
                 <div class="attribute-row" style="margin-top: 1rem;">
                     <template v-if="isLoadingParentIDs===false">
-                        <label for="container_parentID" style="margin-right: 1.5rem;">
-                            <select v-model.number="parentID" id="container_parentID" style="width:200px; margin-right: 3px">
+                        <label for="container_parentID" style="margin-right: 2rem;">Parent Question ID
+                            <select v-model.number="parentID" id="container_parentID" style="width:260px;">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 
@@ -616,11 +615,11 @@ export default {
                                         {{kv[0]}}: {{truncateText(kv[1]['1'].name)}}
                                     </option>
                                 </template>
-                            </select>Parent Question ID
+                            </select>
                         </label>
                     </template>
-                    <label for="sort">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px" />Sort Priority
+                    <label for="sort">Sort Priority
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px;" />
                     </label>
                 </div>
                 <indicator-privileges></indicator-privileges>
@@ -631,6 +630,6 @@ export default {
             <span v-show="deleted" id="deletion-warning">
                 Deleted items can only be re-enabled within 30 days by using Restore Fields.
             </span>
-        </fieldset>
+        </div>
     </div>`
 };

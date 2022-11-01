@@ -3,7 +3,7 @@ export default {
         return {
             allGroups: [],
             groupsWithPrivileges: [],
-            group: ''
+            group: 0
         }
     },
     inject: [
@@ -29,7 +29,7 @@ export default {
             }),
             $.ajax({
                 type: 'GET',
-                url: `${this.APIroot}formEditor/_${this.currIndicatorID}/privileges`,
+                url: `${this.APIroot}formEditor/indicator/${this.currIndicatorID}/privileges`,
                 success: (res) => {
                     this.groupsWithPrivileges = res;
                 },
@@ -37,54 +37,88 @@ export default {
                 cache: false
             })
         ];
-        Promise.all(loadCalls).then(()=> {
-            console.log(this.allGroups, this.groupsWithPrivileges);
+        Promise.all(loadCalls).then((res)=> {
+            console.log(res);
         });
     },
     computed: {
         availableGroups() {
             const groupIDs = [];
-            this.groupsWithPrivileges.map(g => groupIDs.push(parseInt(g.groupID)));
+            this.groupsWithPrivileges.map(g => groupIDs.push(parseInt(g.id)));
             return this.allGroups.filter(g => !groupIDs.includes(parseInt(g.groupID)));
-        },
-        selectedGroupID() {
-            return parseInt(this.group.groupID || 0);
         }
     },
     methods:{
+        /**
+         * 
+         * @param {number} groupID 
+         */
         removeIndicatorPrivilege(groupID = 0){
             console.log(groupID);
+            if (groupID !== 0) {
+                $.ajax({
+                    method: 'POST',
+                    url: `${this.APIroot}formEditor/indicator/${this.currIndicatorID}/privileges/remove`,
+                    data: {
+                        groupID: groupID,
+                        CSRFToken: this.CSRFToken
+                    },
+                    success: res => {
+                        console.log(res);
+                        this.groupsWithPrivileges = this.groupsWithPrivileges.filter(g => g.id !== groupID);
+                    }, 
+                    error: err => console.log(err)
+                });
+            }
         },
+        /**
+         *  uses currently selected group to add privileges. Updates component data properties 'group' and 'groupsWithPrivileges' if successful
+         */
         addIndicatorPrivilege() {
-            console.log(this.currIndicatorID, groupID)
+            if (this.group !== 0) {
+                $.ajax({
+                    method: 'POST',
+                    url: `${this.APIroot}formEditor/indicator/${this.currIndicatorID}/privileges`,
+                    data: {
+                        groupIDs: [this.group.groupID],
+                        CSRFToken: this.CSRFToken
+                    },
+                    success: () => {
+                        this.groupsWithPrivileges.push({id: this.group.groupID, name: this.group.name});
+                        this.group = 0;
+                    }, 
+                    error: err => console.log('an error occurred while setting group access restrictions', err)
+                })
+            }
         }
     },
-    template:`<div id="indicatorPrivileges">
-                <hr/>
-                <div style="margin-bottom:0.5rem;"><b>Special access restrictions for this field</b> ({{currIndicatorID}})</div>
+    template:`<fieldset id="indicatorPrivileges"  style="font-size: 90%;">
+                <legend>Special access restrictions</legend>
                 <div>
-                    These restrictions will limit view access to the request initiator and members of any groups you specify.&nbsp; 
-                    Additionally, these restrictions will only allow the groups specified below to apply search filters for this field.&nbsp; 
+                    These restrictions limit view access to the request initiator and members of groups you specify.<br/> 
+                    They will also only allow the specified groups to apply search filters for this field.<br/>
                     All others will see "[protected data]".
                 </div>
-                <div v-if="groupsWithPrivileges.length===0" style="margin:0.5rem 0">Special access restrictions are not enabled. Normal access rules apply.</div>
-                <div v-else style="color: #cb0000; margin:0.5rem 0">Special access restrictions are enabled!
-                    <ul style="min-height: 30px;">
-                        <li v-for="g in groupsWithPrivileges" :key="g.name + g.groupID">
+                <div v-if="groupsWithPrivileges.length===0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
+                <div v-else style="margin:0.5rem 0">
+                    <div style="color: #cb0000;">Special access restrictions are enabled.</div>
+                    <ul>
+                        <li v-for="g in groupsWithPrivileges" :key="g.name + g.id">
                             {{g.name}}
-                            <button @click="removeIndicatorPrivilege(parseInt(g.groupID))"
-                                style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
+                            <button @click="removeIndicatorPrivilege(parseInt(g.id))"
+                                style="margin-left: 3px; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                                 :title="'remove ' + g.name">
                                 <b>[ Remove ]</b>
                             </button>
                         </li>
                     </ul>
                 </div>
-                
-                <label for="selectIndicatorPrivileges" style="">What group should have access to this question?</label>
-                <select id="selectIndicatorPrivileges" v-model="group" style="width:350px;">
-                    <option value="">Select a Group</option>
-                    <option v-for="g in availableGroups" :value="g">{{g.name}}</option>
-                </select>
-            </div>`
+                <label for="selectIndicatorPrivileges" style="">What group should have access to this field?</label>
+                <div style="display: flex; align-items: center;">
+                    <select id="selectIndicatorPrivileges" v-model="group" style="width:320px;">
+                        <option :value="0">Select a Group</option>
+                        <option v-for="g in availableGroups" :value="g">{{g.name}}</option>
+                    </select><button class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
+                </div>
+            </fieldset>`
 }

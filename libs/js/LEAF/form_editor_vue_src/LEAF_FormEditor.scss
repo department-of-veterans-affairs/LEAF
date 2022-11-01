@@ -43,12 +43,11 @@ body { /* fixes header not extending entire width */
     }
 }
 
-
 button.btn-general, button.btn-confirm {
     background-color: white;
     color: $base_navy;
     font-weight: bolder;
-    padding: 0.2em 0.4em;
+    padding: 2px 0.4em;
     border-radius: 3px;
     border: 2px solid $base_navy;
 
@@ -73,6 +72,11 @@ button.buttonNorm {
 button.btn-confirm {
     color: white;
     background-color: $base_navy;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
 
@@ -139,7 +143,6 @@ button.btn-confirm {
             }
         }
         ul {
-            list-style-type: none;
             position: relative;
             margin: 0;
             padding: 0;
@@ -291,63 +294,59 @@ button.btn-confirm {
     > div {
         margin-bottom: 1rem;
     }
-
+    button {
+        font-size:  80%;
+    }
     label {
         font-family: sans-serif;
         font-weight: bolder;
         white-space: nowrap;
+        align-self: stretch;
+        margin-bottom: 3px;
+        
+        &.checkable {
+            margin-bottom: 0;
+        }
     }
     input, select {
         height: 24px;
     }
-
     #name {
         width: 100%;
-        margin: 0.2rem 0 0.4rem 0;
+        margin-bottom: 0.4rem;
         padding: 0.2rem 0.4rem;
         display:block;
     }
     #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
         width: 100%;
-        margin-top: 2px;
     }
     button#editing-format-assist {
         align-self: flex-end;
         font-weight: normal;
-        font-size: 80%;
         margin-left: 3px;
     }
     #indicator-editing-attributes {
         position: relative;
-        margin: 0;
-        padding: 0.75rem;
-        border-radius: 5px;
-        border: 1px solid #ccd;
+        margin-top: 1rem;
+        padding: 0;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         min-width: fit-content;
-        label {
-            display: flex;
-            align-items: center;
-            font-weight: normal;
-            margin-bottom: 0;
-        }
+
         .attribute-row {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             justify-content: flex-start;
-            margin-bottom: 0.75rem;
+            margin: 1rem 0;
         }
         #archived-warning, #deletion-warning {
             position: absolute;
-            left: 0.75rem;
-            top: 2px;
+            left: 2rem;
+            top: 1.25rem;
             color: #cb0000;
             font-size: 90%;
         }
         #indicatorPrivileges {
-            font-size: 90%;
-            line-height: 1.4;
-            max-width:650px;
+            line-height: 1.6;
             label {
                 font-weight: bold;
             }
@@ -560,7 +559,6 @@ div#form_content_view {
         padding-left: 1em;
         display: flex;
         flex-direction: column; 
-        list-style-type: none;
         min-height: 6px;  /*NOTE: min height needed for drop zones*/
     }
     ul#base_drop_area {
