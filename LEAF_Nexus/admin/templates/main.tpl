@@ -47,7 +47,7 @@
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute">{$logo}</span>
       <span id="headerLabel">{$city}</span>
-      <span id="headerDescription">{$title}</span>
+      <h1 id="headerDescription">{$title}</h1>
     </div>
     <span id="headerHelp">
         {$login}

@@ -67,7 +67,7 @@ employeeSelector.prototype.showBusy = function() {
 
 employeeSelector.prototype.select = function(id) {
 	this.selection = id;
-	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
+	if(event != undefined && typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
 	$.each($('#'+ this.containerID +' .employeeSelected'), function(key, item) {
 		$('#' + item.id).removeClass('employeeSelected');
 		$('#' + item.id).addClass('employeeSelector');
@@ -286,3 +286,8 @@ employeeSelector.prototype.search = function() {
 	    }
 	}
 };
+
+employeeSelector.prototype.disableSearch = function() {
+    $('#' + this.containerID).css('display', 'none');
+    clearInterval(this.intervalID);
+}
