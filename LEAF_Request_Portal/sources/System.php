@@ -1046,7 +1046,7 @@ class System
             $employees = $nexus_group->listGroupEmployees($group['groupID']);
 
             foreach ($positions as $position) {
-                $employees = array_merge($employees, $position->getEmployees($position['positionID']));
+                $employees = array_merge($employees, $nexus_position->getEmployees($position['positionID']));
             }
 
             foreach ($employees as $employee) {
