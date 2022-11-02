@@ -539,7 +539,7 @@ export default {
                         {{ showDetailedFormatInfo ? 'Hide' : 'Show'}} Details
                     </button>
                 </div>
-                <div v-if="showDetailedFormatInfo" id="formatDetails">{{ formatInfo[format]}})</div>
+                <div v-if="showDetailedFormatInfo" id="formatDetails">{{ formatInfo[format]}}</div>
             </div>
             <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox:</label>
@@ -557,7 +557,7 @@ export default {
                 <div style="display:flex; align-items: center;">
                     <button class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
                         @click="appAddCell">
-                        ➕ Add column
+                        + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
                 </div>
                 <div style="overflow-x: scroll;" id="gridcell_col_parent">

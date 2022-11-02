@@ -39,29 +39,22 @@
 
 <div id="LEAF_conditions_editor"></div><!-- vue IFTHEN app mount -->
 
-<script>
-//variables used within this scope, type, and approx. locations of def/redef (if applicable)
-const CSRFToken = '<!--{$CSRFToken}-->';
-
-let postRenderFormBrowser;          //func @ ~184
-let portalAPI;                      //@ready
-
-let vueData = {
-    formID: 0,
-    indicatorID: 0,
-    updateIndicatorList: false
-}
-</script>
-
 <script src="https://unpkg.com/vue@3"></script>  <!-- DEV -->
 <!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>-->
-<script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
+<script src="../js/vue_conditions_editor/LEAF_conditions_editor.js" defer></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
 <script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
 
-
 <script>
+    const CSRFToken = '<!--{$CSRFToken}-->';
+    let postRenderFormBrowser;
+    let vueData = {
+        formID: 0,
+        indicatorID: 0,
+        updateIndicatorList: false
+    }
+
     $(function() {
         <!--{if $referFormLibraryID != ''}-->
         //postRenderFormBrowser = function() { 
