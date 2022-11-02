@@ -3,7 +3,8 @@ export default {
         return {
             allGroups: [],
             groupsWithPrivileges: [],
-            group: 0
+            group: 0,
+            statusMessageError: ''
         }
     },
     inject: [
@@ -33,7 +34,10 @@ export default {
                 success: (res) => {
                     this.groupsWithPrivileges = res;
                 },
-                error: err => console.log(err),
+                error: err => {
+                    console.log(err);
+                    this.statusMessageError = 'There was an error retrieving the Indicator Privileges. Please try again.';
+                },
                 cache: false
             })
         ];
@@ -54,7 +58,6 @@ export default {
          * @param {number} groupID 
          */
         removeIndicatorPrivilege(groupID = 0){
-            console.log(groupID);
             if (groupID !== 0) {
                 $.ajax({
                     method: 'POST',
@@ -64,7 +67,7 @@ export default {
                         CSRFToken: this.CSRFToken
                     },
                     success: res => {
-                        console.log(res);
+                        console.log(res); //NOTE: followup on this return value
                         this.groupsWithPrivileges = this.groupsWithPrivileges.filter(g => g.id !== groupID);
                     }, 
                     error: err => console.log(err)
@@ -92,30 +95,33 @@ export default {
             }
         }
     },
-    template:`<fieldset id="indicatorPrivileges"  style="font-size: 90%;">
-                <legend>Special access restrictions</legend>
+    template:`<fieldset id="indicatorPrivileges"  style="font-size: 90%; border-radius: 3px;">
+                <legend style="font-family: PublicSans-Bold">Special access restrictions</legend>
                 <div>
-                    These restrictions limit view access to the request initiator and members of groups you specify.<br/> 
+                    Restrictions will limit view access to the request initiator and members of specific groups.<br/> 
                     They will also only allow the specified groups to apply search filters for this field.<br/>
                     All others will see "[protected data]".
                 </div>
-                <div v-if="groupsWithPrivileges.length===0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
-                <div v-else style="margin:0.5rem 0">
-                    <div style="color: #cb0000;">Special access restrictions are enabled.</div>
-                    <ul>
-                        <li v-for="g in groupsWithPrivileges" :key="g.name + g.id">
-                            {{g.name}}
-                            <button @click="removeIndicatorPrivilege(parseInt(g.id))"
-                                style="margin-left: 3px; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                                :title="'remove ' + g.name">
-                                <b>[ Remove ]</b>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+                <template v-if="statusMessageError===''">
+                    <div v-if="groupsWithPrivileges.length===0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
+                    <div v-else style="margin:0.5rem 0">
+                        <div style="color: #cb0000;">Special access restrictions are enabled.</div>
+                        <ul>
+                            <li v-for="g in groupsWithPrivileges" :key="g.name + g.id">
+                                {{g.name}}
+                                <button @click="removeIndicatorPrivilege(parseInt(g.id))"
+                                    style="margin-left: 3px; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
+                                    :title="'remove ' + g.name">
+                                    <b>[ Remove ]</b>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </template>
+                <div v-else>{{ statusMessageError }}</div>
                 <label for="selectIndicatorPrivileges" style="">What group should have access to this field?</label>
                 <div style="display: flex; align-items: center;">
-                    <select id="selectIndicatorPrivileges" v-model="group" style="width:320px;">
+                    <select id="selectIndicatorPrivileges" v-model="group" style="width:260px;">
                         <option :value="0">Select a Group</option>
                         <option v-for="g in availableGroups" :value="g">{{g.name}}</option>
                     </select><button class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>

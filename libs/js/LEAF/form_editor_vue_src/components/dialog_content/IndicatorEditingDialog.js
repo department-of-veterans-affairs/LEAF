@@ -29,6 +29,9 @@ export default {
                 orgchart_employee: "Orgchart Employee",
                 raw_data: "Raw Data (for programmers)",
             },
+            formatInfo: {
+                text: 'test text info' //<!--TODO: -->
+            },
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
@@ -531,17 +534,19 @@ export default {
                         :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
                     <button id="editing-format-assist" class="btn-general"
-                        title="select for assistance with format choices" style=" align-self:stretch;">
-                        ℹ
+                        @click="toggleSelection($event, 'showDetailedFormatInfo')"
+                        title="select for assistance with format choices" style=" align-self:stretch; margin-left: 3px;">
+                        {{ showDetailedFormatInfo ? 'Hide' : 'Show'}} Details
                     </button>
                 </div>
+                <div v-if="showDetailedFormatInfo" id="formatDetails">{{ formatInfo[format]}})</div>
             </div>
             <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
-                <label for="indicatorSingleAnswer">Text for checkbox:</label><br/> 
+                <label for="indicatorSingleAnswer">Text for checkbox:</label>
                 <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
             </div>
             <div v-if="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
-                <label for="indicatorMultiAnswer">One option per line:</label><br/>
+                <label for="indicatorMultiAnswer">One option per line:</label>
                 <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
                 </textarea>
             </div>
@@ -549,24 +554,24 @@ export default {
                 <span id="tableStatus" style="position: absolute; color: transparent" 
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
-                <button class="buttonNorm" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
-                    @click="appAddCell">
-                    ➕ Add column
-                </button>
-                <br/><br/>
-                Columns ({{gridJSON.length}}):
+                <div style="display:flex; align-items: center;">
+                    <button class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                        @click="appAddCell">
+                        ➕ Add column
+                    </button>&nbsp;Columns ({{gridJSON.length}}):
+                </div>
                 <div style="overflow-x: scroll;" id="gridcell_col_parent">
                     <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
                     <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                 </div>
             </div>
             <div v-show="format!=='' && format!=='raw_data'" style="margin-top:0.75rem;">
-                <label for="defaultValue">Default Answer</label><br/>
+                <label for="defaultValue">Default Answer</label>
                 <textarea id="defaultValue" v-model="defaultValue"></textarea> 
             </div>
         </div>
         <div id="indicator-editing-attributes">
-            <div><b>Indicator Attributes</b></div>
+            <b>Attributes</b>
             <div class="attribute-row">
                 <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
                     <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
@@ -580,7 +585,7 @@ export default {
                 </label>
                 <template v-if="!isEditingModal">
                     <label for="sort">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px;" />Sort Priority
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px;" />Sort Priority
                     </label>
                 </template>
                 <template v-if="isEditingModal">
@@ -603,10 +608,10 @@ export default {
                 {{showAdditionalOptions ? 'Hide' : 'Show'}} Advanced Attributes
             </button>
             <template v-if="showAdditionalOptions">
-                <div class="attribute-row" style="margin-top: 1rem;">
+                <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
                     <template v-if="isLoadingParentIDs===false">
                         <label for="container_parentID" style="margin-right: 2rem;">Parent Question ID
-                            <select v-model.number="parentID" id="container_parentID" style="width:260px;">
+                            <select v-model.number="parentID" id="container_parentID" style="width:260px; margin-left:3px;">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 
@@ -619,16 +624,16 @@ export default {
                         </label>
                     </template>
                     <label for="sort">Sort Priority
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px;" />
+                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-left:3px;" />
                     </label>
                 </div>
                 <indicator-privileges></indicator-privileges>
             </template>
             <span v-show="archived" id="archived-warning">
-                This field will be archived.  It can be re-enabled by using Restore Fields.
+                This field will be archived. &nbsp;It can be<br/>re-enabled by using Restore Fields.
             </span>
             <span v-show="deleted" id="deletion-warning">
-                Deleted items can only be re-enabled within 30 days by using Restore Fields.
+                Deleted items can only be re-enabled<br />within 30 days by using Restore Fields.
             </span>
         </div>
     </div>`

@@ -80,7 +80,7 @@ export default {
                 success: ()=> {
                     this.html = htmlValue;
                     const time = new Date().toLocaleTimeString();
-                    document.getElementById('codeSaveStatus_html').innerHTML = '<br /> Last saved: ' + time;
+                    document.getElementById('codeSaveStatus_html').innerHTML = ', Last saved: ' + time;
                     this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                 },
                 error: (err) => console.log(err)
@@ -98,7 +98,7 @@ export default {
                 success: ()=> {
                     this.htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
-                    document.getElementById('codeSaveStatus_htmlPrint').innerHTML ='<br /> Last saved: ' + time;
+                    document.getElementById('codeSaveStatus_htmlPrint').innerHTML =', Last saved: ' + time;
                     this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                 },
                 error: (err) => console.log(err)
@@ -170,19 +170,19 @@ export default {
                         <td>Escape Full Screen mode</td>
                     </tr>
                 </table><br />
-                <div style="display:flex; justify-content: space-between;">
+                <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     html (for pages where the user can edit data): 
-                    <button id="btn_codeSave_html" @click="saveCodeHTML" class="buttonNorm" title="Save Code">
-                        <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
-                        Save Code<span id="codeSaveStatus_html"></span>
+                    <button id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
+                        <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="" />
+                        &nbsp;Save Code<span id="codeSaveStatus_html"></span>
                     </button>
                 </div>
                 <textarea id="html">{{html}}</textarea><br />
-                <div style="display:flex; justify-content: space-between;">
+                <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     htmlPrint (for pages where the user can only read data): 
-                    <button id="btn_codeSave_htmlPrint" @click="saveCodeHTMLPrint" class="buttonNorm" title="Save Code">
-                        <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="Save" />
-                        Save Code<span id="codeSaveStatus_htmlPrint"></span>
+                    <button id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
+                        <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="" />
+                        &nbsp;Save Code<span id="codeSaveStatus_htmlPrint"></span>
                     </button>
                 </div>
                 <textarea id="htmlPrint">{{htmlPrint}}</textarea>

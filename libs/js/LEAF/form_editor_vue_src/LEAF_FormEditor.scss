@@ -22,35 +22,31 @@ body { /* fixes header not extending entire width */
     min-width: fit-content;
 } 
 
-
+/* general app-wide styles and resets */
 #vue-formeditor-app {
     padding: 2rem 1rem;
     min-height: 100vh;
-
-    * {
-        box-sizing: border-box;
-    }
-    button:not(.choices__button) {
-        @include flexcenter;
-        cursor: pointer;
-        border-radius: 3px;
-        white-space: nowrap;
-        font-weight: bolder;
-
-        &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
-            outline: 2px solid #20a0f0 !important;
-        }
-    }
 }
-
-button.btn-general, button.btn-confirm {
-    background-color: white;
-    color: $base_navy;
+#vue-formeditor-app * {
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+}
+button:not(.choices__button,[class*="trumbowyg"]) {
+    @include flexcenter;
+    cursor: pointer;
     font-weight: bolder;
     padding: 2px 0.4em;
     border-radius: 3px;
+    white-space: nowrap;
+    font-weight: bolder;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        outline: 2px solid #20a0f0 !important;
+    }
+}
+button.btn-general, button.btn-confirm {
+    background-color: white;
+    color: $base_navy;
     border: 2px solid $base_navy;
-
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         background-color: $base_navy;
         color: white;
@@ -63,12 +59,6 @@ button.btn-general, button.btn-confirm {
         }
     }
 }
-button.buttonNorm {
-    padding: 0.2em 0.4em;
-    &:hover, &:focus, &:active {
-        border: 1px solid black !important;
-    }
-}
 button.btn-confirm {
     color: white;
     background-color: $base_navy;
@@ -78,6 +68,18 @@ ul {
     margin: 0;
     padding: 0;
 }
+label {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    white-space: nowrap;
+    margin-bottom: 2px;
+    &.checkable {
+        margin-bottom: 0;
+    }
+}
+
 
 
 #form-editor-header {
@@ -94,12 +96,10 @@ ul {
     }
     button {
         background-color: transparent;
-        padding: 0.2rem 0.4rem;
         border: 0;
         height: 36px;
     }
     button#form-editor-menu-toggle {
-        padding: 0.2em 0.4em;
         margin-right: 0.4rem;
         color: white;
         font-weight: normal;
@@ -187,12 +187,6 @@ ul {
                 font-weight: bold;
                 text-align: left;
                 border-bottom: 1px solid black;
-
-                /*&.stapled-form {
-                    color: white;
-                    font-weight: 400;
-                    background-color: darken(#e8f2ff, 70%);
-                }*/
         
                 &.selected, &:hover, &:focus, &:active {
                     z-index: 1;
@@ -246,6 +240,11 @@ ul {
     box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
     overflow: hidden;
 
+    * {
+        box-sizing: border-box;
+        font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+    }
+
     p {
         margin: 0;
         padding: 0;
@@ -255,7 +254,10 @@ ul {
     > div {
         padding: 0.75rem 1rem;
     }
-
+    li {
+        display: flex;
+        align-items: center;
+    }
     .leaf-vue-dialog-title {
         color: $charcoal;
         border-top: 3px solid white;
@@ -297,19 +299,8 @@ ul {
     button {
         font-size:  80%;
     }
-    label {
-        font-family: sans-serif;
-        font-weight: bolder;
-        white-space: nowrap;
-        align-self: stretch;
-        margin-bottom: 3px;
-        
-        &.checkable {
-            margin-bottom: 0;
-        }
-    }
     input, select {
-        height: 24px;
+        min-height: 24px;
     }
     #name {
         width: 100%;
@@ -320,14 +311,12 @@ ul {
     #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
         width: 100%;
     }
-    button#editing-format-assist {
-        align-self: flex-end;
-        font-weight: normal;
-        margin-left: 3px;
+    #formatDetails {
+        margin: 0.5rem 0;
     }
     #indicator-editing-attributes {
         position: relative;
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         padding: 0;
         width: -moz-fit-content; /*firefox prior to nov 2021*/
         min-width: fit-content;
@@ -340,16 +329,13 @@ ul {
         }
         #archived-warning, #deletion-warning {
             position: absolute;
-            left: 2rem;
-            top: 1.25rem;
+            right: 0;
+            top: 0;
             color: #cb0000;
             font-size: 90%;
         }
         #indicatorPrivileges {
-            line-height: 1.6;
-            label {
-                font-weight: bold;
-            }
+            line-height: 1.4;
         }
     }
     
@@ -377,11 +363,6 @@ ul {
             width: 100%;
             margin-bottom: 1rem;
         }
-        label {
-            padding: 0;
-            display: flex;
-            margin-bottom: 3px;
-        }
     }
 }
 
@@ -408,7 +389,6 @@ ul {
     input, select {
         border: 1px inset #dde;
         border-radius: 2px;
-        font-family: 'Source Sans Pro Web','Helvetica Neue',Helvetica,'Roboto',Arial,sans-serif;
         line-height: normal;
         min-height: 24px;
     }
@@ -417,7 +397,6 @@ ul {
     }
 
     #edit-properties-description {
-        position: relative;
         display: flex;
         flex-direction: column;
         height: 100%;
@@ -430,7 +409,6 @@ ul {
         textarea {
             width: 100%;
             height: 100%;
-            margin-top: 2px;
             padding: 0.2rem 0.5rem;
             border: 1px inset #dde;
             border-radius: 2px;
@@ -444,16 +422,15 @@ ul {
         bottom: 1px;
         font-size: 0.75rem;
     }
-    label {
-        white-space: nowrap;
-        font-size: 1rem;
-    }
     .panel-properties {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         margin-top: 1rem;
         height: 100%;
+        input, select {
+            margin-left: 3px;
+        }
     }
     #availability, #categorySort {
         margin-right: 1.5rem;
@@ -678,7 +655,7 @@ div#form_content_view {
         min-height: 50px;
         float: none; /* style.css style collision */
         border-radius: 4px;
-        border-left: 0.25rem solid $BG_Pearl;
+        border-left: 5px solid $BG_Pearl;
 
         &:not(.form-header) {
             margin-left: 0.75rem;
@@ -811,7 +788,6 @@ div#form_content_view {
 
 /* checkboxes and radio */
 .checkable.leaf_check {
-    font-family: Source Sans Pro Web, sans-serif;
     cursor: pointer;
     position: relative;
     display:flex;

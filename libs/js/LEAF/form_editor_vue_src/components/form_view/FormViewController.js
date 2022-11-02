@@ -291,33 +291,6 @@ export default {
     watch: {
         allListItemsAreAdded(newVal, oldVal){
             console.log('watch triggered, allListItemsAreAdded (New/Old value): ', newVal, oldVal);
-            /*
-            //this would auto update legacy sort to from prev sort val to new index based value.
-            if(newVal===true) {
-                if (this.sortValuesToUpdate.length > 0) {
-                    let updateSort = [];
-                    this.sortValuesToUpdate.forEach(item => {
-                        updateSort.push(
-                            $.ajax({
-                                type: 'POST',
-                                url: `${this.APIroot}formEditor/${item.indicatorID}/sort`,
-                                data: {
-                                    sort: item.listIndex,
-                                    CSRFToken: this.CSRFToken
-                                },
-                                success: () => {},
-                                error: err => console.log('ind sort post err', err)
-                            })
-                        );
-                    });
-                    Promise.all(updateSort).then((res)=> {
-                        console.log('promise all:', updateSort, res);
-                        if (res.length > 0) {
-                            this.selectNewCategory(this.formID, this.currSubformID !== null);
-                        }
-                    });
-                }
-            } */
         }
     },
     template:`

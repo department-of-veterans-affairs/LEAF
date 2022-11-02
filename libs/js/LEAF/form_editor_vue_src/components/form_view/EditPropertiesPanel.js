@@ -249,7 +249,7 @@ export default {
                     <div v-else style="color: #cb0000; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
                     <div v-if="currentCategoryIsSensitive" style="color: #cb0000; margin-bottom: 0.5rem;">
-                        <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b> &nbsp;&nbsp;Forced on because sensitive fields are present
+                        <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b> &nbsp;(forced on because sensitive fields are present)
                     </div>
                     <label v-else for="needToKnow" style="margin-bottom: 0.5rem;"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
