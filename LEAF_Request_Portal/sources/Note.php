@@ -38,14 +38,9 @@ class Note
      */
     public function __construct(\Db $db, \Login $login, \DataActionLogger $dataActionLogger)
     {
-        if ($login->checkGroup(1))
-        {
-            $this->db = $db;
-            $this->login = $login;
-            $this->dataActionLogger = $dataActionLogger;
-        } else {
-            exit();
-        }
+        $this->db = $db;
+        $this->login = $login;
+        $this->dataActionLogger = $dataActionLogger;
     }
 
 

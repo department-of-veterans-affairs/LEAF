@@ -46,13 +46,15 @@
 
     <div id="comments">
     <h1 id='comment_header'>Comments</h1>
-        <div id="notes">
-            <form id='note_form'>
-                <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
-                <input type='text' id='note' name='note' placeholder='Enter a note!' />
-                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
-            </form>
-        </div>
+        <!--{if $stepID > 0}-->
+            <div id="notes">
+                <form id='note_form'>
+                    <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
+                    <input type='text' id='note' name='note' placeholder='Enter a note!' />
+                    <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+                </form>
+            </div>
+        <!--{/if}-->
         <!--{section name=i loop=$comments}-->
             <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
                 <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
@@ -113,13 +115,13 @@
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-  $(window).keydown(function(event){
-    if(event.keyCode == 13) {
-      event.preventDefault();
-      submitNote(<!--{$recordID|strip_tags}-->);
-      return false;
-    }
-  });
+    $(window).keydown(function(event){
+        if(event.keyCode == 13 && ($('#note').is(":focus") || $('#add_note').is(":focus"))) {
+            event.preventDefault();
+            submitNote(<!--{$recordID|strip_tags}-->);
+            return false;
+        }
+    });
 });
 
 var currIndicatorID;
