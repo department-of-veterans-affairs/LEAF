@@ -1047,7 +1047,12 @@ class System
             $nexus_groups[$counter]['parentGroupID'] = null;
             $nexus_groups[$counter]['name'] = $group['groupTitle'];
 
-            $employees = array_merge($nexus_group->listGroupPositions($group['groupID']), $nexus_group->listGroupEmployees($group['groupID']));
+            $positions = $nexus_group->listGroupPositions($group['groupID']);
+            $employees = $nexus_group->listGroupEmployees($group['groupID']);
+
+            foreach ($positions as $position) {
+                $employees = array_merge($employees, $nexus_position->getEmployees($position['positionID']));
+            }
 
             foreach ($employees as $employee) {
                 if (isset($employee['userName']) && !empty($employee['userName'])) {
@@ -1113,7 +1118,9 @@ class System
             } else {
                 // service does not exist add it to the portal db
                 //echo 'The service \'' . $service['service'] . '\' was added.<br/>';
-                $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
+                if(is_numeric($service['serviceID']) && !empty($service['service']) && (is_numeric($service['groupID']) || is_null($service['groupID']))) {
+                    $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
+                }
             }
         }
 
