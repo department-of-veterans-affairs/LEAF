@@ -1114,7 +1114,9 @@ class System
             } else {
                 // service does not exist add it to the portal db
                 //echo 'The service \'' . $service['service'] . '\' was added.<br/>';
-                $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
+                if(is_numeric($service['serviceID']) && !empty($service['service']) && (is_numeric($service['groupID']) || is_null($service['groupID']))) {
+                    $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
+                }
             }
         }
 
