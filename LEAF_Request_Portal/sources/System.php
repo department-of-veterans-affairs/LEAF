@@ -947,6 +947,7 @@ class System
 
         // update services and service chiefs
         $services = $nexus_group->listGroupsByTag('service');
+        error_log(print_r($services, true));
 
         foreach ($services as $service) {
             $leader = $nexus_position->findRootPositionByGroupTag($nexus_group->getGroupLeader($service['groupID']), $nexus_tag->getParent('service'));
@@ -1242,8 +1243,10 @@ class System
     private function getOrgchartImportTags(OrgChart\Group $group): array
     {
         $groups = array();
+        $tags = Config::$orgchartImportTags;
+        $tags[] = 'Pentad';
 
-        foreach (Config::$orgchartImportTags as $tag)
+        foreach ($tags as $tag)
         {
             $groups = array_merge($groups, $group->listGroupsByTag($tag));
         }
