@@ -39,9 +39,18 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // DateSelected * DaysSelected * what is a day anyway= how many days to bug this person.
     $daysago = $eventDataArray['DateSelected'] * $eventDataArray['DaysSelected'];
-    $daysagotimestamp = time() - ($daysago * 60 * 60 * 24);
 
-    echo "Working on step: {$workflowStep['stepID']}, time calculation: {time()} - $daysago = $daysagotimestamp / {date('Y-m-d H:i:s',$daysagotimestamp)}\r\n";
+    // pass ?current=asdasd to get the present time for testing purposes
+    if(!empty($_GET['current'])){
+        $daysagotimestamp = time();
+        echo "Present day, Present time \r\n";
+    }
+    else{
+        $daysagotimestamp = time() - ($daysago * 60 * 60 * 24);
+
+        echo "Working on step: {$workflowStep['stepID']}, time calculation: {time()} - $daysago = $daysagotimestamp / {date('Y-m-d H:i:s',$daysagotimestamp)}\r\n";
+    }
+
 
     // step id, I think workflow id is also needed here
     $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
