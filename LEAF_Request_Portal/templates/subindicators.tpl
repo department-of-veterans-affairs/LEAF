@@ -888,15 +888,13 @@
                         resolve($.ajax({
                             type: 'GET',
                             url: "<!--{$orgchartPath}-->/js/groupSelector.js",
-                            dataType: 'script',
-                            success: function() {
-                                leaf_groupSelector[<!--{$indicator.indicatorID}-->] = initGroupSelector();
-                            }
+                            dataType: 'script'
+                        }).then(function() {
+                            return initGroupSelector();
                         }));
                     }
                     else {
-                        leaf_groupSelector[<!--{$indicator.indicatorID}-->] = initGroupSelector()
-                        resolve('grpSel <!--{$indicator.indicatorID}--> initialized');
+                        resolve(initGroupSelector());
                     }
                 });
             });
@@ -982,15 +980,13 @@
                         resolve($.ajax({
                             type: 'GET',
                             url: "<!--{$orgchartPath}-->/js/positionSelector.js",
-                            dataType: 'script',
-                            success: function() {
-                                leaf_positionSelector[<!--{$indicator.indicatorID}-->] = initPositionSelector();
-                            }
+                            dataType: 'script'
+                        }).then(function() {
+                            return initPositionSelector();
                         }));
                     }
                     else {
-                        leaf_positionSelector[<!--{$indicator.indicatorID}-->] = initPositionSelector();
-                        resolve('posSel <!--{$indicator.indicatorID}--> initialized');
+                        resolve(initPositionSelector());
                     }
                 });
             });
@@ -1100,15 +1096,13 @@
                         resolve($.ajax({
                             type: 'GET',
                             url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
-                            dataType: 'script',
-                            success: function() {
-                                leaf_employeeSelector[<!--{$indicator.indicatorID}-->] = initEmployeeSelector();
-                            }
+                            dataType: 'script'
+                        }).then(function() {
+                            initEmployeeSelector();
                         }));
                     }
                     else {
-                        leaf_employeeSelector[<!--{$indicator.indicatorID}-->] = initEmployeeSelector();
-                        resolve('empSel <!--{$indicator.indicatorID}--> initialized');
+                        resolve(initEmployeeSelector());
                     }
                 });
             });
