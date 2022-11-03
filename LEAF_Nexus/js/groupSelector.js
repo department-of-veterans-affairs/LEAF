@@ -31,11 +31,14 @@ function groupSelector(containerID) {
 
 groupSelector.prototype.initialize = function() {
     var t = this;
+    const id = this.containerID.split("_")[1];
+    const labelText = $("[for='" + id + "']").text().trim();
+    const arialLabelText = labelText.split("*")[0];
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="groupSelectorBorder">\
 			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ this.basePath +'../libs/dynicons/?img=search.svg&w=16" class="groupSelectorIcon" alt="search" />\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<img id="'+this.prefixID+'iconBusy" src="'+ this.basePath +'images/indicator.gif" style="display: none" class="groupSelectorIcon" alt="search" /></div>\
-			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput" aria-label="search" /></div>\
+			<input id="'+this.prefixID+'input" type="search" class="groupSelectorInput" aria-label="Search for user to add as ' + arialLabelText + '" /></div>\
 			<div id="'+this.prefixID+'result"></div>');
 
 	$(this.inputID).on('keydown', function(e) {
@@ -71,7 +74,7 @@ groupSelector.prototype.showBusy = function() {
 
 groupSelector.prototype.select = function(id) {
 	this.selection = id;
-	if(typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
+	if(event != undefined && typeof event.key !== 'undefined' && event.key.toLowerCase() !== 'enter') return;
 	nodes = $('#'+ this.containerID +' .groupSelected');
 	for(var i in nodes) {
 		if(nodes[i].id != undefined) {
@@ -233,3 +236,8 @@ groupSelector.prototype.search = function() {
 	    }
 	}
 };
+
+groupSelector.prototype.disableSearch = function() {
+    $('#' + this.containerID).css('display', 'none');
+    clearInterval(this.intervalID);
+}

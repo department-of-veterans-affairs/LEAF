@@ -16,6 +16,7 @@ include '../db_mysql.php';
 include '../db_config.php';
 require 'RESTfulResponse.php';
 require '../sources/Exception.php';
+require '../../libs/logger/dataActionLogger.php';
 require 'ControllerMap.php';
 
 $db_config = new DB_Config();
@@ -181,6 +182,15 @@ $controllerMap->register('userActivity', function() use ($db, $login, $action) {
     require 'controllers/UserActivity.php';
     $SignatureController = new UserActivity($db, $login);
     $SignatureController->handler($action);
+});
+
+$controllerMap->register('note', function() use ($db, $login, $action) {
+    require 'controllers/NotesController.php';
+
+    $dataActionLogger = new DataActionLogger($db, $login);
+
+    $NotesController = new NotesController($db, $login, $dataActionLogger);
+    $NotesController->handler($action);
 });
 
 $controllerMap->runControl($key);

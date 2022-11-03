@@ -12,29 +12,40 @@
     <div class="formblock">
     <!--{foreach from=$form item=indicator}-->
 
-                <!--{if $indicator.format == null || $indicator.format == 'textarea'}-->
-                <!--{assign var='colspan' value=2}-->
-                <!--{else}-->
-                <!--{assign var='colspan' value=1}-->
-                <!--{/if}-->
+        <!--{if $indicator.format == null || $indicator.format == 'textarea'}-->
+        <!--{assign var='colspan' value=2}-->
+        <!--{else}-->
+        <!--{assign var='colspan' value=1}-->
+        <!--{/if}-->
 
-                <!--{if $depth == 0}-->
+        <!--{if $depth == 0}-->
         <div class="mainlabel">
             <div>
-            <span tabIndex="0">
+            <!--{if $indicator.format|in_array:['text','date','currency','number','orgchart_employee','orgchart_group','orgchart_position']}-->
+            <label for="<!--{$indicator.indicatorID|strip_tags}-->">
+                <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
+            </label>
+            <!--{else}-->
+            <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
+            <!--{/if}-->
             </div>
-                <!--{else}-->
+        <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
-
-            <label <!--{if !$indicator.format|in_array:['text','date','currency','number']}--> tabIndex="0" <!--{/if}--> for="<!--{$indicator.indicatorID|strip_tags}-->">
+            <!--{if $indicator.format|in_array:['text','date','currency','number','orgchart_employee','orgchart_group','orgchart_position']}-->
+            <label for="<!--{$indicator.indicatorID|strip_tags}-->">
+                <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
+            </label>
+            <!--{else}-->
+            <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                     <!--{if $indicator.format == null}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
                         <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{/if}-->
-            </label>
+            </span>
+            <!--{/if}-->
             <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('/libs/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
@@ -47,7 +58,9 @@
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
             <div class="tableinput">
-            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" style="word-wrap:break-word; table-layout: fixed; height: 100%; display: table">
+            <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input" 
+                style="word-wrap:break-word; table-layout: fixed; height: 100%; display: table"
+                aria-label="<!--{$indicator.name|sanitizeRichtext}-->">
                 <thead>
                 </thead>
                 <tbody>
@@ -141,6 +154,7 @@
                 }
                 else {
                 	indicator.val(indicator.val().replace(/\<br\s?\/?>/g, "\n"));
+                    document.getElementById('<!--{$indicator.indicatorID|strip_tags}-->')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 }
                 function useAdvancedEditor() {
                     indicator.val(XSSHelpers.stripTags(indicator.val(), ['<script>']));
@@ -148,6 +162,7 @@
                         btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
                     });
                     $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
+                    document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> .trumbowyg-editor')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 }
                 $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').on('click', function() {
                     useAdvancedEditor();
@@ -182,20 +197,27 @@
                     <!--{assign var='option' value=$option[0]}-->
                     <!--{if $option|escape == $indicator.value}-->
                         <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                            class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                         <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                     <!--{else}-->
                         <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
+                        <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                            class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" 
+                            aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                         <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                     <!--{/if}-->
                 <!--{elseif $option|escape == $indicator.value}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                        class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" 
+                        checked="checked"  aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{else}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->">
-                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" />
+                    <input type="radio" id="<!--{$indicator.indicatorID|strip_tags}-->_radio<!--{$ctr}-->" 
+                        class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" 
+                         aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"/>
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
                 <!--{counter print=false}-->
@@ -267,6 +289,7 @@
                             }
                             elEmptyOption.selected = elSelect.value === '';
                         });
+                        document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> input.choices__input')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                     }
                 });
                 <!--{if $indicator.required == 1}-->
@@ -311,6 +334,7 @@
                 <script>
                 $(function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -484,7 +508,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'currency' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
-                <br />$<input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
+                $<input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
                 <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Value must be a valid currency</span>
             </span>
             <script type="text/javascript">
@@ -547,11 +571,11 @@
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if $option|escape == $indicator.value}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked"  aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{else}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->"  aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
             <!--{/foreach}-->
@@ -593,11 +617,15 @@
 
                 <!--{if $found}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" 
+                        name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" checked="checked"  
+                        aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{else}-->
                     <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
-                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" />
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" 
+                        name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="<!--{$option|sanitize}-->" 
+                        aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
                 
@@ -786,7 +814,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_group' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="grpSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
-            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none"></input>
+            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none" />
             <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Invalid Group</span>
             <script>
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
@@ -830,8 +858,30 @@
                 }
             };
             <!--{/if}-->
+            if(grpSel != undefined) {
+                var grpSel = {};
+            }
             $(function() {
-                var grpSel;
+                function initGroupSelector() {
+                    let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
+                    grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    grpSel.rootPath = '<!--{$orgchartPath}-->/';
+                    grpSel.searchTag('<!--{$orgchartImportTag}-->');
+
+                    grpSel.setSelectHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(grpSel.selection);
+                        $('#grpSel_<!--{$indicator.indicatorID}--> input.groupSelectorInput').val('group#'+grpSel.selection);
+                    });
+                    grpSel.setResultHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(grpSel.selection);
+                    });
+                    grpSel.initialize();
+                    <!--{if $indicator.value != ''}-->
+                    grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
+                    <!--{/if}-->
+                    return grpSel;
+                }
+
                 if(typeof groupSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
                     $.ajax({
@@ -839,42 +889,12 @@
                         url: "<!--{$orgchartPath}-->/js/groupSelector.js",
                         dataType: 'script',
                         success: function() {
-                        	grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                        	grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                        	grpSel.rootPath = '<!--{$orgchartPath}-->/';
-                        	grpSel.searchTag('<!--{$orgchartImportTag}-->');
-
-                        	grpSel.setSelectHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                                $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
-                            });
-                        	grpSel.setResultHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                            });
-                        	grpSel.initialize();
-                            <!--{if $indicator.value != ''}-->
-                            grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
-                            <!--{/if}-->
+                        	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
                         }
                     });
                 }
                 else {
-                	grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                	grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                	grpSel.rootPath = '<!--{$orgchartPath}-->/';
-
-                	grpSel.setSelectHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                        $('#grpSel_<!--{$indicator.indicatorID|strip_tags}--> input.groupSelectorInput').val('group#'+grpSel.selection);
-                    });
-                	grpSel.setResultHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(grpSel.selection);
-                    });
-
-                	grpSel.initialize();
-                    <!--{if $indicator.value != ''}-->
-                    grpSel.forceSearch('group#<!--{$indicator.value|strip_tags}-->');
-                    <!--{/if}-->
+                	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
                 }
             });
             </script>
@@ -926,10 +946,33 @@
             Search and select:
             <!--{/if}--><br />
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
-            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden"></input>
+            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden" />
             <script>
+            if(posSel == undefined) {
+                var posSel = {};
+            }
             $(function() {
-            	var posSel;
+                function initPositionSelector() {
+                    let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
+                    posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    posSel.enableEmployeeSearch();
+
+                    posSel.setSelectHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(posSel.selection)
+                        $('#posSel_<!--{$indicator.indicatorID}--> input.positionSelectorInput').val('#'+posSel.selection);
+                    });
+                    posSel.setResultHandler(function() {
+                        $('#<!--{$indicator.indicatorID}-->').val(posSel.selection)
+                    });
+
+                    posSel.initialize();
+                    <!--{if $indicator.value != ''}-->
+                    posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
+                    <!--{/if}-->
+
+                    return posSel;
+                }
+
                 if(typeof positionSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
                     $.ajax({
@@ -937,42 +980,12 @@
                         url: "<!--{$orgchartPath}-->/js/positionSelector.js",
                         dataType: 'script',
                         success: function() {
-                            posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                            posSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                            posSel.enableEmployeeSearch();
-
-                            posSel.setSelectHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
-                                $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
-                            });
-                            posSel.setResultHandler(function() {
-                                $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection)
-                            });
-
-                            posSel.initialize();
-                            <!--{if $indicator.value != ''}-->
-                            posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
-                            <!--{/if}-->
+                            posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
                         }
                     });
                 }
                 else {
-                    posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    posSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    posSel.enableEmployeeSearch();
-
-                    posSel.setSelectHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection);
-                        $('#posSel_<!--{$indicator.indicatorID|strip_tags}--> input.positionSelectorInput').val('#'+posSel.selection);
-                    });
-                    posSel.setResultHandler(function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val(posSel.selection);
-                    });
-
-                    posSel.initialize();
-                    <!--{if $indicator.value != ''}-->
-                    posSel.forceSearch('#<!--{$indicator.value|strip_tags|trim}-->');
-                    <!--{/if}-->
+                    posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
                 }
             });
             <!--{if $indicator.required == 1}-->
@@ -999,9 +1012,12 @@
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
-            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none"></input>
+            <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
 
             <script>
+            if(empSel == undefined) {
+                var empSel = {};
+            }
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
@@ -1012,7 +1028,7 @@
                 }
                 function importFromNational(empSel) {
                     if (empSel.selection === '') {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->').val('');
+                        $('#<!--{$indicator.indicatorID}-->').val('');
                     } else {
                         $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('*** Loading... ***');
 
@@ -1036,17 +1052,17 @@
                 }
 
                 function empSearchSuccess() {
-                    var empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel[<!--{$indicator.indicatorID}-->] = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                    empSel[<!--{$indicator.indicatorID}-->].apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel[<!--{$indicator.indicatorID}-->].rootPath = '<!--{$orgchartPath}-->/';
 
-                    empSel.setSelectHandler(function() {
-                        importFromNational(empSel);
+                    empSel[<!--{$indicator.indicatorID}-->].setSelectHandler(function() {
+                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
                     });
-                    empSel.setResultHandler(function() {
-                        importFromNational(empSel);
+                    empSel[<!--{$indicator.indicatorID}-->].setResultHandler(function() {
+                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
                     });
-                    empSel.initialize();
+                    empSel[<!--{$indicator.indicatorID}-->].initialize();
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
@@ -1059,11 +1075,11 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                            var query = empSel[<!--{$indicator.indicatorID}-->].runSearchQuery("userName:" + res.employee.userName);
                             //here, updates search field value when modal is opened
-                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
+                            $("#"+ empSel[<!--{$indicator.indicatorID}-->].prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
-                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                                empSel[<!--{$indicator.indicatorID}-->].select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });
                         }
                     });
