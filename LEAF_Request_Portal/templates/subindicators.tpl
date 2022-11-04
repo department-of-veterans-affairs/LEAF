@@ -858,9 +858,7 @@
                 }
             };
             <!--{/if}-->
-            if(typeof leaf_groupSelector == 'undefined') {
-                var leaf_groupSelector = {};
-            }
+            var leaf_groupSelector = leaf_groupSelector ?? {};
             $(function() {
                 function initGroupSelector() {
                     let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
@@ -949,9 +947,7 @@
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden" />
             <script>
-            if(typeof leaf_positionSelector == 'undefined') {
-                var leaf_positionSelector = {};
-            }
+            var leaf_positionSelector = leaf_positionSelector ?? {};
             $(function() {
                 function initPositionSelector() {
                     let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
@@ -1017,9 +1013,7 @@
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
 
             <script>
-            if(typeof leaf_employeeSelector == 'undefined') {
-                var leaf_employeeSelector = {};
-            }
+            var leaf_employeeSelector = leaf_employeeSelector ?? {};
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
