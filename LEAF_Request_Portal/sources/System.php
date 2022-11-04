@@ -947,7 +947,6 @@ class System
 
         // update services and service chiefs
         $services = $nexus_group->listGroupsByTag('service');
-        error_log(print_r($services, true));
 
         foreach ($services as $service) {
             $leader = $nexus_position->findRootPositionByGroupTag($nexus_group->getGroupLeader($service['groupID']), $nexus_tag->getParent('service'));

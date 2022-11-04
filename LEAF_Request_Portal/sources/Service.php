@@ -268,7 +268,7 @@ class Service
             $sql_vars = array(':groupID' => $groupID);
             $sql = 'SELECT groupID
                     FROM services
-   					WHERE serviceID = :groupID
+                    WHERE serviceID = :groupID
                     AND groupID = :groupID';
 
             $res = $this->db->prepared_query($sql, $sql_vars);
