@@ -1098,7 +1098,7 @@
                             url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
                             dataType: 'script'
                         }).then(function() {
-                            initEmployeeSelector();
+                            return initEmployeeSelector();
                         }));
                     }
                     else {
