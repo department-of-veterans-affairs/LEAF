@@ -530,7 +530,6 @@ function getChildrenIndicatorIDs(indicators) {
             // make sure child exists
             if (indicator.child !== undefined) {
                 let subchildren = getChildrenIndicatorIDs(indicator.child);
-                // well this took me a bit to realize concat returns the value of results
                 children = children.concat(subchildren);
             }
         });
