@@ -183,7 +183,7 @@ function getIndicatorLog(indicatorID, series) {
         url: "api/form/<!--{$recordID|strip_tags}-->/" + indicatorID + "/" + series + '/history',
         success: function(res) {
         	let numChanges = res.length;
-            let prev = '';
+                let prev = '';
         	for(let i = 0; i < numChanges; i++) {
         		curr = res.pop();
         		date = new Date(curr.timestamp * 1000);
