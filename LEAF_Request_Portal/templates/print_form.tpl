@@ -38,7 +38,7 @@
         <!--{else}-->
         <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
-        <button class="tools" onclick="duplicateFrom()" title="Duplicate From" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Duplicate From</button>
+        <button class="tools" onclick="copyRequest()" title="Copy Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Copy Request</button>
         <br />
         <br />
         <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
@@ -542,7 +542,7 @@ function getChildrenIndicatorIDs(indicators) {
  * popup for duplicating the current form
  * will allow an end user to choose which sections they would like to copy over
  */
-function duplicateFrom(){
+function copyRequest(){
 
     // this should be written in pure JS but 1. VUEjs, 2. Need to get it done.
     $('body').on('click','.pickAndChooseAll',function(event){
@@ -610,7 +610,7 @@ function duplicateFrom(){
         });
     }
 
-    dialog.setTitle('Duplicate From <!--{$title|escape:'quotes'}-->');
+    dialog.setTitle('Copy Request <!--{$title|escape:'quotes'}-->');
     dialog.setContent('Select new service: <br /><div id="changeService"></div>');
     dialog.setContent(''
         + 'Title:<br />'
