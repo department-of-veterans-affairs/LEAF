@@ -116,7 +116,7 @@ var printer = function() {
             function toArrayFormat(indicator) {
                 let selectedVals = '';
                 if (indicator.format === 'checkboxes') {
-                    selectedVals = indicator.value.slice() || [];
+                    selectedVals = Array.isArray(indicator.value) ? indicator.value.slice() || [] : [indicator.value];
                 } else if (indicator.format === 'multiselect') {  //old and new multisel data formats
                     selectedVals = Array.isArray(indicator.value) ?
                         indicator.value.slice() : indicator.value.split(/,(?!\s)/) || [];

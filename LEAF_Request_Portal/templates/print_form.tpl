@@ -11,7 +11,7 @@
     <!--{if $submitted == 0}-->
     <div id="progressSidebar" style="border: 1px solid black">
         <div style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Form completion progress</div>
-        <div id="progressControl" style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div id="progressBar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
+        <div id="progressControl" style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div tabIndex="0" id="progressBar" title="Progress Bar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
     </div>
     <!--{/if}-->
     <span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="submitStatus" role="status"></span>
@@ -30,23 +30,32 @@
         <br />
         <br />
         <!--{/if}-->
-        <button class="tools" onclick="viewHistory()" ><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle" /> View History</button>
-        <button class="tools" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" title="Write Email" style="vertical-align: middle"/> Write Email</button>
-        <button class="tools" id="btn_printForm"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" title="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: red; border: 1px solid black; padding: 4px">BETA</span></button>
+        <button type="button" class="tools" onclick="viewHistory()" title="View History"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" style="vertical-align: middle" /> View History</button>
+        <button type="button" class="tools" title="Write Email" onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'" ><img src="../libs/dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" style="vertical-align: middle"/> Write Email</button>
+        <button type="button" class="tools" id="btn_printForm" title="Print this Form"><img src="../libs/dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" style="vertical-align: middle" /> Print to PDF <span style="font-style: italic; background-color: white; color: #d00; border: 1px solid black; padding: 4px">BETA</span></button>
         <!--{if $bookmarked == ''}-->
-        <button class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" title="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
+        <button type="button" class="tools"  onclick="toggleBookmark()" id="tool_bookmarkText" title="Add Bookmark" role="status" aria-live="polite"><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark" style="vertical-align: middle" /> <span>Add Bookmark</span></button>
         <!--{else}-->
-        <button class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" title="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
+        <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Delete Bookmark" role="status" aria-live="polite" ><img src="../libs/dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark" style="vertical-align: middle"/> <span>Delete Bookmark</span></button>
         <!--{/if}-->
         <button class="tools" onclick="copyRequest()" title="Copy Request" style="vertical-align: middle; background-image: url(../libs/dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px"> Copy Request</button>
         <br />
         <br />
-        <button class="tools" id="btn_cancelRequest" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
+        <button type="button" class="tools" id="btn_cancelRequest" title="Cancel Request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" style="vertical-align: middle" /> Cancel Request</button>
     </div>
 
-    <!--{if count($comments) > 0}-->
+
     <div id="comments">
-    <h1>Comments</h1>
+    <h1 id='comment_header'>Comments</h1>
+        <!--{if $stepID > 0}-->
+            <div id="notes">
+                <form id='note_form'>
+                    <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
+                    <input type='text' id='note' name='note' placeholder='Enter a note!' />
+                    <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+                </form>
+            </div>
+        <!--{/if}-->
         <!--{section name=i loop=$comments}-->
             <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
                 <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
@@ -54,7 +63,6 @@
             </div>
         <!--{/section}-->
     </div>
-    <!--{/if}-->
 
     <div id="category_list">
         <h1>Internal Use</h1>
@@ -107,9 +115,19 @@
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
+
+$(document).ready(function() {
+    $(window).keydown(function(event){
+        if(event.keyCode == 13 && ($('#note').is(":focus") || $('#add_note').is(":focus"))) {
+            event.preventDefault();
+            submitNote(<!--{$recordID|strip_tags}-->);
+            return false;
+        }
+    });
+});
+
 let currIndicatorID;
 let currSeries;
-// There is another spot this is being set, the error does not always shows, and it is the only record id on the tpl
 var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
@@ -132,11 +150,49 @@ function doSubmit(recordID) {
             	for(let i in response.errors) {
             		errors += response.errors[i] + '<br />';
             	}
+
                 $('#submitControl').empty().html('Error: ' + errors);
                 $('#submitStatus').text('Request can not be submmited');
             }
-		}
-	});
+        },
+        error: function(res) {
+            console.log(res);
+        }
+    });
+}
+
+function submitNote(recordID){
+    if ($('#note').val().trim() !== '') {
+        var form = $("#note_form").serialize();
+
+        $.ajax({
+            type: 'POST',
+            url: "./api/note/" + recordID,
+            data: {form,
+            CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(response) {
+                $("#note").val('');
+
+                addNote(response);
+            },
+            error: function(res) {
+                console.log(res);
+            }
+        });
+    }
+}
+
+function addNote(response) {
+    if (typeof response === 'object' && response !== null) {
+        var new_note;
+
+        new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
+
+        $( new_note ).insertAfter( "#notes" );
+    } else {
+        console.log('An object was not returned');
+    }
+
 }
 
 function updateTags() {
@@ -160,18 +216,18 @@ function updateTags() {
 function getForm(indicatorID, series) {
   //ie11 fix
   setTimeout(function () {
-	   form.dialog().show();
+       form.dialog().show();
   }, 0);
-	form.setPostModifyCallback(function() {
+    form.setPostModifyCallback(function() {
         getIndicator(indicatorID, series);
         updateProgress();
         form.dialog().hide();
-	});
-	form.getForm(indicatorID, series);
+    });
+    form.getForm(indicatorID, series);
 }
 
 function getIndicatorLog(indicatorID, series) {
-	dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
+    dialog_message.setContent('Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_'+ indicatorID +'"></tbody></table>');
     dialog_message.indicateBusy();
     //ie11 fix
     setTimeout(function () {
@@ -193,9 +249,9 @@ function getIndicatorLog(indicatorID, series) {
         			data = diffString(prev, data);
         		}
 
-        		$('#history_' + indicatorID).prepend('<tr><td>'+ date.toString() +'<br /><b>'+ curr.name +'</b></td><td><span class="printResponse" style="font-size: 16px">'+ data +'</span></td></tr>');
-        		prev = curr.data;
-        	}
+                $('#history_' + indicatorID).prepend('<tr><td>'+ date.toString() +'<br /><b>'+ curr.name +'</b></td><td><span class="printResponse" style="font-size: 16px">'+ data +'</span></td></tr>');
+                prev = curr.data;
+            }
 
             dialog_message.indicateIdle();
         },
@@ -223,9 +279,10 @@ function getIndicator(indicatorID, series) {
             xhrIndicator.fadeOut(250, function() {
                 xhrIndicator.fadeIn(250);
             });
-            for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
-            }
+            handlePrintConditionalIndicators(formPrintConditions);
+        },
+        error: function(res) {
+            console.log(res);
         },
         error: function(){ console.log('There was an error getting the indicator!'); },
         cache: false
@@ -264,7 +321,7 @@ function updateProgress() {
                         });
                     },
                     error: function(response) {
-                    	$("#xhr").html("Error: " + response);
+                        $("#xhr").html("Error: " + response);
                     },
                     cache: false
                 });
@@ -344,49 +401,89 @@ function removeBookmark() {
     });
 }
 
-function handlePrintConditionalIndicators(formPrintConditions) {
-    const conditions = formPrintConditions.conditions;
-    const format = formPrintConditions.format;
-    for (let i in conditions) {
-        const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
-        const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+const valIncludesMultiselOption = (values = [], arrOptions = []) => {
+    let result = false;
+    let vals = values.map(v => v.replaceAll('\r', '').trim());
+    vals.forEach(v => {
+        if (arrOptions.includes(v)) {
+            result = true;
+        }
+    });
+    return result;
+}
 
-        if ((format === 'dropdown' || format === 'text')
-            && elParentInd !== null && conditions[i].selectedOutcome !== 'Pre-fill') {
-            //*NOTE: need format for various plugins (icheck, chosen, etc)
+function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
-            let comparison = false;
-            const val = elParentInd.innerHTML.trim();
-            const compVal = conditions[i].selectedParentValue;
-            //TODO: need format for some comparisons (eg str, num, dates), OR use distinct cases for numbers, dates etc
-            switch (conditions[i].selectedOp) {
-                case '==':
-                    comparison = val === compVal;
-                    break;
-                case '!=':
-                    comparison = val !== compVal;
-                    break;
-                case '>':
-                    comparison = val > compVal;
-                    break;
-                case '<':
-                    comparison = val < compVal;
-                    break;
-                default:
-                    console.log(conditions[i].selectedOp);
-                    break;
-            }
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
 
-            switch (conditions[i].selectedOutcome) {
-                case 'Hide':
-                    comparison ? elChildInd.style.display = "none" : elChildInd.style.display = "block";
-                    break;
-                case 'Show':
-                    comparison ? elChildInd.style.display = "block" : elChildInd.style.display = "none";
-                    break;
-                default:
-                    console.log(conditions[i].selectedOutcome);
-                    break;
+    for (c in formPrintConditions) {
+        const childFormat = formPrintConditions[c].format;  //current format of the controlled question
+        const childFormatIsEnabled = allowedChildFormats.some(f => f === childFormat);
+        const conditions = formPrintConditions[c].conditions;
+
+        let comparison = false;
+
+        for (let i in conditions) {
+            const parentFormat = conditions[i].parentFormat;
+
+            //dropdown element
+            const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
+            //multiselect li elements
+            const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 li`));
+            let arrParVals = [];
+            selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
+
+            const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
+            const outcome = conditions[i].selectedOutcome.toLowerCase();
+
+            if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+                const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;  //parent's current values entered into the form
+
+                let compVal = '';
+                if (parentFormat !== 'multiselect') { //parent values specified in the condition, w encoding rm'd
+                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+                } else {
+                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                    compVal = compVal.map(v => v.trim());
+                }
+
+                switch (conditions[i].selectedOp) {
+                    case '==':
+                        if (parentFormat !== 'multiselect') {
+                            comparison = comparison===false ? val === compVal : comparison;
+                        } else {
+                            comparison = comparison===false ? valIncludesMultiselOption(val, compVal) : comparison;
+                        }
+                        break;
+                    case '!=':
+                        if (parentFormat !== 'multiselect') {
+                            comparison = comparison===false ? val !== compVal : comparison;
+                        } else {
+                            comparison = comparison===false ? !valIncludesMultiselOption(val, compVal) : comparison;
+                        }
+                        break;
+                    case '>':
+                        comparison = val > compVal;
+                        break;
+                    case '<':
+                        comparison = val < compVal;
+                        break;
+                    default:
+                        console.log(conditions[i].selectedOp);
+                        break;
+                }
+
+                switch (outcome) {
+                    case 'hide':
+                        elChildInd.style.display = comparison===true ? 'none' : 'block';
+                        break;
+                    case 'show':
+                        elChildInd.style.display = comparison===true ? 'block' : 'none';
+                        break;
+                    default:
+                        console.log(conditions[i].selectedOutcome);
+                        break;
+                }
             }
         }
     }
@@ -400,7 +497,6 @@ function openContent(url) {
     	dataType: 'text',  // IE9 issue
     	success: function(res) {
     		$('#formcontent').empty().html(res);
-
     		// make box size more predictable
     		$('.printmainblock').each(function() {
                 let boxSizer = {};
@@ -420,9 +516,7 @@ function openContent(url) {
     				}
                 });
     		});
-            for (let c in formPrintConditions) {
-                handlePrintConditionalIndicators(formPrintConditions[c]);
-            }
+            handlePrintConditionalIndicators(formPrintConditions);
     	},
     	error: function(res) {
     		$('#formcontent').empty().html(res);
@@ -469,30 +563,31 @@ function viewHistory() {
 }
 
 function cancelRequest() {
-	dialog_confirm.setContent('<img src="../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
+    dialog_confirm.setContent('<img src="../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
 
-	dialog_confirm.setSaveHandler(function() {
-		$.ajax({
-			type: 'POST',
-			url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
-			data: {CSRFToken: '<!--{$CSRFToken}-->'},
+    dialog_confirm.setSaveHandler(function() {
+        $.ajax({
+            type: 'POST',
+            url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
+            data: {CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
-            	if(response == 1) {
+                if(response == 1) {
                     window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags}-->";
                 }
-            	else {
-            		alert(response);
-            	}
+                else {
+                    alert(response);
+                }
             },
             error: function(){ console.log('There was an error canceling the request!'); },
             cache: false
-		});
-	});
-	dialog_confirm.show();
+        });
+    });
+    dialog_confirm.show();
 }
 
 function changeTitle() {
     dialog.setContent('Title: <input type="text" id="title" style="width: 300px" name="title" value="<!--{$title|escape:'quotes'}-->" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
+
     dialog.show();
     dialog.setSaveHandler(function() {
         $.ajax({
@@ -840,7 +935,8 @@ function admin_changeStep() {
         		workflows[res[i].workflowID] = 1;
         	}
 
-        	$.ajax({
+
+            $.ajax({
                 type: 'GET',
                 url: 'api/workflow/steps',
                 dataType: 'json',
@@ -851,15 +947,16 @@ function admin_changeStep() {
                 	for(let i in res) {
                 		if(Object.keys(workflows).length == 0
                 			|| workflows[res[i].workflowID] != undefined) {
+
                             steps += '<option value="'+ res[i].stepID +'">' + res[i].description + ': ' + res[i].stepTitle +'</option>';
                             stepCounter++;
-                		}
+                        }
                         steps2 += '<option value="'+ res[i].stepID +'">' + res[i].description + ' - ' + res[i].stepTitle +'</option>';
-                	}
-                	if(stepCounter == 0) {
-                		steps += steps2;
-                	}
-                	steps += '</select>';
+                    }
+                    if(stepCounter == 0) {
+                        steps += steps2;
+                    }
+                    steps += '</select>';
                     $('#changeStep').html(steps);
 
                     $('#showAllSteps').on('click', function() {
@@ -883,6 +980,7 @@ function admin_changeStep() {
                                 comment: $('#changeStep_comment').val(),
                                 CSRFToken: CSRFToken
                             },
+
                             success: function() {
                                 window.location.href="index.php?a=printview&recordID=<!--{$recordID|strip_tags}-->";
                             },
@@ -893,7 +991,7 @@ function admin_changeStep() {
                 },
                 error: function(){ console.log('There was an error getting workflow steps!'); },
                 cache: false
-        	});
+            });
         },
         error: function(){ console.log('There was an error getting the current step!'); },
         cache: false
@@ -916,6 +1014,7 @@ function admin_changeForm() {
             let categories = '';
             for(let i in res) {
             	categories += '<label class="checkable leaf_check" for="category_'+ res[i].categoryID +'">';
+
                 categories += '<input type="checkbox" class="icheck admin_changeForm leaf_check" id="category_'+ res[i].categoryID +'" name="categories[]" value="'+ res[i].categoryID +'" />';
                 categories += '<span class="leaf_check"></span>'+ res[i].categoryName +'</label>';
             }
@@ -928,6 +1027,7 @@ function admin_changeForm() {
             	$('.admin_changeForm:checked').each(function() {
             		data['categories[]'].push($(this).val());
             	});
+
                 $.ajax({
                     type: 'POST',
                     url: 'api/form/<!--{$recordID|strip_tags}-->/types',
@@ -955,8 +1055,8 @@ function admin_changeForm() {
                             if($(this).text() === temp[i]) {
                                 $('#' + $(this).attr('for')).prop('checked', true);
                             }
-                		}
-                	});
+                        }
+                    });
                 },
                 error: function(){ console.log('There was an error getting the form via query!'); },
                 cache: false
@@ -983,15 +1083,16 @@ function admin_changeInitiator() {
                     CSRFToken: CSRFToken,
                     initiator: changeInitiator.val()
                 },
+
                 success: function() {
                     location.reload();
                 },
                 error: function(){ console.log('There was an error saving the initiator!'); }
             });
-    	}
-    	else {
-    		alert('An employee needs to be selected');
-    	}
+        }
+        else {
+            alert('An employee needs to be selected');
+        }
     });
 
     let empSel;
@@ -1001,12 +1102,12 @@ function admin_changeInitiator() {
         empSel.rootPath = '<!--{$orgchartPath}-->/';
 
         empSel.setSelectHandler(function() {
-        	if(empSel.selectionData[empSel.selection] != undefined) {
-        		$('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
-        	}
+            if(empSel.selectionData[empSel.selection] != undefined) {
+                $('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
+            }
         });
         empSel.setResultHandler(function() {
-        	if(empSel.selectionData[empSel.selection] != undefined) {
+            if(empSel.selectionData[empSel.selection] != undefined) {
                 $('#changeInitiator').val(empSel.selectionData[empSel.selection].userName);
             }
         });
@@ -1027,16 +1128,16 @@ function admin_changeInitiator() {
         });
     }
     else {
-    	init_empSel();
+        init_empSel();
     }
 
 }
 <!--{/if}-->
 
 function scrollPage(id) {
-	if($(document).height() < $('#'+id).offset().top + 100) {
-		$('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);
-	}
+    if($(document).height() < $('#'+id).offset().top + 100) {
+        $('html, body').animate({scrollTop: $('#'+id).offset().top}, 500);
+    }
 }
 
 // attempt to force a consistent width for the sidebar if there is enough desktop resolution
