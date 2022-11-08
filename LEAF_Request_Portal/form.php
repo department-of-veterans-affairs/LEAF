@@ -1357,48 +1357,131 @@ class Form
         return $return_value;
     }
 
-    /**
-     * Get the progress percentage (as integer)
+/**
+     * Get the progress percentage (as integer), accounting for conditinally hidden questions
      * @param int $recordID
      * @return int Percent completed
      */
     public function getProgress($recordID)
     {
+        $returnValue = 0;
+
         $vars = array(':recordID' => (int)$recordID);
-        $tresRecord = $this->db->prepared_query('SELECT recordID, categoryID, count, submitted FROM records
+        //get all the catIDs associated with this record and whether the forms are enabled or submitted 
+        $resRecordInfoEachForm = $this->db->prepared_query('SELECT recordID, categoryID, `count`, submitted FROM records
                                                     LEFT JOIN category_count USING (recordID)
-                                                    WHERE recordID=:recordID', $vars);
-        $resRecord = array();
-        foreach ($tresRecord as $record)
-        {
-            if ($record['submitted'] > 0)
-            {
-                return 100;
+                                                    WHERE recordID=:recordID', $vars);                         
+        $isSubmitted = false;
+        foreach ($resRecordInfoEachForm as $request) {
+            if ($request['submitted'] > 0) {
+                $isSubmitted = true;
+                break;
+            } 
+        }
+        if ($isSubmitted) {
+            $returnValue = 100;
+
+        } else {
+
+            //get indicatorID, data, and required for all completed questions for non-disabled indicators
+            $resCompleted = $this->db->prepared_query('SELECT indicatorID, `data`, `required` FROM `data` LEFT JOIN indicators
+                                                                USING (indicatorID)
+                                                                WHERE recordID=:recordID
+                                                                    AND indicators.disabled = 0
+                                                                    AND data != ""
+                                                                    AND data IS NOT NULL', $vars);
+            //use to count the number of required completions and organize completed data for possible condition checks                              
+            $resCountCompletedRequired = 0;
+            $resCompletedIndIDs = array();
+            foreach($resCompleted as $entry) {
+                $resCompletedIndIDs[(int)$entry['indicatorID']] = $entry['data'];
+                if((int)$entry['required'] === 1) {
+                    $resCountCompletedRequired++;
+                }
             }
-            $resRecord[strtolower($record['categoryID'])] = $record['count'];
-        }
+        
+            $allRequiredIndicators = $this->db->prepared_query("SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0", array());
+            //use recordInfo about forms associated with the record to get the total number of required questions on the request
+            $categories = array();
+            foreach($resRecordInfoEachForm as $form) {
+                if((int)$form['count'] === 1) {
+                    $categories[] = $form['categoryID'];
+                }
+            }  
+            $resRequestRequired = array();
+            foreach ($allRequiredIndicators as $indicator) {   
+                if(in_array($indicator['categoryID'], $categories)) {
+                    $resRequestRequired[] = $indicator;
+                }
+            }
+            $countRequestRequired = count($resRequestRequired);
+            if($resCountCompletedRequired === $countRequestRequired) {
+                $returnValue = 100;
 
-        $vars = array(':recordID' => (int)$recordID);
-        $resCompletedCount = $this->db->prepared_query('SELECT COUNT(*) FROM data LEFT JOIN indicators
-                                                            USING (indicatorID)
-                                                            WHERE recordID=:recordID
-                                                                AND indicators.required = 1
-        														AND indicators.disabled = 0
-                                                                AND data != ""', $vars);
+            } else {
 
-        $resCount = $this->db->prepared_query("SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 GROUP BY categoryID", array());
-        $countData = array();
-        $sum = 0;
-        foreach ($resCount as $cat)
-        {
-            $sum += $cat['COUNT(*)'] * (isset($resRecord[strtolower($cat['categoryID'])]) ? $resRecord[strtolower($cat['categoryID'])] : 0);
-        }
-        if ($sum == 0)
-        {
-            return 100;
-        }
+                foreach ($resRequestRequired as $ind) {
+                    //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
+                    if(!in_array((int)$ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
+                        
+                        $conditions = json_decode(strip_tags($ind['conditions']));
+                        $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
 
-        return round(($resCompletedCount[0]['COUNT(*)'] / $sum) * 100);
+                        $conditionMet = false;
+                        foreach ($conditions as $c) {
+                            //only continue if formats match, only check hide/show, only check if parent data exists
+                            if ($c->childFormat === $currFormat 
+                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show') 
+                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) {
+
+                                $parentFormat = $c->parentFormat;
+
+                                $currentParentDataValue =  preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int)$c->parentIndID]);
+                                if ($parentFormat==='multiselect') {
+                                    $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
+                                } else {
+                                    $currentParentDataValue = array($currentParentDataValue);
+                                }
+                                
+                                $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
+                                $operator = $c->selectedOp;
+
+                                switch($operator) {
+                                    case '==':
+                                        if ($parentFormat === 'multiselect') { //true if the current data value includes any of the condition values
+                                            foreach ($currentParentDataValue as $v) {
+                                                if (in_array($v, $conditionParentValue)) {
+                                                    $conditionMet = true;
+                                                    break;
+                                                }
+                                            }
+                                        } else if ($parentFormat === 'dropdown' && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                            $conditionMet = true;
+                                        } 
+                                        break;
+                                    case '!=':
+                                        if (($parentFormat === 'multiselect' && !array_intersect($currentParentDataValue, $conditionParentValue))
+                                            || ($parentFormat === 'dropdown' && $currentParentDataValue[0] !== $conditionParentValue[0])) {
+                                            $conditionMet = true;
+                                        } 
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                            }
+                            //if the question is not being shown due to its conditions, do not count it as a required question
+                            if(($conditionMet===false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet===true && strtolower($c->selectedOutcome) === 'hide')) {
+                                $countRequestRequired--;
+                                break;
+                            }
+                        }
+                    }
+                }
+                $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+            }
+        } 
+        return $returnValue;
     }
 
     /**
