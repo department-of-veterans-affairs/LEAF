@@ -43,7 +43,7 @@ class FormWorkflow
         }
     }
 
-    public function initRecordID($recordID)
+    public function initRecordID(int $recordID): void
     {
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
     }
@@ -52,7 +52,7 @@ class FormWorkflow
      * Checks if the current record has an active workflow
      * @return bool
      */
-    public function isActive()
+    public function isActive(): bool
     {
         $vars = array(':recordID' => $this->recordID);
         $res = $this->db->prepared_query('SELECT * FROM records_workflow_state
@@ -66,7 +66,7 @@ class FormWorkflow
      * @return array database result
      * @return null if no database result
      */
-    public function getCurrentSteps()
+    public function getCurrentSteps(): int|array
     {
         // check privileges
         require_once 'form.php';
@@ -263,7 +263,7 @@ class FormWorkflow
     /**
      * Get the last action made to the request
      */
-    public function getLastAction()
+    public function getLastAction(): ?array
     {
         // check privileges
         require_once 'form.php';
@@ -339,7 +339,7 @@ class FormWorkflow
     /**
      * Get the last action made to the request with a summary of events
      */
-    public function getLastActionSummary()
+    public function getLastActionSummary(): int|array
     {
         $lastActionData = $this->getLastAction();
         // check access
@@ -388,7 +388,7 @@ class FormWorkflow
      * @param int $stepID
      * @return array database result
      */
-    public function getDependencyActions($workflowID, $stepID)
+    public function getDependencyActions($workflowID, $stepID): array
     {
         $vars = array(':workflowID' => $workflowID,
                       ':stepID' => $stepID, );
@@ -408,7 +408,7 @@ class FormWorkflow
      * @param string $comment
      * @return array {status(int), errors[string]}
      */
-    public function handleAction($dependencyID, $actionType, $comment)
+    public function handleAction(int|null $dependencyID, string $actionType, string $comment = ''): array
     {
         if (!is_numeric($dependencyID))
         {
@@ -735,7 +735,7 @@ class FormWorkflow
       * @param string $userName Username
       * @return string
       */
-    public function getEmpUIDByUserName($userName)
+    public function getEmpUIDByUserName(string $userName): array
     {
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
@@ -748,7 +748,7 @@ class FormWorkflow
      * @param string $empUID empUID to check
      * @return boolean
      */
-    public function checkIfBackup($empUID)
+    public function checkIfBackup(int $empUID): bool
     {
 
         $nexusDB = $this->login->getNexusDB();
@@ -780,7 +780,7 @@ class FormWorkflow
      * @return array {status(int), errors[]}
      * @throws Exception
      */
-    public function handleEvents($workflowID, $stepID, $actionType, $comment)
+    public function handleEvents(int $workflowID, int $stepID, string|null $actionType = '', string $comment = ''): array
     {
         $errors = array();
 
@@ -1049,7 +1049,7 @@ class FormWorkflow
      * Require admin access unless bypass is requested
      * Do not use in combination with multiple simultaneous workflows
      */
-    public function setStep($stepID, $bypassAdmin = false, $comment = '')
+    public function setStep(int|null $stepID, bool $bypassAdmin = false, string $comment = ''): bool
     {
         if (!is_numeric($stepID))
         {
@@ -1105,15 +1105,17 @@ class FormWorkflow
         $this->db->prepared_query('DELETE FROM records_workflow_state
 										WHERE recordID=:recordID', $vars2);
         $this->resetRecordsDependency($stepID);
-        $vars = array(':recordID' => $this->recordID,
-                      ':stepID' => $stepID, );
-        $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
-                                             VALUES (:recordID, :stepID)', $vars);
+        if ($stepID !== 0) {
+            $vars = array(':recordID' => $this->recordID,
+                        ':stepID' => $stepID, );
+            $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
+                                                VALUES (:recordID, :stepID)', $vars);
+        }
 
         return true;
     }
 
-    public function setEventFolder($folder)
+    public function setEventFolder(string $folder): void
     {
         $this->eventFolder = $folder;
     }
@@ -1124,7 +1126,7 @@ class FormWorkflow
      * @param array $steps
      * @return int conflicting step ID
      */
-    private function checkDependencyConflicts($dep, $steps)
+    private function checkDependencyConflicts(int $dep, array $steps): int
     {
         // iterate through steps
         foreach ($steps as $step)
@@ -1176,7 +1178,7 @@ class FormWorkflow
         return 0;
     }
 
-    private function resetRecordsDependency($stepID)
+    private function resetRecordsDependency(int $stepID): void
     {
         $vars2 = array(':stepID' => $stepID);
         $res3 = $this->db->prepared_query('SELECT * FROM step_dependencies
