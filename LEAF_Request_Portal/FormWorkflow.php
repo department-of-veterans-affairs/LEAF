@@ -388,7 +388,7 @@ class FormWorkflow
      * @param int $stepID
      * @return array database result
      */
-    public function getDependencyActions($workflowID, $stepID): array
+    public function getDependencyActions(int $workflowID, int $stepID): array
     {
         $vars = array(':workflowID' => $workflowID,
                       ':stepID' => $stepID, );
