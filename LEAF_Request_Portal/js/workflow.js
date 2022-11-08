@@ -279,8 +279,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 type: 'GET',
                 url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
-                    let name = res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID]
- || "Unknown User";
+                    let name = res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] || "Unknown User";
                     $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ name +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
