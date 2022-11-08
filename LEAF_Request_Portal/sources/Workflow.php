@@ -114,12 +114,13 @@ class Workflow
 
     public function getStep(int $stepID): array
     {
-        $vars = array(':stepID' => $stepID);
-        $workflowStepsRes = $this->db->prepared_query('SELECT 
+        $workflowStepsVars = array(':stepID' => $stepID);
+        $workflowStepsSQL = 'SELECT 
             workflowID,stepID,stepTitle,stepBgColor,stepFontColor,stepBorder,jsSrc,posX,posY,
             indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID,requiresDigitalSignature,stepData 
             FROM workflow_steps 
-            WHERE stepID=:stepID;', $vars);
+            WHERE stepID=:stepID;';
+        $workflowStepsRes = $this->db->prepared_query($workflowStepsSQL, $workflowStepsVars);
 
         $workflowStep = [];
 
@@ -567,32 +568,36 @@ class Workflow
         return 1;
     }
 
-    public function saveStepData($stepID, $data){
+    public function saveStepData(int $stepID, array $data) : bool{
+
+        $validSaveStep = TRUE;
 
         // everything that seems to modify this stuff is run through here.
         if (!$this->login->checkGroup(1))
         {
-            return 'Admin access required.';
+            $validSaveStep = FALSE;
         }
         // Don't allow changes to standardized components
         if($stepID < 0) {
-            return 'Restricted command.';
+            $validSaveStep = FALSE;
         }
 
-        $vars = [
-            ':stepID' => $stepID,
-            ':stepData' => json_encode([
-                'AutomateEmailGroup' => $data['Automate Email Group'],
-                'DateSelected' => $data['Date Selected'],
-                'DaysSelected' => $data['Days Selected']
-            ])
-        ];
+        if( $validSaveStep === TRUE ){
+            $vars = [
+                ':stepID' => $stepID,
+                ':stepData' => json_encode([
+                    'AutomateEmailGroup' => $data['Automate Email Group'],
+                    'DateSelected' => $data['Date Selected'],
+                    'DaysSelected' => $data['Days Selected']
+                ])
+            ];
 
-        $strSQL = "UPDATE workflow_steps SET stepData=:stepData WHERE stepID=:stepID";
+            $strSQL = "UPDATE workflow_steps SET stepData=:stepData WHERE stepID=:stepID";
 
-        $this->db->prepared_query($strSQL, $vars);
+            $this->db->prepared_query($strSQL, $vars);
+        }
 
-        return 1;
+        return $validSaveStep;
 
     }
 

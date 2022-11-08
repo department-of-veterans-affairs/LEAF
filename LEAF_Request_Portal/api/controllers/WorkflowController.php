@@ -106,7 +106,7 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['GET']->register('workflow/step/[digit]', function ($args) use ($workflow) {
-            return $workflow->getStep($args[0]);
+            return $workflow->getStep((int)$args[0]);
         });
 
         $this->index['GET']->register('workflow/steps', function ($args) use ($workflow) {

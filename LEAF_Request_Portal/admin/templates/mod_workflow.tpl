@@ -196,9 +196,11 @@ function emptyAlert(idElement) {
 }
 
 function createElement(typeOfElement, elementId, parentDiv) {
-    const newElement = document.createElement(typeOfElement);
-    newElement.setAttribute("id", elementId);
-    document.getElementById(parentDiv).appendChild(newElement);
+    if(typeOfElement && elementId && parentDiv) {
+        const newElement = document.createElement(typeOfElement);
+        newElement.setAttribute("id", elementId);
+        document.getElementById(parentDiv).appendChild(newElement);
+    }
 }
 
 function removeChild(removeChildId) {
@@ -216,7 +218,9 @@ function removeAllChildren(containerName) {
 }
 
 function insertDOM(elementId, content) {
-    document.getElementById(elementId).innerHTML = content;
+    if(elementId){
+        document.getElementById(elementId).innerHTML = content;
+    }
 }
 
 /**
@@ -230,13 +234,13 @@ function addEmailReminderDialog(stepID){
         type: 'GET',
         data: {
             CSRFToken: CSRFToken,
-
         },
         url: '../api/workflow/step/' + stepID,
         async: false,
         success: function (res) {
             workflowStep = res
-        }
+        },
+        error: function(){ console.log('Failed to gather workflow step!'); }
     });
 
     dialog.setTitle('Email Reminder');
@@ -279,7 +283,7 @@ function addEmailReminderDialog(stepID){
         let dateSelected = stepParse.DateSelected;
         let daysSelected = stepParse.DaysSelected;
 
-        if (automateEmailGroup == "true") {
+        if (automateEmailGroup.toLowerCase() == "true") {
             $('#edit_email_check').prop('checked', true);
             editEmailChecked();
             $("#edit_dates_selected").val(dateSelected);
@@ -314,11 +318,11 @@ function emailChecked() {
 function emailDateSelected() {
     let dates_selected = document.getElementById("dates_selected").value;
     let days_display = "";
-    switch (dates_selected) {
-        case "1":
+    switch (parseInt(dates_selected)) {
+        case 1:
             let days = 31;
             days_display += "<br>";
-            days_display += '<select id="dates_days" onchange="dateResult()">';
+            days_display += '<select id="dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < days; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -326,10 +330,10 @@ function emailDateSelected() {
             days_display += "</select>";
             days_display += "<br>";
             break;
-        case "7":
+        case 7:
             let weeks = 53;
             days_display += "<br>";
-            days_display += '<select id="dates_days" onchange="dateResult()">';
+            days_display += '<select id="dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < weeks; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -337,10 +341,10 @@ function emailDateSelected() {
             days_display += "</select>";
             days_display += "<br>";
             break;
-        case "30":
+        case 30:
             let months = 13;
             days_display += "<br>";
-            days_display += '<select id="dates_days" onchange="dateResult()">';
+            days_display += '<select id="dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < months; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -356,37 +360,6 @@ function emailDateSelected() {
     daySelect.setAttribute("id", "date_days");
     document.getElementById("email_container").appendChild(daySelect);
     document.getElementById("date_days").innerHTML = days_display;
-}
-function dateResult() {
-    let date_selected = document.getElementById("dates_selected").value;
-    let date_days = document.getElementById("dates_days").value;
-    switch (date_selected) {
-        case "1":
-            let dateResultDays = parseInt(date_selected, 10) + parseInt(date_days, 10);
-            console.log(dateResultDays);
-            const date = new Date();
-            const totalDays = document.createElement("div");
-            totalDays.setAttribute("id", "days_total");
-            document.getElementById("email_container").appendChild(totalDays);
-            document.getElementById("days_total").innerHTML = "<br>Group will be notified every: " + dateResultDays + " days from " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + ".";
-            break;
-        case "7":
-            let dateResultWeeks = date_selected * date_days;
-            console.log(dateResultWeeks);
-            //   removeChild("totalDays");
-            const totalWeeks = document.createElement("div");
-            totalWeeks.setAttribute("id", "week_total");
-            document.getElementById("email_container").appendChild(totalWeeks);
-            document.getElementById("week_total").innerHTML = "<br>Group will be notified every: " + dateResultDays + " days from " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + ".";
-            break;
-        case "30":
-            let dateResultMonths = date_selected * date_days;
-            console.log(dateResultMonths);
-            break;
-        default:
-            break;
-    }
-    emptyAlert("dates_days");
 }
 
 ///// Edit Automated Emails
@@ -411,11 +384,11 @@ function editEmailChecked() {
 function editEmailDateSelected() {
     let dates_selected = document.getElementById("edit_dates_selected").value;
     let days_display = "";
-    switch (dates_selected) {
-        case "1":
+    switch (parseInt(dates_selected)) {
+        case 1:
             let days = 31;
             days_display += "<br>";
-            days_display += '<select id="edit_dates_days" onchange="editDateResult()">';
+            days_display += '<select id="edit_dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < days; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -423,10 +396,10 @@ function editEmailDateSelected() {
             days_display += "</select>";
             days_display += "<br>";
             break;
-        case "7":
+        case 7:
             let weeks = 53;
             days_display += "<br>";
-            days_display += '<select id="edit_dates_days" onchange="editDateResult()">';
+            days_display += '<select id="edit_dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < weeks; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -434,10 +407,10 @@ function editEmailDateSelected() {
             days_display += "</select>";
             days_display += "<br>";
             break;
-        case "30":
+        case 30:
             let months = 13;
             days_display += "<br>";
-            days_display += '<select id="edit_dates_days" onchange="editDateResult()">';
+            days_display += '<select id="edit_dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < months; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -453,37 +426,6 @@ function editEmailDateSelected() {
     daySelect.setAttribute("id", "edit_date_days");
     document.getElementById("edit_email_container").appendChild(daySelect);
     document.getElementById("edit_date_days").innerHTML = days_display;
-}
-function editDateResult() {
-    let date_selected = document.getElementById("edit_dates_selected").value;
-    let date_days = document.getElementById("edit_dates_days").value;
-    const date = new Date();
-    switch (date_selected) {
-        case "1":
-            let dateResultDays = parseInt(date_selected, 10) + parseInt(date_days, 10);
-            let daysMsg = "<br>Group will be notified every: " + dateResultDays + " days from " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + ".";
-            createElement("div", "edit_days_total", "edit_email_container");
-            insertDOM("edit_days_total", daysMsg);
-            // console.log(dateResultDays);
-            break;
-        case "7":
-            let dateResultWeeks = date_selected * date_days;
-            let weekMsg = "<br>Group will be notified every: " + dateResultWeeks + " days from " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + ".";
-            createElement("div", "edit_week_total", "edit_email_container");
-            insertDOM("edit_week_total", weekMsg);
-            // console.log(dateResultWeeks);
-            break;
-        case "30":
-            let dateResultMonths = date_selected * date_days;
-            let monthMsg = "<br>Group will be notified every: " + dateResultMonths + " days from " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + ".";
-            createElement("div", "edit_month_total", "edit_email_container");
-            insertDOM("edit_month_total", monthMsg);
-            // console.log(dateResultMonths);
-            break;
-        default:
-            break;
-    }
-    emptyAlert("edit_dates_days");
 }
 
 /**
@@ -859,7 +801,8 @@ function editStep(stepID) {
         async: false,
         success: function (res) {
             workflowStep = res
-        }
+        },
+        error: function(){ console.log('Failed to gather workflow step!'); }
     });
 
     dialog.setTitle('Edit Step');
