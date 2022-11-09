@@ -46,7 +46,8 @@ class DB
             $pdo_options = [
                 // Error reporting mode of PDO. Can take one of the following values:
                 // PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_PERSISTENT => true
             ];
 
             $this->db = new PDO(

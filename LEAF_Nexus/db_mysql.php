@@ -41,11 +41,19 @@ class DB
         $this->isConnected = true;
         try
         {
+
+            $pdo_options = [
+                // Error reporting mode of PDO. Can take one of the following values:
+                // PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_PERSISTENT => true
+            ];
+
             $this->db = new PDO(
                 "mysql:host={$this->dbHost};dbname={$this->dbName};charset=UTF8",
                 $this->dbUser,
                 $pass,
-                array()
+                $pdo_options
             );
         }
         catch (PDOException $e)
