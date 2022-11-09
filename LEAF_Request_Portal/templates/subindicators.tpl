@@ -660,7 +660,7 @@
                                     statusEl.classList.remove('status_error');
                                 } else {
                                     const msg = indFormat.toLowerCase() === 'fileupload' ? 'Please ensure the file you are uploading is either a PDF, Word Document or similar format' :
-                                                                                           `Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG`;
+                                                                                           'Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG';
                                     statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>${msg}`;
                                     statusEl.classList.add('status_error');
                                 }
@@ -730,7 +730,7 @@
                             onchange="addFile(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" 
                                     <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
-                    <div id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem;">
+                    <div tabindex="0" id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem;">
                         <img src="images/indicator.gif" alt="loading..." /> Attaching file...
                     </div>
                     <div style="font-family: verdana; font-size: 10px">
