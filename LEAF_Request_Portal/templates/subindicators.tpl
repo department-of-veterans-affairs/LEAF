@@ -713,6 +713,9 @@
                                         success: function(response) {
                                             $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
                                             dialog_confirm.hide();
+                                        },
+                                        error: function(err) {
+                                            console.log(err);
                                         }
                                     });
                                 });
