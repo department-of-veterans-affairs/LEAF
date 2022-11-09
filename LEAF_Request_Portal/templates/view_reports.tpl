@@ -410,7 +410,7 @@ function loadSearchPrereqs() {
             buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_step_movement">';
             buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
             buffer += '</div>';
-            
+
             var groupList = {};
             var groupNames = [];
             var groupIDmap = {};
@@ -432,7 +432,7 @@ function loadSearchPrereqs() {
                 groupList[res[i].categoryID].push(res[i].indicatorID);
                 if(groupIDmap[res[i].categoryID] == undefined) {
                     groupNames.push({
-                        categoryID: res[i].categoryID, 
+                        categoryID: res[i].categoryID,
                         categoryName: res[i].categoryName
                     });
                     groupIDmap[res[i].categoryID] = { };
@@ -1225,7 +1225,7 @@ $(function() {
         leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
             queryResult = Object.assign(queryResult, res);
 
-            if((Object.keys(res).length == batchSize 
+            if((Object.keys(res).length == batchSize
                     || resJqXHR.getResponseHeader('leaf-query') == 'continue')
                 && !abortLoad) {
                 $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);

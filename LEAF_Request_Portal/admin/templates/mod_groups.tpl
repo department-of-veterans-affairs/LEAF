@@ -130,7 +130,7 @@ jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
 });
 
 function searchGroups() {
-    
+
     let srchInput = document.getElementById('userGroupSearch').value;
     $('.groupName, .groupUser').removeClass('leaf-search-hilite');
     $('.groupBlockWhite, .groupBlock, .groupName, .groupUserFirst, .groupHeaders').show();
@@ -149,32 +149,32 @@ function searchGroups() {
             if (isSysAdmin && isUserGroup) {
                 $('.groupBlock').hide();
                 $('.groupBlock:Contains(' + srchInput + ')').show();
-                $('.groupSysAdmins').show(); 
+                $('.groupSysAdmins').show();
                 $('.groupUser').each(function() {
-                    $(this).not(':Contains(' + srchInput + ')').hide(); 
-                    $('.groupUser:Contains(' + srchInput + ')').show(); 
+                    $(this).not(':Contains(' + srchInput + ')').hide();
+                    $('.groupUser:Contains(' + srchInput + ')').show();
                 });
                 $('.groupBlockWhite').each(function() {
-                    $(this).not(':Contains(' + srchInput + ')').hide(); 
-                    $('.groupBlockWhite:Contains(' + srchInput + ')').show(); 
+                    $(this).not(':Contains(' + srchInput + ')').hide();
+                    $('.groupBlockWhite:Contains(' + srchInput + ')').show();
                 });
             }
             else if (!isSysAdmin && isUserGroup) {
-                $('.groupSysAdmins').hide(); 
+                $('.groupSysAdmins').hide();
                 $('.groupBlock').hide();
                 $('.groupUser:Contains(' + srchInput + ')').show();
                 $('.groupBlockWhite').each(function() {
                     $(this).not(':Contains(' + srchInput + ')').hide();
-                    $('.groupName:Contains(' + srchInput + ')').show(); 
+                    $('.groupName:Contains(' + srchInput + ')').show();
                 });
             }
             else if (isSysAdmin && !isUserGroup) {
-                $('.groupUserGroups').hide(); 
+                $('.groupUserGroups').hide();
                 $('.groupBlockWhite').hide();
                 $('.groupUser:Contains(' + srchInput + ')').show();
                 $('.groupBlock').each(function() {
                     $(this).not(':Contains(' + srchInput + ')').hide();
-                    $('.groupName:Contains(' + srchInput + ')').show(); 
+                    $('.groupName:Contains(' + srchInput + ')').show();
                 });
             }
             else {
@@ -194,7 +194,7 @@ function searchGroups() {
             }
             else if (isSysAdmin && !isUserGroup) {
                 $('.groupBlock, .groupBlockWhite, .groupHeaders').hide();
-                $('.groupBlock:Contains(' + srchInput + ')').show(); 
+                $('.groupBlock:Contains(' + srchInput + ')').show();
                 $('.groupSysAdmins').show();
             }
             else if (!isSysAdmin && isUserGroup) {
@@ -202,7 +202,7 @@ function searchGroups() {
                 $('.groupBlockWhite:Contains(' + srchInput + ')').show();
                 $('.groupBlockWhite').each(function() {
                     $(this).not(':Contains(' + srchInput + ')').hide();
-                }); 
+                });
                 $('.groupUserGroups').show();
             }
             else {
@@ -307,9 +307,12 @@ function populateMembers(groupID, members) {
 
 function removeMember(groupID, userID) {
     $.ajax({
-        type: 'DELETE',
-        url: "../api/group/" + groupID + "/members/_" + userID + '?' +
-            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+        type: 'POST',
+        url: "../api/group/" + groupID + "/members/_" + userID,
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        fail: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
@@ -322,9 +325,9 @@ function addNexusMember(groupID, empUID) {
             CSRFToken: '<!--{$CSRFToken}-->',
             empUID: empUID
         },
-	      fail: function(err) {
-	          console.log(err);
-	      },
+        fail: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
@@ -439,7 +442,7 @@ function getGroupList() {
                                 dialog.setContent(
                                     '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
                                     '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
-                                
+
                                 $('#employees').html('<div id="employee_table" style="display: table-header-group"></div>');
                                 let employee_table = '<br/><table border-collapse: collapse;"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
                                 let counter = 0;
@@ -489,7 +492,7 @@ function getGroupList() {
                                                     removeMember(groupID, res[i].userName);
                                                     dialog_confirm.hide();
                                                     dialog.hide();
-                                                }); 
+                                                });
                                                 dialog_confirm.show();
                                             });
                                             $('#addNexusMember_' + counter).on('click', function() {
@@ -498,7 +501,7 @@ function getGroupList() {
                                                     addNexusMember(groupID, res[i].empUID);
                                                     dialog_confirm.hide();
                                                     dialog.hide();
-                                                }); 
+                                                });
                                                 dialog_confirm.show();
                                             });
                                             counter++;
