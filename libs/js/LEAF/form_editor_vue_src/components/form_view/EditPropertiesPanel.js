@@ -235,13 +235,14 @@ export default {
                         <select id="workflowID" name="select-workflow" 
                             title="select workflow"
                             v-model.number="workflowID"
+                            style="width:300px;"
                             :style="{color: workflowID===0 ? '#cb0000' : 'black'}">
                             <option value="0" :selected="workflowID===0">No Workflow.  Users cannot submit requests</option>
                             <template v-for="r in ajaxWorkflowRecords" :key="r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
                                     :selected="workflowID===parseInt(r.workflowID)">
-                                    ID#{{r.workflowID}}: {{truncateText(r.description,40)}}
+                                    ID#{{r.workflowID}}: {{truncateText(r.description,35)}}
                                 </option>
                             </template>
                         </select></label>

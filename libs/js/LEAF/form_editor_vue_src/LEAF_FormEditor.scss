@@ -31,7 +31,8 @@ body { /* fixes header not extending entire width */
     box-sizing: border-box;
     font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
 }
-button:not(.choices__button,[class*="trumbowyg"]) {
+#vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
+.leaf-vue-dialog button:not(.choices__button,[class*="trumbowyg"]) {
     @include flexcenter;
     cursor: pointer;
     font-weight: bolder;
@@ -89,25 +90,26 @@ label {
     margin-bottom: 1.5rem;
     height: 50px;
 
-    h1, h2, h3 {
+    h2 {
         margin: 0;
+        font-size: 22px;
         color: black;
         @include flexcenter;
     }
     button {
         background-color: transparent;
         border: 0;
-        height: 36px;
     }
     button#form-editor-menu-toggle {
-        margin-right: 0.4rem;
+        height: 32px;
+        margin-right: 0.2rem;
         color: white;
         font-weight: normal;
         background-color: black;
-        border: 2px outset #667;
+        border: 2px solid #000;
 
         &:hover, &:focus, &:active {
-            border: 2px outset #667 !important;
+            border: 2px solid #000 !important;
         }
 
         > span {
@@ -136,7 +138,6 @@ label {
             @include flexcenter;
             > li {
                 position: relative;
-                align-self: stretch;
                 &:not(:first-child) {
                     margin-right: 2.25rem;
                 }

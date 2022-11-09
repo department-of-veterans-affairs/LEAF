@@ -229,13 +229,13 @@ export default {
                 </li>
                 <li v-if="currCategoryID!==null">
                     <button type="button" :id="'header_'+currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
-                        <h2>{{shortFormNameStripped(currCategoryID, 22)}}</h2>
+                        <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
                     </button>
                     <span v-if="currSubformID!==null" class="header-arrow">❯</span>
                 </li>
                 <li v-if="currSubformID!==null">
                     <button :id="'header_' + currSubformID" @click="selectSubform(currSubformID)" title="select internal form">
-                        <h2>{{shortFormNameStripped(currSubformID, 28)}}</h2>
+                        <h2>{{shortFormNameStripped(currSubformID, 50)}}</h2>
                     </button>
                 </li>
 

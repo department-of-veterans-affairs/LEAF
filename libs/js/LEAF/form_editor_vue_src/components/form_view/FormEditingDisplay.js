@@ -23,8 +23,9 @@ export default {
         'showToolbars'
     ],
     methods: {
+        //NOTE: TODO: IFTHEN will eventually be a component of the form editor, at which point it can just be provided the current IndID.
         ifthenUpdateIndicatorID(indicatorID) {
-            vueData.indicatorID = parseInt(indicatorID); //NOTE: TODO: possible better way
+            vueData.indicatorID = parseInt(indicatorID);
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         }
     },
@@ -95,16 +96,13 @@ export default {
                             @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
                             <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
                         </button>
-                        <button @click="editIndicatorPrivileges(formNode.indicatorID)"
-                            :title="'Edit indicator ' + formNode.indicatorID + ' privileges'" class="icon">
-                            <img src="../../libs/dynicons/?img=emblem-readonly.svg&amp;w=20" alt=""/> 
-                        </button>
                         <button @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
                             title="Open Advanced Options" class="icon">
-                            <img src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
+                            <img src="../../libs/dynicons/?img=emblem-system.svg&amp;w=20" alt="" />
                         </button>
-                        <div style="padding-right: 0.5em; color: #007860; font-weight: bold; width:20px; display:flex; align-items:center;">
-                            <div v-if="formNode.has_code" tabindex="0" style="cursor:pointer" class="adv-options-icon" title="advanced options are present">✓</div>
+                        <div style="width:26px; display:flex; align-items:center;">
+                            <img v-if="formNode.has_code" tabindex="0" 
+                            style="cursor:pointer" title="advanced options are present" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="" />
                         </div>
                         <button class="btn-general add-subquestion" :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
                             @click="newQuestion(formNode.indicatorID)">
