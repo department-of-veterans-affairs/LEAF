@@ -3789,6 +3789,12 @@ class Form
             return $errors;
         }
 
+        if (!$this->hasReadAccess($recordID))
+        {
+            $errors = array('type' => 3);
+            return $errors;
+        }
+
         // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
