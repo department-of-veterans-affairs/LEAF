@@ -65,6 +65,12 @@ class DB
 
     public function __destruct()
     {
+        try {
+            $this->db = null;
+        } catch (Exception $e) {
+            $this->logError('Connection normal closed: '.$e);
+        }
+
         if ($this->debug)
         {
             echo '<pre>';
@@ -89,12 +95,6 @@ class DB
             }
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
-        }
-        
-        try {
-            $this->db = null;
-        } catch (Exception $e) {
-            logError('Connection normal closed: '.$e);
         }
     }
 
