@@ -466,10 +466,14 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
                 switch (outcome) {
                     case 'hide':
-                        elChildInd.style.display = comparison===true ? 'none' : 'block';
+                        if (elChildInd !== null){
+                            elChildInd.style.display = comparison===true ? 'none' : 'block';
+                        }
                         break;
                     case 'show':
-                        elChildInd.style.display = comparison===true ? 'block' : 'none';
+                        if (elChildInd !== null){
+                            elChildInd.style.display = comparison===true ? 'block' : 'none';
+                        }
                         break;
                     default:
                         console.log(conditions[i].selectedOutcome);
