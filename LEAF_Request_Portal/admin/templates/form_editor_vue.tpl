@@ -37,12 +37,10 @@
     </leaf-form-dialog>
 </div>
 
-<div id="LEAF_conditions_editor"></div><!-- vue IFTHEN app mount -->
+<!-- <div id="LEAF_conditions_editor"></div> old vue IFTHEN app mount -->
 
 <script src="https://unpkg.com/vue@3"></script>  <!-- DEV -->
 <!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>-->
-<script src="../js/vue_conditions_editor/LEAF_conditions_editor.js" defer></script>
-<link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
 <script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
 

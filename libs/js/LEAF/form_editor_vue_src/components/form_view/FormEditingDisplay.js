@@ -15,19 +15,19 @@ export default {
         'newQuestion',
         'editQuestion',
         'openAdvancedOptionsDialog',
-        'editIndicatorPrivileges',
+        'openIfThenDialog',
         'updateGridInstances',
         'listItems',
         'allListItemsAreAdded',
         'allowedConditionChildFormats',
         'showToolbars'
     ],
-    methods: {
+    methods: { /*
         //NOTE: TODO: IFTHEN will eventually be a component of the form editor, at which point it can just be provided the current IndID.
         ifthenUpdateIndicatorID(indicatorID) {
             vueData.indicatorID = parseInt(indicatorID);
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
-        }
+        }*/
     },
     computed: {
         children() {
@@ -93,7 +93,8 @@ export default {
                     </div>
                     <div>
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
-                            @click="ifthenUpdateIndicatorID(formNode.indicatorID)" :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
+                            @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
+                            :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
                             <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
                         </button>
                         <button @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"

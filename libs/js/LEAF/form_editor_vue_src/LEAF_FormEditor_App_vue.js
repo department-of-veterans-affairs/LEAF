@@ -7,6 +7,7 @@ import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js"
 import StapleFormDialog from "./components/dialog_content/StapleFormDialog.js";
 import EditCollaboratorsDialog from "./components/dialog_content/EditCollaboratorsDialog.js";
 import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog.js";
+import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditorDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
 import CategoryCard from "./components/CategoryCard.js";
@@ -14,6 +15,7 @@ import FormViewController from "./components/form_view/FormViewController.js";
 
 import RestoreFields from "./components/RestoreFields.js";
 import './LEAF_FormEditor.scss';
+import './LEAF_IfThen.scss';
 
 export default {
     data() {
@@ -104,6 +106,7 @@ export default {
             openConfirmDeleteFormDialog: this.openConfirmDeleteFormDialog,
             openStapleFormsDialog: this.openStapleFormsDialog,
             openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
+            openIfThenDialog: this.openIfThenDialog,
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
             showRestoreFields: this.showRestoreFields,
@@ -120,6 +123,7 @@ export default {
         StapleFormDialog,
         EditCollaboratorsDialog,
         ConfirmDeleteDialog,
+        ConditionsEditorDialog,
         ModFormMenu,
         CategoryCard,
         FormViewController,
@@ -449,8 +453,8 @@ export default {
             this.selectedNodeIndicatorID = null;
             this.currentCategoryIndicatorTotal = 0;
 
-            vueData.formID = catID || ''; //NOTE: update of other vue app TODO: IFTHEN should eventually be a component of the Form Editor app
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
+            //vueData.formID = catID || ''; //NOTE: update of other vue app TODO: IFTHEN should eventually be a component of the Form Editor app
+            //document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
             //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
             if (catID !== null) {
@@ -497,10 +501,6 @@ export default {
             this.selectedNodeIndicatorID = node?.indicatorID || null;
             console.log('setting form node and indID from list selection', this.selectedNodeIndicatorID)
         },
-        editIndicatorPrivileges() {
-            //TODO:
-            console.log('clicked edit privileges');
-        },
         setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;
         },
@@ -539,6 +539,12 @@ export default {
             this.setCustomDialogTitle('<h2>Editing Collaborators</h2>');
             this.setFormDialogComponent('edit-collaborators-dialog');
             this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
+            this.showFormDialog = true;
+        },
+        openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
+            this.currIndicatorID = indicatorID;
+            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #c00;">${indicatorName} (${indicatorID})</span></h2>`);
+            this.setFormDialogComponent('conditions-editor-dialog');
             this.showFormDialog = true;
         },
         /**
