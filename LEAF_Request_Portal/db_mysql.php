@@ -56,6 +56,13 @@ class DB
                 $pass,
                 $pdo_options
             );
+
+            // make sure there are no active transactions on script termination
+            register_shutdown_function(function() {
+                if($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+            });
         }
         catch (PDOException $e)
         {
