@@ -158,8 +158,6 @@ $controllerMap->register('userActivity', function() use ($db, $login, $action) {
 });
 
 $controllerMap->register('note', function() use ($db, $login, $action) {
-    require 'controllers/NotesController.php';
-
     $dataActionLogger = new DataActionLogger($db, $login);
 
     $NotesController = new NotesController($db, $login, $dataActionLogger);

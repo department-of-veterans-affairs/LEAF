@@ -6,7 +6,7 @@
 error_reporting(E_ERROR);
 
 require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
-//include_once '/var/www/html/LEAF_Nexus/api/controllers/NationalEmployeeController.php';
+
 $config = new Orgchart\Config();
 
 $db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

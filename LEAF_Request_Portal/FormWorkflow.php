@@ -984,7 +984,6 @@ class FormWorkflow
                     $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
                     if (is_file($eventFile))
                     {
-                        require_once $eventFile;
                         $dir = new VAMC_Directory;
                         $email = new Email();
 
