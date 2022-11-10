@@ -26,10 +26,11 @@ export default {
         }
     },
     mounted() {
-        //this helps fix the modal background coverage, as modals can have various heights
         const elModal = document.getElementById(this.modalElementID);
-        const currModalHeight = elModal.clientHeight;
-        document.getElementById(this.modalBackgroundID).style.minHeight = currModalHeight + window.innerHeight + 'px';
+        //this helps fix the modal background coverage (being a teleport element seems to affect this)
+        const elBody = document.querySelector('body');
+        const currBodyHeight = elBody.clientHeight;
+        document.getElementById(this.modalBackgroundID).style.minHeight = currBodyHeight + 'px';
         this.makeDraggable(elModal);
     },
     methods: {

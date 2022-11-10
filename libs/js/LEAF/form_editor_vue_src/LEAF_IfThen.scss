@@ -5,8 +5,8 @@ $BG-DarkNavy: #162e51;
 
 
 #condition_editor_center_panel {
-    min-width: 450px;
-    max-width: 800px;
+    min-width: 700px;
+    max-width: 900px;
     margin: auto;
     background-color: white;
 
@@ -75,7 +75,8 @@ $BG-DarkNavy: #162e51;
         }
     }
     button.btnSavedConditions {
-        text-align: left;
+        justify-content: flex-start;
+        font-weight: normal;
         background-color: white;
         padding: 0.4em;
         border: 1px outset $base-navy;
@@ -196,7 +197,7 @@ $BG-DarkNavy: #162e51;
 
     #condition_editor_center_panel {
         width: 100%;
-        min-width: 350px;
+        min-width: 400px;
         border: 0;
         padding-right: 1em;
     }

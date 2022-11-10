@@ -391,7 +391,6 @@ export default {
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 
                 if (res.length > 0) {
-                    //vueData.updateIndicatorList = true;  //NOTE: flags IFTHEN app for updates
                     const subnodeIndID = (this.archived===true || this.deleted===true) && 
                             this.currIndicatorID === this.selectedNodeIndicatorID ? null: this.selectedNodeIndicatorID
                         

@@ -289,6 +289,12 @@ label {
         display:flex; 
         justify-content: space-between; 
         margin-top: 1em;
+        #button_save {
+            margin-right:auto;
+        }
+        #button_cancelchange {
+            margin-left: auto;
+        }
     }
 }
 

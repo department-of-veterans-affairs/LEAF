@@ -30,6 +30,8 @@ export default {
         'currIndicatorID',
         'currCategoryID',
         'currSubformID',
+        'selectedNodeIndicatorID',
+        'selectNewCategory',
         'closeFormDialog',
         'truncateText',
     ],
@@ -37,8 +39,7 @@ export default {
         this.getAllIndicators();
     },
     mounted(){
-        console.log('IFTHEN (form editor) mounted');
-        document.getElementById('leaf-vue-dialog-cancel-save').style.display = 'none'; 
+        console.log('IFTHEN (form editor) mounted', this.vueData);
     },
     updated() {
         if(this.conditions.selectedOutcome !== '') {
@@ -55,7 +56,7 @@ export default {
                     const list = res;
                     const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled)===0);
                     this.indicators = filteredList;
-                    //console.log(this.indicators); //TODO: OK rm
+
                     /* this.indicators.forEach(i => {
                         if (i.parentIndicatorID === null){
                             this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
@@ -72,25 +73,6 @@ export default {
                     console.log(err)
                 }
             });
-        },
-        clearSelections(resetAll = false){
-            //cleared when either the form or child indicator changes
-            if(resetAll){
-                //this.vueData.indicatorID = 0;
-                this.showConditionEditor = false;
-            }
-            this.selectedParentIndicator = {};
-            this.parentFound = true;
-            this.selectedParentOperators = [];
-            this.selectedOperator = '';
-            this.selectedParentValueOptions = [];  //parent values if radio, dropdown, etc
-            this.selectedParentValue = '';
-            this.childIndicator = {};
-            this.selectableParents = [],
-            this.selectedChildOutcome = '';
-            this.selectedChildValueOptions = [];
-            this.selectedChildValue = '';
-            this.editingCondition = '';
         },
         /**
          * 
@@ -216,16 +198,12 @@ export default {
             this.selectedChildValue = value;
         }, 
         updateSelectedChildIndicator() {
-            this.clearSelections();
-            this.selectedChildOutcome = '';
-            this.selectedChildValue = '';
 
             if(this.vueData.indicatorID !== 0) {
                 const indicator = this.indicators.find(i => parseInt(i.indicatorID) === this.vueData.indicatorID);
                 const childValueOptions = indicator.format.indexOf("\n") === -1 ? [] : indicator.format.slice(indicator.format.indexOf("\n")+1).split("\n");
                 
                 this.childIndicator = {...indicator};
-                console.log('TEST CHILD', this.childIndicator);
                 this.selectedChildValueOptions = childValueOptions.filter(cvo => cvo !== '');
 
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
@@ -306,9 +284,12 @@ export default {
                         },
                         success: (res)=> {
                             if (res !== 'Invalid Token.') {
-                                indToUpdate.conditions = JSON.stringify(newConditions), //update the indicator in the indicators list
-                                this.clearSelections(true);
-                            }                            
+                                /* refetch works, but just updating the obj would be faster
+                                //TODO: update conditions of this ind on the form view formnode to update the UI
+                                const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
+                                this.selectNewCategory(this.vueData.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                                this.closeFormDialog();
+                            } else { console.log('error adding condition', res) }                          
                         },
                         error:(err)=> {
                             console.log(err);
@@ -316,7 +297,7 @@ export default {
                     });
 
                 } else {
-                    this.clearSelections(true);
+                    this.closeFormDialog();
                 }
             }
         },
@@ -361,18 +342,19 @@ export default {
                         },
                         success: (res)=> {
                             if (res !== 'Invalid Token.') {
-                                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID));
-                                //update conditions on the indicator by reference to the indicators list
-                                indToUpdate.conditions = (newConditions !== null) ? JSON.stringify(newConditions) : '';
-                            }
+                                this.closeFormDialog()
+                                /*
+                                //TODO: update conditions of this ind on the form view formnode to update the UI
+                                const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
+                                this.selectNewCategory(this.vueData.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+
+                            } else { console.log('error removing condition', res) }
                         },
                         error: (err)=> {
                             console.log(err);
                         }
                     });
                 }
-                this.showRemoveConditionModal = false;
-                this.clearSelections(true);
              
             } else { //user pressed an X button in a conditions list that opens the confirm delete modal  
                 this.showRemoveConditionModal = true;
@@ -489,6 +471,9 @@ export default {
                 });
                 elSelectChild.choicesjs = choices;
             }
+        },
+        onSave() {
+            this.postCondition();
         }
     },
     computed: {
@@ -539,12 +524,16 @@ export default {
             const {childIndID, parentIndID, selectedOp, selectedParentValue, 
                 selectedChildValue, selectedOutcome} = this.conditions;
             
-            return (
+            const isComplete = (
                     childIndID !== 0 && parentIndID !== 0 && 
                     selectedOp !== '' && selectedParentValue !== '' &&
                     (selectedOutcome && selectedOutcome.toLowerCase() !== "pre-fill" ||
                     (selectedOutcome.toLowerCase()==="pre-fill" && selectedChildValue !== ''))
                 );
+            const elSave = document.getElementById('button_save');
+            if (elSave !== null) elSave.style.display = isComplete ? 'block' : 'none';
+
+            return isComplete;
         },
         /**
          * 
@@ -584,6 +573,12 @@ export default {
             return arrValues;
         }
     },
+    watch: {
+        showRemoveConditionModal(newVal) {
+            const elSaveDiv = document.getElementById('leaf-vue-dialog-cancel-save');
+            if (elSaveDiv !== null) elSaveDiv.style.display = newVal === true ? 'none' : 'flex';
+        }
+    },
     template: `<div id="condition_editor_center_panel">
 
             <!-- NOTE: MAIN EDITOR TEMPLATE -->
@@ -593,7 +588,7 @@ export default {
                         id="savedConditionsList">
                         <!-- NOTE: SHOW LIST -->
                         <div v-if="conditionTypes.show.length > 0">
-                            <p><b>This field will be hidden except:</b></p>
+                            <p style="margin-bottom: 0.5rem;"><b>This field will be hidden except:</b></p>
                             <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
@@ -615,7 +610,7 @@ export default {
                         </div>
                         <!-- NOTE: HIDE LIST -->
                         <div v-if="conditionTypes.hide.length > 0">
-                            <p style="margin-top: 1em"><b>This field will be shown except:</b></p>
+                            <p style="margin-bottom: 0.5rem;"><b>This field will be shown except:</b></p>
                             <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
@@ -637,7 +632,7 @@ export default {
                         </div>
                         <!-- NOTE: PREFILL LIST -->
                         <div v-if="conditionTypes.prefill.length > 0">
-                            <p style="margin-top: 1em"><b>This field will be pre-filled:</b></p>
+                            <p style="margin-bottom: 0.5rem;"><b>This field will be pre-filled:</b></p>
                             <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
@@ -773,7 +768,7 @@ export default {
             </div>
 
             <!--NOTE: save cancel panel  -->
-            <div v-if="!showRemoveConditionModal" id="condition_editor_actions">
+            <!--<div v-if="!showRemoveConditionModal" id="condition_editor_actions">
                 <div>
                     <ul style="display: flex; justify-content: space-between;">
                         <li style="width: 30%;">
@@ -784,6 +779,6 @@ export default {
                         </li>
                     </ul>
                 </div>
-            </div>
+            </div>-->
         </div>` 
 }
