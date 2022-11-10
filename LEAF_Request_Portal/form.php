@@ -789,56 +789,57 @@ class Form
 
     /**
      * Delete file/image attachment
+     *
      * @param int $recordID
      * @param int $indicatorID
      * @param int $series
-     * @return int 1 for success, 0 for fail
+     * @param string $fileName
+     *
+     * @return bool
+     *
+     * Created at: 10/31/2022, 8:32:58 AM (America/New_York)
      */
-    public function deleteAttachment($recordID, $indicatorID, $series, $fileIdx)
+    public function deleteAttachment(int $recordID, int $indicatorID, int $series, string $fileName): bool
     {
-        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series) || !is_numeric($fileIdx))
-        {
-            return 0;
-        }
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
-        {
-            return 0;
-        }
+        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series)) {
+            $return_value = false;
+        } else if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            $return_value = false;
+        } else if (!$this->hasWriteAccess($recordID, 0, $indicatorID)) {
+            $return_value = false;
+        } else {
+            $data = $this->getIndicator($indicatorID, $series, $recordID);
+            $value = $data[$indicatorID]['value'];
+            $index = $this->getIndex($recordID, $indicatorID, $series, $fileName);
 
-        if (!$this->hasWriteAccess($recordID, 0, $indicatorID))
-        {
-            return 0;
-        }
+            $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$index]);
 
-        $data = $this->getIndicator($indicatorID, $series, $recordID);
-        $value = $data[$indicatorID]['value'];
-        $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
+            $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+            if (isset($value[$index])) {
+                $_POST['overwrite'] = true;
+                $_POST['series'] = 1;
+                $_POST[$indicatorID] = '';
 
-        if (isset($value[$fileIdx]))
-        {
-            $_POST['overwrite'] = true;
-            $_POST['series'] = 1;
-            $_POST[$indicatorID] = '';
-            for ($i = 0; $i < count($value); $i++)
-            {
-                if ($i != $fileIdx)
-                {
-                    $_POST[$indicatorID] .= $value[$i] . "\n";
+                for ($i = 0; $i < count($value); $i++) {
+                    if ($i != $index) {
+                        $_POST[$indicatorID] .= $value[$i] . "\n";
+                    }
                 }
+
+                $this->doModify($recordID);
+
+                if (file_exists($uploadDir . $file)) {
+                    unlink($uploadDir . $file);
+                }
+
+                $return_value = true;
             }
 
-            $this->doModify($recordID);
-            if (file_exists($uploadDir . $file))
-            {
-                unlink($uploadDir . $file);
-            }
-
-            return 1;
+            $return_value = false;
         }
 
-        return 0;
+        return $return_value;
     }
 
     public function getRecordInfo($recordID)
@@ -3901,6 +3902,12 @@ class Form
             return $errors;
         }
 
+        if (!$this->hasReadAccess($recordID))
+        {
+            $errors = array('type' => 3);
+            return $errors;
+        }
+
         // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
@@ -4008,5 +4015,44 @@ class Form
 
         $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
 
+    }
+
+    /**
+     *
+     * @param int $recordID
+     * @param int $indicatorID
+     * @param int $series
+     * @param string $fileName
+     *
+     * @return int
+     *
+     * Created at: 10/31/2022, 8:30:57 AM (America/New_York)
+     */
+    private function getIndex (int $recordID, int $indicatorID, int $series, string $fileName): int
+    {
+        $return_value = -1;
+
+        $vars = array(':indicatorID' => $indicatorID,
+                      ':series' => $series,
+                      ':recordID' => $recordID);
+        $sql = 'SELECT data
+                FROM data
+                LEFT JOIN indicators USING (indicatorID)
+                WHERE indicatorID = :indicatorID
+                AND series = :series
+                AND recordID = :recordID
+                AND disabled = 0';
+
+        $data = $this->db->prepared_query($sql, $vars);
+        $values = $this->fileToArray($data[0]['data']);
+
+        for ($i = 0; $i < count($values); $i++) {
+            if ($values[$i] == $fileName) {
+                $return_value = $i;
+                break;
+            }
+        }
+
+        return $return_value;
     }
 }

@@ -88,11 +88,11 @@
 
                         if(numRows > 0){
                             $(gridElement).find('tr').each(function(){
-                                
+
                                 numColumns = $(this).find('td').length;
 
                                 $(this).find('td').each(function(j){
-                                    
+
                                     if(j < numColumns - 2 ){ //skipping last two columns: sort & remove row
 
                                         var possibleInputs = [];
@@ -104,7 +104,7 @@
                                         possibleInputs.push($(this).find('select').first());
 
                                         var input;
-                                        
+
                                         for(var k= 0; k < possibleInputs.length; k++){
                                             if($(possibleInputs[k]).length > 0){
                                                 input = $(possibleInputs[k]);
@@ -113,11 +113,11 @@
                                         }
 
                                         if(input){
-                                            var inputValue = $(input).val(); 
+                                            var inputValue = $(input).val();
                                             if(inputValue == null || inputValue.trim() == ''){
                                                 valid = false;
                                             }
-                                        }   
+                                        }
                                     }
 
                                 });
@@ -261,10 +261,10 @@
                             elDiv.innerHTML = str;
                             return elDiv.innerText;
                         }
-                        const values = Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
+                        const values = Array.isArray(<!--{$indicator.value|json_encode}-->) ?
                             <!--{$indicator.value|json_encode}--> :       //new serialized array format
                             '<!--{$indicator.value}-->'.split(/,(?!\s)/); //old concat string format compatible (needed for default vals)
-                        
+
                         let options = <!--{$indicator.options|json_encode}--> || [];
                         options = options.map(o =>({
                             value: o,
@@ -628,7 +628,7 @@
                         aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
-                
+
                 <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
                 </span>
@@ -660,7 +660,7 @@
                 <!--{/if}-->
                 </script>
                 <!--{$indicator.html}-->
-                
+
         <!--{/if}-->
         <!--{if $indicator.format == 'fileupload' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <fieldset>
@@ -685,7 +685,7 @@
                     	        data: {recordID: <!--{$recordID|strip_tags}-->,
                     	               indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
                     	               series: <!--{$indicator.series|strip_tags}-->,
-                    	               file: '<!--{$counter}-->',
+                    	               file: '<!--{$file}-->',
                     	               CSRFToken: '<!--{$CSRFToken}-->'},
                     	        success: function(response) {
                     	            $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
@@ -714,7 +714,7 @@
                         var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
                         var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
                         var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
-                        
+
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
                     setSubmitError: function() {
@@ -755,7 +755,7 @@
                                 data: {recordID: <!--{$recordID|strip_tags}-->,
                                        indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
                                        series: <!--{$indicator.series|strip_tags}-->,
-                                       file: '<!--{$counter}-->',
+                                       file: '<!--{$file}-->',
                                        CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(response) {
                                     $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
@@ -784,7 +784,7 @@
                         var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
                         var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
                         var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
-                        
+
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
                     setSubmitError: function() {
@@ -1085,7 +1085,7 @@
                     });
                     <!--{/if}-->
                 }
-                
+
                 if(typeof nationalEmployeeSelector == 'undefined') {
                     $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
                     $.ajax({
