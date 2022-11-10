@@ -545,7 +545,7 @@ class Form
             $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
             try {
                 if(!is_array($values)) {
-                    $values = array();
+                    $values = [];
                 }
                 $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
             } catch (TypeError $te) {
@@ -3806,7 +3806,7 @@ class Form
                     $child[$idx]['value'] = @unserialize($child[$idx]['value']) === false ? $child[$idx]['value'] : unserialize($child[$idx]['value']);
                     try {
                         if(!is_array($values)) {
-                            $values = array();
+                            $values = [];
                         }
                         $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
                     } catch (TypeError $te) {
