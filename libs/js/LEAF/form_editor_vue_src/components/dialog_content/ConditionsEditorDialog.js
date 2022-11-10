@@ -766,19 +766,5 @@ export default {
                 </div>
                 <div v-if="selectableParents.length < 1">No options are currently available for the indicators on this form</div>
             </div>
-
-            <!--NOTE: save cancel panel  -->
-            <!--<div v-if="!showRemoveConditionModal" id="condition_editor_actions">
-                <div>
-                    <ul style="display: flex; justify-content: space-between;">
-                        <li style="width: 30%;">
-                            <button v-if="conditionComplete" id="btn_add_condition" @click="postCondition">Save</button>
-                        </li>
-                        <li style="width: 30%;">
-                            <button id="btn_cancel" @click="closeFormDialog">Cancel</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>-->
         </div>` 
 }
