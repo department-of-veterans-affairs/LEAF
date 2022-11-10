@@ -7,14 +7,10 @@ WORKDIR /var/www/php-logs
 # WORKDIR /var/www/apache-logs
 WORKDIR /var/www/html
 
-
-ARG SMTP_HOST 
-
-RUN sed -i  "s/LEAF_EMAIL_SERVER/$SMTP_HOST/g" /etc/ssmtp/ssmtp.conf
-RUN sed -i  "s/MAIL_HUB/$SMTP_HOST/g" /etc/ssmtp/ssmtp.conf
-# #temp to just make sure it's working
-# RUN sed -i  "s/smtp/$SMTP_HOST/g" /etc/ssmtp/ssmtp.conf
-# RUN sed -i  "s/localhost/$SMTP_HOST/g" /etc/ssmtp/ssmtp.conf
+# ssmtp
+# ARG SMTP_HOST
+COPY docker/php/ssmtp/ssmtp.conf /etc/ssmtp/ssmtp.conf
+COPY docker/php/ssmtp/revaliases /etc/ssmtp/revaliases
 
 FROM base as dev 
 # xdebug

@@ -1007,7 +1007,12 @@ class System
             $nexus_groups[$counter]['parentGroupID'] = null;
             $nexus_groups[$counter]['name'] = $group['groupTitle'];
 
-            $employees = array_merge($nexus_group->listGroupPositions($group['groupID']), $nexus_group->listGroupEmployees($group['groupID']));
+            $positions = $nexus_group->listGroupPositions($group['groupID']);
+            $employees = $nexus_group->listGroupEmployees($group['groupID']);
+
+            foreach ($positions as $position) {
+                $employees = array_merge($employees, $nexus_position->getEmployees($position['positionID']));
+            }
 
             foreach ($employees as $employee) {
                 if ($employee['userName'] != '') {
