@@ -85,6 +85,7 @@ export default {
             formSaveFunction: Vue.computed(() => this.formSaveFunction),
             restoringFields: Vue.computed(() => this.restoringFields),
             orgSelectorClassesAdded: Vue.computed(() => this.orgSelectorClassesAdded),
+            internalForms: Vue.computed(() => this.internalForms),
             //static values
             APIroot: this.APIroot,
             newQuestion: this.newQuestion,
@@ -173,6 +174,20 @@ export default {
                 }
             }
             return inactive;
+        },
+        /**
+         * 
+         * @returns {array} of internal forms associated with the main form
+         */
+        internalForms() {
+            let internalForms = [];
+            for(let c in this.categories){
+                if (this.categories[c].parentID===this.currCategoryID) {
+                    const internal = {...this.categories[c]};
+                    internalForms.push(internal);
+                }
+            }
+            return internalForms;
         }
     },
     methods: {

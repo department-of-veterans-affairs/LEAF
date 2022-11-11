@@ -12,6 +12,7 @@ export default {
         'categories',
         'currCategoryID',
         'currSubformID',
+        'internalForms',
         'ajaxSelectedCategoryStapled',
         'formsStapledCatIDs',
         'restoringFields',
@@ -22,22 +23,6 @@ export default {
         'openStapleFormsDialog',
         'openConfirmDeleteFormDialog',
     ],
-    computed: {
-        /**
-         * 
-         * @returns {array} of internal forms associated with the main form
-         */
-        internalForms() {
-            let internalForms = [];
-            for(let c in this.categories){
-                if (this.categories[c].parentID===this.currCategoryID) {
-                    const internal = {...this.categories[c]};
-                    internalForms.push(internal);
-                }
-            }
-            return internalForms;
-        }
-    },
     methods: {
         toggleMenu() {
             this.menuPinned = !this.menuPinned;
