@@ -113,11 +113,9 @@ export default {
             });
         },
         selectMainForm(catID = this.currCategoryID) {
-            console.log('clicked a main form or main form staple', catID);
             this.selectNewCategory(catID, false);
         },
         selectSubform(subformID = ''){
-            console.log('clicked a subform', 'sub', subformID, 'main', this.currCategoryID);
             this.selectNewCategory(subformID, true);
         },
         /**
@@ -176,9 +174,9 @@ export default {
                                 Add Internal-Use<span>➕</span>
                                 </button>
                                 <ul v-if="internalForms.length > 0" id="internalForms">
-                                    <li v-for="i in internalForms" :key="i.categoryID">
+                                    <li v-for="i in internalForms" :key="'internal_' + i.categoryID">
                                         <button :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                                        {{shortFormNameStripped(i.categoryID, 28)}}
+                                        {{shortFormNameStripped(i.categoryID, 22)}}
                                         </button>
                                     </li>
                                 </ul>

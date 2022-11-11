@@ -24,7 +24,6 @@ export default {
         'selectedNodeIndicatorID'
     ],
     mounted(){
-        console.log(`Advanced Options mounted for ${this.currIndicatorID} on form ${this.formID}`);
         document.querySelector(this.initialFocusElID)?.focus();
         if(parseInt(this.hasDevConsoleAccess)===1) {
             this.setupAdvancedOptions();
@@ -109,7 +108,6 @@ export default {
             let advancedOptionsUpdates = [];
             const htmlChanged = this.html !== this.codeEditorHtml.getValue();
             const htmlPrintChanged = this.htmlPrint !== this.codeEditorHtmlPrint.getValue();
-            console.log('dHTML, dHTMLP', htmlChanged,htmlPrintChanged);
 
             if(htmlChanged) {
                 advancedOptionsUpdates.push(

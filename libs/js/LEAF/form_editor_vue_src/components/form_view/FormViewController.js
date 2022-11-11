@@ -40,7 +40,7 @@ export default {
         'currentCategoryIndicatorTotal'
     ],
     mounted() {
-        console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID, this.currentCategoryIndicatorTotal);
+        console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID);
     },
     provide() {
         return {

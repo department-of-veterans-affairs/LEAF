@@ -90,7 +90,6 @@ export default {
         IndicatorPrivileges
     },
     mounted() {
-        console.log('Indicator Editing mounted for', this.currIndicatorID, 'on form', this.formID);
         if (this.isEditingModal === true) {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
@@ -179,8 +178,6 @@ export default {
             
             let indicatorEditingUpdates = [];
             if (this.isEditingModal) { /*  CALLS FOR EDITTING AN EXISTING QUESTION */
-                console.log('updating an existing indicator: ID#', this.currIndicatorID);
-                
                 const nameChanged = this.name !== this.ajaxIndicatorByID[this.currIndicatorID].name;
                 const descriptionChanged = this.description !== this.ajaxIndicatorByID[this.currIndicatorID].description;
 
@@ -347,8 +344,6 @@ export default {
                 }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
-                console.log('creating a new indicator on form ', this.formID);
-                
                 if (+this.is_sensitive === 1) {
                     indicatorEditingUpdates.push(
                         $.ajax({
@@ -615,7 +610,7 @@ export default {
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 
                                         :value="kv[0]" 
-                                        :key="'parent'+kv[0]">
+                                        :key="'parent_'+kv[0]">
                                         {{kv[0]}}: {{truncateText(kv[1]['1'].name)}}
                                     </option>
                                 </template>

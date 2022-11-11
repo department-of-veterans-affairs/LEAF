@@ -199,7 +199,7 @@ export default {
             }
             Promise.all(editPropertyUpdates)
                 .then(()=> {
-                    console.log('promise all:', editPropertyUpdates);
+                    //console.log('promise all:', editPropertyUpdates);
                     this.closeFormDialog();
                 });
         }
@@ -238,7 +238,7 @@ export default {
                             style="width:300px;"
                             :style="{color: workflowID===0 ? '#cb0000' : 'black'}">
                             <option value="0" :selected="workflowID===0">No Workflow.  Users cannot submit requests</option>
-                            <template v-for="r in ajaxWorkflowRecords" :key="r.workflowID">
+                            <template v-for="r in ajaxWorkflowRecords" :key="'workflow_' + r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
                                     :selected="workflowID===parseInt(r.workflowID)">

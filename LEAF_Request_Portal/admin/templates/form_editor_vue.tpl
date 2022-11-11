@@ -11,12 +11,12 @@
                 </div>
                 <!-- form broswer -->
                 <div id="forms" style="display:flex; flex-wrap:wrap">
-                    <category-card v-for="c in activeCategories" :categories-record="c" :key="c.categoryID"></category-card>
+                    <category-card v-for="c in activeCategories" :categories-record="c" :key="'card_' + c.categoryID"></category-card>
                 </div>
                 <hr style="margin-top: 32px; border-top:1px solid #556;" aria-label="Not associated with a workflow" />
                 <p>Not associated with a workflow:</p>
                 <div id="forms_inactive" style="display:flex; flex-wrap:wrap">
-                    <category-card v-for="c in inactiveCategories" :categories-record="c" :key="c.categoryID"></category-card>
+                    <category-card v-for="c in inactiveCategories" :categories-record="c" :key="'card_' + c.categoryID"></category-card>
                 </div>
             </div>
             <!-- SPECIFIC CATEGORY / FORM CONTENT -->
@@ -37,30 +37,22 @@
     </leaf-form-dialog>
 </div>
 
-<!-- <div id="LEAF_conditions_editor"></div> old vue IFTHEN app mount -->
-
 <script src="https://unpkg.com/vue@3"></script>  <!-- DEV -->
 <!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>-->
-
 <script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
     let postRenderFormBrowser;
-    let vueData = {
-        formID: 0,
-        indicatorID: 0,
-        updateIndicatorList: false
-    }
 
     $(function() {
         <!--{if $referFormLibraryID != ''}-->
-        //postRenderFormBrowser = function() { 
-        //    $('.formLibraryID_<!--{$referFormLibraryID}-->')
-        //    .animate({'background-color': 'yellow'}, 1000)
-        //    .animate({'background-color': 'white'}, 1000)
-        //    .animate({'background-color': 'yellow'}, 1000);
-        //};
+            postRenderFormBrowser = function() { 
+                $('.formLibraryID_<!--{$referFormLibraryID}-->')
+                .animate({'background-color': 'yellow'}, 1000)
+                .animate({'background-color': 'white'}, 1000)
+                .animate({'background-color': 'yellow'}, 1000);
+            };
         <!--{/if}-->
     });
 </script>

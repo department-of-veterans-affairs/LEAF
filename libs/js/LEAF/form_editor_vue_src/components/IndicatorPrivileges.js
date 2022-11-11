@@ -14,7 +14,6 @@ export default {
         'currIndicatorID',
     ],
     mounted() {
-        console.log('mounted indicator privs ind', this.indicatorID);
         /**
          * get groups for privileges selection and/or editing
          */
@@ -42,7 +41,7 @@ export default {
             })
         ];
         Promise.all(loadCalls).then((res)=> {
-            console.log(res);
+            //console.log(res);
         });
     },
     computed: {
@@ -67,7 +66,7 @@ export default {
                         CSRFToken: this.CSRFToken
                     },
                     success: res => {
-                        console.log(res); //NOTE: followup on this return value
+                        //console.log(res); //NOTE: followup on this return value ('false').  should server return count(res)?
                         this.groupsWithPrivileges = this.groupsWithPrivileges.filter(g => g.id !== groupID);
                     }, 
                     error: err => console.log(err)
@@ -123,7 +122,7 @@ export default {
                 <div style="display: flex; align-items: center;">
                     <select id="selectIndicatorPrivileges" v-model="group" style="width:260px;">
                         <option :value="0">Select a Group</option>
-                        <option v-for="g in availableGroups" :value="g">{{g.name}}</option>
+                        <option v-for="g in availableGroups" :value="g" :key="'avail_' + g.groupID">{{g.name}} (id{{g.groupID}})</option>
                     </select><button class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
                 </div>
             </fieldset>`

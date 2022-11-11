@@ -28,11 +28,11 @@ export default {
             dialogFormContent: '',
             dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             showFormDialog: false,
-            //this sets the method associated with the save btn of a dialog to the onSave method of its current component
+            //this sets the method associated with the save btn of the current dialog modal to the onSave method of its current component
             formSaveFunction: ()=> {
                 if(this.$refs[this.dialogFormContent]) {
                     this.$refs[this.dialogFormContent].onSave();
-                } else { console.log('got something unexpected')}
+                } else { console.log('possible error setting modal save method')}
             },
             isEditingModal: false,
 
@@ -55,7 +55,7 @@ export default {
             ajaxWorkflowRecords: [],        //array of all 'workflows' table records
             ajaxIndicatorByID: {},          //'indicators' table record for a specific indicatorID
             orgSelectorClassesAdded: { group: false, position: false, employee: false },
-            restoringFields: false        //TODO:?? there are a few pages that could be view here, page_views: [restoringFields: false, leafLibrary: false etc]
+            restoringFields: false        //TODO: router? there are a few pages that could be views here, page_views: [restoringFields: false, leafLibrary: false etc]
         }
     },
     provide() {
@@ -401,7 +401,6 @@ export default {
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             this.categories[catID][keyName] = keyValue;
             this.currentCategorySelection = this.categories[catID];
-            console.log('updated currentCategorySelection property', keyName, this.categories[catID][keyName]);
         },
         /**
          * updates app formsStapledCatIDs to track which forms have staples for card info
@@ -438,23 +437,17 @@ export default {
             this.restoringFields = false;  //nav from Restore Fields subview
 
             if(!isSubform) {
-                console.log(`setting new currCatID to ${catID} and setting subformID to null`);
                 this.currCategoryID = catID;
                 this.currSubformID = null;
             } else {
-                console.log(`currCatID remains ${this.currCategoryID} setting new subCatID to ${catID}`);
                 this.currSubformID = catID;
             }
-            console.log('RESET: currentCategorySelection, ajaxFormByCategoryID, staples, selectednode, nodeIndID, indicatorTotal');
             this.currentCategorySelection = {};
             this.ajaxFormByCategoryID = [];
             this.ajaxSelectedCategoryStapled = [];
             this.selectedFormNode = null;
             this.selectedNodeIndicatorID = null;
             this.currentCategoryIndicatorTotal = 0;
-
-            //vueData.formID = catID || ''; //NOTE: update of other vue app TODO: IFTHEN should eventually be a component of the Form Editor app
-            //document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 
             //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
             if (catID !== null) {
@@ -499,7 +492,6 @@ export default {
             }
             this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
-            console.log('setting form node and indID from list selection', this.selectedNodeIndicatorID)
         },
         setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;
@@ -602,8 +594,6 @@ export default {
             this.currIndicatorID = null;
             this.newIndicatorParentID = parentIndID !== null ? parseInt(parentIndID) : null;
             this.isEditingModal = false;
-            console.log('Adding new indicator.', 'currID should be null:', this.currIndicatorID, 
-                'parentID (null for new sections):', this.newIndicatorParentID, 'FORM:', this.currCategoryID);
             this.openIndicatorEditingDialog(parentIndID);
         },
         /**
@@ -611,7 +601,6 @@ export default {
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
-            console.log('app EQ', typeof indicatorID)
             this.ajaxIndicatorByID = {};
             this.currIndicatorID = indicatorID;
             this.newIndicatorParentID = null;
@@ -639,7 +628,6 @@ export default {
             count++;
             if (node.indicatorID === this.selectedNodeIndicatorID) {
                 this.selectedFormNode = node;
-                console.log('found updated node from stored node ID', this.selectedNodeIndicatorID)
             }
             if (node.child) {
                 for (let c in node.child) {

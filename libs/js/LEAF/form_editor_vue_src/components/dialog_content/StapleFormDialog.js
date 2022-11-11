@@ -83,7 +83,7 @@ export default {
         <p>The order of the forms will be determined by the forms' assigned sort values.</p>
         <div id="mergedForms">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
-                <li v-for="s in ajaxSelectedCategoryStapled">
+                <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_list_' + s.categoryID">
                     {{truncateText(s.categoryName) || 'Untitled'}}
                     <button 
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
@@ -98,7 +98,7 @@ export default {
                 <label for="select-form-to-staple" style="padding-right: 0.3em;">Select a form to merge</label>
                 <select v-model="catIDtoStaple" title="select a form to merge" id="select-form-to-staple" style="width:100%;">
                     <option value="">Select a Form</option>
-                    <option v-for="f in mergeableForms" :value="f.categoryID" :key="'staple_'+f.categoryID">{{truncateText(f.categoryName) || 'Untitled'}}</option>
+                    <option v-for="f in mergeableForms" :value="f.categoryID" :key="'merge_'+f.categoryID">{{truncateText(f.categoryName) || 'Untitled'}}</option>
                 </select>
             </template>
             <div v-else>There are no available forms to merge</div>

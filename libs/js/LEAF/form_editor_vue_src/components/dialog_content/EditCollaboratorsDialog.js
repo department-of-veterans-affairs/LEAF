@@ -39,7 +39,6 @@ export default {
         ];
         Promise.all(loadCalls).then(()=> {
             const elSelect = document.getElementById('selectFormCollaborators');
-            console.log(this.allGroups, this.collaborators);
             if(elSelect!==null) elSelect.focus();
         });
     },
@@ -129,7 +128,7 @@ export default {
                 <label for="selectFormCollaborators" style="display:block; margin-bottom:2px;">Select a group to add</label>
                 <select v-model="group" id="selectFormCollaborators" style="width:100%;">
                     <option value="">Select a Group</option>
-                    <option v-for="g in availableGroups" :value="g" :key="'group_' + g.groupID">{{g.name}}</option>
+                    <option v-for="g in availableGroups" :value="g" :key="'collab_group_' + g.groupID">{{g.name}}</option>
                 </select>
             </template>
             <div v-else>There are no available groups to add</div>

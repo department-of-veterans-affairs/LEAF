@@ -22,13 +22,6 @@ export default {
         'allowedConditionChildFormats',
         'showToolbars'
     ],
-    methods: { /*
-        //NOTE: TODO: IFTHEN will eventually be a component of the form editor, at which point it can just be provided the current IndID.
-        ifthenUpdateIndicatorID(indicatorID) {
-            vueData.indicatorID = parseInt(indicatorID);
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
-        }*/
-    },
     computed: {
         children() {
             let eles = [];
