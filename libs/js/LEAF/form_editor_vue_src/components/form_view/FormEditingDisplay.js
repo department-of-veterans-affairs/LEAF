@@ -22,6 +22,9 @@ export default {
         'allowedConditionChildFormats',
         'showToolbars'
     ],
+    mounted() {
+        console.log('form editing area mounted');
+    },
     computed: {
         children() {
             let eles = [];
@@ -95,7 +98,7 @@ export default {
                             <img src="../../libs/dynicons/?img=emblem-system.svg&amp;w=20" alt="" />
                         </button>
                         <div style="width:26px; display:flex; align-items:center;">
-                            <img v-if="formNode.has_code" tabindex="0" 
+                            <img v-if="formNode.has_code" tabindex="0" title="advanced options are present"
                             style="cursor:pointer" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="advanced options are present" />
                         </div>
                         <button class="btn-general add-subquestion" :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"

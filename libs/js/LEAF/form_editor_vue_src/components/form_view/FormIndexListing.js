@@ -23,6 +23,7 @@ export default {
         'moveListing'
     ],
     mounted() {
+        console.log('Form Index list item mounted')
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
         this.addToListItemsObject(this.formNode, this.parentID, this.index);
         if(this.selectedNodeIndicatorID!==null) {

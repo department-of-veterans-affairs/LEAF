@@ -30,7 +30,7 @@ export default {
         'appIsLoadingCategoryInfo',
         'ajaxFormByCategoryID',
         'currCategoryID',       //always a main form
-        'currSubformID',        //subform, if a subform
+        'currSubformID',        //catID of the subform, if a subform, otherwise null
         'internalForms',
         'ajaxSelectedCategoryStapled',
         'selectNewCategory',
@@ -65,7 +65,7 @@ export default {
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID] || '';
-            return item !== '' && this.allListItemsAreAdded && item.parentID===null ? `${item.sort + 1} ` : '';
+            return item !== '' && this.allListItemsAreAdded && item.parentID===null ? `${item.currSortIndex + 1} ` : '';
         }, 
         allListItemsAreAdded() {
             return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
@@ -76,7 +76,7 @@ export default {
         sortValuesToUpdate() {
             let indsToUpdate = [];
             for (let i in this.listItems) {
-                if (this.listItems[i].sort !== this.listItems[i].listIndex) {
+                if (this.listItems[i].currSortIndex !== this.listItems[i].listIndex) {
                     indsToUpdate.push({indicatorID: parseInt(i), ...this.listItems[i]});
                 }
             }
@@ -196,9 +196,8 @@ export default {
          * @param {number} listIndex current index for that depth in the form index
          */
         addToListItemsObject(formNode = {}, parentID = null, listIndex = 0) {
-            const { indicatorID, sort } = formNode;
-            const item = { sort, parentID, listIndex, newParentID: '' }
-            this.listItems[indicatorID] = item;
+            const item = { currSortIndex: listIndex, parentID, listIndex, newParentID: '' }
+            this.listItems[formNode.indicatorID] = item;
         },
         /**
          * updates the listIndex and parentID values for a specific indicator in app listItems when moved via the Form Index
@@ -289,12 +288,12 @@ export default {
             if (event?.keyCode===32) event.preventDefault();
             this.showToolbars=!this.showToolbars;
         },
-    },
+    }, /*
     watch: {
         allListItemsAreAdded(newVal, oldVal){
-            console.log('watch triggered, allListItemsAreAdded (New/Old value): ', newVal, oldVal);
+            console.log('watch triggered, all List Items added (New/Old value): ', newVal, oldVal);
         }
-    },
+    }, */
     template:`
     <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
         font-size: 24px; font-weight: bold; padding: 16px;">
@@ -310,12 +309,11 @@ export default {
 
         <!-- NOTE: FORM INDEX DISPLAY -->
         <div id="form_index_display">
-            <div style="display:flex; align-items: center; justify-content: space-between;">
+            <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
                 <h3 style="margin: 0;">Form Index</h3>
                 <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
                     class="btn-general"
-                    title="Apply form structure updates">Apply changes</button>
-                <button v-else class="btn-general" title="drag and drop sections and apply updates to change form structure">ℹ</button>
+                    title="Apply form structure updates">Apply sorting changes</button>
             </div>
             <div v-if="currSubformID === null && internalForms.length > 0"><em>x{{internalForms.length}} internal form(s)</em></div>
             <div v-if="currSubformID === null && ajaxSelectedCategoryStapled.length > 0"><em>x{{ajaxSelectedCategoryStapled.length}} stapled form(s)</em></div>
@@ -358,7 +356,7 @@ export default {
         <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
             <!-- ENTIRE FORM EDIT / PREVIEW -->
             <div v-if="selectedFormNode===null" id="form_entry_and_preview">
-                <div class="form-section-header" style="display: flex;">
+                <div class="form-section-header" style="display: flex; height: 28px;">
                     <h3 style="margin: 0;">{{currentCategorySelection.categoryName}}</h3>
                     <button id="indicator_toolbar_toggle" class="btn-general"
                         @click.stop="toggleToolbars($event)">
