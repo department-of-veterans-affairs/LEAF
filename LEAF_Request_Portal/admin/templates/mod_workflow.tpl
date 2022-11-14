@@ -208,7 +208,6 @@ function createElement(typeOfElement, elementId, parentDiv) {
 function removeChild(removeChildId) {
     if(typeof removeChildId === 'string') {
         const childId = document.getElementById(removeChildId);
-        console.log(typeof childId)
         if (typeof childId !== 'undefined') {
             childId.removeChild(childId.firstElementChild);
         }
