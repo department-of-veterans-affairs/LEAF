@@ -76,7 +76,7 @@ export default {
         sortValuesToUpdate() {
             let indsToUpdate = [];
             for (let i in this.listItems) {
-                if (this.listItems[i].currSortIndex !== this.listItems[i].listIndex) {
+                if (this.listItems[i].sort !== this.listItems[i].listIndex) {
                     indsToUpdate.push({indicatorID: parseInt(i), ...this.listItems[i]});
                 }
             }
@@ -196,8 +196,9 @@ export default {
          * @param {number} listIndex current index for that depth in the form index
          */
         addToListItemsObject(formNode = {}, parentID = null, listIndex = 0) {
-            const item = { currSortIndex: listIndex, parentID, listIndex, newParentID: '' }
-            this.listItems[formNode.indicatorID] = item;
+            const { indicatorID, sort } = formNode;
+            const item = { sort, currSortIndex: listIndex, parentID, listIndex, newParentID: '' }
+            this.listItems[indicatorID] = item;
         },
         /**
          * updates the listIndex and parentID values for a specific indicator in app listItems when moved via the Form Index

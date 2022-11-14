@@ -188,7 +188,7 @@ export default {
                 const defaultChanged = this.defaultValue !== this.ajaxIndicatorByID[this.currIndicatorID].default;
                 const requiredChanged = +this.required !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].required);
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
-                const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
+                //const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
@@ -328,8 +328,8 @@ export default {
                             error: err => console.log('ind parentID post err', err)
                         })
                     );
-                }
-                if(sortChanged) { //NOTE: sort is also handled with drag drop in index, might rm here
+                } /*
+                if(sortChanged) { //NOTE: (tentative) use Form Index for sorting.
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -341,7 +341,7 @@ export default {
                             error: err => console.log('ind sort post err', err)
                         })
                     );
-                }
+                }*/
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 if (+this.is_sensitive === 1) {
@@ -577,11 +577,11 @@ export default {
                         @change="preventSelectionIfFormatNone" />
                     <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                 </label>
-                <template v-if="!isEditingModal">
+                <!-- <template v-if="!isEditingModal">
                     <label for="sort">
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px;" />Sort Priority
                     </label>
-                </template>
+                </template> -->
                 <template v-if="isEditingModal">
                     <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
                         <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
@@ -617,9 +617,10 @@ export default {
                             </select>
                         </label>
                     </template>
+                    <!--
                     <label for="sort">Sort Priority
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-left:3px;" />
-                    </label>
+                    </label> -->
                 </div>
                 <indicator-privileges></indicator-privileges>
             </template>
