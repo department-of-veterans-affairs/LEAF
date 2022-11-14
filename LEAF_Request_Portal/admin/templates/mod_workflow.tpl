@@ -189,14 +189,16 @@ function groupListContent(groups) {
 
 // Automated Emails Section
 function emptyAlert(idElement) {
-    const elementId = document.getElementById(idElement).value;
-    if (elementId == "") {
-        alert("Please make a choice");
+    if(typeof idElement === 'string'){
+        const elementId = document.getElementById(idElement).value;
+        if (elementId == "") {
+            alert("Please make a choice");
+        }
     }
 }
 
 function createElement(typeOfElement, elementId, parentDiv) {
-    if(typeOfElement && elementId && parentDiv) {
+    if(typeof typeOfElement === 'string' && typeof elementId === 'string' && typeof parentDiv === 'string') {
         const newElement = document.createElement(typeOfElement);
         newElement.setAttribute("id", elementId);
         document.getElementById(parentDiv).appendChild(newElement);
@@ -204,21 +206,26 @@ function createElement(typeOfElement, elementId, parentDiv) {
 }
 
 function removeChild(removeChildId) {
-    const childId = document.getElementById(removeChildId);
-    if (childId) {
-        childId.removeChild(childId.firstElementChild);
+    if(typeof removeChildId === 'string') {
+        const childId = document.getElementById(removeChildId);
+        console.log(typeof childId)
+        if (typeof childId !== 'undefined') {
+            childId.removeChild(childId.firstElementChild);
+        }
     }
 }
 
 function removeAllChildren(containerName) {
-    const container = document.getElementById(containerName);
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
+    if(typeof containerName === 'string') {
+        const container = document.getElementById(containerName);
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
     }
 }
 
 function insertDOM(elementId, content) {
-    if(elementId){
+    if(typeof elementId === 'string'){
         document.getElementById(elementId).innerHTML = content;
     }
 }
