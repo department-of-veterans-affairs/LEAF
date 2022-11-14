@@ -71,7 +71,7 @@ class Workflow
         return $out;
     }
 
-    public function deleteStep($stepID){
+    public function deleteStep(int $stepID): int|string{
         if (!$this->login->checkGroup(1)){
             return 'Admin access required.';
         }
