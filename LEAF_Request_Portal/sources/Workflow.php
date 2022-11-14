@@ -71,37 +71,45 @@ class Workflow
         return $out;
     }
 
-    public function deleteStep(int $stepID): int|string{
-        if (!$this->login->checkGroup(1)){
-            return 'Admin access required.';
+    public function deleteStep(int $stepID): int|string
+    {
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required.';
+        } else if ($stepID < 0) {
+            $return_value = 'Restricted command.';
+        } else {
+            $vars = array(':stepID' => $stepID);
+            $sql = 'SELECT recordID
+                    FROM records_workflow_state
+                    WHERE stepID = :stepID';
+
+            $res = $this->db->prepared_query($sql, $vars);
+            $resRecordID = $res[0]['recordID'];
+
+            $vars2 = array(':recordID' => $resRecordID);
+            $sql2 = 'UPDATE records
+                     SET lastStatus = NULL, submitted = "0"
+                     WHERE recordID = :recordID';
+
+            $this->db->prepared_query($sql2, $vars2 );
+
+            $workflowID = $this->getWorkflowIDFromStep($stepID);
+
+            $sql ='DELETE FROM step_dependencies WHERE stepID = :stepID;
+                   DELETE FROM route_events WHERE stepID = :stepID;
+                   DELETE FROM workflow_routes WHERE stepID = :stepID OR nextStepID = :stepID;
+                   DELETE FROM workflow_steps WHERE stepID = :stepID';
+            $this->db->prepared_query($sql, $vars);
+
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW_STEP, [
+                new LogItem("workflow_steps", "stepID", $stepID),
+                new LogItem("workflow_steps", "workflowID", $workflowID)
+            ]);
+
+            $return_value = true;
         }
 
-        // Don't allow changes to standardized components
-        if($stepID < 0) {
-            return 'Restricted command.';
-        }
-
-        $vars = array(':stepID' => $stepID);
-        $res = $this->db->prepared_query('SELECT recordID FROM records_workflow_state WHERE stepID = :stepID', $vars);
-        $resRecordID = $res[0]['recordID'];
-
-        $vars2 = array(':recordID' => $resRecordID);
-        $this->db->prepared_query('UPDATE records SET lastStatus = NULL, submitted = "0" WHERE recordID = :recordID', $vars2 );
-
-        $workflowID = $this->getWorkflowIDFromStep($stepID);
-
-        $res = $this->db->prepared_query('DELETE FROM step_dependencies WHERE stepID = :stepID', $vars);
-        $res = $this->db->prepared_query('DELETE FROM route_events WHERE stepID = :stepID', $vars);
-        $res = $this->db->prepared_query('DELETE FROM workflow_routes WHERE stepID = :stepID', $vars);
-        $res = $this->db->prepared_query('DELETE FROM workflow_routes WHERE nextStepID = :stepID', $vars);
-        $res = $this->db->prepared_query('DELETE FROM workflow_steps WHERE stepID = :stepID', $vars);
-
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "stepID", $stepID),
-            new LogItem("workflow_steps", "workflowID", $workflowID)
-        ]);
-
-        return 1;
+        return $return_value;
     }
 
 
