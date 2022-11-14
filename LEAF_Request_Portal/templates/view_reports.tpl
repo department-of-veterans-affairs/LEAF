@@ -517,8 +517,8 @@ function loadSearchPrereqs() {
                 } else $(`#indicators_${indicatorID}`).prop('checked', false);
             });
 
-            $('.form').on('keydown', function(e) {
-                if (e.keyCode === 13) {
+            $('.form').on('keydown', function(event) {
+                if (event.keyCode === 13) {
                     $(this).children('.formLabel').removeClass('buttonNorm');
                     $(this).find('.formLabel>img').css('display', 'none');
                     $(this).css({width: '100%'});
