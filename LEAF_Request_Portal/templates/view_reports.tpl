@@ -209,6 +209,11 @@ function addHeader(column) {
                 $('#'+data.cellContainerID).on('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
+                $('#'+data.cellContainerID).on('keydown', function(event) {
+                    if (event.keyCode === 13) {
+                        loadWorkflow(data.recordID, grid.getPrefixID());
+                    }
+                });
             }});
             break;
         case 'action_history':
