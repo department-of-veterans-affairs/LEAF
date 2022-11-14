@@ -105,7 +105,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $updateRecordsWorkflowStateSql = 'UPDATE records_workflow_state
                                             SET lastNotified=:lastNotified
                                             WHERE recordID=:recordID';
-        $this->db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
+        $db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
 
         echo "Email sent for {$record['recordID']} \r\n";
     }
