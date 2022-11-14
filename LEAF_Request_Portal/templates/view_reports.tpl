@@ -472,7 +472,7 @@ function loadSearchPrereqs() {
                 if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
-                buffer += '<div class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
+                buffer += '<div tabindex="0" class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(let j in groupList[i]) {
                     const indID = groupList[i][j];
                     const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
@@ -515,6 +515,18 @@ function loadSearchPrereqs() {
                 if(atLeastOneChecked) {
                     $(`#indicators_${indicatorID}`).prop('checked', true);
                 } else $(`#indicators_${indicatorID}`).prop('checked', false);
+            });
+
+            $('.form').on('keydown', function(e) {
+                if (e.keyCode === 13) {
+                    $(this).children('.formLabel').removeClass('buttonNorm');
+                    $(this).find('.formLabel>img').css('display', 'none');
+                    $(this).css({width: '100%'});
+                    $(this).children('div').css('display', 'block');
+                    $(this).children('div').children('.subIndicatorOption').css('display', 'block');
+                    $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
+                        'font-weight': 'bold'});
+                }
             });
 
             $('.form').on('click', function() {
