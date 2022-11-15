@@ -250,7 +250,7 @@ function addEmailReminderDialog(stepID){
     });
 
     dialog.setTitle('Email Reminder');
-    let output = '<label for="edit_email_check">Automated Emails:</label> <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()"><div id="edit_email_container"></div><br>';
+    let output = '<label for="edit_email_check">Enable Automated Emails? </label> <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()"><div id="edit_email_container"></div><br>';
     dialog.setContent(output);
     dialog.setSaveHandler(function() {
 
@@ -269,7 +269,7 @@ function addEmailReminderDialog(stepID){
             url: '../api/workflow/stepdata/' + stepID,
             success: function (res) {
                 if (res == 1) {
-                    //loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow);
                     dialog.hide();
                 }
                 else {
@@ -302,78 +302,12 @@ function addEmailReminderDialog(stepID){
     }
 }
 
-///// Creating Automated Emails
-function emailChecked() {
-    let emailChecked = document.getElementById("email_check");
-    if (emailChecked.checked) {
-        let selectdatesString = "";
-        selectdatesString += "<br>";
-        selectdatesString += '<select id="dates_selected" onchange="emailDateSelected()">';
-        selectdatesString += '<option value="">Select Option</option>';
-        selectdatesString += '<option value="1">Day/Days</option>';
-        selectdatesString += '<option value="7">Week/Weeks</option>';
-        selectdatesString += '<option value="30">Month/Months</option>';
-        selectdatesString += "</select>";
-        selectdatesString += "<br>";
-        createElement("div", "date_select", "email_container");
-        document.getElementById("date_select").innerHTML = selectdatesString;
-    } else {
-        removeAllChildren("email_container");
-    }
-}
-function emailDateSelected() {
-    let dates_selected = document.getElementById("dates_selected").value;
-    let days_display = "";
-    switch (parseInt(dates_selected)) {
-        case 1:
-            let days = 31;
-            days_display += "<br>";
-            days_display += '<select id="dates_days">';
-            days_display += '<option value="">Select Option</option>';
-            for (let index = 1; index < days; index++) {
-                days_display += '<option value="' + index + '">' + index + "</option>";
-            }
-            days_display += "</select>";
-            days_display += "<br>";
-            break;
-        case 7:
-            let weeks = 53;
-            days_display += "<br>";
-            days_display += '<select id="dates_days">';
-            days_display += '<option value="">Select Option</option>';
-            for (let index = 1; index < weeks; index++) {
-                days_display += '<option value="' + index + '">' + index + "</option>";
-            }
-            days_display += "</select>";
-            days_display += "<br>";
-            break;
-        case 30:
-            let months = 13;
-            days_display += "<br>";
-            days_display += '<select id="dates_days">';
-            days_display += '<option value="">Select Option</option>';
-            for (let index = 1; index < months; index++) {
-                days_display += '<option value="' + index + '">' + index + "</option>";
-            }
-            days_display += "</select>";
-            days_display += "<br>";
-            break;
-        default:
-            emptyAlert("dates_selected");
-            break;
-    }
-    const daySelect = document.createElement("div");
-    daySelect.setAttribute("id", "date_days");
-    document.getElementById("email_container").appendChild(daySelect);
-    document.getElementById("date_days").innerHTML = days_display;
-}
-
 ///// Edit Automated Emails
 function editEmailChecked() {
     let emailChecked = document.getElementById("edit_email_check");
     let editSelectdatesString = "";
     if (emailChecked.checked) {
-        editSelectdatesString += "<br>";
+        editSelectdatesString += '<br><label for="id">Please choose a time span.</label> <br>';
         editSelectdatesString += '<select id="edit_dates_selected" onchange="editEmailDateSelected()">';
         editSelectdatesString += '<option value="">Select Option</option>';
         editSelectdatesString += '<option value="1">Day/Days</option>';
@@ -393,7 +327,7 @@ function editEmailDateSelected() {
     switch (parseInt(dates_selected)) {
         case 1:
             let days = 31;
-            days_display += "<br>";
+            days_display += '<br><label for="edit_dates_days">How many Days?</label><br>';
             days_display += '<select id="edit_dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < days; index++) {
@@ -404,7 +338,7 @@ function editEmailDateSelected() {
             break;
         case 7:
             let weeks = 53;
-            days_display += "<br>";
+            days_display += '<br><label for="edit_dates_days">How many Weeks?</label><br>';
             days_display += '<select id="edit_dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < weeks; index++) {
@@ -415,7 +349,7 @@ function editEmailDateSelected() {
             break;
         case 30:
             let months = 13;
-            days_display += "<br>";
+            days_display += '<br><label for="edit_dates_days">How many Months?</label><br>';
             days_display += '<select id="edit_dates_days">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < months; index++) {
@@ -1663,7 +1597,19 @@ function showStepInfo(stepID) {
                     output += '</ul></fieldset>';
 
                     // button options for steps
-                    output += '<hr /><div style="padding: 4px; display: flex;"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span>';
+                    output += '<hr />';
+
+                    for(let i in res) {
+                        if(typeof res[i].stepData == 'string') {
+                            let stepParse = JSON.parse(res[i].stepData);
+                            if(stepParse.AutomateEmailGroup === 'true'){
+                              let dayCount = stepParse.DateSelected * stepParse.DaysSelected;
+                              let dayText = ((dayCount > 1) ? 'Days' : 'Day')
+                                output += `Email reminders will go out every ${dayCount} ${dayText}<hr>`
+                            }
+                        }
+                    }
+                    output += '<div style="padding: 4px; display: flex;"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span>';
                     output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
                     $('#stepInfo_' + stepID).html(output);
 
@@ -1877,7 +1823,18 @@ function loadWorkflow(workflowID) {
             	if(posY < minY) {
             		posY = minY;
             	}
-            	$('#workflow').append('<div class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle +'</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
+
+                let emailNotificationIcon = '';
+                if(typeof res[i].stepData == 'string') {
+                    let stepParse = JSON.parse(res[i].stepData);
+                    if(stepParse.AutomateEmailGroup === 'true'){
+                        let dayCount = stepParse.DateSelected * stepParse.DaysSelected;
+                        let dayText = ((dayCount > 1) ? 'Days' : 'Day')
+                        emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will go out every ${dayCount} ${dayText}" />`
+                    }
+                }
+
+                $('#workflow').append('<div class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle + ' ' + emailNotificationIcon + '</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
             	$('#step_' + res[i].stepID).css({
             		'left': parseFloat(res[i].posX) + 'px',
             		'top': posY + 'px',
