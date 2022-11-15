@@ -279,7 +279,14 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 type: 'GET',
                 url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
-                    let name = 'Pending action from ' + res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] || "Warning: User not selected for current action (Contact Administrator)";
+                    let name = '';
+
+                    if (res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] == 'null') {
+                        name = "Warning: User not selected for currennt action (Contact Administrator)";
+                    } else {
+                        name = "Pending action from " + res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID];
+                    }
+
                     $('#workflowbox_dep'+ step.dependencyID).append('<span>'+ name +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
@@ -293,7 +300,14 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 type: 'GET',
                 url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
                 success: function(res) {
-                    let name = 'Pending action from ' + step.description || "Warning: Group not selected for current action (Contact Administrator)";
+                    let name = '';
+
+                    if (step.description == 'null') {
+                        name = "Warning: Group not selected for current action (Contact Administrator)";
+                    } else {
+                        name = "Pending action from " + step.description;
+                    }
+
                     $('#workflowbox_dep'+ step.dependencyID).append('<span>'+ name +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
