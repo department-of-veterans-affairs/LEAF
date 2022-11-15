@@ -317,6 +317,18 @@ function removeMember(groupID, userID) {
     });
 }
 
+function pruneMember(groupID, userID) {
+    $.ajax({
+        type: 'POST',
+        url: "../api/group/" + groupID + "/members/_" + userID + "/prune",
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        fail: function(err) {
+            console.log(err);
+        },
+        cache: false
+    });
+}
+
 function addNexusMember(groupID, empUID) {
     $.ajax({
         type: 'POST',
@@ -474,11 +486,8 @@ function getGroupList() {
                                             actions += '</td>';
                                             employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
                                         } else {
-                                            let addMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="addMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Add this user to this group">Add to Group</button>`;
-                                            let actions = `${addMemberButton}`;
-                                            if (res[i].regionallyManaged === false) {
-                                                actions += `${addToNexusButton}`;
-                                            }
+                                            let pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
+                                            let actions = `${pruneMemberButton}`;
                                             actions += '</td>';
                                             inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
                                         }
@@ -523,10 +532,10 @@ function getGroupList() {
                                                 dialog_confirm.show();
                                             });
                                         } else {
-                                            $('#addMember_' + counter).on('click', function () {
-                                                dialog_confirm.setContent('Are you sure you want to add this member?');
+                                            $('#pruneMember_' + counter).on('click', function () {
+                                                dialog_confirm.setContent('Are you sure you want to prune this member?');
                                                 dialog_confirm.setSaveHandler(function () {
-                                                    addMember(groupID, res[i].userName);
+                                                    pruneMember(groupID, res[i].userName);
                                                     dialog_confirm.hide();
                                                     dialog.hide();
                                                 });
