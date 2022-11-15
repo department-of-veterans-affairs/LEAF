@@ -709,7 +709,7 @@ class FormWorkflow
             }
         }
 
-        $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense']);
+        $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense'], 'nextStep' => $res2[0]['nextStepID']);
 
         return array('status' => 1, 'errors' => $errors, 'comment' => $comment_post);
     }
