@@ -78,16 +78,28 @@ class Service
         return $return_value;
     }
 
-    public function importService(int $serviceID, string $service, string $abbrService, int|null $groupID)
+    /**
+     *
+     * @param int $serviceID
+     * @param string $service
+     * @param string|null $abbrService
+     * @param int|null $groupID
+     *
+     * @return void
+     *
+     * Created at: 11/2/2022, 7:04:44 AM (America/New_York)
+     */
+    public function importService(int $serviceID, string $service, string|null $abbrService, int|null $groupID): void
     {
         $sql_vars = array(':serviceID' => $serviceID,
                   ':service' => $service,
                   ':abbrService' => $abbrService,
                   ':groupID' => $groupID, );
+        $sql = 'INSERT INTO services (serviceID, service, abbreviatedService, groupID)
+                VALUES (:serviceID, :service, :abbrService, :groupID)
+    			ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID';
 
-        $this->db->prepared_query('INSERT INTO services (serviceID, service, abbreviatedService, groupID)
-                            VALUES (:serviceID, :service, :abbrService, :groupID)
-    						ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID', $sql_vars);
+        $this->db->prepared_query($sql, $sql_vars);
     }
 
     /**
