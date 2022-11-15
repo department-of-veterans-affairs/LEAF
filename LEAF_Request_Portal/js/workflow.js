@@ -281,7 +281,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 success: function(res) {
                     let name = '';
 
-                    if (res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] == 'null') {
+                    if (res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] == null) {
                         name = "Warning: User not selected for currennt action (Contact Administrator)";
                     } else {
                         name = "Pending action from " + res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID];
@@ -302,7 +302,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 success: function(res) {
                     let name = '';
 
-                    if (step.description == 'null') {
+                    if (step.description == null) {
                         name = "Warning: Group not selected for current action (Contact Administrator)";
                     } else {
                         name = "Pending action from " + step.description;
