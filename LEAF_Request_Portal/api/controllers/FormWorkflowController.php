@@ -3,13 +3,6 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../FormWorkflow.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class FormWorkflowController extends RESTfulResponse
 {
     public $index = array();
@@ -58,7 +51,7 @@ class FormWorkflowController extends RESTfulResponse
 
         $this->index['GET']->register('formWorkflow/[digit]/lastActionSummary', function ($args) use ($formWorkflow) {
             $formWorkflow->initRecordID($args[0]);
-            
+
             return $formWorkflow->getLastActionSummary();
         });
 

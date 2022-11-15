@@ -9,17 +9,6 @@
 
 */
 
-define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
-}
-
 class Form
 {
     public $employee;    // Org Chart
@@ -46,38 +35,14 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        // set up org chart assets
-        if (!class_exists('Orgchart\Config'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Login'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-        }
-        if (!class_exists('Orgchart\Employee'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-        }
-        if (!class_exists('Orgchart\Position'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Group'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
-        }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new OrgChart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->oc_dbName = $config->dbName;
-        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new OrgChart\Position($oc_db, $oc_login);
-        $this->group = new OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new Orgchart\Employee($oc_db, $oc_login);
+        $this->position = new Orgchart\Position($oc_db, $oc_login);
+        $this->group = new Orgchart\Group($oc_db, $oc_login);
     }
 
     /**
@@ -638,7 +603,6 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -909,7 +873,6 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -1334,7 +1297,6 @@ class Form
 
                 $errors = array();
                 // trigger initial submit event
-                include_once 'FormWorkflow.php';
                 $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
                 $FormWorkflow->setEventFolder('../scripts/events/');
 
@@ -1744,7 +1706,7 @@ class Form
                 }
 
                 //check if the requester has any backups
-                $nexusDB = $this->login->getNexusDB();
+                $nexusDB = $this->login->getNexusDb();
                 $vars4 = array(':empId' => $empUID);
                 $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
@@ -1818,7 +1780,7 @@ class Form
     }
 
     public function getEmpUID($userName){
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':userName' => $userName);
         $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
         return $response[0]["empUID"];
@@ -1826,7 +1788,7 @@ class Form
 
     public function checkIfBackup($empUID){
 
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':empId' => $empUID);
         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
 
@@ -2421,7 +2383,6 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $total = count($res);
@@ -2577,7 +2538,6 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -3270,7 +3230,6 @@ class Form
 
             if ($joinActionHistory)
             {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
                 $actionHistorySQL =
@@ -3301,7 +3260,6 @@ class Form
 
             if($joinRecordResolutionData)
             {
-
                 $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime
                 FROM records
                 LEFT JOIN records_step_fulfillment USING (recordID)
@@ -3330,7 +3288,6 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
                 $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
@@ -4005,8 +3962,6 @@ class Form
      * @throws SmartyException
      */
     function sendReminderEmail($recordID, $days) {
-
-        require_once 'Email.php';
         $email = new Email();
         $email->setSender('leaf.noreply@va.gov');
         $email->addSmartyVariables(array(

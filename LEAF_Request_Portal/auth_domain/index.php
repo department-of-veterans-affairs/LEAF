@@ -9,15 +9,12 @@
 
 */
 
-include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $login = new Login($db_phonebook, $db);
 
@@ -57,7 +54,7 @@ if (isset($_SERVER['REMOTE_USER']))
     else
     {
         // try searching through national database
-        $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $user);
         $res = $globalDB->prepared_query('SELECT * FROM employee
 											LEFT JOIN employee_data USING (empUID)
@@ -74,7 +71,7 @@ if (isset($_SERVER['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), 
+                    ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)

@@ -3,13 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-$currDir = dirname(__FILE__);
-include $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=1', $vars);

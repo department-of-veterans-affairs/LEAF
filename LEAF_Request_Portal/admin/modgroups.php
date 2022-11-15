@@ -3,20 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../VAMC_Directory.php';
-
-include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
+ require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $dir = new VAMC_Directory();
 
 $groups = $db->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
