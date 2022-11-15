@@ -1588,13 +1588,13 @@ function loadWorkflow(workflowID) {
 	$('#workflows').trigger('chosen:updated');
 
 	$('#workflow').html('');
-	$('#workflow').append('<div class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
+	$('#workflow').append('<div tabindex="0" class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
     $('#step_-1').css({
         'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
         'background-color': '#e0e0e0'
     });
-    $('#workflow').append('<div class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
+    $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
     $('#step_0').css({
         'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
@@ -1613,7 +1613,7 @@ function loadWorkflow(workflowID) {
             	if(posY < minY) {
             		posY = minY;
             	}
-            	$('#workflow').append('<div class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle +'</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
+            	$('#workflow').append('<div tabindex="0" class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle +'</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
             	$('#step_' + res[i].stepID).css({
             		'left': parseFloat(res[i].posX) + 'px',
             		'top': posY + 'px',
@@ -1647,6 +1647,11 @@ function loadWorkflow(workflowID) {
             	// attach click event
             	$('#step_' + res[i].stepID).on('click', null, res[i].stepID, function(e) {
             		showStepInfo(e.data);
+            	});
+                $('#step_' + res[i].stepID).on('keydown', null, res[i].stepID, function(e) {
+                    if (e.keyCode === 13) {
+            		    showStepInfo(e.data);
+                    }
             	});
 
             	if(maxY < posY) {
@@ -1911,12 +1916,19 @@ this.portalAPI = LEAFRequestPortalAPI();
 this.portalAPI.setBaseURL('../api/?a=');
 this.portalAPI.setCSRFToken(CSRFToken);
 
+
+
 // Fix dialog boxes not going away when clicking outside of box
 $(document).mouseup(function(e) {
     let container = $(".workflowStepInfo");
     if (!container.is(e.target) && container.has(e.target).length === 0) {
         container.hide();
     }
+    container.on('keydown', function(e) {
+        if (e.keyCode === 27) {
+            container.hide();
+        }
+    });    
 });
 
 $(function() {
