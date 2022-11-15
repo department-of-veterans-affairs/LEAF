@@ -856,7 +856,7 @@ class Financial
      * already deducted from the initial cost.
      *
      * Excel Function:
-     *        DB(cost,salvage,life,period[,month])
+     *        Db(cost,salvage,life,period[,month])
      *
      * @category Financial Functions
      *
@@ -872,7 +872,7 @@ class Financial
      *
      * @return float|string
      */
-    public static function DB($cost, $salvage, $life, $period, $month = 12)
+    public static function Db($cost, $salvage, $life, $period, $month = 12)
     {
         $cost = Functions::flattenSingleValue($cost);
         $salvage = Functions::flattenSingleValue($salvage);
@@ -925,7 +925,7 @@ class Financial
      * double-declining balance method or some other method you specify.
      *
      * Excel Function:
-     *        DDB(cost,salvage,life,period[,factor])
+     *        DDb(cost,salvage,life,period[,factor])
      *
      * @category Financial Functions
      *
@@ -942,7 +942,7 @@ class Financial
      *
      * @return float|string
      */
-    public static function DDB($cost, $salvage, $life, $period, $factor = 2.0)
+    public static function DDb($cost, $salvage, $life, $period, $factor = 2.0)
     {
         $cost = Functions::flattenSingleValue($cost);
         $salvage = Functions::flattenSingleValue($salvage);

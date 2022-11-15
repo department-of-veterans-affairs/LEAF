@@ -1,8 +1,5 @@
 <?php
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
-
 class ServiceChiefFormatter {
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::SERVICE_CHIEF => [

@@ -11,11 +11,6 @@
 
 namespace Orgchart;
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
 // Sanitize all $_GET input
 if (count($_GET) > 0)
 {
@@ -36,7 +31,7 @@ class Session implements \SessionHandlerInterface
     public function __construct($db)
     {
         if(defined('DIRECTORY_HOST')) {
-            $this->db = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+            $this->db = new \Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
             if(!$this->db->isConnected()) {
                 $this->db = $db;
             }
@@ -149,7 +144,7 @@ class Login
         return false;
     }
 
-    public function isInDB()
+    public function isInDb()
     {
         return $this->isInDB;
     }
@@ -250,7 +245,7 @@ class Login
         }
 
         // try to copy the user from the national DB
-        $globalDB = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new \Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $_SESSION['userID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee
 											LEFT JOIN employee_data USING (empUID)
@@ -267,7 +262,7 @@ class Login
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), 
+                    ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)

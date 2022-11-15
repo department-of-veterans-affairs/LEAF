@@ -31,7 +31,7 @@ class Session implements SessionHandlerInterface
     public function __construct($db)
     {
         if(defined('DIRECTORY_HOST')) {
-            $this->db = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+            $this->db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
             if(!$this->db->isConnected()) {
                 $this->db = $db;
             }
@@ -136,12 +136,12 @@ class Login
         return false;
     }
 
-    public function getNexusDB()
+    public function getNexusDb()
     {
         return $this->db;
     }
 
-    public function isInDB()
+    public function isInDb()
     {
         return $this->isInDB;
     }

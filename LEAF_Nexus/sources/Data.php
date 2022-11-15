@@ -11,18 +11,6 @@
 
 namespace Orgchart;
 
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
-}
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
 abstract class Data
 {
     protected $db;
@@ -50,6 +38,7 @@ abstract class Data
         $this->db = $db;
         $this->login = $login;
         $this->initialize();
+
         $this->dataActionLogger = new \DataActionLogger($db, $login);
     }
 
@@ -533,7 +522,6 @@ abstract class Data
         $memberships = $this->login->getMembership();
         if (!isset($memberships['groupID'][1]))
         {
-            require_once 'Tag.php';
             $tagObj = new Tag($this->db, $this->login);
             $tags = $tagObj->getAll();
             foreach ($tags as $item)
@@ -564,7 +552,7 @@ abstract class Data
                                             VALUES (:UID, :tag)", $vars);
 
         $this->updateLastModified();
-        
+
         $this->logAction(\DataActions::ADD, \LoggableTypes::TAG, [
             new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
             new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
@@ -589,7 +577,7 @@ abstract class Data
                                                 AND tag=:tag", $vars);
 
         $this->updateLastModified();
-        
+
         $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
             new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
             new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
@@ -734,7 +722,7 @@ abstract class Data
 
     /**
      * Returns all history ids for all groups
-     * 
+     *
      * @return array all history ids for all groups
      */
     public function getAllHistoryIDs()

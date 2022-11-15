@@ -9,17 +9,6 @@
 
 */
 
-define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
-}
-
 class Form
 {
     public $employee;    // Org Chart
@@ -46,38 +35,14 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        // set up org chart assets
-        if (!class_exists('Orgchart\Config'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Login'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-        }
-        if (!class_exists('Orgchart\Employee'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-        }
-        if (!class_exists('Orgchart\Position'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Group'))
-        {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
-        }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new OrgChart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->oc_dbName = $config->dbName;
-        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new OrgChart\Position($oc_db, $oc_login);
-        $this->group = new OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new Orgchart\Employee($oc_db, $oc_login);
+        $this->position = new Orgchart\Position($oc_db, $oc_login);
+        $this->group = new Orgchart\Group($oc_db, $oc_login);
     }
 
     /**
@@ -638,7 +603,6 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -789,56 +753,57 @@ class Form
 
     /**
      * Delete file/image attachment
+     *
      * @param int $recordID
      * @param int $indicatorID
      * @param int $series
-     * @return int 1 for success, 0 for fail
+     * @param string $fileName
+     *
+     * @return bool
+     *
+     * Created at: 10/31/2022, 8:32:58 AM (America/New_York)
      */
-    public function deleteAttachment($recordID, $indicatorID, $series, $fileIdx)
+    public function deleteAttachment(int $recordID, int $indicatorID, int $series, string $fileName): bool
     {
-        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series) || !is_numeric($fileIdx))
-        {
-            return 0;
-        }
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
-        {
-            return 0;
-        }
+        if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series)) {
+            $return_value = false;
+        } else if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            $return_value = false;
+        } else if (!$this->hasWriteAccess($recordID, 0, $indicatorID)) {
+            $return_value = false;
+        } else {
+            $data = $this->getIndicator($indicatorID, $series, $recordID);
+            $value = $data[$indicatorID]['value'];
+            $index = $this->getIndex($recordID, $indicatorID, $series, $fileName);
 
-        if (!$this->hasWriteAccess($recordID, 0, $indicatorID))
-        {
-            return 0;
-        }
+            $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$index]);
 
-        $data = $this->getIndicator($indicatorID, $series, $recordID);
-        $value = $data[$indicatorID]['value'];
-        $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$fileIdx]);
+            $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
+            if (isset($value[$index])) {
+                $_POST['overwrite'] = true;
+                $_POST['series'] = 1;
+                $_POST[$indicatorID] = '';
 
-        if (isset($value[$fileIdx]))
-        {
-            $_POST['overwrite'] = true;
-            $_POST['series'] = 1;
-            $_POST[$indicatorID] = '';
-            for ($i = 0; $i < count($value); $i++)
-            {
-                if ($i != $fileIdx)
-                {
-                    $_POST[$indicatorID] .= $value[$i] . "\n";
+                for ($i = 0; $i < count($value); $i++) {
+                    if ($i != $index) {
+                        $_POST[$indicatorID] .= $value[$i] . "\n";
+                    }
                 }
+
+                $this->doModify($recordID);
+
+                if (file_exists($uploadDir . $file)) {
+                    unlink($uploadDir . $file);
+                }
+
+                $return_value = true;
             }
 
-            $this->doModify($recordID);
-            if (file_exists($uploadDir . $file))
-            {
-                unlink($uploadDir . $file);
-            }
-
-            return 1;
+            $return_value = false;
         }
 
-        return 0;
+        return $return_value;
     }
 
     public function getRecordInfo($recordID)
@@ -908,7 +873,6 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -1333,7 +1297,6 @@ class Form
 
                 $errors = array();
                 // trigger initial submit event
-                include_once 'FormWorkflow.php';
                 $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
                 $FormWorkflow->setEventFolder('../scripts/events/');
 
@@ -1357,48 +1320,131 @@ class Form
         return $return_value;
     }
 
-    /**
-     * Get the progress percentage (as integer)
+/**
+     * Get the progress percentage (as integer), accounting for conditinally hidden questions
      * @param int $recordID
      * @return int Percent completed
      */
     public function getProgress($recordID)
     {
+        $returnValue = 0;
+
         $vars = array(':recordID' => (int)$recordID);
-        $tresRecord = $this->db->prepared_query('SELECT recordID, categoryID, count, submitted FROM records
+        //get all the catIDs associated with this record and whether the forms are enabled or submitted 
+        $resRecordInfoEachForm = $this->db->prepared_query('SELECT recordID, categoryID, `count`, submitted FROM records
                                                     LEFT JOIN category_count USING (recordID)
-                                                    WHERE recordID=:recordID', $vars);
-        $resRecord = array();
-        foreach ($tresRecord as $record)
-        {
-            if ($record['submitted'] > 0)
-            {
-                return 100;
+                                                    WHERE recordID=:recordID', $vars);                         
+        $isSubmitted = false;
+        foreach ($resRecordInfoEachForm as $request) {
+            if ($request['submitted'] > 0) {
+                $isSubmitted = true;
+                break;
+            } 
+        }
+        if ($isSubmitted) {
+            $returnValue = 100;
+
+        } else {
+
+            //get indicatorID, data, and required for all completed questions for non-disabled indicators
+            $resCompleted = $this->db->prepared_query('SELECT indicatorID, `data`, `required` FROM `data` LEFT JOIN indicators
+                                                                USING (indicatorID)
+                                                                WHERE recordID=:recordID
+                                                                    AND indicators.disabled = 0
+                                                                    AND data != ""
+                                                                    AND data IS NOT NULL', $vars);
+            //use to count the number of required completions and organize completed data for possible condition checks                              
+            $resCountCompletedRequired = 0;
+            $resCompletedIndIDs = array();
+            foreach($resCompleted as $entry) {
+                $resCompletedIndIDs[(int)$entry['indicatorID']] = $entry['data'];
+                if((int)$entry['required'] === 1) {
+                    $resCountCompletedRequired++;
+                }
             }
-            $resRecord[strtolower($record['categoryID'])] = $record['count'];
-        }
+        
+            $allRequiredIndicators = $this->db->prepared_query("SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0", array());
+            //use recordInfo about forms associated with the record to get the total number of required questions on the request
+            $categories = array();
+            foreach($resRecordInfoEachForm as $form) {
+                if((int)$form['count'] === 1) {
+                    $categories[] = $form['categoryID'];
+                }
+            }  
+            $resRequestRequired = array();
+            foreach ($allRequiredIndicators as $indicator) {   
+                if(in_array($indicator['categoryID'], $categories)) {
+                    $resRequestRequired[] = $indicator;
+                }
+            }
+            $countRequestRequired = count($resRequestRequired);
+            if($resCountCompletedRequired === $countRequestRequired) {
+                $returnValue = 100;
 
-        $vars = array(':recordID' => (int)$recordID);
-        $resCompletedCount = $this->db->prepared_query('SELECT COUNT(*) FROM data LEFT JOIN indicators
-                                                            USING (indicatorID)
-                                                            WHERE recordID=:recordID
-                                                                AND indicators.required = 1
-        														AND indicators.disabled = 0
-                                                                AND data != ""', $vars);
+            } else {
 
-        $resCount = $this->db->prepared_query("SELECT categoryID, COUNT(*) FROM indicators WHERE required=1 AND disabled = 0 GROUP BY categoryID", array());
-        $countData = array();
-        $sum = 0;
-        foreach ($resCount as $cat)
-        {
-            $sum += $cat['COUNT(*)'] * (isset($resRecord[strtolower($cat['categoryID'])]) ? $resRecord[strtolower($cat['categoryID'])] : 0);
-        }
-        if ($sum == 0)
-        {
-            return 100;
-        }
+                foreach ($resRequestRequired as $ind) {
+                    //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
+                    if(!in_array((int)$ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
+                        
+                        $conditions = json_decode(strip_tags($ind['conditions']));
+                        $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
 
-        return round(($resCompletedCount[0]['COUNT(*)'] / $sum) * 100);
+                        $conditionMet = false;
+                        foreach ($conditions as $c) {
+                            //only continue if formats match, only check hide/show, only check if parent data exists
+                            if ($c->childFormat === $currFormat 
+                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show') 
+                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) {
+
+                                $parentFormat = $c->parentFormat;
+
+                                $currentParentDataValue =  preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int)$c->parentIndID]);
+                                if ($parentFormat==='multiselect') {
+                                    $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
+                                } else {
+                                    $currentParentDataValue = array($currentParentDataValue);
+                                }
+                                
+                                $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
+                                $operator = $c->selectedOp;
+
+                                switch($operator) {
+                                    case '==':
+                                        if ($parentFormat === 'multiselect') { //true if the current data value includes any of the condition values
+                                            foreach ($currentParentDataValue as $v) {
+                                                if (in_array($v, $conditionParentValue)) {
+                                                    $conditionMet = true;
+                                                    break;
+                                                }
+                                            }
+                                        } else if ($parentFormat === 'dropdown' && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                            $conditionMet = true;
+                                        } 
+                                        break;
+                                    case '!=':
+                                        if (($parentFormat === 'multiselect' && !array_intersect($currentParentDataValue, $conditionParentValue))
+                                            || ($parentFormat === 'dropdown' && $currentParentDataValue[0] !== $conditionParentValue[0])) {
+                                            $conditionMet = true;
+                                        } 
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                            }
+                            //if the question is not being shown due to its conditions, do not count it as a required question
+                            if(($conditionMet===false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet===true && strtolower($c->selectedOutcome) === 'hide')) {
+                                $countRequestRequired--;
+                                break;
+                            }
+                        }
+                    }
+                }
+                $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+            }
+        } 
+        return $returnValue;
     }
 
     /**
@@ -1660,7 +1706,7 @@ class Form
                 }
 
                 //check if the requester has any backups
-                $nexusDB = $this->login->getNexusDB();
+                $nexusDB = $this->login->getNexusDb();
                 $vars4 = array(':empId' => $empUID);
                 $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 
@@ -1734,7 +1780,7 @@ class Form
     }
 
     public function getEmpUID($userName){
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':userName' => $userName);
         $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
         return $response[0]["empUID"];
@@ -1742,7 +1788,7 @@ class Form
 
     public function checkIfBackup($empUID){
 
-        $nexusDB = $this->login->getNexusDB();
+        $nexusDB = $this->login->getNexusDb();
         $vars = array(':empId' => $empUID);
         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
 
@@ -2337,7 +2383,6 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $total = count($res);
@@ -2493,7 +2538,6 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -3186,7 +3230,6 @@ class Form
 
             if ($joinActionHistory)
             {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
                 $actionHistorySQL =
@@ -3217,7 +3260,6 @@ class Form
 
             if($joinRecordResolutionData)
             {
-
                 $recordResolutionSQL = 'SELECT recordID, lastStatus, records_step_fulfillment.stepID, fulfillmentTime
                 FROM records
                 LEFT JOIN records_step_fulfillment USING (recordID)
@@ -3246,7 +3288,6 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
                 $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
@@ -3818,6 +3859,12 @@ class Form
             return $errors;
         }
 
+        if (!$this->hasReadAccess($recordID))
+        {
+            $errors = array('type' => 3);
+            return $errors;
+        }
+
         // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
@@ -3915,8 +3962,6 @@ class Form
      * @throws SmartyException
      */
     function sendReminderEmail($recordID, $days) {
-
-        require_once 'Email.php';
         $email = new Email();
         $email->setSender('leaf.noreply@va.gov');
         $email->addSmartyVariables(array(
@@ -3925,5 +3970,44 @@ class Form
 
         $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
 
+    }
+
+    /**
+     *
+     * @param int $recordID
+     * @param int $indicatorID
+     * @param int $series
+     * @param string $fileName
+     *
+     * @return int
+     *
+     * Created at: 10/31/2022, 8:30:57 AM (America/New_York)
+     */
+    private function getIndex (int $recordID, int $indicatorID, int $series, string $fileName): int
+    {
+        $return_value = -1;
+
+        $vars = array(':indicatorID' => $indicatorID,
+                      ':series' => $series,
+                      ':recordID' => $recordID);
+        $sql = 'SELECT data
+                FROM data
+                LEFT JOIN indicators USING (indicatorID)
+                WHERE indicatorID = :indicatorID
+                AND series = :series
+                AND recordID = :recordID
+                AND disabled = 0';
+
+        $data = $this->db->prepared_query($sql, $vars);
+        $values = $this->fileToArray($data[0]['data']);
+
+        for ($i = 0; $i < count($values); $i++) {
+            if ($values[$i] == $fileName) {
+                $return_value = $i;
+                break;
+            }
+        }
+
+        return $return_value;
     }
 }
