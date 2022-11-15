@@ -3,15 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
-include_once $currDir . '/../Login.php';
-include_once $currDir . '/../admin/Group.php';
-include_once $currDir . '/../sources/Service.php';
-include_once $currDir . '/../sources/System.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -20,12 +12,6 @@ $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phon
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
-
-include_once $currDir . '/../' . Config::$orgchartPath . '/config.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
 $employee = new Orgchart\Employee($db_phonebook, $login);
 $group = new Orgchart\Group($db_phonebook, $login);

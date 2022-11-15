@@ -1,14 +1,12 @@
 <?php
 ini_set('display_errors', 0); // Set to 1 to display errors
 
-include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $debug = false;
 $db_config = new DB_Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
 $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 

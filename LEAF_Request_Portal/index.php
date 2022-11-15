@@ -4,33 +4,22 @@
  */
 
 error_reporting(E_ERROR);
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'form.php';
-include 'sources/Note.php';
 
-// Include XSSHelpers
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 $login = new Login($db_phonebook, $db);
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDB()) {
+if (!$login->isLogin() || !$login->isInDb()) {
     $login->logout(); // destroy current session tokens
     header("Location: session_expire.php");
     exit;
@@ -76,7 +65,6 @@ switch ($action) {
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
         $form = new Form($db, $login);
-        include './sources/FormStack.php';
         $stack = new FormStack($db, $login);
 
         $t_menu->assign('action', XSSHelpers::xscrub($action));
@@ -231,7 +219,6 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        require_once 'FormWorkflow.php';
         $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
@@ -276,7 +263,6 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        require_once 'Inbox.php';
         $inbox = new Inbox($db, $login);
 
         $inboxItems = $inbox->getInbox();
@@ -314,7 +300,6 @@ switch ($action) {
         break;
     case 'status':
         $form = new Form($db, $login);
-        include_once 'View.php';
         $view = new View($db, $login);
         $recordIDForStatus = (int)$_GET['recordID'];
 
@@ -362,7 +347,6 @@ switch ($action) {
 
            break;
     case 'bookmarks':
-        include_once 'View.php';
         $view = new View($db, $login);
 
         $t_form = new Smarty;
@@ -512,7 +496,6 @@ switch ($action) {
 
         $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
         $main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
-        $main->assign('logout', true);
         $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
         $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
 
@@ -542,7 +525,6 @@ switch ($action) {
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
-        require_once 'Inbox.php';
         $inbox = new Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
         $t_form->assign('inbox_status', 1);

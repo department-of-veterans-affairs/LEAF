@@ -88,11 +88,11 @@
 
                         if(numRows > 0){
                             $(gridElement).find('tr').each(function(){
-                                
+
                                 numColumns = $(this).find('td').length;
 
                                 $(this).find('td').each(function(j){
-                                    
+
                                     if(j < numColumns - 2 ){ //skipping last two columns: sort & remove row
 
                                         var possibleInputs = [];
@@ -104,7 +104,7 @@
                                         possibleInputs.push($(this).find('select').first());
 
                                         var input;
-                                        
+
                                         for(var k= 0; k < possibleInputs.length; k++){
                                             if($(possibleInputs[k]).length > 0){
                                                 input = $(possibleInputs[k]);
@@ -113,11 +113,11 @@
                                         }
 
                                         if(input){
-                                            var inputValue = $(input).val(); 
+                                            var inputValue = $(input).val();
                                             if(inputValue == null || inputValue.trim() == ''){
                                                 valid = false;
                                             }
-                                        }   
+                                        }
                                     }
 
                                 });
@@ -261,10 +261,10 @@
                             elDiv.innerHTML = str;
                             return elDiv.innerText;
                         }
-                        const values = Array.isArray(<!--{$indicator.value|json_encode}-->) ? 
+                        const values = Array.isArray(<!--{$indicator.value|json_encode}-->) ?
                             <!--{$indicator.value|json_encode}--> :       //new serialized array format
                             '<!--{$indicator.value}-->'.split(/,(?!\s)/); //old concat string format compatible (needed for default vals)
-                        
+
                         let options = <!--{$indicator.options|json_encode}--> || [];
                         options = options.map(o =>({
                             value: o,
@@ -628,7 +628,7 @@
                         aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
                     <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
                 <!--{/if}-->
-                
+
                 <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
                 </span>
@@ -660,7 +660,7 @@
                 <!--{/if}-->
                 </script>
                 <!--{$indicator.html}-->
-                
+
         <!--{/if}-->
         <!--{if $indicator.format == 'fileupload' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <fieldset>
@@ -685,7 +685,7 @@
                     	        data: {recordID: <!--{$recordID|strip_tags}-->,
                     	               indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
                     	               series: <!--{$indicator.series|strip_tags}-->,
-                    	               file: '<!--{$counter}-->',
+                    	               file: '<!--{$file}-->',
                     	               CSRFToken: '<!--{$CSRFToken}-->'},
                     	        success: function(response) {
                     	            $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
@@ -714,7 +714,7 @@
                         var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
                         var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
                         var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
-                        
+
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
                     setSubmitError: function() {
@@ -755,7 +755,7 @@
                                 data: {recordID: <!--{$recordID|strip_tags}-->,
                                        indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
                                        series: <!--{$indicator.series|strip_tags}-->,
-                                       file: '<!--{$counter}-->',
+                                       file: '<!--{$file}-->',
                                        CSRFToken: '<!--{$CSRFToken}-->'},
                                 success: function(response) {
                                     $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
@@ -784,7 +784,7 @@
                         var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
                         var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
                         var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
-                        
+
                         return oldFiles.length === 0 && newFiles.length === 0;
                     },
                     setSubmitError: function() {
@@ -858,9 +858,7 @@
                 }
             };
             <!--{/if}-->
-            if(grpSel != undefined) {
-                var grpSel = {};
-            }
+            var leaf_groupSelector = leaf_groupSelector ?? {};
             $(function() {
                 function initGroupSelector() {
                     let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
@@ -882,20 +880,21 @@
                     return grpSel;
                 }
 
-                if(typeof groupSelector == 'undefined') {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
-                    $.ajax({
-                        type: 'GET',
-                        url: "<!--{$orgchartPath}-->/js/groupSelector.js",
-                        dataType: 'script',
-                        success: function() {
-                        	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
-                        }
-                    });
-                }
-                else {
-                	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
-                }
+                leaf_groupSelector[<!--{$indicator.indicatorID}-->] = new Promise((resolve, reject) => {
+                    if(typeof groupSelector == 'undefined') {
+                        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
+                        resolve($.ajax({
+                            type: 'GET',
+                            url: "<!--{$orgchartPath}-->/js/groupSelector.js",
+                            dataType: 'script'
+                        }).then(function() {
+                            return initGroupSelector();
+                        }));
+                    }
+                    else {
+                        resolve(initGroupSelector());
+                    }
+                });
             });
             </script>
             <!--{$indicator.html}-->
@@ -948,9 +947,7 @@
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden" />
             <script>
-            if(posSel == undefined) {
-                var posSel = {};
-            }
+            var leaf_positionSelector = leaf_positionSelector ?? {};
             $(function() {
                 function initPositionSelector() {
                     let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
@@ -973,20 +970,21 @@
                     return posSel;
                 }
 
-                if(typeof positionSelector == 'undefined') {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
-                    $.ajax({
-                        type: 'GET',
-                        url: "<!--{$orgchartPath}-->/js/positionSelector.js",
-                        dataType: 'script',
-                        success: function() {
-                            posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
-                        }
-                    });
-                }
-                else {
-                    posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
-                }
+                leaf_positionSelector[<!--{$indicator.indicatorID}-->] = new Promise((resolve, reject) => {
+                    if(typeof positionSelector == 'undefined') {
+                        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
+                        resolve($.ajax({
+                            type: 'GET',
+                            url: "<!--{$orgchartPath}-->/js/positionSelector.js",
+                            dataType: 'script'
+                        }).then(function() {
+                            return initPositionSelector();
+                        }));
+                    }
+                    else {
+                        resolve(initPositionSelector());
+                    }
+                });
             });
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -1015,9 +1013,7 @@
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
 
             <script>
-            if(empSel == undefined) {
-                var empSel = {};
-            }
+            var leaf_employeeSelector = leaf_employeeSelector ?? {};
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
@@ -1051,18 +1047,18 @@
                     }
                 }
 
-                function empSearchSuccess() {
-                    empSel[<!--{$indicator.indicatorID}-->] = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
-                    empSel[<!--{$indicator.indicatorID}-->].apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel[<!--{$indicator.indicatorID}-->].rootPath = '<!--{$orgchartPath}-->/';
+                function initEmployeeSelector() {
+                    let empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel.rootPath = '<!--{$orgchartPath}-->/';
 
-                    empSel[<!--{$indicator.indicatorID}-->].setSelectHandler(function() {
-                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
+                    empSel.setSelectHandler(function() {
+                        importFromNational(empSel);
                     });
-                    empSel[<!--{$indicator.indicatorID}-->].setResultHandler(function() {
-                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
+                    empSel.setResultHandler(function() {
+                        importFromNational(empSel);
                     });
-                    empSel[<!--{$indicator.indicatorID}-->].initialize();
+                    empSel.initialize();
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
@@ -1075,31 +1071,34 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel[<!--{$indicator.indicatorID}-->].runSearchQuery("userName:" + res.employee.userName);
+                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
                             //here, updates search field value when modal is opened
-                            $("#"+ empSel[<!--{$indicator.indicatorID}-->].prefixID+"input").val("userName:" + res.employee.userName);
+                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
-                                empSel[<!--{$indicator.indicatorID}-->].select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });
                         }
                     });
                     <!--{/if}-->
+
+                    return empSel;
                 }
-                
-                if(typeof nationalEmployeeSelector == 'undefined') {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
-                    $.ajax({
-                        type: 'GET',
-                        url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
-                        dataType: 'script',
-                        success: function() {
-                            empSearchSuccess();
-                        }
-                    });
-                }
-                else {
-                    empSearchSuccess();
-                }
+
+                leaf_employeeSelector[<!--{$indicator.indicatorID}-->] = new Promise((resolve, reject) => {
+                    if(typeof nationalEmployeeSelector == 'undefined') {
+                        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
+                        resolve($.ajax({
+                            type: 'GET',
+                            url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
+                            dataType: 'script'
+                        }).then(function() {
+                            return initEmployeeSelector();
+                        }));
+                    }
+                    else {
+                        resolve(initEmployeeSelector());
+                    }
+                });
             });
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {

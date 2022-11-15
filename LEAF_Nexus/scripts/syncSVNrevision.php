@@ -5,12 +5,10 @@
 
 $version = 'PUBLIC';
 
-$currDir = dirname(__FILE__);
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array(':version' => $version);
 $res = $db->prepared_query("UPDATE settings SET data=:version WHERE setting='version'", $vars);

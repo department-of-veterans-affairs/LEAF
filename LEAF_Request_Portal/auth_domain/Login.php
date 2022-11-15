@@ -128,12 +128,12 @@ class Login
         return false;
     }
 
-    public function getNexusDB()
+    public function getNexusDb()
     {
         return $this->db;
     }
 
-    public function isInDB()
+    public function isInDb()
     {
         return $this->isInDB;
     }
@@ -205,7 +205,7 @@ class Login
             else
             {
                 // try searching through national database
-                $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+                $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
                 $vars = array(':userName' => $user);
                 $res = $globalDB->prepared_query('SELECT * FROM employee
         											LEFT JOIN employee_data USING (empUID)
@@ -222,20 +222,20 @@ class Login
                             ':phoFirstName' => $res[0]['phoneticFirstName'],
                             ':phoLastName' => $res[0]['phoneticLastName'],
                             ':domain' => $res[0]['domain'],
-                            ':lastUpdated' => time(), 
+                            ':lastUpdated' => time(),
                             ':new_empUUID' => $res[0]['new_empUUID'] );
                     $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                           VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
             								ON DUPLICATE KEY UPDATE deleted=0', $vars);
                     $empUID = $db_phonebook->getLastInsertID();
-        
+
                     if ($empUID == 0)
                     {
                         $vars = array(':userName' => $res[0]['userName']);
                         $empUID = $db_phonebook->prepared_query('SELECT empUID FROM employee
                                                                     WHERE userName=:userName', $vars)[0]['empUID'];
                     }
-        
+
                     $vars = array(':empUID' => $empUID,
                             ':indicatorID' => 6,
                             ':data' => $res[0]['data'],
@@ -245,7 +245,7 @@ class Login
                     $db_phonebook->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
         											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
                                                     ON DUPLICATE KEY UPDATE data=:data', $vars);
-        
+
                     // redirect as usual
                     $_SESSION['userID'] = $res[0]['userName'];
                 }

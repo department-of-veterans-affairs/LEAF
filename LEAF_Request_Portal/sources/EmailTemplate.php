@@ -7,11 +7,6 @@
  *  Email Template Handler
  */
 
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-
 class EmailTemplate
 {
     private $db;
@@ -149,7 +144,7 @@ class EmailTemplate
     public function getHistory($filterByName)
     {
         $history = [];
-        
+
         $fields = [
             'body' => \LoggableTypes::EMAIL_TEMPLATE_BODY,
             'emailTo' => \LoggableTypes::EMAIL_TEMPLATE_TO,
@@ -199,7 +194,7 @@ class EmailTemplate
             if (htmlentities($_POST['subjectFileName'], ENT_QUOTES) != ''
                 && $currentTemplate['subjectFile'] !== $_POST['subjectFile']) {
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
-                
+
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
@@ -211,7 +206,7 @@ class EmailTemplate
             if (htmlentities($_POST['emailToFileName'], ENT_QUOTES) != ''
                 && $currentTemplate['emailToFile'] !== $_POST['emailToFile']) {
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
-                
+
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_TO,
@@ -223,7 +218,7 @@ class EmailTemplate
             if (htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != ''
                 && $currentTemplate['emailCcFile'] !== $_POST['emailCcFile']) {
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
-                
+
                 $this->dataActionLogger->logAction(
                     \DataActions::MODIFY,
                     \LoggableTypes::EMAIL_TEMPLATE_CC,

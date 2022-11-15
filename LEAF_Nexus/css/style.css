@@ -50,7 +50,7 @@ h3 {
 }
 
 #header {
-    font-family: serif;
+    font-family: Verdana, sans-serif;
     font-weight: bold;
     background-image: url('../images/gradient.png');
     width: 100%;

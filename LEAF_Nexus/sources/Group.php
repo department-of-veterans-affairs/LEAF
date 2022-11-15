@@ -11,16 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-if(!class_exists('LogFormatter'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
-}
-if(!class_exists('LogItem'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logItem.php';
-}
-
 class Group extends Data
 {
     protected $dataTable = 'group_data';
@@ -583,7 +573,6 @@ class Group extends Data
 
         // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
-        require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         foreach ($res as $key => $value)
         {
@@ -611,7 +600,7 @@ class Group extends Data
     public function listGroupEmployeesAll($groupID)
     {
         $output = array();
-        require_once 'Position.php';
+
         $position = new Position($this->db, $this->login);
 
         $positions = $this->listGroupPositions($groupID);
@@ -1142,6 +1131,7 @@ class Group extends Data
     private function getPositionDisplay(int $UID): string
     {
         $positionVars = array(':positionId'=> $UID);
+
         $sql = 'SELECT positionTitle
                 FROM positions
                 WHERE positionId = :positionId';
@@ -1154,6 +1144,7 @@ class Group extends Data
     private function getEmployeeDisplay(int $employeeID): string
     {
         $employeeVars = array(':employeeId'=> $employeeID);
+
         $sql = 'SELECT concat(firstName," ",lastName) AS user
                 FROM employee
                 WHERE empUID = :employeeId';

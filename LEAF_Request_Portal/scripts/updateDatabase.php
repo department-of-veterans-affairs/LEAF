@@ -14,13 +14,12 @@ else
 }
 $currDir = dirname(__FILE__);
 
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))
@@ -50,11 +49,11 @@ foreach ($updates as $item)
     }
 }
 
-updateDB($currentVersion, $updateList, $folder, $db);
+updateDb($currentVersion, $updateList, $folder, $db);
 
 echo BR . BR . 'Complete.';
 
-function updateDB($thisVer, $updateList, $folder, $db)
+function updateDb($thisVer, $updateList, $folder, $db)
 {
     if (isset($updateList[$thisVer]))
     {
@@ -71,7 +70,7 @@ function updateDB($thisVer, $updateList, $folder, $db)
         else
         {
             echo "Database updated to: {$res[0]['data']}" . BR;
-            updateDB($res[0]['data'], $updateList, $folder, $db);
+            updateDb($res[0]['data'], $updateList, $folder, $db);
         }
     }
 }

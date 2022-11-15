@@ -30,8 +30,6 @@ class VAMC_Directory_maintenance_AD
     // Connect to the database
     public function __construct()
     {
-        $currDir = dirname(__FILE__);
-        require_once $currDir . '/../config.php';
         $config = new Orgchart\Config();
 
         try

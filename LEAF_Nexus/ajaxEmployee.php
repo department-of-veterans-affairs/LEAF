@@ -15,17 +15,11 @@
 */
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-include './sources/Exception.php';
-include './sources/Employee.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
@@ -34,7 +28,7 @@ if ($login)
 {
 }
 
-$employee = new OrgChart\Employee($db, $login);
+$employee = new Orgchart\Employee($db, $login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
