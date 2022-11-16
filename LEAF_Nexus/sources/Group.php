@@ -1071,6 +1071,25 @@ class Group extends Data
         return 0;
     }
 
+    /**
+     *
+     * @param string $tag_name
+     * @param int $groupID
+     *
+     * @return void
+     *
+     * Created at: 11/1/2022, 11:29:52 AM (America/New_York)
+     */
+    public function addGroupTag(string $tag_name, int $groupID): void
+    {
+        $vars = array(':groupID' => $groupID,
+                        ':tag' => $tag_name);
+        $sql = 'INSERT INTO group_tags (groupID, tag)
+                VALUES (:groupID, :tag)';
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
     private function sortEmployees($a, $b)
     {
         $first = substr(strtolower($a['lastName']), 0, 1);
@@ -1109,13 +1128,29 @@ class Group extends Data
         }
     }
 
-    private function getPositionDisplay($UID){
+    private function getPositionDisplay(int $UID): string
+    {
         $positionVars = array(':positionId'=> $UID);
-        return $this->db->prepared_query('SELECT positionTitle from positions where positionId = :positionId', $positionVars)[0]['positionTitle'];
+
+        $sql = 'SELECT positionTitle
+                FROM positions
+                WHERE positionId = :positionId';
+
+        $return_value = $this->db->prepared_query($sql, $positionVars);
+
+        return $return_value[0]['positionTitle'];
     }
 
-    private function getEmployeeDisplay($employeeID){
+    private function getEmployeeDisplay(int $employeeID): string
+    {
         $employeeVars = array(':employeeId'=> $employeeID);
-        return $this->db->prepared_query('SELECT concat(firstName," ",lastName) as user from employee where empUID = :employeeId', $employeeVars)[0]['user'];
+
+        $sql = 'SELECT concat(firstName," ",lastName) AS user
+                FROM employee
+                WHERE empUID = :employeeId';
+
+        $return_value = $this->db->prepared_query($sql, $employeeVars);
+
+        return $return_value[0]['user'];
     }
 }
