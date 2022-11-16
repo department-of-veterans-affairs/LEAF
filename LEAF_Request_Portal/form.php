@@ -1479,7 +1479,11 @@ class Form
                         }
                     }
                 }
-                $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+                if ($countRequestRequired===0) {
+                    $returnValue = 100;
+                } else {
+                    $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+                }
             }
         } 
         return $returnValue;
