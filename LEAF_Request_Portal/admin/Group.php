@@ -222,9 +222,15 @@ class Group
                     if (isset($dirRes[0]))
                     {
                         $dirRes[0]['regionallyManaged'] = false;
+                        foreach ($dirRes[0]['groups'] as $group)
+                        {
+                            if ($groupID == $group['groupID']){
+                                $dirRes[0]['regionallyManaged'] = true;
+                            }
+                        }
                         if($groupID == 1)
                         {
-                        $dirRes[0]['primary_admin'] = $member['primary_admin'];
+                            $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
                         if($member['locallyManaged'] == 1) {
                             $dirRes[0]['backupID'] = null;
