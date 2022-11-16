@@ -164,8 +164,8 @@ class FormWorkflow
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
 
                     $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                    if (trim($res[$i]['description']) == '')
-                    {
+
+                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
                         $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
                     }
                 }
