@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Employee extends Data
 {
     public $debug = false;
@@ -142,10 +140,9 @@ class Employee extends Data
         $cacheHash = "lookupLogin{$userName}";
         unset($this->cache[$cacheHash]);
 
-        $db_nat = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $db_nat = new \Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $login_nat = new Login($db_nat, $db_nat);
 
-        require_once 'NationalEmployee.php';
         $natEmployee = new NationalEmployee($db_nat, $login_nat);
 
         $res = $natEmployee->lookupLogin($userName);
@@ -802,7 +799,6 @@ class Employee extends Data
         }
         else
         {
-            require_once 'Position.php';
             $position = new Position($this->db, $this->login);
         }
 

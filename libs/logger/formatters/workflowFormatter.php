@@ -1,9 +1,5 @@
 <?php
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
-require_once 'formatOptions.php';
-
 class WorkflowFormatter {
     /** Templates for determining what data to grab based on the workflow action.
      * Action data is retrieved from the data_log_items table.
@@ -11,8 +7,8 @@ class WorkflowFormatter {
      * The attributes differ based on the type of action.
      * The attributes are described in the variables property of each template.
      */
-    
-    
+
+
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_STEP => [
             "message"=>"Workflow Step <strong>%s</strong> - <strong>%s</strong> has been added",
@@ -64,7 +60,7 @@ class WorkflowFormatter {
             "message"=>"Workflow <strong>%s</strong> initial step set to <strong>%s</strong>",
             "variables"=>"workflowID,initialStepID"
         ]
-        
+
     ];
 
 }

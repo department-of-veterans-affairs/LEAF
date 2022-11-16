@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+ namespace Orgchart;
+
 class ExperimentalController extends RESTfulResponse
 {
     public $index = array();
@@ -33,7 +35,7 @@ class ExperimentalController extends RESTfulResponse
 
         $this->index['GET']->register('x/position/employees/hrsmart/[digit]', function($args) use ($db, $login) {
             require '../sources/experimental/Position.php';
-            $position = new OrgChart\Position($db, $login);
+            $position = new Position($db, $login);
             return $position->getEmployeesHrsmart($args[0]);
         });
 

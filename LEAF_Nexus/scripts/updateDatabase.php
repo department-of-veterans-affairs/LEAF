@@ -12,13 +12,11 @@ else
 {
     define('BR', '<br />');
 }
-$currDir = dirname(__FILE__);
 
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))
@@ -48,11 +46,11 @@ foreach ($updates as $item)
     }
 }
 
-updateDB($currentVersion, $updateList, $folder, $db);
+updateDb($currentVersion, $updateList, $folder, $db);
 
 echo BR . BR . 'Complete.';
 
-function updateDB($thisVer, $updateList, $folder, $db)
+function updateDb($thisVer, $updateList, $folder, $db)
 {
     if (isset($updateList[$thisVer]))
     {
@@ -69,7 +67,7 @@ function updateDB($thisVer, $updateList, $folder, $db)
         else
         {
             echo "Database updated to: {$res[0]['data']}" . BR;
-            updateDB($res[0]['data'], $updateList, $folder, $db);
+            updateDb($res[0]['data'], $updateList, $folder, $db);
         }
     }
 }

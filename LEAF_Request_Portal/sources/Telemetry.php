@@ -9,10 +9,6 @@
 
 */
 
-$currDir = __DIR__;
-
-include_once $currDir . '/../globals.php';
-
 class Telemetry
 {
     public $siteRoot = '';

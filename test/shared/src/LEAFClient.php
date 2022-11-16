@@ -138,7 +138,7 @@ class LEAFClient
         require_once '../../LEAF_Request_Portal/db_mysql.php';
 
         $config = new \Config();
-        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new \Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $cookieJar = $this->client->getConfig('cookies');
         $cookie = $cookieJar->getCookieByName('PHPSESSID');
         if (is_null($cookie))
