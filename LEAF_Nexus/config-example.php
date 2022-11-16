@@ -11,8 +11,6 @@
     This should be kept outside of web accessible directories
 */
 
-// require '../../../config.php';
-
 namespace Orgchart;
 
 ini_set('display_errors', 0); // Set to 1 to display errors

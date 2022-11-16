@@ -8,14 +8,6 @@
     Date Created: September 8, 2016
 
 */
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
 
 class Service
 {
@@ -86,16 +78,28 @@ class Service
         return $return_value;
     }
 
-    public function importService(int $serviceID, string $service, string $abbrService, int|null $groupID)
+    /**
+     *
+     * @param int $serviceID
+     * @param string $service
+     * @param string|null $abbrService
+     * @param int|null $groupID
+     *
+     * @return void
+     *
+     * Created at: 11/2/2022, 7:04:44 AM (America/New_York)
+     */
+    public function importService(int $serviceID, string $service, string|null $abbrService, int|null $groupID): void
     {
         $sql_vars = array(':serviceID' => $serviceID,
                   ':service' => $service,
                   ':abbrService' => $abbrService,
                   ':groupID' => $groupID, );
+        $sql = 'INSERT INTO services (serviceID, service, abbreviatedService, groupID)
+                VALUES (:serviceID, :service, :abbrService, :groupID)
+    			ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID';
 
-        $this->db->prepared_query('INSERT INTO services (serviceID, service, abbreviatedService, groupID)
-                            VALUES (:serviceID, :service, :abbrService, :groupID)
-    						ON DUPLICATE KEY UPDATE service=:service, groupID=:groupID', $sql_vars);
+        $this->db->prepared_query($sql, $sql_vars);
     }
 
     /**
@@ -141,10 +145,8 @@ class Service
 
     public function addMember($groupID, $member)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
@@ -230,10 +232,8 @@ class Service
 
     public function removeMember($groupID, $member)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -336,7 +336,6 @@ class Service
         $members = array();
         if (count($res) > 0)
         {
-            require_once '../VAMC_Directory.php';
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
@@ -419,8 +418,6 @@ class Service
      */
     private function getEmployeeDisplay($employeeID)
     {
-        require_once '../VAMC_Directory.php';
-
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 

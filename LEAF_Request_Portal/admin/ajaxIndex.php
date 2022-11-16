@@ -15,22 +15,13 @@
 */
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 $db_config = new DB_Config();
 $config = new Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -63,7 +54,6 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     case 'add_user_old':
         checkToken();
-        require 'Group.php';
 
         $group = new Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
@@ -71,7 +61,6 @@ switch ($action) {
         break;
     case 'remove_user_old':
         checkToken();
-        require 'Group.php';
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
@@ -84,7 +73,6 @@ switch ($action) {
         break;
     case 'add_user':
           checkToken();
-           require 'Group.php';
 
            $group = new Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
@@ -92,7 +80,6 @@ switch ($action) {
            break;
     case 'remove_user':
            checkToken();
-           require 'Group.php';
 
            $group = new Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
@@ -101,7 +88,6 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require '../form.php';
             $form = new Form($db, $login);
 
             $t_form = new Smarty;
@@ -117,7 +103,6 @@ switch ($action) {
 
         break;
     case 'importForm':
-        require '../sources/FormStack.php';
         $formStack = new FormStack($db, $login);
         $result = $formStack->importForm();
 
@@ -125,7 +110,6 @@ switch ($action) {
 
         break;
     case 'manualImportForm':
-           require '../sources/FormStack.php';
            $formStack = new FormStack($db, $login);
            $result = $formStack->importForm();
 
@@ -141,7 +125,6 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           require '../sources/System.php';
            $system = new System($db, $login);
            $result = $system->newFile();
            if ($result === true)
@@ -183,27 +166,23 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
                 $dataName = "All Services";
                 $type = new \Service($db, $login);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
                 $dataName = "All Forms";
                 $type = new \FormEditor($db, $login);
                 break;
             case 'group':
-                include 'Group.php';
                 $dataName = "All Groups";
                 $type = new \Group($db, $login);
 
-                include '../' . Config::$orgchartPath . '/sources/Group.php';
-                $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
+                $orgchartGroup = new Orgchart\Group($db_phonebook, $login);
                 break;
         }
 
         /*
-            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            First time around, gethistoryslice = false, so this loads view_history_all which calls
             this method again which loads view_history & displays it appropriately in the paginator
         */
         if($gethistoryslice)
@@ -215,10 +194,10 @@ switch ($action) {
                 //special case for getting group history, since the only group tracked in portal is sysadmin
                 $adminHistory = $type->getHistory(1);
                 $adminHistory = $adminHistory ?? array();
-                
+
                 $allGroupHistory = $type->getHistory(null);
                 $allGroupHistory = $allGroupHistory ?? array();
-    
+
                 $totalHistory = array_merge($allGroupHistory, $adminHistory);
                 $type = $orgchartGroup;
             }
@@ -247,7 +226,7 @@ switch ($action) {
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
+
         if($tz == null){
             $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))
@@ -268,34 +247,28 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
                 $type = new \Service($db, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
                 $type = new \FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                include 'Group.php';
                 $type = new \Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
-                include '../sources/Workflow.php';
                 $type = new \Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
-                include '../sources/System.php';
                 $type = new \System($db, $login);
                 $itemID = null;
                 $title = 'Primary Admin';
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
             case 'emailTemplate':
-                include '../sources/EmailTemplate.php';
                 $type = new \EmailTemplate($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;

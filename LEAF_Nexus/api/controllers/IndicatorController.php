@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Indicators.php';
+ namespace Orgchart;
 
 class IndicatorController extends RESTfulResponse
 {
@@ -15,7 +15,7 @@ class IndicatorController extends RESTfulResponse
 
     public function __construct($db, $login)
     {
-        $this->indicators = new OrgChart\Indicators($db, $login);
+        $this->indicators = new Indicators($db, $login);
     }
 
     public function get($act)

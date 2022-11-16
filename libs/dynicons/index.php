@@ -14,6 +14,8 @@
 error_reporting(E_ERROR);
 ini_set('display_errors', 0);
 
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+
 /*
     Dynicon for Microsoft Windows
     Dynamic icons (svg to png)
@@ -21,11 +23,6 @@ ini_set('display_errors', 0);
     Date: January 26, 2011
 
 */
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
 
 class Dynicon
 {

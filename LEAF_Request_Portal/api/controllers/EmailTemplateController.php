@@ -3,13 +3,6 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/EmailTemplate.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class EmailTemplateController extends RESTfulResponse
 {
     public $index = array();

@@ -1,11 +1,5 @@
 <?php
-// Include XSSHelpers
-if (!class_exists('XSSHelpers'))
-{
-    include_once __DIR__ . '/../libs/php-commons/XSSHelpers.php';
-}
-
-include '../libs/smarty/Smarty.class.php';
+require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
 
 function customTemplate(string $tpl = "view_about.tpl"): string
 {
