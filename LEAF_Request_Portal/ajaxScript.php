@@ -5,14 +5,22 @@
 
 error_reporting(E_ERROR);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include '../libs/smarty/Smarty.class.php';
+include 'db_mysql.php';
+include 'db_config.php';
 
 $db_config = new DB_Config();
 $config = new Config();
 
-$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
 unset($db_config);
+
+// Include XSSHelpers
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 $script = isset($_GET['s']) ? XSSHelpers::scrubFilename(XSSHelpers::xscrub($_GET['s'])) : '';

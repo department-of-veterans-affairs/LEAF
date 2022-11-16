@@ -15,7 +15,7 @@ class GroupController extends RESTfulResponse
 
     public function __construct($db, $login)
     {
-        $this->group = new Orgchart\Group($db, $login);
+        $this->group = new OrgChart\Group($db, $login);
     }
 
     public function get($act)

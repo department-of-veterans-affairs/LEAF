@@ -9,6 +9,24 @@
 
 */
 
+$currDir = dirname(__FILE__);
+
+include_once $currDir . '/../globals.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
+if (!class_exists('CommonConfig'))
+{
+    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+}
+
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class System
 {
     public $siteRoot = '';
@@ -45,9 +63,15 @@ class System
         // clear out old data first
         $vars = array(':serviceID' => $serviceID);
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
+        //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
+
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
         $config = new Config();
-        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
@@ -57,6 +81,7 @@ class System
         $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($serviceID), $tag->getParent('service'));
         $quadID = $leader[0]['groupID'];
 
+        //echo "Synching Service: {$service['groupTitle']}<br />";
         $service = $group->getGroup($serviceID)[0];
         $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
         $vars = array(':serviceID' => $service['groupID'],
@@ -159,8 +184,13 @@ class System
         //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+
         $config = new Config();
-        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $group = new Orgchart\Group($db_phonebook, $this->login);
         $position = new Orgchart\Position($db_phonebook, $this->login);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
@@ -276,6 +306,11 @@ class System
             $vars = array(':groupID' => $groupID);
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
             $config = new Config();
             $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
@@ -816,6 +851,7 @@ class System
         $result = array();
         if(count($primaryAdminRes))
         {
+            require_once '../VAMC_Directory.php';
             $dir = new VAMC_Directory;
             $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
             $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
@@ -912,7 +948,7 @@ class System
         // update services and service chiefs
         $services = $nexus_group->listGroupsByTag('service');
 
-        foreach ($services as $service) {
+        foreach ($services as $service){
             $leader = $nexus_position->findRootPositionByGroupTag($nexus_group->getGroupLeader($service['groupID']), $nexus_tag->getParent('service'));
 
             $nexus_services[$counter]['serviceID'] = $service['groupID'];
@@ -999,11 +1035,6 @@ class System
             $counter++;
         }
 
-        // update Nexus with portal groups
-        $portal_groups = $org_group->getAllGroups();
-
-        $this->updateNexusWithPortalGroups($portal_groups, $nexus_group);
-
         $groups = $this->getOrgchartImportTags($nexus_group);
 
         foreach ($groups as $group) {
@@ -1019,7 +1050,7 @@ class System
             }
 
             foreach ($employees as $employee) {
-                if (!empty($employee['userName'])) {
+                if ($employee['userName'] != '') {
                     $nexus_users[$group_counter]['userID'] = $employee['userName'];
                     $nexus_users[$group_counter]['groupID'] = $group['groupID'];
                     $nexus_users[$group_counter]['backupID'] = null;
@@ -1029,7 +1060,7 @@ class System
                     $backups = $nexus_employee->getBackups($employee['empUID']);
 
                     foreach ($backups as $backup) {
-                        if (!empty($backup['userName'])) {
+                        if ($backup['userName'] != '') {
                             $nexus_users[$group_counter]['userID'] = $backup['userName'];
                             $nexus_users[$group_counter]['groupID'] = $group['groupID'];
                             $nexus_users[$group_counter]['backupID'] = $employee['userName'];
@@ -1042,6 +1073,7 @@ class System
             $counter++;
         }
 
+        $portal_groups = $org_group->getAllGroups();
         $portal_users = $org_group->getAllUsers();
 
         $this->processGroups($portal_groups, $portal_users, $nexus_groups, $nexus_users, $org_group);
@@ -1070,6 +1102,7 @@ class System
                 // service exists do nothing
             } else {
                 // service does not exist remove from portal db
+                //echo 'The service \'' . $service['service'] . '\' has been removed.<br/>';
                 $org_service->removeSyncService($service['serviceID']);
             }
         }
@@ -1080,13 +1113,8 @@ class System
                 // service exists do nothing
             } else {
                 // service does not exist add it to the portal db
-                // need to make sure the data being supplied is available and acurate
-                // this method expects the serviceID to be an int
-                // it expects the service to be a non-empty string
-                // it expects the groupID to be an int or null
-                if(is_numeric($service['serviceID']) && !empty($service['service']) && (is_numeric($service['groupID']) || is_null($service['groupID']))) {
-                    $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
-                }
+                //echo 'The service \'' . $service['service'] . '\' was added.<br/>';
+                $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
             }
         }
 
@@ -1101,7 +1129,7 @@ class System
                 if ($chief['locallyManaged'] && $chief['active']) {
                     // this chief is locally managed and is active leave it here, do nothing
                 } else {
-                    $chief['userID'] . '\' was removed.<br/>';
+                    //echo 'The Service Chief with an userID of \'' . $chief['serviceID'] . '-' . $chief['userID'] . '\' was removed.<br/>';
                     $org_service->removeChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
                 }
             }
@@ -1113,6 +1141,7 @@ class System
                 // chief exists do nothing
             } else {
                 // chief does not exist add them now
+                //echo 'The Service Chief with userID of \'' . $chief['userID']. '\' was added.<br/>';
                 $org_service->importChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
             }
         }
@@ -1138,7 +1167,9 @@ class System
             if ($this->searchArray($nexus_groups, $group, false)) {
                 // group exists do nothing
             } else {
-                // groups should never be deleted if on the portal side. No matter what Nexus says
+                // group does not exist remove from portal db
+                //echo 'The group \'' . $group['name'] . '\' has been removed<br/>';
+                $org_group->removeSyncGroup($group['groupID']);
             }
         }
 
@@ -1148,6 +1179,7 @@ class System
                 // group exists do nothing
             } else {
                 // group does not exist add it to the portal db
+                //echo 'The group \'' . $group['name'] . '\' has been added<br/>';
                 $org_group->syncImportGroup($group);
             }
         }
@@ -1156,17 +1188,17 @@ class System
         foreach($portal_users as $user) {
             if ($this->searchArray($nexus_users, $user, false, 3)) {
                 // user exists do nothing
+                //echo 'User \'' . $user['groupID'] . '-' .$user['userID'] . '\' remained.<br/>';
             } else {
                 // user does not exist check for locallyManaged and active
                 // remove if locallyManaged and inactive
                 // remove if not locallyManaged
-                if ($user['locallyManaged'] && $user['active']) {
-                    // user is locally managed and active level them alone.
-                } else if (!$user['locallyManaged'] || ($user['locallyManaged']) && !$user['active']) {
+                if (!$user['locallyManaged'] || ($user['locallyManaged']) && !$user['active']) {
                     // check one more thing, is this user a backup to a locally managed user
                     if ($user['backupID'] != '' && $this->imABackup($portal_users, $user)) {
                         // I'm a backup, do nothing
                     } else {
+                        //echo 'User with userID of \'' . $user['userID'] . '\' and a groupID of ' . $user['groupID'] . ' has been removed.<br/>';
                         $org_group->removeUser($user['userID'], $user['groupID'], $user['backupID']);
                     }
 
@@ -1182,6 +1214,8 @@ class System
                 // user exists do nothing
             } else {
                 // user does not exist add them now
+                //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
+                //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
                 $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
             }
         }
@@ -1268,22 +1302,5 @@ class System
         }
 
         return $backup;
-    }
-
-    private function updateNexusWithPortalGroups(array $portal_groups, \OrgChart\Group $nexus_group): void
-    {
-        $nexus_groups = $nexus_group->listGroupsByTag(Config::$orgchartImportTags[0]);
-
-        foreach ($portal_groups as $group) {
-            if ($this->searchArray($nexus_groups, $group, false, 1)) {
-                // this group is already tagged.
-            } else {
-                // not tagged, add it now.
-                if (!empty(Config::$orgchartImportTags[0]) && is_numeric($group['groupID'])) {
-                    $nexus_group->addGroupTag(Config::$orgchartImportTags[0], $group['groupID']);
-                }
-
-            }
-        }
     }
 }

@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+require_once '../VAMC_Directory.php';
+
 class ClassicPhonebookController extends RESTfulResponse
 {
     public $index = array();

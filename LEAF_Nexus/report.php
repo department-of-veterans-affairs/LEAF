@@ -11,18 +11,33 @@
 
 error_reporting(E_ERROR);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+if (false)
+{
+    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    exit();
+}
+
+include 'globals.php';
+include '../libs/smarty/Smarty.class.php';
+include './sources/Login.php';
+include 'db_mysql.php';
+include 'config.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDb())
+if (!$login->isLogin() || !$login->isInDB())
 {
     echo 'Your login is not recognized.';
     exit;

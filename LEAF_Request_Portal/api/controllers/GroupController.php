@@ -5,6 +5,13 @@
 
 // Since Groups are primarily controlled via the Org. Chart, this provides read access to the local group database.
 
+require '../admin/Group.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+}
+
 class GroupController extends RESTfulResponse
 {
     public $index = array();
@@ -60,10 +67,6 @@ class GroupController extends RESTfulResponse
         // Controller for Import Group
         $this->index['POST']->register('group/import', function ($args) use ($group) {
             return $group->importGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
-        });
-
-        $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {
-            return $group->removeMember($args[1], $args[0]);
         });
 
         $this->index['POST']->register('group/[digit]/members/[text]', function ($args) use ($group) {

@@ -13,11 +13,16 @@
 
 error_reporting(E_ERROR);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include 'globals.php';
+include '../libs/smarty/Smarty.class.php';
+include './sources/Login.php';
+include 'db_mysql.php';
+include 'config.php';
+include './sources/Exception.php';
 
 $config = new Orgchart\Config();
 
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
@@ -36,15 +41,18 @@ if ($login)
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        $type = new Orgchart\Employee($db, $login);
+        include './sources/Employee.php';
+        $type = new OrgChart\Employee($db, $login);
 
         break;
     case 2:    // position
-        $type = new Orgchart\Position($db, $login);
+        include './sources/Position.php';
+        $type = new OrgChart\Position($db, $login);
 
         break;
     case 3:    // group
-        $type = new Orgchart\Group($db, $login);
+        include './sources/Group.php';
+        $type = new OrgChart\Group($db, $login);
 
         break;
     default:
@@ -165,13 +173,13 @@ switch ($action) {
                 $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
                 $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
             }
-
-
+    
+            
             $t_form->assign('history', $resHistory);
 
             $t_form->display('view_history.tpl');
         }
-
+        
         break;
     default:
         /*

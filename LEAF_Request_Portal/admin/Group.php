@@ -10,6 +10,11 @@
     Handler for user groups for the resource management web app
 */
 
+if(!class_exists('DataActionLogger'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
+}
+
 class Group
 {
     /**
@@ -139,10 +144,10 @@ class Group
     {
         $sql_vars = array(':groupID' => $groupID);
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("groups", "groupID", $groupID, $this->getGroupName($groupID))
+            new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
         ]);
 
-        $result = $this->db->prepared_query('DELETE FROM groups WHERE groupID=:groupID', $sql_vars);
+        $result = $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
 
         return $result;
     }
@@ -206,25 +211,20 @@ class Group
             $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
 
             $members = array();
-
-            if (count($res) > 0) {
+            if (count($res) > 0)
+            {
+                require_once '../VAMC_Directory.php';
                 $dir = new VAMC_Directory();
-
-                foreach ($res as $member) {
+                foreach ($res as $member)
+                {
                     $dirRes = $dir->lookupLogin($member['userID'], false, true);
 
                     if (isset($dirRes[0]))
                     {
                         $dirRes[0]['regionallyManaged'] = false;
-                        foreach ($dirRes[0]['groups'] as $group)
-                        {
-                            if ($groupID == $group['groupID']){
-                                $dirRes[0]['regionallyManaged'] = true;
-                            }
-                        }
                         if($groupID == 1)
                         {
-                            $dirRes[0]['primary_admin'] = $member['primary_admin'];
+                        $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
                         if($member['locallyManaged'] == 1) {
                             $dirRes[0]['backupID'] = null;
@@ -256,8 +256,10 @@ class Group
      */
     public function addMember($member, $groupID): void
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
         $config = new Config();
-        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID)) {
@@ -269,9 +271,9 @@ class Group
                                                     VALUES (:userID, :groupID, null, 1, 1)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $sql_vars);
 
-            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::EMPLOYEE, [
-                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             // include the backups of employees
@@ -335,6 +337,8 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
         $config = new Config();
         $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
@@ -378,8 +382,10 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
+        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+
         $config = new Config();
-        $db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new Orgchart\Employee($db_phonebook, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -387,12 +393,12 @@ class Group
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
-
-            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
-                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
+                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
+
+            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
 
             // include the backups of employee
             $emp = $employee->lookupLogin($member);
@@ -489,6 +495,8 @@ class Group
      */
     private function getEmployeeDisplay($employeeID): string
     {
+        require_once '../VAMC_Directory.php';
+
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 

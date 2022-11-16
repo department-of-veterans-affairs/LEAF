@@ -95,23 +95,12 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
                 var new_note;
 
-                new_note = '<div class="comment_block"> <span class="comments_time"> ' + response.comment.date + '</span> <span class="comments_name">' + response.comment.responder + ' ' + response.comment.user_name + '</span> <div class="comments_message">' + response.comment.comment + '</div> </div>';
+                new_note = '<div> <span class="comments_time"> ' + response.comment.date + '</span> <span class="comments_name">' + response.comment.responder + ' ' + response.comment.user_name + '</span> <div class="comments_message">' + response.comment.comment + '</div> </div>';
 
-                if (response.comment.comment != '') {
-                    $( new_note ).insertAfter( "#notes" );
-                }
+                $( new_note ).insertAfter( "#notes" );
 
                 if ($("#comments").css("display") == 'none') {
                     $("#comments").css("display", 'block');
-                }
-
-                if (response.comment.nextStep == 0) {
-                    $("#notes").css("display", 'none');
-                    if (!$(".comment_block")[0]) {
-                        $('#comments').css({'display': "none"});
-                    }
-                } else {
-                    $("#notes").css("display", 'block');
                 }
 
                 antiDblClick = 0;
@@ -290,15 +279,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 type: 'GET',
                 url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
-                    let name = '';
-
-                    if (res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] == null) {
-                        name = "Warning: User not selected for currennt action (Contact Administrator)";
-                    } else {
-                        name = "Pending action from " + res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID];
-                    }
-
-                    $('#workflowbox_dep'+ step.dependencyID).append('<span>'+ name +'</span>');
+                    $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
                 fail: function(err) {
@@ -311,15 +292,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 type: 'GET',
                 url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
                 success: function(res) {
-                    let name = '';
-
-                    if (step.description == null) {
-                        name = "Warning: Group not selected for current action (Contact Administrator)";
-                    } else {
-                        name = "Pending action from " + step.description;
-                    }
-
-                    $('#workflowbox_dep'+ step.dependencyID).append('<span>'+ name +'</span>');
+                    $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ step.description +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
                 fail: function(err) {

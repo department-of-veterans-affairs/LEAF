@@ -45,24 +45,24 @@
     </div>
 
 
-    <div id="comments" style="display: none">
-        <h1 id='comment_header'>Comments</h1>
-        <div id="notes">
-            <form id='note_form'>
-                <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
-                <input type='text' id='note' name='note' placeholder='Enter a note!' />
-                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
-            </form>
-        </div>
-    <!--{section name=i loop=$comments}-->
-        <div class='comment_block'>
-            <span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
-            <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
-            <div class="comments_message"><!--{$comments[i].comment|sanitize}--></div>
-        </div>
-    <!--{/section}-->
+    <div id="comments">
+    <h1 id='comment_header'>Comments</h1>
+        <!--{if $stepID > 0}-->
+            <div id="notes">
+                <form id='note_form'>
+                    <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
+                    <input type='text' id='note' name='note' placeholder='Enter a note!' />
+                    <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+                </form>
+            </div>
+        <!--{/if}-->
+        <!--{section name=i loop=$comments}-->
+            <div><span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
+                <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
+                <div class="comments_message"><!--{$comments[i].comment|sanitize}--></div>
+            </div>
+        <!--{/section}-->
     </div>
-
 
     <div id="category_list">
         <h1>Internal Use</h1>
@@ -117,8 +117,6 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-    let step = <!--{$stepID|strip_tags}-->;
-
     $(window).keydown(function(event){
         if(event.keyCode == 13 && ($('#note').is(":focus") || $('#add_note').is(":focus"))) {
             event.preventDefault();
@@ -126,17 +124,6 @@ $(document).ready(function() {
             return false;
         }
     });
-
-    if (step > 0) {
-        $('#comments').css({'display': "block"});
-        $('#notes').css({'display': "block"});
-    } else if (step == 0 && $(".comment_block")[0]) {
-        $('#comments').css({'display': "block"});
-        $('#notes').css({'display': "none"});
-    } else {
-        $('#comments').css({'display': "none"});
-        $('#notes').css({'display': "none"});
-    }
 });
 
 let currIndicatorID;
@@ -156,8 +143,6 @@ function doSubmit(recordID) {
                 $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
-                $('#comments').css({'display': "block"});
-                $('#notes').css({'display': "block"});
                 workflow.getWorkflow(recordID);
             }
             else {
@@ -201,7 +186,7 @@ function addNote(response) {
     if (typeof response === 'object' && response !== null) {
         var new_note;
 
-new_note = '<div class="comment_block"> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
+        new_note = '<div> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
 
         $( new_note ).insertAfter( "#notes" );
     } else {

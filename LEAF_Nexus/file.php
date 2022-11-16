@@ -3,11 +3,19 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include 'globals.php';
+include 'db_mysql.php';
+include 'config.php';
+include './sources/Login.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 $config = new Orgchart\Config();
 
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->loginUser();
@@ -15,15 +23,18 @@ $login->loginUser();
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        $type = new Orgchart\Employee($db, $login);
+        include './sources/Employee.php';
+        $type = new OrgChart\Employee($db, $login);
 
         break;
     case 2:    // position
-        $type = new Orgchart\Position($db, $login);
+        include './sources/Position.php';
+        $type = new OrgChart\Position($db, $login);
 
         break;
     case 3:    // group
-        $type = new Orgchart\Group($db, $login);
+        include './sources/Group.php';
+        $type = new OrgChart\Group($db, $login);
 
         break;
     default:

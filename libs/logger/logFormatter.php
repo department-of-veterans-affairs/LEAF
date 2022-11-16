@@ -1,5 +1,16 @@
 <?php
 
+require_once 'formatters/loggableTypes.php';
+require_once 'formatters/dataActions.php';
+require_once 'formatters/formatOptions.php';
+require_once 'formatters/groupFormatter.php';
+require_once 'formatters/serviceChiefFormatter.php';
+require_once 'formatters/formFormatter.php';
+require_once 'formatters/portalGroupFormatter.php';
+require_once 'formatters/workflowFormatter.php';
+require_once 'formatters/primaryAdminFormatter.php';
+require_once 'formatters/emailTemplateFormatter.php';
+
 class LogFormatter{
 
     const formatters = array(
@@ -72,7 +83,7 @@ class LogFormatter{
                 array_push($result["values"], $value);
             }
         }
-
+        
         return $result;
     }
 }

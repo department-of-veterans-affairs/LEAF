@@ -11,14 +11,14 @@ Each testing project has it's own Phinx configuration since the two databases ar
 
 Create two database tables for testing Nexus and Portal: `nexus_testing` and `portal_testing`.
 
-Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository.
+Copy [LEAF_Nexus_Tests/phinx.yml.example](LEAF_Nexus_Tests/phinx.yml.example) and [LEAF_Request_Portal_Tests/phinx.yml.example](LEAF_Request_Portal_Tests/phinx.yml.example) and rename them to `phinx.yml` in their respective directories. `phinx.yml` should not be committed to the repository. 
 
 Edit `LEAF_Nexus_Tests/phinx.yml` and `LEAF_Request_Portal_Tests/phinx.yml` and set your system specific variables.
 
 Within each test project directory, run the migrations:
 
 ```bash
-phinx migrate
+phinx migrate 
 ```
 
 #### Creating Migrations
@@ -29,7 +29,7 @@ To create a new database migration, within that test project directory:
 phinx create TheNewMigration
 ```
 
-This creates a basic time-stamped template within the projects `db/migrations` directory for executing a database migration.
+This creates a basic time-stamped template within the projects `db/migrations` directory for executing a database migration. 
 
 LEAF relies on pure SQL files for migrations, so the `up()` function for each migration should read in the appropriate SQL file and execute its contents. See [this migration](LEAF_Request_Portal_Tests/db/migrations/20180301164659_init_portal.php) for an example of this.
 
@@ -65,7 +65,7 @@ phpunit --bootstrap ../bootstrap.php tests
 To run tests in a subdirectory (in this example `utils`):
 
 ```bash
-phpunit --bootstrap ../bootstrap.php tests/utils
+phpunit --bootstrap ../bootstrap.php tests/utils 
 ```
 
 To run a single test method from a test class (in this example, from [CryptoHelpersTest](LEAF_Request_Portal_Tests/tests/helpers/CryptoHelpersTest.php)):
@@ -85,7 +85,7 @@ LEAF_Request_Portal/globals.php
 LEAF_Request_Portal/db_config.php
 ```
 
-need to be updated to the same database name/user/pass that was used when configuring the test databases (`nexus_testing`, `portal_testing`). In other words, make sure the LEAF application isn't configured to use the production/dev databases or any database tests will fail.
+need to be updated to the same database name/user/pass that was used when configuring the test databases (`nexus_testing`, `portal_testing`). In other words, make sure the LEAF application isn't configured to use the production/dev databases or any database tests will fail. 
 
 The `bootstrap.php` file autoloads the classes/files in the `shared/src` directory and others, via the file list found in `test_includes.php`. If a new source file is added in the `shared/src` directory, add the file to `test_includes.php`. If you are setting up the environment for the first time or are having problems with included files try running this command from the `/tests` directory:
 ```bash
@@ -106,7 +106,7 @@ When deciding where to place a test that requires database interaction, it shoul
 
 Due to the intricate nature of how database access is configured, any methods in classes that do not have direct endpoint access need to have endpoints written for them within the [LEAF_test_endpoints](LEAF_test_endpoints) directory for each project (e.g. [nexus](LEAF_test_endpoints), [request_portal](LEAF_test_endpoints/request_portal)). Tests should be placed according to the rules in the section above.
 
-A controller file should be created for each class being tested, then added to the controller index file in the root folder (e.g. [nexus/index.php](LEAF_test_endpoints/nexus/index.php)).
+A controller file should be created for each class being tested, then added to the controller index file in the root folder (e.g. [nexus/index.php](LEAF_test_endpoints/nexus/index.php)). 
 
 An endpoint can be added for each function to be tested, or a `genericFunctionCall` endpoint can be implemented. An example of the `genericFunctionCall` endpoint can be seen in [FormEditorController.php](LEAF_test_endpoints/request_portal/controllers/FormEditorController.php) and the test that calls it in [FormEditorControllerTest.php](LEAF_Request_Portal_Tests/tests/api/FormEditorControllerTest.php) (`testSetFormatGeneric()`). Just make a call to `whateverController/genericFunctionCall/[text]` where `[text]` is replaced with the name of the function, preceded by an underscore:
 
@@ -156,10 +156,10 @@ public static function setUpBeforeClass()
     $db_config = new DB_Config();
 
     //portal DB
-    self::$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+    self::$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
     //nexus DB
-    self::$db = new Db($db_config->phonedbHost, $db_config->phonedbUser, $db_config->phonedbPass, $db_config->phonedbName);
+    self::$db = new DB($db_config->phonedbHost, $db_config->phonedbUser, $db_config->phonedbPass, $db_config->phonedbName);
 }
 
 public function test() : void
@@ -189,10 +189,10 @@ To write a test against the database, extend the [DatabaseTest](shared/src/Datab
 `DatabaseTest` makes use of a few "shared" seeds. These are seeds that have the same name, but are implemented for the project they reside in. This allows the test superclass to work across all test projects in a predictable way.
 
 ```php
-BaseTestSeed    // populates with the bare minimum amount of data to
+BaseTestSeed    // populates with the bare minimum amount of data to 
                 // successfully run unit tests
 
-InitialSeed     // populates with the data was supplied when the
+InitialSeed     // populates with the data was supplied when the 
                 // database is created from scratch
 
 TruncateTables  // clears all data from all tables

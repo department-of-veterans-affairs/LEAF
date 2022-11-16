@@ -9,13 +9,16 @@
 
 */
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include '../globals.php';
+include '../Login.php';
+include '../db_mysql.php';
+include '../db_config.php';
 
 $db_config = new DB_Config();
 
 $config = new Config();
-$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $login = new Login($db_phonebook, $db);
 
@@ -53,7 +56,7 @@ if (isset($_COOKIE['REMOTE_USER']))
     else
     {
         // try searching through national database
-        $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $user);
         $res = $globalDB->prepared_query('SELECT * FROM employee
                                           LEFT JOIN employee_data USING (empUID)
@@ -70,7 +73,7 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(),
+                    ':lastUpdated' => time(), 
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
@@ -113,7 +116,7 @@ if (isset($_COOKIE['REMOTE_USER']))
 function decryptUser($src){
   $corrected = preg_replace("[^0-9a-fA-F]", "", $src);
   $crypted_token = pack("H".strlen($corrected), $corrected);
-
+  
   list($crypted_token, $enc_iv) = explode("::", $crypted_token);
   $cipher_method = 'aes-128-ctr';
   $enc_key = openssl_digest(CIPHER_KEY, 'SHA256', TRUE);

@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
- namespace Orgchart;
+require '../sources/System.php';
 
 class SystemController extends RESTfulResponse
 {
@@ -103,7 +103,7 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
-            $_POST['userID'] = \XSSHelpers::sanitizeHTML($_POST['userID']);
+            $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
             return $system->setPrimaryAdmin();
         });
 

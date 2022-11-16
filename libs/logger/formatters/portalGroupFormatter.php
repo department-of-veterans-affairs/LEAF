@@ -1,7 +1,10 @@
 <?php
 
-class PortalGroupFormatter{
+require_once 'loggableTypes.php';
+require_once 'dataActions.php';
 
+class PortalGroupFormatter{
+    
     const TEMPLATES = [
         DataActions::IMPORT.'-'.LoggableTypes::PORTAL_GROUP => [
             "message"=>"<strong>%s</strong> group was imported",

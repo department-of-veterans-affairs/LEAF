@@ -15,13 +15,13 @@ require_once __DIR__ . '/../../../LEAF_Nexus/api/ControllerMap.php';
 
 $config = new Orgchart\Config();
 
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDb())
+if (!$login->isLogin() || !$login->isInDB())
 {
     echo 'Your login is not recognized.';
     exit;

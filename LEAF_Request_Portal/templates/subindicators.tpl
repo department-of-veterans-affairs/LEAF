@@ -858,7 +858,9 @@
                 }
             };
             <!--{/if}-->
-            var leaf_groupSelector = leaf_groupSelector ?? {};
+            if(grpSel != undefined) {
+                var grpSel = {};
+            }
             $(function() {
                 function initGroupSelector() {
                     let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
@@ -880,21 +882,20 @@
                     return grpSel;
                 }
 
-                leaf_groupSelector[<!--{$indicator.indicatorID}-->] = new Promise((resolve, reject) => {
-                    if(typeof groupSelector == 'undefined') {
-                        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
-                        resolve($.ajax({
-                            type: 'GET',
-                            url: "<!--{$orgchartPath}-->/js/groupSelector.js",
-                            dataType: 'script'
-                        }).then(function() {
-                            return initGroupSelector();
-                        }));
-                    }
-                    else {
-                        resolve(initGroupSelector());
-                    }
-                });
+                if(typeof groupSelector == 'undefined') {
+                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/groupSelector.css" />');
+                    $.ajax({
+                        type: 'GET',
+                        url: "<!--{$orgchartPath}-->/js/groupSelector.js",
+                        dataType: 'script',
+                        success: function() {
+                        	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
+                        }
+                    });
+                }
+                else {
+                	grpSel[<!--{$indicator.indicatorID}-->] = initGroupSelector();
+                }
             });
             </script>
             <!--{$indicator.html}-->
@@ -947,7 +948,9 @@
             <div id="posSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden" />
             <script>
-            var leaf_positionSelector = leaf_positionSelector ?? {};
+            if(posSel == undefined) {
+                var posSel = {};
+            }
             $(function() {
                 function initPositionSelector() {
                     let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
@@ -970,21 +973,20 @@
                     return posSel;
                 }
 
-                leaf_positionSelector[<!--{$indicator.indicatorID}-->] = new Promise((resolve, reject) => {
-                    if(typeof positionSelector == 'undefined') {
-                        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
-                        resolve($.ajax({
-                            type: 'GET',
-                            url: "<!--{$orgchartPath}-->/js/positionSelector.js",
-                            dataType: 'script'
-                        }).then(function() {
-                            return initPositionSelector();
-                        }));
-                    }
-                    else {
-                        resolve(initPositionSelector());
-                    }
-                });
+                if(typeof positionSelector == 'undefined') {
+                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/positionSelector.css" />');
+                    $.ajax({
+                        type: 'GET',
+                        url: "<!--{$orgchartPath}-->/js/positionSelector.js",
+                        dataType: 'script',
+                        success: function() {
+                            posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
+                        }
+                    });
+                }
+                else {
+                    posSel[<!--{$indicator.indicatorID}-->] = initPositionSelector();
+                }
             });
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -1013,7 +1015,9 @@
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
 
             <script>
-            var leaf_employeeSelector = leaf_employeeSelector ?? {};
+            if(empSel == undefined) {
+                var empSel = {};
+            }
             $(function() {
                 if($('#<!--{$indicator.indicatorID|strip_tags}-->').val() != '') {
                     $('#btn_removeEmployee_<!--{$indicator.indicatorID}-->').css('display', 'inline');
@@ -1047,18 +1051,18 @@
                     }
                 }
 
-                function initEmployeeSelector() {
-                    let empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                function empSearchSuccess() {
+                    empSel[<!--{$indicator.indicatorID}-->] = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
+                    empSel[<!--{$indicator.indicatorID}-->].apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel[<!--{$indicator.indicatorID}-->].rootPath = '<!--{$orgchartPath}-->/';
 
-                    empSel.setSelectHandler(function() {
-                        importFromNational(empSel);
+                    empSel[<!--{$indicator.indicatorID}-->].setSelectHandler(function() {
+                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
                     });
-                    empSel.setResultHandler(function() {
-                        importFromNational(empSel);
+                    empSel[<!--{$indicator.indicatorID}-->].setResultHandler(function() {
+                        importFromNational(empSel[<!--{$indicator.indicatorID}-->]);
                     });
-                    empSel.initialize();
+                    empSel[<!--{$indicator.indicatorID}-->].initialize();
                     <!--{if $indicator.value != ''}-->
                     $.ajax({
                         type: 'GET',
@@ -1071,34 +1075,31 @@
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                            var query = empSel[<!--{$indicator.indicatorID}-->].runSearchQuery("userName:" + res.employee.userName);
                             //here, updates search field value when modal is opened
-                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
+                            $("#"+ empSel[<!--{$indicator.indicatorID}-->].prefixID+"input").val("userName:" + res.employee.userName);
                             query.done(function() {
-                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                                empSel[<!--{$indicator.indicatorID}-->].select("<!--{$indicator.value|strip_tags|escape|trim}-->");
                             });
                         }
                     });
                     <!--{/if}-->
-
-                    return empSel;
                 }
 
-                leaf_employeeSelector[<!--{$indicator.indicatorID}-->] = new Promise((resolve, reject) => {
-                    if(typeof nationalEmployeeSelector == 'undefined') {
-                        $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
-                        resolve($.ajax({
-                            type: 'GET',
-                            url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
-                            dataType: 'script'
-                        }).then(function() {
-                            return initEmployeeSelector();
-                        }));
-                    }
-                    else {
-                        resolve(initEmployeeSelector());
-                    }
-                });
+                if(typeof nationalEmployeeSelector == 'undefined') {
+                    $('head').append('<link type="text/css" rel="stylesheet" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />');
+                    $.ajax({
+                        type: 'GET',
+                        url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
+                        dataType: 'script',
+                        success: function() {
+                            empSearchSuccess();
+                        }
+                    });
+                }
+                else {
+                    empSearchSuccess();
+                }
             });
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {

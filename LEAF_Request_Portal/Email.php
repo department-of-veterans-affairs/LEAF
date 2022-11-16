@@ -8,6 +8,13 @@
     Date Created: September 19, 2008
 
 */
+include_once __DIR__ . '/../libs/smarty/Smarty.class.php';
+require_once 'VAMC_Directory.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+}
 
 class Email
 {
@@ -24,8 +31,6 @@ class Email
     private $emailCC = array();
 
     private $emailBCC = array();
-
-    private $employee;
 
     private $position;
 
@@ -47,8 +52,8 @@ class Email
 
     public function __construct()
     {
-        $this->initPortalDb();
-        $this->initNexusDb();
+        $this->initPortalDB();
+        $this->initNexusDB();
 
         $this->siteRoot = "https://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $apiEntry = strpos($this->siteRoot, '/api/');
@@ -315,34 +320,83 @@ class Email
      */
     private function initOrgchart()
     {
+        // set up org chart assets
+        if (!class_exists('DB'))
+        {
+            include 'db_mysql.php';
+        }
+        if (!class_exists('Orgchart\Config'))
+        {
+            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+        }
+        if (!class_exists('Orgchart\Login'))
+        {
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+        }
+        if (!class_exists('Orgchart\Employee'))
+        {
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+        }
+        if (!class_exists('Orgchart\Position'))
+        {
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+        }
+        if (!class_exists('Orgchart\Group'))
+        {
+            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+        }
         $config = new Orgchart\Config;
-        $oc_db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new Orgchart\Login($oc_db, $oc_db);
+        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new OrgChart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->employee = new Orgchart\Employee($oc_db, $oc_login);
-        $this->position = new Orgchart\Position($oc_db, $oc_login);
-        $this->group = new Orgchart\Group($oc_db, $oc_login);
+        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
+        $this->position = new OrgChart\Position($oc_db, $oc_login);
+        $this->group = new OrgChart\Group($oc_db, $oc_login);
         $this->orgchartInitialized = true;
     }
 
     /**
-     * Initialize portal db object
+     * Initialize portal db object 
      * @return void
      */
-    function initPortalDb()
+    function initPortalDB()
     {
+        // set up org chart assets
+        if (!class_exists('DB'))
+        {
+            include 'db_mysql.php';
+        }
+        if (!class_exists('DB_Config'))
+        {
+            include 'db_config.php';
+        }
+
         $db_config = new DB_Config;
-        $this->portal_db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
 
     /**
      * Initialize Nexus db object
      * @return void
      */
-    function initNexusDb()
+    function initNexusDB()
     {
+        // set up org chart assets
+        if (!class_exists('DB'))
+        {
+            include 'db_mysql.php';
+        }
+        if (!class_exists('DB_Config'))
+        {
+            include 'db_config.php';
+        }
+
         $nexus_config = new Config;
-        $this->nexus_db = new Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
+        $this->nexus_db = new DB($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
 
     private function getHeaders()
@@ -470,6 +524,25 @@ class Email
     }
 
     /**
+     * Purpose (deprecated): set email body directly from passed in HTML
+     * LEGACY: Included as scripts created by portal uses that implement sends using this feature
+     * @param $i
+     * @throws SmartyException
+     */
+    public function setBody($i)
+    {
+        $i = str_replace("\r\n", '<br />', $i);
+        $smarty = new Smarty;
+        $smarty->template_dir = __DIR__ . '/templates/email/';
+        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty->left_delimiter = '{{';
+        $smarty->right_delimiter = '}}';
+        $smarty->assign('emailBody', $i);
+        $htmlOutput = $smarty->fetch('LEAF_main_email_template.tpl');
+        $this->emailBody = $htmlOutput;
+    }
+
+    /**
      * Sets the body based on the given smarty template
      * @param string $bodyTemplate the filename of the template for the body
      * @return void
@@ -531,6 +604,7 @@ class Email
             if ($emailTemplateID < 2)
                 $this->setTemplateByID($emailTemplateID);
 
+            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
@@ -570,6 +644,7 @@ class Email
 
                     // special case for a person designated by the requestor
                     case -1:
+                        require_once 'form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -610,6 +685,7 @@ class Email
 
                     // special case for a group designated by the requestor
                     case -3:
+                        require_once 'form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -649,6 +725,7 @@ class Email
 
             $this->setTemplateByID($emailTemplateID);
 
+            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             // Get user email and send

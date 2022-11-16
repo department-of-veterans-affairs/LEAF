@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+require_once dirname(__FILE__) . '/../Data.php';
+
 class Position extends Data
 {
     protected $dataTable = 'position_data';
@@ -264,6 +266,7 @@ class Position extends Data
                                             WHERE positionID=:positionID
         									ORDER BY lastName ASC', $vars);
 
+        require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         $out = array();
         foreach ($res as $emp)
@@ -287,15 +290,15 @@ class Position extends Data
     public function getEmployeesHrsmart($HRSmart)
     {
         $vars = array(':HRSmart' => $HRSmart);
-
+                        
         $res = $this->db->prepared_query('SELECT p.*,e.*,ed.data as email FROM positions p
                                             LEFT JOIN relation_position_employee USING (positionID)
                                             LEFT JOIN employee e USING (empUID)
                                             LEFT JOIN employee_data ed on e.empUID = ed.empUID and ed.indicatorID = 6
-                                            WHERE p.positionID=(select positionID from position_data
-                                            where indicatorID = 26  and
-                                            data =:HRSmart) ORDER BY lastName ASC', $vars);
-
+                                            WHERE p.positionID=(select positionID from position_data 
+                                            where indicatorID = 26  and 
+                                            data =:HRSmart) ORDER BY lastName ASC', $vars);                                 
+        
          return $res;
     }
     /**
@@ -766,6 +769,7 @@ class Position extends Data
         if (count($result) == 0
             && $searchEmployees == 1)
         {
+            require_once 'Employee.php';
             $employee = new Employee($this->db, $this->login);
             $employee->position = $this;
             $employees = $employee->search($origInput);

@@ -11,22 +11,38 @@
 
 error_reporting(E_ERROR);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+if (false)
+{
+    echo '<img src="../../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
+    exit();
+}
+
+include '../globals.php';
+include '../../libs/smarty/Smarty.class.php';
+include '../Login.php';
+include '../db_mysql.php';
+include '../db_config.php';
+include '../form.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 $db_config = new DB_Config();
 $config = new Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDb())
+if (!$login->isLogin() || !$login->isInDB())
 {
     echo 'Your computer login is not recognized.';
     exit;
@@ -54,7 +70,7 @@ function customTemplate($tpl)
 function hasDevConsoleAccess($login, $db_phonebook)
 {
     // automatically allow coaches
-    $db_national = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+    $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
     $vars = array(':userID' => $login->getUserID());
     $res = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userID', $vars);
     if(count($res) == 0) {
@@ -355,7 +371,10 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-
+        if (!class_exists('CommonConfig'))
+        {
+            require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
+        }
         $commonConfig = new CommonConfig();
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);

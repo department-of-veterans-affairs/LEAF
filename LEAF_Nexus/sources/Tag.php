@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+require_once 'Data.php';
+
 class Tag extends Data
 {
     protected $dataTable = 'tag_hierarchy';

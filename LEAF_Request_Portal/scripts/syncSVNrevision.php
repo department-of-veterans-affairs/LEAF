@@ -5,10 +5,12 @@
 
 $version = 'PUBLIC';
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+$currDir = dirname(__FILE__);
+include_once $currDir . '/../db_mysql.php';
+include_once $currDir . '/../db_config.php';
 
 $config = new DB_Config();
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array(':version' => $version);
 $res = $db->prepared_query("UPDATE settings SET data=:version WHERE setting='version'", $vars);

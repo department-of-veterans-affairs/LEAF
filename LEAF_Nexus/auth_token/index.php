@@ -9,10 +9,13 @@
 
 */
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include '../globals.php';
+include '../sources/Login.php';
+include '../db_mysql.php';
+include '../config.php';
 
 $config = new Orgchart\Config();
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
@@ -52,7 +55,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     else
     {
         // try searching through national database
-        $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)
@@ -69,7 +72,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(),
+                    ':lastUpdated' => time(), 
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)

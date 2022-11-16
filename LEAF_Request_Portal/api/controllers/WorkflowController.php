@@ -3,6 +3,13 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+require '../sources/Workflow.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+}
+
 class WorkflowController extends RESTfulResponse
 {
     public $index = array();
@@ -19,7 +26,7 @@ class WorkflowController extends RESTfulResponse
     public function get($act)
     {
         $workflow = $this->workflow;
-
+        
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
         $this->index['GET']->register('workflow/version', function () {

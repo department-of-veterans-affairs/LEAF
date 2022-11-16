@@ -32,7 +32,7 @@ class User {
   private $work_phone;
   private $db;
   private $user_map = array("empUID"=>"emp_uid", 'new_empUUID'=>'user_guid', 'userName'=>'user_name', 'lastName'=>'last_name',
-          'firstName'=>'first_name','middleName'=>'middle_name', 'phoneticFirstName'=>'phonetic_first_name',
+          'firstName'=>'first_name','middleName'=>'middle_name', 'phoneticFirstName'=>'phonetic_first_name', 
           'phoneticLastName'=>'phonetic_last_name', 'domain'=>'domain', 'deleted'=>'deleted', 'lastUpdated'=>'last_updated');
   private $map_user;
   private $user_data = array(5=>'work_phone', 6=>'email', 16=>'phone' );
@@ -43,15 +43,15 @@ class User {
     $this->map_user  = array_flip($this->user_map);
     $this->last_updated = time();
     echo "User Id: {$user_id}<br/><br/>";
-    $this->db = new Db(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_DB_DIRECTORY);
+    $this->db = new DB(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_DB_DIRECTORY);
     if (!empty($user_id)) $this->emp_uid = $user_id;
     // $this->setUser($user_id, $user_guid);
   }
 
   public function setUser(string $user_id='', string $user_guid=''){
     if(!empty($user_guid)){
-      $sql = "SELECT * FROM employee
-        where ({$this->map_user['user_guid']} = '{$user_guid}' ||
+      $sql = "SELECT * FROM employee 
+        where ({$this->map_user['user_guid']} = '{$user_guid}' || 
           {$this->map_user['user_name']} = '{$user_guid}')";
     } elseif(!empty($user_id)){
       $sql = "select * from employee where empUID='{$user_id}'";
@@ -69,7 +69,7 @@ class User {
     return $this->getUser();
   }
 
-  private function create_guid(int $count=5, string $salt='fizbinn', array $char_count=array(8, 4, 4, 4, 12)) {
+  private function create_guid(int $count=5, string $salt='fizbinn', array $char_count=array(8, 4, 4, 4, 12)) { 
     $guid_arr = array();
     $namespace = rand(11111, 99999);
     $uid = uniqid('', true);
@@ -91,11 +91,11 @@ class User {
     return $guid;
   }
 
-  public function transmorgrifyUserData(){
+  public function transmorgrifyUserData(){  
     $rando_user_map = array('uid'=>'user_guid', 'user_name'=>'user_name', 'last_name'=>'last_name',
-    'first_name'=>'first_name','middle_name'=>'middle_name', 'phonetic_first_name'=>'phonetic_first_name',
-    'phonetic_last_name'=>'phonetic_last_name', 'domain'=>'domain', 'phone'=>'phone', 'email'=>'email',
-    'work_phone'=>'work_phone', 'job_title'=>'job_title', 'ssn'=>'ssn', 'location'=>'location');
+    'first_name'=>'first_name','middle_name'=>'middle_name', 'phonetic_first_name'=>'phonetic_first_name', 
+    'phonetic_last_name'=>'phonetic_last_name', 'domain'=>'domain', 'phone'=>'phone', 'email'=>'email', 
+    'work_phone'=>'work_phone', 'job_title'=>'job_title', 'ssn'=>'ssn', 'location'=>'location');  
     // , 'deleted'=>'deleted', 'lastUpdated'=>'last_updated'
     $user = $this->randomite("user");
     $phone = $this->randomite("phone");
@@ -151,7 +151,7 @@ class User {
         break;
     }
     if($size > 0){$api .= "/?size=$size";}
-
+    
     $gimme_rando = $this->api_curling($api);
     if ($gimme_rando['code'] == 200){
       $rando_return = $gimme_rando['data'];
@@ -166,13 +166,13 @@ class User {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HEADER, FALSE);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    if(count($post_fields)){
+    if(count($post_fields)){      
       curl_setopt($s,CURLOPT_POST,true);
-      curl_setopt($s,CURLOPT_POSTFIELDS, $post_fields);
+      curl_setopt($s,CURLOPT_POSTFIELDS, $post_fields); 
     }
     $respData = curl_exec($ch);
     $respCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    curl_close($ch);
+    curl_close($ch); 
     if (in_array($respCode, array(200,301,302))) $respCode = 200;
     $curl_return = array('code'=>$respCode, 'data'=>json_decode($respData));
     return $curl_return;
@@ -188,7 +188,7 @@ class User {
     foreach($this->user_map as $id){
       // echo "ID: {$id} = {$this->$id}<br/>";
       $user[$id] = $this->$id;
-    }
+    }    
     return $user;
   }
   public function getUserData(){
@@ -211,21 +211,21 @@ class User {
   }
 
   public function storeUserData(){
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '5', '{$this->work_phone}', 'system', {$this->last_updated})";
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '6', '{$this->email}', 'system', {$this->last_updated})";
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '16', '{$this->phone}', 'system', {$this->last_updated})";
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '-1', '{$this->domain}', 'system', {$this->last_updated})";
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '-2', 'Yes', 'system', {$this->last_updated})";
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '23', '{$this->job_title}', 'system', {$this->last_updated})";
-    $push_arr[] = "replace into employee_data
+    $push_arr[] = "replace into employee_data 
       values('{$this->emp_uid}', '8', '{$this->location}', 'system', {$this->last_updated})";
-
+    
     $push_sql = implode(";", $push_arr);
     echo "<br/><br/><br/>Toga: $push_sql<br/>";
     $this->db->query($push_sql);
@@ -248,7 +248,7 @@ class User {
 
 function resetGroupTable(int $limit=4){
   $db_config = new Config();
-  $db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $tmc = new User(1);
   for($i=2; $i<200; $i++){
     $stuffs = $tmc->randomite('commerce');
@@ -265,21 +265,21 @@ function resetGroupTable(int $limit=4){
   }
 }
 
-function createUserDb(int $total=300){
+function createUserDB(int $total=300){
   for($i=2; $i<=350; $i++){
     $uc = new User($i);
     $uc->transmorgrifyUserData(TRUE);
     $uc->storeUser();
     $uc->storeUserData();
   }
-
+  
 }
 
 function cleanRecords(){
   $db_config = new Config();
-  $db_user = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_user = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $db_config->dbName = "leaf_portal";
-  $db_portal = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_portal = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $sql = "select recordID, serviceID from records";
   $records = $db_portal->query($sql);
   foreach($records as $record){
@@ -295,9 +295,9 @@ function cleanRecords(){
 
 function cleanServiceChiefs(){
   $db_config = new Config();
-  $db_user = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_user = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $db_config->dbName = "leaf_portal";
-  $db_portal = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_portal = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $sql = "select serviceID, userID from service_chiefs order by serviceID";
   $records = $db_portal->query($sql);
   $id_arr = array();
@@ -311,7 +311,7 @@ function cleanServiceChiefs(){
     $u_sql = "select userName from employee where empUID={$user_pull}";
     $user = $db_user->query($u_sql);
     echo "<br/>ServId: {$record['serviceID']} -- New User: {$user[0]['userName']}<br/>";
-    $fill_sql = "update service_chiefs set userID='{$user[0]['userName']}'
+    $fill_sql = "update service_chiefs set userID='{$user[0]['userName']}' 
       where serviceID={$record['serviceID']} && userID='{$record['userID']}'";
     echo "$fill_sql<br/>";
     $db_portal->query($fill_sql);
@@ -320,9 +320,9 @@ function cleanServiceChiefs(){
 
 function buildPortalUsers(int $user_count=300){
   $db_config = new Config();
-  $db_user = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_user = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $db_config->dbName = "leaf_portal";
-  $db_portal = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_portal = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $groups = $db_portal->query("select groupID from groups where groupID>0");
   // echo "<pre>";print_r($groups);echo "</pre>";
   for($i=2; $i<$user_count; $i++){
@@ -334,13 +334,13 @@ function buildPortalUsers(int $user_count=300){
     echo "<br/>$new_user_sql";
     $db_portal->query($new_user_sql);
   }
-
+  
 }
 
 function cleanIndicators(int $seed_size=3){
   $db_config = new Config();
   $db_config->dbName = "leaf_portal";
-  $db_portal = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_portal = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $rando_miter = new User();
   $bulk_hippy = $rando_miter->randomite('hipster',$seed_size);
   $hippy_dippy = array();
@@ -351,7 +351,7 @@ function cleanIndicators(int $seed_size=3){
     $hippy_dippy = array_merge($hippy_dippy, $hippy_talk);
   }
 
-  for($i=300; $i<2282; $i++){
+  for($i=300; $i<2282; $i++){ 
     $hd = htmlspecialchars($hippy_dippy[array_rand($hippy_dippy)]);
     $sql = "update indicators set name='$hd' where indicatorID=$i";
     $db_portal->query($sql);
@@ -363,7 +363,7 @@ function cleanIndicators(int $seed_size=3){
 function cleanRecordsnData(int $seed_size=4){
   $db_config = new Config();
   $db_config->dbName = "leaf_portal";
-  $db_portal = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_portal = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $rando_miter = new User();
   $bulk_hippy = $rando_miter->randomite('hipster',$seed_size);
   $bulk_user = $rando_miter->randomite('user_complete', $seed_size);
@@ -373,7 +373,7 @@ function cleanRecordsnData(int $seed_size=4){
     $hippy_paragraphs = array_merge((array)$hippy_paragraphs, $hippy->paragraphs);
   }
   // echo "<pre>"; print_r($hippy_array); echo "</pre>";
-
+  
 
   $sql = "select recordID, serviceID, userID from records";
   $records = $db_portal->query($sql);
@@ -385,8 +385,8 @@ function cleanRecordsnData(int $seed_size=4){
           where recordID={$record['recordID']} ";
     $data = $db_portal->query($data_sql);
     // echo "$data_sql<pre>"; print_r($data); echo "</pre>";
-    foreach($data as $key=>$datum){
-      $user_data = $bulk_user[array_rand($bulk_user)];
+    foreach($data as $key=>$datum){     
+      $user_data = $bulk_user[array_rand($bulk_user)]; 
       $datum['format'] = strtolower(preg_split('/\s+/', $datum['format'])[0]);
       $list_of_formats[$datum['format']] = $datum['format'];
       switch($datum['format']){
@@ -440,7 +440,7 @@ function cleanRecordsnData(int $seed_size=4){
       $up_sql[] = "update data_history set data='{$new_data}', userID='{$record['userID']}'
         where recordID={$datum['recordID']} && indicatorID={$datum['indicatorID']} && series={$datum['series']}";
     }
-
+    
     $new_title = ucwords(rtrim(htmlspecialchars($hippy_sentences[array_rand($hippy_sentences)], ENT_QUOTES), "."));
     $up_sql[] = "update records set title='{$new_title}' where recordID={$record['recordID']}";
     $db_portal->query(implode(";",$up_sql));
@@ -449,10 +449,10 @@ function cleanRecordsnData(int $seed_size=4){
   echo "All d formats: <pre>";print_r($list_of_formats); echo "</pre>";
 }
 
-function historyCleaner(int $seed_size=99){
+function historyCleaner(int $seed_size=99){  
   $db_config = new Config();
   $db_config->dbName = "leaf_portal";
-  $db_portal = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+  $db_portal = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
   $rando_miter = new User();
   $bulk_hippy = $rando_miter->randomite('hipster',$seed_size);
   foreach($bulk_hippy as $hippy){
@@ -471,7 +471,7 @@ function historyCleaner(int $seed_size=99){
 }
 
 
-// createUserDb(350);
+// createUserDB(350);
 // resetGroupTable(4);
 // cleanRecords();
 // cleanServiceChiefs();

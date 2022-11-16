@@ -11,11 +11,17 @@
 
 error_reporting(E_ERROR);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include 'globals.php';
+include '../libs/smarty/Smarty.class.php';
+include './sources/Login.php';
+include 'db_mysql.php';
+include 'config.php';
+include './sources/Exception.php';
+include './sources/Group.php';
 
 $config = new Orgchart\Config();
 
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
@@ -24,7 +30,7 @@ if ($login)
 {
 }
 
-$group = new Orgchart\Group($db, $login);
+$group = new OrgChart\Group($db, $login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
@@ -87,7 +93,8 @@ switch ($action) {
 
         break;
     case 'listPositionData':
-        $employee = new Orgchart\Employee($db, $login);
+        include './sources/Employee.php';
+        $employee = new OrgChart\Employee($db, $login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';

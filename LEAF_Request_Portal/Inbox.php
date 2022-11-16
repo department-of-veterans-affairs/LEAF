@@ -9,6 +9,8 @@
 
 */
 
+require_once 'form.php';
+
 class Inbox
 {
     public $form;
@@ -207,7 +209,7 @@ class Inbox
                         if (!isset($this->cache['getInbox_currUserIsABackup']))
                         {
                             // see if the current user is a backup for anyone
-                            $nexusDB = $this->login->getNexusDb();
+                            $nexusDB = $this->login->getNexusDB();
                             $vars4 = array(':empId' => $this->login->getEmpUID());
                             $isBackup = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE backupEmpUID =:empId', $vars4);
                             if(count($isBackup) > 0) {
@@ -225,7 +227,7 @@ class Inbox
                         }
                         else if($this->cache['getInbox_currUserIsABackup'])
                         {
-                            $nexusDB = $this->login->getNexusDb();
+                            $nexusDB = $this->login->getNexusDB();
                             $vars4 = array(':empId' => $empUID);
                             $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
                             $this->cache["getInbox_employeeBackups_{$empUID}"] = $backupIds;
@@ -252,6 +254,7 @@ class Inbox
                             // populate relevant info
                             if (!isset($this->dir))
                             {
+                                require_once 'VAMC_Directory.php';
                                 $this->dir = new VAMC_Directory;
                             }
                             $user = $this->dir->lookupEmpUID($empUID);
@@ -271,7 +274,7 @@ class Inbox
                         }
 
                         if(!$res[$i]['hasAccess'])
-                        {
+                        {                            
                             $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
                             $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
 
@@ -279,13 +282,14 @@ class Inbox
 
                                 if (!isset($this->dir))
                                 {
+                                    require_once 'VAMC_Directory.php';
                                     $this->dir = new VAMC_Directory;
                                 }
-
+    
                                 $user = $this->dir->lookupEmpUID($empUID);
-
+    
                                 $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
-
+                                
                                 $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
                             }
                         }
@@ -397,7 +401,7 @@ class Inbox
      */
     public function getEmpUIDByUserName($userName)
     {
-        $nexusDB = $this->login->getNexusDb();
+        $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
         $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
         return $response[0]["empUID"];
@@ -405,12 +409,12 @@ class Inbox
 
     /**
      * Checks if logged in user serves as a backup for given empUID
-     * @param string $empUID empUID to check
+     * @param string $empUID empUID to check 
      * @return boolean
      */
     public function checkIfBackup($empUID)
     {
-        $nexusDB = $this->login->getNexusDb();
+        $nexusDB = $this->login->getNexusDB();
         $vars = array(':empId' => $empUID);
         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
 
@@ -495,7 +499,7 @@ class Inbox
                         $empUID = $resEmpUID[$record['indicatorID_for_assigned_empUID']]['value'];
 
                         //check if the requester has any backups
-                        $nexusDB = $this->login->getNexusDb();
+                        $nexusDB = $this->login->getNexusDB();
                         $vars4 = array(':empId' => $empUID);
                         $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
 

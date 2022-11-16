@@ -7,17 +7,22 @@
     Refreshes employee data into local orgchart
 */
 
+$currDir = dirname(__FILE__);
+
 // Constant indicatorIDs for employee_data
 define("PHONEIID", 5);
 define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include_once $currDir . '/../db_mysql.php';
+include_once $currDir . '/../config.php';
+include_once $currDir . '/../globals.php';
+include_once $currDir . '/../sources/Login.php';
 
 $config = new Orgchart\Config();
-$db = new Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-$phonedb = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login = new Orgchart\Login($phonedb, $db);
 $login->loginUser();
 

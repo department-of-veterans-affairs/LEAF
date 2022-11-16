@@ -11,7 +11,10 @@
 
 set_time_limit(10);
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+}
 
 // Mail queue folder
 $currDir = dirname(__FILE__);

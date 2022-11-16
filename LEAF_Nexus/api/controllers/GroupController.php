@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
- namespace Orgchart;
+require '../sources/Group.php';
 
 class GroupController extends RESTfulResponse
 {
@@ -15,7 +15,7 @@ class GroupController extends RESTfulResponse
 
     public function __construct($db, $login)
     {
-        $this->group = new Group($db, $login);
+        $this->group = new OrgChart\Group($db, $login);
     }
 
     public function get($act)

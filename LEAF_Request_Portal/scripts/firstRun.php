@@ -3,11 +3,13 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once '/var/www/html/libs/loaders/Leaf_autoloader.php';
+include '../db_mysql.php';
+include_once '../db_config.php';
+require_once '../VAMC_Directory.php';
 
 $db_config = new DB_Config();
 
-$db = new Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM users WHERE groupID=1', $vars);

@@ -9,7 +9,15 @@
 
 */
 
-namespace Orgchart;
+require_once 'Data.php';
+if(!class_exists('LogFormatter'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
+}
+if(!class_exists('LogItem'))
+{
+    require_once dirname(__FILE__) . '/../../libs/logItem.php';
+}
 
 class System
 {
@@ -32,6 +40,11 @@ class System
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+
+        if (!class_exists('XSSHelpers'))
+        {
+            include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+        }
     }
 
     /**
@@ -57,7 +70,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \XSSHelpers::sanitizeHTML($heading));
+        $in = preg_replace('/[^\040-\176]/', '', XSSHelpers::sanitizeHTML($heading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="heading"', $vars);
@@ -72,7 +85,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \XSSHelpers::sanitizeHTML($subHeading));
+        $in = preg_replace('/[^\040-\176]/', '', XSSHelpers::sanitizeHTML($subHeading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subheading"', $vars);
@@ -88,7 +101,7 @@ class System
             return 'Admin access required';
         }
 
-        if (array_search($_POST['timeZone'], \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US')) === false)
+        if (array_search($_POST['timeZone'], DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US')) === false)
         {
             return 'Invalid timezone';
         }
@@ -224,7 +237,7 @@ class System
     }
 
     /**
-     * Checks for admin priviledges and runs batch refresh local orgchart employee
+     * Checks for admin priviledges and runs batch refresh local orgchart employee 
      *
      * @return $ret returns last echo from script
      */
@@ -235,11 +248,11 @@ class System
         {
             return 'Admin access required';
         }
-
+        
         header('Cache-Control: no-cache');
         exec('php ../scripts/refreshOrgchartEmployees.php &', $output);
-
-        $ret = $output[count($output) - 1];
+        
+        $ret = $output[count($output) - 1]; 
 
         return $ret;
     }
@@ -256,7 +269,8 @@ class System
 
         if(count($primaryAdminRes) > 0)
         {
-            $employee = new \Orgchart\Employee($this->db, $this->login);
+            include_once 'Employee.php';
+            $employee = new Orgchart\Employee($this->db, $this->login);
             $user = $employee->lookupLogin($primaryAdminRes[0]['data']);
         }
 
@@ -270,10 +284,11 @@ class System
      */
     public function setPrimaryAdmin(): array
     {
-        $userID = \XSSHelpers::xscrub($_POST['userID']);
+        $userID = XSSHelpers::xscrub($_POST['userID']);
 
         //check if user is system admin
-        $employee = new \Orgchart\Employee($this->db, $this->login);
+        include_once 'Employee.php';
+        $employee = new Orgchart\Employee($this->db, $this->login);
         $user = $employee->lookupLogin($userID);
 
         $sqlVars = array(':empUID' => $user[0]['empUID']);
@@ -316,8 +331,8 @@ class System
         $result = $this->db->query($strSQL);
 
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
-            new \LogItem("users", "primary_admin", 1),
-            new \LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;

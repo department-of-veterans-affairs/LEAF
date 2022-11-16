@@ -3,6 +3,13 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+require '../../libs/php-commons/spreadsheet/SpreadsheetUtil.php';
+
+if (!class_exists('XSSHelpers'))
+{
+    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
+}
+
 /**
  * Controls endpoints for Importing data from various sources (e.g. Spreadsheets)
  */
