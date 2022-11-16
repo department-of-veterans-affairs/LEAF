@@ -144,10 +144,10 @@ class Group
     {
         $sql_vars = array(':groupID' => $groupID);
         $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            new \LogItem("groups", "groupID", $groupID, $this->getGroupName($groupID))
         ]);
 
-        $result = $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
+        $result = $this->db->prepared_query('DELETE FROM groups WHERE groupID=:groupID', $sql_vars);
 
         return $result;
     }
