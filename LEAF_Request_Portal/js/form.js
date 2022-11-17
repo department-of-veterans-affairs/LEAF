@@ -45,7 +45,7 @@ var LeafForm = function(containerID) {
     }
 
     
-    function handleConditionalIndicators(formConditions) {
+    function handleConditionalIndicators(formConditions = {}, dialog = null) {
         const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
         const formConditionsByChild = formConditions;
         let currentChildInfo = {};
@@ -117,12 +117,12 @@ var LeafForm = function(containerID) {
         const handleChildValidators = (childID)=> {
             if (!currentChildInfo[childID]) { //if it is new define key and store validator
                 currentChildInfo[childID] = {
-                    validator: form.dialog().requirements[childID]
+                    validator: formRequired[`id${childID}`]?.setRequired
                 }
             } 
             //reset the validator if there is one from the stored value
-            if (currentChildInfo[childID].validator !== undefined) {
-                form.dialog().requirements[childID] = currentChildInfo[childID].validator;
+            if (currentChildInfo[childID].validator !== undefined && dialog !== null) {
+                dialog.requirements[childID] = currentChildInfo[childID].validator;
             }
         }
 
@@ -246,8 +246,8 @@ var LeafForm = function(containerID) {
                             }
                             //if this is a required question, re-point validator
                             $('.blockIndicator_' + childID).hide();
-                            if (currentChildInfo[childID].validator !== undefined) {
-                                form.dialog().requirements[childID] = hideShowValidator;
+                            if (currentChildInfo[childID].validator !== undefined && dialog !== null) {
+                                dialog.requirements[childID] = hideShowValidator;
                             }
                         } else {
                             $('.blockIndicator_' + childID).show();
@@ -262,8 +262,8 @@ var LeafForm = function(containerID) {
                                 clearMultiSelectChild(elJQChildID, childID);
                             }
                             $('.blockIndicator_' + childID).hide();
-                            if (currentChildInfo[childID].validator !== undefined) {
-                                form.dialog().requirements[childID] = hideShowValidator;
+                            if (currentChildInfo[childID].validator !== undefined && dialog !== null) {
+                                dialog.requirements[childID] = hideShowValidator;
                             }
                         }
                         break;
@@ -441,7 +441,7 @@ var LeafForm = function(containerID) {
 
                 dialog.enableLiveValidation();
 
-                handleConditionalIndicators(formConditions);
+                handleConditionalIndicators(formConditions, dialog);
                 
             },
             error: function(response) {
