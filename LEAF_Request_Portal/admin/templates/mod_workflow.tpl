@@ -208,8 +208,8 @@ function newEvent(events) {
     let createEventContent = '<div>Event Type: <select id="eventType">' +
         '<option value="Email" selected>Email</option>' +
         '</select><br /><br />' +
-        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox" /><br /><br />' +
-        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox" /><br /><br />' +
+        '<span>Event Name: </span><input type="text" id="eventName" class="eventTextBox" /><br /><br />' +
+        '<span>Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" /><br /><br />' +
         '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' + groupList + '</div>';
     dialog.setContent(createEventContent);
     if ($('#eventType').val() === 'Email') {
