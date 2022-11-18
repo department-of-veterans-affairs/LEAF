@@ -1104,10 +1104,9 @@ class FormWorkflow
 										WHERE recordID=:recordID', $vars2);
         $this->resetRecordsDependency($stepID);
         $vars = array(':recordID' => $this->recordID,
-                      ':stepID' => $stepID, );
+                    ':stepID' => $stepID, );
         $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
-                                             VALUES (:recordID, :stepID)', $vars);
-
+                                            VALUES (:recordID, :stepID)', $vars);
         return true;
     }
 
