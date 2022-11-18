@@ -41,8 +41,12 @@
     <!--backwards compat -->
     <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
     {/if}
-    {if $leafSecure >= 1}
-    <script type="text/javascript" src="../libs/js/LEAF/sessionTimeout.js"></script>
+    {if !$logout}
+        {if $leafSecure >= 1}
+        <script type="text/javascript" src="../libs/js/LEAF/sessionTimeout.js"></script>
+        {else}
+        <script type="text/javascript" src="../libs/js/LEAF/sessionAnnounce.js"></script>
+        {/if}
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
@@ -50,6 +54,9 @@
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
+{if $smarty.get.a == ''}
+<a href="#searchContainer" id="nav-skip-link">Skip to Search</a>
+{/if}
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}
@@ -60,7 +67,7 @@
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
       <span id="headerLabel">{$city|sanitize}</span>
-      <span id="headerDescription">{$title|sanitize}</span>
+      <h1 id="headerDescription">{$title|sanitize}</h1>
     </div>
     <span id="headerHelp">
         {if $leafSecure == 0}

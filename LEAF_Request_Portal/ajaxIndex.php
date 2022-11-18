@@ -16,6 +16,7 @@ include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
 include 'db_mysql.php';
 include 'db_config.php';
+include '../libs/logger/dataActionLogger.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -36,6 +37,8 @@ function customTemplate($tpl)
 }
 
 $login = new Login($db_phonebook, $db);
+
+$dataActionLogger = new DataActionLogger($db, $login);
 
 $login->loginUser();
 if ($login)
