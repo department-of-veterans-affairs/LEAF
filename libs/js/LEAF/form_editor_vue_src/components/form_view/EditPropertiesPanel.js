@@ -6,7 +6,7 @@ export default {
             workflowID: parseInt(this.currentCategorySelection?.workflowID) || 0,
             needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
             sort: parseInt(this.currentCategorySelection?.sort) || 0,
-            visible: parseInt(this.currentCategorySelection?.visible) || (this.currSubformID ? 1 : 0),
+            visible: parseInt(this.currentCategorySelection?.visible) || 0,
             type: this.currentCategorySelection?.type || '',
             formID: this.currSubformID || this.currCategoryID
         }
@@ -53,6 +53,7 @@ export default {
             const changes = [
                 nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, sortChanged, visibleChanged, typeChanged
             ];
+            //console.log(changes)
             return changes.some(c => c === true);
         },
         formNameCharsRemaining() {

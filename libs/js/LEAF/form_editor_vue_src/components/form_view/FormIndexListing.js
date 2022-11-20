@@ -58,8 +58,10 @@ export default {
             return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '');
         },
         //NOTE: Uses globally available XSSHelpers.js (LEAF class)
-        shortLabel() { //FIX:TODO:  currently getting from name - too many items didn't have label - prompt during entry
-            return XSSHelpers.decodeHTMLEntities(this.truncateText(XSSHelpers.stripAllTags(this.formNode.name))) || '[ blank ]';
+        indexDisplay() {
+            //if the indicator has a short label (description), display that, otherwise display the name. Show 'blank' if it has neither
+            let display = this.formNode.description ?  XSSHelpers.stripAllTags(this.formNode.description) : XSSHelpers.stripAllTags(this.formNode.name);
+            return XSSHelpers.decodeHTMLEntities(this.truncateText(display)) || '[ blank ]';
         },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -79,7 +81,7 @@ export default {
             @keypress.enter.stop="selectNewFormNode($event, formNode)">
             <div>
                 <span v-if="hasConditions" title="question is conditionally shown">→</span>
-                {{headingNumber}}&nbsp;{{shortLabel}}
+                {{headingNumber}}&nbsp;{{indexDisplay}}
                 <div class="icon_move_container">
                     <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" role="button" title="move item up"

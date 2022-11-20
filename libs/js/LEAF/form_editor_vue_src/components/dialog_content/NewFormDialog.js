@@ -41,12 +41,17 @@ export default {
                 success: (res)=> {
                     let newCatID = res;
                     let temp = {};
+                    //specified values
                     temp.categoryID = newCatID;
                     temp.categoryName = this.categoryName;
                     temp.categoryDescription = this.categoryDescription;
+                    temp.parentID = this.currCategoryID || '';
+                    //default values
                     temp.workflowID = 0;
                     temp.needToKnow = 0;
-                    temp.parentID = this.currCategoryID || '';
+                    temp.visible = 1;
+                    temp.sort = 0;
+                    temp.type = '';
                     this.addNewCategory(newCatID, temp);
                     this.selectNewCategory(newCatID, this.isSubform);
                     this.closeFormDialog();

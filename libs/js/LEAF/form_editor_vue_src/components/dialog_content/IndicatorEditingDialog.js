@@ -193,7 +193,7 @@ export default {
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
                 console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
-                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,sortChanged,parentIDChanged,shouldArchive,shouldDelete);
+                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
                     indicatorEditingUpdates.push(

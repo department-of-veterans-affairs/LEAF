@@ -12,6 +12,7 @@ export default {
         'categories',
         'currCategoryID',
         'currSubformID',
+        'currentCategoryIndicatorTotal',
         'internalForms',
         'ajaxSelectedCategoryStapled',
         'formsStapledCatIDs',
@@ -154,7 +155,7 @@ export default {
                         <ul v-else id="form-editor-menu"
                             @mouseenter="showMenu" 
                             @mouseleave="hideMenu">
-                            <li>
+                            <li v-if="currentCategoryIndicatorTotal!==0">
                                 <button @click="openNewFormDialog" title="add new internal use form">
                                 Add Internal-Use<span>➕</span>
                                 </button>
