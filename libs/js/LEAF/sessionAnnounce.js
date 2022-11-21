@@ -12,7 +12,7 @@ else {
 }
 
 var LeafSession_warningTime = 120; // show warning X seconds before session expiration
-var LeafSession_lastActiveTime = 0;
+var LeafSession_lastActiveTime = Math.round(Date.now() / 1000);
 function LeafSessionAnnounce() {
     document.querySelector('body').insertAdjacentHTML('beforeend', '<div id="LeafSession_dialog" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6)">'
         + '<div style="background-color: #fffdcf; margin: 20% auto; padding: 16px; width: 70%; border: 1px solid black; font-size: 20px; text-align: center">Your session will expire soon if you remain inactive.'
@@ -43,23 +43,23 @@ function LeafSessionAnnounce() {
         let now = new Date();
         let nowUnix = Math.round(now.getTime() / 1000);
 
-        let relUrl = '.';
-        if(window.location.href.indexOf('/admin/') != -1) {
-            relUrl = '..';
+        let remote = localStorage.getItem('LeafSession');
+        if(remote == null) {
+            let newSession = {
+                sessExpireTime: null,
+                lastAction: LeafSession_lastActiveTime
+            };
+            localStorage.setItem('LeafSession', JSON.stringify(newSession));
+            remote = newSession;
         }
-        let url = `${relUrl}/api/userActivity/status/${LeafSession_lastActiveTime}`;
-
-        // check activity on other windows
-        let remote = await fetch(url)
-            .then(handleErrors)
-            .then(res => res.json())
-            .catch(err => {
-                console.error(err)
-                return {
-                    sessExpireTime: null,
-                    lastAction: LeafSession_lastActiveTime
-                };
-            });
+        else {
+            remote = JSON.parse(remote);
+            if(LeafSession_lastActiveTime > remote.lastAction) {
+                remote.sessExpireTime = null;
+                remote.lastAction = LeafSession_lastActiveTime;
+                localStorage.setItem('LeafSession', JSON.stringify(remote));
+            }
+        }
 
         // logout when the session has been terminated elsewhere
         if (remote.lastAction == null) {
