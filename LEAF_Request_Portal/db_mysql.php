@@ -46,7 +46,8 @@ class DB
             $pdo_options = [
                 // Error reporting mode of PDO. Can take one of the following values:
                 // PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_PERSISTENT => true
             ];
 
             $this->db = new PDO(
@@ -55,6 +56,13 @@ class DB
                 $pass,
                 $pdo_options
             );
+
+            // make sure there are no active transactions on script termination
+            register_shutdown_function(function() {
+                if($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+            });
         }
         catch (PDOException $e)
         {
@@ -74,6 +82,12 @@ class DB
 
     public function __destruct()
     {
+        try {
+            $this->db = null;
+        } catch (Exception $e) {
+            $this->logError('Connection normal closed: '.$e);
+        }
+
         if ($this->debug)
         {
             echo '<pre>';
@@ -98,12 +112,6 @@ class DB
             }
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
-        }
-
-        try {
-            $this->db = null;
-        } catch (Exception $e) {
-            logError('Connection normal closed: '.$e);
         }
     }
 

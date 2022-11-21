@@ -544,6 +544,9 @@ class Form
             $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
             $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
             try {
+                if(!is_array($values)) {
+                    $values = [];
+                }
                 $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
             } catch (TypeError $te) {
                 error_log($te);
@@ -1479,7 +1482,11 @@ class Form
                         }
                     }
                 }
-                $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+                if ($countRequestRequired===0) {
+                    $returnValue = 100;
+                } else {
+                    $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+                }
             }
         } 
         return $returnValue;
@@ -3803,6 +3810,9 @@ class Form
                     $format = json_decode(substr($field['format'], 5, -1) . ']');
                     $child[$idx]['value'] = @unserialize($child[$idx]['value']) === false ? $child[$idx]['value'] : unserialize($child[$idx]['value']);
                     try {
+                        if(!is_array($values)) {
+                            $values = [];
+                        }
                         $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
                     } catch (TypeError $te) {
                         error_log($te);
