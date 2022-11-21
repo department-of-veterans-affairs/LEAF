@@ -358,8 +358,8 @@ function editEventContent(event, groups) {
     let content = '<div>Event Type: <select id="eventType">' +
         '<option value="Email" selected>Email</option>' +
         '</select><br /><br />' +
-        '<span>Event Name: </span><textarea id="eventName" class="eventTextBox">' + event[0].eventID.replace('CustomEvent_', '') + '</textarea><br /><br />' +
-        '<span>Short Description: </span><textarea id="eventDesc" class="eventTextBox">' + event[0].eventDescription + '</textarea><br /><br />' +
+        '<span>Event Name: </span><input type="text" id="eventName" class="eventTextBox" value="' + event[0].eventID.replace('CustomEvent_', '') + '" /><br /><br />' +
+        '<span>Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" value="' + event[0].eventDescription + '" /><br /><br />' +
         '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />';
 
     content += 'Notify Group: <select id="groupID">' +
