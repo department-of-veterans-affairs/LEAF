@@ -11,7 +11,7 @@ else {
 
 var LeafSession_maxTime = 15 * 60; // seconds
 var LeafSession_warningTime = 13 * 60; // warn user after X seconds
-var LeafSession_lastActiveTime = 0;
+var LeafSession_lastActiveTime = Date.now() / 1000;
 function LeafSessionTimeout() {
     document.querySelector('body').insertAdjacentHTML('beforeend', '<div id="LeafSession_dialog" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6)">'
         + '<div style="background-color: #fffdcf; margin: 20% auto; padding: 16px; width: 70%; border: 1px solid black; font-size: 20px; text-align: center">Your session will expire soon if you remain inactive.'
@@ -84,5 +84,5 @@ function LeafSessionTimeout() {
         if (LeafSession_lastActiveTime + LeafSession_maxTime <= nowUnix) {
             window.location = `${relUrl}/index.php?a=logout`;
         }
-    }, 60000);
+    }, 210000);
 }
