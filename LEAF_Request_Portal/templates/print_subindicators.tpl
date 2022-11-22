@@ -12,7 +12,7 @@
     <!--{if $form}-->
     <div class="printformblock">
     <!--{foreach from=$form item=indicator}-->
-                <!--{if $indicator.conditions != ''}-->
+                <!--{if $indicator.conditions != '' && $indicator.conditions !== 'null'}-->
                 <script type="text/javascript">
                     formPrintConditions["id<!--{$indicator.indicatorID}-->"] = {
                         conditions:<!--{$indicator.conditions|strip_tags}-->,

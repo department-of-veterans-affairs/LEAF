@@ -92,6 +92,17 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         }, 1000);
                     });
                 }
+
+                var new_note;
+
+                new_note = '<div> <span class="comments_time"> ' + response.comment.date + '</span> <span class="comments_name">' + response.comment.responder + ' ' + response.comment.user_name + '</span> <div class="comments_message">' + response.comment.comment + '</div> </div>';
+
+                $( new_note ).insertAfter( "#notes" );
+
+                if ($("#comments").css("display") == 'none') {
+                    $("#comments").css("display", 'block');
+                }
+
                 antiDblClick = 0;
             },
             error: function(response) {
@@ -363,7 +374,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
                     $('#workflowbox_lastAction').append('<span style="font-size: 150%; font-weight: bold", color: '+response.stepFontColor+'>'+ text +'</span>');
                 }
-                
+
                 // check signatures
                 if(lastActionSummary.signatures.length > 0) {
                     $('#workflowcontent').append('<div id="workflowSignatureContainer" style="margin-top: 8px"></div>');
