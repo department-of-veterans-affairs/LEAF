@@ -6,7 +6,7 @@
 
 <div class="leaf-center-content">
 
-    
+
     <!-- LEFT SIDE NAV -->
     <!--{assign var=left_nav_content value="
         <aside class='sidenav'>
@@ -18,9 +18,9 @@
         </aside>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
-    
+
     <main class="main-content">
-        
+
         <h2>Service Chiefs</h2>
 
         <div>
@@ -36,7 +36,7 @@
         <aside class='sidenav-right'></aside>
     "}-->
     <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
-    
+
 </div>
 
 
@@ -52,7 +52,7 @@ function syncServices() {
     dialog_simple.show();
     $.ajax({
         type: 'GET',
-        url: "../scripts/updateServicesFromOrgChart.php",
+        url: "../scripts/sync_services.php",
         success: function(response) {
             dialog_simple.setContent(response);
         },
@@ -103,7 +103,7 @@ function createGroup() {
 
     dialog_simple.setTitle('Create new service');
     dialog_simple.setContent('Changes to services must be made through Links->Nexus at the moment.');
-    
+
     dialog_simple.show();
 }
 
@@ -255,6 +255,38 @@ function initiateWidget(serviceID, serviceName) {
                             }
                             dialog.hide();
                         });
+                        dialog_confirm.show();
+                    });
+
+                    empSel = new nationalEmployeeSelector('employeeSelector');
+                    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel.outputStyle = 'micro';
+                    empSel.initialize();
+                    // Update on any action
+                    dialog.setCancelHandler(function() {
+                        getMembers(serviceID);
+                    });
+                    dialog.setSaveHandler(function() {
+                        if(empSel.selection != '') {
+                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
+                            $.ajax({
+                                type: 'POST',
+                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                success: function(res) {
+                                    if(!isNaN(res)) {
+                                        addUser(serviceID, selectedUserName);
+                                    }
+                                    else {
+                                        alert(res);
+                                    }
+                                },
+                                cache: false
+                            });
+                        }
+                        dialog.hide();
+                    });
 
                         dialog.show();
                     },
