@@ -21,9 +21,9 @@ $comment = '';
 
 $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-
-$getWorkflowStepsRes = $db->prepared_query('SELECT workflowID, stepID,stepTitle,stepData
-FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';', []);
+$getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
+FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
+$getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
 
 // do we have automated notification setup here
 if (empty($getWorkflowStepsRes)) {
@@ -41,11 +41,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $daysago = $eventDataArray['DateSelected'] * $eventDataArray['DaysSelected'];
 
     // pass ?current=asdasd to get the present time for testing purposes
-    if(!empty($_GET['current'])){
+    if (!empty($_GET['current'])) {
         $daysagotimestamp = time();
         echo "Present day, Present time \r\n";
-    }
-    else{
+    } else{
         $daysagotimestamp = time() - ($daysago * 60 * 60 * 24);
 
         echo "Working on step: {$workflowStep['stepID']}, time calculation: {time()} - $daysago = $daysagotimestamp / {date('Y-m-d H:i:s',$daysagotimestamp)}\r\n";
