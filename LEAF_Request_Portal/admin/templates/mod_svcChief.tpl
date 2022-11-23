@@ -165,134 +165,109 @@ function removeUser(groupID, userID) {
     });
 }
 
-function initiateWidget(serviceID, serviceName) {
-    $('#' + serviceID).on('keydown', function(e) {
-        if (e.keyCode === 13) {
-            $('#' + serviceID).click();
-        }
+function importUser(serviceID, selectedUserName) {
+    $.ajax({
+        type: 'POST',
+        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+        success: function(res) {
+            if(!isNaN(res)) {
+                addUser(serviceID, selectedUserName);
+            }
+            else {
+                alert(res);
+            }
+        },
+        cache: false
     });
-    $('#' + serviceID).on('click', function(serviceID) {
-            return function() {
-                $.ajax({
-                    type: 'GET',
-                    url: '../api/service/' + serviceID + '/members',
-                    success: function(res) {
-                        dialog.clear();
-                        let button_deleteGroup = '<div><button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
-                        if(serviceID > 0) {
-                            button_deleteGroup = '';
-                        }
-                        dialog.setContent(
-                            '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div></div>' +
-                            '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
-                        $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
-                        let counter = 0;
-                        for(let i in res) {
-                            // Check for active members to list
-                            if (res[i].active == 1) {
-                                if (res[i].backupID == null) {
-                                    let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
-                                    $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                                    // Check for Backups
-                                    for (let j in res) {
-                                        if (res[i].userName == res[j].backupID) {
-                                            $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
-                                        }
-                                    }
-                                    $('#removeMember_' + counter).on('click', function (userID) {
-                                        return function () {
-                                            removeUser(serviceID, userID);
-                                            dialog.hide();
-                                        };
-                                    }(res[i].userName));
-                                    counter++;
-                                }
+}
+
+function deleteService(serviceID) {
+    $.ajax({
+        type: 'DELETE',
+        url: "../api/service/" + serviceID + '?' +
+            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+        success: function(response) {
+            location.reload();
+        },
+        cache: false
+    });
+}
+
+function initiateModal(serviceID, serviceName) {
+    $.ajax({
+        type: 'GET',
+        url: '../api/service/' + serviceID + '/members',
+        success: function(res) {
+            dialog.clear();
+            let button_deleteGroup = '<div><button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
+            if(serviceID > 0) {
+                button_deleteGroup = '';
+            }
+            dialog.setContent(
+                '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div></div>' +
+                '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
+            $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
+            let counter = 0;
+            for(let i in res) {
+                // Check for active members to list
+                if (res[i].active == 1) {
+                    if (res[i].backupID == null) {
+                        let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
+                        $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                        // Check for Backups
+                        for (let j in res) {
+                            if (res[i].userName == res[j].backupID) {
+                                $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
                             }
                         }
+                        $('#removeMember_' + counter).on('click', function (userID) {
+                            return function () {
+                                removeUser(serviceID, userID);
+                                dialog.hide();
+                            };
+                        }(res[i].userName));
+                        counter++;
+                    }
+                }
+            }
 
-                        $('#deleteGroup_' + serviceID).on('click', function() {
-                            dialog_confirm.setContent('Are you sure you want to delete this service?');
-                            dialog_confirm.setSaveHandler(function() {
-                                $.ajax({
-                                    type: 'DELETE',
-                                    url: "../api/service/" + serviceID + '?' +
-                                        $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
-                                    success: function(response) {
-                                        location.reload();
-                                    },
-                                    cache: false
-                                });
-                            });
-                            dialog_confirm.show();
-                        });
-                        
-                        empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                        empSel.rootPath = '<!--{$orgchartPath}-->/';
-                        empSel.outputStyle = 'micro';
-                        empSel.initialize();
-                        // Update on any action
-                        dialog.setCancelHandler(function() {
-                            getMembers(serviceID);
-                        });
-                        dialog.setSaveHandler(function() {
-                            if(empSel.selection != '') {
-                                let selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                    data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                    success: function(res) {
-                                        if(!isNaN(res)) {
-                                            addUser(serviceID, selectedUserName);
-                                        }
-                                        else {
-                                            alert(res);
-                                        }
-                                    },
-                                    cache: false
-                                });
-                            }
-                            dialog.hide();
-                        });
-                        dialog_confirm.show();
-                    });
-
-                    empSel = new nationalEmployeeSelector('employeeSelector');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
-                    empSel.outputStyle = 'micro';
-                    empSel.initialize();
-                    // Update on any action
-                    dialog.setCancelHandler(function() {
-                        getMembers(serviceID);
-                    });
-                    dialog.setSaveHandler(function() {
-                        if(empSel.selection != '') {
-                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
-                            $.ajax({
-                                type: 'POST',
-                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                success: function(res) {
-                                    if(!isNaN(res)) {
-                                        addUser(serviceID, selectedUserName);
-                                    }
-                                    else {
-                                        alert(res);
-                                    }
-                                },
-                                cache: false
-                            });
-                        }
-                        dialog.hide();
-                    });
-
-                        dialog.show();
-                    },
-                    cache: false
+            $('#deleteGroup_' + serviceID).on('click', function() {
+                dialog_confirm.setContent('Are you sure you want to delete this service?');
+                dialog_confirm.setSaveHandler(function() {
+                    deleteService(serviceID);
                 });
-            };
+                dialog_confirm.show();
+            });
+
+            empSel = new nationalEmployeeSelector('employeeSelector');
+            empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+            empSel.rootPath = '<!--{$orgchartPath}-->/';
+            empSel.outputStyle = 'micro';
+            empSel.initialize();
+            // Update on any action
+            dialog.setCancelHandler(function() {
+                getMembers(serviceID);
+            });
+            dialog.setSaveHandler(function() {
+                if(empSel.selection != '') {
+                    let selectedUserName = empSel.selectionData[empSel.selection].userName;
+                    importUser(serviceID, selectedUserName);
+                }
+                dialog.hide();
+            });
+
+            dialog.show();
+        },
+        cache: false
+    });
+}
+
+function initiateWidget(serviceID, serviceName) {
+    $('#' + serviceID).on('click', function(serviceID) {
+        return function() {
+            initiateModal(serviceID, serviceName);
+        };
     }(serviceID));
 }
 
