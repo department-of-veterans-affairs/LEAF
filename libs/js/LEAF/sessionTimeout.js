@@ -84,6 +84,10 @@ function LeafSessionTimeout() {
 
         // logout when maxTime has been reached
         if (LeafSession_lastActiveTime + LeafSession_maxTime <= nowUnix) {
+            let relUrl = '.';
+            if(window.location.href.indexOf('/admin/') != -1) {
+                relUrl = '..';
+            }
             window.location = `${relUrl}/index.php?a=logout`;
         }
     }, 60000);
