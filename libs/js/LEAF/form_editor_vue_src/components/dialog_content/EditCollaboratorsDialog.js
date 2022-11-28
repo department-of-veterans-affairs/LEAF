@@ -109,7 +109,7 @@ export default {
         <h3>{{formNameStripped()}}</h3>
         <p>Collaborators have access to fill out data fields at any time in the workflow.</p>
         <p>This is typically used to give groups access to fill out internal-use fields.</p>
-        <div id="formPrivs">
+        <div id="formPrivs" style="margin-top: 1rem;">
             <template v-if="collaborators.length > 0">
                 <ul style="list-style-type:none; padding: 0; min-height: 30px;">
                     <li v-for="c in collaborators" :key="c.name + c.groupID">

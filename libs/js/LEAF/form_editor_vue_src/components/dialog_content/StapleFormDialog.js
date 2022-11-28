@@ -81,7 +81,7 @@ export default {
     template:`<div>
         <p>Stapled forms will show up on the same page as the primary form.</p>
         <p>The order of the forms will be determined by the forms' assigned sort values.</p>
-        <div id="mergedForms">
+        <div id="mergedForms" style="margin-top: 1rem;">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
                 <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_list_' + s.categoryID">
                     {{truncateText(s.categoryName) || 'Untitled'}}
