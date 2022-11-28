@@ -63,6 +63,10 @@ function LeafSessionAnnounce() {
 
         // logout when the session has been terminated elsewhere
         if (remote.lastAction == null) {
+            let relUrl = '.';
+            if(window.location.href.indexOf('/admin/') != -1) {
+                relUrl = '..';
+            }
             window.location = `${relUrl}/index.php?a=logout`;
         }
 
