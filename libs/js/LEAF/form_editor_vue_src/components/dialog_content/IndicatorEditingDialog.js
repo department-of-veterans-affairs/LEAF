@@ -30,7 +30,23 @@ export default {
                 raw_data: "Raw Data (for programmers)",
             },
             formatInfo: {
-                text: 'test text info' //<!--TODO: -->
+                text: 'A single input for short text entries.',
+                textarea: 'A large area for multiple lines of text and limited text formatting options.',
+                grid: 'A table format with rows and columns.  Additional rows can be added during data entry.',
+                number: 'A single input used to store numeric data.  Useful for information that will be used for calculations.',
+                currency: 'A single input used to store currency values in dollars to two decimal places.',
+                date: 'Embeds a datepicker.',
+                radio: 'Radio buttons allow a single selection from multiple options.  All of the question\'s options will display.',
+                checkbox: 'A single checkbox is typically used for confirmation.  The checkbox label text can be further customized.',
+                checkboxes: "Checkboxes will allow the selection of multiple options.  All of the question\'s options will display.",
+                multiselect: "Multi-Select format will allow the selection of several options from a selection box with a dropdown.  Only selected items will display.",
+                dropdown: "A dropdown menu will allow one selection from multiple options.  Only the selected option will display.",
+                fileupload: "File Attachment",
+                image: "Similar to file upload, but only image format files will be shown during selection",
+                orgchart_group: "Orgchart Group format is used to select a specific LEAF User Access Group",
+                orgchart_position: "Orgchart Position format is used to select a specific LEAF user by their position in the orgchart",
+                orgchart_employee: "Orgchart Employee format is used to select a specific LEAF user from the orgchart",
+                raw_data: "Raw Data is associated with Advanced Options, which can be used by programmers to run custom code during form data entry or review",
             },
             listForParentIDs: [],
             isLoadingParentIDs: true,
@@ -533,7 +549,10 @@ export default {
                         {{ showDetailedFormatInfo ? 'Hide' : 'Show'}} Details
                     </button>
                 </div>
-                <div v-if="showDetailedFormatInfo" id="formatDetails">{{ formatInfo[format]}}</div>
+                <div v-if="showDetailedFormatInfo" id="formatDetails" style="max-width:500px; font-size: 0.9rem; margin-bottom: 1rem;">
+                    <p><b>Format Information</b></p>
+                    {{ format !== '' ? formatInfo[format] : 'No format.  Indicators without a format are often used to provide additional information for the user.  They are often used for form section headers.' }}
+                </div>
             </div>
             <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox:</label>
