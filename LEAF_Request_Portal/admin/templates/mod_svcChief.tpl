@@ -56,6 +56,9 @@ function syncServices() {
         success: function(response) {
             dialog_simple.setContent(response);
         },
+        fail: function(error) {
+            console.log(error);
+        }
         cache: false
     });
     dialog_simple.setCancelHandler(function() {
@@ -120,6 +123,9 @@ function getMembers(groupID) {
                     populateMembers(groupID, response);
                     $('#members' + groupID).fadeIn();
                 },
+                fail: function(error) {
+                    console.log(error);
+                }
                 cache: false
             });
         },
@@ -146,6 +152,11 @@ function populateMembers(groupID, members) {
     }
 }
 
+/**
+ * Add user to portal
+ * @param groupID - ID of group
+ * @param userID - ID of user being added
+ */
 function addUser(groupID, userID) {
     $.ajax({
         type: 'POST',
@@ -156,6 +167,11 @@ function addUser(groupID, userID) {
     });
 }
 
+/**
+ * Remove user from portal.
+ * @param groupID - ID of group
+ * @param userID - ID of user being removed
+ */
 function removeUser(groupID, userID) {
     $.ajax({
         type: 'DELETE',
@@ -165,6 +181,11 @@ function removeUser(groupID, userID) {
     });
 }
 
+/**
+ * Import user from orgchart.
+ * @param serviceID - ID of service
+ * @param selectedUserName - Username being imported
+ */ 
 function importUser(serviceID, selectedUserName) {
     $.ajax({
         type: 'POST',
@@ -172,16 +193,23 @@ function importUser(serviceID, selectedUserName) {
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res) {
             if(!isNaN(res)) {
-                addUser(serviceID, selectedUserName);
+                addUser(serviceID, selectedUserName); // add identified user into portal.
             }
             else {
                 alert(res);
             }
         },
+        fail: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
 
+/**
+ * Delete given service.
+ * @param int serviceID - ID of the service
+ */
 function deleteService(serviceID) {
     $.ajax({
         type: 'DELETE',
@@ -190,10 +218,18 @@ function deleteService(serviceID) {
         success: function(response) {
             location.reload();
         },
+        fail: function(error) {
+            console.log(error);
+        },
         cache: false
     });
 }
 
+/**
+ * Build the modal for when the user selects a service.
+ * @param int serviceID - ID of service
+ * @param string serviceName - Name of the service
+ */ 
 function initiateModal(serviceID, serviceName) {
     $.ajax({
         type: 'GET',
@@ -259,10 +295,19 @@ function initiateModal(serviceID, serviceName) {
 
             dialog.show();
         },
+        fail: function(error) {
+            console.log(error);
+        },
         cache: false
     });
 }
 
+/**
+ * Initiate widgets for each service 
+ * @param serviceID - ID for service being represented
+ * @param serviceName - name of service being represented
+ * @return function
+ */
 function initiateWidget(serviceID, serviceName) {
     $('#' + serviceID).on('click', function(serviceID) {
         return function() {
@@ -315,6 +360,9 @@ function viewHistory(groupID){
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
         },
+        fail: function(error) {
+            console.log(error);
+        }
         cache: false
     });
 }
