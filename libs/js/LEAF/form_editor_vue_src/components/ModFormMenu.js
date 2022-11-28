@@ -137,6 +137,11 @@ export default {
                                 </button>
                             </li>
                             <li>
+                                <a href="./?a=formLibrary">
+                                LEAF Library<span>📘</span>
+                                </a>
+                            </li>
+                            <li>
                                 <button @click="openImportFormDialog">
                                 Import Form<span>📦</span>
                                 </button>
@@ -145,11 +150,6 @@ export default {
                                 <button @click="showRestoreFields">
                                 Restore Fields<span>♻️</span>
                                 </button>
-                            </li>
-                            <li>
-                                <a href="./?a=formLibrary">
-                                LEAF Library<span>📘</span>
-                                </a>
                             </li>
                         </ul>
                         <ul v-else id="form-editor-menu"
