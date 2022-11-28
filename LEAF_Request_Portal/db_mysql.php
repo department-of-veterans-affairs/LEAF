@@ -40,14 +40,12 @@ class DB
         $this->dbName = $database;
 
         $this->isConnected = true;
-        try
-        {
 
+        try {
             $pdo_options = [
                 // Error reporting mode of PDO. Can take one of the following values:
                 // PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_PERSISTENT => true
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ];
 
             $this->db = new PDO(
@@ -63,17 +61,17 @@ class DB
                     $this->db->rollBack();
                 }
             });
-        }
-        catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             trigger_error('DB conn: ' . $e->getMessage());
-            if(!$abortOnError) {
+
+            if (!$abortOnError) {
                 echo '<script>var min=5,max=10,timeWait=Math.ceil(Math.random()*(max-min))+min;function tryAgain(){timeWait--;let t=document.querySelector("#tryAgain");t.innerHTML="Loading in "+timeWait+" seconds...",t.style.pointerEvents="none",setTimeout(function(){timeWait>1?tryAgain():location.reload()},1e3)}</script>';
                 echo '<div style="background-color: white; font-family: \'Source Sans Pro\', helvetica;line-height: 200%; position: absolute; top: 50%; height: 200px; width: 750px; margin-top: -100px; left: 20%; font-size: 200%">⛈️ We are experiencing heavy database traffic<p style="margin-left: 54px">Please come back at your next convenience</p><button id="tryAgain" onclick="tryAgain()" style="font-size: 14pt; padding: 8px; margin-left: 54px">Try again now</button></div>';
                 echo '<!-- Database Error: ' . $e->getMessage() . ' -->';
                 http_response_code(503);
                 exit();
             }
+
             $this->isConnected = false;
         }
 
@@ -82,36 +80,35 @@ class DB
 
     public function __destruct()
     {
-        try {
-            $this->db = null;
-        } catch (Exception $e) {
-            $this->logError('Connection normal closed: '.$e);
-        }
-
-        if ($this->debug)
-        {
+        if ($this->debug) {
             echo '<pre>';
             print_r($this->log);
             echo 'Duplicate queries:<hr />';
+
             $dupes = array();
-            foreach ($this->log as $entry)
-            {
-                if (isset($entry['sql']))
-                {
+
+            foreach ($this->log as $entry) {
+                if (isset($entry['sql'])) {
                     $dupes[serialize($entry)]['sql'] = $entry['sql'];
                     $dupes[serialize($entry)]['vars'] = $entry['vars'];
                     $dupes[serialize($entry)]['counter'] = isset($dupes[serialize($entry)]['counter']) ? $dupes[serialize($entry)]['counter'] + 1 : 1;
                 }
             }
-            foreach ($dupes as $dupe)
-            {
-                if ($dupe['counter'] > 1)
-                {
+
+            foreach ($dupes as $dupe) {
+                if ($dupe['counter'] > 1) {
                     print_r($dupe);
                 }
             }
+
             echo '<hr />';
             echo "</pre><br />Time: {$this->time} sec<br />";
+        }
+
+        try {
+            $this->db = null;
+        } catch (Exception $e) {
+            $this->logError('Connection normal closed: '.$e);
         }
     }
 
@@ -217,7 +214,7 @@ class DB
         }
 
         if ($dry_run == false && $this->dryRun == false)
-        {            
+        {
             $query = $this->db->prepare($sql);
             try {
                 $query->execute($vars);
