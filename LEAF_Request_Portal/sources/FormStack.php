@@ -156,7 +156,7 @@ class FormStack
 
             foreach ($subform['packet'] as $indicator)
             {
-                $formIndicatorsAdded = $this->importIndicator($indicator, $subformCategoryID, null, $overwiteExisting);
+                $formIndicatorsAdded = $this->importIndicator($indicator, $subformCategoryID, null, $overwiteExisting, $formIndicatorsAdded);
             }
         }
 
