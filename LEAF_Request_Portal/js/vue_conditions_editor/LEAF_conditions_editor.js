@@ -19,7 +19,7 @@ const ConditionsEditor = Vue.createApp({
             showRemoveConditionModal: false,
             showConditionEditor: false,
             editingCondition: '',
-            enabledParentFormats: ['dropdown', 'multiselect']
+            enabledParentFormats: ['dropdown', 'multiselect', 'radio']
         }
     },
     beforeMount(){
@@ -225,9 +225,9 @@ const ConditionsEditor = Vue.createApp({
 
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
                 this.selectableParents = this.indicators.filter(i => {
+                    const parFormat = i.format?.split('\n')[0].trim();
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
-                            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                            (i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect') === 0);  //dropdowns, multiselect parent only
+                            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) && this.enabledParentFormats.includes(parFormat);
                 });
             }
             $.ajax({
@@ -739,8 +739,8 @@ const ConditionsEditor = Vue.createApp({
                             <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question</option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
-                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text -->
-                    <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && childFormat==='dropdown'"
+                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio -->
+                    <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
                         name="child-prefill-value-selector"
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)">
@@ -797,8 +797,8 @@ const ConditionsEditor = Vue.createApp({
                         </select>
                     </div>
                     <div>    
-                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
-                        <select v-if="parentFormat==='dropdown'"
+                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect, radio) -->
+                        <select v-if="parentFormat==='dropdown' || parentFormat==='radio'"
                             id="parent_compValue_entry"
                             @change="updateSelectedParentValue($event.target)">
                             <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    

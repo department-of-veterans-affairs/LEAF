@@ -1459,13 +1459,16 @@ class Form
                                                     break;
                                                 }
                                             }
-                                        } else if ($parentFormat === 'dropdown' && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                        } else if (($parentFormat === 'dropdown' || $parentFormat === 'radio')
+                                            && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                             $conditionMet = true;
                                         } 
                                         break;
                                     case '!=':
                                         if (($parentFormat === 'multiselect' && !array_intersect($currentParentDataValue, $conditionParentValue))
-                                            || ($parentFormat === 'dropdown' && $currentParentDataValue[0] !== $conditionParentValue[0])) {
+                                            || 
+                                            (($parentFormat === 'dropdown' || $parentFormat === 'radio')
+                                            && $currentParentDataValue[0] !== $conditionParentValue[0])) {
                                             $conditionMet = true;
                                         } 
                                         break;

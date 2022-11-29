@@ -35,7 +35,7 @@ var LeafForm = function(containerID) {
         postModifyCallback = func;
     }
 
-    function sanitize(input){
+    function sanitize(input=''){
         input = input.replace(/&/g, '&amp;');
         input = input.replace(/</g, '&lt;');
         input = input.replace(/>/g, '&gt;');
@@ -46,7 +46,7 @@ var LeafForm = function(containerID) {
 
     
     function handleConditionalIndicators(formConditions = {}, dialog = null) {
-        const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
+        const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio'];
         const formConditionsByChild = formConditions;
         let currentChildInfo = {};
         
@@ -151,11 +151,22 @@ var LeafForm = function(containerID) {
             elEmptyOption.selected = true;
         }
 
+        const getCurrentEnteredValue = (pFormat, pIndID) => {
+            let val = '';
+            if (pFormat==='radio') {
+                val = sanitize(document.querySelector(`input[id^="${pIndID}_radio"]:checked`)?.value.trim()) || '';
+            } else { //multisel, dropdown
+                val = sanitize(document.getElementById(pIndID)?.value.trim()) || '';
+            }
+            return val;
+        }
+
         //conditions to assess per child
         const makeComparisons = (childID, arrConditions)=> {
             let prefillValue = '';
             const elJQChildID = $('#' + childID);
-            
+            const elCheckedRadioBtn = $(`input[id^="${childID}_radio"]:checked`);
+
             handleChildValidators(childID);
 
             arrConditions.forEach(cond => {
@@ -176,7 +187,7 @@ var LeafForm = function(containerID) {
                     case '==':
                         arrCompVals.forEach(entry => {
                             let id = Object.keys(entry)[0];
-                            let val = sanitize(document.getElementById(id).value.trim()) || '';
+                            let val = getCurrentEnteredValue(cond.parentFormat, id);
 
                             if(!isMultiselectParent) {
                                 if (entry[id] === val) {
@@ -202,7 +213,7 @@ var LeafForm = function(containerID) {
                     case '!=':
                         arrCompVals.forEach(entry => {
                             let id = Object.keys(entry)[0];
-                            let val = sanitize(document.getElementById(id).value.trim()) || '';
+                            let val = getCurrentEnteredValue(cond.parentFormat, id);
 
                             if(!isMultiselectParent) {
                                 if (entry[id] !== val) {
@@ -241,6 +252,7 @@ var LeafForm = function(containerID) {
                     case 'hide':
                         if (comparisonResult === true) {
                             elJQChildID.val('');
+                            elCheckedRadioBtn.val('');
                             if (cond.childFormat === 'multiselect') {
                                 clearMultiSelectChild(elJQChildID, childID);
                             }
@@ -258,6 +270,7 @@ var LeafForm = function(containerID) {
                             $('.blockIndicator_' + childID).show();
                         } else {
                             elJQChildID.val('');
+                            elCheckedRadioBtn.val('');
                             if (cond.childFormat === 'multiselect') {
                                 clearMultiSelectChild(elJQChildID, childID);
                             }
@@ -278,14 +291,19 @@ var LeafForm = function(containerID) {
                                 elSelectChoices?.disable();
                             } else {
                                 const text = $('<div/>').html(prefillValue).text().trim();
+                                //inputs with id of indicator (text, single dropdown)
                                 elJQChildID.val(text);
                                 elJQChildID.attr('disabled', 'disabled');
+                                //radio
+                                $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true);
+                                $(`input[id^="${childID}_radio"]:not([value="${text}"])`).prop("disabled", true);
                             }
                             
                         } else {
+                            //just re-enable selection/editing.  resetting causes issues here.
                             elJQChildID.removeAttr('disabled');
                             elJQChildID[0]?.choicesjs?.enable();
-                            //just re-enable selection/editing.  resetting causes issues here.
+                            $(`input[id^="${childID}_radio"]`).prop("disabled", false);
                         }
                         break; 
                     default:
@@ -308,7 +326,18 @@ var LeafForm = function(containerID) {
             const formConditions = formConditionsByChild[entry].conditions || [];
             formConditions.forEach(c => {
                 //if the parent is not there (archived or deleted), do not add it
-                if (document.getElementById(c.parentIndID) !== null) {
+                //multisel, dropdown, text use input id=indID.
+                //radio buttons use indID_radio1, indID_radio2 etc
+                let parentEl = null;
+                switch(c.parentFormat) {
+                    case 'radio':
+                        parentEl = document.querySelector(`input[id^="${c.parentIndID}_radio"]`);
+                        break;
+                    default:
+                        parentEl = document.getElementById(c.parentIndID);
+                        break;
+                }
+                if (parentEl !== null) {
                     parentQuestionIDs.push(c.parentIndID);
                 }
             });
@@ -316,7 +345,9 @@ var LeafForm = function(containerID) {
         parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
         parentQuestionIDs.forEach(id => {
             checkConditions(null, null, id);
-            $('#'+id).on('change', checkConditions); //does not call with addEventListener (Chosen plugin?)
+            //input depends on format
+            $('#'+id).on('change', checkConditions); //jq should not err if element is not there
+            $(`input[id^="${id}_radio"]`).on('change', checkConditions);
         });
         
     }
