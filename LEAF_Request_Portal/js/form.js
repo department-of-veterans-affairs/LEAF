@@ -62,7 +62,7 @@ var LeafForm = function(containerID) {
         }
         //validator ref for required question in a hidden state
         const hideShowValidator = function(){return false};
-        
+
         const checkConditions = (event, selected, parID=0)=> {
             const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
 
@@ -159,7 +159,7 @@ var LeafForm = function(containerID) {
             return val;
         }
 
-        //conditions to assess per child
+        //conditions to check for specific child
         const makeComparisons = (childID, arrConditions)=> {
             let prefillValue = '';
             const elJQChildID = $('#' + childID);
@@ -320,30 +320,27 @@ var LeafForm = function(containerID) {
             });
         }
 
-        //get the IDs of the questions that need listeners
-        let parentQuestionIDs = [];
+        //confirm that the parent indicators exist on the form (in case of archive/deletion)
+        let confirmedParElsByIndID = [];
         for (let entry in formConditionsByChild) {
             const formConditions = formConditionsByChild[entry].conditions || [];
             formConditions.forEach(c => {
-                //if the parent is not there (archived or deleted), do not add it
-                //multisel, dropdown, text use input id=indID.
-                //radio buttons use indID_radio1, indID_radio2 etc
                 let parentEl = null;
                 switch(c.parentFormat) {
-                    case 'radio':
+                    case 'radio': //radio buttons use indID_radio1, indID_radio2 etc
                         parentEl = document.querySelector(`input[id^="${c.parentIndID}_radio"]`);
                         break;
-                    default:
+                    default: //multisel, dropdown, text use input id=indID.
                         parentEl = document.getElementById(c.parentIndID);
                         break;
                 }
                 if (parentEl !== null) {
-                    parentQuestionIDs.push(c.parentIndID);
+                    confirmedParElsByIndID.push(c.parentIndID);
                 }
             });
         }
-        parentQuestionIDs = Array.from(new Set(parentQuestionIDs));
-        parentQuestionIDs.forEach(id => {
+        confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
+        confirmedParElsByIndID.forEach(id => {
             checkConditions(null, null, id);
             //input depends on format
             $('#'+id).on('change', checkConditions); //jq should not err if element is not there
