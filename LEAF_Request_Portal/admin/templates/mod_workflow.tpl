@@ -293,7 +293,7 @@ function addEmailReminderDialog(stepID){
             $("#edit_dates_selected").val(dateSelected);
             editEmailDateSelected();
             $("#edit_dates_days").val(daysSelected);
-
+            emailSendsInTimeframe();
         } else {
             $('#edit_email_check').prop('checked', false);
         }
@@ -305,7 +305,7 @@ function editEmailChecked() {
     let emailChecked = document.getElementById("edit_email_check");
     let editSelectdatesString = "";
     if (emailChecked.checked) {
-        editSelectdatesString += '<br><label for="id">Please choose a time span.</label> <br>';
+        editSelectdatesString += '<br><label for="id">Please choose a time frame.</label> <br>';
         editSelectdatesString += '<select id="edit_dates_selected" onchange="editEmailDateSelected()">';
         editSelectdatesString += '<option value="">Select Option</option>';
         editSelectdatesString += '<option value="1">Day/Days</option>';
@@ -326,7 +326,7 @@ function editEmailDateSelected() {
         case 1:
             let days = 31;
             days_display += '<br><label for="edit_dates_days">How many Days?</label><br>';
-            days_display += '<select id="edit_dates_days">';
+            days_display += '<select id="edit_dates_days" onchange="emailSendsInTimeframe()">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < days; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -337,7 +337,7 @@ function editEmailDateSelected() {
         case 7:
             let weeks = 53;
             days_display += '<br><label for="edit_dates_days">How many Weeks?</label><br>';
-            days_display += '<select id="edit_dates_days">';
+            days_display += '<select id="edit_dates_days" onchange="emailSendsInTimeframe()">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < weeks; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -348,7 +348,7 @@ function editEmailDateSelected() {
         case 30:
             let months = 13;
             days_display += '<br><label for="edit_dates_days">How many Months?</label><br>';
-            days_display += '<select id="edit_dates_days">';
+            days_display += '<select id="edit_dates_days" onchange="emailSendsInTimeframe()">';
             days_display += '<option value="">Select Option</option>';
             for (let index = 1; index < months; index++) {
                 days_display += '<option value="' + index + '">' + index + "</option>";
@@ -360,10 +360,33 @@ function editEmailDateSelected() {
             emptyAlert("edit_dates_selected");
             break;
     }
-    const daySelect = document.createElement("div");
-    daySelect.setAttribute("id", "edit_date_days");
-    document.getElementById("edit_email_container").appendChild(daySelect);
+
+    if (document.getElementById("edit_date_days") === null ){
+        const daySelect = document.createElement("div");
+        daySelect.setAttribute("id", "edit_date_days");
+        document.getElementById("edit_email_container").appendChild(daySelect);
+    }
+
     document.getElementById("edit_date_days").innerHTML = days_display;
+}
+
+function emailSendsInTimeframe() {
+    if (document.getElementById("sends_in_timeframe") === null ){
+        const daySelect = document.createElement("div");
+        daySelect.setAttribute("id", "sends_in_timeframe");
+        document.getElementById("edit_email_container").appendChild(daySelect);
+    }
+
+    let dateSelected = parseInt(document.getElementById('edit_dates_selected').value);
+    let daysSelected = parseInt(document.getElementById('edit_dates_days').value);
+
+    if (dateSelected > 0 && daysSelected > 0) {
+        let dayCount = dateSelected * daysSelected;
+        let dayText = ((dayCount > 1) ? 'Days' : 'Day')
+        let sends_in_timeframe =  `<hr>Email reminders will go out every ${dayCount} ${dayText}`
+        document.getElementById("sends_in_timeframe").innerHTML = sends_in_timeframe;
+    }
+
 }
 
 /**
