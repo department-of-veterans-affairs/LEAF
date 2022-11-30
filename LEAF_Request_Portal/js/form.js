@@ -45,10 +45,23 @@ var LeafForm = function(containerID) {
     }
 
     
-    function handleConditionalIndicators(formConditions = {}, dialog = null) {
+    function handleConditionalIndicators(formConditionsByChild = {}, dialog = null) {
         const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio'];
-        const formConditionsByChild = formConditions;
-        let currentChildInfo = {};
+
+        let childRequiredValidators = {};
+        const handleChildValidators = (childID)=> {
+            if (!childRequiredValidators[childID]) {
+                childRequiredValidators[childID] = {
+                    validator: formRequired[`id${childID}`]?.setRequired
+                }
+            }
+            //reset the validator, if there is one, from the stored value
+            if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
+                dialog.requirements[childID] = childRequiredValidators[childID].validator;
+            }
+        }
+        //validator ref for required question in a hidden state
+        const hideShowValidator = function(){return false};
         
         const checkConditions = (event, selected, parID=0)=> {
             const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
@@ -109,21 +122,6 @@ var LeafForm = function(containerID) {
                 }
             }
             return conditionsLinkedToChild;
-        }
-        //use as ref for comparisons so that the validators can be reset
-        const hideShowValidator = function(){return false};
-
-
-        const handleChildValidators = (childID)=> {
-            if (!currentChildInfo[childID]) { //if it is new define key and store validator
-                currentChildInfo[childID] = {
-                    validator: formRequired[`id${childID}`]?.setRequired
-                }
-            } 
-            //reset the validator if there is one from the stored value
-            if (currentChildInfo[childID].validator !== undefined && dialog !== null) {
-                dialog.requirements[childID] = currentChildInfo[childID].validator;
-            }
         }
 
         const valIncludesMultiselOption = (selectedOptions = [], arrOptions = []) => {
@@ -258,7 +256,7 @@ var LeafForm = function(containerID) {
                             }
                             //if this is a required question, re-point validator
                             $('.blockIndicator_' + childID).hide();
-                            if (currentChildInfo[childID].validator !== undefined && dialog !== null) {
+                            if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
                                 dialog.requirements[childID] = hideShowValidator;
                             }
                         } else {
@@ -275,7 +273,7 @@ var LeafForm = function(containerID) {
                                 clearMultiSelectChild(elJQChildID, childID);
                             }
                             $('.blockIndicator_' + childID).hide();
-                            if (currentChildInfo[childID].validator !== undefined && dialog !== null) {
+                            if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
                                 dialog.requirements[childID] = hideShowValidator;
                             }
                         }
@@ -310,7 +308,9 @@ var LeafForm = function(containerID) {
                         console.log(cond.selectedOutcome);
                         break;
                 }
+                //chain updates
                 elJQChildID.trigger('change');
+                $(`input[id^="${childID}_radio"]`).trigger('change');
                 if (chosenShouldUpdate) {
                     const val = elJQChildID.val();
                     elJQChildID.chosen().val(val);
