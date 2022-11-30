@@ -275,12 +275,12 @@ function initiateModal(serviceID = 0, serviceName = '') {
             url: '../api/service/' + serviceID + '/members',
             success: function(res) {
                 dialog.clear();
-                let button_deleteGroup = '<div><button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
+                let button_deleteGroup = '<button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button>';
                 if(serviceID > 0) {
                     button_deleteGroup = '';
                 }
                 dialog.setContent(
-                    '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div></div>' +
+                    '<div class="leaf-float-right"><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div>' +
                     '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                 let counter = 0;
