@@ -66,13 +66,13 @@ var LeafForm = function(containerID) {
         const checkConditions = (event, selected, parID=0)=> {
             const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
 
-            const linkedParentConditions = getConditionsLinkedToParent(parentElID);
-            let uniqueChildIDs = linkedParentConditions.map(c => c.childIndID);
+            const linkedParentConditions = getConditionsLinkedToParent(parentElID); //get all children directly controlled by this parent, and their ids
+            let uniqueChildIDs = linkedParentConditions.map(c => parseInt(c.childIndID));
             uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
 
             let linkedChildConditions = [];
             uniqueChildIDs.forEach(id => {
-                linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID));
+                linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID)); //get all other possible parents controlling the above children
             });
 
             const allConditions = [...linkedParentConditions, ...linkedChildConditions];
@@ -88,8 +88,12 @@ var LeafForm = function(containerID) {
                 }
             }, 0);
         }
-
-        const getConditionsLinkedToParent = (parentID)=> {
+        /**
+         *
+         * @param {number} parentID
+         * @returns array of conditions that have the given value for their parentIndID
+         */
+        const getConditionsLinkedToParent = (parentID=0)=> {
             let conditionsLinkedToParent = [];
             for (let entry in formConditionsByChild) {
                 const formConditions = formConditionsByChild[entry].conditions || [];
@@ -106,10 +110,16 @@ var LeafForm = function(containerID) {
             }
             return conditionsLinkedToParent;
         }
-        const getConditionsLinkedToChild = (childID, currParentID)=> {
+        /**
+         *
+         * @param {number} childID id of a child condition
+         * @param {number} currParentID the id of the controller that was updated
+         * @returns array of all other parents that control the given child
+         */
+        const getConditionsLinkedToChild = (childID=0, currParentID=0)=> {
             let conditionsLinkedToChild = [];
             for (let entry in formConditionsByChild) {
-                if (entry.slice(2) === childID) {
+                if (parseInt(entry.slice(2)) === parseInt(childID)) {
                     const formConditions = formConditionsByChild[entry].conditions || [];
                     formConditions.map(c => {
                         const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
