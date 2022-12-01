@@ -4,8 +4,8 @@
  */
 
 $currDir = dirname(__FILE__);
-include $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
+include $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../sources/config.php';
 
 $config = new Orgchart\Config();
 

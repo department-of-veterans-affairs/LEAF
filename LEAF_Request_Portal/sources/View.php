@@ -47,7 +47,7 @@ class View
     public function buildViewStatus(int $recordID): array
     {
         // check privileges
-        require_once 'form.php';
+        require_once 'Form.php';
         $form = new Form($this->db, $this->login);
 
         if (!$form->hasReadAccess($recordID)) {

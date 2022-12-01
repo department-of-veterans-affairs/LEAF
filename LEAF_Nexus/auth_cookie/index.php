@@ -11,8 +11,8 @@
 
 include '../globals.php';
 include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include '../sources/db_mysql.php';
+include '../sources/config.php';
 
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -70,7 +70,7 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), 
+                    ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)

@@ -8,8 +8,9 @@
     Date Created: September 19, 2008
 
 */
-include_once __DIR__ . '/../libs/smarty/Smarty.class.php';
+require_once __DIR__ . '/../../libs/smarty/Smarty.class.php';
 require_once 'VAMC_Directory.php';
+require_once 'DB_Config.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -35,6 +36,8 @@ class Email
     private $position;
 
     private $group;
+
+    private $employee;
 
     private $orgchartInitialized = false;
 
@@ -126,10 +129,9 @@ class Email
     /**
      * Add content into template variable then into template file
      * This result will then be added into the object variable as HTML output
-     * @param $objVar       - private variable in Email object
-     * @param $strContent   - content to add to template
-     * @param $tplVar       - variable within template
-     * @param $tplFile      = template file name
+     * @param string $strContent   - content to add to template
+     * @param string $tplVar       - variable within template
+     * @param string $tplFile      = template file name
      */
     public function setContent($tplFile, $tplVar = '', $strContent = '') {
         if($tplVar != '') {
@@ -305,13 +307,15 @@ class Email
 
         if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN')
         {
-            $shell = new COM('WScript.Shell');
+            $shell = new \COM('WScript.Shell');
             $shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
         }
         else
         {
             exec("php {$currDir}/mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
+
+        return true;
     }
 
     /**
@@ -327,27 +331,27 @@ class Email
         }
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Config.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         }
         if (!class_exists('Orgchart\Login'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Login.php';
         }
         if (!class_exists('Orgchart\Employee'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
         }
         if (!class_exists('Orgchart\Position'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Group'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         }
         $config = new Orgchart\Config;
         $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -360,7 +364,7 @@ class Email
     }
 
     /**
-     * Initialize portal db object 
+     * Initialize portal db object
      * @return void
      */
     function initPortalDB()
@@ -372,7 +376,7 @@ class Email
         }
         if (!class_exists('DB_Config'))
         {
-            include 'db_config.php';
+            include 'DB_Config.php';
         }
 
         $db_config = new DB_Config;
@@ -392,7 +396,7 @@ class Email
         }
         if (!class_exists('DB_Config'))
         {
-            include 'db_config.php';
+            include 'DB_Config.php';
         }
 
         $nexus_config = new Config;
@@ -604,7 +608,6 @@ class Email
             if ($emailTemplateID < 2)
                 $this->setTemplateByID($emailTemplateID);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
@@ -644,7 +647,7 @@ class Email
 
                     // special case for a person designated by the requestor
                     case -1:
-                        require_once 'form.php';
+                        require_once 'Form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -685,7 +688,7 @@ class Email
 
                     // special case for a group designated by the requestor
                     case -3:
-                        require_once 'form.php';
+                        require_once 'Form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -725,7 +728,6 @@ class Email
 
             $this->setTemplateByID($emailTemplateID);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             // Get user email and send

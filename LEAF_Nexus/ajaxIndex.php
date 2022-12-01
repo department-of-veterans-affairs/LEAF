@@ -16,8 +16,8 @@ error_reporting(E_ERROR);
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
+include './sources/db_mysql.php';
+include './sources/config.php';
 include './sources/Exception.php';
 
 $config = new Orgchart\Config();
@@ -173,13 +173,13 @@ switch ($action) {
                 $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
                 $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');;
             }
-    
-            
+
+
             $t_form->assign('history', $resHistory);
 
             $t_form->display('view_history.tpl');
         }
-        
+
         break;
     default:
         /*

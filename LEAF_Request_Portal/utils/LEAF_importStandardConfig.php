@@ -2,8 +2,8 @@
 ini_set('display_errors', 0); // Set to 1 to display errors
 
 include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include '../sources/db_mysql.php';
+include '../sources/DB_Config.php';
 
 $debug = false;
 $db_config = new DB_Config();

@@ -46,10 +46,10 @@ class VAMC_Directory
     public function __construct()
     {
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/' . Config::$orgchartPath . '/config.php';
-        require_once $currDir . '/' . Config::$orgchartPath . '/sources/Employee.php';
-        require_once $currDir . '/' . Config::$orgchartPath . '/sources/Group.php';
-        require_once $currDir . '/' . Config::$orgchartPath . '/sources/Login.php';
+        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Config.php';
+        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
+        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Login.php';
         $config = new Orgchart\Config;
         $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $login = new Orgchart\Login($oc_db, $oc_db);
@@ -127,7 +127,7 @@ class VAMC_Directory
             $tdata['Lname'] = $result['lastName'];
             $tdata['Fname'] = $result['firstName'];
 
-            if ($getGroups) 
+            if ($getGroups)
             {
                 $tdata['groups'] = $this->Employee->listGroups($result['empUID']);
             }

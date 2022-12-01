@@ -10,9 +10,9 @@
 */
 
 include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include '../sources/Login.php';
+include '../sources/db_mysql.php';
+include '../sources/DB_Config.php';
 
 $db_config = new DB_Config();
 
@@ -73,7 +73,7 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), 
+                    ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
@@ -116,7 +116,7 @@ if (isset($_COOKIE['REMOTE_USER']))
 function decryptUser($src){
   $corrected = preg_replace("[^0-9a-fA-F]", "", $src);
   $crypted_token = pack("H".strlen($corrected), $corrected);
-  
+
   list($crypted_token, $enc_iv) = explode("::", $crypted_token);
   $cipher_method = 'aes-128-ctr';
   $enc_key = openssl_digest(CIPHER_KEY, 'SHA256', TRUE);

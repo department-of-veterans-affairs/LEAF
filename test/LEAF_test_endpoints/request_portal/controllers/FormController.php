@@ -3,11 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once __DIR__ . '/../../../../LEAF_Request_Portal/form.php';
+require_once __DIR__ . '/../../../../LEAF_Request_Portal/sources/Form.php';
 
 /**
  * FormController defines endpoints for testing
- * 
+ *
  * @version Release: 1.0
  */
 class FormController extends RESTfulResponse
@@ -64,7 +64,7 @@ class FormController extends RESTfulResponse
 
             return $res;
         });
-        
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

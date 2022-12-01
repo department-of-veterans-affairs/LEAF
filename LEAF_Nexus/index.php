@@ -20,8 +20,8 @@ if (false)
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
+include './sources/db_mysql.php';
+include './sources/config.php';
 
 if (!class_exists('XSSHelpers'))
 {

@@ -6,8 +6,9 @@
 $version = 'PUBLIC';
 
 $currDir = dirname(__FILE__);
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
+include_once $currDir . '/../globals.php';
+include_once $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../sources/DB_Config.php';
 
 $config = new DB_Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

@@ -4,8 +4,8 @@
  */
 
 include 'globals.php';
-include 'db_mysql.php';
-include 'config.php';
+include './sources/db_mysql.php';
+include './sources/config.php';
 include './sources/Login.php';
 
 if (!class_exists('XSSHelpers'))

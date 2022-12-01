@@ -13,8 +13,8 @@ if (false)
 
 include '../globals.php';
 include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include '../sources/db_mysql.php';
+include '../sources/config.php';
 require 'RESTfulResponse.php';
 require '../sources/Exception.php';
 require 'ControllerMap.php';

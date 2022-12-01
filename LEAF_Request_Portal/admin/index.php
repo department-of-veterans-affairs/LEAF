@@ -19,9 +19,9 @@ if (false)
 
 include '../globals.php';
 include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include '../sources/Login.php';
+include '../sources/db_mysql.php';
+include '../sources/DB_Config.php';
 include '../form.php';
 
 if (!class_exists('XSSHelpers'))

@@ -4,7 +4,7 @@
  */
 
 require '../sources/Note.php';
-require '../form.php';
+require '../sources/Form.php';
 
 if (!class_exists('XSSHelpers'))
 {

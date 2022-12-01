@@ -15,8 +15,8 @@ define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
 
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
+include_once $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../sources/config.php';
 include_once $currDir . '/../globals.php';
 include_once $currDir . '/../sources/Login.php';
 
@@ -162,7 +162,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     		WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
 
     $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql,$localEmployeeUsernames);
-	
+
     // get local empuids
     $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
     $localEmpUIDs = $db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
@@ -171,7 +171,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     foreach ($localEmpUIDs as $localUsername) {
         $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
     }
-	
+
     //if for some reason there is no data, we need to stop right there.
     if(empty($orgEmployeeRes)){
         return FALSE;
@@ -193,7 +193,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         ];
 
     }
-	
+
     $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
     $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (".implode(",",array_fill(1, count($localDeletedEmployees), '?')).")";
 
@@ -206,9 +206,9 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-    $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp 
-    				FROM employee_data 
-				LEFT JOIN employee USING (empUID) 
+    $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp
+    				FROM employee_data
+				LEFT JOIN employee USING (empUID)
 				WHERE empUID IN ('".implode("','", $nationalEmpUIDs)."') AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
@@ -224,7 +224,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach($orgEmployeeDataRes as $orgEmployeeData){
-	    
+
         $localEmployeeDataArray[] = [
                  'empUID' => $localEmpArray[$orgEmployeeData['userName']],
                  'indicatorID' => $orgEmployeeData['indicatorID'],

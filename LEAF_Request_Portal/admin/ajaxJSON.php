@@ -12,9 +12,10 @@
 error_reporting(E_ERROR);
 
 include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include '../sources/Login.php';
+include '../sources/db_mysql.php';
+include '../sources/DB_Config.php';
+require '../sources/Group.php';
 
 $db_config = new DB_Config();
 $config = new Config();
@@ -37,15 +38,13 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        require 'Group.php';
-
         $group = new Group($db, $login);
 
         echo json_encode($group->getMembers($_GET['groupID']));
 
         break;
     case 'directory_lookup':
-        require '../VAMC_Directory.php';
+        require '../sources/VAMC_Directory.php';
         $dir = new VAMC_Directory();
         $results = $dir->search($_GET['query']);
 

@@ -16,6 +16,7 @@ if(!class_exists('DataActionLogger'))
 {
     require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
 }
+require_once 'VAMC_Directory.php';
 
 class Service
 {
@@ -348,7 +349,6 @@ class Service
         $members = array();
         if (count($res) > 0)
         {
-            require_once '../VAMC_Directory.php';
             $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
@@ -431,8 +431,6 @@ class Service
      */
     private function getEmployeeDisplay($employeeID)
     {
-        require_once '../VAMC_Directory.php';
-
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 

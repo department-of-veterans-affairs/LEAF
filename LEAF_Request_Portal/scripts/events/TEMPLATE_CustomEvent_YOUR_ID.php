@@ -11,11 +11,11 @@
 class CustomEvent_[YOUR EVENT ID]
 {
     private $db;        // Object, Database connection
-    private $login;     // Object, Login information for the current user 
+    private $login;     // Object, Login information for the current user
     private $dir;       // Object, Phone directory lookup
     private $email;     // Object, Email control
     private $eventInfo; // Array, The event info that triggers this event
-                        //   (recordID, workflowID, stepID, actionType, comment) 
+                        //   (recordID, workflowID, stepID, actionType, comment)
     private $siteRoot;  // String, URL to the root directory
 
     function __construct($db, $login, $dir, $email, $siteRoot, $eventInfo)
@@ -35,16 +35,16 @@ class CustomEvent_[YOUR EVENT ID]
     public function execute()
     {
         // Your custom event goes here. Below is an example of an email notification
-        
+
         // Retrieve the service name
         $vars = array(':recordID' => $this->eventInfo['recordID']);
         $record = $this->db->prepared_query('SELECT * FROM records
         											LEFT JOIN services USING (serviceID)
         											WHERE recordID=:recordID', $vars);
 
-        include_once '../form.php'; // events are invoked from ./api/, so the context is ./api
+        include_once '../sources/Form.php'; // events are invoked from ./api/, so the context is ./api
         $form = new Form($this->db, $this->login);
-        
+
         // Get data from a field
         $data_numFTE = $form->getIndicator(230, 1, $this->eventInfo['recordID']);
         $value = $data_numFTE[230]['value'];

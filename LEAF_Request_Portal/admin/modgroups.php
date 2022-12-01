@@ -3,11 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../VAMC_Directory.php';
+require '../sources/VAMC_Directory.php';
 
 include '../globals.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include '../sources/db_mysql.php';
+include '../sources/DB_Config.php';
 
 if (!class_exists('XSSHelpers'))
 {

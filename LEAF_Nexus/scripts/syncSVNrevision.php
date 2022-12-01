@@ -6,8 +6,8 @@
 $version = 'PUBLIC';
 
 $currDir = dirname(__FILE__);
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
+include_once $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../sources/config.php';
 
 $config = new Orgchart\Config();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

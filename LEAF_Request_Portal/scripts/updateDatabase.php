@@ -14,8 +14,9 @@ else
 }
 $currDir = dirname(__FILE__);
 
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
+include_once $currDir . '/../globals.php';
+include_once $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../sources/DB_Config.php';
 
 $db_config = new DB_Config();
 $config = new Config();

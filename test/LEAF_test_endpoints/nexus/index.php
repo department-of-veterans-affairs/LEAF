@@ -7,8 +7,8 @@ error_reporting(E_ERROR);
 
 include_once __DIR__ . '/../../../LEAF_Nexus/globals.php';
 include_once __DIR__ . '/../../../LEAF_Nexus/sources/Login.php';
-include_once __DIR__ . '/../../../LEAF_Nexus/db_mysql.php';
-include_once __DIR__ . '/../../../LEAF_Nexus/config.php';
+include_once __DIR__ . '/../../../LEAF_Nexus/sources/db_mysql.php';
+include_once __DIR__ . '/../../../LEAF_Nexus/sources/config.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/api/RESTfulResponse.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/sources/Exception.php';
 require_once __DIR__ . '/../../../LEAF_Nexus/api/ControllerMap.php';

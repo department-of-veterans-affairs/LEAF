@@ -11,9 +11,9 @@ header('Access-Control-Allow-Origin: *');
 error_reporting(E_ERROR);
 
 include '../../globals.php';
-include '../Login.php';
-include '../../db_mysql.php';
-include '../../db_config.php';
+include '../../sources/Login.php';
+include '../../sources/db_mysql.php';
+include '../../sources/DB_Config.php';
 require '../../api/RESTfulResponse.php';
 require '../../sources/Exception.php';
 require '../../api/ControllerMap.php';

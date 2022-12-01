@@ -17,9 +17,10 @@ error_reporting(E_ERROR);
 
 include '../globals.php';
 include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+include '../sources/Login.php';
+include '../sources/db_mysql.php';
+include '../sources/DB_Config.php';
+require '../sources/Group.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -63,7 +64,6 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     case 'add_user_old':
         checkToken();
-        require 'Group.php';
 
         $group = new Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
@@ -71,7 +71,6 @@ switch ($action) {
         break;
     case 'remove_user_old':
         checkToken();
-        require 'Group.php';
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
@@ -84,7 +83,6 @@ switch ($action) {
         break;
     case 'add_user':
           checkToken();
-           require 'Group.php';
 
            $group = new Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
@@ -92,7 +90,6 @@ switch ($action) {
            break;
     case 'remove_user':
            checkToken();
-           require 'Group.php';
 
            $group = new Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
@@ -101,7 +98,7 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require '../form.php';
+            require '../sources/Form.php';
             $form = new Form($db, $login);
 
             $t_form = new Smarty;
@@ -203,7 +200,7 @@ switch ($action) {
         }
 
         /*
-            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            First time around, gethistoryslice = false, so this loads view_history_all which calls
             this method again which loads view_history & displays it appropriately in the paginator
         */
         if($gethistoryslice)
@@ -215,10 +212,10 @@ switch ($action) {
                 //special case for getting group history, since the only group tracked in portal is sysadmin
                 $adminHistory = $type->getHistory(1);
                 $adminHistory = $adminHistory ?? array();
-                
+
                 $allGroupHistory = $type->getHistory(null);
                 $allGroupHistory = $allGroupHistory ?? array();
-    
+
                 $totalHistory = array_merge($allGroupHistory, $adminHistory);
                 $type = $orgchartGroup;
             }
@@ -247,7 +244,7 @@ switch ($action) {
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
+
         if($tz == null){
             $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))

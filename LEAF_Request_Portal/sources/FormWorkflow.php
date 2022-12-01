@@ -10,8 +10,9 @@
 
 if (!class_exists('XSSHelpers'))
 {
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
+require_once 'VAMC_Directory.php';
 
 class FormWorkflow
 {
@@ -69,7 +70,7 @@ class FormWorkflow
     public function getCurrentSteps()
     {
         // check privileges
-        require_once 'form.php';
+        require_once 'Form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($this->recordID))
         {
@@ -158,7 +159,6 @@ class FormWorkflow
                         }
                     }
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
@@ -266,7 +266,7 @@ class FormWorkflow
     public function getLastAction()
     {
         // check privileges
-        require_once 'form.php';
+        require_once 'Form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($this->recordID))
         {
@@ -313,7 +313,6 @@ class FormWorkflow
         if (isset($res[0])
             && $res[0]['dependencyID'] == -1)
         {
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $approver = $dir->lookupLogin($res[0]['userID']);
@@ -353,7 +352,6 @@ class FormWorkflow
 	    									WHERE recordID=:recordID', $vars);
 
         if(count($res) > 0) {
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $signedSteps = [];
@@ -460,7 +458,7 @@ class FormWorkflow
 
                     break;
                 case -1: // dependencyID -1 : person designated by requestor
-                    require_once 'form.php';
+                    require_once 'Form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
@@ -480,7 +478,7 @@ class FormWorkflow
 
                     break;
                 case -2: // dependencyID -2 : requestor followup
-                    require_once 'form.php';
+                    require_once 'Form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
@@ -501,7 +499,7 @@ class FormWorkflow
 
                     break;
                 case -3: // dependencyID -3 : group designated by requestor
-                    require_once 'form.php';
+                    require_once 'Form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsGroup = array(':recordID' => $this->recordID);
@@ -792,7 +790,7 @@ class FormWorkflow
                                                   WHERE recordID=:recordID', $vars2);
             if (count($res) == 0)
             {	// if the workflow state is empty, it means the request has been sent back to the requestor
-                require_once 'form.php';
+                require_once 'Form.php';
                 $form = new Form($this->db, $this->login);
                 $form->openForEditing($this->recordID);
             }
@@ -824,7 +822,6 @@ class FormWorkflow
             ));
             $email->setTemplateByID(\Email::SEND_BACK);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $requester = $dir->lookupLogin($record[0]['userID']);
@@ -884,7 +881,6 @@ class FormWorkflow
                         "comment" => $comment
                     ));
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $author = $dir->lookupLogin($this->login->getUserID());
@@ -917,7 +913,6 @@ class FormWorkflow
                     ));
                     $email->setTemplateByID(\Email::NOTIFY_COMPLETE);
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $author = $dir->lookupLogin($this->login->getUserID());
@@ -968,7 +963,6 @@ class FormWorkflow
                     $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
                     $email->setTemplateByID($emailTemplateID);
 
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
 
                     $author = $dir->lookupLogin($this->login->getUserID());
@@ -1009,7 +1003,6 @@ class FormWorkflow
                     if (is_file($eventFile))
                     {
                         require_once $eventFile;
-                        require_once 'VAMC_Directory.php';
                         require_once 'Email.php';
                         $dir = new VAMC_Directory;
                         $email = new Email();

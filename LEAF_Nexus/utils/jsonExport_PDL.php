@@ -5,9 +5,9 @@
 
 set_time_limit(240);
 include '../globals.php';
-include '../config.php';
+include '../sources/config.php';
 include '../sources/Login.php';
-include '../db_mysql.php';
+include '../sources/db_mysql.php';
 include '../sources/Position.php';
 include '../sources/Tag.php';
 
@@ -38,7 +38,7 @@ if(!isset($_GET['cache'])
         && $cache['jsonExport_PDL.php']['cacheTime'] > $cache['lastModified']['data']
         ) {
         header('Content-type: application/json');
-    
+
         $scrubCache = json_decode($cache['jsonExport_PDL.php']['data']);
         if(json_last_error() == JSON_ERROR_NONE) { // validate JSON object
             $scrubCache = XSSHelpers::scrubObjectOrArray($scrubCache);

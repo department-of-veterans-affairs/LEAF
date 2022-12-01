@@ -24,8 +24,8 @@ if (false)
 include '../globals.php';
 include '../../libs/smarty/Smarty.class.php';
 include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
+include '../sources/db_mysql.php';
+include '../sources/config.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -181,7 +181,7 @@ switch ($action) {
         $main->assign('javascripts', array('../libs/js/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
-        
+
         break;
     case 'mod_templates':
     case 'mod_templates_reports':

@@ -13,12 +13,13 @@ define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
 if (!class_exists('XSSHelpers'))
 {
-    require_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
+    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 if (!class_exists('CommonConfig'))
 {
-    require_once dirname(__FILE__) . '/../libs/php-commons/CommonConfig.php';
+    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
+require_once 'VAMC_Directory.php';
 
 class Form
 {
@@ -49,26 +50,26 @@ class Form
         // set up org chart assets
         if (!class_exists('Orgchart\Config'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Config.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Login'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Login.php';
         }
         if (!class_exists('Orgchart\Employee'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
         }
         if (!class_exists('Orgchart\Position'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
         }
         if (!class_exists('Orgchart\Group'))
         {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
+            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         }
         $config = new Orgchart\Config;
         $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
@@ -641,7 +642,6 @@ class Form
             $vars
         );
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -912,7 +912,6 @@ class Form
             );
         }
 
-        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -1371,16 +1370,16 @@ class Form
         $returnValue = 0;
 
         $vars = array(':recordID' => (int)$recordID);
-        //get all the catIDs associated with this record and whether the forms are enabled or submitted 
+        //get all the catIDs associated with this record and whether the forms are enabled or submitted
         $resRecordInfoEachForm = $this->db->prepared_query('SELECT recordID, categoryID, `count`, submitted FROM records
                                                     LEFT JOIN category_count USING (recordID)
-                                                    WHERE recordID=:recordID', $vars);                         
+                                                    WHERE recordID=:recordID', $vars);
         $isSubmitted = false;
         foreach ($resRecordInfoEachForm as $request) {
             if ($request['submitted'] > 0) {
                 $isSubmitted = true;
                 break;
-            } 
+            }
         }
         if ($isSubmitted) {
             $returnValue = 100;
@@ -1394,7 +1393,7 @@ class Form
                                                                     AND indicators.disabled = 0
                                                                     AND data != ""
                                                                     AND data IS NOT NULL', $vars);
-            //use to count the number of required completions and organize completed data for possible condition checks                              
+            //use to count the number of required completions and organize completed data for possible condition checks
             $resCountCompletedRequired = 0;
             $resCompletedIndIDs = array();
             foreach($resCompleted as $entry) {
@@ -1403,7 +1402,7 @@ class Form
                     $resCountCompletedRequired++;
                 }
             }
-        
+
             $allRequiredIndicators = $this->db->prepared_query("SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0", array());
             //use recordInfo about forms associated with the record to get the total number of required questions on the request
             $categories = array();
@@ -1411,9 +1410,9 @@ class Form
                 if((int)$form['count'] === 1) {
                     $categories[] = $form['categoryID'];
                 }
-            }  
+            }
             $resRequestRequired = array();
-            foreach ($allRequiredIndicators as $indicator) {   
+            foreach ($allRequiredIndicators as $indicator) {
                 if(in_array($indicator['categoryID'], $categories)) {
                     $resRequestRequired[] = $indicator;
                 }
@@ -1427,15 +1426,15 @@ class Form
                 foreach ($resRequestRequired as $ind) {
                     //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
                     if(!in_array((int)$ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
-                        
+
                         $conditions = json_decode(strip_tags($ind['conditions']));
                         $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
 
                         $conditionMet = false;
                         foreach ($conditions as $c) {
                             //only continue if formats match, only check hide/show, only check if parent data exists
-                            if ($c->childFormat === $currFormat 
-                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show') 
+                            if ($c->childFormat === $currFormat
+                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show')
                                 && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) {
 
                                 $parentFormat = $c->parentFormat;
@@ -1446,7 +1445,7 @@ class Form
                                 } else {
                                     $currentParentDataValue = array($currentParentDataValue);
                                 }
-                                
+
                                 $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
                                 $operator = $c->selectedOp;
 
@@ -1461,13 +1460,13 @@ class Form
                                             }
                                         } else if ($parentFormat === 'dropdown' && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                             $conditionMet = true;
-                                        } 
+                                        }
                                         break;
                                     case '!=':
                                         if (($parentFormat === 'multiselect' && !array_intersect($currentParentDataValue, $conditionParentValue))
                                             || ($parentFormat === 'dropdown' && $currentParentDataValue[0] !== $conditionParentValue[0])) {
                                             $conditionMet = true;
-                                        } 
+                                        }
                                         break;
                                     default:
                                         break;
@@ -1488,7 +1487,7 @@ class Form
                     $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
                 }
             }
-        } 
+        }
         return $returnValue;
     }
 
@@ -2428,7 +2427,6 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $total = count($res);
@@ -2584,7 +2582,6 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $user = $dir->lookupLogin($userID);
@@ -3277,7 +3274,6 @@ class Form
 
             if ($joinActionHistory)
             {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
                 $actionHistorySQL =
@@ -3337,7 +3333,6 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                require_once 'VAMC_Directory.php';
                 $dir = new VAMC_Directory;
 
                 $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType

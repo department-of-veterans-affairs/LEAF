@@ -11,9 +11,9 @@
 error_reporting(E_ERROR);
 
 include_once __DIR__ . '/../../../LEAF_Request_Portal/globals.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/Login.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/db_mysql.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/db_config.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Login.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/db_mysql.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/DB_Config.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/api/RESTfulResponse.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Exception.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/api/ControllerMap.php';

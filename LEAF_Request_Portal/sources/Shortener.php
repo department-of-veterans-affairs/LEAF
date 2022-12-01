@@ -63,7 +63,7 @@ class Shortener
         if(!isset($resReport[0])) {
             return '';
         }
-        require_once dirname(__FILE__) . '/../form.php';
+        require_once dirname(__FILE__) . 'Form.php';
         $form = new Form($this->db, $this->login);
         return $form->query($resReport[0]['data']);
     }

@@ -11,11 +11,11 @@
 class CustomEvent_LeafSecure_DeveloperConsole
 {
     private $db;        // Object, Database connection
-    private $login;     // Object, Login information for the current user 
+    private $login;     // Object, Login information for the current user
     private $dir;       // Object, Phone directory lookup
     private $email;     // Object, Email control
     private $eventInfo; // Array, The event info that triggers this event
-                        //   (recordID, workflowID, stepID, actionType, comment) 
+                        //   (recordID, workflowID, stepID, actionType, comment)
     private $siteRoot;  // String, URL to the root directory
 
     function __construct($db, $login, $dir, $email, $siteRoot, $eventInfo)
@@ -40,7 +40,7 @@ class CustomEvent_LeafSecure_DeveloperConsole
 
         // get the initiator's empUID
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/config.php';
+        require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Config.php';
         require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Employee.php';
         require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Login.php';
         $config = new Orgchart\Config;

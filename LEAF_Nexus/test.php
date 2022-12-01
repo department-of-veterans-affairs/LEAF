@@ -4,8 +4,8 @@
  */
 
 include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
+include './sources/db_mysql.php';
+include './sources/config.php';
 
 $db_config = new Orgchart\Config();
 $config = new Orgchart\Config();

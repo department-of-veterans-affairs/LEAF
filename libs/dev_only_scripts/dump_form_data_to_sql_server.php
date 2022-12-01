@@ -35,7 +35,7 @@ if(strcasecmp($argv[2], 'stateless') === 0){
         echo "Portal path does not exist.\n";
         exit();
     }
-    include_once "/var/www/html" . $portalPath . 'db_config.php';
+    include_once "/var/www/html" . $portalPath . 'sources/db_config.php';
     $db_config = new DB_Config();
 
     $mysqli = new mysqli($db_config->dbHost,$db_config->dbUser,$db_config->dbPass);
@@ -83,10 +83,10 @@ if (!$mysqli->query("CREATE TABLE form_data
                         data_entry_date int(10)  DEFAULT 0,
                         formID varchar(20) ,
                         form_name varchar(50) ,
-                        form_description varchar(255) 
+                        form_description varchar(255)
                         )
-                        SELECT 
-                        records.recordID, 
+                        SELECT
+                        records.recordID,
                         records.date as record_date,
                         records.userID as submitter_userID,
                         records.title as record_title,
@@ -137,7 +137,7 @@ if (!$mysqli->query("CREATE TABLE indicators
                         sort,
                         timeAdded,
                         disabled,
-                        is_sensitive 
+                        is_sensitive
                         FROM $portalToExport.indicators;")) {
     echo("Error description 5: " . $mysqli -> error) . "\n";
     exit();
@@ -151,9 +151,9 @@ if (!$mysqli->query("CREATE TABLE action_history
                         actionType varchar(50)  NOT NULL,
                         action_time int(10)  NOT NULL,
                         stepID int(10) DEFAULT 0,
-                        stepTitle varchar(64) 
+                        stepTitle varchar(64)
                         )
-                        SELECT 
+                        SELECT
                         action_history.actionID,
                         action_history.recordID,
                         action_history.userID as action_taken_by,
@@ -183,4 +183,4 @@ if (!$mysqli->query("DROP DATABASE IF EXISTS " . $tempDBName . ";")) {
     exit();
 }
 
-echo $filename . " created.\n"; 
+echo $filename . " created.\n";

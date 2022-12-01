@@ -12,9 +12,10 @@
 error_reporting(E_ERROR);
 
 include 'globals.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
+include 'sources/Login.php';
+include 'sources/db_mysql.php';
+include 'sources/DB_Config.php';
+require 'sources/Form.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -37,14 +38,12 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'getform':
-        require 'form.php';
         $form = new Form($db, $login);
         header('Content-type: application/json');
         echo $form->getFormJSON($_GET['recordID']);
 
         break;
     case 'getprogress': // support legacy customizations
-          require 'form.php';
            $form = new Form($db, $login);
            header('Content-type: application/json');
            echo $form->getProgressJSON($_GET['recordID']);

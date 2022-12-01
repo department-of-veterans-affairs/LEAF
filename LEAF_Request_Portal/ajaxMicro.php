@@ -11,8 +11,8 @@
 
 error_reporting(E_ERROR);
 
-include 'db_mysql.php';
-include 'db_config.php';
+include 'sources/db_mysql.php';
+include 'sources/DB_Config.php';
 
 $db_config = new DB_Config();
 $config = new Config();

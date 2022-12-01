@@ -4,10 +4,10 @@
  */
 
 include 'globals.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'Login.php';
-include 'form.php';
+include 'sources/db_mysql.php';
+include 'sources/DB_Config.php';
+include 'sources/Login.php';
+include 'sources/Form.php';
 
 if (!class_exists('XSSHelpers'))
 {
