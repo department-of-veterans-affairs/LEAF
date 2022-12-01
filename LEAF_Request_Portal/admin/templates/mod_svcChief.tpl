@@ -352,11 +352,11 @@ function initiateWidget(serviceID = 0, serviceName = '') {
     if (serviceID === 0 || serviceName === '') {
         return;
     } else {
-        $('#' + serviceID).on('click', function(serviceID) {
-            return function() {
+        $('#' + serviceID).on('click keydown', function(e) {
+            if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
                 initiateModal(serviceID, serviceName);
-            };
-        }(serviceID));
+            }
+        });
     }
 }
 

@@ -752,7 +752,7 @@ function linkDependencyDialog(stepID) {
             buffer += '</optgroup>';
 
             buffer += '</select></div>';
-            buffer += '<br /><br /><br /><br /><div>If a requirement does not exist: <span class="buttonNorm" onclick="newDependency('+ stepID +')">Create a new requirement</span></div>';
+            buffer += '<br /><br /><br /><br /><div>If a requirement does not exist: <span tabindex=0 class="buttonNorm" onkeydown="if (event.which === 13) { newDependency('+ stepID +'); }" onclick="newDependency('+ stepID +')">Create a new requirement</span></div>';
             $('#dependencyList').html(buffer);
             $('#dependencyID').chosen({disable_search_threshold: 5});
 
@@ -1393,7 +1393,7 @@ function showStepInfo(stepID) {
                     output += '</ul></fieldset>';
 
                     // button options for steps
-                    output += '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
+                    output += '<hr /><div style="padding: 4px"><span tabindex=0 class="buttonNorm" onkeydown="if (event.which == 13) { linkDependencyDialog('+ stepID +'); }" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
                     $('#stepInfo_' + stepID).html(output);
 
                     // setup UI for form fields in the workflow area
@@ -1638,15 +1638,12 @@ function loadWorkflow(workflowID) {
                 }
 
             	// attach click event
-            	$('#step_' + res[i].stepID).on('click', null, res[i].stepID, function(e) {
-            		showStepInfo(e.data);
-            	});
-                $('#step_' + res[i].stepID).on('keydown', null, res[i].stepID, function(e) {
-                    if (e.keyCode === 13) {
+            	$('#step_' + res[i].stepID).on('click keydown', null, res[i].stepID, function(e) {
+                    if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
             		    showStepInfo(e.data);
                     }
             	});
-
+                
             	if(maxY < posY) {
             		maxY = posY;
             	}
