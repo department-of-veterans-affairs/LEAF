@@ -149,7 +149,7 @@ var LeafForm = function(containerID) {
             elEmptyOption.selected = true;
         }
 
-        const getCurrentEnteredValue = (pFormat, pIndID) => {
+        const getCurrentEnteredValue = (pFormat='', pIndID=0) => {
             let val = '';
             if (pFormat==='radio') {
                 val = sanitize(document.querySelector(`input[id^="${pIndID}_radio"]:checked`)?.value.trim()) || '';
@@ -162,8 +162,16 @@ var LeafForm = function(containerID) {
         //conditions to check for specific child
         const makeComparisons = (childID, arrConditions)=> {
             let prefillValue = '';
-            const elJQChildID = $('#' + childID);
-            const elCheckedRadioBtn = $(`input[id^="${childID}_radio"]:checked`);
+            const elChildInput = $('#' + childID); //input el for text, multisel and dropd
+
+            //make an input to deselect radio buttons if display state toggles
+            const radioEmpty = $(`input[id^="${childID}_radio0"]`);
+            if (arrConditions[0].childFormat === 'radio' && radioEmpty.length===0) {
+                $(`div.response.blockIndicator_${childID}`).prepend(`<input id="${childID}_radio0" name="${childID}" value="" style="display:none;" />`);
+            }
+            const elRadioBtns = $(`input[id^="${childID}_radio"]`);
+
+            const startValue = elChildInput.val() || $(`input[id^="${childID}_radio"]:checked`).val() || '';
 
             handleChildValidators(childID);
 
@@ -249,10 +257,11 @@ var LeafForm = function(containerID) {
                 switch (cond.selectedOutcome.toLowerCase()) {
                     case 'hide':
                         if (comparisonResult === true) {
-                            elJQChildID.val('');
-                            elCheckedRadioBtn.val('');
+                            elChildInput.val('');
+                            elRadioBtns.prop("checked", false);
+                            radioEmpty.prop("checked", true);
                             if (cond.childFormat === 'multiselect') {
-                                clearMultiSelectChild(elJQChildID, childID);
+                                clearMultiSelectChild(elChildInput, childID);
                             }
                             //if this is a required question, re-point validator
                             $('.blockIndicator_' + childID).hide();
@@ -267,10 +276,11 @@ var LeafForm = function(containerID) {
                         if (comparisonResult === true) {
                             $('.blockIndicator_' + childID).show();
                         } else {
-                            elJQChildID.val('');
-                            elCheckedRadioBtn.val('');
+                            elChildInput.val('');
+                            elRadioBtns.prop("checked", false);
+                            radioEmpty.prop("checked", true);
                             if (cond.childFormat === 'multiselect') {
-                                clearMultiSelectChild(elJQChildID, childID);
+                                clearMultiSelectChild(elChildInput, childID);
                             }
                             $('.blockIndicator_' + childID).hide();
                             if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
@@ -279,43 +289,49 @@ var LeafForm = function(containerID) {
                         }
                         break;
                     case 'pre-fill':
-                        if (prefillValue !== '') {
+                        let indBlock = $(`div.response.blockIndicator_${childID}`);
+                        if (indBlock.css('display') !== 'none' && prefillValue !== '') {
+                            //don't fill if it's in a hidden state bc of other conditions
                             if(cond.childFormat === 'multiselect') {
                                 const arrPrefills = prefillValue.split('\n');
                                 const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
-                                let elSelectChoices = elJQChildID[0].choicesjs;
+                                let elSelectChoices = elChildInput[0].choicesjs;
                                 elSelectChoices?.removeActiveItems();
                                 elSelectChoices?.setChoiceByValue(arrChoices);
                                 elSelectChoices?.disable();
                             } else {
                                 const text = $('<div/>').html(prefillValue).text().trim();
                                 //inputs with id of indicator (text, single dropdown)
-                                elJQChildID.val(text);
-                                elJQChildID.attr('disabled', 'disabled');
+                                elChildInput.val(text);
+                                elChildInput.attr('disabled', 'disabled');
                                 //radio
                                 $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true);
-                                $(`input[id^="${childID}_radio"]:not([value="${text}"])`).prop("disabled", true);
+                                elRadioBtns.prop("disabled", true);
                             }
                             
                         } else {
                             //just re-enable selection/editing.  resetting causes issues here.
-                            elJQChildID.removeAttr('disabled');
-                            elJQChildID[0]?.choicesjs?.enable();
-                            $(`input[id^="${childID}_radio"]`).prop("disabled", false);
+                            elChildInput.removeAttr('disabled');
+                            elChildInput[0]?.choicesjs?.enable();
+                            elRadioBtns.prop("disabled", false);
                         }
                         break; 
                     default:
                         console.log(cond.selectedOutcome);
                         break;
                 }
-                //chain updates
-                elJQChildID.trigger('change');
-                $(`input[id^="${childID}_radio"]`).trigger('change');
-                if (chosenShouldUpdate) {
-                    const val = elJQChildID.val();
-                    elJQChildID.chosen().val(val);
-                    elJQChildID.chosen({ width: '100%' });
-                    elJQChildID.trigger('chosen:updated');
+                //trigger update if values have changed
+                const endValue = elChildInput.val() || $(`input[id^="${childID}_radio"]:checked`).val() || '';
+
+                if(startValue !== endValue) {
+                    elChildInput.trigger('change');
+                    $(`input[id^="${childID}_radio"]`).trigger('change');
+                    if (chosenShouldUpdate) {
+                        const val = elChildInput.val();
+                        elChildInput.chosen().val(val);
+                        elChildInput.chosen({ width: '100%' });
+                        elChildInput.trigger('chosen:updated');
+                    }
                 }
             });
         }
