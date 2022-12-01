@@ -32,7 +32,7 @@ public class waitMethods {
 	public static void explicitWait() {
 		
 		try {
-			
+			//
 		} catch (Exception e) {
 			System.out.println("explicitWait caught");
 			e.printStackTrace();

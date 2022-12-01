@@ -11,17 +11,16 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
 import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.openqa.selenium.support.ui.Select;			//Select Method
 
 import Framework.setupFramework;
 import Framework.waitMethods;
 import Framework.highlightElement;
-import Framework.AppVariables;
 import Framework.dateAndTimeMethods;
 
-public class formsWorkflowPart3 extends setupFramework {
+public class formsWorkflowPart3_BAK extends setupFramework {
 
 	//private static final DateFormat Calendar = null;
 	Date date = new Date();
@@ -84,27 +83,15 @@ public class formsWorkflowPart3 extends setupFramework {
 		private void selectCurrentFormByXpath() {	
 			//		   
 			waitMethods.waiter(waitMethods.w1k);  //    Either should work, the 1st is Xpath for the AUT element, 2nd is for description
+			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[2]]"));
+			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
 			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
 			//WebElement ele = driver.findElement(By.xpath("//div[text() = 'AUT']"));
 			//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
-	   		
-	    	String url = driver.getCurrentUrl();
-	    	
-	    	if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
-	    		WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
-	    		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-		    	highlightElement.highLightElement(driver, ele);
-		    	ele.click();	    		
-	    	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
-	    		WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
-	    		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-		    	highlightElement.highLightElement(driver, ele);
-		    	ele.click();	    		
-	    	}	   		
-	   		
-	   		
-	    	waitMethods.waiter(waitMethods.w300);
-	   		System.out.println("Select first form top left");
+			highlightElement.highLightElement(driver, ele);
+	    	ele.click();
+	   		waitMethods.waiter(waitMethods.w300);
+	    	System.out.println("Select first form top left");
 			
 					
 //			waitMethods.waiter(waitMethods.w500);  //     /html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[2]        
@@ -116,23 +103,6 @@ public class formsWorkflowPart3 extends setupFramework {
 //	    	ele.click();
 //	   		waitMethods.waiter(waitMethods.w300);
 //	    	System.out.println("Select first form top left");
-
-		
-		    /*		
-		    	IF TEMPLATE
-		    	String url = driver.getCurrentUrl();
-		    	
-		    	if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
-		    	
-		    	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
-		    	
-		    	}
-	
-	
-		    */		
-		
-		
-		
 		}	
 	
 
@@ -739,18 +709,7 @@ public class formsWorkflowPart3 extends setupFramework {
 															 
 // Documentation can be found in formsWorkflow and formsWorkflowPart2
 
-/*		
-	IF TEMPLATE
-	String url = driver.getCurrentUrl();
-	
-	if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
-	
-	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
-	
-	}
-
-
-*/			
+		
 
 
 	

@@ -1019,7 +1019,7 @@ public class formsWorkflow extends setupFramework {
 
 	
 		
-		@Test(priority = 234) //	  			
+		@Test(priority = 234) //	  			// ERR
 		private void selectEditFieldIcon04() {		
 			//selectEditFieldIcon();
 			waitMethods.waiter(waitMethods.w500);       
@@ -1032,14 +1032,14 @@ public class formsWorkflow extends setupFramework {
 		
 		
 		
-		@Test(priority = 236) //  Select textarea element (actually the div above it)  //ERR HERE
+		@Test(priority = 236) //  Select textarea element (actually the div above it)   // ERR
 		private void selectTextToFormat01() {			//
 			selectTextToFormat();
 		}	
 		
 		
 		@Test(priority = 238) //  
-		private void formatTextItalics() {			//	   			
+		private void formatTextItalics() {			//	   ERR			
 
 				String url = driver.getCurrentUrl();  //          
 
@@ -1064,7 +1064,7 @@ public class formsWorkflow extends setupFramework {
 		}	
 		
 		
-		@Test(priority = 242) //	  			
+		@Test(priority = 242) //	  			// ERR
 		private void selectEditFieldIcon05() {		
 			//selectEditFieldIcon();
 			waitMethods.waiter(waitMethods.w500);       
@@ -1077,7 +1077,7 @@ public class formsWorkflow extends setupFramework {
 		
 		
 		
-		@Test(priority = 244) //  Show Formatted Code
+		@Test(priority = 244) //  Show Formatted Code			//  ERR
 		private void showFormatedCode03() {			//
 			showFormatedCode();
 		}	
@@ -1085,7 +1085,7 @@ public class formsWorkflow extends setupFramework {
 		
 		
 		@Test(priority = 246) //  
-		private void validateFormatItalics() {			//
+		private void validateFormatItalics() {			//  ERR
 			waitMethods.waiter(waitMethods.w500);      //
 			
 			WebElement ele = driver.findElement(By.id("name"));
@@ -1109,7 +1109,7 @@ public class formsWorkflow extends setupFramework {
 		}
 		
 		
-		@Test(priority = 248) //  save
+		@Test(priority = 248) //  save				// ERR
 		private void selectSave05() {			//
 			selectSave();
 		}	
