@@ -1592,7 +1592,9 @@ function showStepInfo(stepID) {
                         }
                     }
                     output += '<div style="padding: 4px; display: flex;"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span>';
-                    output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
+                    output += '</div>';
+                    // line above replaces line below, this is being disabled temporarily
+                    //output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
                     $('#stepInfo_' + stepID).html(output);
 
                     // setup UI for form fields in the workflow area
