@@ -159,6 +159,19 @@ var LeafForm = function(containerID) {
             return val;
         }
 
+        const clearValues = (childFormat, childIndID) => { //cond.childFormat
+            $('#' + childIndID).val('');
+            $(`input[id^="${childIndID}_radio"]`).prop("checked", false);
+            $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
+            if (childFormat === 'multiselect') {
+                clearMultiSelectChild($('#' + childIndID), childIndID);
+            }
+            $('.blockIndicator_' + childIndID).hide();
+            if (childRequiredValidators[childIndID].validator !== undefined && dialog !== null) {
+                dialog.requirements[childIndID] = hideShowValidator;
+            }
+        }
+
         //conditions to check for specific child
         const makeComparisons = (childID, arrConditions)=> {
             let prefillValue = '';
@@ -257,17 +270,7 @@ var LeafForm = function(containerID) {
                 switch (cond.selectedOutcome.toLowerCase()) {
                     case 'hide':
                         if (comparisonResult === true) {
-                            elChildInput.val('');
-                            elRadioBtns.prop("checked", false);
-                            radioEmpty.prop("checked", true);
-                            if (cond.childFormat === 'multiselect') {
-                                clearMultiSelectChild(elChildInput, childID);
-                            }
-                            //if this is a required question, re-point validator
-                            $('.blockIndicator_' + childID).hide();
-                            if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
-                                dialog.requirements[childID] = hideShowValidator;
-                            }
+                            clearValues(cond.childFormat, childID);
                         } else {
                             $('.blockIndicator_' + childID).show();
                         }
@@ -276,21 +279,12 @@ var LeafForm = function(containerID) {
                         if (comparisonResult === true) {
                             $('.blockIndicator_' + childID).show();
                         } else {
-                            elChildInput.val('');
-                            elRadioBtns.prop("checked", false);
-                            radioEmpty.prop("checked", true);
-                            if (cond.childFormat === 'multiselect') {
-                                clearMultiSelectChild(elChildInput, childID);
-                            }
-                            $('.blockIndicator_' + childID).hide();
-                            if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
-                                dialog.requirements[childID] = hideShowValidator;
-                            }
+                            clearValues(cond.childFormat, childID);
                         }
                         break;
                     case 'pre-fill':
                         let indBlock = $(`div.response.blockIndicator_${childID}`);
-                        if (indBlock.css('display') !== 'none' && prefillValue !== '') {
+                        if (prefillValue !== '') {
                             //don't fill if it's in a hidden state bc of other conditions
                             if(cond.childFormat === 'multiselect') {
                                 const arrPrefills = prefillValue.split('\n');
@@ -301,19 +295,31 @@ var LeafForm = function(containerID) {
                                 elSelectChoices?.disable();
                             } else {
                                 const text = $('<div/>').html(prefillValue).text().trim();
-                                //inputs with id of indicator (text, single dropdown)
-                                elChildInput.val(text);
+                                elChildInput.val(text);  //text, multisel, dropd
                                 elChildInput.attr('disabled', 'disabled');
-                                //radio
-                                $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true);
+                                $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true); //radio
                                 elRadioBtns.prop("disabled", true);
                             }
                             
+                            setTimeout(()=> { //temp timing fix for data value
+                                if(indBlock.css('display')==='none') {
+                                    clearValues(cond.childFormat, childID);
+                                }
+                            });
+
                         } else {
                             //just re-enable selection/editing.  resetting causes issues here.
                             elChildInput.removeAttr('disabled');
                             elChildInput[0]?.choicesjs?.enable();
                             elRadioBtns.prop("disabled", false);
+
+                            setTimeout(()=> { //temp timing fix for validation
+                                if(indBlock.css('display')==='none') {
+                                    if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
+                                        dialog.requirements[childID] = hideShowValidator;
+                                    }
+                                }
+                            });
                         }
                         break; 
                     default:
