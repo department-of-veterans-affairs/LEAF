@@ -205,7 +205,7 @@ function addHeader(column) {
         case 'actionButton':
             headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html('<div class="buttonNorm">Take Action</div>');
+                $('#'+data.cellContainerID).html('<div tabindex="0" class="buttonNorm">Take Action</div>');
                 $('#'+data.cellContainerID).on('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
