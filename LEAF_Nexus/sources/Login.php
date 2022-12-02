@@ -11,10 +11,8 @@
 
 namespace Orgchart;
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
+include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
+include_once 'Session.php';
 
 // Sanitize all $_GET input
 if (count($_GET) > 0)
@@ -26,74 +24,6 @@ if (count($_GET) > 0)
         {
             $_GET[$key] = htmlentities($_GET[$key], ENT_QUOTES);
         }
-    }
-}
-
-class Session implements \SessionHandlerInterface
-{
-    private $db;
-
-    public function __construct($db)
-    {
-        if(defined('DIRECTORY_HOST')) {
-            $this->db = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
-            if(!$this->db->isConnected()) {
-                $this->db = $db;
-            }
-        }
-        else {
-            $this->db = $db;
-        }
-    }
-
-    public function close(): bool
-    {
-        return true;
-    }
-
-    public function destroy($sessionID): bool
-    {
-        $vars = array(':sessionID' => $sessionID);
-        $this->db->prepared_query('DELETE FROM sessions
-                                            WHERE sessionKey=:sessionID', $vars);
-
-        return true;
-    }
-
-    public function gc($maxLifetime): int|false
-    {
-        $vars = array(':time' => time() - $maxLifetime);
-        $this->db->prepared_query('DELETE FROM sessions
-                                            WHERE lastModified < :time', $vars);
-
-        return true;
-    }
-
-    //#[ReturnTypeWillChange]
-    public function open($savePath, $sessionID): bool
-    {
-        return true;
-    }
-
-    public function read($sessionID): string|false
-    {
-        $vars = array(':sessionID' => $sessionID);
-        $res = $this->db->prepared_query('SELECT * FROM sessions
-                                            WHERE sessionKey=:sessionID', $vars);
-
-        return isset($res[0]['data']) ? $res[0]['data'] : '';
-    }
-
-    public function write($sessionID, $data): bool
-    {
-        $vars = array(':sessionID' => $sessionID,
-                      ':data' => $data,
-                      ':time' => time(), );
-        $this->db->prepared_query('INSERT INTO sessions (sessionKey, data, lastModified)
-                                            VALUES (:sessionID, :data, :time)
-                                            ON DUPLICATE KEY UPDATE data=:data, lastModified=:time', $vars);
-
-        return true;
     }
 }
 
@@ -267,7 +197,7 @@ class Login
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), 
+                    ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
             $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)

@@ -6,15 +6,15 @@
 require '../sources/VAMC_Directory.php';
 
 include '../globals.php';
-include '../sources/db_mysql.php';
-include '../sources/DB_Config.php';
+include '../../libs/php-commons/Db.php';
+include '../sources/DbConfig.php';
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $dir = new VAMC_Directory();

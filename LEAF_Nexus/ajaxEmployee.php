@@ -18,7 +18,7 @@ error_reporting(E_ERROR);
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include './sources/Login.php';
-include './sources/db_mysql.php';
+include '../libs/php-commons/Db.php';
 include './sources/config.php';
 include './sources/Exception.php';
 include './sources/Employee.php';

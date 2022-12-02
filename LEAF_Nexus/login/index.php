@@ -6,7 +6,7 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-include '../sources/db_mysql.php';
+include '../libs/php-commons/Db.php';
 include '../sources/config.php';
 include '../globals.php';
 

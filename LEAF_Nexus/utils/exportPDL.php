@@ -7,7 +7,7 @@ set_time_limit(240);
 include '../globals.php';
 include '../sources/config.php';
 include '../sources/Login.php';
-include '../sources/db_mysql.php';
+include '../../libs/php-commons/Db.php';
 include '../sources/Position.php';
 include '../sources/Tag.php';
 

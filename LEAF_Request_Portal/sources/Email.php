@@ -10,7 +10,7 @@
 */
 require_once __DIR__ . '/../../libs/smarty/Smarty.class.php';
 require_once 'VAMC_Directory.php';
-require_once 'DB_Config.php';
+require_once 'DbConfig.php';
 
 if (!class_exists('XSSHelpers'))
 {
@@ -327,7 +327,7 @@ class Email
         // set up org chart assets
         if (!class_exists('DB'))
         {
-            include 'db_mysql.php';
+            include '../../libs/php-commons/Db.php';
         }
         if (!class_exists('Orgchart\Config'))
         {
@@ -372,14 +372,10 @@ class Email
         // set up org chart assets
         if (!class_exists('DB'))
         {
-            include 'db_mysql.php';
-        }
-        if (!class_exists('DB_Config'))
-        {
-            include 'DB_Config.php';
+            include '../../libs/php-commons/Db.php';
         }
 
-        $db_config = new DB_Config;
+        $db_config = new DbConfig;
         $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
 
@@ -392,12 +388,10 @@ class Email
         // set up org chart assets
         if (!class_exists('DB'))
         {
-            include 'db_mysql.php';
+            include '../../libs/php-commons/Db.php';
         }
-        if (!class_exists('DB_Config'))
-        {
-            include 'DB_Config.php';
-        }
+
+        include_once 'Config.php';
 
         $nexus_config = new Config;
         $this->nexus_db = new DB($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);

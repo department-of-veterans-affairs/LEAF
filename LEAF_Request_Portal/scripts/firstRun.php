@@ -3,11 +3,12 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include '../sources/db_mysql.php';
-include_once '../sources/DB_Config.php';
+include '../../libs/php-commons/Db.php';
+include_once '../sources/DbConfig.php';
+include_once '../sources/Config.php';
 require_once '../sources/VAMC_Directory.php';
 
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 

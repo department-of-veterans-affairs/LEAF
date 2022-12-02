@@ -519,8 +519,6 @@ class FormWorkflow
                     break;
                 default:
                     return array('status' => 0, 'errors' => array('Invalid Operation'));
-
-                    break;
             }
         }
 

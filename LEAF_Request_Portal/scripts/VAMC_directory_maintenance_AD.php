@@ -62,7 +62,7 @@ class VAMC_Directory_maintenance_AD
     {
         $this->time = time();
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/../DB_Config.php';
+        require_once $currDir . '/../sources/Config.php';
         $config = new Config();
 
         try

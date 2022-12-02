@@ -310,17 +310,22 @@ var LeafFormGrid = function(containerID, options) {
         var idKey = 'id' + key;
         var tDate;
         for(let i in currentData) {
+            console.log(i);
+            console.log(currentData);
+
             currentData[i].recordID = parseInt(currentData[i].recordID);
             if(currentData[i][key] == undefined) {
                 currentData[i][key] = $('#'+ prefixID + currentData[i].recordID + '_' + key).html();
                 currentData[i][key] = currentData[i][key] == undefined ? '' : currentData[i][key];
 
                 // IE workaround... it adds zero-width "left-to-right mark" spaces for some reason, and we need to take it out
+
                 currentData[i][key] = currentData[i][key].replace(/[\u200B-\u200E]/g, '');
             }
             if(currentData[i].s1 == undefined) {
                 currentData[i].s1 = {};
             }
+
             if(currentData[i].s1[idKey] == undefined
                 || currentData[i].s1[idKey] == '') {
                 if(currentData[i].sDate == undefined) {
@@ -544,9 +549,9 @@ var LeafFormGrid = function(containerID, options) {
                                     data.data = printTableReportBuilder(currentData[i].s1[data.data], null);
                                 }
                             }
-                            buffer += `<td id="${prefixID+currentData[i].recordID}_${headers[j].indicatorID}" 
-                                           data-editable="${editable}" 
-                                           data-record-id="${currentData[i].recordID}" 
+                            buffer += `<td id="${prefixID+currentData[i].recordID}_${headers[j].indicatorID}"
+                                           data-editable="${editable}"
+                                           data-record-id="${currentData[i].recordID}"
                                            data-indicator-id="${headers[j].indicatorID}"
                                            data-format="${currentData[i].s1['id'+headers[j].indicatorID+'_format']}">
                                             ${data.data}</td>`;

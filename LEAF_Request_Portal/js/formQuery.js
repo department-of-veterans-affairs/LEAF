@@ -97,7 +97,7 @@ var LeafFormQuery = function() {
 					break;
 			}
 		}
-    	
+
     	for(var i in input.joins) {
     		join(input.joins[i]);
     	}
@@ -156,7 +156,7 @@ var LeafFormQuery = function() {
 
     /**
      * Sort results
-     * @param 
+     * @param
      * @memberOf LeafFormQuery
      */
     function sort(column, direction) {
@@ -233,7 +233,7 @@ var LeafFormQuery = function() {
     	if(query.getData != undefined && query.getData.length == 0) {
     		delete query.getData;
     	}
-    	
+
         let el = document.createElement('div');
         el.innerHTML = JSON.stringify(query);
         let queryUrl = el.innerText;

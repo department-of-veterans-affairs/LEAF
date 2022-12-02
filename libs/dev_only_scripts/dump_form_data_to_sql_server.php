@@ -36,7 +36,7 @@ if(strcasecmp($argv[2], 'stateless') === 0){
         exit();
     }
     include_once "/var/www/html" . $portalPath . 'sources/db_config.php';
-    $db_config = new DB_Config();
+    $db_config = new DbConfig();
 
     $mysqli = new mysqli($db_config->dbHost,$db_config->dbUser,$db_config->dbPass);
     $dbHost = $db_config->dbHost;

@@ -14,7 +14,7 @@ else
 }
 $currDir = dirname(__FILE__);
 
-include_once $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../../libs/php-commons/Db.php';
 include_once $currDir . '/../sources/config.php';
 
 $config = new Orgchart\Config();

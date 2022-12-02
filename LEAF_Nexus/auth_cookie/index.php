@@ -11,7 +11,7 @@
 
 include '../globals.php';
 include '../sources/Login.php';
-include '../sources/db_mysql.php';
+include '../../libs/php-commons/Db.php';
 include '../sources/config.php';
 
 $config = new Orgchart\Config();

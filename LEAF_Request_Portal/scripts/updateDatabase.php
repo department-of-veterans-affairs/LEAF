@@ -15,10 +15,11 @@ else
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
-include_once $currDir . '/../sources/db_mysql.php';
-include_once $currDir . '/../sources/DB_Config.php';
+include_once $currDir . '/../../libs/php-commons/Db.php';
+include_once $currDir . '/../sources/DbConfig.php';
+include_once $currDir . '/../sources/Config.php';
 
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 $config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);

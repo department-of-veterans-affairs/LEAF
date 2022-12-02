@@ -6,10 +6,11 @@
 error_reporting(E_ERROR);
 
 include '../libs/smarty/Smarty.class.php';
-include 'sources/db_mysql.php';
-include 'sources/DB_Config.php';
+include '../libs/php-commons/Db.php';
+include 'sources/DbConfig.php';
+include 'sources/Config.php';
 
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 $config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);

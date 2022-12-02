@@ -2,11 +2,11 @@
 ini_set('display_errors', 0); // Set to 1 to display errors
 
 include '../globals.php';
-include '../sources/db_mysql.php';
-include '../sources/DB_Config.php';
+include '../../libs/php-commons/Db.php';
+include '../sources/DbConfig.php';
 
 $debug = false;
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 

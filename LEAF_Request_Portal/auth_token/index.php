@@ -11,10 +11,11 @@
 
 include '../globals.php';
 include '../sources/Login.php';
-include '../sources/db_mysql.php';
-include '../sources/DB_Config.php';
+include '../../libs/php-commons/Db.php';
+include '../sources/DbConfig.php';
+include '../sources/Config.php';
 
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 $config = new Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);

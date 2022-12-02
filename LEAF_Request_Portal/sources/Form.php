@@ -19,7 +19,6 @@ if (!class_exists('CommonConfig'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
 }
-require_once 'VAMC_Directory.php';
 
 class Form
 {
@@ -84,9 +83,9 @@ class Form
     /**
      * Get all category (Form) IDs, names, and descriptions.
      *
-     * @return an array of all category IDs, names and descriptions
+     * @return array of all category IDs, names and descriptions
      */
-    public function getAllCategories()
+    public function getAllCategories(): array
     {
         $res = $this->db->prepared_query(
             'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0 ORDER BY categoryName',
@@ -642,6 +641,7 @@ class Form
             $vars
         );
 
+        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
 
         $res2 = array();
@@ -912,6 +912,7 @@ class Form
             );
         }
 
+        require_once 'VAMC_Directory.php';
         $dir = new VAMC_Directory;
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
@@ -2427,6 +2428,7 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
+            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             $total = count($res);

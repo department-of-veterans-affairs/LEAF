@@ -15,7 +15,7 @@ define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
 
-include_once $currDir . '/../sources/db_mysql.php';
+include_once $currDir . '/../../libs/php-commons/Db.php';
 include_once $currDir . '/../sources/config.php';
 include_once $currDir . '/../globals.php';
 include_once $currDir . '/../sources/Login.php';

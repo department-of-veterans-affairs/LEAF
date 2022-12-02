@@ -7,10 +7,10 @@ $version = 'PUBLIC';
 
 $currDir = dirname(__FILE__);
 include_once $currDir . '/../globals.php';
-include_once $currDir . '/../sources/db_mysql.php';
-include_once $currDir . '/../sources/DB_Config.php';
+include_once $currDir . '/../../libs/php-commons/Db.php';
+include_once $currDir . '/../sources/DbConfig.php';
 
-$config = new DB_Config();
+$config = new DbConfig();
 $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array(':version' => $version);

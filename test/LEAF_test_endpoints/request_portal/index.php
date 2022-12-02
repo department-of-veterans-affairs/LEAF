@@ -12,13 +12,13 @@ error_reporting(E_ERROR);
 
 include_once __DIR__ . '/../../../LEAF_Request_Portal/globals.php';
 include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Login.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/db_mysql.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/DB_Config.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Db.php';
+include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/DbConfig.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/api/RESTfulResponse.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Exception.php';
 require_once __DIR__ . '/../../../LEAF_Request_Portal/api/ControllerMap.php';
 
-$db_config = new DB_Config();
+$db_config = new DbConfig();
 $config = new Config();
 
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);

@@ -9,7 +9,7 @@
 
  */
 
-class DB
+class Db
 {
     private $db;                        // The database object
 
@@ -22,6 +22,8 @@ class DB
     private $log = array('<span style="color: red">Debug Log is ON</span>');    // error log for debugging
 
     private $debug = false;             // Are we debugging?
+
+    private $runErrors = false;
 
     private $time = 0;
 
@@ -241,7 +243,7 @@ class DB
         return TRUE;
     }
 
-    public function prepared_query($sql, $vars, $dry_run = false)
+    public function prepared_query($sql, $vars, $dry_run = false): array
     {
         if ($this->limit != '')
         {
@@ -268,7 +270,14 @@ class DB
         if ($dry_run == false && $this->dryRun == false)
         {
             $query = $this->db->prepare($sql);
-            $query->execute($vars);
+            try {
+                $query->execute($vars);
+            } catch (PDOException $e) {
+                if ($this->runErrors)
+                {
+                    $this->show_data(["sql"=>$sql,"exception"=>$e]);
+                }
+            }
         }
         else
         {
@@ -281,6 +290,15 @@ class DB
         }
 
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function show_data(array $dataIn = []) {
+        echo "<pre>";
+        echo "Host: " . $this->dbHost."\n";
+        echo "User: " . $this->dbUser ."\n";
+        echo "DB Name: " . $this->dbName."\n";
+        print_r($dataIn);
+        die("full stop");
     }
 
     /**
@@ -363,5 +381,25 @@ class DB
     public function enableDryRun()
     {
         $this->dryRun = true;
+    }
+
+    private function checkLastModified() {
+        //get the last build time
+        $defaultTime = "Thur, January 1, 1970 00:00:00 GMT";
+        $lastBuildTime = getenv('LAST_BUILD_DATE', true) ? getenv('LAST_BUILD_DATE') : $defaultTime;
+
+        // set last-modified header
+        // header('Cache-Control: no-cache, must-revalidate');
+        header('Last-Modified: ' . $lastBuildTime );
+
+        // Check if last build time is exactly the same (if so, use cache)
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+            if ($lastBuildTime === $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+                http_response_code(304);
+                header('X-MODIFIED-SINCE: MATCH');
+                die();
+            }
+        }
+        header('X-CONTENT-RETURN: YES');
     }
 }
