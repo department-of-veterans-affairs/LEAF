@@ -185,9 +185,9 @@ var LeafForm = function(containerID) {
         //conditions to check for specific child
         const makeComparisons = (childID, arrConditions)=> {
             let prefillValue = '';
-            const elChildInput = $('#' + childID); //input el for text, multisel and dropd
+            const elChildInput = $('#' + childID); //targets input el for text, multisel and dropd
 
-            //make an input to deselect radio buttons if display state toggles
+            //make an input so that radio entries can be cleared if the display state changes to hidden
             const radioEmpty = $(`input[id^="${childID}_radio0"]`);
             if (arrConditions[0].childFormat === 'radio' && radioEmpty.length===0) {
                 $(`div.response.blockIndicator_${childID}`).prepend(`<input id="${childID}_radio0" name="${childID}" value="" style="display:none;" />`);
@@ -354,6 +354,7 @@ var LeafForm = function(containerID) {
 
         //confirm that the parent indicators exist on the form (in case of archive/deletion)
         let confirmedParElsByIndID = [];
+        let notFoundParElsByIndID = [];
         for (let entry in formConditionsByChild) {
             const formConditions = formConditionsByChild[entry].conditions || [];
             formConditions.forEach(c => {
@@ -367,15 +368,24 @@ var LeafForm = function(containerID) {
                         break;
                 }
                 if (parentEl !== null) {
-                    confirmedParElsByIndID.push(c.parentIndID);
+                    confirmedParElsByIndID.push(parseInt(c.parentIndID));
+                } else {
+                    notFoundParElsByIndID.push(parseInt(c.parentIndID));
                 }
             });
         }
         confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
+        notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
+
+        if (notFoundParElsByIndID.length > 0) { //filter out any conditions that have parent IDs of elements not found in the DOM
+            for (let entry in formConditionsByChild) {
+               formConditionsByChild[entry].conditions = formConditionsByChild[entry].conditions.filter(c => !notFoundParElsByIndID.includes(parseInt(c.parentIndID)));
+            }
+        }
         confirmedParElsByIndID.forEach(id => {
             checkConditions(null, null, id);
-            //input depends on format
-            $('#'+id).on('change', checkConditions); //jq should not err if element is not there
+            //initial condition check and listeners for confirmed parents.  input depends on format. jq will not err if element is not there
+            $('#'+id).on('change', checkConditions);
             $(`input[id^="${id}_radio"]`).on('change', checkConditions);
         });
         
