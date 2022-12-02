@@ -63,7 +63,7 @@ var LeafForm = function(containerID) {
         //validator ref for required question in a hidden state
         const hideShowValidator = function(){return false};
 
-        const checkConditions = (event, selected, parID=0)=> {
+        const checkConditions = (event=0, selected=0, parID=0)=> {
             const parentElID = event !== null ? parseInt(event.target.id) : parseInt(parID);
 
             const linkedParentConditions = getConditionsLinkedToParent(parentElID); //get all children directly controlled by this parent, and their ids
@@ -91,7 +91,7 @@ var LeafForm = function(containerID) {
         /**
          *
          * @param {number} parentID
-         * @returns array of conditions that have the given value for their parentIndID
+         * @returns array of conditions that have the given value for their parentIndID, or empty array
          */
         const getConditionsLinkedToParent = (parentID=0)=> {
             let conditionsLinkedToParent = [];
@@ -114,7 +114,7 @@ var LeafForm = function(containerID) {
          *
          * @param {number} childID id of a child condition
          * @param {number} currParentID the id of the controller that was updated
-         * @returns array of all other parents that control the given child
+         * @returns array of all other parents that control the given child, or empty array
          */
         const getConditionsLinkedToChild = (childID=0, currParentID=0)=> {
             let conditionsLinkedToChild = [];
@@ -146,7 +146,7 @@ var LeafForm = function(containerID) {
             return result;
         }
 
-        const clearMultiSelectChild = (element, childID) => {
+        const clearMultiSelectChild = (element=[], childID=0) => {
             element[0]?.choicesjs?.removeActiveItems();
             let elEmptyOption = document.getElementById(`${childID}_empty_value`);
             if (elEmptyOption === null) {
@@ -169,7 +169,7 @@ var LeafForm = function(containerID) {
             return val;
         }
 
-        const clearValues = (childFormat, childIndID) => { //cond.childFormat
+        const clearValues = (childFormat='', childIndID=0) => {
             $('#' + childIndID).val('');
             $(`input[id^="${childIndID}_radio"]`).prop("checked", false);
             $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
@@ -183,7 +183,7 @@ var LeafForm = function(containerID) {
         }
 
         //conditions to check for specific child
-        const makeComparisons = (childID, arrConditions)=> {
+        const makeComparisons = (childID=0, arrConditions=[])=> {
             let prefillValue = '';
             const elChildInput = $('#' + childID); //targets input el for text, multisel and dropd
 
