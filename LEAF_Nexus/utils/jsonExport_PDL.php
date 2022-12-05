@@ -18,7 +18,7 @@ if (!class_exists('XSSHelpers'))
 }
 
 $config = new Orgchart\Config;
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
@@ -108,7 +108,7 @@ foreach ($res as $pos)
     if (is_numeric($data[17]['data']) // current fte
         && is_numeric($data[19]['data']))
     { // total headcount
-        $output[$pos['positionID']]['data']['Current FTE'] = $data[19]['data'] == 0 ? 0 : round($data[17]['data'] / $data[19]['data'], 5);
+        $output[$pos['positionID']]['data']['Current FTE'] = $data[19]['data'] == 0 ? 0 : round($data[17]['daXSSHelpersta'] / $data[19]['data'], 5);
     }
 
     $output[$pos['positionID']]['data']['PD Number'] = $data[9]['data'];

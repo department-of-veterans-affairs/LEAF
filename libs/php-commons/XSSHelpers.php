@@ -6,6 +6,7 @@
 /**
  * Suite of helper functions to assist in mitigating XSS vulnerabilities.
  */
+
 class XSSHelpers
 {
     private static $specialPattern = array(
@@ -33,7 +34,7 @@ class XSSHelpers
      * @return  string  the sanitized data
      */
     public static function xssafe($data = '', $encoding = 'UTF-8')
-    {   
+    {
         if(!empty($data)) {
             $data = htmlspecialchars((string) $data, ENT_QUOTES | ENT_HTML5, $encoding);
         }
@@ -43,7 +44,7 @@ class XSSHelpers
     /**
      * Sanitize a string using UTF-8 encoding, escapes all HTML tags.
      *
-     * @param   string  $data   the string to be sanitized 
+     * @param   string  $data   the string to be sanitized
      * @NOTE: (this is getting mixed types, INT, NULL)
      *
      * @return  string  the sanitized data
@@ -52,7 +53,7 @@ class XSSHelpers
     {
         if(!empty($data)) {
             $data = self::xssafe((string) $data);
-        } 
+        }
         return $data;
     }
 
@@ -318,7 +319,7 @@ class XSSHelpers
     public static function scrubFilename($stringToSanitize = '')
     {
         $pattern = "/[\/\:\*\?\"\<\>\|\\\]*/";
-        
+
         return preg_replace($pattern, "" , (string) $stringToSanitize );
     }
 
@@ -346,7 +347,7 @@ class XSSHelpers
                 $value = self::xscrub($value);
             }
         }
-        
+
         return $objectToScrub;
     }
 }

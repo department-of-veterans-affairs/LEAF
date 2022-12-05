@@ -9,34 +9,37 @@
  * created: October 3, 2022
  */
 
+namespace Portal;
+
 class Note
 {
     /**
      *
-     * @var \Db
+     * @var \Leaf\Db
      */
     private $db;
 
     /**
      *
-     * @var \Login
+     * @var Login
      */
     private $login;
 
     /**
      *
-     * @var \DataActionLogger
+     * @var \Leaf\DataActionLogger
      */
     private $dataActionLogger;
 
     /**
      *
-     * @param mixed $db
-     * @param mixed $login
+     * @param \Leaf\Db $db
+     * @param Login $login
+     * @param \Leaf\DataActionLogger $dataActionLogger
      *
      * Created at: 10/3/2022, 10:21:10 AM (America/New_York)
      */
-    public function __construct(\Db $db, \Login $login, \DataActionLogger $dataActionLogger)
+    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
     {
         $this->db = $db;
         $this->login = $login;

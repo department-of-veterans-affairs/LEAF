@@ -18,14 +18,14 @@ include '../sources/DbConfig.php';
 include '../sources/Config.php';
 require '../sources/Group.php';
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -39,14 +39,14 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        $group = new Group($db, $login);
+        $group = new Portal\Group($db, $login);
 
         echo json_encode($group->getMembers($_GET['groupID']));
 
         break;
     case 'directory_lookup':
         require '../sources/VAMC_Directory.php';
-        $dir = new VAMC_Directory();
+        $dir = new Portal\VAMC_Directory();
         $results = $dir->search($_GET['query']);
 
         echo json_encode($results);

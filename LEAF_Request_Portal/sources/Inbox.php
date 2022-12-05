@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 require_once 'Form.php';
 require_once 'VAMC_Directory.php';
 

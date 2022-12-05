@@ -276,7 +276,7 @@ class Position extends Data
                 $out[] = $emp;
             }
         }
-        error_log(print_r($out, true));
+
         return $out;
     }
 

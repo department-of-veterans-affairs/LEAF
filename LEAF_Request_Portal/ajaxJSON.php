@@ -24,14 +24,14 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 
 $login->loginUser();
 
@@ -39,15 +39,18 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'getform':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         header('Content-type: application/json');
         echo $form->getFormJSON($_GET['recordID']);
 
         break;
     case 'getprogress': // support legacy customizations
-           $form = new Form($db, $login);
+           $form = new Portal\Form($db, $login);
            header('Content-type: application/json');
-           echo $form->getProgressJSON($_GET['recordID']);
+           // this method does not exist in Form class
+           // echo $form->getProgressJSON($_GET['recordID']);
+           // but this one does
+           echo $form->getProgress($_GET['recordID']);
 
            break;
     case 'getrecentactions':

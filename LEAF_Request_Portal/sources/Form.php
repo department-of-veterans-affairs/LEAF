@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
 if (!class_exists('XSSHelpers'))
@@ -70,14 +72,14 @@ class Form
         {
             include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new OrgChart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new \OrgChart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->oc_dbName = $config->dbName;
-        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new OrgChart\Position($oc_db, $oc_login);
-        $this->group = new OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new \OrgChart\Employee($oc_db, $oc_login);
+        $this->position = new \OrgChart\Position($oc_db, $oc_login);
+        $this->group = new \OrgChart\Group($oc_db, $oc_login);
     }
 
     /**
@@ -135,7 +137,7 @@ class Form
                 {
                     try {
                         $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
-                    } catch (TypeError $te) {
+                    } catch (\TypeError $te) {
                         error_log($te);
                     }
                 }
@@ -208,7 +210,7 @@ class Form
                 {
                     try {
                         $fullForm = array_merge($fullForm, $this->getIndicator($subsection['indicatorID'], $subsection['series'], $recordID));
-                    } catch (TypeError $te) {
+                    } catch (\TypeError $te) {
                         error_log($te);
                     }
                 }
@@ -247,7 +249,7 @@ class Form
         {
             try {
                 $fullForm = array_merge($fullForm, $this->getIndicator($item['indicatorID'], 1, null, $parseTemplate));
-            } catch (TypeError $te) {
+            } catch (\TypeError $te) {
                 error_log($te);
             }
         }
@@ -298,7 +300,7 @@ class Form
         }
         else
         {
-            $vars = array(':categoryID' => XSSHelpers::xscrub($limitCategory));
+            $vars = array(':categoryID' => \XSSHelpers::xscrub($limitCategory));
             $res2 = $this->db->prepared_query('SELECT * FROM categories
                                                     WHERE categoryID = :categoryID', $vars);
             $res2[0]['count'] = 1;
@@ -386,7 +388,7 @@ class Form
         $vars = array(':date' => time(),
                       ':serviceID' => $serviceID,
                       ':userID' => $userID,
-                      ':title' => XSSHelpers::sanitizer($_POST['title']),
+                      ':title' => \XSSHelpers::sanitizer($_POST['title']),
                       ':priority' => $_POST['priority'], );
 
         $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
@@ -407,7 +409,7 @@ class Form
 
                     if ($tCount >= 1)
                     {
-                        $categoryID = XSSHelpers::xscrub(strtolower(substr($key, 3)));
+                        $categoryID = \XSSHelpers::xscrub(strtolower(substr($key, 3)));
                         $vars = array(':recordID' => $recordID,
                                 ':categoryID' => $categoryID,
                                 ':count' => $tCount, );
@@ -548,7 +550,7 @@ class Form
                     $values = [];
                 }
                 $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
-            } catch (TypeError $te) {
+            } catch (\TypeError $te) {
                 error_log($te);
             }
         }
@@ -676,7 +678,7 @@ class Form
 
     public function buildFormJSONStructure($categoryID, $series = 1)
     {
-        $categoryID = ($categoryID == null) ? 'general' : XSSHelpers::xscrub($categoryID);
+        $categoryID = ($categoryID == null) ? 'general' : \XSSHelpers::xscrub($categoryID);
 
         if (!isset($this->cache["categoryID{$categoryID}_indicators"]))
         {
@@ -978,7 +980,7 @@ class Form
         {
             return $this->cache['isCategory_' . $categoryID];
         }
-        $vars = array(':categoryID' => XSSHelpers::xscrub($categoryID));
+        $vars = array(':categoryID' => \XSSHelpers::xscrub($categoryID));
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM categories WHERE categoryID=:categoryID', $vars);
         if ($res[0]['COUNT(*)'] != 0)
         {
@@ -1002,12 +1004,12 @@ class Form
     {
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
-            $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
+            $_POST[$key] = \XSSHelpers::scrubObjectOrArray($_POST[$key]);
             $_POST[$key] = serialize($_POST[$key]);
         }
         else
         {
-            $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
+            $_POST[$key] = \XSSHelpers::sanitizeHTML($_POST[$key]);
         }
 
         $vars = array(':recordID' => $recordID,
@@ -1087,7 +1089,7 @@ class Form
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $commonConfig = new CommonConfig();
+            $commonConfig = new \Leaf\CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -1099,8 +1101,8 @@ class Form
                     {
                         return 0;
                     }
-                    $_FILES[$indicator]['name'] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
-                    $_POST[$indicator] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
+                    $_FILES[$indicator]['name'] = \XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
+                    $_POST[$indicator] = \XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
 
                     $filenameParts = explode('.', $_FILES[$indicator]['name']);
                     $fileExtension = array_pop($filenameParts);
@@ -1140,7 +1142,7 @@ class Form
                         return 0;
                     }
                     $vars = array(':recordID' => (int)$recordID,
-                                  ':categoryID' => XSSHelpers::xscrub($categoryID),
+                                  ':categoryID' => \XSSHelpers::xscrub($categoryID),
                                   ':count' => $_POST[$key], );
 
                     if ($this->isCategory($categoryID))
@@ -1348,7 +1350,7 @@ class Form
                     if (count($status['errors']) > 0) {
                         try {
                             $errors = array_merge($errors, $status['errors']);
-                        } catch (TypeError $te) {
+                        } catch (\TypeError $te) {
                             error_log($te);
                         }
                     }
@@ -1585,7 +1587,7 @@ class Form
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1)
         {
-            $vars = array(':categoryID' => XSSHelpers::xscrub($categoryID),
+            $vars = array(':categoryID' => \XSSHelpers::xscrub($categoryID),
                           ':userID' => $this->login->getUserID(), );
             $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
                                                         LEFT JOIN users USING (groupID)
@@ -1690,8 +1692,8 @@ class Form
 
     /**
      * Checks if the current user has access to a particular dependency
-     * @param dependencyID
-     * @param details - Associative Array containing dependency-specific details, eg: $details['groupID']
+     * @param int $dependencyID
+     * @param array $details - Associative Array containing dependency-specific details, eg: $details['groupID']
      * @return boolean
      */
     public function hasDependencyAccess($dependencyID, $details)
@@ -1782,9 +1784,7 @@ class Form
 
                     return $this->checkIfBackup($empUID);
                  }
-
-
-                break;
+                 // unreachable code so no break
             case -3: // dependencyID -3 : group designated by the requestor
                 $groupID = 0;
                 if (isset($this->cache['checkReadAccess_assigned_group_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_groupID']]))
@@ -1934,7 +1934,7 @@ class Form
 
                     try {
                         $res = array_merge($res, $res2);
-                    } catch (TypeError $te) {
+                    } catch (\TypeError $te) {
                         error_log($te);
                     }
                 }
@@ -2343,7 +2343,7 @@ class Form
 			    	$format = json_decode(substr($indicators[$item['indicatorID']]['format'], 5, -1) . ']', true);
                     try {
                         $item['gridInput'] = array_merge($values, array("format" => $format));
-                    } catch (TypeError $te) {
+                    } catch (\TypeError $te) {
                         error_log($te);
                     }
 			    	$item['data'] = 'id' . $item['indicatorID'] . '_gridInput';
@@ -2466,7 +2466,7 @@ class Form
             return 0;
         }
         $vars = array(':recordID' => (int)$recordID,
-                      ':tag' => XSSHelpers::xscrub($tag),
+                      ':tag' => \XSSHelpers::xscrub($tag),
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
@@ -2482,7 +2482,7 @@ class Form
             return 0;
         }
         $vars = array(':recordID' => (int)$recordID,
-                      ':tag' => XSSHelpers::xscrub($tag),
+                      ':tag' => \XSSHelpers::xscrub($tag),
                       ':userID' => $this->login->getUserID(), );
 
         $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag', $vars);
@@ -2504,7 +2504,7 @@ class Form
         {
             if (trim($tag) != '')
             {
-                $this->addTag((int)$recordID, XSSHelpers::xscrub(trim($tag)));
+                $this->addTag((int)$recordID, \XSSHelpers::xscrub(trim($tag)));
             }
         }
     }
@@ -3203,7 +3203,7 @@ class Form
                                                         WHERE ' . $conditions . $sort . $limit, $vars);
             }
             else {
-                return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+                return \XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
         }
         $res = $this->db->prepared_query('SELECT * FROM records
@@ -3676,7 +3676,7 @@ class Form
      */
     public function sanitizeInput($in)
     {
-        return XSSHelpers::sanitizeHTML($in);
+        return \XSSHelpers::sanitizeHTML($in);
     }
 
     /**
@@ -3811,7 +3811,7 @@ class Form
                             $values = [];
                         }
                         $child[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
-                    } catch (TypeError $te) {
+                    } catch (\TypeError $te) {
                         error_log($te);
                     }
                 }
@@ -3863,7 +3863,7 @@ class Form
      */
     private function fileToArray($data)
     {
-        $data = XSSHelpers::sanitizeHTML($data);
+        $data = \XSSHelpers::sanitizeHTML($data);
         $data = str_replace('<br />', "\n", $data);
         $data = str_replace('<br>', "\n", $data);
         $tmpFileNames = explode("\n", $data);
@@ -3900,9 +3900,10 @@ class Form
      * @param int $recordID
      * @param int $newRecordID
      * @param int $series
-     * @return int 1 for success, errors for failure
+     * @return array|int 1 for success, errors for failure
      */
-    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series) {
+    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series): array|int
+    {
         if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series))
         {
             $errors = array('type' => 2);
@@ -3919,7 +3920,7 @@ class Form
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
 
-        $cleanedFile = XSSHelpers::scrubFilename($fileName);
+        $cleanedFile = \XSSHelpers::scrubFilename($fileName);
 
         $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
         $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
@@ -3933,7 +3934,7 @@ class Form
 
     public function getRecordsByCategory($categoryID)
     {
-        $vars = array(':categoryID'=>XSSHelpers::xscrub($categoryID));
+        $vars = array(':categoryID' => \XSSHelpers::xscrub($categoryID));
         $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted
                                             FROM records
                                             JOIN category_count USING (recordID)
@@ -4009,7 +4010,7 @@ class Form
      * Purpose: Send reminder emails to users depending on current step of record
      * @param $recordID
      * @param $days
-     * @throws SmartyException
+     * @throws \SmartyException
      */
     function sendReminderEmail($recordID, $days) {
 
@@ -4056,7 +4057,7 @@ class Form
         $values = $this->fileToArray($data[0]['data']);
 
         // right now we will have special chars encoded in the filename. We need this decoded.
-        $fileName = XSSHelpers::sanitizeHTML($fileName);
+        $fileName = \XSSHelpers::sanitizeHTML($fileName);
 
         for ($i = 0; $i < count($values); $i++) {
             if ($values[$i] == $fileName) {

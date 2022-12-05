@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../sources/Workflow.php';
 
 if (!class_exists('XSSHelpers'))
@@ -26,7 +28,7 @@ class WorkflowController extends RESTfulResponse
     public function get($act)
     {
         $workflow = $this->workflow;
-        
+
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
         $this->index['GET']->register('workflow/version', function () {
@@ -119,7 +121,7 @@ class WorkflowController extends RESTfulResponse
 
         $this->index['GET']->register('workflow/[digit]/step/[digit]/[text]/events/emailReminder', function ($args) use ( $workflow) {
             $workflow->setWorkflowID($args[0]);
-            return $workflow->getEmailReminderData((int)$args[1], XSSHelpers::xscrub($args[2]));
+            return $workflow->getEmailReminderData((int)$args[1], \XSSHelpers::xscrub($args[2]));
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -138,7 +140,7 @@ class WorkflowController extends RESTfulResponse
         $this->index['POST']->register('workflow/[digit]', function ($args) use ($workflow) {
             try
             {
-                $workflow->modify($args[0]);
+                //$workflow->modify($args[0]);
             }
             catch (Exception $e)
             {
@@ -149,13 +151,13 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/new', function ($args) use ($workflow) {
-            return $workflow->newWorkflow(XSSHelpers::xscrub($_POST['description']));
+            return $workflow->newWorkflow(\XSSHelpers::xscrub($_POST['description']));
         });
 
         $this->index['POST']->register('workflow/events', function ($args) use ($workflow) {
-            return $workflow->createEvent(XSSHelpers::xscrub($_POST['name']),
-                                          XSSHelpers::xscrub($_POST['description']),
-                                          XSSHelpers::xscrub($_POST['type']),
+            return $workflow->createEvent(\XSSHelpers::xscrub($_POST['name']),
+                                          \XSSHelpers::xscrub($_POST['description']),
+                                          \XSSHelpers::xscrub($_POST['type']),
                                           $_POST['data']);
         });
 
@@ -168,13 +170,13 @@ class WorkflowController extends RESTfulResponse
         $this->index['POST']->register('workflow/[digit]/action', function ($args) use ($workflow) {
             $workflow->setWorkflowID((int)$args[0]);
 
-            return $workflow->createAction((int)$_POST['stepID'], (int)$_POST['nextStepID'], XSSHelpers::xscrub($_POST['action']));
+            return $workflow->createAction((int)$_POST['stepID'], (int)$_POST['nextStepID'], \XSSHelpers::xscrub($_POST['action']));
         });
 
         $this->index['POST']->register('workflow/[digit]/step', function ($args) use ($workflow) {
             $workflow->setWorkflowID((int)$args[0]);
 
-            return $workflow->createStep(XSSHelpers::xscrub($_POST['stepTitle']), XSSHelpers::xscrub($_POST['stepBgColor']), XSSHelpers::xscrub($_POST['stepFontColor']));
+            return $workflow->createStep(\XSSHelpers::xscrub($_POST['stepTitle']), \XSSHelpers::xscrub($_POST['stepBgColor']), \XSSHelpers::xscrub($_POST['stepFontColor']));
         });
 
         $this->index['POST']->register('workflow/[digit]/initialStep', function ($args) use ($workflow) {
@@ -184,7 +186,7 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/step/[digit]', function ($args) use ($workflow) {
-            return $workflow->updateStep((int)$args[0], XSSHelpers::xscrub($_POST['title']));
+            return $workflow->updateStep((int)$args[0], \XSSHelpers::xscrub($_POST['title']));
         });
 
         $this->index['POST']->register('workflow/step/[digit]/dependencies', function ($args) use ($workflow) {
@@ -208,11 +210,11 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/dependencies', function ($args) use ($workflow) {
-            return $workflow->addDependency(XSSHelpers::xscrub($_POST['description']));
+            return $workflow->addDependency(\XSSHelpers::xscrub($_POST['description']));
         });
 
         $this->index['POST']->register('workflow/dependency/[digit]', function ($args) use ($workflow) {
-            return $workflow->updateDependency((int)$args[0], XSSHelpers::xscrub($_POST['description']));
+            return $workflow->updateDependency((int)$args[0], \XSSHelpers::xscrub($_POST['description']));
         });
 
         $this->index['POST']->register('workflow/dependency/[digit]/privileges', function ($args) use ($workflow) {
@@ -223,9 +225,9 @@ class WorkflowController extends RESTfulResponse
             $workflow->setWorkflowID((int)$args[0]);
             if($_POST['eventID'] == 'automated_email_reminder')
             {
-                $workflow->setEmailReminderData((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['frequency']), XSSHelpers::xscrub($_POST['recipientGroupID']), XSSHelpers::xscrub($_POST['emailTemplate']), XSSHelpers::xscrub($_POST['startDateIndicatorID']));
+                $workflow->setEmailReminderData((int)$args[1], \XSSHelpers::xscrub($args[2]), \XSSHelpers::xscrub($_POST['frequency']), \XSSHelpers::xscrub($_POST['recipientGroupID']), \XSSHelpers::xscrub($_POST['emailTemplate']), \XSSHelpers::xscrub($_POST['startDateIndicatorID']));
             }
-            return $workflow->linkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_POST['eventID']));
+            return $workflow->linkEvent((int)$args[1], \XSSHelpers::xscrub($args[2]), \XSSHelpers::xscrub($_POST['eventID']));
         });
 
         $this->index['POST']->register('workflow/editAction/[text]', function ($args) use ($workflow) {
@@ -234,9 +236,9 @@ class WorkflowController extends RESTfulResponse
 
         $this->index['POST']->register('workflow/editEvent/[text]', function ($args) use ($workflow) {
             return $workflow->editEvent($args[0],
-                                        XSSHelpers::xscrub($_POST['newName']),
-                                        XSSHelpers::xscrub($_POST['description']),
-                                        XSSHelpers::xscrub($_POST['type']),
+                                        \XSSHelpers::xscrub($_POST['newName']),
+                                        \XSSHelpers::xscrub($_POST['description']),
+                                        \XSSHelpers::xscrub($_POST['type']),
                                         $_POST['data']);
         });
 
@@ -276,9 +278,9 @@ class WorkflowController extends RESTfulResponse
 
             if($_GET['eventID'] == 'automated_email_reminder')
             {
-                $workflow->deleteEmailReminderData((int)$args[1], XSSHelpers::xscrub($args[2]));
+                $workflow->deleteEmailReminderData((int)$args[1], \XSSHelpers::xscrub($args[2]));
             }
-            return $workflow->unlinkEvent((int)$args[1], XSSHelpers::xscrub($args[2]), XSSHelpers::xscrub($_GET['eventID']));
+            return $workflow->unlinkEvent((int)$args[1], \XSSHelpers::xscrub($args[2]), \XSSHelpers::xscrub($_GET['eventID']));
         });
 
         $this->index['DELETE']->register('workflow/step/[digit]', function ($args) use ($workflow) {

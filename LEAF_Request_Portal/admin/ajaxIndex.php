@@ -28,11 +28,11 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -41,7 +41,7 @@ if (isset($settings['timeZone']))
     date_default_timezone_set($settings['timeZone']);
 }
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -66,7 +66,7 @@ switch ($action) {
     case 'add_user_old':
         checkToken();
 
-        $group = new Group($db, $login);
+        $group = new Portal\Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
 
         break;
@@ -75,7 +75,7 @@ switch ($action) {
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
-        $group = new Group($db, $login);
+        $group = new Portal\Group($db, $login);
         foreach ($deleteList as $del)
         {
             $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
@@ -85,14 +85,14 @@ switch ($action) {
     case 'add_user':
           checkToken();
 
-           $group = new Group($db, $login);
+           $group = new Portal\Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
 
            break;
     case 'remove_user':
            checkToken();
 
-           $group = new Group($db, $login);
+           $group = new Portal\Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
 
            break;
@@ -100,13 +100,13 @@ switch ($action) {
         if ($login->isLogin())
         {
             require '../sources/Form.php';
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
 
             $t_form->assign('form', $form->getFormByCategory($_GET['categoryID']));
             $t_form->display('print_form_ajax.tpl');
@@ -116,7 +116,7 @@ switch ($action) {
         break;
     case 'importForm':
         require '../sources/FormStack.php';
-        $formStack = new FormStack($db, $login);
+        $formStack = new Portal\FormStack($db, $login);
         $result = $formStack->importForm();
 
         echo $result;
@@ -124,7 +124,7 @@ switch ($action) {
         break;
     case 'manualImportForm':
            require '../sources/FormStack.php';
-           $formStack = new FormStack($db, $login);
+           $formStack = new Portal\FormStack($db, $login);
            $result = $formStack->importForm();
 
         if ($result === true)
@@ -140,7 +140,7 @@ switch ($action) {
            break;
     case 'uploadFile':
            require '../sources/System.php';
-           $system = new System($db, $login);
+           $system = new Portal\System($db, $login);
            $result = $system->newFile();
            if ($result === true)
            {
@@ -183,19 +183,19 @@ switch ($action) {
             case 'service':
                 include '../sources/Service.php';
                 $dataName = "All Services";
-                $type = new \Service($db, $login);
+                $type = new Portal\Service($db, $login);
                 break;
             case 'form':
                 include '../sources/FormEditor.php';
                 $dataName = "All Forms";
-                $type = new \FormEditor($db, $login);
+                $type = new Portal\FormEditor($db, $login);
                 break;
             case 'group':
                 include 'Group.php';
                 $dataName = "All Groups";
-                $type = new \Group($db, $login);
+                $type = new Portal\Group($db, $login);
 
-                include '../' . Config::$orgchartPath . '/sources/Group.php';
+                include '../' . Portal\Config::$orgchartPath . '/sources/Group.php';
                 $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
                 break;
         }
@@ -267,34 +267,34 @@ switch ($action) {
         switch ($typeName) {
             case 'service':
                 include '../sources/Service.php';
-                $type = new \Service($db, $login);
+                $type = new Portal\Service($db, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
                 include '../sources/FormEditor.php';
-                $type = new \FormEditor($db, $login);
+                $type = new Portal\FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
                 include 'Group.php';
-                $type = new \Group($db, $login);
+                $type = new Portal\Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
                 include '../sources/Workflow.php';
-                $type = new \Workflow($db, $login);
+                $type = new Portal\Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
                 include '../sources/System.php';
-                $type = new \System($db, $login);
+                $type = new Portal\System($db, $login);
                 $itemID = null;
                 $title = 'Primary Admin';
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
             case 'emailTemplate':
                 include '../sources/EmailTemplate.php';
-                $type = new \EmailTemplate($db, $login);
+                $type = new Portal\EmailTemplate($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

@@ -50,7 +50,7 @@ abstract class Data
         $this->db = $db;
         $this->login = $login;
         $this->initialize();
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
     /**
@@ -378,7 +378,7 @@ abstract class Data
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $commonConfig = new \CommonConfig();
+            $commonConfig = new \Leaf\CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -565,9 +565,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::ADD, \LoggableTypes::TAG, [
-            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::TAG, [
+            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -590,9 +590,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
-            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TAG, [
+            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -610,9 +610,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
-            new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TAG, [
+            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -733,7 +733,7 @@ abstract class Data
     }
 
     public function getHistory($filterById){
-        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, \LoggableTypes::GROUP);
+        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, \Leaf\LoggableTypes::GROUP);
     }
 
     /**
@@ -743,7 +743,9 @@ abstract class Data
      */
     public function getAllHistoryIDs()
     {
-        return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, \LoggableTypes::GROUP);
+        // this method doesn't accept any arguments
+        // return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, \Leaf\LoggableTypes::GROUP);
+        return $this->dataActionLogger->getAllHistoryIDs();
     }
 
 }

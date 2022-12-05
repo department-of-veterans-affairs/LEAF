@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../sources/Form.php';
 require '../sources/FormEditor.php';
 
@@ -47,7 +49,7 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['GET']->register('formEditor/indicator/[digit]', function ($args) use ($form, $formEditor) {
             $parseTemplate = isset($_GET['parseTemplate']);
-            $recordID = isset($_GET['recordID']) ? XSSHelpers::xscrub($_GET['recordID']) : null;
+            $recordID = isset($_GET['recordID']) ? \XSSHelpers::xscrub($_GET['recordID']) : null;
             return $form->getIndicator($args[0], 1, $recordID, $parseTemplate);
         });
 
@@ -60,7 +62,7 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['GET']->register('formEditor/[text]/stapled', function ($args) use ($formEditor) {
-            return $formEditor->getStapledCategories(XSSHelpers::xscrub($args[0]));
+            return $formEditor->getStapledCategories(\XSSHelpers::xscrub($args[0]));
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -79,12 +81,12 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/newIndicator', function ($args) use ($formEditor) {
             $package = array();
-            $package['name'] = XSSHelpers::sanitizeHTML($_POST['name']);
+            $package['name'] = \XSSHelpers::sanitizeHTML($_POST['name']);
             $package['format'] = strip_tags($_POST['format']);
-            $package['description'] = XSSHelpers::sanitizeHTML($_POST['description']);
-            $package['default'] = XSSHelpers::sanitizeHTML($_POST['default']);
+            $package['description'] = \XSSHelpers::sanitizeHTML($_POST['description']);
+            $package['default'] = \XSSHelpers::sanitizeHTML($_POST['default']);
             $package['parentID'] = $_POST['parentID'] ? (int)$_POST['parentID'] : null;
-            $package['categoryID'] = XSSHelpers::xscrub($_POST['categoryID']);
+            $package['categoryID'] = \XSSHelpers::xscrub($_POST['categoryID']);
             $package['html'] = $_POST['html'];
             $package['htmlPrint'] = $_POST['htmlPrint'];
             $package['conditions'] = $_POST['conditions'];
@@ -104,11 +106,11 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['POST']->register('formEditor/[digit]/description', function ($args) use ($formEditor) {
-            return $formEditor->setDescription($args[0], XSSHelpers::sanitizeHTML($_POST['description']));
+            return $formEditor->setDescription($args[0], \XSSHelpers::sanitizeHTML($_POST['description']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/default', function ($args) use ($formEditor) {
-            return $formEditor->setDefault($args[0], XSSHelpers::sanitizeHTML($_POST['default']));
+            return $formEditor->setDefault($args[0], \XSSHelpers::sanitizeHTML($_POST['default']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/parentID', function ($args) use ($formEditor) {
@@ -116,7 +118,7 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['POST']->register('formEditor/[digit]/categoryID', function ($args) use ($formEditor) {
-            return $formEditor->setCategoryID((int)$args[0], XSSHelpers::xscrub($_POST['categoryID']));
+            return $formEditor->setCategoryID((int)$args[0], \XSSHelpers::xscrub($_POST['categoryID']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/required', function ($args) use ($formEditor) {
@@ -136,7 +138,7 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['POST']->register('formEditor/formType', function ($args) use ($formEditor) {
-            return $formEditor->setFormType(XSSHelpers::xscrub($_POST['categoryID']), XSSHelpers::xscrub($_POST['type']));
+            return $formEditor->setFormType(\XSSHelpers::xscrub($_POST['categoryID']), \XSSHelpers::xscrub($_POST['type']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/sort', function ($args) use ($formEditor) {
@@ -160,48 +162,48 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor) {
             return $formEditor->createForm(
-                XSSHelpers::sanitizeHTML($_POST['name']),
-                XSSHelpers::sanitizeHTML($_POST['description']),
-                XSSHelpers::sanitizeHTML($_POST['parentID'])
+                \XSSHelpers::sanitizeHTML($_POST['name']),
+                \XSSHelpers::sanitizeHTML($_POST['description']),
+                \XSSHelpers::sanitizeHTML($_POST['parentID'])
             );
         });
 
         $this->index['POST']->register('formEditor/formName', function ($args) use ($formEditor) {
             return $formEditor->setFormName(
                 strip_tags($_POST['categoryID']),
-                XSSHelpers::sanitizeHTML($_POST['name'])
+                \XSSHelpers::sanitizeHTML($_POST['name'])
             );
         });
 
         $this->index['POST']->register('formEditor/formDescription', function ($args) use ($formEditor) {
             return $formEditor->setFormDescription(
                 $_POST['categoryID'],
-                XSSHelpers::sanitizeHTML($_POST['description'])
+                \XSSHelpers::sanitizeHTML($_POST['description'])
             );
         });
 
         $this->index['POST']->register('formEditor/formWorkflow', function ($args) use ($formEditor) {
-            return $formEditor->setFormWorkflow(XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['workflowID']);
+            return $formEditor->setFormWorkflow(\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['workflowID']);
         });
 
         $this->index['POST']->register('formEditor/formNeedToKnow', function ($args) use ($formEditor) {
-            return $formEditor->setFormNeedToKnow(XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['needToKnow']);
+            return $formEditor->setFormNeedToKnow(\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['needToKnow']);
         });
 
         $this->index['POST']->register('formEditor/formSort', function ($args) use ($formEditor) {
-            return $formEditor->setFormSort(XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['sort']);
+            return $formEditor->setFormSort(\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['sort']);
         });
 
         $this->index['POST']->register('formEditor/formVisible', function ($args) use ($formEditor) {
-            return $formEditor->setFormVisible(XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['visible']);
+            return $formEditor->setFormVisible(\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['visible']);
         });
 
         $this->index['POST']->register('formEditor/[text]/privileges', function ($args) use ($formEditor) {
-            return $formEditor->setCategoryPrivileges(XSSHelpers::xscrub($args[0]), (int)$_POST['groupID'], (int)$_POST['read'], (int)$_POST['write']);
+            return $formEditor->setCategoryPrivileges(\XSSHelpers::xscrub($args[0]), (int)$_POST['groupID'], (int)$_POST['read'], (int)$_POST['write']);
         });
 
         $this->index['POST']->register('formEditor/[text]/stapled', function ($args) use ($formEditor) {
-            return $formEditor->addStapledCategory(XSSHelpers::xscrub($args[0]), XSSHelpers::xscrub($_POST['stapledCategoryID']));
+            return $formEditor->addStapledCategory(\XSSHelpers::xscrub($args[0]), \XSSHelpers::xscrub($_POST['stapledCategoryID']));
         });
 
         $this->index['POST']->register('formEditor/indicator/[digit]/privileges/remove', function ($args) use ($formEditor) {
@@ -246,7 +248,7 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['DELETE']->register('formEditor/[text]/stapled/[text]', function ($args) use ($formEditor) {
-            return $formEditor->removeStapledCategory(XSSHelpers::xscrub($args[0]), XSSHelpers::xscrub($args[1]));
+            return $formEditor->removeStapledCategory(\XSSHelpers::xscrub($args[0]), \XSSHelpers::xscrub($args[1]));
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

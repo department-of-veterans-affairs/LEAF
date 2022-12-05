@@ -10,7 +10,7 @@ include './sources/Login.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 session_cache_limiter('');
 $login = new Orgchart\Login($db, $db);

@@ -19,10 +19,10 @@ include_once $currDir . '/../../libs/php-commons/Db.php';
 include_once $currDir . '/../sources/DbConfig.php';
 include_once $currDir . '/../sources/Config.php';
 
-$db_config = new DbConfig();
-$config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))

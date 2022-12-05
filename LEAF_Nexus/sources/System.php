@@ -14,11 +14,11 @@ namespace Orgchart;
 require_once 'Data.php';
 if(!class_exists('LogFormatter'))
 {
-    require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
+    require_once dirname(__FILE__) . '/../../libs/logger/logFormatter.php';
 }
 if(!class_exists('LogItem'))
 {
-    require_once dirname(__FILE__) . '/../../libs/logItem.php';
+    require_once dirname(__FILE__) . '/../../libs/logger/logItem.php';
 }
 
 class System
@@ -36,7 +36,7 @@ class System
         $this->db = $db;
         $this->login = $login;
 
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -311,9 +311,9 @@ class System
 
             $primary = $this->getPrimaryAdmin();
 
-            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PRIMARY_ADMIN, [
-                new \LogItem("settings", "setting", 'primaryAdmin'),
-                new \LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
+            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
+                new \Leaf\LogItem("settings", "setting", 'primaryAdmin'),
+                new \Leaf\LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
             ]);
         }
 
@@ -332,9 +332,9 @@ class System
         $strSQL = "DELETE FROM `settings` WHERE `setting` = 'primaryAdmin'";
         $result = $this->db->query($strSQL);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
-            new \LogItem("users", "primary_admin", 1),
-            new \LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
+            new \Leaf\LogItem("users", "primary_admin", 1),
+            new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;

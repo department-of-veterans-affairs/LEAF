@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../sources/Service.php';
 
 if (!class_exists('XSSHelpers'))
@@ -66,7 +68,7 @@ class ServiceController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('service', function ($args) use ($db, $login, $service) {
-            return $service->addService(XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
+            return $service->addService(\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
         });
 
         $this->index['POST']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {

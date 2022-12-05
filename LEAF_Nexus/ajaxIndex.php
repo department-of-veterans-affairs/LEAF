@@ -22,14 +22,14 @@ include './sources/Exception.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set(\XSSHelpers::xscrub($settings['timeZone']));
+    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
 }
 
 

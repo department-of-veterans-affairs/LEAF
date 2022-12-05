@@ -153,13 +153,13 @@ private static $db;
 
 public static function setUpBeforeClass()
 {
-    $db_config = new DbConfig();
+    $db_config = new Portal\DbConfig();
 
     //portal DB
-    self::$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+    self::$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
     //nexus DB
-    self::$db = new DB($db_config->phonedbHost, $db_config->phonedbUser, $db_config->phonedbPass, $db_config->phonedbName);
+    self::$db = new Leaf\Db($db_config->phonedbHost, $db_config->phonedbUser, $db_config->phonedbPass, $db_config->phonedbName);
 }
 
 public function test() : void

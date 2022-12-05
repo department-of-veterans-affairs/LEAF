@@ -30,7 +30,7 @@ $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new \Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');

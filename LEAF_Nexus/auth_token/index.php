@@ -15,7 +15,7 @@ include '../../libs/php-commons/Db.php';
 include '../sources/config.php';
 
 $config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
@@ -55,7 +55,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     else
     {
         // try searching through national database
-        $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)

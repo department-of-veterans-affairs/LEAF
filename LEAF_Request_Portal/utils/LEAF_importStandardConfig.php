@@ -6,9 +6,9 @@ include '../../libs/php-commons/Db.php';
 include '../sources/DbConfig.php';
 
 $debug = false;
-$db_config = new DbConfig();
+$db_config = new Portal\DbConfig();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
 $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
@@ -70,7 +70,6 @@ function importTable($db, $tempFolder, $table) {
             break;
         default:
             exit();
-            break;
     }
 
     $resFields = $db->query("DESCRIBE {$table}");

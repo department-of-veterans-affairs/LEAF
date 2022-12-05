@@ -14,10 +14,10 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DbConfig();
+$db_config = new Portal\DbConfig();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$dir = new VAMC_Directory();
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$dir = new Portal\VAMC_Directory();
 
 $groups = $db->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
 echo 'Access Groups:';

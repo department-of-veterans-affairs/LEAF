@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../sources/FormStack.php';
 
 if (!class_exists('XSSHelpers'))
@@ -79,7 +81,7 @@ class FormStackController extends RESTfulResponse
         });
 
         $this->index['DELETE']->register('formStack/[text]', function ($args) use ($formStack) {
-            return $formStack->deleteForm(XSSHelpers::xscrub($args[0]));
+            return $formStack->deleteForm(\XSSHelpers::xscrub($args[0]));
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

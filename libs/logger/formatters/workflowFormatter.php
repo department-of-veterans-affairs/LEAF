@@ -1,5 +1,7 @@
 <?php
 
+namespace Leaf;
+
 require_once 'loggableTypes.php';
 require_once 'dataActions.php';
 require_once 'formatOptions.php';
@@ -11,8 +13,8 @@ class WorkflowFormatter {
      * The attributes differ based on the type of action.
      * The attributes are described in the variables property of each template.
      */
-    
-    
+
+
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_STEP => [
             "message"=>"Workflow Step <strong>%s</strong> - <strong>%s</strong> has been added",
@@ -64,7 +66,7 @@ class WorkflowFormatter {
             "message"=>"Workflow <strong>%s</strong> initial step set to <strong>%s</strong>",
             "variables"=>"workflowID,initialStepID"
         ]
-        
+
     ];
 
 }

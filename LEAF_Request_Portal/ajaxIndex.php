@@ -26,11 +26,11 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
 function customTemplate($tpl)
@@ -38,9 +38,9 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 
-$dataActionLogger = new DataActionLogger($db, $login);
+$dataActionLogger = new Leaf\DataActionLogger($db, $login);
 
 $login->loginUser();
 if ($login)
@@ -59,7 +59,7 @@ $main->assign('emergency', '');
 
 switch ($action) {
     case 'newform':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
         {   session_write_close();
@@ -73,7 +73,7 @@ switch ($action) {
 
         break;
     case 'getindicator':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['indicatorID']))
         {
             $t_form = new Smarty;
@@ -94,8 +94,8 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
-                $t_form->assign('orgchartPath', Config::$orgchartPath);
-                $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
+                $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+                $t_form->assign('orgchartImportTag', Portal\Config::$orgchartImportTags[0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
@@ -107,7 +107,7 @@ switch ($action) {
 
         break;
     case 'getprintindicator':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
@@ -125,14 +125,14 @@ switch ($action) {
                 $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
-                $t_form->assign('orgchartPath', Config::$orgchartPath);
+                $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
 
         break;
     case 'getindicatorlog':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
@@ -150,7 +150,7 @@ switch ($action) {
 
         break;
     case 'domodify':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         echo $form->doModify((int)$_POST['recordID']);
 
         break;
@@ -202,7 +202,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if ($parallelProcessing)
@@ -216,7 +216,7 @@ switch ($action) {
 
         break;
     case 'dosubmit': // legacy action
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $recordID = (int)$_GET['recordID'];
         if (is_numeric($recordID) && $form->getProgress($recordID) >= 100)
         {
@@ -239,7 +239,7 @@ switch ($action) {
     case 'cancel':
         if (is_numeric($_POST['cancel']))
         {
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
             echo $form->deleteRecord((int)$_POST['cancel']);
         }
 
@@ -247,7 +247,7 @@ switch ($action) {
     case 'restore':
         if (is_numeric($_POST['restore']))
         {
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
             echo $form->restoreRecord((int)$_POST['restore']);
         }
 
@@ -279,7 +279,7 @@ switch ($action) {
 
         if ($uploadOk)
         {
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
             if ($form->doModify($_GET['recordID']))
             {
                 $recordID = (int)$_GET['recordID'];
@@ -351,15 +351,15 @@ switch ($action) {
 
         break;
     case 'deleteattachment':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
 
         echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], XSSHelpers::xscrub($_POST['series']), XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
         require 'sources/View.php';
-        $form = new Form($db, $login);
-        $view = new View($db, $login);
+        $form = new Portal\Form($db, $login);
+        $view = new Portal\View($db, $login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -383,7 +383,7 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
             $recordIDToPrint = (int)$_GET['recordID'];
 
             $recordInfo = $form->getRecordInfo($recordIDToPrint);
@@ -413,7 +413,7 @@ switch ($action) {
             $t_form->assign('date', $recordInfo['submitted']);
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {
@@ -464,7 +464,7 @@ switch ($action) {
 
         break;
     case 'gettags':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
@@ -478,7 +478,7 @@ switch ($action) {
 
         break;
     case 'getformtags':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
@@ -492,7 +492,7 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -506,7 +506,7 @@ switch ($action) {
 
         break;
     case 'updatetags':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $form->parseTags((int)$_POST['recordID'], XSSHelpers::xscrub($_POST['taginput']));
 
         break;
@@ -515,7 +515,7 @@ switch ($action) {
         {
             exit();
         }
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;
@@ -524,7 +524,7 @@ switch ($action) {
         {
             exit();
         }
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;

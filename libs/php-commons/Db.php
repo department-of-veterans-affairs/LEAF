@@ -9,6 +9,8 @@
 
  */
 
+namespace Leaf;
+
 class Db
 {
     private $db;                        // The database object
@@ -46,10 +48,10 @@ class Db
             $pdo_options = [
                 // Error reporting mode of PDO. Can take one of the following values:
                 // PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
             ];
 
-            $this->db = new PDO(
+            $this->db = new \PDO(
                 "mysql:host={$this->dbHost};dbname={$this->dbName};charset=UTF8",
                 $this->dbUser,
                 $pass,
@@ -62,7 +64,7 @@ class Db
                     $this->db->rollBack();
                 }
             });
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             trigger_error('DB conn: ' . $e->getMessage());
 
             if (!$abortOnError) {
@@ -108,7 +110,7 @@ class Db
 
         try {
             $this->db = null;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logError('Connection normal closed: '.$e);
         }
     }
@@ -172,14 +174,14 @@ class Db
             if ($this->debug >= 2)
             {
                 $query = $this->db->query('EXPLAIN ' . $sql);
-                $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
+                $this->log[] = $query->fetchAll(\PDO::FETCH_ASSOC);
             }
         }
 
         $res = $this->db->query($sql);
         if ($res !== false)
         {
-            return $res->fetchAll(PDO::FETCH_ASSOC);
+            return $res->fetchAll(\PDO::FETCH_ASSOC);
         }
         $err = $this->db->errorInfo();
         $this->logError($err[2]);
@@ -263,7 +265,7 @@ class Db
             {
                 $query = $this->db->prepare('EXPLAIN ' . $sql);
                 $query->execute($vars);
-                $this->log[] = $query->fetchAll(PDO::FETCH_ASSOC);
+                $this->log[] = $query->fetchAll(\PDO::FETCH_ASSOC);
             }
         }
 
@@ -272,7 +274,7 @@ class Db
             $query = $this->db->prepare($sql);
             try {
                 $query->execute($vars);
-            } catch (PDOException $e) {
+            } catch (\PDOException $e) {
                 if ($this->runErrors)
                 {
                     $this->show_data(["sql"=>$sql,"exception"=>$e]);
@@ -289,7 +291,7 @@ class Db
             $this->time += microtime(true) - $time1;
         }
 
-        return $query->fetchAll(PDO::FETCH_ASSOC);
+        return $query->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     private function show_data(array $dataIn = []) {

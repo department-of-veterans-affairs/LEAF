@@ -15,7 +15,7 @@ require_once __DIR__ . '/../../../LEAF_Nexus/api/ControllerMap.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
@@ -39,11 +39,11 @@ else
     $key = substr($action, 0, $keyIndex);
 }
 
-$controllerMap = new ControllerMap();
+$controllerMap = new Orgchart\ControllerMap();
 
 $controllerMap->register('group', function () use ($db, $login, $action) {
     require 'controllers/GroupController.php';
-    $groupController = new GroupController($db, $login);
+    $groupController = new Orgchart\GroupController($db, $login);
     $groupController->handler($action);
 });
 

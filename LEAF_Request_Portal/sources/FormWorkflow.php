@@ -8,6 +8,8 @@
     Date Created: May 25, 2011
 */
 
+namespace Portal;
+
 if (!class_exists('XSSHelpers'))
 {
     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
@@ -65,7 +67,7 @@ class FormWorkflow
     /**
      * Retrieves current steps of a form's workflow, controls access to steps
      * @return array database result
-     * @return null if no database result
+     * @return array|int|null if no database result
      */
     public function getCurrentSteps()
     {
@@ -329,7 +331,7 @@ class FormWorkflow
         // sanitize the comment on the action
         if (isset($res[0]) && isset($res[0]['comment']))
         {
-            $res[0]['comment'] = XSSHelpers::sanitizeHTML($res[0]['comment']);
+            $res[0]['comment'] = \XSSHelpers::sanitizeHTML($res[0]['comment']);
         }
 
         return $res[0];
@@ -419,7 +421,7 @@ class FormWorkflow
         {
             return array('status' => 0, 'errors' => array('Invalid Token'));
         }
-        $comment = XSSHelpers::sanitizeHTML($comment);
+        $comment = \XSSHelpers::sanitizeHTML($comment);
         $time = time();
 
         // first check if the user has access
@@ -818,7 +820,7 @@ class FormWorkflow
                 "comment" => $comment,
                 "siteRoot" => $this->siteRoot
             ));
-            $email->setTemplateByID(\Email::SEND_BACK);
+            $email->setTemplateByID(Email::SEND_BACK);
 
             $dir = new VAMC_Directory;
 
@@ -909,7 +911,7 @@ class FormWorkflow
                         "comment" => $comment,
                         "siteRoot" => $this->siteRoot
                     ));
-                    $email->setTemplateByID(\Email::NOTIFY_COMPLETE);
+                    $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
                     $dir = new VAMC_Directory;
 
@@ -1046,7 +1048,7 @@ class FormWorkflow
         {
             return false;
         }
-        $comment = XSSHelpers::sanitizeHTML($comment);
+        $comment = \XSSHelpers::sanitizeHTML($comment);
 
         if ($this->recordID == 0
             || (!$this->login->checkGroup(1) && $bypassAdmin == false))

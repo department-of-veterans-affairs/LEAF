@@ -180,7 +180,7 @@ class Login
         }
 
         // try to copy the user from the national DB
-        $globalDB = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $_SESSION['userID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee
 											LEFT JOIN employee_data USING (empUID)

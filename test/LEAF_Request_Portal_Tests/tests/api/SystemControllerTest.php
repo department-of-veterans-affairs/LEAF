@@ -19,8 +19,8 @@ final class SystemControllerTest extends DatabaseTest
 
     public static function setUpBeforeClass()
     {
-        $db_config = new DbConfig();
-        self::$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $db_config = new Portal\DbConfig();
+        self::$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
         self::$reqClient = LEAFClient::createRequestPortalClient();
     }
 

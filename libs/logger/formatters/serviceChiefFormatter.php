@@ -1,5 +1,7 @@
 <?php
 
+namespace Leaf;
+
 require_once 'loggableTypes.php';
 require_once 'dataActions.php';
 

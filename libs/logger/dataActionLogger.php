@@ -1,5 +1,7 @@
 <?php
 
+namespace Leaf;
+
 require_once 'logFormatter.php';
 require_once 'logItem.php';
 

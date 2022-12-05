@@ -10,22 +10,22 @@ include 'sources/Config.php';
 include 'sources/Login.php';
 include 'sources/Form.php';
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
 if (!class_exists('XSSHelpers'))
 {
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 $login->loginUser();
 
-$form = new Form($db, $login);
+$form = new Portal\Form($db, $login);
 
 $data = $form->getIndicator(
     XSSHelpers::xscrub($_GET['id']),
@@ -47,8 +47,8 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-$filename = $uploadDir . Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
+$uploadDir = isset(Portal\Config::$uploadDir) ? Portal\Config::$uploadDir : UPLOAD_DIR;
+$filename = $uploadDir . Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 if (file_exists($filename))
 {

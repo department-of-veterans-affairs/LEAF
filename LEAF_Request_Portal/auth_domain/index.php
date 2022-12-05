@@ -11,16 +11,17 @@
 
 include '../globals.php';
 include '../sources/Login.php';
+include '../sources/Session.php';
 include '../../libs/php-commons/Db.php';
 include '../sources/DbConfig.php';
 include '../sources/Config.php';
 
-$db_config = new DbConfig();
-$config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 
 if (isset($_SERVER['REMOTE_USER']))
 {
@@ -58,7 +59,7 @@ if (isset($_SERVER['REMOTE_USER']))
     else
     {
         // try searching through national database
-        $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $user);
         $res = $globalDB->prepared_query('SELECT * FROM employee
 											LEFT JOIN employee_data USING (empUID)

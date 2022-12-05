@@ -1,5 +1,7 @@
 <?php
 
+namespace Leaf;
+
 class LoggableTypes {
     const GROUP = 'group';
     const PRIVILEGES = 'privileges';

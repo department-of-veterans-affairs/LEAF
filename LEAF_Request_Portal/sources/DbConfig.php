@@ -11,6 +11,8 @@
     This should be kept outside of web accessible directories
 */
 
+namespace Portal;
+
 class DbConfig
 {
     public $dbHost = DIRECTORY_HOST;

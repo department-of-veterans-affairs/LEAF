@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../sources/Signature.php';
 if (!class_exists('XSSHelpers'))
 {
@@ -54,12 +56,12 @@ class SignatureController extends RESTfulResponse
 
         $this->index['POST']->register('signature/create', function () use ($signature) {
             return $signature->create(
-                XSSHelpers::sanitizeHTML($_POST['signature']),
+                \XSSHelpers::sanitizeHTML($_POST['signature']),
                 (int)$_POST['recordID'],
                 (int)$_POST['stepID'],
                 (int)$_POST['dependencyID'],
-                XSSHelpers::sanitizeHTML($_POST['message']),
-                XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
+                \XSSHelpers::sanitizeHTML($_POST['message']),
+                \XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
             );
         });
 

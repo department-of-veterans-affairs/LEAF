@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../globals.php';
@@ -48,10 +50,10 @@ class System
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
-        $commonConfig = new CommonConfig();
+        $commonConfig = new \Leaf\CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
     public function updateService($serviceID)
@@ -71,11 +73,11 @@ class System
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new Orgchart\Group($db_phonebook, $this->login);
-        $position = new Orgchart\Position($db_phonebook, $this->login);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
-        $tag = new Orgchart\Tag($db_phonebook, $this->login);
+        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $group = new \Orgchart\Group($db_phonebook, $this->login);
+        $position = new \Orgchart\Position($db_phonebook, $this->login);
+        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $tag = new \Orgchart\Tag($db_phonebook, $this->login);
 
         // find quadrad/ELT tag name, and find groupID
         $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($serviceID), $tag->getParent('service'));
@@ -190,11 +192,11 @@ class System
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new Orgchart\Group($db_phonebook, $this->login);
-        $position = new Orgchart\Position($db_phonebook, $this->login);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
-        $tag = new Orgchart\Tag($db_phonebook, $this->login);
+        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $group = new \Orgchart\Group($db_phonebook, $this->login);
+        $position = new \Orgchart\Position($db_phonebook, $this->login);
+        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $tag = new \Orgchart\Tag($db_phonebook, $this->login);
 
         // find quadrad/ELT tag name
         $upperLevelTag = $tag->getParent('service');
@@ -313,11 +315,11 @@ class System
             include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
             $config = new Config();
-            $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-            $group = new Orgchart\Group($db_phonebook, $this->login);
-            $position = new Orgchart\Position($db_phonebook, $this->login);
-            $employee = new Orgchart\Employee($db_phonebook, $this->login);
-            $tag = new Orgchart\Tag($db_phonebook, $this->login);
+            $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+            $group = new \Orgchart\Group($db_phonebook, $this->login);
+            $position = new \Orgchart\Position($db_phonebook, $this->login);
+            $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+            $tag = new \Orgchart\Tag($db_phonebook, $this->login);
 
             // find quadrad/ELT tag name
             $upperLevelTag = $tag->getParent('service');
@@ -562,7 +564,7 @@ class System
             return 'Admin access required';
         }
 
-        if (array_search($_POST['timeZone'], DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US')) === false)
+        if (array_search($_POST['timeZone'], \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US')) === false)
         {
             return 'Invalid timezone';
         }
@@ -606,7 +608,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
+        $vars = array(':input' => \XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedSubordinateList"', $vars);
 
         return 1;
@@ -619,7 +621,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedPrimary']));
+        $vars = array(':input' => \XSSHelpers::xscrub($_POST['national_linkedPrimary']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedPrimary"', $vars);
 
         return 1;
@@ -783,8 +785,8 @@ class System
             return 'Invalid Token.';
         }
         $in = $_FILES['file']['name'];
-        $fileName = XSSHelpers::scrubFilename($in);
-        $fileName = XSSHelpers::xscrub($fileName);
+        $fileName = \XSSHelpers::scrubFilename($in);
+        $fileName = \XSSHelpers::xscrub($fileName);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
@@ -866,7 +868,7 @@ class System
      */
     public function setPrimaryAdmin()
     {
-        $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
+        $vars = array(':userID' => \XSSHelpers::xscrub($_POST['userID']));
         //check if user is system admin
         $res = $this->db->prepared_query('SELECT *
                                             FROM `users`
@@ -884,9 +886,9 @@ class System
 
             $primary = $this->getPrimaryAdmin();
 
-            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PRIMARY_ADMIN, [
-                new LogItem("users", "primary_admin", 1),
-                new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
+                new \Leaf\LogItem("users", "primary_admin", 1),
+                new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
             ]);
         }
         else
@@ -909,9 +911,9 @@ class System
 
         $result = $this->db->prepared_query('UPDATE `users` SET `primary_admin` = 0', array());
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PRIMARY_ADMIN, [
-            new LogItem("users", "primary_admin", 1),
-            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
+            new \Leaf\LogItem("users", "primary_admin", 1),
+            new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;
@@ -919,13 +921,13 @@ class System
 
     public function getHistory($filterById)
     {
-        return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
+        return $this->dataActionLogger->getHistory($filterById, null, \Leaf\LoggableTypes::PRIMARY_ADMIN);
     }
 
     /**
      *
-     * @param \Group $org_group
-     * @param \Service $org_service
+     * @param Group $org_group
+     * @param Service $org_service
      * @param \OrgChart\Group $nexus_group
      * @param \OrgChart\Employee $nexus_employee
      * @param \OrgChart\Tag $nexus_tag
@@ -935,7 +937,7 @@ class System
      *
      * Created at: 10/3/2022, 6:59:30 AM (America/New_York)
      */
-    public function syncSystem(\Group $org_group, \Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): string
+    public function syncSystem(Group $org_group, Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): string
     {
         $nexus_services = array();
         $nexus_chiefs = array();
@@ -1092,13 +1094,13 @@ class System
      * @param array $portal_chiefs
      * @param array $nexus_services
      * @param array $nexus_chiefs
-     * @param \Service $org_service
+     * @param Service $org_service
      *
      * @return void
      *
      * Created at: 9/14/2022, 4:12:49 PM (America/New_York)
      */
-    private function processServices(array $portal_services, array $portal_chiefs, array $nexus_services, array $nexus_chiefs, \Service $org_service): void
+    private function processServices(array $portal_services, array $portal_chiefs, array $nexus_services, array $nexus_chiefs, Service $org_service): void
     {
         // find service records to delete on portal side
         foreach($portal_services as $service) {
@@ -1160,13 +1162,13 @@ class System
      * @param array $portal_users
      * @param array $nexus_groups
      * @param array $nexus_users
-     * @param \Group $org_group
+     * @param Group $org_group
      *
      * @return void
      *
      * Created at: 10/3/2022, 7:02:32 AM (America/New_York)
      */
-    private function processGroups(array $portal_groups, array $portal_users, array $nexus_groups, array $nexus_users, \Group $org_group): void
+    private function processGroups(array $portal_groups, array $portal_users, array $nexus_groups, array $nexus_users, Group $org_group): void
     {
         // find group records to delete on portal side
         foreach($portal_groups as $group) {
@@ -1233,13 +1235,13 @@ class System
     /**
      * getOrgchartImportTags retrieves
      *
-     * @param OrgChart\Group $group
+     * @param \OrgChart\Group $group
      *
      * @return array
      *
      * Created at: 9/14/2022, 7:35:53 AM (America/New_York)
      */
-    private function getOrgchartImportTags(OrgChart\Group $group): array
+    private function getOrgchartImportTags(\OrgChart\Group $group): array
     {
         $groups = array();
 

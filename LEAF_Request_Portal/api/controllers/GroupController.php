@@ -5,6 +5,8 @@
 
 // Since Groups are primarily controlled via the Org. Chart, this provides read access to the local group database.
 
+namespace Portal;
+
 require '../sources/Group.php';
 
 if (!class_exists('XSSHelpers'))
@@ -61,12 +63,12 @@ class GroupController extends RESTfulResponse
         $this->index['POST'] = new ControllerMap();
 
         $this->index['POST']->register('group', function ($args) use ($group) {
-            return $group->addGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+            return $group->addGroup(\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
         });
 
         // Controller for Import Group
         $this->index['POST']->register('group/import', function ($args) use ($group) {
-            return $group->importGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+            return $group->importGroup(\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
         });
 
         $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {

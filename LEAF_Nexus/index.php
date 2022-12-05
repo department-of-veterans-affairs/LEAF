@@ -17,16 +17,13 @@ include './sources/Login.php';
 include '../libs/php-commons/Db.php';
 include './sources/config.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
+include_once '/../libs/php-commons/XSSHelpers.php';
 
 $config = new Orgchart\Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 
@@ -47,7 +44,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? \XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -56,7 +53,7 @@ function customTemplate($tpl)
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', \XSSHelpers::sanitizeHTML($login->getName()));
+$t_login->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -83,12 +80,12 @@ switch ($action) {
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
         $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
-        $t_form->assign('header', \XSSHelpers::sanitizeHTML($_GET['header']));
+        $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $HTTP_HOST = \XSSHelpers::sanitizeHTML(HTTP_HOST);
+        $HTTP_HOST = XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$HTTP_HOST}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
@@ -122,7 +119,7 @@ switch ($action) {
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $scrubbedHost = \XSSHelpers::sanitizeHTML(HTTP_HOST);
+        $scrubbedHost = XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
@@ -386,7 +383,7 @@ switch ($action) {
         $t_form->assign('UID', (int)$_GET['UID']);
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
-        $t_form->assign('CSRFToken', \XSSHelpers::xscrub($_SESSION['CSRFToken']));
+        $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
         $main->assign('body', $t_form->fetch('view_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -500,7 +497,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', \XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -573,7 +570,7 @@ switch ($action) {
 }
 
 $memberships = $login->getMembership();
-$t_menu->assign('action', \XSSHelpers::xscrub($action));
+$t_menu->assign('action', XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
@@ -582,9 +579,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', \XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', \XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', \XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

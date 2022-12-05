@@ -19,16 +19,16 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB()) {
@@ -76,9 +76,9 @@ switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         include './sources/FormStack.php';
-        $stack = new FormStack($db, $login);
+        $stack = new Portal\FormStack($db, $login);
 
         $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
@@ -123,7 +123,7 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         // prevent view if form is submitted
         // defines who can edit the form
         if ($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1))
@@ -192,7 +192,7 @@ switch ($action) {
 
         $recordIDToPrint = (int)$_GET['recordID'];
 
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_menu->assign('recordID', $recordIDToPrint);
         $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
@@ -206,7 +206,7 @@ switch ($action) {
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
         $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
         $t_form->assign('accessLogs', $form->log);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
@@ -233,7 +233,7 @@ switch ($action) {
 
         // get workflow status and check permissions
         require_once 'sources/FormWorkflow.php';
-        $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
+        $formWorkflow = new Portal\FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
         switch ($action) {
@@ -278,7 +278,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         require_once 'sources/Inbox.php';
-        $inbox = new Inbox($db, $login);
+        $inbox = new Portal\Inbox($db, $login);
 
         $inboxItems = $inbox->getInbox();
 
@@ -314,9 +314,9 @@ switch ($action) {
 
         break;
     case 'status':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         include_once 'sources/View.php';
-        $view = new View($db, $login);
+        $view = new Portal\View($db, $login);
         $recordIDForStatus = (int)$_GET['recordID'];
 
         $t_menu->assign('recordID', $recordIDForStatus);
@@ -364,7 +364,7 @@ switch ($action) {
            break;
     case 'bookmarks':
         include_once 'sources/View.php';
-        $view = new View($db, $login);
+        $view = new Portal\View($db, $login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -381,7 +381,7 @@ switch ($action) {
 
         break;
     case 'tag_cloud':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $tags = $form->getUniqueTags();
         $count = 0;
         $tempTags = array();
@@ -403,7 +403,7 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -440,7 +440,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
@@ -450,7 +450,7 @@ switch ($action) {
         break;
 
     case 'sitemap':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -487,7 +487,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
@@ -520,8 +520,6 @@ switch ($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
         $main->display(customTemplate('main.tpl'));
         exit();
-
-        break;
     default:
         $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
         $main->assign('useLiteUI', true);
@@ -538,13 +536,13 @@ switch ($action) {
         $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('is_quadrad', (int)$login->isQuadrad() || (int)$login->checkGroup(1));
         $t_form->assign('is_admin', (int)$login->checkGroup(1));
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
         require_once 'sources/Inbox.php';
-        $inbox = new Inbox($db, $login);
+        $inbox = new Portal\Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
         $t_form->assign('inbox_status', 1);
 
@@ -564,7 +562,7 @@ $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', XSSHelpers::xscrub($action));
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

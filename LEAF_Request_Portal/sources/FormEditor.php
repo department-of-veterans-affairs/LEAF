@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 if(!class_exists('DataActionLogger'))
 {
     require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
@@ -37,7 +39,7 @@ class FormEditor
         }
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
     /**
@@ -53,7 +55,7 @@ class FormEditor
             ':time' => time());
         $this->db->prepared_query('UPDATE categories SET lastModified=:time WHERE categoryID=:categoryID', $vars);
 
-        if(!$overwriteExisting) 
+        if(!$overwriteExisting)
         {
     	    $vars = array(':name' => $package['name'],
     	        ':format' => $package['format'],
@@ -71,7 +73,7 @@ class FormEditor
     	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
                                             VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
     	}
-        else 
+        else
         {
     	    $vars = array(':indicatorID' => $package['indicatorID'],
     	        ':name' => $package['name'],
@@ -91,15 +93,15 @@ class FormEditor
             								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
                                             ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, conditions=:conditions, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
         }
-        
+
         $newIndicatorID = $this->db->getLastInsertID();
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "indicatorID", $newIndicatorID),
-            new LogItem("indicators", "categoryID", $package['categoryID']),
-            new LogItem("indicators", "name", $package['name']), 
-            new LogItem("indicators", "is_sensitive", $package['is_sensitive'] ?? 0)
-        ]);  
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::INDICATOR, [
+            new \Leaf\LogItem("indicators", "indicatorID", $newIndicatorID),
+            new \Leaf\LogItem("indicators", "categoryID", $package['categoryID']),
+            new \Leaf\LogItem("indicators", "name", $package['name']),
+            new \Leaf\LogItem("indicators", "is_sensitive", $package['is_sensitive'] ?? 0)
+        ]);
 
         return $newIndicatorID;
     }
@@ -111,12 +113,12 @@ class FormEditor
 
         $result = $this->db->prepared_query('UPDATE indicators
                     SET name=:name
-                    WHERE indicatorID=:indicatorID', $vars); 
+                    WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "name", $name)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "name", $name)
         ]);
 
         return $result;
@@ -133,11 +135,11 @@ class FormEditor
                     SET format=:format
                     WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "format", $format)
-        ]);  
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "format", $format)
+        ]);
 
         return $result;
     }
@@ -150,13 +152,13 @@ class FormEditor
         $result =  $this->db->prepared_query('UPDATE indicators
                     SET description=:input
                     WHERE indicatorID=:indicatorID', $vars);
-        
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "description", $input)
-        ]); 
- 
+
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "description", $input)
+        ]);
+
         return $result;
     }
 
@@ -168,13 +170,13 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE indicators
     								SET `default`=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "default", $input)
-        ]); 
- 
+
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "default", $input)
+        ]);
+
 
         return $result;
     }
@@ -203,11 +205,11 @@ class FormEditor
     									SET parentID=:input
                                         WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "parentID", $input)
-        ]);  
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "parentID", $input)
+        ]);
 
     }
 
@@ -216,15 +218,14 @@ class FormEditor
         $vars = array(':indicatorID' => $indicatorID,
                       ':input' => $input, );
 
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators", "categoryID", $input)
+        ]);
+
         return $this->db->prepared_query('UPDATE indicators
     								SET categoryID=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators", "categoryID", $input)
-        ]);  
-
     }
 
     public function setRequired($indicatorID, $input)
@@ -235,18 +236,18 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE indicators
     								SET required=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "required", $input)
-        ]);  
 
-        
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "required", $input)
+        ]);
+
+
         return $result;
     }
 
-    function setSensitive($indicatorID, $input) 
+    function setSensitive($indicatorID, $input)
     {
         $vars = array(':indicatorID' => $indicatorID,
 			':input' => (int) $input);
@@ -255,16 +256,16 @@ class FormEditor
                 SET is_sensitive=:input
                 WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "is_sensitive", $input)
-        ]);  
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "is_sensitive", $input)
+        ]);
 
         return $result;
     }
-    
-    function setDisabled($indicatorID, $input) 
+
+    function setDisabled($indicatorID, $input)
     {
 
     	if($input == 1) {
@@ -282,17 +283,17 @@ class FormEditor
 
     	$vars = array(':indicatorID' => $indicatorID,
                       ':input' => $disabledTime);
-                      
+
         $result = $this->db->prepared_query('UPDATE indicators
                         SET disabled=:input
-                        WHERE indicatorID=:indicatorID', $vars); 
+                        WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "disabled", $input)
-        ]);  
-        
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "disabled", $input)
+        ]);
+
     	return $result;
     }
 
@@ -304,11 +305,11 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE indicators
     								SET sort=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "sort", $input)
+
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "sort", $input)
         ]);
 
 
@@ -323,10 +324,10 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE indicators
     								SET html=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "html", $input)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::INDICATOR,[
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "html", $input)
         ]);
 
 
@@ -341,10 +342,10 @@ class FormEditor
         $result =  $this->db->prepared_query('UPDATE indicators
     								SET htmlPrint=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "htmlPrint", $input)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::INDICATOR, [
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "htmlPrint", $input)
         ]);
 
 
@@ -355,8 +356,8 @@ class FormEditor
     {
         $inputArr = json_decode($input);
         foreach($inputArr as $i=>$inp) {
-            $inputArr[$i]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
-            $inputArr[$i]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
+            $inputArr[$i]->selectedParentValue =  \XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
+            $inputArr[$i]->selectedChildValue =  \XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
         }
         if ($inputArr !== null) $inputArr = json_encode($inputArr);
 
@@ -368,10 +369,10 @@ class FormEditor
         $result =  $this->db->prepared_query('UPDATE indicators
     								SET conditions=:input
                                     WHERE indicatorID=:indicatorID', $vars);
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "conditions", $input)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::INDICATOR, [
+            new \Leaf\LogItem("indicators", "indicatorID", $indicatorID),
+            new \Leaf\LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+            new \Leaf\LogItem("indicators", "conditions", $input)
         ]);
 
         return $result;
@@ -409,15 +410,15 @@ class FormEditor
     									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
                                         ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::FORM, [
-            new LogItem("categories", "categoryID", $categoryID),            
-            new LogItem("categories", "parentID", $parentID),
-            new LogItem("categories", "categoryName", $name),
-            new LogItem("categories", "categoryDescription", $description),
-            new LogItem("categories", "workflowID", $workflowID),
-            new LogItem("categories", "formLibraryID", $formLibraryID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::FORM, [
+            new \Leaf\LogItem("categories", "categoryID", $categoryID),
+            new \Leaf\LogItem("categories", "parentID", $parentID),
+            new \Leaf\LogItem("categories", "categoryName", $name),
+            new \Leaf\LogItem("categories", "categoryDescription", $description),
+            new \Leaf\LogItem("categories", "workflowID", $workflowID),
+            new \Leaf\LogItem("categories", "formLibraryID", $formLibraryID)
         ]);
-        
+
         // need to know enabled by default if leaf secure is active
         $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
         if(count($res) > 0) {
@@ -440,9 +441,9 @@ class FormEditor
                                     WHERE categoryID=:categoryID', $vars);
 
         if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
-                new LogItem("categories", "categoryID", $categoryID),
-                new LogItem("categories", "categoryName", $input)
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "categoryName", $input)
             ]);
         }
 
@@ -458,11 +459,11 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE categories
     								SET categoryDescription=:input
                                     WHERE categoryID=:categoryID', $vars);
-        
+
         if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
-                new LogItem("categories", "categoryID", $categoryID),
-                new LogItem("categories", "categoryDescription", $input)
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "categoryDescription", $input)
             ]);
         }
 
@@ -490,9 +491,9 @@ class FormEditor
 		    								WHERE categoryID=:categoryID', $vars);
 
             if(!empty($input)){
-                $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
-                    new LogItem("categories", "categoryID", $categoryID),
-                    new LogItem("categories", "workflowID", $input)
+                $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                    new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                    new \Leaf\LogItem("categories", "workflowID", $input)
                 ]);
             }
 
@@ -509,16 +510,16 @@ class FormEditor
 
         $response = $this->db->prepared_query('UPDATE categories
                         SET needToKnow=:input
-                        WHERE categoryID=:categoryID', $vars);              
+                        WHERE categoryID=:categoryID', $vars);
 
         if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
-                new LogItem("categories", "categoryID", $categoryID),
-                new LogItem("categories", "needToKnow", $input)
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "needToKnow", $input)
             ]);
         }
 
-        
+
         return $response;
     }
 
@@ -530,15 +531,15 @@ class FormEditor
         $result =  $this->db->prepared_query('UPDATE categories
     								SET sort=:input
                                     WHERE categoryID=:categoryID', $vars);
-        
+
         if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
-                new LogItem("categories", "categoryID", $categoryID),
-                new LogItem("categories", "sort", $input)
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "sort", $input)
             ]);
         }
 
-                                    
+
         return $result;
     }
 
@@ -550,11 +551,11 @@ class FormEditor
         $result = $this->db->prepared_query('UPDATE categories
     								SET visible=:input
                                     WHERE categoryID=:categoryID', $vars);
-        
+
         if(!empty($input)){
-            $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::FORM,[
-                new LogItem("categories", "categoryID", $categoryID),
-                new LogItem("categories", "visible", $input)
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "visible", $input)
             ]);
         }
 
@@ -573,9 +574,9 @@ class FormEditor
 
         $display = empty($input) ? "standard" : $input;
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::FORM, [
-            new LogItem("categories", "categoryID", $categoryID),
-            new LogItem("categories", "type", $input, $display)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::FORM, [
+            new \Leaf\LogItem("categories", "categoryID", $categoryID),
+            new \Leaf\LogItem("categories", "type", $input, $display)
         ]);
 
         return $result;
@@ -831,8 +832,16 @@ class FormEditor
     										WHERE categoryID=:categoryID', $vars)[0]['categoryName'];
     }
 
-    public function getHistory($filterById)
+    /**
+     *
+     * @param int|null $filterById
+     *
+     * @return array
+     *
+     * Created at: 12/5/2022, 10:45:38 AM (America/New_York)
+     */
+    public function getHistory(?int $filterById): array
     {
-        return $this->dataActionLogger->getHistory($filterById, "categoryID", \LoggableTypes::FORM);
+        return $this->dataActionLogger->getHistory($filterById, "categoryID", \Leaf\LoggableTypes::FORM);
     }
 }

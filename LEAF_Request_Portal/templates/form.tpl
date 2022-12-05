@@ -129,6 +129,9 @@ function updateProgress() {
                 $('#progressControl').html(savechange);
             }
         },
+        error: function(e) {
+            console.log(e);
+        },
         cache: false
     });
 }
@@ -233,6 +236,9 @@ $(function() {
             $('#navtree').html(buffer);
 
             getForm(formStructure[0].indicatorID, formStructure[0].series);
+        },
+        error: function(e) {
+            console.log(e);
         }
     });
 

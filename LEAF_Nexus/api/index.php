@@ -15,7 +15,7 @@ require 'ControllerMap.php';
 
 $config = new Orgchart\Config();
 
-$db = new \Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
@@ -92,7 +92,7 @@ switch ($key) {
         break;
     case 'national':
         $controllerMap->register('national', function () use ($action) {
-            $db_nat = new \Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+            $db_nat = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
             $login_nat = new Orgchart\Login($db_nat, $db_nat);
 
             require 'controllers/NationalEmployeeController.php';

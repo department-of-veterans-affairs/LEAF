@@ -1,5 +1,7 @@
 <?php
 
+namespace Leaf;
+
 require_once 'formatters/loggableTypes.php';
 require_once 'formatters/dataActions.php';
 require_once 'formatters/formatOptions.php';
@@ -83,7 +85,7 @@ class LogFormatter{
                 array_push($result["values"], $value);
             }
         }
-        
+
         return $result;
     }
 }

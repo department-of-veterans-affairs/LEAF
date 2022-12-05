@@ -8,6 +8,9 @@
     Date Created: September 19, 2008
 
 */
+
+namespace Portal;
+
 require_once __DIR__ . '/../../libs/smarty/Smarty.class.php';
 require_once 'VAMC_Directory.php';
 require_once 'DbConfig.php';
@@ -137,7 +140,7 @@ class Email
         if($tplVar != '') {
             $strContent = str_replace("\r\n", '<br />', $strContent);
         }
-        $smarty = new Smarty;
+        $smarty = new \Smarty;
         $smarty->template_dir = __DIR__ . '/templates/email/';
         $smarty->compile_dir = __DIR__ . '/templates_c/';
         $smarty->left_delimiter = '{{';
@@ -353,13 +356,13 @@ class Email
         {
             include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
         }
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new OrgChart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new \OrgChart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new OrgChart\Position($oc_db, $oc_login);
-        $this->group = new OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new \OrgChart\Employee($oc_db, $oc_login);
+        $this->position = new \OrgChart\Position($oc_db, $oc_login);
+        $this->group = new \OrgChart\Group($oc_db, $oc_login);
         $this->orgchartInitialized = true;
     }
 
@@ -376,7 +379,7 @@ class Email
         }
 
         $db_config = new DbConfig;
-        $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
 
     /**
@@ -394,7 +397,7 @@ class Email
         include_once 'Config.php';
 
         $nexus_config = new Config;
-        $this->nexus_db = new DB($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
+        $this->nexus_db = new \Leaf\Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
 
     private function getHeaders()
@@ -460,10 +463,10 @@ class Email
             "WHERE emailTemplateID = :emailTemplateID;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(\XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -478,10 +481,10 @@ class Email
             "WHERE label = :emailTemplateLabel;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(\XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -501,9 +504,9 @@ class Email
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
-                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
+                    $this->addCcBcc(\XSSHelpers::xscrub($emailAddress), true);
                 } else {
-                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
+                    $this->addRecipient(\XSSHelpers::xscrub($emailAddress), true);
                 }
             }
         }
@@ -525,12 +528,12 @@ class Email
      * Purpose (deprecated): set email body directly from passed in HTML
      * LEGACY: Included as scripts created by portal uses that implement sends using this feature
      * @param $i
-     * @throws SmartyException
+     * @throws \SmartyException
      */
     public function setBody($i)
     {
         $i = str_replace("\r\n", '<br />', $i);
-        $smarty = new Smarty;
+        $smarty = new \Smarty;
         $smarty->template_dir = __DIR__ . '/templates/email/';
         $smarty->compile_dir = __DIR__ . '/templates_c/';
         $smarty->left_delimiter = '{{';

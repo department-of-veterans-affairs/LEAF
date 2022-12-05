@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../sources/Note.php';
 require '../sources/Form.php';
 
@@ -31,19 +33,19 @@ class NotesController extends RESTfulResponse
 
     /**
      *
-     * @var \Note
+     * @var Note
      */
     private $note;
 
     /**
      *
-     * @param \Db $db
-     * @param \Login $login
-     * @param \DataActionLogger $dataActionLogger
+     * @param \Leaf\Db $db
+     * @param Login $login
+     * @param \Leaf\DataActionLogger $dataActionLogger
      *
      * Created at: 10/7/2022, 9:45:22 AM (America/New_York)
      */
-    public function __construct(\Db $db, \Login $login, \DataActionLogger $dataActionLogger)
+    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
     {
         $this->db = $db;
         $this->login = $login;

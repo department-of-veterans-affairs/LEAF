@@ -10,7 +10,7 @@ include_once $currDir . '/../../libs/php-commons/Db.php';
 include_once $currDir . '/../sources/config.php';
 
 $config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array(':version' => $version);
 $res = $db->prepared_query("UPDATE settings SET data=:version WHERE setting='version'", $vars);

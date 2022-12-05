@@ -148,7 +148,7 @@ class Login
             else
             {
                 // try searching through national database
-                $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+                $globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
                 $vars = array(':userName' => $user);
                 $res = $globalDB->prepared_query('SELECT * FROM employee
         											LEFT JOIN employee_data USING (empUID)
@@ -167,15 +167,15 @@ class Login
                             ':domain' => $res[0]['domain'],
                             ':lastUpdated' => time(),
                             ':new_empUUID' => $res[0]['new_empUUID'] );
-                    $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+                    $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                           VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
             								ON DUPLICATE KEY UPDATE deleted=0', $vars);
-                    $empUID = $db_phonebook->getLastInsertID();
+                    $empUID = $this->db->getLastInsertID();
 
                     if ($empUID == 0)
                     {
                         $vars = array(':userName' => $res[0]['userName']);
-                        $empUID = $db_phonebook->prepared_query('SELECT empUID FROM employee
+                        $empUID = $this->db->prepared_query('SELECT empUID FROM employee
                                                                     WHERE userName=:userName', $vars)[0]['empUID'];
                     }
 
@@ -185,7 +185,7 @@ class Login
                             ':author' => 'viaLogin',
                             ':timestamp' => time(),
                     );
-                    $db_phonebook->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+                    $this->db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
         											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
                                                     ON DUPLICATE KEY UPDATE data=:data', $vars);
 

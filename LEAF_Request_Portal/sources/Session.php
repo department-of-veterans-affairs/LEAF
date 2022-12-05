@@ -9,16 +9,16 @@
 
 */
 
-ini_set('session.gc_maxlifetime', 2592000);
+namespace Portal;
 
-class Session implements SessionHandlerInterface
+class Session implements \SessionHandlerInterface
 {
     private $db;
 
     public function __construct($db)
     {
         if(defined('DIRECTORY_HOST')) {
-            $this->db = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+            $this->db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
             if(!$this->db->isConnected()) {
                 $this->db = $db;
             }

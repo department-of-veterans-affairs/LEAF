@@ -11,12 +11,6 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
-
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'sources/Login.php';
@@ -30,16 +24,16 @@ if (!class_exists('XSSHelpers'))
     include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
 }
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 unset($db_config);
 
-$login = new Login($db_phonebook, $db);
+$login = new Portal\Login($db_phonebook, $db);
 
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
@@ -90,7 +84,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
 
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $o_login = $t_login->fetch('login.tpl');
 
         $currentEmployee = $form->employee->lookupLogin($login->getUserID());
@@ -129,7 +123,7 @@ switch ($action) {
                 '../libs/js/choicesjs/choices.min.js'
             ));
 
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
@@ -140,7 +134,7 @@ switch ($action) {
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
             $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
@@ -160,7 +154,7 @@ $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

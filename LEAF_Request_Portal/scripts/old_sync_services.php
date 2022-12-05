@@ -11,19 +11,19 @@ include_once $currDir . '/../sources/DbConfig.php';
 include_once $currDir . '/../sources/Config.php';
 include_once $currDir . '/../sources/Login.php';
 
-$db_config = new DbConfig();
-$config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-$login = new Login($db_phonebook, $db);
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Config.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Position.php';
-include_once $currDir . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+include_once $currDir . '/../' . Portal\Config::$orgchartPath . '/sources/Config.php';
+include_once $currDir . '/../' . Portal\Config::$orgchartPath . '/sources/Employee.php';
+include_once $currDir . '/../' . Portal\Config::$orgchartPath . '/sources/Group.php';
+include_once $currDir . '/../' . Portal\Config::$orgchartPath . '/sources/Position.php';
+include_once $currDir . '/../' . Portal\Config::$orgchartPath . '/sources/Tag.php';
 
 $employee = new Orgchart\Employee($db_phonebook, $login);
 $group = new Orgchart\Group($db_phonebook, $login);
@@ -195,7 +195,7 @@ foreach ($res as $service)
 }
 
 // import other groups
-foreach (Config::$orgchartImportTags as $tag)
+foreach (Portal\Config::$orgchartImportTags as $tag)
 {
     $res = $group->listGroupsByTag($tag);
 

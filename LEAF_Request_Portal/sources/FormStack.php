@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 class FormStack
 {
     private $db;

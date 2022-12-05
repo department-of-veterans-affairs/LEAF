@@ -10,10 +10,10 @@ include '../libs/php-commons/Db.php';
 include 'sources/DbConfig.php';
 include 'sources/Config.php';
 
-$db_config = new DbConfig();
-$config = new Config();
+$db_config = new Portal\DbConfig();
+$config = new Portal\Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 
 unset($db_config);
 

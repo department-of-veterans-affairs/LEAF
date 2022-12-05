@@ -14,6 +14,8 @@
     + Sorts results
 */
 
+namespace Portal;
+
 class VAMC_Directory
 {
     private $limit = 'LIMIT 100';         // Limit number of returned results "TOP 100"
@@ -50,12 +52,12 @@ class VAMC_Directory
         require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
         require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
         require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Login.php';
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $login = new Orgchart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $login = new \Orgchart\Login($oc_db, $oc_db);
 //        $login->loginUser();
-        $this->Employee = new Orgchart\Employee($oc_db, $login);
-        $this->Group = new Orgchart\Group($oc_db, $login);
+        $this->Employee = new \Orgchart\Employee($oc_db, $login);
+        $this->Group = new \Orgchart\Group($oc_db, $login);
         $this->Group->setNoLimit();
 
         $this->Employee->setNoLimit();
@@ -89,7 +91,7 @@ class VAMC_Directory
             $res = $this->db->prepared_query($sql, array());
             if (is_object($res))
             {
-                return $res->fetchAll(PDO::FETCH_ASSOC);
+                return $res->fetchAll(\PDO::FETCH_ASSOC);
             }
             $err = $this->db->errorInfo();
             $this->logError($err[2]);
@@ -213,8 +215,6 @@ class VAMC_Directory
                                             $results[$i][$key] .= '<br /><b>Phone:</b> ' . $results[$j][$key];
 
                                             break;
-                                        case 'Lname':
-                                            break;
                                         default:
                                             $results[$i][$key] .= '<br />' . $results[$j][$key];
 
@@ -305,50 +305,6 @@ class VAMC_Directory
     private function lookupName($lastName, $firstName, $middleName = '')
     {
         return $this->Employee->lookupName($lastName, $firstName, $middleName);
-
-        $firstName = $this->parseWildcard($firstName);
-        $lastName = $this->parseWildcard($lastName);
-        $middleName = $this->parseWildcard($middleName);
-
-        $sql = strlen($middleName) > 1 ?
-                "SELECT * FROM {$this->tableName}
-                 WHERE Fname LIKE :firstName
-                    AND Lname LIKE :lastName
-                    AND Mid_Initial LIKE :middleName
-                 ORDER BY {$this->sortBy} {$this->sortDir}
-                 {$this->limit}"
-                 :
-                "SELECT * FROM {$this->tableName}
-                 WHERE Fname LIKE :firstName
-                    AND Lname LIKE :lastName
-                 ORDER BY {$this->sortBy} {$this->sortDir}
-                 {$this->limit}";
-
-        $query = $this->db->prepare($sql);
-        if (strlen($middleName) > 1)
-        {
-            $query->execute(array(':firstName' => $firstName, ':lastName' => $lastName, ':middleName' => $middleName));
-        }
-        else
-        {
-            $query->execute(array(':firstName' => $firstName, ':lastName' => $lastName));
-        }
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        if (count($result) == 0)
-        {
-            $sql = "SELECT * FROM {$this->tableName}
-                    WHERE PhoneticFname LIKE :firstName
-                        AND PhoneticLname LIKE :lastName
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
-
-            $query = $this->db->prepare($sql);
-            $query->execute(array(':firstName' => $this->metaphone_query($firstName), ':lastName' => $this->metaphone_query($lastName)));
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-        return $result;
     }
 
     private function lookupNameByService($service, $firstName, $lastName = '')
@@ -367,7 +323,7 @@ class VAMC_Directory
 
             $query = $this->db->prepare($sql);
             $query->execute(array(':firstName' => $firstName, ':service' => $service));
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            $result = $query->fetchAll(\PDO::FETCH_ASSOC);
             if (count($result) == 0)
             {
                 $sql = "SELECT * FROM {$this->tableName}
@@ -378,7 +334,7 @@ class VAMC_Directory
 
                 $query = $this->db->prepare($sql);
                 $query->execute(array(':firstName' => $firstName, ':service' => $service));
-                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $result = $query->fetchAll(\PDO::FETCH_ASSOC);
             }
         }
         else
@@ -393,7 +349,7 @@ class VAMC_Directory
             $query = $this->db->prepare($sql);
             $query->execute(array(':firstName' => $this->metaphone_query($firstName),
                                   ':lastName' => $this->metaphone_query($lastName), ':service' => $service, ));
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            $result = $query->fetchAll(\PDO::FETCH_ASSOC);
         }
 
         return $result;
@@ -412,7 +368,7 @@ class VAMC_Directory
 
         $query = $this->db->prepare($sql);
         $query->execute(array(':title' => $title, ':service' => $service));
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = $query->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
     }
@@ -442,7 +398,7 @@ class VAMC_Directory
 
         $query = $this->db->prepare($sql);
         $query->execute(array(':phone' => $phone));
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = $query->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
     }
@@ -458,7 +414,7 @@ class VAMC_Directory
 
         $query = $this->db->prepare($sql);
         $query->execute(array(':room' => $room));
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = $query->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
     }
@@ -474,7 +430,7 @@ class VAMC_Directory
 
         $query = $this->db->prepare($sql);
         $query->execute(array(':email' => $email));
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = $query->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
     }
@@ -490,7 +446,7 @@ class VAMC_Directory
 
         $query = $this->db->prepare($sql);
         $query->bindParam(':service', $service);
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = $query->fetchAll(\PDO::FETCH_ASSOC);
         if (count($result) == 0)
         {
             $service = strtolower($service);
@@ -499,7 +455,7 @@ class VAMC_Directory
             $service = $this->replaceAbbreviations($service);
 
             $query->execute();
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            $result = $query->fetchAll(\PDO::FETCH_ASSOC);
         }
 
         return $result;
@@ -507,56 +463,6 @@ class VAMC_Directory
 
     private function departmentSearch($searchQuery)
     {
-        return array();
-
-        $result = null;
-        $searchQuery = $this->parseWildcard($this->replaceAbbreviations($searchQuery));
-
-        $sql = "SELECT * FROM {$this->tableDept}
-                WHERE MATCH (dept) AGAINST (:query)";
-
-        $phoneticSql = "SELECT * FROM {$this->tableDept}
-                WHERE MATCH (phoneticdept) AGAINST (:phoneticQuery)";
-
-        $words = explode(' ', $searchQuery);
-        $phonetic = '';
-        foreach ($words as $word)
-        {
-            $word = trim($word);
-            $phonetic .= metaphone($word) . ' ';
-        }
-        $phonetic = trim($phonetic);
-
-        $query = $this->db->prepare($sql);
-        $query->execute(array(':query' => $searchQuery));
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        if (count($result) == 0)
-        {
-            $this->log[] = 'Phonetic check on departments';
-            $query = $this->db->prepare($phoneticSql);
-            $query->execute(array(':phoneticQuery' => $phonetic));
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-        if (count($result) > 0)
-        {
-            $i = 0;
-            $res = array();
-
-            foreach ($result as $iResult)
-            {
-                $res[$i]['Lname'] = 'DEPARTMENT';
-                $res[$i]['Fname'] = $iResult['dept'];
-                $res[$i]['Phone'] = $iResult['ext'];
-                $res[$i]['RoomNumber'] = $iResult['location'];
-                $res[$i]['type'] = 'dept';
-                $i++;
-            }
-
-            return $res;
-        }
-
         return array();
     }
 

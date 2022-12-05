@@ -9,7 +9,7 @@ include_once $currDir . '/../sources/config.php';
 
 $config = new Orgchart\Config();
 
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=1', $vars);

@@ -10,7 +10,7 @@ include './sources/config.php';
 $db_config = new Orgchart\Config();
 $config = new Orgchart\Config();
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 unset($db_config);
 
 $login = new Orgchart\Login($db, $db);

@@ -1,10 +1,12 @@
 <?php
 
+namespace Leaf;
+
 require_once 'loggableTypes.php';
 require_once 'dataActions.php';
 
 class PrimaryAdminFormatter{
-    
+
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::PRIMARY_ADMIN => [
             "message" => "User %s has been set as primary admin",

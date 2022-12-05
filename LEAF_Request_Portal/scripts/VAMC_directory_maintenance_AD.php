@@ -11,6 +11,8 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+
+namespace Portal;
 class VAMC_Directory_maintenance_AD
 {
     /**
@@ -67,15 +69,15 @@ class VAMC_Directory_maintenance_AD
 
         try
         {
-            $this->db = new PDO(
+            $this->db = new \PDO(
                 "mysql:host={$config->phonedbHost};dbname={$config->phonedbName}",
                             $config->phonedbUser,
                 $config->phonedbPass,
-                array(PDO::ATTR_PERSISTENT => true)
+                array(\PDO::ATTR_PERSISTENT => true)
             );
             unset($config);
         }
-        catch (PDOException $e)
+        catch (\PDOException $e)
         {
             echo 'Database Error: ' . $e->getMessage();
             exit();
@@ -119,7 +121,7 @@ class VAMC_Directory_maintenance_AD
             $res = $this->db->prepared_query($sql, array());
             if (is_object($res))
             {
-                return $res->fetchAll(PDO::FETCH_ASSOC);
+                return $res->fetchAll(\PDO::FETCH_ASSOC);
             }
             $err = $this->db->errorInfo();
             $this->logError($err[2]);
@@ -433,7 +435,7 @@ class VAMC_Directory_maintenance_AD
     {
         $sql = "SELECT * FROM {$this->tableName}";
 
-        $res = $this->db->prepared_query($sql, array())->fetchAll(PDO::FETCH_ASSOC);
+        $res = $this->db->prepared_query($sql, array())->fetchAll(\PDO::FETCH_ASSOC);
         echo 'Generating phonetic cache...';
 
         foreach ($res as $emp)

@@ -13,7 +13,7 @@ if(!isset($argv[2]) || (strcasecmp($argv[2], 'stateless') !== 0 && strcasecmp($a
 
 if(strcasecmp($argv[2], 'stateless') === 0){
     include_once '/var/www/html/routing/routing_config.php';
-    $routingDB = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass, Routing_Config::$dbName);
+    $routingDB = new mysqli(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass, \Routing_Config::$dbName);
     $res = $routingDB->query('SELECT database_name FROM portal_configs WHERE path="'.$portalPath.'";');
     if($res->num_rows == 0)
     {
@@ -23,10 +23,10 @@ if(strcasecmp($argv[2], 'stateless') === 0){
     $res->data_seek(0);
     $row = $res->fetch_row();
 
-    $mysqli = new mysqli(Routing_Config::$dbHost, Routing_Config::$dbUser, Routing_Config::$dbPass);
-    $dbHost = Routing_Config::$dbHost;
-    $dbUser = Routing_Config::$dbUser;
-    $dbPass = Routing_Config::$dbPass;
+    $mysqli = new mysqli(\Routing_Config::$dbHost, \Routing_Config::$dbUser, \Routing_Config::$dbPass);
+    $dbHost = \Routing_Config::$dbHost;
+    $dbUser = \Routing_Config::$dbUser;
+    $dbPass = \Routing_Config::$dbPass;
     $portalToExport = $row[0];
     $routingDB->close();
 
@@ -36,7 +36,7 @@ if(strcasecmp($argv[2], 'stateless') === 0){
         exit();
     }
     include_once "/var/www/html" . $portalPath . 'sources/db_config.php';
-    $db_config = new DbConfig();
+    $db_config = new Portal\DbConfig();
 
     $mysqli = new mysqli($db_config->dbHost,$db_config->dbUser,$db_config->dbPass);
     $dbHost = $db_config->dbHost;

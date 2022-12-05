@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 require '../../libs/php-commons/spreadsheet/SpreadsheetUtil.php';
 
 if (!class_exists('XSSHelpers'))
@@ -43,8 +45,8 @@ class ImportController extends RESTfulResponse
             }
 
             $hasColumnHeaders = (isset($_GET['hasHeaders']) && $_GET['hasHeaders'] == '1') ? true : false;
-            $fileName = XSSHelpers::xscrub(strip_tags($_GET['importFile']));
-            $results = SpreadSheetUtil::loadFileIntoArray(__DIR__ . '/../../files/' . $fileName, $hasColumnHeaders);
+            $fileName = \XSSHelpers::xscrub(strip_tags($_GET['importFile']));
+            $results = \SpreadSheetUtil::loadFileIntoArray(__DIR__ . '/../../files/' . $fileName, $hasColumnHeaders);
 
             return $results;
         });

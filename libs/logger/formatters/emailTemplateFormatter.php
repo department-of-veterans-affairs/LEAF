@@ -1,10 +1,12 @@
 <?php
 
+namespace Leaf;
+
 require_once 'loggableTypes.php';
 require_once 'dataActions.php';
 
 class EmailTemplateFormatter{
-    
+
     const TEMPLATES = [
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_TO => [
             "message" => "'Email To' field of <strong>%s</strong> was edited",

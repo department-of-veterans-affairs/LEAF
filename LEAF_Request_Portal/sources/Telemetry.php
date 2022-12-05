@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 $currDir = __DIR__;
 
 include_once $currDir . '/../globals.php';
