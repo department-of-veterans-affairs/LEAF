@@ -3,8 +3,6 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-exit;
-
 $this->index['GET']->register('group', function ($args) {
     return print_r($args, true) . print_r($_GET, true);
 });

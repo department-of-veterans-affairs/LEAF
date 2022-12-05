@@ -2,7 +2,7 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
-exit;
+
 $this->index['POST']->register('group', function ($args) use ($group) {
     $_POST['parentID'] = isset($_POST['parentID']) ? $_POST['parentID'] : 0;
 

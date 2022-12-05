@@ -16,7 +16,7 @@
 
         <div id="position" class="position">
             <div id="positionHeader" class="positionHeader">
-                <span id="positionName" class="positionName">Positions 1</span><br />
+                <span id="positionName" class="positionName">Positions</span><br />
             </div>
             <div id="positionBody" class="positionBody">
                 <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
