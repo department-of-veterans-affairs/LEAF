@@ -11,12 +11,6 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
-
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include './sources/Login.php';
@@ -46,14 +40,14 @@ if (!$login->isLogin() || !$login->isInDB())
 $post_name = isset($_POST['name']) ? $_POST['name'] : '';
 $post_password = isset($_POST['password']) ? $_POST['password'] : '';
 
-$main = new Smarty;
-$t_login = new Smarty;
-$t_menu = new Smarty;
+$main = new \Smarty;
+$t_login = new \Smarty;
+$t_menu = new \Smarty;
 $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? \XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -62,7 +56,7 @@ function customTemplate($tpl)
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
+$t_login->assign('name', \XSSHelpers::sanitizeHTML($login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -75,7 +69,7 @@ switch ($action) {
         $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
         // no break
     case 'navigator':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -89,12 +83,12 @@ switch ($action) {
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
         $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
-        $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
+        $t_form->assign('header', \XSSHelpers::sanitizeHTML($_GET['header']));
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $HTTP_HOST = XSSHelpers::sanitizeHTML(HTTP_HOST);
+        $HTTP_HOST = \XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$HTTP_HOST}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
@@ -105,7 +99,7 @@ switch ($action) {
 
         break;
     case 'editor':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -128,7 +122,7 @@ switch ($action) {
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $scrubbedHost = XSSHelpers::sanitizeHTML(HTTP_HOST);
+        $scrubbedHost = \XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
@@ -140,7 +134,7 @@ switch ($action) {
 
         break;
     case 'view_employee':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -188,7 +182,7 @@ switch ($action) {
 
         break;
     case 'view_position':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -236,7 +230,7 @@ switch ($action) {
 
         break;
     case 'view_group':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -284,7 +278,7 @@ switch ($action) {
 
         break;
     case 'browse_employee':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -308,7 +302,7 @@ switch ($action) {
 
         break;
     case 'browse_position':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -322,7 +316,7 @@ switch ($action) {
 
         break;
     case 'browse_group':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -337,7 +331,7 @@ switch ($action) {
 
         break;
     case 'browse_search':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -362,7 +356,7 @@ switch ($action) {
         require 'sources/Indicators.php';
         $indicators = new Orgchart\Indicators($db, $login);
 
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -392,7 +386,7 @@ switch ($action) {
         $t_form->assign('UID', (int)$_GET['UID']);
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
-        $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
+        $t_form->assign('CSRFToken', \XSSHelpers::xscrub($_SESSION['CSRFToken']));
         $main->assign('body', $t_form->fetch('view_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -402,7 +396,7 @@ switch ($action) {
         require 'sources/Group.php';
         $group = new Orgchart\Group($db, $login);
 
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -433,7 +427,7 @@ switch ($action) {
         require 'sources/Position.php';
         $position = new Orgchart\Position($db, $login);
 
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -461,7 +455,7 @@ switch ($action) {
 
         break;
     case 'admin':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
@@ -491,7 +485,7 @@ switch ($action) {
 
         break;
     case 'summary':
-            $t_form = new Smarty;
+            $t_form = new \Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -501,12 +495,12 @@ switch ($action) {
 
         break;
     case 'about':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', \XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -518,7 +512,7 @@ switch ($action) {
         {
             $o_login = $t_login->fetch('login.tpl');
 
-            $t_form = new Smarty;
+            $t_form = new \Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
@@ -579,7 +573,7 @@ switch ($action) {
 }
 
 $memberships = $login->getMembership();
-$t_menu->assign('action', XSSHelpers::xscrub($action));
+$t_menu->assign('action', \XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
@@ -588,9 +582,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', \XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', \XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', \XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

@@ -11,12 +11,6 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
-
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include './sources/Login.php';
@@ -46,14 +40,14 @@ if (!$login->isLogin() || !$login->isInDB())
 $post_name = isset($_POST['name']) ? $_POST['name'] : '';
 $post_password = isset($_POST['password']) ? $_POST['password'] : '';
 
-$main = new Smarty;
-$t_login = new Smarty;
-$t_menu = new Smarty;
+$main = new \Smarty;
+$t_login = new \Smarty;
+$t_menu = new \Smarty;
 $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? \XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -69,12 +63,12 @@ $main->assign('useDojoUI', true);
 
 switch ($action) {
     case 'about':
-        $t_form = new Smarty;
+        $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', \XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -90,7 +84,7 @@ switch ($action) {
             {
                 $o_login = $t_login->fetch('login.tpl');
 
-                $t_form = new Smarty;
+                $t_form = new \Smarty;
                 $t_form->left_delimiter = '<!--{';
                 $t_form->right_delimiter = '}-->';
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -127,9 +121,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::scrubNewLinesFromURL($settings['version']));
+$main->assign('title', \XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', \XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', \XSSHelpers::scrubNewLinesFromURL($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

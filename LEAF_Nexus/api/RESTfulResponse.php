@@ -3,8 +3,12 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Orgchart;
+
 abstract class RESTfulResponse
 {
+    protected const API_VERSION = 1;
+
     /**
      * Returns result for HTTP GET requests
      * @param array $actionList
@@ -36,10 +40,14 @@ abstract class RESTfulResponse
     }
 
     /**
-     * Handles HTTP request
+     *
      * @param string $action
+     *
+     * @return void
+     *
+     * Created at: 12/2/2022, 1:26:20 PM (America/New_York)
      */
-    public function handler($action)
+    public function handler(string $action): void
     {
         $action = $this->parseAction($action);
         switch ($_SERVER['REQUEST_METHOD']) {
@@ -79,9 +87,14 @@ abstract class RESTfulResponse
     /**
      * Outputs in specified format based on $_GET['format']
      * Default to JSON
-     * @param string $out
+     *
+     * @param string|array $out
+     *
+     * @return void
+     *
+     * Created at: 12/2/2022, 1:27:24 PM (America/New_York)
      */
-    public function output($out = '')
+    public function output(string|array $out = ''): void
     {
         //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
@@ -152,7 +165,7 @@ abstract class RESTfulResponse
                 break;
             case 'xml':
                 header('Content-type: text/xml');
-                $xml = new SimpleXMLElement('<?xml version="1.0"?><output></output>');
+                $xml = new \SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
                 echo $xml->asXML();
 
@@ -212,10 +225,14 @@ abstract class RESTfulResponse
 
     /**
      * Parses url input into generic format
-     * @param string api path
-     * @return string parsed path
+     *
+     * @param string $action
+     *
+     * @return array
+     *
+     * Created at: 12/2/2022, 1:25:51 PM (America/New_York)
      */
-    public function parseAction($action)
+    public function parseAction(string $action): array
     {
         $actionList = explode('/', $action, 10);
 
@@ -256,7 +273,7 @@ abstract class RESTfulResponse
      */
     public function getVersion()
     {
-        return $this->API_VERSION;
+        return self::API_VERSION;
     }
 
     /**

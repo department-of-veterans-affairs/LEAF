@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Orgchart;
+
 require '../sources/Employee.php';
 
 class EmployeeController extends RESTfulResponse
@@ -15,7 +17,7 @@ class EmployeeController extends RESTfulResponse
 
     public function __construct($db, $login)
     {
-        $this->employee = new OrgChart\Employee($db, $login);
+        $this->employee = new Employee($db, $login);
     }
 
     public function get($act)

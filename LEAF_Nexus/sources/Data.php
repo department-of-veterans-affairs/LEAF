@@ -564,7 +564,7 @@ abstract class Data
                                             VALUES (:UID, :tag)", $vars);
 
         $this->updateLastModified();
-        
+
         $this->logAction(\DataActions::ADD, \LoggableTypes::TAG, [
             new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
             new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
@@ -589,7 +589,7 @@ abstract class Data
                                                 AND tag=:tag", $vars);
 
         $this->updateLastModified();
-        
+
         $this->logAction(\DataActions::DELETE, \LoggableTypes::TAG, [
             new \LogItem($this->dataTagTable, $this->dataTableUID, $uid),
             new \LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
@@ -718,12 +718,16 @@ abstract class Data
 
     /**
      * Adds action to Data Action log table.
-     * @param DataAction $verb      The action to log
-     * @param LoggableType $type    The type the action was performed against
-     * @param LogItem $data         The values changed
+     *
+     * @param string $verb
+     * @param string $type
+     * @param array $data
+     *
      * @return void
+     *
+     * Created at: 12/2/2022, 3:12:35 PM (America/New_York)
      */
-    public function logAction($verb, $type, $data)
+    public function logAction(string $verb, string $type, array $data): void
     {
         $this->dataActionLogger->logAction($verb, $type, $data);
     }
@@ -734,7 +738,7 @@ abstract class Data
 
     /**
      * Returns all history ids for all groups
-     * 
+     *
      * @return array all history ids for all groups
      */
     public function getAllHistoryIDs()

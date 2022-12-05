@@ -186,6 +186,6 @@ orgchartForm.prototype.addUpdateEvent = function(id, func) {
 
 orgchartForm.prototype.handleUpdateEvents = function(response, id) {
 	if(this.updateEvents[id]) {
-		this.updateEvents[id](response);	
+		this.updateEvents[id](response);
 	}
 };

@@ -29,7 +29,7 @@ $login = new Orgchart\Login($db, $db);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+    date_default_timezone_set(\XSSHelpers::xscrub($settings['timeZone']));
 }
 
 
@@ -57,8 +57,6 @@ switch ($_GET['categoryID']) {
         break;
     default:
         return false;
-
-        break;
 }
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';

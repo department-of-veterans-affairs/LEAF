@@ -3,19 +3,19 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Orgchart;
+
 require '../sources/Group.php';
 
 class GroupController extends RESTfulResponse
 {
     public $index = array();
 
-    private $API_VERSION = 1;    // Integer
-
     private $group;
 
     public function __construct($db, $login)
     {
-        $this->group = new OrgChart\Group($db, $login);
+        $this->group = new Group($db, $login);
     }
 
     public function get($act)
@@ -24,7 +24,7 @@ class GroupController extends RESTfulResponse
 
         $this->index['GET'] = new ControllerMap();
         $this->index['GET']->register('group/version', function () {
-            return $this->API_VERSION;
+            return self::API_VERSION;
         });
 
         include 'Group/GET.php';

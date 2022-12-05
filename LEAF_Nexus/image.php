@@ -35,8 +35,6 @@ switch ($_GET['categoryID']) {
         break;
     default:
         return false;
-
-        break;
 }
 
 $data = $type->getAllData($_GET['UID'], $_GET['indicatorID']);

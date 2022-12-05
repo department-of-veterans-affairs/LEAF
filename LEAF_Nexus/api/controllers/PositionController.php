@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Orgchart;
+
 require '../sources/Position.php';
 
 class PositionController extends RESTfulResponse
@@ -15,7 +17,7 @@ class PositionController extends RESTfulResponse
 
     public function __construct($db, $login)
     {
-        $this->position = new OrgChart\Position($db, $login);
+        $this->position = new Position($db, $login);
     }
 
     public function get($act)

@@ -39,8 +39,6 @@ switch ($_GET['categoryID']) {
         break;
     default:
         return false;
-
-        break;
 }
 
 $data = $type->getAllData((int)$_GET['UID'], (int)$_GET['indicatorID']);
@@ -66,7 +64,7 @@ if (is_array($value)
 
 if (file_exists($filename))
 {
-    $inputFilename = XSSHelpers::scrubNewLinesFromURL($inputFilename);
+    $inputFilename = \XSSHelpers::scrubNewLinesFromURL($inputFilename);
     header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($inputFilename)) . '"');
     header('Content-Length: ' . filesize($filename));
     header('Cache-Control: maxage=1'); //In seconds

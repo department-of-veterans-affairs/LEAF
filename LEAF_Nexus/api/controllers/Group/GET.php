@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+exit;
+
 $this->index['GET']->register('group', function ($args) {
     return print_r($args, true) . print_r($_GET, true);
 });
@@ -47,7 +49,7 @@ $this->index['GET']->register('group/[digit]/employees/detailed', function ($arg
         $offset = (int)$_GET['offset'];
     }
 
-    return $group->listGroupEmployeesDetailed($args[0], $searchText, $offset, $limit);
+    //return $group->listGroupEmployeesDetailed($args[0], $searchText, $offset, $limit);
 });
 $this->index['GET']->register('group/search', function ($args) use ($group) {
     if (isset($_GET['noLimit']) && $_GET['noLimit'] == 1)

@@ -3,19 +3,22 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Orgchart;
+
 require '../sources/NationalEmployee.php';
 
 class NationalEmployeeController extends RESTfulResponse
 {
     public $index = array();
 
-    private $API_VERSION = 1;    // Integer
-
     private $employee;
+
+    private $db;
 
     public function __construct($db, $login)
     {
-        $this->employee = new OrgChart\NationalEmployee($db, $login);
+        $this->db = $db;
+        $this->employee = new NationalEmployee($db, $login);
     }
 
     public function get($act)
@@ -24,11 +27,12 @@ class NationalEmployeeController extends RESTfulResponse
 
         $this->index['GET'] = new ControllerMap();
         $this->index['GET']->register('national/employee/version', function () {
-            return $this->API_VERSION;
+            return self::API_VERSION;
         });
 
         $this->index['GET']->register('national/employee/[digit]', function ($args) use ($employee) {
-            return $employee->getSummary($args[0]);
+            // getSummary does not exist in the NationalEmployee class
+            // return $employee->getSummary($args[0]);
         });
 
         $this->index['GET']->register('national/employee/search', function () use ($employee) {
@@ -50,8 +54,11 @@ class NationalEmployeeController extends RESTfulResponse
     /**
      * Wrapper for post endpoints
      *
-     * @param $act endpoint
-     * @return response for post endpoint
+     * @param array $act
+     *
+     * @return mixed
+     *
+     * Created at: 12/2/2022, 1:43:20 PM (America/New_York)
      */
     public function post($act)
     {
@@ -67,12 +74,10 @@ class NationalEmployeeController extends RESTfulResponse
                 require_once __DIR__ . "/../../sources/Employee.php";
                 require_once __DIR__ . "/../../sources/Login.php";
                 require_once __DIR__ . "/../../sources/Config.php";
-                require_once __DIR__ . "/../../../libs/php-commons/Db.php";
 
-                $config = new Orgchart\Config();
-                $db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-                $login = new Orgchart\Login($db, $db);
-                $localEmp = new Orgchart\Employee($db, $login);
+                $config = new Config();
+                $login = new Login($this->db, $this->db);
+                $localEmp = new Employee($this->db, $login);
 
                 $localUID = $localEmp->importFromNational($username[0]["userName"]);
 
