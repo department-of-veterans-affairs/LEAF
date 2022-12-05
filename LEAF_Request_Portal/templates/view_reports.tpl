@@ -206,13 +206,14 @@ function addHeader(column) {
             headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div tabindex="0" class="buttonNorm">Take Action</div>');
-                $('#'+data.cellContainerID).on('click', function() {
-                    loadWorkflow(data.recordID, grid.getPrefixID());
-                });
-                $('#'+data.cellContainerID).on('keydown', function(event) {
-                    if (event.keyCode === 13) {
+                $('#'+data.cellContainerID).on('keydown', function(e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
                         loadWorkflow(data.recordID, grid.getPrefixID());
                     }
+                });
+                $('#'+data.cellContainerID).on('click', function() {
+                    loadWorkflow(data.recordID, grid.getPrefixID());
                 });
             }});
             break;
