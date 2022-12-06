@@ -132,27 +132,6 @@ class Group
     }
 
     /**
-     * [Description for removeSyncGroup]
-     *
-     * @param int $groupID
-     *
-     * @return array
-     *
-     * Created at: 9/16/2022, 3:23:53 PM (America/New_York)
-     */
-    public function removeSyncGroup(int $groupID): array
-    {
-        $sql_vars = array(':groupID' => $groupID);
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("groups", "groupID", $groupID, $this->getGroupName($groupID))
-        ]);
-
-        $result = $this->db->prepared_query('DELETE FROM groups WHERE groupID=:groupID', $sql_vars);
-
-        return $result;
-    }
-
-    /**
      * [Description for removeUser]
      *
      * @param string $userID
