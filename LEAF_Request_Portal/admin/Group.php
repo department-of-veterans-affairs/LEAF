@@ -132,27 +132,6 @@ class Group
     }
 
     /**
-     * [Description for removeSyncGroup]
-     *
-     * @param int $groupID
-     *
-     * @return array
-     *
-     * Created at: 9/16/2022, 3:23:53 PM (America/New_York)
-     */
-    public function removeSyncGroup(int $groupID): array
-    {
-        $sql_vars = array(':groupID' => $groupID);
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-        ]);
-
-        $result = $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
-
-        return $result;
-    }
-
-    /**
      * [Description for removeUser]
      *
      * @param string $userID
@@ -222,9 +201,15 @@ class Group
                     if (isset($dirRes[0]))
                     {
                         $dirRes[0]['regionallyManaged'] = false;
+                        foreach ($dirRes[0]['groups'] as $group)
+                        {
+                            if ($groupID == $group['groupID']){
+                                $dirRes[0]['regionallyManaged'] = true;
+                            }
+                        }
                         if($groupID == 1)
                         {
-                        $dirRes[0]['primary_admin'] = $member['primary_admin'];
+                            $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
                         if($member['locallyManaged'] == 1) {
                             $dirRes[0]['backupID'] = null;
