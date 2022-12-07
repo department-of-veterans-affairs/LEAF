@@ -1182,7 +1182,7 @@ class FormWorkflow
         return true;
     }
 
-    public function setEventFolder(array $folder): void
+    public function setEventFolder(string $folder): void
     {
         $this->eventFolder = $folder;
     }
