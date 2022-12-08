@@ -1055,7 +1055,7 @@ class System
             }
 
             foreach ($employees as $employee) {
-                if (isset($employee['userName']) && !empty($employee['userName'])) {
+                if (!empty($employee['userName'])) {
                     $nexus_users[$group_counter]['userID'] = $employee['userName'];
                     $nexus_users[$group_counter]['groupID'] = $group['groupID'];
                     $nexus_users[$group_counter]['backupID'] = null;
@@ -1242,8 +1242,10 @@ class System
     private function getOrgchartImportTags(OrgChart\Group $group): array
     {
         $groups = array();
+        $tags = Config::$orgchartImportTags;
+        $tags[] = 'Pentad';
 
-        foreach (Config::$orgchartImportTags as $tag)
+        foreach ($tags as $tag)
         {
             $groups = array_merge($groups, $group->listGroupsByTag($tag));
         }
