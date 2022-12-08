@@ -46,6 +46,7 @@ class Email
     const NOTIFY_NEXT = -2;
     const NOTIFY_COMPLETE = -3;
     const EMAIL_REMINDER = -4;
+    const AUTOMATED_EMAIL_REMINDER = -5;
 
     public function __construct()
     {

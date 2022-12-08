@@ -56,7 +56,12 @@ function renderResult(leafSearch, res) {
             let waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
             let status = '';
             if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
-                status = '<span style="color: #e00000">Not Submitted</span>';
+                if(blob[data.recordID].lastStatus == null) {
+                    status = '<span style="color: #e00000">Not Submitted</span>';
+                }
+                else {
+                    status = '<span style="color: #e00000">Pending Re-submission</span>';
+                }
             }
             else if(blob[data.recordID].stepID == null) {
                 let lastStatus = blob[data.recordID].lastStatus;
