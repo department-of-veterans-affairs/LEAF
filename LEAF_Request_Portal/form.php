@@ -4054,7 +4054,12 @@ class Form
                 AND disabled = 0';
 
         $data = $this->db->prepared_query($sql, $vars);
+
+        // values in this array would be decoded values so &amp;'s will be &
         $values = $this->fileToArray($data[0]['data']);
+
+        // right now we will have special chars encoded in the filename. We need this decoded.
+        $fileName = XSSHelpers::sanitizeHTML($fileName);
 
         for ($i = 0; $i < count($values); $i++) {
             if ($values[$i] == $fileName) {
