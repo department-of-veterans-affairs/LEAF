@@ -39,7 +39,7 @@ $employee = new OrgChart\Employee($db, $login);
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 $uid = isset($_GET['empUID']) && is_numeric($_GET['empUID']) ? $_GET['empUID'] : 0;
-$indicatorID = isset($_GET['indicatorID']) && is_numeric($_GET['indicatorID']) ? $_GET['empUID'] : 0;
+$indicatorID = isset($_GET['indicatorID']) && is_numeric($_GET['indicatorID']) ? $_GET['indicatorID'] : 0;
 
 
 switch ($action) {
