@@ -5,10 +5,6 @@
 
 namespace Portal;
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
 class Shortener
 {
     public $siteRoot = '';
@@ -66,7 +62,7 @@ class Shortener
         if(!isset($resReport[0])) {
             return '';
         }
-        require_once dirname(__FILE__) . 'Form.php';
+
         $form = new Form($this->db, $this->login);
         return $form->query($resReport[0]['data']);
     }

@@ -11,16 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-if(!class_exists('LogFormatter'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/logFormatter.php';
-}
-if(!class_exists('LogItem'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/logItem.php';
-}
-
 class Group extends Data
 {
     protected $dataTable = 'group_data';

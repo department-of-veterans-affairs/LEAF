@@ -13,46 +13,32 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include '../libs/php-commons/Db.php';
-include './sources/config.php';
-include './sources/Exception.php';
+include '../libs/loaders/Leaf_autoloader.php';
 
-$config = new Orgchart\Config();
-
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
-
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+    date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
 }
 
 
-$login->loginUser();
-if ($login)
+$oc_login->loginUser();
+if ($oc_login)
 {
 }
 
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
-        $type = new OrgChart\Employee($db, $login);
+        $type = new Orgchart\Employee($oc_db, $oc_login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
-        $type = new OrgChart\Position($db, $login);
+        $type = new Orgchart\Position($oc_db, $oc_login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
-        $type = new OrgChart\Group($db, $login);
+        $type = new Orgchart\Group($oc_db, $oc_login);
 
         break;
     default:
@@ -147,7 +133,7 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
-            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            $settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))
             {
                 $tz = $settings['timeZone'];

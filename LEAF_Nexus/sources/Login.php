@@ -11,22 +11,6 @@
 
 namespace Orgchart;
 
-include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-include_once 'Session.php';
-
-// Sanitize all $_GET input
-if (count($_GET) > 0)
-{
-    $keys = array_keys($_GET);
-    foreach ($keys as $key)
-    {
-        if (is_string($_GET[$key]))
-        {
-            $_GET[$key] = htmlentities($_GET[$key], ENT_QUOTES);
-        }
-    }
-}
-
 class Login
 {
     public $MIN_NAME_LENGTH = 1;
@@ -410,7 +394,7 @@ class Login
         foreach ($res as $item)
         {
             $resIndicatorID = (int)$item['indicatorID'];
-            $resCategoryID = \XSSHelpers::xscrub($item['categoryID']);
+            $resCategoryID = \Leaf\XSSHelpers::xscrub($item['categoryID']);
             $resUID = (int)$item['UID'];
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];

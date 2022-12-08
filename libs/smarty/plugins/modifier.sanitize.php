@@ -10,22 +10,21 @@
  * Smarty HTML sanitation modifier plugin
  * Type:     modifier<br>
  * Name:     sanitize<br>
- * Purpose:  Simple HTML sanitation, allows some tags for use in rich text editors. 
- * 
+ * Purpose:  Simple HTML sanitation, allows some tags for use in rich text editors.
+ *
  * Allowed tags: <a><b><i><u><ol><li><br><p><table><td><tr>
- *  
- * 
+ *
+ *
  * @author Nathan Sullivan
  *
  * @param string $in    input string
  *
  * @return string
  */
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../php-commons/XSSHelpers.php';
-}
+
+ include_once '../../loaders/Leaf_autoloader.php';
+
 function smarty_modifier_sanitize($in)
 {
-    return XSSHelpers::sanitizeHTML($in);
+    return Leaf\XSSHelpers::sanitizeHTML($in);
 }

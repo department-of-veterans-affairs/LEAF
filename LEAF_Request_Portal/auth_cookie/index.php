@@ -9,19 +9,7 @@
 
 */
 
-include '../globals.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/DbConfig.php';
-include '../sources/Config.php';
-
-$db_config = new Portal\DbConfig();
-
-$config = new Portal\Config();
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-
-$login = new Portal\Login($db_phonebook, $db);
+include '../../libs/loaders/Leaf_autoloader.php';
 
 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
@@ -43,7 +31,7 @@ if (isset($_COOKIE['REMOTE_USER']))
 
     // see if user is valid
     $vars = array(':userName' => $user);
-    $res = $db_phonebook->prepared_query('SELECT * FROM employee
+    $res = $oc_db->prepared_query('SELECT * FROM employee
                                             WHERE userName=:userName
                                             AND deleted=0', $vars);
 
@@ -76,16 +64,16 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
-            $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+            $oc_db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
                                             ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
-            $empUID = $db_phonebook->getLastInsertID();
+            $empUID = $oc_db->getLastInsertID();
 
             if ($empUID == 0)
             {
                 $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $db_phonebook->prepared_query('SELECT empUID FROM employee
+                $empUID = $oc_db->prepared_query('SELECT empUID FROM employee
                                                           WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
@@ -95,7 +83,7 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':author' => 'viaLogin',
                     ':timestamp' => time(),
             );
-            $db_phonebook->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+            $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
                                             VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
                                             ON DUPLICATE KEY UPDATE data=:data', $vars);
 

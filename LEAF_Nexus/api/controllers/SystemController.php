@@ -5,8 +5,6 @@
 
 namespace Orgchart;
 
-require '../sources/System.php';
-
 class SystemController extends RESTfulResponse
 {
     public $index = array();
@@ -108,7 +106,7 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
-            $_POST['userID'] = \XSSHelpers::sanitizeHTML($_POST['userID']);
+            $_POST['userID'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['userID']);
             return $system->setPrimaryAdmin();
         });
 

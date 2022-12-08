@@ -7,6 +7,8 @@
  * Suite of helper functions to assist in mitigating XSS vulnerabilities.
  */
 
+namespace Leaf;
+
 class XSSHelpers
 {
     private static $specialPattern = array(

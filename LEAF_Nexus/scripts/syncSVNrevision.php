@@ -5,9 +5,7 @@
 
 $version = 'PUBLIC';
 
-$currDir = dirname(__FILE__);
-include_once $currDir . '/../../libs/php-commons/Db.php';
-include_once $currDir . '/../sources/config.php';
+include '../../libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
 $db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

@@ -1,11 +1,11 @@
-<?php 
-include '../php-commons/XSSHelpers.php';
+<?php
+include '../loaders/Leaf_autoloader.php';
 include 'qrlib.php';
 $cacheDir = 'cache/';
 
 $encode = 'Invalid Input.';
 if(isset($_GET['encode'])) {
-    $input = XSSHelpers::xssafe($_GET['encode']); // first pass scrub and character encoding enforcement
+    $input = Leaf\XSSHelpers::xssafe($_GET['encode']); // first pass scrub and character encoding enforcement
 
     $len = strlen($_GET['encode']);
     if($len > 0 && $len < 4000) { // check QR container limits
@@ -14,15 +14,9 @@ if(isset($_GET['encode'])) {
 
     // TODO: Replace this with centrally managed server config variable
     $HTTP_HOST = '';
-    if(file_exists('../../orgchart/globals.php')) {
-        include '../../orgchart/globals.php';
-    }
-    else if(file_exists('../../LEAF_Nexus/globals.php')) {
-        include '../../LEAF_Nexus/globals.php';
-    }
 
     if(defined('HTTP_HOST')) {
-        $HTTP_HOST = XSSHelpers::xssafe(HTTP_HOST);
+        $HTTP_HOST = Leaf\XSSHelpers::xssafe(HTTP_HOST);
     }
 
     // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code

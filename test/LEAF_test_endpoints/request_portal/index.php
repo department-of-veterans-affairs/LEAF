@@ -10,22 +10,8 @@
 
 error_reporting(E_ERROR);
 
-include_once __DIR__ . '/../../../LEAF_Request_Portal/globals.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Login.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Db.php';
-include_once __DIR__ . '/../../../LEAF_Request_Portal/sources/DbConfig.php';
-require_once __DIR__ . '/../../../LEAF_Request_Portal/api/RESTfulResponse.php';
-require_once __DIR__ . '/../../../LEAF_Request_Portal/sources/Exception.php';
-require_once __DIR__ . '/../../../LEAF_Request_Portal/api/ControllerMap.php';
+include '../libs/loaders/Leaf_autoloader.php';
 
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';

@@ -22,10 +22,7 @@ ini_set('display_errors', 0);
 
 */
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
+include '../loaders/Leaf_autoloader.php';
 
 class Dynicon
 {
@@ -43,7 +40,7 @@ class Dynicon
 
     public function __construct($file, $width)
     {
-        $file = XSSHelpers::scrubFilename($file);
+        $file = Leaf\XSSHelpers::scrubFilename($file);
         $this->file = $file;
         $this->width = $width;
         if (!is_numeric($width) || $width <= 0)

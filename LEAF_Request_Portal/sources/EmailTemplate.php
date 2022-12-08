@@ -9,11 +9,6 @@
 
 namespace Portal;
 
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-
 class EmailTemplate
 {
     private $db;

@@ -11,27 +11,13 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include '../libs/php-commons/Db.php';
-include './sources/config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
+include '../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$oc_login->loginUser();
 
-$login = new Orgchart\Login($db, $db);
-
-$login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
+if (!$oc_login->isLogin() || !$oc_login->isInDB())
 {
     echo 'Your login is not recognized.';
     exit;
@@ -47,7 +33,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -56,7 +42,7 @@ function customTemplate($tpl)
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', $login->getName());
+$t_login->assign('name', $oc_login->getName());
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -67,8 +53,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
+        $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -80,7 +66,7 @@ switch ($action) {
         {
             $main->assign('useUI', true);
 //    			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
-            if ($login->isLogin())
+            if ($oc_login->isLogin())
             {
                 $o_login = $t_login->fetch('login.tpl');
 
@@ -88,8 +74,8 @@ switch ($action) {
                 $t_form->left_delimiter = '<!--{';
                 $t_form->right_delimiter = '}-->';
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-                $t_form->assign('empUID', $login->getEmpUID());
-                $t_form->assign('empMembership', $login->getMembership());
+                $t_form->assign('empUID', $oc_login->getEmpUID());
+                $t_form->assign('empMembership', $oc_login->getMembership());
 
                 //url
                 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
@@ -110,7 +96,7 @@ switch ($action) {
         break;
 }
 
-$memberships = $login->getMembership();
+$memberships = $oc_login->getMembership();
 
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $t_menu->assign('action', $action);
@@ -120,10 +106,10 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::scrubNewLinesFromURL($settings['version']));
+$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', Leaf\XSSHelpers::scrubNewLinesFromURL($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

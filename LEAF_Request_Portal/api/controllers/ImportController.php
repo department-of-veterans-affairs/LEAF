@@ -5,16 +5,6 @@
 
 namespace Portal;
 
-require '../../libs/php-commons/spreadsheet/SpreadsheetUtil.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
-/**
- * Controls endpoints for Importing data from various sources (e.g. Spreadsheets)
- */
 class ImportController extends RESTfulResponse
 {
     public $index = array();
@@ -45,7 +35,7 @@ class ImportController extends RESTfulResponse
             }
 
             $hasColumnHeaders = (isset($_GET['hasHeaders']) && $_GET['hasHeaders'] == '1') ? true : false;
-            $fileName = \XSSHelpers::xscrub(strip_tags($_GET['importFile']));
+            $fileName = \Leaf\XSSHelpers::xscrub(strip_tags($_GET['importFile']));
             $results = \SpreadSheetUtil::loadFileIntoArray(__DIR__ . '/../../files/' . $fileName, $hasColumnHeaders);
 
             return $results;

@@ -5,10 +5,6 @@
 
 namespace Portal;
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
 class Site
 {
 	public $siteRoot = '';

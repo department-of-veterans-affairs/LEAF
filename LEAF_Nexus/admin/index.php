@@ -15,33 +15,18 @@
 */
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
+include '../../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$oc_login->loginUser();
 
-$login = new Orgchart\Login($db, $db);
-$login->setBaseDir('../');
-
-$login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
+if (!$oc_login->isLogin() || !$oc_login->isInDB())
 {
     echo 'Your login is not recognized.';
     exit;
 }
-/*if(!$login->checkGroup(6)) {
+/*if(!$oc_login->checkGroup(6)) {
     echo 'You must be in the administrator group to access this section.';
     exit();
 }*/
@@ -61,7 +46,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 // HQ logo
 $main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', $login->getName());
+$t_login->assign('name', $oc_login->getName());
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -72,7 +57,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $memberships = $login->getMembership();
+        $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
             $main->assign('body', $t_form->fetch('admin_refresh_directory.tpl'));
@@ -90,7 +75,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $memberships = $login->getMembership();
+        $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
@@ -118,14 +103,14 @@ switch ($action) {
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
            $t_form->assign('timeZone', $settings['timeZone']);
-           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('heading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            require_once '../sources/Tag.php';
-           $tagObj = new Orgchart\Tag($db, $login);
+           $tagObj = new Orgchart\Tag($db, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
 
-           $memberships = $login->getMembership();
+           $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
            {
                $main->assign('body', $t_form->fetch('mod_system.tpl'));
@@ -150,10 +135,10 @@ switch ($action) {
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', \XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', \XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('heading', \Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', \Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
-           $memberships = $login->getMembership();
+           $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
            {
                $main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
@@ -242,9 +227,9 @@ switch ($action) {
                                            'css/view_group.css', ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('userDomain', $login->getDomain());
+        $t_form->assign('userDomain', $oc_login->getDomain());
 
-        $memberships = $login->getMembership();
+        $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
             $main->assign('body', $t_form->fetch('view_admin.tpl'));
@@ -259,7 +244,7 @@ switch ($action) {
         break;
 }
 
-$memberships = $login->getMembership();
+$memberships = $oc_login->getMembership();
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
@@ -268,9 +253,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

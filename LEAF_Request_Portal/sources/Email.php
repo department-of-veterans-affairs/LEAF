@@ -11,15 +11,6 @@
 
 namespace Portal;
 
-require_once __DIR__ . '/../../libs/smarty/Smarty.class.php';
-require_once 'VAMC_Directory.php';
-require_once 'DbConfig.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
 class Email
 {
     public $emailSender = '';
@@ -328,41 +319,13 @@ class Email
     private function initOrgchart()
     {
         // set up org chart assets
-        if (!class_exists('DB'))
-        {
-            include '../../libs/php-commons/Db.php';
-        }
-        if (!class_exists('Orgchart\Config'))
-        {
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Config.php';
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        }
-        if (!class_exists('Orgchart\Login'))
-        {
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Login.php';
-        }
-        if (!class_exists('Orgchart\Employee'))
-        {
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        }
-        if (!class_exists('Orgchart\Position'))
-        {
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        }
-        if (!class_exists('Orgchart\Group'))
-        {
-            include __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        }
         $config = new \Orgchart\Config;
         $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new \OrgChart\Login($oc_db, $oc_db);
+        $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->employee = new \OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new \OrgChart\Position($oc_db, $oc_login);
-        $this->group = new \OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
+        $this->position = new \Orgchart\Position($oc_db, $oc_login);
+        $this->group = new \Orgchart\Group($oc_db, $oc_login);
         $this->orgchartInitialized = true;
     }
 
@@ -373,11 +336,6 @@ class Email
     function initPortalDB()
     {
         // set up org chart assets
-        if (!class_exists('DB'))
-        {
-            include '../../libs/php-commons/Db.php';
-        }
-
         $db_config = new DbConfig;
         $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
@@ -389,13 +347,6 @@ class Email
     function initNexusDB()
     {
         // set up org chart assets
-        if (!class_exists('DB'))
-        {
-            include '../../libs/php-commons/Db.php';
-        }
-
-        include_once 'Config.php';
-
         $nexus_config = new Config;
         $this->nexus_db = new \Leaf\Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
@@ -463,10 +414,10 @@ class Email
             "WHERE emailTemplateID = :emailTemplateID;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(\XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -481,10 +432,10 @@ class Email
             "WHERE label = :emailTemplateLabel;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(\XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -504,9 +455,9 @@ class Email
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
-                    $this->addCcBcc(\XSSHelpers::xscrub($emailAddress), true);
+                    $this->addCcBcc(\Leaf\XSSHelpers::xscrub($emailAddress), true);
                 } else {
-                    $this->addRecipient(\XSSHelpers::xscrub($emailAddress), true);
+                    $this->addRecipient(\Leaf\XSSHelpers::xscrub($emailAddress), true);
                 }
             }
         }
@@ -644,7 +595,6 @@ class Email
 
                     // special case for a person designated by the requestor
                     case -1:
-                        require_once 'Form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -685,7 +635,6 @@ class Email
 
                     // special case for a group designated by the requestor
                     case -3:
-                        require_once 'Form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step

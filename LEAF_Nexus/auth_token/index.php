@@ -9,15 +9,7 @@
 
 */
 
-include '../globals.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/config.php';
-
-$config = new Orgchart\Config();
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
+include '../../libs/loaders/Leaf_autoloader.php';
 
 if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {
@@ -39,7 +31,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     }
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
-    $res = $db->prepared_query('SELECT * FROM employee_data
+    $res = $oc_db->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)
 											WHERE indicatorID = 6
 												AND data = :email
@@ -74,15 +66,15 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
-            $db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+            $oc_db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
 									ON DUPLICATE KEY UPDATE deleted=0', $vars);
-            $empUID = $db->getLastInsertID();
+            $empUID = $oc_db->getLastInsertID();
 
             if ($empUID == 0)
             {
                 $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $db->prepared_query('SELECT empUID FROM employee
+                $empUID = $oc_db->prepared_query('SELECT empUID FROM employee
                                                     WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
@@ -92,7 +84,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                           ':author' => 'viaLogin',
                           ':timestamp' => time(),
             );
-            $db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+            $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
 											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
 											ON DUPLICATE KEY UPDATE data=:data', $vars);
 
@@ -104,7 +96,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
         }
         else
         {
-            header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+            header('Refresh: 4;URL=' . $oc_login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
             echo 'Unable to log in: ' . $_SERVER['SSL_CLIENT_S_DN_UID'] . ' not found in database.  Redirecting back to PIV login screen.';
         }
@@ -112,7 +104,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 }
 else
 {
-    header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
+    header('Refresh: 4;URL=' . $oc_login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
     echo 'Unable to log in: Client Verification issue.  Redirecting back to PIV login screen.';
 }

@@ -11,15 +11,6 @@
 
 namespace Portal;
 
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
 class FormEditor
 {
     private $db;
@@ -356,8 +347,8 @@ class FormEditor
     {
         $inputArr = json_decode($input);
         foreach($inputArr as $i=>$inp) {
-            $inputArr[$i]->selectedParentValue =  \XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
-            $inputArr[$i]->selectedChildValue =  \XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
+            $inputArr[$i]->selectedParentValue =  \Leaf\XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
+            $inputArr[$i]->selectedChildValue =  \Leaf\XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
         }
         if ($inputArr !== null) $inputArr = json_encode($inputArr);
 

@@ -6,20 +6,11 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-include '../libs/php-commons/Db.php';
-include '../sources/config.php';
-include '../globals.php';
+include '../../libs/loaders/Leaf_autoloader.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+$settings['heading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subHeading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
 function getBaseDir()
 {

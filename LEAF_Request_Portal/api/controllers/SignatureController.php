@@ -5,15 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Signature.php';
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
-/**
- * Handles API methods related to signatures.
- */
 class SignatureController extends RESTfulResponse
 {
     public $index = array();
@@ -56,12 +47,12 @@ class SignatureController extends RESTfulResponse
 
         $this->index['POST']->register('signature/create', function () use ($signature) {
             return $signature->create(
-                \XSSHelpers::sanitizeHTML($_POST['signature']),
+                \Leaf\XSSHelpers::sanitizeHTML($_POST['signature']),
                 (int)$_POST['recordID'],
                 (int)$_POST['stepID'],
                 (int)$_POST['dependencyID'],
-                \XSSHelpers::sanitizeHTML($_POST['message']),
-                \XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
+                \Leaf\XSSHelpers::sanitizeHTML($_POST['message']),
+                \Leaf\XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
             );
         });
 

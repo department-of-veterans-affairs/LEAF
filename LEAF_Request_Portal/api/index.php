@@ -10,26 +10,11 @@
 
 error_reporting(E_ERROR);
 
-include_once '../globals.php';
-include_once '../sources/Login.php';
-include_once '../sources/Session.php';
-include_once '../../libs/php-commons/Db.php';
-include_once '../sources/DbConfig.php';
-include_once '../sources/Config.php';
-require_once 'RESTfulResponse.php';
-require_once '../sources/Exception.php';
-require_once '../../libs/logger/dataActionLogger.php';
-require_once 'ControllerMap.php';
+include '../../libs/loaders/Leaf_autoloader.php';
 
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
+
+$p_db = $db;
 
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
@@ -60,136 +45,114 @@ if ($key != 'userActivity') {
 
 $controllerMap = new Portal\ControllerMap();
 
-$controllerMap->register('classicphonebook', function () use ($db, $login, $action) {
-    require 'controllers/ClassicPhonebookController.php';
-    $controller = new Portal\ClassicPhonebookController($db, $login);
+$controllerMap->register('classicphonebook', function () use ($p_db, $login, $action) {
+    $controller = new Portal\ClassicPhonebookController($p_db, $login);
     $controller->handler($action);
 });
 
 // admin only
 if ($login->checkGroup(1))
 {
-    $controllerMap->register('simpledata', function () use ($db, $login, $action) {
-        require 'controllers/SimpleDataController.php';
-        $controller = new Portal\SimpleDataController($db, $login);
+    $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
+        $controller = new Portal\SimpleDataController($p_db, $login);
         $controller->handler($action);
     });
 
-    $controllerMap->register('formEditor', function () use ($db, $login, $action) {
-        require 'controllers/FormEditorController.php';
-        $formEditorController = new Portal\FormEditorController($db, $login);
+    $controllerMap->register('formEditor', function () use ($p_db, $login, $action) {
+        $formEditorController = new Portal\FormEditorController($p_db, $login);
         $formEditorController->handler($action);
     });
 
-    $controllerMap->register('service', function () use ($db, $login, $action) {
-        require 'controllers/ServiceController.php';
-        $serviceController = new Portal\ServiceController($db, $login);
+    $controllerMap->register('service', function () use ($p_db, $login, $action) {
+        $serviceController = new Portal\ServiceController($p_db, $login);
         $serviceController->handler($action);
     });
 
-    $controllerMap->register('group', function () use ($db, $login, $action) {
-        require 'controllers/GroupController.php';
-        $serviceController = new Portal\GroupController($db, $login);
-        $serviceController->handler($action);
+    $controllerMap->register('group', function () use ($p_db, $login, $action) {
+        $groupController = new Portal\GroupController($p_db, $login);
+        $groupController->handler($action);
     });
 
-    $controllerMap->register('import', function () use ($db, $login, $action) {
-        require 'controllers/ImportController.php';
-        $importController = new Portal\ImportController($db, $login);
+    $controllerMap->register('import', function () use ($p_db, $login, $action) {
+        $importController = new Portal\ImportController($p_db, $login);
         $importController->handler($action);
     });
 
-    $controllerMap->register('site', function () use ($db, $login, $action) {
-        require 'controllers/SiteController.php';
-        $siteController = new Portal\SiteController($db, $login);
+    $controllerMap->register('site', function () use ($p_db, $login, $action) {
+        $siteController = new Portal\SiteController($p_db, $login);
         $siteController->handler($action);
     });
 }
 
-$controllerMap->register('form', function () use ($db, $login, $action) {
-    require 'controllers/FormController.php';
-    $formController = new Portal\FormController($db, $login);
+$controllerMap->register('form', function () use ($p_db, $login, $action) {
+    $formController = new Portal\FormController($p_db, $login);
     $formController->handler($action);
 });
 
-$controllerMap->register('formStack', function () use ($db, $login, $action) {
-    require 'controllers/FormStackController.php';
-    $formStackController = new Portal\FormStackController($db, $login);
+$controllerMap->register('formStack', function () use ($p_db, $login, $action) {
+    $formStackController = new Portal\FormStackController($p_db, $login);
     $formStackController->handler($action);
 });
 
-$controllerMap->register('formWorkflow', function () use ($db, $login, $action) {
-    require 'controllers/FormWorkflowController.php';
-    $formWorkflowController = new Portal\FormWorkflowController($db, $login);
+$controllerMap->register('formWorkflow', function () use ($p_db, $login, $action) {
+    $formWorkflowController = new Portal\FormWorkflowController($p_db, $login);
     $formWorkflowController->handler($action);
 });
 
-$controllerMap->register('workflow', function () use ($db, $login, $action) {
-    require 'controllers/WorkflowController.php';
-    $workflowController = new Portal\WorkflowController($db, $login);
+$controllerMap->register('workflow', function () use ($p_db, $login, $action) {
+    $workflowController = new Portal\WorkflowController($p_db, $login);
     $workflowController->handler($action);
 });
 
-$controllerMap->register('FTEdata', function () use ($db, $login, $action) {
-    require 'controllers/FTEdataController.php';
-    $FTEdataController = new Portal\FTEdataController($db, $login);
+$controllerMap->register('FTEdata', function () use ($p_db, $login, $action) {
+    $FTEdataController = new Portal\FTEdataController($p_db, $login);
     $FTEdataController->handler($action);
 });
 
-$controllerMap->register('inbox', function () use ($db, $login, $action) {
-    require 'controllers/InboxController.php';
-    $InboxController = new Portal\InboxController($db, $login);
+$controllerMap->register('inbox', function () use ($p_db, $login, $action) {
+    $InboxController = new Portal\InboxController($p_db, $login);
     $InboxController->handler($action);
 });
 
-$controllerMap->register('system', function () use ($db, $login, $action) {
-    require 'controllers/SystemController.php';
-    $SystemController = new Portal\SystemController($db, $login);
+$controllerMap->register('system', function () use ($p_db, $login, $action) {
+    $SystemController = new Portal\SystemController($p_db, $login);
     $SystemController->handler($action);
 });
 
-$controllerMap->register('emailTemplates', function () use ($db, $login, $action) {
-    require 'controllers/EmailTemplateController.php';
-    $EmailTemplateController = new Portal\EmailTemplateController($db, $login);
+$controllerMap->register('emailTemplates', function () use ($p_db, $login, $action) {
+    $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
     $EmailTemplateController->handler($action);
 });
 
-$controllerMap->register('converter', function () use ($db, $login, $action) {
-    require 'controllers/ConverterController.php';
-    $ConverterController = new Portal\ConverterController($db, $login);
+$controllerMap->register('converter', function () use ($p_db, $login, $action) {
+    $ConverterController = new Portal\ConverterController($p_db, $login);
     $ConverterController->handler($action);
 });
 
-$controllerMap->register('telemetry', function () use ($db, $login, $action) {
-    require 'controllers/TelemetryController.php';
-    $TelemetryController = new Portal\TelemetryController($db, $login);
+$controllerMap->register('telemetry', function () use ($p_db, $login, $action) {
+    $TelemetryController = new Portal\TelemetryController($p_db, $login);
     $TelemetryController->handler($action);
 });
 
-$controllerMap->register('signature', function() use ($db, $login, $action) {
-    require 'controllers/SignatureController.php';
-    $SignatureController = new Portal\SignatureController($db, $login);
+$controllerMap->register('signature', function() use ($p_db, $login, $action) {
+    $SignatureController = new Portal\SignatureController($p_db, $login);
     $SignatureController->handler($action);
 });
 
-$controllerMap->register('open', function() use ($db, $login, $action) {
-    require 'controllers/OpenController.php';
-    $OpenController = new Portal\OpenController($db, $login);
+$controllerMap->register('open', function() use ($p_db, $login, $action) {
+    $OpenController = new Portal\OpenController($p_db, $login);
     $OpenController->handler($action);
 });
 
-$controllerMap->register('userActivity', function() use ($db, $login, $action) {
-    require 'controllers/UserActivity.php';
-    $UserActivity = new Portal\UserActivity($db, $login);
+$controllerMap->register('userActivity', function() use ($p_db, $login, $action) {
+    $UserActivity = new Portal\UserActivity($p_db, $login);
     $UserActivity->handler($action);
 });
 
-$controllerMap->register('note', function() use ($db, $login, $action) {
-    require 'controllers/NotesController.php';
+$controllerMap->register('note', function() use ($p_db, $login, $action) {
+    $dataActionLogger = new Leaf\DataActionLogger($p_db, $login);
 
-    $dataActionLogger = new Leaf\DataActionLogger($db, $login);
-
-    $NotesController = new Portal\NotesController($db, $login, $dataActionLogger);
+    $NotesController = new Portal\NotesController($p_db, $login, $dataActionLogger);
     $NotesController->handler($action);
 });
 

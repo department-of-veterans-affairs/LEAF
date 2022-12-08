@@ -11,15 +11,6 @@
 
 namespace Portal;
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-
 class Workflow
 {
     public $siteRoot = '';

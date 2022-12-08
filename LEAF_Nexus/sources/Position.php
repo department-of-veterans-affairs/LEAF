@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Position extends Data
 {
     protected $dataTable = 'position_data';

@@ -12,13 +12,7 @@ else
 {
     define('BR', '<br />');
 }
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../../libs/php-commons/Db.php';
-include_once $currDir . '/../sources/config.php';
-
-$config = new Orgchart\Config();
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+include '../../libs/loaders/Leaf_autoloader.php';
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))

@@ -5,8 +5,6 @@
 
 namespace Orgchart;
 
-require '../sources/Employee.php';
-
 class EmployeeController extends RESTfulResponse
 {
     public $index = array();

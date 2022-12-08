@@ -5,13 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Site.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class SiteController extends RESTfulResponse
 {
 	public $index = array();

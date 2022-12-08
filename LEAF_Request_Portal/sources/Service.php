@@ -10,16 +10,6 @@
 */
 namespace Portal;
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-require_once 'VAMC_Directory.php';
-
 class Service
 {
     public $siteRoot = '';
@@ -156,11 +146,9 @@ class Service
 
     public function addMember($groupID, $member)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
             $sql_vars = array(':userID' => $member,
@@ -245,11 +233,9 @@ class Service
 
     public function removeMember($groupID, $member)
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
         {

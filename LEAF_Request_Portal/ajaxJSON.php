@@ -11,27 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include 'sources/Login.php';
-include '../libs/php-commons/Db.php';
-include 'sources/DbConfig.php';
-include 'sources/Config.php';
-require 'sources/Form.php';
-
-// Include XSSHelpers
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
+include '../libs/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 
@@ -89,7 +69,7 @@ switch ($action) {
         $record = $res[0];
         foreach (array_keys($record) as $key)
         {
-            $record[$key] = XSSHelpers::xscrub($record[$key]);
+            $record[$key] = Leaf\XSSHelpers::xscrub($record[$key]);
         }
 
         echo json_encode($record);

@@ -11,18 +11,6 @@
 
 namespace Orgchart;
 
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
-}
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
 abstract class Data
 {
     protected $db;
@@ -400,7 +388,7 @@ abstract class Data
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
+                        // $sanitizedFileName = \Leaf\XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
                             mkdir(Config::$uploadDir, 0755, true);
@@ -430,10 +418,10 @@ abstract class Data
                 // handle JSON indicator type
                 if (isset($res[0]['format']) && $res[0]['format'] == 'json')
                 {
-                    $res_temp = \XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
+                    $res_temp = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
                     if (is_array($res_temp))
                     {
-                        $_POST[$key] = \XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
+                        $_POST[$key] = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
 
                         $jsonKeys = array_keys($res_temp);
                         foreach ($jsonKeys as $jsonKey)
@@ -533,7 +521,6 @@ abstract class Data
         $memberships = $this->login->getMembership();
         if (!isset($memberships['groupID'][1]))
         {
-            require_once 'Tag.php';
             $tagObj = new Tag($this->db, $this->login);
             $tags = $tagObj->getAll();
             foreach ($tags as $item)

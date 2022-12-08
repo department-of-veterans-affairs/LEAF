@@ -5,8 +5,6 @@
 
 namespace Portal;
 
-require_once '../sources/VAMC_Directory.php';
-
 class ClassicPhonebookController extends RESTfulResponse
 {
     public $index = array();

@@ -6,21 +6,11 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-include '../../libs/php-commons/Db.php';
-include '../sources/DbConfig.php';
-include '../sources/Config.php';
-include '../globals.php';
+include '../../libs/loaders/Leaf_autoloader.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-$config = new Portal\Config();
-$db_config = new Portal\DbConfig();
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+$settings['heading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subHeading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
 function getBaseDir()
 {

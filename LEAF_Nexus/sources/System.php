@@ -11,16 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-if(!class_exists('LogFormatter'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/logFormatter.php';
-}
-if(!class_exists('LogItem'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/logItem.php';
-}
-
 class System
 {
     public $siteRoot = '';
@@ -42,11 +32,6 @@ class System
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
-
-        if (!class_exists('XSSHelpers'))
-        {
-            include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-        }
     }
 
     /**
@@ -72,7 +57,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \XSSHelpers::sanitizeHTML($heading));
+        $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($heading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="heading"', $vars);
@@ -87,7 +72,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \XSSHelpers::sanitizeHTML($subHeading));
+        $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($subHeading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subheading"', $vars);
@@ -271,7 +256,6 @@ class System
 
         if(count($primaryAdminRes) > 0)
         {
-            include_once 'Employee.php';
             $employee = new Employee($this->db, $this->login);
             $user = $employee->lookupLogin($primaryAdminRes[0]['data']);
         }
@@ -286,10 +270,9 @@ class System
      */
     public function setPrimaryAdmin(): array
     {
-        $userID = \XSSHelpers::xscrub($_POST['userID']);
+        $userID = \Leaf\XSSHelpers::xscrub($_POST['userID']);
 
         //check if user is system admin
-        include_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         $user = $employee->lookupLogin($userID);
 

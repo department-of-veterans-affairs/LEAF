@@ -5,8 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Inbox.php';
-
 class InboxController extends RESTfulResponse
 {
     public $index = array();

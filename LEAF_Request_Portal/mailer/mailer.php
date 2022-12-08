@@ -11,10 +11,7 @@
 
 set_time_limit(10);
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
+include '../libs/loaders/Leaf_autoloader.php';
 
 // Mail queue folder
 $currDir = dirname(__FILE__);
@@ -24,7 +21,7 @@ $webMode = false;
 $webLog = array();
 if (isset($argv[1]))
 {
-    $file = XSSHelpers::scrubFilename($argv[1]);
+    $file = Leaf\XSSHelpers::scrubFilename($argv[1]);
 }
 else
 {

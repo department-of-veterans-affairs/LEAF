@@ -10,12 +10,6 @@
 
 namespace Portal;
 
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-require_once 'VAMC_Directory.php';
-
 class FormWorkflow
 {
     public $siteRoot = '';
@@ -72,7 +66,6 @@ class FormWorkflow
     public function getCurrentSteps()
     {
         // check privileges
-        require_once 'Form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($this->recordID))
         {
@@ -268,7 +261,6 @@ class FormWorkflow
     public function getLastAction()
     {
         // check privileges
-        require_once 'Form.php';
         $form = new Form($this->db, $this->login);
         if (!$form->hasReadAccess($this->recordID))
         {
@@ -331,7 +323,7 @@ class FormWorkflow
         // sanitize the comment on the action
         if (isset($res[0]) && isset($res[0]['comment']))
         {
-            $res[0]['comment'] = \XSSHelpers::sanitizeHTML($res[0]['comment']);
+            $res[0]['comment'] = \Leaf\XSSHelpers::sanitizeHTML($res[0]['comment']);
         }
 
         return $res[0];
@@ -421,7 +413,7 @@ class FormWorkflow
         {
             return array('status' => 0, 'errors' => array('Invalid Token'));
         }
-        $comment = \XSSHelpers::sanitizeHTML($comment);
+        $comment = \Leaf\XSSHelpers::sanitizeHTML($comment);
         $time = time();
 
         // first check if the user has access
@@ -460,7 +452,6 @@ class FormWorkflow
 
                     break;
                 case -1: // dependencyID -1 : person designated by requestor
-                    require_once 'Form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
@@ -480,7 +471,6 @@ class FormWorkflow
 
                     break;
                 case -2: // dependencyID -2 : requestor followup
-                    require_once 'Form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
@@ -501,7 +491,6 @@ class FormWorkflow
 
                     break;
                 case -3: // dependencyID -3 : group designated by requestor
-                    require_once 'Form.php';
                     $form = new Form($this->db, $this->login);
 
                     $varsGroup = array(':recordID' => $this->recordID);
@@ -790,13 +779,11 @@ class FormWorkflow
                                                   WHERE recordID=:recordID', $vars2);
             if (count($res) == 0)
             {	// if the workflow state is empty, it means the request has been sent back to the requestor
-                require_once 'Form.php';
                 $form = new Form($this->db, $this->login);
                 $form->openForEditing($this->recordID);
             }
 
             // Send emails
-            require_once 'Email.php';
             $email = new Email();
 
             $vars = array(':recordID' => $this->recordID);
@@ -874,7 +861,6 @@ class FormWorkflow
             }
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
-                    require_once 'Email.php';
                     $email = new Email();
 
                     $email->addSmartyVariables(array(
@@ -890,7 +876,6 @@ class FormWorkflow
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
-                    require_once 'Email.php';
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
@@ -938,7 +923,6 @@ class FormWorkflow
 
                     break;
                 case $customEvent: // For all custom events
-                    require_once 'Email.php';
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
@@ -1002,9 +986,7 @@ class FormWorkflow
                     $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
                     if (is_file($eventFile))
                     {
-                        require_once $eventFile;
-                        require_once 'Email.php';
-                        $dir = new VAMC_Directory;
+                       $dir = new VAMC_Directory;
                         $email = new Email();
 
                         $eventInfo = array('recordID' => $this->recordID,
@@ -1048,7 +1030,7 @@ class FormWorkflow
         {
             return false;
         }
-        $comment = \XSSHelpers::sanitizeHTML($comment);
+        $comment = \Leaf\XSSHelpers::sanitizeHTML($comment);
 
         if ($this->recordID == 0
             || (!$this->login->checkGroup(1) && $bypassAdmin == false))

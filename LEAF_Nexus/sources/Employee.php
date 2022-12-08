@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Employee extends Data
 {
     public $debug = false;

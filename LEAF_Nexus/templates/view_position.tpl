@@ -51,7 +51,7 @@
         <!--{/if}-->
         </div>
         <!--{if $positionPrivileges[$positionID].grant != 0}-->
-        <div class="buttonNorm" onclick="window.open('index.php?a=view_position_permissions&amp;positionID=<!--{$positionID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
+        <div class="buttonNorm" onclick="window.open('index.php?a=view_position_permissions&amp;positionID=<!--{$positionID}-->','Orgchart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
             <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle" /> Change Permissions
         </div>
         <!--{/if}-->

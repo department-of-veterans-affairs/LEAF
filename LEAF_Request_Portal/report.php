@@ -11,29 +11,9 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'sources/Login.php';
-include '../libs/php-commons/Db.php';
-include 'sources/DbConfig.php';
-include 'sources/Config.php';
-include 'sources/Form.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
+include '../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
 
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
@@ -52,7 +32,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -76,7 +56,7 @@ $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 foreach (array_keys($settings) as $key)
 {
-    $settings[$key] = XSSHelpers::sanitizeHTMLRich($settings[$key]);
+    $settings[$key] = Leaf\XSSHelpers::sanitizeHTMLRich($settings[$key]);
 }
 
 switch ($action) {
@@ -133,7 +113,7 @@ switch ($action) {
             $t_form->assign('userID', $login->getUserID());
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
-            $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
+            $t_form->assign('currUserActualName', Leaf\XSSHelpers::xscrub($login->getName()));
             $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
@@ -150,7 +130,7 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);

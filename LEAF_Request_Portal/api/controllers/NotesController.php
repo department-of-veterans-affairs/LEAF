@@ -5,14 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Note.php';
-require '../sources/Form.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class NotesController extends RESTfulResponse
 {
     /**

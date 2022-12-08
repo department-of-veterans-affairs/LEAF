@@ -5,8 +5,6 @@
 
 namespace Orgchart;
 
-require '../sources/Indicators.php';
-
 class IndicatorController extends RESTfulResponse
 {
     public $index = array();

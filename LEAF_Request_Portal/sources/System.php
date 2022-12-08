@@ -11,24 +11,6 @@
 
 namespace Portal;
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
-}
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-
 class System
 {
     public $siteRoot = '';
@@ -67,17 +49,12 @@ class System
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
         //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
-
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new \Orgchart\Group($db_phonebook, $this->login);
-        $position = new \Orgchart\Position($db_phonebook, $this->login);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
-        $tag = new \Orgchart\Tag($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $group = new \Orgchart\Group($oc_db, $this->login);
+        $position = new \Orgchart\Position($oc_db, $this->login);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
+        $tag = new \Orgchart\Tag($oc_db, $this->login);
 
         // find quadrad/ELT tag name, and find groupID
         $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($serviceID), $tag->getParent('service'));
@@ -186,17 +163,12 @@ class System
         //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
-
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new \Orgchart\Group($db_phonebook, $this->login);
-        $position = new \Orgchart\Position($db_phonebook, $this->login);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
-        $tag = new \Orgchart\Tag($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $group = new \Orgchart\Group($oc_db, $this->login);
+        $position = new \Orgchart\Position($oc_db, $this->login);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
+        $tag = new \Orgchart\Tag($oc_db, $this->login);
 
         // find quadrad/ELT tag name
         $upperLevelTag = $tag->getParent('service');
@@ -309,17 +281,12 @@ class System
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
-
             $config = new Config();
-            $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-            $group = new \Orgchart\Group($db_phonebook, $this->login);
-            $position = new \Orgchart\Position($db_phonebook, $this->login);
-            $employee = new \Orgchart\Employee($db_phonebook, $this->login);
-            $tag = new \Orgchart\Tag($db_phonebook, $this->login);
+            $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+            $group = new \Orgchart\Group($oc_db, $this->login);
+            $position = new \Orgchart\Position($oc_db, $this->login);
+            $employee = new \Orgchart\Employee($oc_db, $this->login);
+            $tag = new \Orgchart\Tag($oc_db, $this->login);
 
             // find quadrad/ELT tag name
             $upperLevelTag = $tag->getParent('service');
@@ -608,7 +575,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => \XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
+        $vars = array(':input' => \Leaf\XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedSubordinateList"', $vars);
 
         return 1;
@@ -621,7 +588,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => \XSSHelpers::xscrub($_POST['national_linkedPrimary']));
+        $vars = array(':input' => \Leaf\XSSHelpers::xscrub($_POST['national_linkedPrimary']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedPrimary"', $vars);
 
         return 1;
@@ -785,8 +752,8 @@ class System
             return 'Invalid Token.';
         }
         $in = $_FILES['file']['name'];
-        $fileName = \XSSHelpers::scrubFilename($in);
-        $fileName = \XSSHelpers::xscrub($fileName);
+        $fileName = \Leaf\XSSHelpers::scrubFilename($in);
+        $fileName = \Leaf\XSSHelpers::xscrub($fileName);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
@@ -853,7 +820,6 @@ class System
         $result = array();
         if(count($primaryAdminRes))
         {
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
             $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
             $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
@@ -868,7 +834,7 @@ class System
      */
     public function setPrimaryAdmin()
     {
-        $vars = array(':userID' => \XSSHelpers::xscrub($_POST['userID']));
+        $vars = array(':userID' => \Leaf\XSSHelpers::xscrub($_POST['userID']));
         //check if user is system admin
         $res = $this->db->prepared_query('SELECT *
                                             FROM `users`
@@ -928,16 +894,16 @@ class System
      *
      * @param Group $org_group
      * @param Service $org_service
-     * @param \OrgChart\Group $nexus_group
-     * @param \OrgChart\Employee $nexus_employee
-     * @param \OrgChart\Tag $nexus_tag
-     * @param \OrgChart\Position $nexus_position
+     * @param \Orgchart\Group $nexus_group
+     * @param \Orgchart\Employee $nexus_employee
+     * @param \Orgchart\Tag $nexus_tag
+     * @param \Orgchart\Position $nexus_position
      *
      * @return string
      *
      * Created at: 10/3/2022, 6:59:30 AM (America/New_York)
      */
-    public function syncSystem(Group $org_group, Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): string
+    public function syncSystem(Group $org_group, Service $org_service, \Orgchart\Group $nexus_group, \Orgchart\Employee $nexus_employee, \Orgchart\Tag $nexus_tag, \Orgchart\Position $nexus_position): string
     {
         $nexus_services = array();
         $nexus_chiefs = array();
@@ -1235,13 +1201,13 @@ class System
     /**
      * getOrgchartImportTags retrieves
      *
-     * @param \OrgChart\Group $group
+     * @param \Orgchart\Group $group
      *
      * @return array
      *
      * Created at: 9/14/2022, 7:35:53 AM (America/New_York)
      */
-    private function getOrgchartImportTags(\OrgChart\Group $group): array
+    private function getOrgchartImportTags(\Orgchart\Group $group): array
     {
         $groups = array();
 
@@ -1315,7 +1281,7 @@ class System
         return $backup;
     }
 
-    private function updateNexusWithPortalGroups(array $portal_groups, \OrgChart\Group $nexus_group): void
+    private function updateNexusWithPortalGroups(array $portal_groups, \Orgchart\Group $nexus_group): void
     {
         $nexus_groups = $nexus_group->listGroupsByTag(Config::$orgchartImportTags[0]);
 

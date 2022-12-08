@@ -5,8 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Telemetry.php';
-
 class TelemetryController extends RESTfulResponse
 {
     public $index = array();

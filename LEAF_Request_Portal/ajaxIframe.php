@@ -11,27 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'sources/Login.php';
-include '../libs/php-commons/Db.php';
-include 'sources/DbConfig.php';
-include 'sources/Config.php';
-include 'sources/Form.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
+include '../libs/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
@@ -49,7 +29,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -80,7 +60,7 @@ $main->assign('useUI', false);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+    date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
 }
 
 switch ($action) {
@@ -124,16 +104,16 @@ switch ($action) {
         $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
-        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
+        $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', Leaf\XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
-        $t_form->assign('submitted', XSSHelpers::sanitizeHTML($recordInfo['submitted']));
-        $t_form->assign('stepID', XSSHelpers::sanitizeHTML($recordInfo['stepID']));
-        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
+        $t_form->assign('submitted', Leaf\XSSHelpers::sanitizeHTML($recordInfo['submitted']));
+        $t_form->assign('stepID', Leaf\XSSHelpers::sanitizeHTML($recordInfo['stepID']));
+        $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
-        $t_form->assign('date', XSSHelpers::sanitizeHTML($recordInfo['date']));
+        $t_form->assign('date', Leaf\XSSHelpers::sanitizeHTML($recordInfo['date']));
         $t_form->assign('deleted', (int)$recordInfo['deleted']);
-        $t_form->assign('bookmarked', XSSHelpers::sanitizeHTML($recordInfo['bookmarked']));
+        $t_form->assign('bookmarked', Leaf\XSSHelpers::sanitizeHTML($recordInfo['bookmarked']));
         $t_form->assign('categories', $recordInfo['categories']);
         $t_form->assign('comments', $comments);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -166,7 +146,7 @@ switch ($action) {
                     if ($match = 1)
                     {
                         // safe to pass in $_GET
-                        $t_form->assign('childCategoryID', XSSHelpers::xscrub($_GET['childCategoryID']));
+                        $t_form->assign('childCategoryID', Leaf\XSSHelpers::xscrub($_GET['childCategoryID']));
                     }
                 }
 
@@ -175,7 +155,7 @@ switch ($action) {
                 break;
         }
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : Leaf\XSSHelpers::sanitizeHTML($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
 
         break;
@@ -206,8 +186,8 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', $settings['heading'] == '' ? $config->title : Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', $settings['subHeading'] == '' ? $config->city : Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 $main->display('main_iframe.tpl');

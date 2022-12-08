@@ -3,33 +3,15 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include 'globals.php';
-include '../libs/php-commons/Db.php';
-include 'sources/DbConfig.php';
-include 'sources/Config.php';
-include 'sources/Login.php';
-include 'sources/Form.php';
+include '../libs/loaders/Leaf_autoloader.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
 $login->loginUser();
 
 $form = new Portal\Form($db, $login);
 
 $data = $form->getIndicator(
-    XSSHelpers::sanitizeHTML($_GET['id']),
-    XSSHelpers::sanitizeHTML($_GET['series']),
+    Leaf\XSSHelpers::sanitizeHTML($_GET['id']),
+    Leaf\XSSHelpers::sanitizeHTML($_GET['series']),
     $_GET['form']
 );
 

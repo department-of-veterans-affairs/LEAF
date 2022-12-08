@@ -3,38 +3,22 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include 'globals.php';
-include '../libs/php-commons/Db.php';
-include './sources/config.php';
-include './sources/Login.php';
+include '../libs/loaders/Leaf_autoloader.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
-
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
-$login->loginUser();
+$oc_login->loginUser();
 
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
-        $type = new OrgChart\Employee($db, $login);
+        $type = new Orgchart\Employee($oc_db, $oc_login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
-        $type = new OrgChart\Position($db, $login);
+        $type = new Orgchart\Position($oc_db, $oc_login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
-        $type = new OrgChart\Group($db, $login);
+        $type = new Orgchart\Group($oc_db, $oc_login);
 
         break;
     default:
@@ -64,7 +48,7 @@ if (is_array($value)
 
 if (file_exists($filename))
 {
-    $inputFilename = \XSSHelpers::scrubNewLinesFromURL($inputFilename);
+    $inputFilename = Leaf\XSSHelpers::scrubNewLinesFromURL($inputFilename);
     header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($inputFilename)) . '"');
     header('Content-Length: ' . filesize($filename));
     header('Cache-Control: maxage=1'); //In seconds

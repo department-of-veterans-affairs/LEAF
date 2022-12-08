@@ -4,35 +4,21 @@
  */
 
 set_time_limit(240);
-include '../globals.php';
-include '../sources/config.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/Position.php';
-include '../sources/Tag.php';
 
+include '../../libs/loaders/Leaf_autoloader.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
+$oc_login->setBaseDir('../');
+$oc_login->loginUser();
 
-$config = new Orgchart\Config;
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$memberships = $oc_login->getMembership();
 
-$login = new Orgchart\Login($db, $db);
-$login->setBaseDir('../');
-$login->loginUser();
-
-$memberships = $login->getMembership();
-
-$position = new Orgchart\Position($db, $login);
-$tag = new Orgchart\Tag($db, $login);
+$position = new Orgchart\Position($oc_db, $oc_login);
+$tag = new Orgchart\Tag($oc_db, $oc_login);
 
 // check for cached result
-if(!isset($_GET['cache'])
+/* if(!isset($_GET['cache'])
     && $_GET['cache'] == 0) {
-    $cache = $db->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
+    $cache = $oc_db->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
     if (isset($cache['jsonExport_PDL.php'])
         && isset($cache['lastModified'])
         && $cache['jsonExport_PDL.php']['cacheTime'] > $cache['lastModified']['data']
@@ -41,21 +27,19 @@ if(!isset($_GET['cache'])
 
         $scrubCache = json_decode($cache['jsonExport_PDL.php']['data']);
         if(json_last_error() == JSON_ERROR_NONE) { // validate JSON object
-            $scrubCache = XSSHelpers::scrubObjectOrArray($scrubCache);
+            $scrubCache = Leaf\XSSHelpers::scrubObjectOrArray($scrubCache);
             echo json_encode($scrubCache);
         }
         exit();
     }
-}
+} */
 
 header('Content-type: application/json');
 
-$res = $db->prepared_query('SELECT * FROM positions', array());
-
-//$pos = $res[15]; // for testing
+$res = $oc_db->prepared_query('SELECT * FROM positions', array());
 
 $jsonOut = array();
-
+$iteration = 0;
 foreach ($res as $pos)
 {
     $data = $position->getAllData($pos['positionID']);
@@ -72,17 +56,22 @@ foreach ($res as $pos)
         && $serviceChief[0]['positionID'] == $pos['positionID'])
     {
         $elt = $position->findRootPositionByGroupTag($pos['positionID'], $tag->getParent('service'));
-        $output[$pos['positionID']]['service'] = $elt[0]['groupTitle'];
-        // If position is an ELT member, show their supervisor's service (director)
-        if ($serviceChief[0]['groupID'] == $elt[0]['groupID'])
-        {
-            $super = $position->getSupervisor($pos['positionID']);
-            if (isset($super[0]))
+        /* error_log($iteration);
+        error_log(print_r($elt, true)); */
+
+        if (!empty($elt)) {
+            $output[$pos['positionID']]['service'] = $elt[0]['groupTitle'];
+            // If position is an ELT member, show their supervisor's service (director)
+            if ($serviceChief[0]['groupID'] == $elt[0]['groupID'])
             {
-                $superService = $position->getService($super[0]['positionID']);
-                if(isset($superService[0]))
+                $super = $position->getSupervisor($pos['positionID']);
+                if (isset($super[0]))
                 {
-                    $output[$pos['positionID']]['service'] = $superService[0]['groupTitle'];
+                    $superService = $position->getService($super[0]['positionID']);
+                    if(isset($superService[0]))
+                    {
+                        $output[$pos['positionID']]['service'] = $superService[0]['groupTitle'];
+                    }
                 }
             }
         }
@@ -128,13 +117,13 @@ foreach ($res as $pos)
 
             $packet = array();
             $packet['positionID'] = (int)$pos['positionID'];
-            $packet['positionTitle'] = XSSHelpers::xscrub($pos['positionTitle']);
+            $packet['positionTitle'] = Leaf\XSSHelpers::xscrub($pos['positionTitle']);
 
             if ($emp['lastName'] != ''
                 && $emp['isActing'] == 0)
             {
-                $packet['employee'] = XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
-                $packet['employeeUserName'] = XSSHelpers::xscrub($emp['userName']);
+                $packet['employee'] = Leaf\XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
+                $packet['employeeUserName'] = Leaf\XSSHelpers::xscrub($emp['userName']);
                 $packet['employeeUID'] = (int)$emp['empUID'];
             }
             else
@@ -144,15 +133,15 @@ foreach ($res as $pos)
                 $packet['employeeUID'] = '';
             }
 
-            $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
-            $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
-            $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
-            $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
-            $packet['payGrade'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
-            $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
-            $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
-            $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
-            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
+            $packet['supervisor'] = Leaf\XSSHelpers::xscrub($supervisorName);
+            $packet['service'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['service']);
+            $packet['payPlan'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
+            $packet['series'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
+            $packet['payGrade'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
+            $packet['fteCeiling'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
+            $packet['currentFte'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
+            $packet['pdNumber'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
         else
@@ -178,22 +167,23 @@ foreach ($res as $pos)
 
             $packet = array();
             $packet['positionID'] = (int)$pos['positionID'];
-            $packet['positionTitle'] = XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']);
+            $packet['positionTitle'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']);
             $packet['employee'] = '';
             $packet['employeeUserName'] = '';
             $packet['employeeUID'] = '';
-            $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
-            $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
-            $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
-            $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
-            $packet['payGrade'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
-            $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
-            $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
-            $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
-            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
+            $packet['supervisor'] = Leaf\XSSHelpers::xscrub($supervisorName);
+            $packet['service'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['service']);
+            $packet['payPlan'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
+            $packet['series'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
+            $packet['payGrade'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
+            $packet['fteCeiling'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
+            $packet['currentFte'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
+            $packet['pdNumber'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
     }
+    $iteration++;
 }
 
 // add email addresses
@@ -205,7 +195,7 @@ foreach($jsonOut as $item) {
 }
 $empUID_list = implode(',', $uniqueEmps);
 $vars = [];
-$empEmails = $db->query_kv("SELECT * FROM employee_data
+$empEmails = $oc_db->query_kv("SELECT * FROM employee_data
             WHERE indicatorID = 6 AND empUID IN ({$empUID_list})", 'empUID', 'data', $vars);
 foreach($jsonOut as $key => $item) {
     if($item['employeeUID'] != '') {
@@ -222,7 +212,7 @@ $result = json_encode($jsonOut);
 $vars = array(':cacheID' => 'jsonExport_PDL.php',
               ':data' => $result,
               ':cacheTime' => time(), );
-$res = $db->prepared_query('INSERT INTO cache (cacheID, data, cacheTime)
+$res = $oc_db->prepared_query('INSERT INTO cache (cacheID, data, cacheTime)
    								VALUES (:cacheID, :data, :cacheTime)
    								ON DUPLICATE KEY UPDATE data=:data, cacheTime=:cacheTime', $vars);
 

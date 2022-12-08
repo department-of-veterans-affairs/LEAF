@@ -11,32 +11,14 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include '../libs/php-commons/Db.php';
-include './sources/config.php';
-include './sources/Exception.php';
-include './sources/Position.php';
+include '../libs/loaders/Leaf_autoloader.php';
 
-// Include XSSHelpers
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
-
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
-
-$login->loginUser();
-if ($login)
+$oc_login->loginUser();
+if ($oc_login)
 {
 }
 
-$position = new OrgChart\Position($db, $login);
+$position = new Orgchart\Position($oc_db, $oc_login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 

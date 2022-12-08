@@ -11,24 +11,12 @@
 
 error_reporting(E_ERROR);
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include '../libs/php-commons/Db.php';
-include './sources/config.php';
-
-include_once '/../libs/php-commons/XSSHelpers.php';
-
-$config = new Orgchart\Config();
+include '../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
-
-$login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
+$oc_login->loginUser();
+if (!$oc_login->isLogin() || !$oc_login->isInDB())
 {
     echo 'Your login is not recognized.';
     exit;
@@ -44,7 +32,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -53,16 +41,15 @@ function customTemplate($tpl)
 
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
-$t_login->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
+$t_login->assign('name', Leaf\XSSHelpers::sanitizeHTML($oc_login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
-$main->assign('userID', $login->getUserID());
+$main->assign('userID', $oc_login->getUserID());
 
 switch ($action) {
     case 'navigator_service':
-        require 'sources/Group.php';
-        $group = new Orgchart\Group($db, $login);
+        $group = new Orgchart\Group($oc_db, $oc_login);
         $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
         // no break
     case 'navigator':
@@ -74,18 +61,17 @@ switch ($action) {
 
         $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
-        require 'sources/Position.php';
-        $position = new Orgchart\Position($db, $login);
+        $position = new Orgchart\Position($oc_db, $oc_login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
         $t_form->assign('topPositionID', (int)$position->getTopSupervisorID(1));
-        $t_form->assign('header', XSSHelpers::sanitizeHTML($_GET['header']));
+        $t_form->assign('header', Leaf\XSSHelpers::sanitizeHTML($_GET['header']));
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $HTTP_HOST = XSSHelpers::sanitizeHTML(HTTP_HOST);
+        $HTTP_HOST = Leaf\XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$HTTP_HOST}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
@@ -106,8 +92,7 @@ switch ($action) {
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
-        require 'sources/Position.php';
-        $position = new Orgchart\Position($db, $login);
+        $position = new Orgchart\Position($oc_db, $oc_login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : 0;
         $t_form->assign('rootID', $rootID);
@@ -119,7 +104,7 @@ switch ($action) {
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
-        $scrubbedHost = XSSHelpers::sanitizeHTML(HTTP_HOST);
+        $scrubbedHost = Leaf\XSSHelpers::sanitizeHTML(HTTP_HOST);
         $qrcodeURL = "{$protocol}://{$scrubbedHost}" . urlencode($_SERVER['REQUEST_URI']);
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css',
@@ -152,8 +137,7 @@ switch ($action) {
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
         if ($empUID != 0)
         {
-            require 'sources/Employee.php';
-            $employee = new Orgchart\Employee($db, $login);
+            $employee = new Orgchart\Employee($oc_db, $oc_login);
             $summary = $employee->getSummary($empUID);
 
             $t_form->assign('empUID', $empUID);
@@ -161,7 +145,7 @@ switch ($action) {
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
+            $t_form->assign('is_admin', $oc_login->getMembership()['groupID'][1]);
 
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
 
@@ -198,8 +182,7 @@ switch ($action) {
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         if ($positionID != 0)
         {
-            require 'sources/Position.php';
-            $position = new Orgchart\Position($db, $login);
+            $position = new Orgchart\Position($oc_db, $oc_login);
 
             $summary = $position->getSummary($positionID);
             $t_form->assign('positionID', $positionID);
@@ -210,7 +193,7 @@ switch ($action) {
             //$t_form->assign('tags', $position->getAllTags($positionID));
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('userDomain', $login->getDomain());
+            $t_form->assign('userDomain', $oc_login->getDomain());
             $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
 
             if (count($summary) > 0)
@@ -246,10 +229,8 @@ switch ($action) {
 
         if ($groupID != 0)
         {
-            require 'sources/Group.php';
-            require 'sources/Tag.php';
-            $group = new Orgchart\Group($db, $login);
-            $tag = new Orgchart\Tag($db, $login);
+            $group = new Orgchart\Group($oc_db, $oc_login);
+            $tag = new Orgchart\Tag($oc_db, $oc_login);
             $resGroup = $group->getGroup($groupID);
             $t_form->assign('groupID', $groupID);
             $t_form->assign('group', $resGroup);
@@ -258,7 +239,7 @@ switch ($action) {
             $t_form->assign('tags', $group->getAllTags($groupID));
             $t_form->assign('tag_hierarchy', $tag->getAll());
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('userDomain', $login->getDomain());
+            $t_form->assign('userDomain', $oc_login->getDomain());
             $t_form->assign('timeZone', $tz);
 
             if (count($resGroup) > 0)
@@ -285,8 +266,7 @@ switch ($action) {
                                            'css/view_employee.css', ));
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
 
-        require 'sources/Employee.php';
-        $employee = new Orgchart\Employee($db, $login);
+        $employee = new Orgchart\Employee($oc_db, $oc_login);
 
         $t_form->assign('empUID', $empUID);
         $t_form->assign('summary', $employee->getSummary($empUID));
@@ -350,8 +330,7 @@ switch ($action) {
 
         break;
     case 'view_permissions':
-        require 'sources/Indicators.php';
-        $indicators = new Orgchart\Indicators($db, $login);
+        $indicators = new Orgchart\Indicators($oc_db, $oc_login);
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -371,27 +350,26 @@ switch ($action) {
                                            'css/view_group.css', ));
 
         $indicatorArray = $indicators->getIndicator((int)$_GET['indicatorID']);
-        $indicatorArray = array_map('XSSHelpers::sanitizeHTML', $indicatorArray);
+        $indicatorArray = array_map('Leaf\XSSHelpers::sanitizeHTML', $indicatorArray);
 
         $privilegesArray = $indicators->getPrivileges((int)$_GET['indicatorID']);
         foreach ($privilegesArray as $key => $val)
         {
-            $privilegesArray[$key] = array_map('XSSHelpers::sanitizeHTML', $privilegesArray[$key]);
+            $privilegesArray[$key] = array_map('Leaf\XSSHelpers::sanitizeHTML', $privilegesArray[$key]);
         }
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_form->assign('UID', (int)$_GET['UID']);
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
-        $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
+        $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
         $main->assign('body', $t_form->fetch('view_permissions.tpl'));
 
         $tabText = 'Permission Editor';
 
         break;
     case 'view_group_permissions':
-        require 'sources/Group.php';
-        $group = new Orgchart\Group($db, $login);
+        $group = new Orgchart\Group($oc_db, $oc_login);
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -421,8 +399,7 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
-        $position = new Orgchart\Position($db, $login);
+        $position = new Orgchart\Position($oc_db, $oc_login);
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -468,7 +445,7 @@ switch ($action) {
                                             'css/groupSelector.css',
                                             'css/view_group.css', ));
 
-        $memberships = $login->getMembership();
+        $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
             $main->assign('body', $t_form->fetch('view_admin.tpl'));
@@ -496,8 +473,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
+        $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -505,7 +482,7 @@ switch ($action) {
         break;
     default:
 //        $main->assign('useDojo', false);
-        if ($login->isLogin())
+        if ($oc_login->isLogin())
         {
             $o_login = $t_login->fetch('login.tpl');
 
@@ -513,12 +490,10 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            require 'sources/Employee.php';
-            $employee = new Orgchart\Employee($db, $login);
-            require 'sources/Position.php';
-            $position = new Orgchart\Position($db, $login);
+            $employee = new Orgchart\Employee($oc_db, $oc_login);
+            $position = new Orgchart\Position($oc_db, $oc_login);
 
-            $currentEmployee = $employee->lookupLogin($login->getUserID());
+            $currentEmployee = $employee->lookupLogin($oc_login->getUserID());
             $t_form->assign('employee', $currentEmployee);
 
             $employeePositions = $employee->getPositions($currentEmployee[0]['empUID']);
@@ -529,14 +504,13 @@ switch ($action) {
             $groupLeader = '';
             if (count($resolvedService) > 0)
             {
-                require 'sources/Group.php';
-                $group = new Orgchart\Group($db, $login);
+                $group = new Orgchart\Group($oc_db, $oc_login);
 
                 $groupLeader = $group->getGroupLeader($resolvedService[0]['groupID']);
             }
             $t_form->assign('groupLeader', $groupLeader);
 
-            $t_form->assign('is_admin', $login->getMembership()['groupID'][1]);
+            $t_form->assign('is_admin', $oc_login->getMembership()['groupID'][1]);
 
             $main->assign('javascripts', array('js/employeeSelector.js',
                                                'js/positionSelector.js',
@@ -569,8 +543,8 @@ switch ($action) {
         break;
 }
 
-$memberships = $login->getMembership();
-$t_menu->assign('action', XSSHelpers::xscrub($action));
+$memberships = $oc_login->getMembership();
+$t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
@@ -578,10 +552,10 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

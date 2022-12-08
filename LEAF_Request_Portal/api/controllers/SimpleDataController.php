@@ -5,8 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Form.php';
-
 class SimpleDataController extends RESTfulResponse
 {
     public $index = array();

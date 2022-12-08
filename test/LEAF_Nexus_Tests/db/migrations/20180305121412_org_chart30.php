@@ -5,7 +5,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class OrgChart30 extends AbstractMigration
+class Orgchart30 extends AbstractMigration
 {
     /**
      * Migrate Up.

@@ -11,21 +11,8 @@
 
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/DbConfig.php';
-include '../sources/Config.php';
-require '../sources/Group.php';
+include '../../libs/loaders/Leaf_autoloader.php';
 
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();

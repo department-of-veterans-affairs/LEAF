@@ -3,13 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-$currDir = dirname(__FILE__);
-include $currDir . '/../../libs/php-commons/Db.php';
-include_once $currDir . '/../sources/config.php';
-
-$config = new Orgchart\Config();
-
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+include '../../libs/loaders/Leaf_autoloader.php';
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=1', $vars);

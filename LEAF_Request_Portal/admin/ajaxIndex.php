@@ -15,25 +15,7 @@
 */
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/DbConfig.php';
-include '../sources/Config.php';
-require '../sources/Group.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
+include '../../libs/loaders/Leaf_autoloader.php';
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
@@ -41,7 +23,6 @@ if (isset($settings['timeZone']))
     date_default_timezone_set($settings['timeZone']);
 }
 
-$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -73,12 +54,12 @@ switch ($action) {
     case 'remove_user_old':
         checkToken();
 
-        $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
+        $deleteList = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
         $group = new Portal\Group($db, $login);
         foreach ($deleteList as $del)
         {
-            $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
+            $group->removeMember(Leaf\XSSHelpers::xscrub($del['userID']), $del['groupID']);
         }
 
         break;
@@ -99,7 +80,6 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            require '../sources/Form.php';
             $form = new Portal\Form($db, $login);
 
             $t_form = new Smarty;
@@ -115,7 +95,6 @@ switch ($action) {
 
         break;
     case 'importForm':
-        require '../sources/FormStack.php';
         $formStack = new Portal\FormStack($db, $login);
         $result = $formStack->importForm();
 
@@ -123,7 +102,6 @@ switch ($action) {
 
         break;
     case 'manualImportForm':
-           require '../sources/FormStack.php';
            $formStack = new Portal\FormStack($db, $login);
            $result = $formStack->importForm();
 
@@ -139,7 +117,6 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           require '../sources/System.php';
            $system = new Portal\System($db, $login);
            $result = $system->newFile();
            if ($result === true)
@@ -155,9 +132,9 @@ switch ($action) {
 
            break;
     case 'gethistoryall':
-        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
-        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        $page = isset($_GET['page']) ? Leaf\XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $typeName = isset($_GET['type']) ? Leaf\XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
@@ -181,22 +158,18 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
                 $dataName = "All Services";
                 $type = new Portal\Service($db, $login);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
                 $dataName = "All Forms";
                 $type = new Portal\FormEditor($db, $login);
                 break;
             case 'group':
-                include 'Group.php';
                 $dataName = "All Groups";
                 $type = new Portal\Group($db, $login);
 
-                include '../' . Portal\Config::$orgchartPath . '/sources/Group.php';
-                $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
+                $orgchartGroup = new Orgchart\Group($oc_db, $login);
                 break;
         }
 
@@ -240,11 +213,11 @@ switch ($action) {
 
         break;
     case 'gethistory':
-        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
-        $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $typeName = isset($_GET['type']) ? Leaf\XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $page = isset($_GET['page']) ? Leaf\XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $itemID = isset($_GET['id']) ? Leaf\XSSHelpers::xscrub((string)$_GET['id']) : '';
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
-        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
 
         if($tz == null){
             $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -266,34 +239,28 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
                 $type = new Portal\Service($db, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
                 $type = new Portal\FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                include 'Group.php';
                 $type = new Portal\Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
-                include '../sources/Workflow.php';
                 $type = new Portal\Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
-                include '../sources/System.php';
                 $type = new Portal\System($db, $login);
                 $itemID = null;
                 $title = 'Primary Admin';
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
             case 'emailTemplate':
-                include '../sources/EmailTemplate.php';
                 $type = new Portal\EmailTemplate($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;

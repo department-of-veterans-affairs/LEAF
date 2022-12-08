@@ -5,8 +5,6 @@
 
 namespace Orgchart;
 
-require '../sources/Group.php';
-
 class GroupController extends RESTfulResponse
 {
     public $index = array();

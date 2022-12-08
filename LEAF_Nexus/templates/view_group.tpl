@@ -37,7 +37,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1 role="heading" tabindex="0">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
-        <div onkeypress="triggerClickViewOrgChart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
+        <div onkeypress="triggerClickViewOrgchart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
@@ -81,7 +81,7 @@
         <!--{/if}-->
         </div>
         <!--{if $groupPrivileges[$groupID].grant != 0}-->
-        <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','OrgChart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
+        <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','Orgchart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
             <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle"/> Change Permissions
         </button>
         <!--{/if}-->
@@ -121,7 +121,7 @@ $('#view_orgchart').click(function() {
     $('#view_orgchart_link')[0].click();
 });
 
-function triggerClickViewOrgChart(e) {
+function triggerClickViewOrgchart(e) {
     if(e.keyCode === 32) {
         document.getElementById('view_orgchart_link').click();
     }

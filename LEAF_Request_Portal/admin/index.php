@@ -11,29 +11,10 @@
 
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../sources/Login.php';
-include '../../libs/php-commons/Db.php';
-include '../sources/DbConfig.php';
-include '../sources/Config.php';
-include '../form.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
+include '../../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Portal\Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -55,14 +36,14 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-function hasDevConsoleAccess($login, $db_phonebook)
+function hasDevConsoleAccess($login, $oc_db)
 {
     // automatically allow coaches
     $db_national = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
@@ -81,7 +62,7 @@ function hasDevConsoleAccess($login, $db_phonebook)
     }
 
     $vars = array(':empUID' => $login->getEmpUID());
-    $res = $db_phonebook->prepared_query('SELECT data FROM employee_data
+    $res = $oc_db->prepared_query('SELECT data FROM employee_data
                                             WHERE empUID=:empUID
                                                 AND indicatorID=27
                                                 AND data="Yes"
@@ -218,15 +199,15 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
         if (isset($_GET['form']))
         {
-            $vars = array(':categoryID' => XSSHelpers::xscrub($_GET['form']));
+            $vars = array(':categoryID' => Leaf\XSSHelpers::xscrub($_GET['form']));
             $res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
             if (count($res) > 0)
             {
-                $t_form->assign('form', XSSHelpers::xscrub($res[0]['categoryID']));
+                $t_form->assign('form', Leaf\XSSHelpers::xscrub($res[0]['categoryID']));
             }
         }
 
@@ -238,7 +219,7 @@ switch ($action) {
     case 'mod_templates':
     case 'mod_templates_reports':
     case 'mod_templates_email':
-            if(!hasDevConsoleAccess($login, $db_phonebook)) {
+            if(!hasDevConsoleAccess($login, $oc_db)) {
                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
             }
 
@@ -366,11 +347,9 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        if (!class_exists('CommonConfig'))
-        {
-            require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
-        }
+
         $commonConfig = new Leaf\CommonConfig();
+
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         if ($login->checkGroup(1))
@@ -482,7 +461,7 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
             $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+            $t_form->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 
             $main->assign('javascripts', array('../../libs/js/jquery/jquery.min.js',
                                            '../../libs/js/jquery/jquery-ui.custom.min.js',
@@ -505,20 +484,20 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
-$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
-$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+$t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
+$t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

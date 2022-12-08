@@ -5,13 +5,6 @@
 
 namespace Portal;
 
-require '../sources/Service.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class ServiceController extends RESTfulResponse
 {
     public $index = array();
@@ -68,7 +61,7 @@ class ServiceController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('service', function ($args) use ($db, $login, $service) {
-            return $service->addService(\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
+            return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
         });
 
         $this->index['POST']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {

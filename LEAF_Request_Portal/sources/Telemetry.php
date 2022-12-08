@@ -11,10 +11,6 @@
 
 namespace Portal;
 
-$currDir = __DIR__;
-
-include_once $currDir . '/../globals.php';
-
 class Telemetry
 {
     public $siteRoot = '';
@@ -152,7 +148,7 @@ class Telemetry
     {
         $size = 0;
         if (is_dir(Config::$uploadDir)) {
-            $iterator = new DirectoryIterator(Config::$uploadDir);
+            $iterator = new \DirectoryIterator(Config::$uploadDir);
             foreach($iterator as $file) {
                 $size += $file->getSize();
             }

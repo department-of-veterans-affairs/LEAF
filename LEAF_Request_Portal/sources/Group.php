@@ -12,12 +12,6 @@
 
 namespace Portal;
 
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-require_once 'VAMC_Directory.php';
-
 class Group
 {
     /**
@@ -267,8 +261,8 @@ class Group
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID)) {
             $sql_vars = array(':userID' => $member,
@@ -348,8 +342,8 @@ class Group
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
         {
@@ -393,8 +387,8 @@ class Group
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 
         $config = new Config();
-        $db_phonebook = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
         {

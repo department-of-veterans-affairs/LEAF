@@ -9,23 +9,6 @@
 
 */
 
-ini_set('session.gc_maxlifetime', 2592000);
-
-// Sanitize all $_GET input
-if (count($_GET) > 0)
-{
-    $keys = array_keys($_GET);
-    foreach ($keys as $key)
-    {
-        if (is_string($_GET[$key]))
-        {
-            $_GET[$key] = htmlentities($_GET[$key], ENT_QUOTES);
-        }
-    }
-}
-
-include_once 'Session.php';
-
 class Login
 {
     private $db;

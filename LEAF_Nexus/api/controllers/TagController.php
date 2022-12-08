@@ -5,13 +5,6 @@
 
 namespace Orgchart;
 
-require '../sources/Tag.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
-
 class TagController extends RESTfulResponse
 {
     public $index = array();
@@ -36,7 +29,7 @@ class TagController extends RESTfulResponse
         });
 
         $this->index['GET']->register('tag/[text]/parent', function ($args) use ($tag) {
-            return $tag->getParent(\XSSHelpers::sanitizeHTML($args[0]));
+            return $tag->getParent(\Leaf\XSSHelpers::sanitizeHTML($args[0]));
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -49,7 +42,7 @@ class TagController extends RESTfulResponse
         $this->index['POST'] = new ControllerMap();
 
         $this->index['POST']->register('tag/[text]/parent', function ($args) use ($tag) {
-            return $tag->setParent($args[0], \XSSHelpers::sanitizeHTML($_POST['parentTag']));
+            return $tag->setParent($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['parentTag']));
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);

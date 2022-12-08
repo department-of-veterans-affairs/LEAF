@@ -15,7 +15,7 @@ use LEAFTest\LEAFClient;
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-final class UpdateServicesFromOrgChartTest extends DatabaseTest
+final class UpdateServicesFromOrgchartTest extends DatabaseTest
 {
     private static $reqClient = null;
 
@@ -34,7 +34,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
     }
 
     /**
-     * Tests updateServicesFromOrgChart.php
+     * Tests updateServicesFromOrgchart.php
      */
     public function testGroupRemoval() : void
     {
@@ -57,7 +57,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($category_privs) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
@@ -81,7 +81,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($users) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
@@ -103,7 +103,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($category_privs) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
@@ -125,7 +125,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($category_privs) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
@@ -142,7 +142,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($groups) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $groups = self::$db->query("SELECT * FROM `groups` WHERE groupID = '20'");
@@ -157,7 +157,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($users) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $users = self::$db->query("SELECT * FROM users WHERE groupID = '20'");
@@ -172,7 +172,7 @@ final class UpdateServicesFromOrgChartTest extends DatabaseTest
             $this->assertTrue(count($category_privs) > 0);
 
             //call update, this should remove all since the group isn't in nexus
-            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgChart.php');
+            self::$reqClient->get(array(),array(),'scripts/updateServicesFromOrgchart.php');
 
             //assert they are gone
             $category_privs = self::$db->query("SELECT * FROM category_privs WHERE groupID = '20'");

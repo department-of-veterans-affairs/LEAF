@@ -5,8 +5,6 @@
 
 namespace Orgchart;
 
-require '../sources/Position.php';
-
 class PositionController extends RESTfulResponse
 {
     public $index = array();
