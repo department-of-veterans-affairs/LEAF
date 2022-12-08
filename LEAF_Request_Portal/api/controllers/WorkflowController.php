@@ -111,6 +111,10 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getEvent($args[0]);
         });
 
+        $this->index['GET']->register('workflow/step/[digit]', function ($args) use ($workflow) {
+            return $workflow->getStep((int)$args[0]);
+        });
+
         $this->index['GET']->register('workflow/steps', function ($args) use ($workflow) {
             return $workflow->getAllSteps();
         });
@@ -187,6 +191,10 @@ class WorkflowController extends RESTfulResponse
 
         $this->index['POST']->register('workflow/step/[digit]', function ($args) use ($workflow) {
             return $workflow->updateStep((int)$args[0], \XSSHelpers::xscrub($_POST['title']));
+        });
+
+        $this->index['POST']->register('workflow/stepdata/[digit]', function ($args) use ($workflow) {
+            return $workflow->saveStepData((int)$args[0], $_POST['seriesData']);
         });
 
         $this->index['POST']->register('workflow/step/[digit]/dependencies', function ($args) use ($workflow) {
