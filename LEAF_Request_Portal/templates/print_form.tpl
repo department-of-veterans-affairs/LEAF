@@ -153,7 +153,6 @@ function doSubmit(recordID) {
 		data: {CSRFToken: '<!--{$CSRFToken}-->'},
 		success: function(response) {
             if(response.errors.length == 0) {
-                console.log('it was a success with NO errors');
                 $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
@@ -162,8 +161,7 @@ function doSubmit(recordID) {
                 workflow.getWorkflow(recordID);
             }
             else {
-                console.log('it was a succes with errors');
-            	let errors = '';
+                let errors = '';
             	for(let i in response.errors) {
             		errors += response.errors[i] + '<br />';
             	}
