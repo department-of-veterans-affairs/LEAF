@@ -250,37 +250,44 @@ function addEmailReminderDialog(stepID){
     dialog.setTitle('Email Reminder');
     let output = '<label for="edit_email_check">Enable Automated Emails? </label> <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()"><div id="edit_email_container"></div><br>';
     dialog.setContent(output);
-    dialog.setSaveHandler(function() {
-console.log('here, this seems like a one shot.');
-        if ($('#edit_email_check').prop('checked') == true && (parseInt($('#reminder_days').val()) !== NaN || parseInt($('#reminder_days').val()) < 1)) {
-            alert('Number of days to remind user must be greater than 0!');
+    
+    dialog.setValidator('reminder_days', function() {
+        if ($('#edit_email_check').prop('checked') == true && (parseInt($('#reminder_days').val()) === NaN || parseInt($('#reminder_days').val()) < 1)) {
+            return false;
         } else {
-            let seriesData = {
-                AutomatedEmailReminders : {
-                    'Automate Email Group': $('#edit_email_check').prop('checked'),
-                    'Days Selected': $('#reminder_days').val(),
-                }
-            }
-
-            $.ajax({
-                type: 'POST',
-                data: {
-                    CSRFToken: CSRFToken,
-                    seriesData: seriesData
-                },
-                url: '../api/workflow/stepdata/' + stepID,
-                success: function (res) {
-                    if (res == 1) {
-                        loadWorkflow(currentWorkflow);
-                        dialog.hide();
-                    } else {
-                        alert(res);
-                    }
-                },
-                error: function(){ console.log('Failed to save automated email reminder data'); }
-            });
-
+            return true;
         }
+    });
+    
+    dialog.setSubmitValid('reminder_days', function() {
+        alert('Number of days to remind user must be greater than 0!');
+    });
+    dialog.setSaveHandler(function() {
+
+        let seriesData = {
+            AutomatedEmailReminders : {
+                'Automate Email Group': $('#edit_email_check').prop('checked'),
+                'Days Selected': $('#reminder_days').val(),
+            }
+        }
+
+        $.ajax({
+            type: 'POST',
+            data: {
+                CSRFToken: CSRFToken,
+                seriesData: seriesData
+            },
+            url: '../api/workflow/stepdata/' + stepID,
+            success: function (res) {
+                if (res == 1) {
+                    loadWorkflow(currentWorkflow);
+                    dialog.hide();
+                } else {
+                    alert(res);
+                }
+            },
+            error: function(){ console.log('Failed to save automated email reminder data'); }
+        });
     });
 
     dialog.show();
@@ -306,7 +313,7 @@ function editEmailChecked() {
     let emailChecked = document.getElementById("edit_email_check");
     let editSelectdatesString = "";
     if (emailChecked.checked) {
-        editSelectdatesString += '<br>Send a reminder after <input type="number" min="0" id="reminder_days"> days of inactivity. <br>';
+        editSelectdatesString += '<br>Send a reminder after <input aria-label="number of days" type="number" min="0" id="reminder_days"> days of inactivity. <br>';
       
         createElement("div", "edit_date_select", "edit_email_container");
         document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
