@@ -313,7 +313,7 @@ function editEmailChecked() {
     let emailChecked = document.getElementById("edit_email_check");
     let editSelectdatesString = "";
     if (emailChecked.checked) {
-        editSelectdatesString += '<br>Send a reminder after <input aria-label="number of days" type="number" min="0" id="reminder_days"> days of inactivity. <br>';
+        editSelectdatesString += '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days"> days of inactivity. <br>';
       
         createElement("div", "edit_date_select", "edit_email_container");
         document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
