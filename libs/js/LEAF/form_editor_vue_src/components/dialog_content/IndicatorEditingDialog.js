@@ -173,7 +173,12 @@ export default {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}/form/_${this.currCategoryID}/flat`,
-                    success: (res)=> resolve(res),
+                    success: (res)=> {
+                        for (let i in res) {
+                            res[i]['1'].name = XSSHelpers.stripAllTags(res[i]['1'].name);
+                        }
+                        resolve(res);
+                    },
                     error: (err)=> reject(err)
                 });
             });
@@ -624,13 +629,13 @@ export default {
                 <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
                     <template v-if="isLoadingParentIDs===false">
                         <label for="container_parentID" style="margin-right: 2rem;">Parent Question ID
-                            <select v-model.number="parentID" id="container_parentID" style="width:260px; margin-left:3px;">
+                            <select v-model.number="parentID" id="container_parentID" style="width:275px; margin-left:3px;">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 
                                         :value="kv[0]" 
                                         :key="'parent_'+kv[0]">
-                                        {{kv[0]}}: {{truncateText(kv[1]['1'].name)}}
+                                        {{kv[0]}}: {{truncateText(kv[1]['1'].name), 50}}
                                     </option>
                                 </template>
                             </select>
