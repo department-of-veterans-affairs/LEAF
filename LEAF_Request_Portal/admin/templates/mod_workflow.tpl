@@ -258,7 +258,7 @@ function addEmailReminderDialog(stepID){
             return true;
         }
     });
-    
+
     dialog.setSubmitValid('reminder_days', function() {
         alert('Number of days to remind user must be greater than 0!');
     });
@@ -1538,9 +1538,9 @@ function showStepInfo(stepID) {
                     // button options for steps
                     output += '<hr />';
 
-                    for(let i in res) {
-                        if (typeof res[i].stepData == 'string') {
-                            let stepParse = JSON.parse(res[i].stepData);
+                    if (res.length > 0) {
+                        if (typeof res[0].stepData == 'string') {
+                            let stepParse = JSON.parse(res[0].stepData);
                             if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup === 'true') {
                               let dayCount = stepParse.AutomatedEmailReminders?.DaysSelected;
                               let dayText = ((dayCount > 1) ? 'Days' : 'Day')
