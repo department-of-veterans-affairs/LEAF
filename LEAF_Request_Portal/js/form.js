@@ -295,7 +295,6 @@ var LeafForm = function(containerID) {
                     case 'pre-fill':
                         let indBlock = $(`div.response.blockIndicator_${childID}`);
                         if (prefillValue !== '') {
-                            //don't fill if it's in a hidden state bc of other conditions
                             if(cond.childFormat === 'multiselect') {
                                 const arrPrefills = prefillValue.split('\n');
                                 const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
@@ -310,8 +309,8 @@ var LeafForm = function(containerID) {
                                 $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true); //radio
                                 elRadioBtns.prop("disabled", true);
                             }
-                            
-                            setTimeout(()=> { //temp timing fix for data value
+                            //timing fix for data value (set empty if in a hidden state bc of other conditions)
+                            setTimeout(()=> {
                                 if(indBlock.css('display')==='none') {
                                     clearValues(cond.childFormat, childID);
                                 }
