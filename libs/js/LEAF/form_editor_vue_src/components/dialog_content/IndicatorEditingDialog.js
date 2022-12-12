@@ -30,23 +30,23 @@ export default {
                 raw_data: "Raw Data (for programmers)",
             },
             formatInfo: {
-                text: 'A single input for short text entries.',
-                textarea: 'A large area for multiple lines of text and limited text formatting options.',
-                grid: 'A table format with rows and columns.  Additional rows can be added during data entry.',
-                number: 'A single input used to store numeric data.  Useful for information that will be used for calculations.',
-                currency: 'A single input used to store currency values in dollars to two decimal places.',
-                date: 'Embeds a datepicker.',
-                radio: 'Radio buttons allow a single selection from multiple options.  All of the question\'s options will display.',
-                checkbox: 'A single checkbox is typically used for confirmation.  The checkbox label text can be further customized.',
-                checkboxes: "Checkboxes will allow the selection of multiple options.  All of the question\'s options will display.",
-                multiselect: "Multi-Select format will allow the selection of several options from a selection box with a dropdown.  Only selected items will display.",
-                dropdown: "A dropdown menu will allow one selection from multiple options.  Only the selected option will display.",
-                fileupload: "File Attachment",
-                image: "Similar to file upload, but only image format files will be shown during selection",
-                orgchart_group: "Orgchart Group format is used to select a specific LEAF User Access Group",
-                orgchart_position: "Orgchart Position format is used to select a specific LEAF user by their position in the orgchart",
-                orgchart_employee: "Orgchart Employee format is used to select a specific LEAF user from the orgchart",
-                raw_data: "Raw Data is associated with Advanced Options, which can be used by programmers to run custom code during form data entry or review",
+                text: `A single input for short text entries.`,
+                textarea: `A large area for multiple lines of text and limited text formatting options.`,
+                grid: `A table format with rows and columns.  Additional rows can be added during data entry.`,
+                number: `A single input used to store numeric data.  Useful for information that will be used for calculations.`,
+                currency: `A single input used to store currency values in dollars to two decimal places.`,
+                date: `Embeds a datepicker.`,
+                radio: `Radio buttons allow a single selection from multiple options.  All of the question\'s options will display.`,
+                checkbox: `A single checkbox is typically used for confirmation. The checkbox label text can be further customized.`,
+                checkboxes: `Checkboxes will allow the selection of multiple options.  All of the question\'s options will display.`,
+                multiselect: `Multi-Select format will allow the selection of several options from a selection box with a dropdown.  Only selected items will display.`,
+                dropdown: `A dropdown menu will allow one selection from multiple options.  Only the selected option will display.`,
+                fileupload: `File Attachment`,
+                image: `Similar to file upload, but only image format files will be shown during selection`,
+                orgchart_group: `Orgchart Group format is used to select a specific LEAF User Access Group`,
+                orgchart_position: `Orgchart Position format is used to select a specific LEAF user by their position in the orgchart`,
+                orgchart_employee: `Orgchart Employee format is used to select a specific LEAF user from the orgchart`,
+                raw_data: `Raw Data is associated with Advanced Options, which can be used by programmers to run custom code during form data entry or review`,
             },
             listForParentIDs: [],
             isLoadingParentIDs: true,
@@ -629,7 +629,7 @@ export default {
                 <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
                     <template v-if="isLoadingParentIDs===false">
                         <label for="container_parentID" style="margin-right: 2rem;">Parent Question ID
-                            <select v-model.number="parentID" id="container_parentID" style="width:275px; margin-left:3px;">
+                            <select v-model.number="parentID" id="container_parentID" style="width:250px; margin-left:3px;">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 

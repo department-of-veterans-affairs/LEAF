@@ -39,7 +39,7 @@ body { /* fixes header not extending entire width */
     padding: 2px 0.4em;
     border-radius: 3px;
     white-space: nowrap;
-    font-weight: bolder;
+    line-height: normal;
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         outline: 2px solid #20a0f0 !important;
     }
@@ -301,7 +301,7 @@ label {
 
 #indicator-editing-dialog-content {
     > div {
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
     button {
         font-size:  80%;
