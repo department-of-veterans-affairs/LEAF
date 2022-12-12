@@ -95,18 +95,20 @@ var LeafForm = function(containerID) {
          */
         const getConditionsLinkedToParent = (parentID=0)=> {
             let conditionsLinkedToParent = [];
-            for (let entry in formConditionsByChild) {
-                const formConditions = formConditionsByChild[entry].conditions || [];
-                formConditions.forEach(c => {
-                    const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
-                    //do not include conditions if the recorded condition format (condition.childFormat) does not
-                    //match the current format, as this would have unpredictable results
-                    if (formConditionsByChild[entry].format === c.childFormat && 
-                        formatIsEnabled &&
-                        parseInt(c.parentIndID) === parseInt(parentID)) {
-                        conditionsLinkedToParent.push({...c});
-                    }
-                })
+            if(parentID!==0) {
+                for (let entry in formConditionsByChild) {
+                    const formConditions = formConditionsByChild[entry].conditions || [];
+                    formConditions.forEach(c => {
+                        const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+                        //do not include conditions if the recorded condition format (condition.childFormat) does not
+                        //match the current format, as this would have unpredictable results
+                        if (formConditionsByChild[entry].format === c.childFormat &&
+                            formatIsEnabled &&
+                            parseInt(c.parentIndID) === parseInt(parentID)) {
+                            conditionsLinkedToParent.push({...c});
+                        }
+                    })
+                }
             }
             return conditionsLinkedToParent;
         }
@@ -118,17 +120,19 @@ var LeafForm = function(containerID) {
          */
         const getConditionsLinkedToChild = (childID=0, currParentID=0)=> {
             let conditionsLinkedToChild = [];
-            for (let entry in formConditionsByChild) {
-                if (parseInt(entry.slice(2)) === parseInt(childID)) {
-                    const formConditions = formConditionsByChild[entry].conditions || [];
-                    formConditions.map(c => {
-                        const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
-                        if (formConditionsByChild[entry].format === c.childFormat && 
-                            formatIsEnabled &&
-                            parseInt(currParentID) !== parseInt(c.parentIndID)) {
-                            conditionsLinkedToChild.push({...c});
-                        }
-                    });
+            if(childID!==0 && currParentID !==0) {
+                for (let entry in formConditionsByChild) {
+                    if (parseInt(entry.slice(2)) === parseInt(childID)) {
+                        const formConditions = formConditionsByChild[entry].conditions || [];
+                        formConditions.map(c => {
+                            const formatIsEnabled = allowedChildFormats.some(f => f === c.childFormat);
+                            if (formConditionsByChild[entry].format === c.childFormat &&
+                                formatIsEnabled &&
+                                parseInt(currParentID) !== parseInt(c.parentIndID)) {
+                                conditionsLinkedToChild.push({...c});
+                            }
+                        });
+                    }
                 }
             }
             return conditionsLinkedToChild;
