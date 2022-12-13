@@ -250,12 +250,25 @@ function addEmailReminderDialog(stepID){
     dialog.setTitle('Email Reminder');
     let output = '<label for="edit_email_check">Enable Automated Emails? </label> <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()"><div id="edit_email_container"></div><br>';
     dialog.setContent(output);
+    
+    dialog.setValidator('reminder_days', function() {
+        if ($('#edit_email_check').prop('checked') == true && (parseInt($('#reminder_days').val()) === NaN || parseInt($('#reminder_days').val()) < 1)) {
+            return false;
+        } else {
+            return true;
+        }
+    });
+
+    dialog.setSubmitValid('reminder_days', function() {
+        alert('Number of days to remind user must be greater than 0!');
+    });
     dialog.setSaveHandler(function() {
 
         let seriesData = {
-            'Automate Email Group': $('#edit_email_check').prop('checked'),
-            'Date Selected': $('#edit_dates_selected').val(),
-            'Days Selected': $('#edit_dates_days').val()
+            AutomatedEmailReminders : {
+                'Automate Email Group': $('#edit_email_check').prop('checked'),
+                'Days Selected': $('#reminder_days').val(),
+            }
         }
 
         $.ajax({
@@ -282,17 +295,13 @@ function addEmailReminderDialog(stepID){
     // dialog changes if data is setup properly
     if (workflowStep?.stepData !== null) {
         let stepParse = JSON.parse(workflowStep.stepData);
-        let automateEmailGroup = stepParse.AutomateEmailGroup;
-        let dateSelected = stepParse.DateSelected;
-        let daysSelected = stepParse.DaysSelected;
+        let automateEmailGroup = stepParse.AutomatedEmailReminders?.AutomateEmailGroup;
+        let daysSelected = stepParse.AutomatedEmailReminders?.DaysSelected;
 
-        if (automateEmailGroup.toLowerCase() == "true") {
+        if (automateEmailGroup?.toLowerCase() == "true") {
             $('#edit_email_check').prop('checked', true);
             editEmailChecked();
-            $("#edit_dates_selected").val(dateSelected);
-            editEmailDateSelected();
-            $("#edit_dates_days").val(daysSelected);
-
+            $("#reminder_days").val(daysSelected);
         } else {
             $('#edit_email_check').prop('checked', false);
         }
@@ -304,65 +313,13 @@ function editEmailChecked() {
     let emailChecked = document.getElementById("edit_email_check");
     let editSelectdatesString = "";
     if (emailChecked.checked) {
-        editSelectdatesString += '<br><label for="id">Please choose a time span.</label> <br>';
-        editSelectdatesString += '<select id="edit_dates_selected" onchange="editEmailDateSelected()">';
-        editSelectdatesString += '<option value="">Select Option</option>';
-        editSelectdatesString += '<option value="1">Day/Days</option>';
-        editSelectdatesString += '<option value="7">Week/Weeks</option>';
-        editSelectdatesString += '<option value="30">Month/Months</option>';
-        editSelectdatesString += "</select>";
-        editSelectdatesString += "<br>";
+        editSelectdatesString += '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days"> days of inactivity. <br>';
+      
         createElement("div", "edit_date_select", "edit_email_container");
         document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
     } else {
         removeAllChildren("edit_email_container");
     }
-}
-function editEmailDateSelected() {
-    let dates_selected = document.getElementById("edit_dates_selected").value;
-    let days_display = "";
-    switch (parseInt(dates_selected)) {
-        case 1:
-            let days = 31;
-            days_display += '<br><label for="edit_dates_days">How many Days?</label><br>';
-            days_display += '<select id="edit_dates_days">';
-            days_display += '<option value="">Select Option</option>';
-            for (let index = 1; index < days; index++) {
-                days_display += '<option value="' + index + '">' + index + "</option>";
-            }
-            days_display += "</select>";
-            days_display += "<br>";
-            break;
-        case 7:
-            let weeks = 53;
-            days_display += '<br><label for="edit_dates_days">How many Weeks?</label><br>';
-            days_display += '<select id="edit_dates_days">';
-            days_display += '<option value="">Select Option</option>';
-            for (let index = 1; index < weeks; index++) {
-                days_display += '<option value="' + index + '">' + index + "</option>";
-            }
-            days_display += "</select>";
-            days_display += "<br>";
-            break;
-        case 30:
-            let months = 13;
-            days_display += '<br><label for="edit_dates_days">How many Months?</label><br>';
-            days_display += '<select id="edit_dates_days">';
-            days_display += '<option value="">Select Option</option>';
-            for (let index = 1; index < months; index++) {
-                days_display += '<option value="' + index + '">' + index + "</option>";
-            }
-            days_display += "</select>";
-            days_display += "<br>";
-            break;
-        default:
-            emptyAlert("edit_dates_selected");
-            break;
-    }
-    const daySelect = document.createElement("div");
-    daySelect.setAttribute("id", "edit_date_days");
-    document.getElementById("edit_email_container").appendChild(daySelect);
-    document.getElementById("edit_date_days").innerHTML = days_display;
 }
 
 /**
@@ -1581,20 +1538,19 @@ function showStepInfo(stepID) {
                     // button options for steps
                     output += '<hr />';
 
-                    for(let i in res) {
-                        if (typeof res[i].stepData == 'string') {
-                            let stepParse = JSON.parse(res[i].stepData);
-                            if (stepParse.AutomateEmailGroup === 'true') {
-                              let dayCount = stepParse.DateSelected * stepParse.DaysSelected;
+                    if (res.length > 0) {
+                        if (typeof res[0].stepData == 'string') {
+                            let stepParse = JSON.parse(res[0].stepData);
+                            if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup === 'true') {
+                              let dayCount = stepParse.AutomatedEmailReminders?.DaysSelected;
                               let dayText = ((dayCount > 1) ? 'Days' : 'Day')
                                 output += `Email reminders will go out every ${dayCount} ${dayText}<hr>`
                             }
                         }
                     }
                     output += '<hr /><div style="padding: 4px"><span tabindex=0 class="buttonNorm" onkeydown="if (event.which == 13) { linkDependencyDialog('+ stepID +'); }" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
-                    output += '</div>';
-                    // line above replaces line below, this is being disabled temporarily
-                    //output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
+                    output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
+
                     $('#stepInfo_' + stepID).html(output);
 
                     // setup UI for form fields in the workflow area
@@ -1810,8 +1766,8 @@ function loadWorkflow(workflowID) {
                 let emailNotificationIcon = '';
                 if (typeof res[i].stepData == 'string') {
                     let stepParse = JSON.parse(res[i].stepData);
-                    if (stepParse.AutomateEmailGroup === 'true') {
-                        let dayCount = stepParse.DateSelected * stepParse.DaysSelected;
+                    if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
+                        let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
                         let dayText = ((dayCount > 1) ? 'Days' : 'Day')
                         emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will go out every ${dayCount} ${dayText}" />`
                     }
