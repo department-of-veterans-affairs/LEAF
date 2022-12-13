@@ -1548,7 +1548,7 @@ function showStepInfo(stepID) {
                             }
                         }
                     }
-                    output += '<hr /><div style="padding: 4px"><span tabindex=0 class="buttonNorm" onkeydown="if (event.which == 13) { linkDependencyDialog('+ stepID +'); }" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
+                    output += '<hr /><div style="padding: 4px; display:flex;"><span tabindex=0 class="buttonNorm" onkeydown="if (event.which == 13) { linkDependencyDialog('+ stepID +'); }" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span>';
                     output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
 
                     $('#stepInfo_' + stepID).html(output);
