@@ -232,7 +232,7 @@ label {
     min-width: 450px;
     resize: horizontal;
     z-index: 9999;
-    min-width: 400px;
+    min-width: 530px;
     max-width: 900px;
     height: auto;
     min-height: 0;
@@ -325,7 +325,7 @@ label {
         position: relative;
         margin-top: 1.5rem;
         padding: 0;
-        width: -moz-fit-content; /*firefox prior to nov 2021*/
+        min-width: -moz-fit-content;
         min-width: fit-content;
 
         .attribute-row {
@@ -658,7 +658,7 @@ div#form_content_view {
         min-height: 50px;
         float: none; /* style.css style collision */
         border-radius: 4px;
-        border-left: 5px solid $BG_Pearl;
+        border-left: 6px solid $BG_Pearl;
 
         &:not(.form-header) {
             margin-left: 0.5rem;
@@ -668,7 +668,6 @@ div#form_content_view {
     .form_editing_area {
         padding-bottom: 1rem;
         background-color: white;
-        margin-bottom: 0.6rem;
 
         div[class*="SelectorBorder"] {
             background-color: transparent;
@@ -888,6 +887,9 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
 } 
 
 @media only screen and (max-width: 550px) {
+    .leaf-vue-dialog {
+        min-width: 350px;
+    }
     #vue-formeditor-app {
         padding: 1rem 0;
         min-width: 350px;

@@ -57,6 +57,7 @@ $BG-DarkNavy: #162e51;
         display: flex;
         align-items: center;
         margin: 0.3em 0;
+        width: -moz-fit-content;
         width: fit-content;
         color: white;
         background-color: $base-navy;

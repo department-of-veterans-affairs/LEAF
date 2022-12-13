@@ -67,10 +67,14 @@ export default {
         },
         sensitive() {
             return parseInt(this.formNode.is_sensitive) === 1;
+        },
+        questionSeparation() {
+            return Math.max(24 - this.depth*6, 6) + 'px';
         }
     },
     template:`<div class="printResponse" 
             :class="{'form-header': isHeaderLocation}"
+            :style="{marginBottom: questionSeparation}"
             :id="printResponseID">
 
             <!-- EDITING AREA FOR INDICATOR -->

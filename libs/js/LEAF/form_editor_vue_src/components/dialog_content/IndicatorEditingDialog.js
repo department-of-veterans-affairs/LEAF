@@ -523,7 +523,7 @@ export default {
                     @click="advNameEditorClick">
                     Advanced Formatting
                 </button>
-                <button v-if="name.length <= shortLabelTrigger && description===''" 
+                <button v-show="name.length <= shortLabelTrigger && description===''" 
                     class="btn-general" 
                     style="margin-left: auto; width:135px"
                     title="access short label field"
@@ -532,7 +532,7 @@ export default {
                 </button>
             </div>
         </div>
-        <div v-if="description!=='' || name.length > shortLabelTrigger || showShortLabel===true">
+        <div v-show="description!=='' || name.length > shortLabelTrigger || showShortLabel===true">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label for="description">What would you call this field in a spreadsheet?</label>
                 <div>{{shortlabelCharsRemaining}}</div>
@@ -554,16 +554,16 @@ export default {
                         {{ showDetailedFormatInfo ? 'Hide' : 'Show'}} Details
                     </button>
                 </div>
-                <div v-if="showDetailedFormatInfo" id="formatDetails" style="max-width:500px; font-size: 0.9rem; margin-bottom: 1rem;">
+                <div v-show="showDetailedFormatInfo" id="formatDetails" style="max-width:500px; font-size: 0.9rem; margin-bottom: 1rem;">
                     <p><b>Format Information</b></p>
                     {{ format !== '' ? formatInfo[format] : 'No format.  Indicators without a format are often used to provide additional information for the user.  They are often used for form section headers.' }}
                 </div>
             </div>
-            <div v-if="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
+            <div v-show="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox:</label>
                 <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
             </div>
-            <div v-if="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
+            <div v-show="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorMultiAnswer">One option per line:</label>
                 <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
                 </textarea>
@@ -588,19 +588,21 @@ export default {
                 <textarea id="defaultValue" v-model="defaultValue"></textarea> 
             </div>
         </div>
-        <div id="indicator-editing-attributes">
+        <div v-show="!(!isEditingModal && format==='')" id="indicator-editing-attributes">
             <b>Attributes</b>
             <div class="attribute-row">
-                <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
-                    <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
-                        @change="preventSelectionIfFormatNone" />
-                    <span class="leaf_check"></span>Required
-                </label>
-                <label class="checkable leaf_check" for="sensitive" style="margin-right: 4rem;">
-                    <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
-                        @change="preventSelectionIfFormatNone" />
-                    <span class="leaf_check"></span>Sensitive Data (PHI/PII)
-                </label>
+                <template v-if="format!==''">
+                    <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
+                        <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
+                            @change="preventSelectionIfFormatNone" />
+                        <span class="leaf_check"></span>Required
+                    </label>
+                    <label class="checkable leaf_check" for="sensitive" style="margin-right: 4rem;">
+                        <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
+                            @change="preventSelectionIfFormatNone" />
+                        <span class="leaf_check"></span>Sensitive Data (PHI/PII)
+                    </label>
+                </template>
                 <!-- <template v-if="!isEditingModal">
                     <label for="sort">
                         <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px;" />Sort Priority
@@ -628,7 +630,7 @@ export default {
             <template v-if="showAdditionalOptions">
                 <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
                     <template v-if="isLoadingParentIDs===false">
-                        <label for="container_parentID" style="margin-right: 2rem;">Parent Question ID
+                        <label for="container_parentID" style="margin-right: 1rem;">Parent Question ID
                             <select v-model.number="parentID" id="container_parentID" style="width:250px; margin-left:3px;">
                                 <option :value="null" :selected="parentID===null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
