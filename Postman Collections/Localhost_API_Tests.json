@@ -1,0 +1,1313 @@
+{
+	"info": {
+		"_postman_id": "27d352f0-7dcf-4ce1-8748-e3c0a61e8ef5",
+		"name": "LEAF API Localhost",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Local - Form Trial & Error (Currently Categories)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9ec3efbf-24ef-416a-9a5a-593f62d6cce7",
+						"exec": [
+							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const catIDs = response.map(catID => catID.categoryID);         //catIDs is the array containing IDs\r",
+							"    console.log(catIDs);\r",
+							"    pm.variables.set('catIDs', catIDs); //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    \r",
+							"\r",
+							"//6:05 in vid\r",
+							"    //pm.expect(jsonData.categoryID).to.eql(\"form_8bfe8\");\r",
+							"//    pm.expect(catIDs.categoryID).to.eql(\"form_8bfe8\");\r",
+							"\r",
+							" //var jsonData = pm.response.json();\r",
+							" //   console.log(jsonData.response);   \r",
+							" //   pm.expect(jsonData.categoryID).to.eql(\"form_11e07\");\r",
+							"});\r",
+							"\r",
+							"/* \r",
+							"His POST data to insert\r",
+							"\"toolID\": 4643\r",
+							"\r",
+							"This ID then appears in a GET request\r",
+							"\r",
+							"const toolIDs = response.map(tool => tool.id);\r",
+							"console.log(toolIDs);\r",
+							"\r",
+							"Valid CategoryID(s)\r",
+							"0: \"form_854b7\"\r",
+							"1: \"form_1542d\"\r",
+							"2: \"form_8bfe8\"\r",
+							"3: \"form_8aded\"\r",
+							"4: \"form_e73f1\"\r",
+							"5: \"form_945a0\"\r",
+							"6: \"form_24f22\"\r",
+							"7: \"form_55af0\"\r",
+							"8: \"form_af5a3\"\r",
+							"9: \"form_354e4\"\r",
+							"10: \"form_66e4e\"\r",
+							"\r",
+							"\r",
+							"*/\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"/* \r",
+							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    console.log(jsonData.response);   \r",
+							"    pm.expect(jsonData.categoryID).to.eql(\"form_11e07\");  //iterate through\r",
+							"});\r",
+							"*/\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"/*\r",
+							"// saving the API Response as a variable\r",
+							"let response = pm.response.json();\r",
+							"\r",
+							"// looping through each camera object\r",
+							"response.data.ActiveCamera.forEach(function(cam) {\r",
+							"    // checking if the camera has a property named \"RectilinearIR\"\r",
+							"    if(cam.hasOwnProperty(\"RectilinearIR\")) {\r",
+							"        // test if the ImageCenterX value in the object is equal to 0.5\r",
+							"        pm.test(\"Test diameter for RectilinearIR\", function () {\r",
+							"            let intrinsicCalibrationParams = cam.RectilinearIR.IntrinsicCalibration;\r",
+							"            pm.expect(intrinsicCalibrationParams.ImageCenterX).to.eql(0.5);\r",
+							"        });\r",
+							"    } \r",
+							"    // checking if the camera has a property named \"Fisheye\"\r",
+							"    if (cam.hasOwnProperty(\"Fisheye\")) {\r",
+							"        // test if the ImageCenterX value in the object is equal to 0.5109375\r",
+							"            pm.test(\"Test diameter for Fisheye\", function () {\r",
+							"            let intrinsicCalibrationParams = cam.Fisheye.IntrinsicCalibration;\r",
+							"            pm.expect(intrinsicCalibrationParams.ImageCenterX).to.eql(0.5109375);\r",
+							"        });\r",
+							"    }\r",
+							"});\r",
+							"*/\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"//    \"categoryID\": \"form_11e07\",\r",
+							"//    \"categoryName\": \"AUT (Copy)\"\r",
+							"/*\r",
+							"pm.test(\"Response time is less than limit\", function() {\r",
+							"var limit = 10;\r",
+							"pm.expect(pm.response.responseTime, \"Response time was longer than \" + limit + \" ms.\").to.be.below(limit);\r",
+							"console.log(\"Response Time: \" + pm.response.responseTime + \" ms\" + \" / Response Date: \" + pm.response.headers.get(\"Date\"));\r",
+							"});\r",
+							"\r",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "16791558-61f5-4372-966a-20efc18141e8",
+						"exec": [
+							"//For POST request\r",
+							"const catIDs = pm.variables.get('catIDs');\r",
+							"pm.variables.set('currentCatID', catIDs.shift());    //get first element/Id in array and return it. Can put in _\r",
+							"                                                     //array or modify original array (catIDs)\r",
+							"        //Then set as a Global ID in Body\r",
+							"\r",
+							"\r",
+							"/* \r",
+							"const random = Math.random().toString(36).substring(2);\r",
+							"const formCategories = \"formCategories \" + random;\r",
+							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "9c9d3b92-11d7-4671-9e25-037ac3914e8c",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"categoryID\": {{currentCatID}},\r\n    \"categoryName\": \"PM API Test\"\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://localhost/LEAF_Request_Portal/api/form/categories"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - All Forms",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f211c6f6-517d-47d4-9606-9a5eb5cdbb2e",
+						"exec": [
+							"pm.test(\"Form-getAPI-URL.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});  //\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							" \r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const catIDs = response.map(catID => catID.categoryID);    //catIDs is array containing IDs  goes through each element of the array\r",
+							"    pm.variables.set('catIDs', catIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(catIDs);  //\r",
+							"\r",
+							"    let currentCatID = catIDs.shift();\r",
+							"    console.log(currentCatID);\r",
+							"    pm.expect(currentCatID).to.eql(\"form_b7c34\");  //  \r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0a7d7a0c-33c5-46d2-8088-4a366dbee5b3",
+						"exec": [
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "06845091-e9f9-4f46-b93f-866ba816d40a",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/categories"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Form Categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c57ea32b-2a69-4e4a-a2c3-644fa0144d1d",
+						"exec": [
+							" \r",
+							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const catIDs = response.map(catID => catID.categoryID);         //catIDs is the array containing IDs\r",
+							"    //console.log(catIDs);\r",
+							"    pm.variables.set('catIDs', catIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(catIDs);  //\r",
+							"\r",
+							"    let currentCatID = catIDs.shift();\r",
+							"    console.log(currentCatID);\r",
+							"    pm.expect(currentCatID).to.eql(\"form_b7c34\");  //    //form_d203e\r",
+							"\r",
+							"\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "94ef5633-60b5-466e-a324-38ce91df8460",
+						"exec": [
+							"/* const random = Math.random().toString(36).substring(2);\r",
+							"const formCategories = \"formCategories \" + random;\r",
+							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "4a0c8592-8720-4645-998d-aba705284518",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://localhost/LEAF_Request_Portal/api/form/categories"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - FIX Form Indicators",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c57ea32b-2a69-4e4a-a2c3-644fa0144d1d",
+						"exec": [
+							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});     //\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"// pm.test(\"JSON Contains expected value\", function () {\r",
+							"//     const response = pm.response.json();\r",
+							"//     const catIDs = response.map(catID => catID.categoryID);         //catIDs is the array containing IDs\r",
+							"//     console.log(catIDs);\r",
+							"//     pm.variables.set('catIDs', catIDs); //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
+							"// });\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const formIDs = response.map(formID => formID.indicatorID);  //formIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('formIDs', formIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd formIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(formIDs);  //\r",
+							"\r",
+							"    let currentFormID = formIDs.shift();\r",
+							"    console.log(currentFormID);\r",
+							"    pm.expect(currentFormID).to.eql(1896);  //  \r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"/* \r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    console.log(jsonData.response);   \r",
+							"    pm.expect(jsonData.categoryID).to.eql(\"form_11e07\");  //iterate through\r",
+							"});\r",
+							"*/\r",
+							"\r",
+							"\r",
+							"\r",
+							"//    \"categoryID\": \"form_11e07\",\r",
+							"//    \"categoryName\": \"AUT (Copy)\"\r",
+							"/*\r",
+							"pm.test(\"Response time is less than limit\", function() {\r",
+							"var limit = 10;\r",
+							"pm.expect(pm.response.responseTime, \"Response time was longer than \" + limit + \" ms.\").to.be.below(limit);\r",
+							"console.log(\"Response Time: \" + pm.response.responseTime + \" ms\" + \" / Response Date: \" + pm.response.headers.get(\"Date\"));\r",
+							"});\r",
+							"\r",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "94ef5633-60b5-466e-a324-38ce91df8460",
+						"exec": [
+							"/* const random = Math.random().toString(36).substring(2);\r",
+							"const formCategories = \"formCategories \" + random;\r",
+							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "be905dca-86c3-4d63-8cff-fa8009ecd774",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \r\n    \"categoryID\": \"form_11e07\",\r\n    \"categoryName\": \"AUT (Copy)\"   \r\n}\r\n\r\nFOR POST REQUESTS",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://localhost/LEAF_Request_Portal/api/form/categories&id='form_b7c34'"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Set Token for POST requests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
+						"exec": [
+							"\r",
+							"\r",
+							"// CONST RANDOM = MATH.RANDOM().TOSTRING(36).SUBSTRING(2);\r",
+							"\r",
+							"// CONST FORMCATEGORIES = \"FORMCATEGORIES \" + RANDOM;\r",
+							"// PM.COLLECTIONVARIABLES.SET(\"FORMCATEGORIES\", FORMCATEGORIES);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0fc167b9-bc0d-418f-9538-f3c0c537db90",
+						"exec": [
+							"//const catIDs = pm.variables.get('catIDs');      //same array of categoryIDs created in GET request test\r",
+							"//console.log('Pre-request from POST request ' + catIDs);\r",
+							"////catIDs.shift();    //get first element/Id in array and return it. _(shift function by itself)\r",
+							"    \r",
+							"//pm.variables.set('currentCatID', catIDs.shift());    //array or modify original array (catIDs)  //Set variable currenCatID\r",
+							"\r",
+							"// if(Array.isArray(catIDs) && catIDs.length > 0) {   //array item must have length > 0  (a valid Cat ID)\r",
+							"//     postman.setNextRequest('POST Category');       //iterate through all members of array   USE Test Name       VID: 7:08 - 9:16\r",
+							"//     console.log('POST CATEGORY');                  //Can also use in Test section\r",
+							"// } else {\r",
+							"//     postman.setNextRequest(null);\r",
+							"// }"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "b84a4372-9731-496e-adfd-35cf80715880",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"password": "@Adaptive44",
+						"username": "max.richard@adaptivestack.com"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \"categoryID\": \"form_b7c34\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": "https://localhost/LEAF_Request_Portal/api/form/new"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - GET all Categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "059427ba-d2fe-4623-86aa-969a477168e3",
+						"exec": [
+							"\r",
+							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const catIDs = response.map(catID => catID.categoryID);  //catIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('catIDs', catIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(catIDs);  //\r",
+							"\r",
+							"    let currentCatID = catIDs.shift();\r",
+							"    console.log(currentCatID);\r",
+							"    pm.expect(currentCatID).to.eql(\"form_b7c34\");  //    //form_d203e\r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "7111c3fc-6e22-426e-8816-357c7292b88c",
+						"exec": [
+							"\r",
+							"\r",
+							"/* \r",
+							"const random = Math.random().toString(36).substring(2);\r",
+							"const formCategories = \"formCategories \" + random;\r",
+							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "274582a4-1da1-4ba1-8426-7838e3363c98",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://localhost/LEAF_Request_Portal/api/form/categories"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - FIX Create Form",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
+						"exec": [
+							"\r",
+							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"JSON Contains expected value\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"        //  create an array only with this ID\r",
+							"    const catIDs = response.map(catID => catID.categoryID);         //catIDs is the array containing IDs\r",
+							"    console.log(catIDs);\r",
+							"    pm.variables.set('catIDs', catIDs); //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
+							"\r",
+							"    let currentCatID = catIDs.shift();\r",
+							"    console.log(currentCatID);\r",
+							"    pm.expect(currentCatID).to.eql(\"form_b7c34\");  //    //form_d203e \r",
+							"});\r",
+							"\r",
+							"// CONST RANDOM = MATH.RANDOM().TOSTRING(36).SUBSTRING(2);\r",
+							"\r",
+							"// CONST FORMCATEGORIES = \"FORMCATEGORIES \" + RANDOM;\r",
+							"// PM.COLLECTIONVARIABLES.SET(\"FORMCATEGORIES\", FORMCATEGORIES);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0fc167b9-bc0d-418f-9538-f3c0c537db90",
+						"exec": [
+							"\r",
+							"////For POST requests\r",
+							"////Probably need to use the 'POST' address as listed in the LEAF API Documentation\r",
+							"////THIS ONLY WORKS by Executing TestCollection as a COLLECTION\r",
+							"  \r",
+							"/*   Lines 6 through 10 are valid (in different context)   */\r",
+							"\r",
+							"//const catIDs = pm.variables.get('catIDs');      //same array of categoryIDs created in GET request test\r",
+							"//console.log('Pre-request for POST request ' + catIDs);\r",
+							"//catIDs.shift();    //get first element/Id in array and return it. _(shift function by itself)\r",
+							"    \r",
+							"//pm.variables.set('currentCatID', catIDs.shift());    //array or modify original array (catIDs)  //Set variable currenCatID\r",
+							"\r",
+							"//// if(Array.isArray(catIDs) && catIDs.length > 0) {   //array item must have length > 0  (a valid Cat ID)\r",
+							"////     postman.setNextRequest('POST Category');       //iterate through all members of array   USE Test Name       VID: 7:08 - 9:16\r",
+							"////     console.log('POST CATEGORY');                  //Can also use in Test section\r",
+							"//// } else {\r",
+							"////     postman.setNextRequest(null);\r",
+							"//// }\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "39ef254e-1888-4b5d-9874-7addbb704335",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "ntlm",
+					"ntlm": {
+						"password": "tester",
+						"username": "tester"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \"categoryID\": 12345\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": "https://localhost/LEAF_Request_Portal/api/form/new"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - TMP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f211c6f6-517d-47d4-9606-9a5eb5cdbb2e",
+						"exec": [
+							"pm.test(\"Form-getAPI-URL.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const IDs = response.map(ID => ID.categoryID);  //IDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('IDs', IDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd IDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(IDs);  //\r",
+							"\r",
+							"    let currentID = IDs.shift();\r",
+							"    console.log(currentID);\r",
+							"    pm.expect(currentID).to.eql(\"form_b7c34\");  //    //form_d203e\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "aee92a02-ae2f-4035-94f1-37c714f017cc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "https://localhost/LEAF_Request_Portal/api/"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Workflow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf104723-118e-455b-a6db-c8d31ccc0507",
+						"exec": [
+							"pm.test(\"Workflow.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"//workflowID: \"70\"\r",
+							"//workflowID: \"63\"\r",
+							"//workflowID: \"55\"\r",
+							"//workflowID: \"46\"   // This value\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const workFlowIDs = response.map(workFlowID => workFlowID.workflowID);  //workFlowIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('workFlowIDs', workFlowIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd workFlowIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(workFlowIDs);  //\r",
+							"\r",
+							"    let currentWorkflowID = workFlowIDs.shift();\r",
+							"    console.log(currentWorkflowID);\r",
+							"    pm.expect(currentWorkflowID).to.eql(70);  \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "5dd418f1-2e06-4a6e-88a9-a73a88f28ae1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"tlsPreferServerCiphers": false,
+				"followAuthorizationHeader": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "https://localhost/LEAF_Request_Portal/api/workflow"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Workflow userActions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2a0db6c0-aeb1-40a7-8227-d00e31d30b5b",
+						"exec": [
+							"pm.test(\"Workflow userActions.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const usrActions = response.map(usrAction => usrAction.actionType);  //usrActions = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('usrActions', usrActions); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd usrActions is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(usrActions);  //\r",
+							"\r",
+							"    let currentUsrAction = usrActions.shift();\r",
+							"    console.log(currentUsrAction);\r",
+							"    pm.expect(currentUsrAction).to.eql(\"AcceptJob\");  //  \r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "57ff22ff-9513-424f-9a50-b1693c6d1f57",
+						"exec": [
+							"var moment = require('moment');\r",
+							"pm.globals.set('CurrentDatetime', moment().format());\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "43e5e695-582a-42af-973b-732bbeb4f970",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "https://localhost/LEAF_Request_Portal/api/workflow/userActions"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Form Get Specific Form",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b2beb1a-4de9-477e-8265-51764d22069c",
+						"exec": [
+							"pm.test(\"Form-getSpecific Form.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const indIcatorIDs = response.map(indIcatorID => indIcatorID.indicatorID);  //indIcatorIDs = array with IDs;  .\r",
+							"    pm.variables.set('indIcatorIDs', indIcatorIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd indIcatorIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(indIcatorIDs);  //\r",
+							"\r",
+							"    let currentIndID = indIcatorIDs.shift();\r",
+							"    console.log(currentIndID);\r",
+							"    pm.expect(currentIndID).to.eql(1896);  //    \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "cc1d6584-8bf6-40cb-9914-e41675281170",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/_form_d203e"
+			},
+			"response": []
+		},
+		{
+			"name": "FIX Local - Form Get Specific Form - Flat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b2beb1a-4de9-477e-8265-51764d22069c",
+						"exec": [
+							"pm.test(\"Form-getSpecific Form.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const formIDs = response.map(formID => formID.indicatorID);  //formIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('formIDs', formIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd formIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(formIDs);  //\r",
+							"\r",
+							"    let currentFormID = formIDs.shift();\r",
+							"    console.log(currentFormID);\r",
+							"    pm.expect(currentFormID).to.eql(1896);  //  \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "06db52cb-3962-473f-b912-6a69c5c949e1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/_form_d203e/flat"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Form Get Specific Form - Export",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b2beb1a-4de9-477e-8265-51764d22069c",
+						"exec": [
+							"pm.test(\"Form-getSpecific Form.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200))\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const formIDs = response.map(formID => formID.indicatorID);  //formIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('formIDs', formIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd formIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(formIDs);  //\r",
+							"\r",
+							"    let currentFormID = formIDs.shift();\r",
+							"    console.log(currentFormID);\r",
+							"    pm.expect(currentFormID).to.eql(1896);  //  \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "ce804bd5-1f42-44dd-a936-f04e19666b30",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/_form_d203e/export"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Form Get Specific Form - Workflow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b2beb1a-4de9-477e-8265-51764d22069c",
+						"exec": [
+							"pm.test(\"Form-getSpecific Form.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const workFlowIDs = response.map(workFlowID => workFlowID.workflowID);  //workFlowIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('workFlowIDs', workFlowIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd workFlowIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(workFlowIDs);  //\r",
+							"\r",
+							"    let currentWorkflowID = workFlowIDs.shift();\r",
+							"    console.log(currentWorkflowID);\r",
+							"    pm.expect(currentWorkflowID).to.eql(0);  \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "85e6e87d-d83c-406b-8aca-7848047ba1d2",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/_form_d203e/workflow"
+			},
+			"response": []
+		},
+		{
+			"name": "FIX Local - Form Get Specific Form Record - RecordInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b2beb1a-4de9-477e-8265-51764d22069c",
+						"exec": [
+							"pm.test(\"Form-getSpecific Form.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime;\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const recordNames = response.map(recordName => recordName.name);  //recordNames = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('recordNames', recordNames); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd recordNames is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(recordNames);  //\r",
+							"\r",
+							"    let currentName = recordNames.shift();\r",
+							"    console.log(currentName);\r",
+							"    pm.expect(currentName).to.eql(\"Boyd Schaden\");  \r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const formIDs = response.map(formID => formID.name);  //formIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('formIDs', formIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd formIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(formIDs);  //\r",
+							"\r",
+							"    let currentFormID = formIDs.shift();\r",
+							"    console.log(currentFormID);\r",
+							"    pm.expect(currentFormID).to.eql(\"Boyd Schaden\");  //  \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "a420f61c-e5f0-4f68-9bc7-c44c0c112faf",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/50/recordinfo"
+			},
+			"response": []
+		},
+		{
+			"name": "FIX Local - Form Get Specific Form - Records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b2beb1a-4de9-477e-8265-51764d22069c",
+						"exec": [
+							"pm.test(\"Form-getSpecific Form.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200))\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();    // response is stored js object\r",
+							"         //  create an array with only this ID\r",
+							"    const formIDs = response.map(formID => formID.indicatorID);  //formIDs = array with IDs;  .map goes through each element of the array\r",
+							"    pm.variables.set('formIDs', formIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd formIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(formIDs);  //\r",
+							"\r",
+							"    let currentFormID = formIDs.shift();\r",
+							"    console.log(currentFormID);\r",
+							"    pm.expect(currentFormID).to.eql(1896);  //  \r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "515a6bdd-a2d3-4de9-aa7c-eb38feabc978",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": "https://localhost/LEAF_Request_Portal/api/form/_form_d203e/records"
+			},
+			"response": []
+		},
+		{
+			"name": "FIX Local - Post a note",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f211c6f6-517d-47d4-9606-9a5eb5cdbb2e",
+						"exec": [
+							"pm.test(\"Form-getAPI-URL.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "91895f4c-8bc4-4927-88d2-28ddc4dc9895",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \r\n    \"formID\": \"form_12307\",\r\n    \"requestData\": \"Test Form\"   \r\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/LEAF_Request_Portal/api/note?recordID=268&note=Some note to post to the db&userID=tester",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"LEAF_Request_Portal",
+						"api",
+						"note"
+					],
+					"query": [
+						{
+							"key": "recordID",
+							"value": "268"
+						},
+						{
+							"key": "note",
+							"value": "Some note to post to the db",
+							"type": "text"
+						},
+						{
+							"key": "userID",
+							"value": "tester",
+							"type": "text"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "ntlm",
+		"ntlm": {
+			"password": "",
+			"username": ""
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "bbd804ea-3994-4cfd-ba10-c37aa8d7d2b4",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "d52eddde-4375-4834-b318-25e833a20edd",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "0f84a3cb-49cf-4dc2-ae6c-5fd0d723c6e0",
+			"key": "CSFRToken",
+			"value": "Input CSFR Token",
+			"type": "string"
+		},
+		{
+			"id": "d16ee396-4d15-4170-9a35-ab728e5a002d",
+			"key": "formCategories",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "5c6f5760-d20c-4b60-adc8-39f9b1c43e04",
+			"key": "CategoryID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "b24b4efe-9ac2-4f55-a5d9-3be671d97fb8",
+			"key": "categoryID",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
