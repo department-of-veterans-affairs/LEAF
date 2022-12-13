@@ -902,7 +902,7 @@ function linkDependencyDialog(stepID) {
             buffer += '</optgroup>';
 
             buffer += '</select></div>';
-            buffer += '<br /><br /><br /><br /><div>If a requirement does not exist: <span class="buttonNorm" onclick="newDependency('+ stepID +')">Create a new requirement</span></div>';
+            buffer += '<br /><br /><br /><br /><div>If a requirement does not exist: <span tabindex=0 class="buttonNorm" onkeydown="if (event.which === 13) { newDependency('+ stepID +'); }" onclick="newDependency('+ stepID +')">Create a new requirement</span></div>';
             $('#dependencyList').html(buffer);
             $('#dependencyID').chosen({disable_search_threshold: 5});
 
@@ -1548,8 +1548,9 @@ function showStepInfo(stepID) {
                             }
                         }
                     }
-                    output += '<div style="padding: 4px; display: flex;"><span class="buttonNorm" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span>';
+                    output += '<hr /><div style="padding: 4px"><span tabindex=0 class="buttonNorm" onkeydown="if (event.which == 13) { linkDependencyDialog('+ stepID +'); }" onclick="linkDependencyDialog('+ stepID +')">Add Requirement</span></div>';
                     output += '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog('+ stepID +')">Email Reminder</span></div>';
+
                     $('#stepInfo_' + stepID).html(output);
 
                     // setup UI for form fields in the workflow area
@@ -1736,13 +1737,13 @@ function loadWorkflow(workflowID) {
 	$('#workflows').trigger('chosen:updated');
 
 	$('#workflow').html('');
-	$('#workflow').append('<div class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
+	$('#workflow').append('<div tabindex="0" class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>');
     $('#step_-1').css({
         'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
         'background-color': '#e0e0e0'
     });
-    $('#workflow').append('<div class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
+    $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>');
     $('#step_0').css({
         'left': 180 + 40 + 'px',
         'top': 80 + 40 + 'px',
@@ -1772,7 +1773,7 @@ function loadWorkflow(workflowID) {
                     }
                 }
 
-                $('#workflow').append('<div class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle + ' ' + emailNotificationIcon + '</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
+            	  $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle +'</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
             	$('#step_' + res[i].stepID).css({
             		'left': parseFloat(res[i].posX) + 'px',
             		'top': posY + 'px',
@@ -1804,8 +1805,10 @@ function loadWorkflow(workflowID) {
                 }
 
             	// attach click event
-            	$('#step_' + res[i].stepID).on('click', null, res[i].stepID, function(e) {
-            		showStepInfo(e.data);
+            	$('#step_' + res[i].stepID).on('click keydown', null, res[i].stepID, function(e) {
+                    if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
+            		    showStepInfo(e.data);
+                    }
             	});
 
             	if (maxY < posY) {
@@ -2070,12 +2073,19 @@ this.portalAPI = LEAFRequestPortalAPI();
 this.portalAPI.setBaseURL('../api/?a=');
 this.portalAPI.setCSRFToken(CSRFToken);
 
+
+
 // Fix dialog boxes not going away when clicking outside of box
 $(document).mouseup(function(e) {
     let container = $(".workflowStepInfo");
     if (!container.is(e.target) && container.has(e.target).length === 0) {
         container.hide();
     }
+    container.on('keydown', function(e) {
+        if (e.keyCode === 27) {
+            container.hide();
+        }
+    });    
 });
 
 $(function() {
