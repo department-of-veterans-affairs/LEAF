@@ -513,7 +513,6 @@ class Group extends Data
      * Get all employees explicitly associated with a group
      * @param int $groupID
      *
-     *
      */
     public function listGroupEmployees($groupID)
     {
