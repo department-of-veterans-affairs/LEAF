@@ -288,6 +288,11 @@
 					"script": {
 						"id": "94ef5633-60b5-466e-a324-38ce91df8460",
 						"exec": [
+							"const cookieJar = pm.cookies.jar();\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
 							"/* const random = Math.random().toString(36).substring(2);\r",
 							"const formCategories = \"formCategories \" + random;\r",
 							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
@@ -1217,23 +1222,23 @@
 	],
 	"variable": [
 		{
-			"id": "754c1709-bb8d-4610-9964-c09ac9b09df5",
+			"id": "59e3662a-a548-4a56-9b37-312aef64a246",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "7670fdda-6762-46f0-aa8a-2a18f03369fc",
+			"id": "b8d9ec55-6436-470f-a074-3f3abdd24659",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "9cc2ee4e-f73e-4b2e-826d-7d7940b07894",
+			"id": "33744098-4f70-48f4-b353-0308c3c4d522",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "cad02d27-44dd-4dd9-9f41-7172dd277f71",
+			"id": "9fb8c5a0-a8f3-4438-94e0-6da5e5e649a1",
 			"key": "categoryID",
 			"value": ""
 		}
