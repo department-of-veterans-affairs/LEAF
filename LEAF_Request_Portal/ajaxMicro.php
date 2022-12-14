@@ -11,16 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/php-commons/Db.php';
-include 'sources/DbConfig.php';
-include 'sources/Config.php';
-
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-
-unset($db_config);
+include '../libs/loaders/Leaf_autoloader.php';
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 

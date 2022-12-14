@@ -24,7 +24,7 @@ if(!file_exists($tempFolder . 'actions.sql')) {
     exit();
 }
 
-echo "Running Importer on {$db_config->dbName}...<br />\n";
+echo "Running Importer on {$site_paths['portal_database']}...<br />\n";
 
 if ($debug)
 {

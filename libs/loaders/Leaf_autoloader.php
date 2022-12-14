@@ -32,7 +32,8 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
     $file_paths_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
     $vars = array(':site_path' => '/' . substr_replace($uri, "", -1));
-    $sql = 'SELECT site_path, orgchart_path, orgchart_database, site_uploads
+    $sql = 'SELECT site_path, site_uploads, portal_database, orgchart_path,
+                orgchart_database, libs_path
             FROM sites
             WHERE site_path=:site_path';
 
@@ -66,7 +67,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 $db_config = new Portal\DbConfig();
 $config = new Portal\Config();
 $oc_config = new Orgchart\Config();
-$db = new Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+$db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
 unset($db_config);
