@@ -152,7 +152,7 @@
 					}
 				}
 			],
-			"_postman_id": "9c9d3b92-11d7-4671-9e25-037ac3914e8c",
+			"id": "9c9d3b92-11d7-4671-9e25-037ac3914e8c",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -231,7 +231,7 @@
 					}
 				}
 			],
-			"_postman_id": "06845091-e9f9-4f46-b93f-866ba816d40a",
+			"id": "06845091-e9f9-4f46-b93f-866ba816d40a",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -297,7 +297,7 @@
 					}
 				}
 			],
-			"_postman_id": "4a0c8592-8720-4645-998d-aba705284518",
+			"id": "4a0c8592-8720-4645-998d-aba705284518",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -397,7 +397,7 @@
 					}
 				}
 			],
-			"_postman_id": "be905dca-86c3-4d63-8cff-fa8009ecd774",
+			"id": "be905dca-86c3-4d63-8cff-fa8009ecd774",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -462,7 +462,7 @@
 					}
 				}
 			],
-			"_postman_id": "b84a4372-9731-496e-adfd-35cf80715880",
+			"id": "b84a4372-9731-496e-adfd-35cf80715880",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -478,10 +478,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n     \"categoryID\": \"form_b7c34\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}",
-					"options": {
-						"raw": {}
-					}
+					"raw": "{\r\n     \"categoryID\": \"form_b7c34\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}"
 				},
 				"url": "https://localhost/LEAF_Request_Portal/api/form/new"
 			},
@@ -491,83 +488,23 @@
 			"name": "Local - GET all Categories",
 			"event": [
 				{
-					"listen": "test",
-					"script": {
-						"id": "059427ba-d2fe-4623-86aa-969a477168e3",
-						"exec": [
-							"\r",
-							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"var time = pm.response.responseTime;\r",
-							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
-							"\r",
-							"\r",
-							"pm.test(\"Contains expected value\", function () {\r",
-							"    const response = pm.response.json();    // response is stored js object\r",
-							"         //  create an array with only this ID\r",
-							"    const catIDs = response.map(catID => catID.categoryID);  //catIDs = array with IDs;  .map goes through each element of the array\r",
-							"    pm.variables.set('catIDs', catIDs); //Creates a variable or updates an existing one.\r",
-							"                                        //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
-							"    console.log(catIDs);  //\r",
-							"\r",
-							"    let currentCatID = catIDs.shift();\r",
-							"    console.log(currentCatID);\r",
-							"    pm.expect(currentCatID).to.eql(\"form_b7c34\");  //    //form_d203e\r",
-							"\r",
-							"});\r",
-							"\r",
-							"\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
 					"listen": "prerequest",
 					"script": {
-						"id": "7111c3fc-6e22-426e-8816-357c7292b88c",
+						"id": "fef2f5a5-a31e-4533-818a-f6689ddb0768",
 						"exec": [
-							"\r",
-							"\r",
-							"/* \r",
-							"const random = Math.random().toString(36).substring(2);\r",
-							"const formCategories = \"formCategories \" + random;\r",
-							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
-							"*/"
+							"const cookieJar = pm.cookies.jar();"
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
-			"_postman_id": "274582a4-1da1-4ba1-8426-7838e3363c98",
+			"id": "274582a4-1da1-4ba1-8426-7838e3363c98",
 			"protocolProfileBehavior": {
-				"disableBodyPruning": true,
-				"disabledSystemHeaders": {}
+				"disableBodyPruning": true
 			},
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "GET",
-				"header": [
-					{
-						"key": "CSRFToken",
-						"value": "{{CSRFToken}}",
-						"type": "text",
-						"disabled": true
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
+				"header": [],
 				"url": "https://localhost/LEAF_Request_Portal/api/form/categories"
 			},
 			"response": []
@@ -641,7 +578,7 @@
 					}
 				}
 			],
-			"_postman_id": "39ef254e-1888-4b5d-9874-7addbb704335",
+			"id": "39ef254e-1888-4b5d-9874-7addbb704335",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -657,10 +594,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n     \"categoryID\": 12345\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}",
-					"options": {
-						"raw": {}
-					}
+					"raw": "{\r\n     \"categoryID\": 12345\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}"
 				},
 				"url": "https://localhost/LEAF_Request_Portal/api/form/new"
 			},
@@ -700,7 +634,7 @@
 					}
 				}
 			],
-			"_postman_id": "aee92a02-ae2f-4035-94f1-37c714f017cc",
+			"id": "aee92a02-ae2f-4035-94f1-37c714f017cc",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -754,7 +688,7 @@
 					}
 				}
 			],
-			"_postman_id": "5dd418f1-2e06-4a6e-88a9-a73a88f28ae1",
+			"id": "5dd418f1-2e06-4a6e-88a9-a73a88f28ae1",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"tlsPreferServerCiphers": false,
@@ -821,7 +755,7 @@
 					}
 				}
 			],
-			"_postman_id": "43e5e695-582a-42af-973b-732bbeb4f970",
+			"id": "43e5e695-582a-42af-973b-732bbeb4f970",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -869,7 +803,7 @@
 					}
 				}
 			],
-			"_postman_id": "cc1d6584-8bf6-40cb-9914-e41675281170",
+			"id": "cc1d6584-8bf6-40cb-9914-e41675281170",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -925,7 +859,7 @@
 					}
 				}
 			],
-			"_postman_id": "06db52cb-3962-473f-b912-6a69c5c949e1",
+			"id": "06db52cb-3962-473f-b912-6a69c5c949e1",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -981,7 +915,7 @@
 					}
 				}
 			],
-			"_postman_id": "ce804bd5-1f42-44dd-a936-f04e19666b30",
+			"id": "ce804bd5-1f42-44dd-a936-f04e19666b30",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -1037,7 +971,7 @@
 					}
 				}
 			],
-			"_postman_id": "85e6e87d-d83c-406b-8aca-7848047ba1d2",
+			"id": "85e6e87d-d83c-406b-8aca-7848047ba1d2",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -1107,7 +1041,7 @@
 					}
 				}
 			],
-			"_postman_id": "a420f61c-e5f0-4f68-9bc7-c44c0c112faf",
+			"id": "a420f61c-e5f0-4f68-9bc7-c44c0c112faf",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -1163,7 +1097,7 @@
 					}
 				}
 			],
-			"_postman_id": "515a6bdd-a2d3-4de9-aa7c-eb38feabc978",
+			"id": "515a6bdd-a2d3-4de9-aa7c-eb38feabc978",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {}
@@ -1206,7 +1140,7 @@
 					}
 				}
 			],
-			"_postman_id": "91895f4c-8bc4-4927-88d2-28ddc4dc9895",
+			"id": "91895f4c-8bc4-4927-88d2-28ddc4dc9895",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -1218,10 +1152,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{  \r\n    \"formID\": \"form_12307\",\r\n    \"requestData\": \"Test Form\"   \r\n}",
-					"options": {
-						"raw": {}
-					}
+					"raw": "{  \r\n    \"formID\": \"form_12307\",\r\n    \"requestData\": \"Test Form\"   \r\n}"
 				},
 				"url": {
 					"raw": "https://localhost/LEAF_Request_Portal/api/note?recordID=268&note=Some note to post to the db&userID=tester",
@@ -1286,28 +1217,25 @@
 	],
 	"variable": [
 		{
-			"id": "0f84a3cb-49cf-4dc2-ae6c-5fd0d723c6e0",
+			"id": "754c1709-bb8d-4610-9964-c09ac9b09df5",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "d16ee396-4d15-4170-9a35-ab728e5a002d",
+			"id": "7670fdda-6762-46f0-aa8a-2a18f03369fc",
 			"key": "formCategories",
-			"value": "",
-			"type": "string"
+			"value": ""
 		},
 		{
-			"id": "5c6f5760-d20c-4b60-adc8-39f9b1c43e04",
+			"id": "9cc2ee4e-f73e-4b2e-826d-7d7940b07894",
 			"key": "CategoryID",
-			"value": "",
-			"type": "string"
+			"value": ""
 		},
 		{
-			"id": "b24b4efe-9ac2-4f55-a5d9-3be671d97fb8",
+			"id": "cad02d27-44dd-4dd9-9f41-7172dd277f71",
 			"key": "categoryID",
-			"value": "",
-			"type": "string"
+			"value": ""
 		}
 	]
 }
