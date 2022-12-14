@@ -39,10 +39,6 @@ class CustomEvent_LeafSecure_DeveloperConsole
         $res = $this->db->prepared_query('SELECT userID FROM records WHERE recordID=:recordID', $vars);
 
         // get the initiator's empUID
-        $currDir = dirname(__FILE__);
-        require_once $currDir . '/../../' . Portal\Config::$orgchartPath . '/sources/Config.php';
-        require_once $currDir . '/../../' . Portal\Config::$orgchartPath . '/sources/Employee.php';
-        require_once $currDir . '/../../' . Portal\Config::$orgchartPath . '/sources/Login.php';
         $config = new Orgchart\Config;
         $oc_db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $login = new Orgchart\Login($oc_db, $oc_db);

@@ -106,7 +106,6 @@ switch ($action) {
            $t_form->assign('heading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
            $t_form->assign('subheading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
-           require_once '../sources/Tag.php';
            $tagObj = new Orgchart\Tag($db, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
 

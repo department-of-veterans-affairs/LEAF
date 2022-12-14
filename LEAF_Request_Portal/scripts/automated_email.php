@@ -1,12 +1,6 @@
 <?php
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
-
-require_once $currDir . '/../Email.php';
-require_once $currDir . '/../VAMC_Directory.php';
+include '../libs/loaders/Leaf_autoloader.php';
 
 // this is here until we fully test
 ini_set('display_errors',1);
@@ -19,8 +13,6 @@ $siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/
 // this was what the random function I found used.
 $comment = '';
 
-$db_config = new DB_Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
 FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
 $getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
@@ -55,10 +47,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        JOIN services USING(serviceID) 
+        JOIN services USING(serviceID)
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND deleted = 0;';

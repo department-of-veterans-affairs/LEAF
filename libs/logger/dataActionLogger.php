@@ -2,9 +2,6 @@
 
 namespace Leaf;
 
-require_once 'logFormatter.php';
-require_once 'logItem.php';
-
 class DataActionLogger{
 
     protected $db;
@@ -62,7 +59,7 @@ class DataActionLogger{
         if($logResults != null){
             for($i = 0; $i<count($logResults); $i++){
                 $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
-                $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $logType);
+                $logResults[$i]["history"] = LogFormatter::getFormattedString($logResults[$i], $logType);
             }
         }
         return $logResults;
@@ -130,7 +127,7 @@ class DataActionLogger{
     }
 
     function buildInClause($logType){
-        $actions = array_keys(\LogFormatter::formatters[$logType]);
+        $actions = array_keys(LogFormatter::formatters[$logType]);
 
         $inClause = "(";
 

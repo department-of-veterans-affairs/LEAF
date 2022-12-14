@@ -237,8 +237,6 @@ class Group
      */
     public function addMember($member, $groupID): void
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
         $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -318,8 +316,6 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
         $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -363,8 +359,6 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
         $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
         $employee = new \Orgchart\Employee($oc_db, $this->login);

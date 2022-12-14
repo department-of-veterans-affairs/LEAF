@@ -2,10 +2,6 @@
 
 namespace Leaf;
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
-require_once 'formatOptions.php';
-
 class WorkflowFormatter {
     /** Templates for determining what data to grab based on the workflow action.
      * Action data is retrieved from the data_log_items table.

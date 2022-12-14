@@ -42,7 +42,6 @@ class CustomEvent_[YOUR EVENT ID]
         											LEFT JOIN services USING (serviceID)
         											WHERE recordID=:recordID', $vars);
 
-        include_once '../sources/Form.php'; // events are invoked from ./api/, so the context is ./api
         $form = new Form($this->db, $this->login);
 
         // Get data from a field

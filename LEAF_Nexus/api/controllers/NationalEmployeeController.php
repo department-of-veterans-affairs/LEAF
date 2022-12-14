@@ -69,10 +69,6 @@ class NationalEmployeeController extends RESTfulResponse
                 $email = $_POST["email"];
                 $username = $employee->lookupEmail($email);
 
-                require_once __DIR__ . "/../../sources/Employee.php";
-                require_once __DIR__ . "/../../sources/Login.php";
-                require_once __DIR__ . "/../../sources/Config.php";
-
                 $config = new Config();
                 $login = new Login($this->db, $this->db);
                 $localEmp = new Employee($this->db, $login);

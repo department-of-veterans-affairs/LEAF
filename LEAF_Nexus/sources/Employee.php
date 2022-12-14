@@ -143,7 +143,6 @@ class Employee extends Data
         $db_nat = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $login_nat = new Login($db_nat, $db_nat);
 
-        require_once 'NationalEmployee.php';
         $natEmployee = new NationalEmployee($db_nat, $login_nat);
 
         $res = $natEmployee->lookupLogin($userName);
@@ -800,7 +799,6 @@ class Employee extends Data
         }
         else
         {
-            require_once 'Position.php';
             $position = new Position($this->db, $this->login);
         }
 
