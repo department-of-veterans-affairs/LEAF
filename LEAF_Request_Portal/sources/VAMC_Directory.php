@@ -47,11 +47,6 @@ class VAMC_Directory
     // Connect to the database
     public function __construct()
     {
-        $currDir = dirname(__FILE__);
-        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Config.php';
-        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        require_once $currDir . '/../' . Config::$orgchartPath . '/sources/Login.php';
         $config = new \Orgchart\Config;
         $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $login = new \Orgchart\Login($oc_db, $oc_db);

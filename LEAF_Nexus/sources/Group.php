@@ -572,7 +572,6 @@ class Group extends Data
 
         // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
-        require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         foreach ($res as $key => $value)
         {
@@ -600,7 +599,6 @@ class Group extends Data
     public function listGroupEmployeesAll($groupID)
     {
         $output = array();
-        require_once 'Position.php';
         $position = new Position($this->db, $this->login);
 
         $positions = $this->listGroupPositions($groupID);

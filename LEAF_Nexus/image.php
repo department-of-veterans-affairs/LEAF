@@ -12,17 +12,14 @@ $oc_login->loginUser();
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        include './sources/Employee.php';
         $type = new Orgchart\Employee($oc_db, $oc_login);
 
         break;
     case 2:    // position
-        include './sources/Position.php';
         $type = new Orgchart\Position($oc_db, $oc_login);
 
         break;
     case 3:    // group
-        include './sources/Group.php';
         $type = new Orgchart\Group($oc_db, $oc_login);
 
         break;

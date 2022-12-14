@@ -32,7 +32,6 @@ switch ($action) {
 
         break;
     case 'directory_lookup':
-        require '../sources/VAMC_Directory.php';
         $dir = new Portal\VAMC_Directory();
         $results = $dir->search($_GET['query']);
 

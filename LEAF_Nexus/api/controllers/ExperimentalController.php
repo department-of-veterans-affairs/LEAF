@@ -33,7 +33,6 @@ class ExperimentalController extends RESTfulResponse
         });
 
         $this->index['GET']->register('x/position/employees/hrsmart/[digit]', function($args) use ($db, $login) {
-            require '../sources/experimental/Position.php';
             $position = new Position($db, $login);
             return $position->getEmployeesHrsmart($args[0]);
         });

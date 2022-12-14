@@ -31,7 +31,6 @@ class VAMC_Directory_maintenance_AD
     public function __construct()
     {
         $currDir = dirname(__FILE__);
-        require_once $currDir . '/../sources/config.php';
         $config = new Orgchart\Config();
 
         try

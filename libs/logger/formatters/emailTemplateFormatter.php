@@ -2,9 +2,6 @@
 
 namespace Leaf;
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
-
 class EmailTemplateFormatter{
 
     const TEMPLATES = [

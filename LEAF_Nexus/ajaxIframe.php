@@ -119,7 +119,6 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
         $position = new Orgchart\Position($oc_db, $oc_login);
 
         $t_iframe = new Smarty;

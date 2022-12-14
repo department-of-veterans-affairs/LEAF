@@ -81,7 +81,6 @@ switch ($action) {
 
         break;
     case 'listPositionData':
-        include './sources/Employee.php';
         $employee = new Orgchart\Employee($oc_db, $oc_login);
 
         $t_form = new Smarty;
