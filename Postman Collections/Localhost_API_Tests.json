@@ -296,7 +296,9 @@
 							"/* const random = Math.random().toString(36).substring(2);\r",
 							"const formCategories = \"formCategories \" + random;\r",
 							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
-							"*/"
+							"*/\r",
+							"\r",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -1223,23 +1225,23 @@
 	],
 	"variable": [
 		{
-			"id": "23aae84a-5f35-46b2-b698-ef94ccc79eb0",
+			"id": "315da4db-7f40-4f99-9c1f-af744b607173",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "dd9a6861-cf95-4e09-b20b-45432ee33cfa",
+			"id": "4fab674c-8abc-4d64-b783-986d705d76b5",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "f9d149bd-5ad4-434a-acf6-fcb8a157953d",
+			"id": "2166c56e-24ee-4d84-86ff-7864727cf12e",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "363865c1-1449-4d06-9f49-027fe742152c",
+			"id": "3f0d6f9c-cd14-47ba-be5e-672cadfb7707",
 			"key": "categoryID",
 			"value": ""
 		}
