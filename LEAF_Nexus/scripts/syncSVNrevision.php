@@ -5,7 +5,7 @@
 
 $version = 'PUBLIC';
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $config = new Orgchart\Config();
 $db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);

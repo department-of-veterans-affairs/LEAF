@@ -1,6 +1,6 @@
 <?php
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
@@ -82,7 +82,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         ));
 
         // need to get the emails sending to make sure this actually works!
-        $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$record['userID']);
+        $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$record['userID'], $settings['emailPrefix']);
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working
         $updateRecordsWorkflowStateVars = [

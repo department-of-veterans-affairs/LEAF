@@ -1166,7 +1166,7 @@ class Form
      *
      * Created at: 10/3/2022, 7:40:04 AM (America/New_York)
      */
-    public function doSubmit(int $recordID): int|array
+    public function doSubmit(int $recordID, string $emailPrefix): int|array
     {
         $recordID = (int)$recordID;
 
@@ -1310,7 +1310,7 @@ class Form
 
                 foreach ($workflowIDs as $id) {
                     // The initial step for Requestor is special step id -1
-                    $status = $FormWorkflow->handleEvents($id, -1, 'submit', '');
+                    $status = $FormWorkflow->handleEvents($id, -1, 'submit', '', $emailPrefix);
 
                     if (count($status['errors']) > 0) {
                         try {
@@ -3976,7 +3976,7 @@ class Form
      * @param $days
      * @throws \SmartyException
      */
-    function sendReminderEmail($recordID, $days) {
+    function sendReminderEmail($recordID, $days, $emailPrefix) {
 
         $email = new Email();
         $email->setSender('leaf.noreply@va.gov');
@@ -3984,7 +3984,7 @@ class Form
             "daysSince" => $days
         ));
 
-        $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login, $emailPrefix);
 
     }
 

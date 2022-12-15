@@ -115,10 +115,9 @@ class Email
      * Clean and Set subject of email object variable
      * @param $strSubject
      */
-    public function setSubject($strSubject)
+    public function setSubject($strSubject, $emailPrefix)
     {
-        $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
-        $this->emailSubject = $prefix . strip_tags($strSubject);
+        $this->emailSubject = $emailPrefix . strip_tags($strSubject);
     }
 
     /**
@@ -408,7 +407,7 @@ class Email
      * @param int $emailTemplateID emailTemplateID from email_templates table
      * @return void
      */
-    function setTemplateByID($emailTemplateID)
+    function setTemplateByID($emailTemplateID, $emailPrefix)
     {
         $vars = array(':emailTemplateID' => $emailTemplateID);
         $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body` FROM `email_templates` ".
@@ -417,7 +416,7 @@ class Email
 
         $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
         $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']), $emailPrefix);
         $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
     }
 
@@ -426,7 +425,7 @@ class Email
      * @param string $emailTemplateLabel label from email_templates table
      * @return void
      */
-    function setTemplateByLabel($emailTemplateLabel)
+    function setTemplateByLabel($emailTemplateLabel, $emailPrefix)
     {
         $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
         $strSQL = "SELECT `emailTo`,`emailCc`,`subject`, `body` FROM `email_templates` ".
@@ -435,7 +434,7 @@ class Email
 
         $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
         $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']), $emailPrefix);
         $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
     }
 
@@ -470,10 +469,10 @@ class Email
      * @param string $subjectTemplate the filename of the template for the subject
      * @return void
      */
-    function setSubjectWithTemplate($subjectTemplate)
+    function setSubjectWithTemplate($subjectTemplate, $emailPrefix)
     {
         $htmlOutput = $this->setContent($this->getFilepath($subjectTemplate, 'subject'));
-        $this->setSubject($htmlOutput);
+        $this->setSubject($htmlOutput, $emailPrefix);
     }
 
     /**
@@ -528,7 +527,7 @@ class Email
      * @param $loggedInUser
      * @throws Exception
      */
-    function attachApproversAndEmail($recordID, $emailTemplateID, $loggedInUser) {
+    function attachApproversAndEmail($recordID, $emailTemplateID, $loggedInUser, $emailPrefix) {
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
@@ -555,7 +554,7 @@ class Email
             ));
 
             if ($emailTemplateID < 2)
-                $this->setTemplateByID($emailTemplateID);
+                $this->setTemplateByID($emailTemplateID, $emailPrefix);
 
             $dir = new VAMC_Directory;
 
@@ -673,7 +672,7 @@ class Email
                 "siteRoot" => $this->siteRoot
             ));
 
-            $this->setTemplateByID($emailTemplateID);
+            $this->setTemplateByID($emailTemplateID, $emailPrefix);
 
             $dir = new VAMC_Directory;
 

@@ -15,7 +15,7 @@
 */
 error_reporting(E_ERROR);
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -101,10 +101,9 @@ switch ($action) {
 
            $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-           $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('timeZone', $settings['timeZone']);
-           $t_form->assign('heading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('timeZone', $oc_settings['timeZone']);
+           $t_form->assign('heading', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
+           $t_form->assign('subheading', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
 
            $tagObj = new Orgchart\Tag($db, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
@@ -133,9 +132,8 @@ switch ($action) {
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-           $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', \Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', \Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('heading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
+           $t_form->assign('subheading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
 
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -251,10 +249,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
 
 if (!isset($_GET['iframe']))
 {

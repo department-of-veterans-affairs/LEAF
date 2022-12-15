@@ -17,11 +17,14 @@ class FormWorkflowController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    private $emailPrefix;
+
+    public function __construct($db, $login, $emailPrefix)
     {
         $this->db = $db;
         $this->formWorkflow = new FormWorkflow($db, $login, 0);
         $this->login = $login;
+        $this->emailPrefix = $emailPrefix;
     }
 
     public function get($act)
@@ -64,15 +67,16 @@ class FormWorkflowController extends RESTfulResponse
     {
         $formWorkflow = $this->formWorkflow;
         $login = $this->login;
+        $emailPrefix = $this->emailPrefix;
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('formWorkflow', function ($args) {
         });
 
-        $this->index['POST']->register('formWorkflow/[digit]/apply', function ($args) use ($formWorkflow) {
+        $this->index['POST']->register('formWorkflow/[digit]/apply', function ($args) use ($formWorkflow, $emailPrefix) {
             $formWorkflow->initRecordID($args[0]);
 
-            return $formWorkflow->handleAction($_POST['dependencyID'], \Leaf\XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
+            return $formWorkflow->handleAction($_POST['dependencyID'], \Leaf\XSSHelpers::xscrub($_POST['actionType']), $_POST['comment'], $emailPrefix);
         });
 
         $this->index['POST']->register('formWorkflow/[digit]/step', function ($args) use ($formWorkflow) {

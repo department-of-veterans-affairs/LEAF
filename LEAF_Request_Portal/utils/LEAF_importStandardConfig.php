@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', 0); // Set to 1 to display errors
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $debug = false;
 

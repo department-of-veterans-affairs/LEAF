@@ -15,10 +15,13 @@ class FormController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    private $emailPrefix;
+
+    public function __construct($db, $login, $emailPrefix)
     {
         $this->form = new Form($db, $login);
         $this->login = $login;
+        $this->emailPrefix = $emailPrefix;
     }
 
     public function get($act)
@@ -209,6 +212,7 @@ class FormController extends RESTfulResponse
     {
         $form = $this->form;
         $login = $this->login;
+        $emailPrefix = $this->emailPrefix;
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('form', function ($args) {
@@ -223,8 +227,8 @@ class FormController extends RESTfulResponse
             return $form->doModify($args[0]);
         });
 
-        $this->index['POST']->register('form/[digit]/submit', function ($args) use ($form) {
-            return $form->doSubmit($args[0]);
+        $this->index['POST']->register('form/[digit]/submit', function ($args) use ($form, $emailPrefix) {
+            return $form->doSubmit($args[0], $emailPrefix);
         });
 
         $this->index['POST']->register('form/[digit]/title', function ($args) use ($form) {
@@ -255,8 +259,8 @@ class FormController extends RESTfulResponse
             return $form->permanentlyDeleteRecord((int)$args[0]);
         });
 
-        $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form) {
-            return $form->sendReminderEmail((int)$args[0], (int)$args[1]);
+        $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form, $emailPrefix) {
+            return $form->sendReminderEmail((int)$args[0], (int)$args[1], $emailPrefix);
         });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)

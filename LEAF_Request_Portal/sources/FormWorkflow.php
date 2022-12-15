@@ -400,7 +400,7 @@ class FormWorkflow
      * @param string $comment
      * @return array {status(int), errors[string]}
      */
-    public function handleAction($dependencyID, $actionType, $comment)
+    public function handleAction($dependencyID, $actionType, $comment, $emailPrefix)
     {
         if (!is_numeric($dependencyID))
         {
@@ -597,7 +597,7 @@ class FormWorkflow
                 // Trigger events if the next step is the same as the original step (eg: same-step loop)
                 if ($actionable['stepID'] == $res2[0]['nextStepID'])
                 {
-                    $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+                    $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment, $emailPrefix);
                     if (count($status['errors']) > 0)
                     {
                         $errors = array_merge($errors, $status['errors']);
@@ -702,7 +702,7 @@ class FormWorkflow
                     }
 
                     // Handle events if all dependencies in the step have been met
-                    $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment);
+                    $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment, $emailPrefix);
                     if (count($status['errors']) > 0)
                     {
                         $errors = array_merge($errors, $status['errors']);
@@ -767,7 +767,7 @@ class FormWorkflow
      * @return array {status(int), errors[]}
      * @throws Exception
      */
-    public function handleEvents($workflowID, $stepID, $actionType, $comment)
+    public function handleEvents($workflowID, $stepID, $actionType, $comment, $emailPrefix)
     {
         $errors = array();
 
@@ -807,7 +807,7 @@ class FormWorkflow
                 "comment" => $comment,
                 "siteRoot" => $this->siteRoot
             ));
-            $email->setTemplateByID(Email::SEND_BACK);
+            $email->setTemplateByID(Email::SEND_BACK, $emailPrefix);
 
             $dir = new VAMC_Directory;
 
@@ -872,7 +872,7 @@ class FormWorkflow
                     $author = $dir->lookupLogin($this->login->getUserID());
                     $email->setSender($author[0]['Email']);
 
-                    $email->attachApproversAndEmail($this->recordID, Email::NOTIFY_NEXT, $this->login);
+                    $email->attachApproversAndEmail($this->recordID, Email::NOTIFY_NEXT, $this->login, $emailPrefix);
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
@@ -896,7 +896,7 @@ class FormWorkflow
                         "comment" => $comment,
                         "siteRoot" => $this->siteRoot
                     ));
-                    $email->setTemplateByID(Email::NOTIFY_COMPLETE);
+                    $email->setTemplateByID(Email::NOTIFY_COMPLETE, $emailPrefix);
 
                     $dir = new VAMC_Directory;
 
@@ -945,7 +945,7 @@ class FormWorkflow
                     ));
 
                     $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
-                    $email->setTemplateByID($emailTemplateID);
+                    $email->setTemplateByID($emailTemplateID, $emailPrefix);
 
                     $dir = new VAMC_Directory;
 
@@ -977,7 +977,7 @@ class FormWorkflow
                     }
 
                     if ($eventData->NotifyNext === 'true')
-                        $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
+                        $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login, $emailPrefix);
                     else
                         $email->sendMail();
 

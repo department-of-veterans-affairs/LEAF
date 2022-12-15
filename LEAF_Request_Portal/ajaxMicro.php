@@ -11,7 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 

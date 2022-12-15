@@ -11,7 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 function customTemplate($tpl)
 {
@@ -27,9 +27,7 @@ if ($login)
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
+if (isset($settings['timeZone'])) {
     date_default_timezone_set($settings['timeZone']);
 }
 $main = new Smarty;
@@ -72,8 +70,8 @@ switch ($action) {
                 $t_form->assign('recorder', Leaf\XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
-                $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
-                $t_form->assign('orgchartImportTag', Portal\Config::$orgchartImportTags[0]);
+                $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
@@ -103,7 +101,7 @@ switch ($action) {
                 $t_form->assign('recorder', Leaf\XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
-                $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+                $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -180,7 +178,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if ($parallelProcessing)
@@ -198,7 +196,7 @@ switch ($action) {
         $recordID = (int)$_GET['recordID'];
         if (is_numeric($recordID) && $form->getProgress($recordID) >= 100)
         {
-            $status = $form->doSubmit($recordID);
+            $status = $form->doSubmit($recordID, $settings['emailPrefix']);
             if ($status['status'] == 1)
             {
                 echo $recordID . 'submitOK';
@@ -390,7 +388,7 @@ switch ($action) {
             $t_form->assign('date', $recordInfo['submitted']);
             $t_form->assign('categoryText', Leaf\XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
-            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {

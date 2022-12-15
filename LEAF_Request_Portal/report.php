@@ -11,7 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -51,13 +51,6 @@ $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
 $main->assign('useUI', false);
-
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
-foreach (array_keys($settings) as $key)
-{
-    $settings[$key] = Leaf\XSSHelpers::sanitizeHTMLRich($settings[$key]);
-}
 
 switch ($action) {
     case 'showServiceFTEstatus':
@@ -114,10 +107,10 @@ switch ($action) {
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
             $t_form->assign('currUserActualName', Leaf\XSSHelpers::xscrub($login->getName()));
-            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
-            $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+            $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';
@@ -134,15 +127,15 @@ $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure'
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
 $main->assign('revision', $settings['version']);
 
 if (!isset($_GET['iframe']))

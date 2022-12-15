@@ -1,6 +1,6 @@
 <?php
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 function customTemplate(string $tpl = "view_about.tpl"): string
 {

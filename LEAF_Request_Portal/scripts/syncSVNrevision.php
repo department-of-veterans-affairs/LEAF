@@ -5,7 +5,7 @@
 
 $version = 'PUBLIC';
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $vars = array(':version' => $version);
 $res = $db->prepared_query("UPDATE settings SET data=:version WHERE setting='version'", $vars);

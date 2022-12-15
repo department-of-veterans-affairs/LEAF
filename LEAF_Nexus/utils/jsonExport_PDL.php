@@ -5,7 +5,7 @@
 
 set_time_limit(240);
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $oc_login->setBaseDir('../');
 $oc_login->loginUser();

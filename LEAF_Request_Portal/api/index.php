@@ -10,11 +10,12 @@
 
 error_reporting(E_ERROR);
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
 
 $p_db = $db;
+$emailPrefix = $settings['emailPrefix'];
 
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
@@ -84,8 +85,8 @@ if ($login->checkGroup(1))
     });
 }
 
-$controllerMap->register('form', function () use ($p_db, $login, $action) {
-    $formController = new Portal\FormController($p_db, $login);
+$controllerMap->register('form', function () use ($p_db, $login, $action, $emailPrefix) {
+    $formController = new Portal\FormController($p_db, $login, $emailPrefix);
     $formController->handler($action);
 });
 
@@ -94,8 +95,8 @@ $controllerMap->register('formStack', function () use ($p_db, $login, $action) {
     $formStackController->handler($action);
 });
 
-$controllerMap->register('formWorkflow', function () use ($p_db, $login, $action) {
-    $formWorkflowController = new Portal\FormWorkflowController($p_db, $login);
+$controllerMap->register('formWorkflow', function () use ($p_db, $login, $action, $emailPrefix) {
+    $formWorkflowController = new Portal\FormWorkflowController($p_db, $login, $emailPrefix);
     $formWorkflowController->handler($action);
 });
 

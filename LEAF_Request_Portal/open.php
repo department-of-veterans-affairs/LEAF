@@ -5,7 +5,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 $report = isset($_GET['report']) ? Leaf\XSSHelpers::xscrub($_GET['report']) : '';
 if($report != '') {

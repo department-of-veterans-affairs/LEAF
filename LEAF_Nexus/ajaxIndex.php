@@ -13,12 +13,10 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
-$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
+if (isset($oc_settings['timeZone'])) {
+    date_default_timezone_set(Leaf\XSSHelpers::xscrub($oc_settings['timeZone']));
 }
 
 
@@ -133,12 +131,9 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
-            $settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            if(isset($settings['timeZone']))
-            {
-                $tz = $settings['timeZone'];
-            }
-            else{
+            if(isset($oc_settings['timeZone'])) {
+                $tz = $oc_settings['timeZone'];
+            } else {
                 $tz = 'America/New_York';
             }
         }

@@ -11,13 +11,12 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 $oc_login->loginUser();
-if (!$oc_login->isLogin() || !$oc_login->isInDB())
-{
+if (!$oc_login->isLogin() || !$oc_login->isInDB()) {
     echo 'Your login is not recognized. This system is locked to the following groups:<br /><pre>';
-    print_r($oc_config->adPath);
+    echo $oc_settings['adPath'];
     echo '</pre>';
     exit;
 }
@@ -175,8 +174,8 @@ $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
-$main->assign('title', $config->title);
-$main->assign('city', $config->city);
+$main->assign('title', $oc_settings['heading']);
+$main->assign('city', $oc_settings['subheading']);
 
 $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
 $main->assign('revision', Leaf\XSSHelpers::xscrub($rev[0]['data']));

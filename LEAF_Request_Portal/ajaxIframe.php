@@ -11,13 +11,13 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
 {
     echo 'Your login is not recognized. This system is locked to the following groups:<br /><pre>';
-    print_r($config->adPath);
+    print_r($settings['adPath']);
     echo '</pre>';
     exit;
 }
@@ -57,9 +57,7 @@ $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('emergency', '');
 $main->assign('useUI', false);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
+if (isset($settings['timeZone'])) {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
 }
 
@@ -101,7 +99,7 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));
@@ -155,7 +153,7 @@ switch ($action) {
                 break;
         }
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : Leaf\XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = !empty($settings['requestLabel']) ? Leaf\XSSHelpers::sanitizeHTML($settings['requestLabel']) : 'Request';
         $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
 
         break;
@@ -186,8 +184,8 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 $main->display('main_iframe.tpl');

@@ -9,7 +9,7 @@
 
 */
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {

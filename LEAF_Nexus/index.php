@@ -11,7 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -147,7 +147,7 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('is_admin', $oc_login->getMembership()['groupID'][1]);
 
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
 
             if (count($summary['employee']) > 0)
             {
@@ -194,7 +194,7 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
 
             if (count($summary) > 0)
             {
@@ -552,10 +552,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
 
 if (!isset($_GET['iframe']))
 {

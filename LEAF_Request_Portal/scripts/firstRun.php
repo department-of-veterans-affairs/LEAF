@@ -3,19 +3,19 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM users WHERE groupID=1', $vars);
 
 if (count($res) == 0)
 {
-    if (strlen($config->adminLogonName) > 0)
+    if (strlen(DATABASE_DB_ADMIN) > 0)
     {
-        $vars = array(':name' => $config->adminLogonName);
+        $vars = array(':name' => DATABASE_DB_ADMIN);
         $res = $db->prepared_query('INSERT INTO users (userID, groupID)
                                         VALUES (:name, 1)', $vars);
-        echo 'Administrator added: ' . $config->adminLogonName;
+        echo 'Administrator added: ' . DATABASE_DB_ADMIN;
     }
     else
     {

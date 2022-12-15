@@ -5,7 +5,7 @@
 
 error_reporting(E_ERROR);
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $oc_db = $oc_db;
 $oc_login->setBaseDir('../');

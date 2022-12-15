@@ -10,9 +10,11 @@
 header('Access-Control-Allow-Origin: *');
 error_reporting(E_ERROR);
 
-include '../../../libs/loaders/Leaf_autoloader.php';
+require_once '../../../libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
+$db = $db;
+$emailPrefix = $settings['emailPrefix'];
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 $keyIndex = strpos($action, '/');
@@ -30,8 +32,8 @@ $login->loginUser();
 
 $controllerMap = new Portal\ControllerMap();
 
-$controllerMap->register('form', function () use ($db, $login, $action) {
-    $formController = new Portal\FormController($db, $login);
+$controllerMap->register('form', function () use ($db, $login, $action, $emailPrefix) {
+    $formController = new Portal\FormController($db, $login, $emailPrefix);
     $formController->handler($action);
 });
 

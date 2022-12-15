@@ -15,13 +15,7 @@
 */
 error_reporting(E_ERROR);
 
-include '../../libs/loaders/Leaf_autoloader.php';
-
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set($settings['timeZone']);
-}
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
 
@@ -86,7 +80,7 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
 
             $t_form->assign('form', $form->getFormByCategory($_GET['categoryID']));
             $t_form->display('print_form_ajax.tpl');
@@ -138,12 +132,9 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
-            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            if(isset($settings['timeZone']))
-            {
+            if(isset($settings['timeZone'])) {
                 $tz = $settings['timeZone'];
-            }
-            else{
+            } else {
                 $tz = 'America/New_York';
             }
         }
@@ -219,13 +210,10 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
         $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
 
-        if($tz == null){
-            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            if(isset($settings['timeZone']))
-            {
+        if ($tz == null) {
+            if (isset($settings['timeZone'])) {
                 $tz = $settings['timeZone'];
-            }
-            else{
+            } else {
                 $tz = 'America/New_York';
             }
         }

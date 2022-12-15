@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM relation_group_employee WHERE groupID=1', $vars);
@@ -12,7 +12,7 @@ $res2 = $db->prepared_query('SELECT * FROM employee WHERE empUID=1', $vars);
 if (count($res) == 0
     && count($res2) == 0)
 {
-    $user = $config->adminLogonName;
+    $user = DATABASE_DB_ADMIN;
 
     if (strlen($user) > 0)
     {

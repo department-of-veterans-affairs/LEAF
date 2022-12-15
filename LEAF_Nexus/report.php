@@ -11,7 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../libs/loaders/Leaf_autoloader.php';
+require_once '../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -106,10 +106,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', Leaf\XSSHelpers::scrubNewLinesFromURL($settings['version']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+$main->assign('revision', Leaf\XSSHelpers::scrubNewLinesFromURL($oc_settings['version']));
 
 if (!isset($_GET['iframe']))
 {

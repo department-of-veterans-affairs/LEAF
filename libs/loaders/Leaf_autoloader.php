@@ -39,6 +39,8 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 
     $site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
+
+
     $working_dir = str_replace('/libs/loaders/Leaf_autoloader.php', '', __FILE__);
 
     $vars = array(':site_path' => $site_paths['orgchart_path']);
@@ -69,6 +71,34 @@ $config = new Portal\Config();
 $oc_config = new Orgchart\Config();
 $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
+
+$vars = [];
+$sql = 'SELECT setting, `data`
+        FROM settings';
+
+$all_settings = $db->prepared_query($sql, $vars);
+$settings = [];
+
+foreach ($all_settings as $setting) {
+    $settings[$setting['setting']] = json_decode($setting['data'], true) ?: Leaf\XSSHelpers::sanitizeHTMLRich($setting['data']);
+}
+
+if (isset($settings['timeZone'])) {
+    date_default_timezone_set($settings['timeZone']);
+}
+
+$sql = 'SELECT setting, `data`
+        FROM settings';
+
+$all_settings = $oc_db->prepared_query($sql, $vars);
+$oc_settings = [];
+
+foreach ($all_settings as $setting) {
+    $oc_settings[$setting['setting']] = json_decode($setting['data'], true) ?: Leaf\XSSHelpers::sanitizeHTMLRich($setting['data']);
+}
+
+error_log(print_r($settings, true));
+
 
 unset($db_config);
 

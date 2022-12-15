@@ -11,7 +11,7 @@
 
 error_reporting(E_ERROR);
 
-include '../../libs/loaders/Leaf_autoloader.php';
+require_once '../../libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -80,8 +80,6 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
 }
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
 $t_login->assign('name', $login->getName());
@@ -102,22 +100,21 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . Portal\Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
-                                           '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
+        $main->assign('javascripts', array('../' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
+                                           '../' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
         ));
 
-        $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
 
-        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
-        $t_form->assign('orgchartImportTag', Portal\Config::$orgchartImportTags[0]);
+        $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
-                                           '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
+                                           '../' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
@@ -131,14 +128,14 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . Portal\Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
-                '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
+                '../' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl')));
 
@@ -153,15 +150,15 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
+                                           '../' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                            '../../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
-        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
-        $t_form->assign('orgchartImportTags', Portal\Config::$orgchartImportTags);
+        $t_form->assign('orgchartPath', '../' . $site_paths['orgchart_path']);
+        $t_form->assign('orgchartImportTags', $site_paths['importTags']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -432,7 +429,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
 
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
@@ -459,7 +456,7 @@ switch ($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 
@@ -487,7 +484,7 @@ switch ($action) {
 $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
@@ -495,8 +492,8 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
