@@ -352,7 +352,7 @@ abstract class Data
      * @param int $UID Unique ID of the current table (aka "record ID", empUID/groupID/positionID)
      * @throws Exception
      */
-    public function modify($UID)
+    public function modify($UID, $upload_dir)
     {
         if (!is_numeric($UID))
         {
@@ -389,11 +389,11 @@ abstract class Data
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
                         // $sanitizedFileName = \Leaf\XSSHelpers::scrubFilename($sanitizedFileName);
-                        if (!is_dir(Config::$uploadDir))
+                        if (!is_dir($upload_dir))
                         {
-                            mkdir(Config::$uploadDir, 0755, true);
+                            mkdir($upload_dir, 0755, true);
                         }
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], Config::$uploadDir . $sanitizedFileName);
+                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $upload_dir . $sanitizedFileName);
                     }
                     else
                     {
@@ -627,7 +627,7 @@ abstract class Data
      * @param int $indicatorID
      * @return int 1 for success, 0 for fail
      */
-    public function deleteAttachment($categoryID, $UID, $indicatorID, $file)
+    public function deleteAttachment($categoryID, $UID, $indicatorID, $file, $uploadDir)
     {
         if (!is_numeric($categoryID) || !is_numeric($UID) || !is_numeric($indicatorID) || $file == '')
         {
@@ -648,8 +648,6 @@ abstract class Data
         $value = $data[$indicatorID]['data'];
         $inputFilename = html_entity_decode($this->sanitizeInput($file));
         $file = $this->getFileHash($categoryID, $UID, $indicatorID, $inputFilename);
-
-        $uploadDir = Config::$uploadDir;
 
         if (!is_array($value))
         {

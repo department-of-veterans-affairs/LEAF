@@ -107,7 +107,7 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::scrubNewLinesFromURL($oc_settings['version']));
 
 if (!isset($_GET['iframe']))

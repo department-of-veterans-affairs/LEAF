@@ -15,13 +15,19 @@ class SystemController extends RESTfulResponse
 
     private $db;
 
+    private $oc_db;
+
     private $login;
 
-    public function __construct($db, $login)
+    private $oc_login;
+
+    public function __construct($db, $oc_db, $login, $oc_login, $vamc)
     {
         $this->db = $db;
+        $this->oc_db = $oc_db;
         $this->login = $login;
-        $this->system = new System($db, $login);
+        $this->oc_login = $oc_login;
+        $this->system = new System($db, $login, $vamc);
     }
 
     public function get($act)
@@ -29,6 +35,10 @@ class SystemController extends RESTfulResponse
         $db = $this->db;
         $login = $this->login;
         $system = $this->system;
+        $group = new \Orgchart\Group($this->oc_db, $this->oc_login);
+        $position = new \Orgchart\Position($this->oc_db, $this->oc_login);
+        $employee = new \Orgchart\Employee($this->oc_db, $this->oc_login);
+        $tag = new \Orgchart\Tag($this->oc_db, $this->oc_login);
 
         $this->index['GET'] = new ControllerMap();
         $cm = $this->index['GET'];
@@ -40,16 +50,16 @@ class SystemController extends RESTfulResponse
             return $system->getDatabaseVersion();
         });
 
-        $this->index['GET']->register('system/updateService/[digit]', function ($args) use ($system) {
-            return $system->updateService($args[0]);
+        $this->index['GET']->register('system/updateService/[digit]', function ($args) use ($system, $group, $position, $employee, $tag) {
+            return $system->updateService($args[0], $group, $position, $employee, $tag);
         });
 
-        $this->index['GET']->register('system/updateGroup/[digit]', function ($args) use ($system) {
-            return $system->updateGroup($args[0]);
+        $this->index['GET']->register('system/updateGroup/[digit]', function ($args) use ($system, $group, $position, $employee, $tag) {
+            return $system->updateGroup($args[0], $group, $position, $employee, $tag);
         });
 
-        $this->index['GET']->register('system/importGroup/[digit]', function ($args) use ($system) {
-            return $system->importGroup($args[0]);
+        $this->index['GET']->register('system/importGroup/[digit]', function ($args) use ($system, $group, $position, $employee, $tag) {
+            return $system->importGroup($args[0], $group, $position, $employee, $tag);
         });
 
         $this->index['GET']->register('system/services', function ($args) use ($system) {

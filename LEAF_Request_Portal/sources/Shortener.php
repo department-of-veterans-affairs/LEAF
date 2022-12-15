@@ -54,7 +54,7 @@ class Shortener
         return $res - $this->offset;
     }
 
-    public function getFormQuery($shortUID) {
+    public function getFormQuery($shortUID, $form) {
         $shortID = $this->decodeShortUID($shortUID);
         $vars = array(':shortID' => $shortID);
         $resReport = $this->db->prepared_query('SELECT data FROM short_links
@@ -63,7 +63,6 @@ class Shortener
             return '';
         }
 
-        $form = new Form($this->db, $this->login);
         return $form->query($resReport[0]['data']);
     }
 

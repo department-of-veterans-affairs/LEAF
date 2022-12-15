@@ -17,6 +17,8 @@ class NotesController extends RESTfulResponse
 
     private $login;
 
+    private $form;
+
     /**
      *
      * @var int
@@ -37,11 +39,12 @@ class NotesController extends RESTfulResponse
      *
      * Created at: 10/7/2022, 9:45:22 AM (America/New_York)
      */
-    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
+    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger, Form $form)
     {
         $this->db = $db;
         $this->login = $login;
         $this->note = new Note($db, $login, $dataActionLogger);
+        $this->form = $form;
     }
 
     public function get($act)
@@ -49,8 +52,7 @@ class NotesController extends RESTfulResponse
         if (is_numeric($act['args'][0])) {
             $query[$act['args']['recordID']]['recordID'] = $act['args'][0];
 
-            $form = new Form($this->db, $this->login);
-            $resRead = $form->checkReadAccess($query);
+            $resRead = $this->form->checkReadAccess($query);
 
             if (isset($resRead[$act['args'][0]])) {
                 $note = $this->note;
@@ -77,8 +79,7 @@ class NotesController extends RESTfulResponse
         if (is_numeric($act['args'][0])) {
             $query[$act['args'][0]]['recordID'] = $act['args'][0];
 
-            $form = new Form($this->db, $this->login);
-            $resRead = $form->checkReadAccess($query);
+            $resRead = $this->form->checkReadAccess($query);
 
             if (isset($resRead[$act['args'][0]])) {
                 $note = $this->note;

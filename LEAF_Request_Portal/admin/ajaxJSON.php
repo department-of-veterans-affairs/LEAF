@@ -24,15 +24,20 @@ if (!$login->checkGroup(1))
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
+$dal = new Leaf\DataActionLogger($db, $login);
+$employee = new Orgchart\Employee($oc_db, $oc_login);
+$group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($employee, $group);
+
 switch ($action) {
     case 'mod_groups_getMembers':
-        $group = new Portal\Group($db, $login);
+        $group = new Portal\Group($db, $login, $dal, $employee, $vamc);
 
         echo json_encode($group->getMembers($_GET['groupID']));
 
         break;
     case 'directory_lookup':
-        $dir = new Portal\VAMC_Directory();
+        $dir = new Portal\VAMC_Directory($employee, $group);
         $results = $dir->search($_GET['query']);
 
         echo json_encode($results);

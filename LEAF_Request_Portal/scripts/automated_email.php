@@ -2,6 +2,13 @@
 
 require_once '../libs/loaders/Leaf_autoloader.php';
 
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
+
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
 $siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
@@ -64,7 +71,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     foreach ($getRecordRes as $record) {
 
         // send the email
-        $email = new Portal\Email();
+        $email = new Portal\Email($db, $oc_db, $settings, $form, $vamc);
 
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];

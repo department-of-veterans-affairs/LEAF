@@ -367,7 +367,6 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-//   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
@@ -387,7 +386,6 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('importTags', $config::$orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
@@ -493,7 +491,7 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))

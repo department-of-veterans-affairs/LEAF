@@ -66,9 +66,6 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
     }
 }
 
-$db_config = new Portal\DbConfig();
-$config = new Portal\Config();
-$oc_config = new Orgchart\Config();
 $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
@@ -81,6 +78,13 @@ $settings = [];
 
 foreach ($all_settings as $setting) {
     $settings[$setting['setting']] = json_decode($setting['data'], true) ?: Leaf\XSSHelpers::sanitizeHTMLRich($setting['data']);
+}
+
+//error_log(print_r($settings, true));
+if (is_array($settings) && !empty($settings['emailCC'])) {
+    foreach ($settings['emailCC'] as $recipient) {
+        error_log('looping');
+    }
 }
 
 if (isset($settings['timeZone'])) {
@@ -96,9 +100,6 @@ $oc_settings = [];
 foreach ($all_settings as $setting) {
     $oc_settings[$setting['setting']] = json_decode($setting['data'], true) ?: Leaf\XSSHelpers::sanitizeHTMLRich($setting['data']);
 }
-
-error_log(print_r($settings, true));
-
 
 unset($db_config);
 

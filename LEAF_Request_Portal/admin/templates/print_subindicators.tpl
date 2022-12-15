@@ -31,7 +31,7 @@
             <span onkeydown="onKeyPressClick(event)" class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
 
             </div>
-            <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
+            <span class="printsubHeading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
             <!--{if $indicator.is_sensitive == 1}-->
                 &nbsp;<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
             <!--{/if}-->
@@ -53,11 +53,11 @@
       <div class="printsubblock" id="subIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
         <div class="printsublabel">
             <!--{if $indicator.required == 1 && $indicator.isEmpty == true}-->
-                <div class="printsubheading_missing">
+                <div class="printsubHeading_missing">
             <!--{else}-->
-                <div class="printsubheading">
+                <div class="printsubHeading">
             <!--{/if}-->
-                <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->">
+                <span class="printsubHeading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->">
                     <!--{if $indicator.is_sensitive == 1}-->
                         &nbsp;<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
                     <!--{/if}-->

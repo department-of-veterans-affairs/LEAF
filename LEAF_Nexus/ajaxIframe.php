@@ -175,7 +175,7 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 $main->assign('title', $oc_settings['heading']);
-$main->assign('city', $oc_settings['subheading']);
+$main->assign('city', $oc_settings['subHeading']);
 
 $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
 $main->assign('revision', Leaf\XSSHelpers::xscrub($rev[0]['data']));

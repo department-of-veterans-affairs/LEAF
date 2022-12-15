@@ -30,18 +30,14 @@ class VAMC_Directory_maintenance_AD
     // Connect to the database
     public function __construct()
     {
-        $currDir = dirname(__FILE__);
-        $config = new Orgchart\Config();
-
         try
         {
             $this->db = new PDO(
-                "mysql:host={$config->dbHost};dbname={$config->dbName}",
-                            $config->dbUser,
-                $config->dbPass,
+                "mysql:host={DIRECTORY_HOST};dbname={DIRECTORY_DB}",
+                            DIRECTORY_USER,
+                DIRECTORY_PASS,
                 array(PDO::ATTR_PERSISTENT => true)
             );
-            unset($config);
         }
         catch (PDOException $e)
         {

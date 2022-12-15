@@ -88,7 +88,13 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
 
-        $form = new Portal\Form($db, $login);
+        $oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+        $oc_position = new Orgchart\Position($oc_db, $oc_login);
+        $oc_group = new Orgchart\Group($oc_db, $oc_login);
+        $vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+        $form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
+
         $t_menu->assign('recordID', (int)$_GET['recordID']);
         $t_menu->assign('action', $action);
         $o_login = $t_login->fetch('login.tpl');
@@ -185,7 +191,7 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 $main->display('main_iframe.tpl');

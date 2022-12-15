@@ -13,6 +13,11 @@ error_reporting(E_ERROR);
 require_once '../libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
+$db;
+$oc_db;
+$settings;
+
+
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 $keyIndex = strpos($action, '/');
@@ -30,15 +35,13 @@ $login->loginUser();
 
 $controllerMap = new Portal\ControllerMap();
 
-$controllerMap->register('formEditor', function () use ($db, $login, $action) {
-    require_once 'controllers/FormEditorController.php';
-    $controller = new Portal\FormEditorController($db, $login);
+$controllerMap->register('formEditor', function () use ($db, $login, $form, $action) {
+    $controller = new Portal\FormEditorController($db, $login, $form);
     $controller->handler($action);
 });
 
-$controllerMap->register('form', function () use ($db, $login, $action) {
-    require 'controllers/FormController.php';
-    $formController = new Portal\FormController($db, $login);
+$controllerMap->register('form', function () use ($db, $oc_db, $login, $settings, $form, $vamc, $action) {
+    $formController = new Portal\FormController($db, $oc_db, $login, $settings, $form, $vamc);
     $formController->handler($action);
 });
 

@@ -49,12 +49,18 @@ if (isset($settings['timeZone'])) {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
 }
 
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
+
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
 
-        $form = new Portal\Form($db, $login);
         $stack = new Portal\FormStack($db, $login);
 
         $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
@@ -81,7 +87,7 @@ switch ($action) {
         $t_form->assign('categories', $categoryArray);
         $t_form->assign('recorder', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
         $t_form->assign('services', $servicesArray);
-        $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($setting['subheading']));
+        $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($setting['subHeading']));
         $t_form->assign('phone', Leaf\XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
         $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
         $t_form->assign('empUID', (int)$login->getEmpUID());
@@ -100,7 +106,6 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
-        $form = new Portal\Form($db, $login);
         // prevent view if form is submitted
         // defines who can edit the form
         if ($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1))
@@ -169,7 +174,6 @@ switch ($action) {
 
         $recordIDToPrint = (int)$_GET['recordID'];
 
-        $form = new Portal\Form($db, $login);
         $t_menu->assign('recordID', $recordIDToPrint);
         $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
@@ -209,7 +213,7 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        $formWorkflow = new Portal\FormWorkflow($db, $login, $recordIDToPrint);
+        $formWorkflow = new Portal\FormWorkflow($db, $login, $recordIDToPrint, $form, $vamc);
         $t_form->assign('workflow', $formWorkflow->isActive());
 
         switch ($action) {
@@ -253,9 +257,9 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $inbox = new Portal\Inbox($db, $login);
+        $inbox = new Portal\Inbox($db, $login, $form);
 
-        $inboxItems = $inbox->getInbox();
+        $inboxItems = $inbox->getInbox($vamc);
 
         $errors = [];
         if(array_key_exists("errors", $inboxItems))
@@ -291,7 +295,6 @@ switch ($action) {
 
         break;
     case 'status':
-        $form = new Portal\Form($db, $login);
         $view = new Portal\View($db, $login);
 
         $recordIDForStatus = (int)$_GET['recordID'];
@@ -311,7 +314,7 @@ switch ($action) {
         $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('date', Leaf\XSSHelpers::sanitizeHTML($recordInfo['date']));
         $t_form->assign('recordID', $recordIDForStatus);
-        $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus));
+        $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus, $form, $vamc));
         $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));
 
         $main->assign('body', $t_form->fetch('view_status.tpl'));
@@ -357,7 +360,6 @@ switch ($action) {
 
         break;
     case 'tag_cloud':
-        $form = new Portal\Form($db, $login);
         $tags = $form->getUniqueTags();
         $count = 0;
         $tempTags = array();
@@ -379,7 +381,6 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -426,13 +427,12 @@ switch ($action) {
         break;
 
     case 'sitemap':
-        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('sitemap', $settings['sitemap_json']);
-        $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+        $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
         break;
@@ -488,7 +488,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
-        $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+        $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
         $main->assign('logout', true);
         $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
         $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
@@ -518,7 +518,7 @@ switch ($action) {
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
-        $inbox = new Portal\Inbox($db, $login);
+        $inbox = new Portal\Inbox($db, $login, $form);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
@@ -545,7 +545,7 @@ $main->assign('menu', $o_menu);
 $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
 
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
 
 if (!isset($_GET['iframe'])) {

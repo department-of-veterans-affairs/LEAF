@@ -33,9 +33,15 @@ if (isset($settings['timeZone'])) {
 $main = new Smarty;
 $main->assign('emergency', '');
 
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
+
 switch ($action) {
     case 'newform':
-        $form = new Portal\Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
         {   session_write_close();
@@ -49,7 +55,6 @@ switch ($action) {
 
         break;
     case 'getindicator':
-        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['indicatorID']))
         {
             $t_form = new Smarty;
@@ -83,7 +88,6 @@ switch ($action) {
 
         break;
     case 'getprintindicator':
-        $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = Leaf\XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
@@ -108,7 +112,6 @@ switch ($action) {
 
         break;
     case 'getindicatorlog':
-        $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = Leaf\XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
@@ -126,7 +129,6 @@ switch ($action) {
 
         break;
     case 'domodify':
-        $form = new Portal\Form($db, $login);
         echo $form->doModify((int)$_POST['recordID']);
 
         break;
@@ -192,11 +194,11 @@ switch ($action) {
 
         break;
     case 'dosubmit': // legacy action
-        $form = new Portal\Form($db, $login);
         $recordID = (int)$_GET['recordID'];
         if (is_numeric($recordID) && $form->getProgress($recordID) >= 100)
         {
-            $status = $form->doSubmit($recordID, $settings['emailPrefix']);
+            $email = new Portal\Email($db, $oc_db, $settings, $form, $vamc);
+            $status = $form->doSubmit($recordID, $settings['emailPrefix'], $email);
             if ($status['status'] == 1)
             {
                 echo $recordID . 'submitOK';
@@ -215,7 +217,6 @@ switch ($action) {
     case 'cancel':
         if (is_numeric($_POST['cancel']))
         {
-            $form = new Portal\Form($db, $login);
             echo $form->deleteRecord((int)$_POST['cancel']);
         }
 
@@ -223,7 +224,6 @@ switch ($action) {
     case 'restore':
         if (is_numeric($_POST['restore']))
         {
-            $form = new Portal\Form($db, $login);
             echo $form->restoreRecord((int)$_POST['restore']);
         }
 
@@ -255,7 +255,6 @@ switch ($action) {
 
         if ($uploadOk)
         {
-            $form = new Portal\Form($db, $login);
             if ($form->doModify($_GET['recordID']))
             {
                 $recordID = (int)$_GET['recordID'];
@@ -327,13 +326,10 @@ switch ($action) {
 
         break;
     case 'deleteattachment':
-        $form = new Portal\Form($db, $login);
-
         echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], Leaf\XSSHelpers::xscrub($_POST['series']), Leaf\XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
-        $form = new Portal\Form($db, $login);
         $view = new Portal\View($db, $login);
 
         $t_form = new Smarty;
@@ -347,7 +343,7 @@ switch ($action) {
         $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('date', $recordInfo['date']);
         $t_form->assign('recordID', (int)$_GET['recordID']);
-        $t_form->assign('agenda', $view->buildViewStatus((int)$_GET['recordID']));
+        $t_form->assign('agenda', $view->buildViewStatus((int)$_GET['recordID'], $form, $vamc));
         $t_form->assign('dependencies', $form->getDependencyStatus($_GET['recordID']));
 
         $t_form->display('view_status.tpl');
@@ -358,7 +354,6 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            $form = new Portal\Form($db, $login);
             $recordIDToPrint = (int)$_GET['recordID'];
 
             $recordInfo = $form->getRecordInfo($recordIDToPrint);
@@ -439,7 +434,6 @@ switch ($action) {
 
         break;
     case 'gettags':
-        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
@@ -453,7 +447,6 @@ switch ($action) {
 
         break;
     case 'getformtags':
-        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
@@ -467,7 +460,6 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -481,7 +473,6 @@ switch ($action) {
 
         break;
     case 'updatetags':
-        $form = new Portal\Form($db, $login);
         $form->parseTags((int)$_POST['recordID'], Leaf\XSSHelpers::xscrub($_POST['taginput']));
 
         break;
@@ -490,7 +481,6 @@ switch ($action) {
         {
             exit();
         }
-        $form = new Portal\Form($db, $login);
         $form->addTag((int)$_GET['recordID'], 'bookmark_' . Leaf\XSSHelpers::xscrub($login->getUserID()));
 
         break;
@@ -499,7 +489,6 @@ switch ($action) {
         {
             exit();
         }
-        $form = new Portal\Form($db, $login);
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . Leaf\XSSHelpers::xscrub($login->getUserID()));
 
         break;

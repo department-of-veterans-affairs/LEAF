@@ -13,6 +13,7 @@
 1. prevent double submits
 2. clean up
 */
+
 error_reporting(E_ERROR);
 
 require_once '../../libs/loaders/Leaf_autoloader.php';
@@ -37,11 +38,17 @@ function checkToken()
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
+$dal = new Leaf\DataActionLogger($db, $login);
+$employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($employee, $oc_group);
+
+$group = new Portal\Group($db, $login, $dal, $employee, $vamc);
+
 switch ($action) {
     case 'add_user_old':
         checkToken();
 
-        $group = new Portal\Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
 
         break;
@@ -50,7 +57,6 @@ switch ($action) {
 
         $deleteList = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
-        $group = new Portal\Group($db, $login);
         foreach ($deleteList as $del)
         {
             $group->removeMember(Leaf\XSSHelpers::xscrub($del['userID']), $del['groupID']);
@@ -60,21 +66,23 @@ switch ($action) {
     case 'add_user':
           checkToken();
 
-           $group = new Portal\Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
 
            break;
     case 'remove_user':
            checkToken();
 
-           $group = new Portal\Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
 
            break;
     case 'printview':
-        if ($login->isLogin())
-        {
-            $form = new Portal\Form($db, $login);
+        if ($login->isLogin()) {
+            $oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+            $oc_position = new Orgchart\Position($oc_db, $oc_login);
+            $oc_group = new Orgchart\Group($oc_db, $oc_login);
+            $vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+            $form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
@@ -111,7 +119,7 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           $system = new Portal\System($db, $login);
+           $system = new Portal\System($db, $login, $vamc);
            $result = $system->newFile();
            if ($result === true)
            {
@@ -150,7 +158,7 @@ switch ($action) {
         switch ($typeName) {
             case 'service':
                 $dataName = "All Services";
-                $type = new Portal\Service($db, $login);
+                $type = new Portal\Service($db, $login, $dal, $employee, $vamc);
                 break;
             case 'form':
                 $dataName = "All Forms";
@@ -158,7 +166,7 @@ switch ($action) {
                 break;
             case 'group':
                 $dataName = "All Groups";
-                $type = new Portal\Group($db, $login);
+                $type = new Portal\Group($db, $login, $dal, $employee, $vamc);
 
                 $orgchartGroup = new Orgchart\Group($oc_db, $login);
                 break;
@@ -227,7 +235,7 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                $type = new Portal\Service($db, $login);
+                $type = new Portal\Service($db, $login, $dal, $employee, $vamc);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
@@ -235,7 +243,7 @@ switch ($action) {
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                $type = new Portal\Group($db, $login);
+                $type = new Portal\Group($db, $login, $dal, $employee, $vamc);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
@@ -243,7 +251,7 @@ switch ($action) {
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
-                $type = new Portal\System($db, $login);
+                $type = new Portal\System($db, $login, $vamc);
                 $itemID = null;
                 $title = 'Primary Admin';
                 $t_form->assign('titleOverride', "Primary Admin History");

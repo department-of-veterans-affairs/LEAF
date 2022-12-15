@@ -13,9 +13,12 @@ class PositionController extends RESTfulResponse
 
     private $position;
 
-    public function __construct($db, $login)
+    private $upload_dir;
+
+    public function __construct($db, $login, $upload_dir)
     {
         $this->position = new Position($db, $login);
+        $this->upload_dir = $upload_dir;
     }
 
     public function get($act)
@@ -87,7 +90,7 @@ class PositionController extends RESTfulResponse
         $this->index['POST']->register('position/[digit]', function ($args) use ($position) {
             try
             {
-                $position->modify($args[0]);
+                $position->modify($args[0], $this->upload_dir);
             }
             catch (Exception $e)
             {

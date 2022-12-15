@@ -15,13 +15,22 @@ class FormController extends RESTfulResponse
 
     private $login;
 
-    private $emailPrefix;
+    private $settings;
 
-    public function __construct($db, $login, $emailPrefix)
+    private $db;
+
+    private $oc_db;
+
+    private $vamc;
+
+    public function __construct($db, $oc_db, $login, $settings, $form, $vamc)
     {
-        $this->form = new Form($db, $login);
+        $this->db = $db;
+        $this->oc_db = $oc_db;
+        $this->form = $form;
         $this->login = $login;
-        $this->emailPrefix = $emailPrefix;
+        $this->settings = $settings;
+        $this->vamc = $vamc;
     }
 
     public function get($act)
@@ -212,7 +221,9 @@ class FormController extends RESTfulResponse
     {
         $form = $this->form;
         $login = $this->login;
-        $emailPrefix = $this->emailPrefix;
+        $emailPrefix = $this->settings['emailPrefix'];
+        $db = $this->db;
+        $oc_db = $this->oc_db;
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('form', function ($args) {
@@ -227,8 +238,9 @@ class FormController extends RESTfulResponse
             return $form->doModify($args[0]);
         });
 
-        $this->index['POST']->register('form/[digit]/submit', function ($args) use ($form, $emailPrefix) {
-            return $form->doSubmit($args[0], $emailPrefix);
+        $this->index['POST']->register('form/[digit]/submit', function ($args) use ($form, $db, $oc_db, $emailPrefix) {
+            $email = new Email($db, $oc_db, $this->settings, $this->form, $this->vamc);
+            return $form->doSubmit($args[0], $emailPrefix, $email);
         });
 
         $this->index['POST']->register('form/[digit]/title', function ($args) use ($form) {
@@ -259,8 +271,9 @@ class FormController extends RESTfulResponse
             return $form->permanentlyDeleteRecord((int)$args[0]);
         });
 
-        $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form, $emailPrefix) {
-            return $form->sendReminderEmail((int)$args[0], (int)$args[1], $emailPrefix);
+        $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form, $emailPrefix, $db, $oc_db) {
+            $email = new Email($db, $oc_db, $this->settings, $this->form, $this->vamc);
+            return $form->sendReminderEmail((int)$args[0], (int)$args[1], $email, $emailPrefix);
         });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)

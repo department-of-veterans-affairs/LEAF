@@ -20,11 +20,17 @@ class Service
 
     private $dataActionLogger;
 
-    public function __construct($db, $login)
+    private $employee;
+
+    private $vamc;
+
+    public function __construct($db, $login, $data_action_logger, $employee, $vamc)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = $data_action_logger;
+        $this->employee = $employee;
+        $this->vamc = $vamc;
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -146,10 +152,6 @@ class Service
 
     public function addMember($groupID, $member)
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
         if (is_numeric($groupID) && $member != '') {
             $sql_vars = array(':userID' => $member,
                     ':serviceID' => $groupID,);
@@ -179,8 +181,8 @@ class Service
             }
 
             // include the backups of employees
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
+            $emp = $this->employee->lookupLogin($member);
+            $backups = $this->employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
                 $sql_vars = array(':userID' => $backup['userName'],
                     ':serviceID' => $groupID,
@@ -233,10 +235,6 @@ class Service
 
     public function removeMember($groupID, $member)
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
         if (is_numeric($groupID) && $member != '') {
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
@@ -276,8 +274,8 @@ class Service
             }
 
             // include the backups of employee
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
+            $emp = $this->employee->lookupLogin($member);
+            $backups = $this->employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
                 $sql_vars = array(':userID' => $backup['userName'],
                     ':serviceID' => $groupID,
@@ -362,10 +360,9 @@ class Service
         $members = array();
         if (count($res) > 0)
         {
-            $dir = new VAMC_Directory();
             foreach ($res as $member)
             {
-                $dirRes = $dir->lookupLogin($member['userID']);
+                $dirRes = $this->vamc->lookupLogin($member['userID']);
 
                 if (isset($dirRes[0]))
                 {
@@ -444,8 +441,7 @@ class Service
      */
     private function getEmployeeDisplay($employeeID)
     {
-        $dir = new VAMC_Directory();
-        $dirRes = $dir->lookupLogin($employeeID);
+        $dirRes = $this->vamc->lookupLogin($employeeID);
 
         if (is_array($dirRes && isset($dirRes[0]))) {
             $empData = $dirRes[0];

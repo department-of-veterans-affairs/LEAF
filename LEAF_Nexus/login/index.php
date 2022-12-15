@@ -36,7 +36,7 @@ $authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(get
 <div id="header">
     <div>
       <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel"><?php echo htmlentities($oc_settings['subheading']); ?></span>
+      <span id="headerLabel"><?php echo htmlentities($oc_settings['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities($oc_settings['heading']); ?></span>
     </div>
     <span id="headerTab">Secure Login</span>

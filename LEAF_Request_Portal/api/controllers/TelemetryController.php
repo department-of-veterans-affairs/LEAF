@@ -17,10 +17,13 @@ class TelemetryController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    private $upload_dir;
+
+    public function __construct($db, $login, $upload_dir)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->upload_dir = $upload_dir;
         $this->telemetry = new Telemetry($db, $login);
     }
 
@@ -45,7 +48,7 @@ class TelemetryController extends RESTfulResponse
         });
 
         $this->index['GET']->register('telemetry/upload/storage', function ($args) use ($telemetry) {
-            return $telemetry->getRequestUploadStorage();
+            return $telemetry->getRequestUploadStorage($this->upload_dir);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

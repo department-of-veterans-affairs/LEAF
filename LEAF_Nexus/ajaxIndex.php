@@ -65,7 +65,7 @@ switch ($action) {
         {
             try
             {
-                if ($type->modify($_GET['UID']))
+                if ($type->modify($_GET['UID'], $oc_paths['site_uploads']))
                 {
                     echo "{$uploadedFilename} has been attached!";
                 }
@@ -122,7 +122,7 @@ switch ($action) {
 
         break;
     case 'deleteattachment':
-        echo $type->deleteAttachment($_POST['categoryID'], $_POST['UID'], $_POST['indicatorID'], $_POST['file']);
+        echo $type->deleteAttachment($_POST['categoryID'], $_POST['UID'], $_POST['indicatorID'], $_POST['file'], $oc_path['site_uploads']);
 
         break;
     case 'gethistory':

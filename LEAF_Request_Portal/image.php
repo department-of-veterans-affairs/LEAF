@@ -7,7 +7,12 @@ require_once '../libs/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 
-$form = new Portal\Form($db, $login);
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
 
 $data = $form->getIndicator(
     Leaf\XSSHelpers::sanitizeHTML($_GET['id']),
@@ -29,8 +34,7 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Portal\Config::$uploadDir) ? Portal\Config::$uploadDir : UPLOAD_DIR;
-$filename = $uploadDir . Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
+$filename = $site_paths['site_uploads'] . Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 $filenameParts = explode('.', $filename);
 $fileExtension = array_pop($filenameParts);

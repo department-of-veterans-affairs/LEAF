@@ -4303,7 +4303,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('dbversion',	'2021060800'),
 ('heading',	'LEAF Dev/Testing Organizational Chart'),
 ('salt',	'0.458632366227575'),
-('subheading',	'test'),
+('subHeading',	'test'),
 ('timeZone',	'America/New_York'),
 ('version',	'PUBLIC');
 

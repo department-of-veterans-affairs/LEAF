@@ -46,17 +46,13 @@ class View
      *
      * Created at: 10/13/2022, 12:21:13 PM (America/New_York)
      */
-    public function buildViewStatus(int $recordID): array
+    public function buildViewStatus(int $recordID, Form $form, VAMC_Directory $vamc): array
     {
         // check privileges
-        $form = new Form($this->db, $this->login);
-
         if (!$form->hasReadAccess($recordID)) {
             $return_value = array();
         } else {
             $result = array();
-            $dir = new VAMC_Directory;
-
             $vars = array(':recordID' => $recordID);
             $sql1 = 'SELECT time, description, actionText, stepTitle,
                         dependencyID, comment, userID
@@ -93,7 +89,7 @@ class View
                 $packet['comment'] = $tmp['comment'];
 
                 if (!empty($tmp['userID'])) {
-                    $user = $dir->lookupLogin($tmp['userID']);
+                    $user = $vamc->lookupLogin($tmp['userID']);
                     $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
                     $packet['userName'] = $name;
                 }
@@ -115,7 +111,7 @@ class View
                 $packet['comment'] = 'Signature Hash: ' . $tmp['signature'];
 
                 if (!empty($tmp['userID'])) {
-                    $user = $dir->lookupLogin($tmp['userID']);
+                    $user = $vamc->lookupLogin($tmp['userID']);
                     $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
                     $packet['userName'] = $name;
                 }

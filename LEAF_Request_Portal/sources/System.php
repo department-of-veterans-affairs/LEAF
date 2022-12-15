@@ -23,10 +23,13 @@ class System
 
     private $dataActionLogger;
 
-    public function __construct($db, $login)
+    private $vamc;
+
+    public function __construct($db, $login, $vamc)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->vamc = $vamc;
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -38,7 +41,7 @@ class System
         $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
-    public function updateService($serviceID)
+    public function updateService($serviceID, $group, $position, $employee, $tag)
     {
         if (!is_numeric($serviceID))
         {
@@ -48,13 +51,6 @@ class System
         $vars = array(':serviceID' => $serviceID);
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
         //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
-
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new \Orgchart\Group($oc_db, $this->login);
-        $position = new \Orgchart\Position($oc_db, $this->login);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-        $tag = new \Orgchart\Tag($oc_db, $this->login);
 
         // find quadrad/ELT tag name, and find groupID
         $leader = $position->findRootPositionByGroupTag($group->getGroupLeader($serviceID), $tag->getParent('service'));
@@ -147,7 +143,7 @@ class System
         return "groupID: {$serviceID} updated";
     }
 
-    public function updateGroup($groupID)
+    public function updateGroup($groupID, $group, $position, $employee, $tag)
     {
         if (!is_numeric($groupID))
         {
@@ -162,13 +158,6 @@ class System
         $vars = array(':groupID' => $groupID);
         //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
-
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new \Orgchart\Group($oc_db, $this->login);
-        $position = new \Orgchart\Position($oc_db, $this->login);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-        $tag = new \Orgchart\Tag($oc_db, $this->login);
 
         // find quadrad/ELT tag name
         $upperLevelTag = $tag->getParent('service');
@@ -269,7 +258,7 @@ class System
      *
      * @return string
      */
-    public function importGroup($groupID): string
+    public function importGroup($groupID, $group, $position, $employee, $tag): string
     {
         if (!is_numeric($groupID)) {
             $return_value = 'Invalid Group';
@@ -280,13 +269,6 @@ class System
             $vars = array(':groupID' => $groupID);
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
-
-            $config = new Config();
-            $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-            $group = new \Orgchart\Group($oc_db, $this->login);
-            $position = new \Orgchart\Position($oc_db, $this->login);
-            $employee = new \Orgchart\Employee($oc_db, $this->login);
-            $tag = new \Orgchart\Tag($oc_db, $this->login);
 
             // find quadrad/ELT tag name
             $upperLevelTag = $tag->getParent('service');
@@ -505,7 +487,7 @@ class System
         $in = preg_replace('/[^\040-\176]/', '', $_POST['subHeading']);
         $vars = array(':input' => $in);
 
-        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subheading"', $vars);
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subHeading"', $vars);
 
         return 1;
     }
@@ -820,8 +802,7 @@ class System
         $result = array();
         if(count($primaryAdminRes))
         {
-            $dir = new VAMC_Directory;
-            $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
+            $user = $this->vamc->lookupLogin($primaryAdminRes[0]['userID']);
             $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
         }
         return $result;
@@ -903,7 +884,7 @@ class System
      *
      * Created at: 10/3/2022, 6:59:30 AM (America/New_York)
      */
-    public function syncSystem(Group $org_group, Service $org_service, \Orgchart\Group $nexus_group, \Orgchart\Employee $nexus_employee, \Orgchart\Tag $nexus_tag, \Orgchart\Position $nexus_position): string
+    public function syncSystem(Group $org_group, Service $org_service, \Orgchart\Group $nexus_group, \Orgchart\Employee $nexus_employee, \Orgchart\Tag $nexus_tag, \Orgchart\Position $nexus_position, $tags): string
     {
         $nexus_services = array();
         $nexus_chiefs = array();
@@ -1006,9 +987,9 @@ class System
         // update Nexus with portal groups
         $portal_groups = $org_group->getAllGroups();
 
-        $this->updateNexusWithPortalGroups($portal_groups, $nexus_group);
+        $this->updateNexusWithPortalGroups($portal_groups, $nexus_group, $tags[0]);
 
-        $groups = $this->getOrgchartImportTags($nexus_group);
+        $groups = $this->getOrgchartImportTags($nexus_group, $tags);
 
         foreach ($groups as $group) {
             $nexus_groups[$counter]['groupID'] = $group['groupID'];
@@ -1207,10 +1188,9 @@ class System
      *
      * Created at: 9/14/2022, 7:35:53 AM (America/New_York)
      */
-    private function getOrgchartImportTags(\Orgchart\Group $group): array
+    private function getOrgchartImportTags(\Orgchart\Group $group, array $tags): array
     {
         $groups = array();
-        $tags = Config::$orgchartImportTags;
         $tags[] = 'Pentad';
 
         foreach ($tags as $tag)
@@ -1283,16 +1263,16 @@ class System
         return $backup;
     }
 
-    private function updateNexusWithPortalGroups(array $portal_groups, \Orgchart\Group $nexus_group): void
+    private function updateNexusWithPortalGroups(array $portal_groups, \Orgchart\Group $nexus_group, string $tag): void
     {
-        $nexus_groups = $nexus_group->listGroupsByTag(Config::$orgchartImportTags[0]);
+        $nexus_groups = $nexus_group->listGroupsByTag($tag);
 
         foreach ($portal_groups as $group) {
             if ($this->searchArray($nexus_groups, $group, false, 1)) {
                 // this group is already tagged.
             } else {
                 // not tagged, add it now.
-                $nexus_group->addGroupTag(Config::$orgchartImportTags[0], $group['groupID']);
+                $nexus_group->addGroupTag($tag, $group['groupID']);
             }
         }
 

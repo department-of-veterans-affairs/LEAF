@@ -17,6 +17,8 @@ class Email
 
     public $emailBody = '';
 
+    public $smartyVariables = array();
+
     private $emailFrom = 'LEAF@localhost';
 
     private $emailRecipient = '';
@@ -36,11 +38,16 @@ class Email
     private $orgchartInitialized = false;
 
     private $portal_db;
+
     private $nexus_db;
+
+    private $form;
+
+    private $settings;
 
     private $siteRoot = "";
 
-    public $smartyVariables = array();
+    private $vamc;
 
     const SEND_BACK = -1;
     const NOTIFY_NEXT = -2;
@@ -48,10 +55,13 @@ class Email
     const EMAIL_REMINDER = -4;
     const AUTOMATED_EMAIL_REMINDER = -5;
 
-    public function __construct()
+    public function __construct(\Leaf\Db $p_db, \Leaf\Db $oc_db, array $settings, Form $form, VAMC_Directory $vamc)
     {
-        $this->initPortalDB();
-        $this->initNexusDB();
+        $this->portal_db = $p_db;
+        $this->nexus_db = $oc_db;
+        $this->settings = $settings;
+        $this->form = $form;
+        $this->vamc = $vamc;
 
         $this->siteRoot = "https://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $apiEntry = strpos($this->siteRoot, '/api/');
@@ -156,8 +166,6 @@ class Email
             && (!in_array($address, $this->emailCC) )
             && (!in_array($address ,$this->emailBCC) ) ) {
 
-            $dir = new VAMC_Directory;
-
             // Check that email address is active in Nexus
             $vars = array(':emailAddress' => $address);
             $strSQL = "SELECT e.deleted FROM employee as e ".
@@ -200,18 +208,21 @@ class Email
 
     /**
      * Adds all users in a given Position to the receipient object variable list
-     * @param $positionID
+     *
+     * @param int $positionID
+     * @param \Orgchart\Employee $employee
+     * @param \Orgchart\Position $position
+     *
+     * @return void
+     *
+     * Created at: 12/15/2022, 7:36:43 AM (America/New_York)
      */
-    public function addPositionRecipient($positionID)
+    public function addPositionRecipient(int $positionID, \Orgchart\Employee $employee, \Orgchart\Position $position): void
     {
-        if ($this->orgchartInitialized == false)
-        {
-            $this->initOrgchart();
-        }
-        $employees = $this->position->getEmployees($positionID);
-        foreach ($employees as $emp)
-        {
-            $res = $this->employee->getAllData($emp['empUID'], 6);
+        $employees = $position->getEmployees($positionID);
+
+        foreach ($employees as $emp) {
+            $res = $employee->getAllData($emp['empUID'], 6);
             $this->addRecipient($res[6]['data']);
         }
     }
@@ -222,8 +233,6 @@ class Email
      */
     public function addGroupRecipient($groupID)
     {
-        $dir = new VAMC_Directory;
-
         $vars = array(':groupID' => $groupID);
         $strSQL = "SELECT `userID` FROM `users` ".
             "WHERE groupID=:groupID ".
@@ -231,7 +240,7 @@ class Email
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
         foreach($res as $user) {
-            $tmp = $dir->lookupLogin($user['userID']);
+            $tmp = $this->vamc->lookupLogin($user['userID']);
             $this->addRecipient($tmp[0]['Email']);
         }
     }
@@ -270,20 +279,17 @@ class Email
     {
         $currDir = dirname(__FILE__);
 
-        if (isset(Config::$emailCC) && count(Config::$emailCC) > 0)
-        {
-            foreach (Config::$emailCC as $recipient)
-            {
+        if (is_array($this->settings) && !empty($this->settings['emailCC'])) {
+            foreach ($this->settings['emailCC'] as $recipient) {
                 $this->addCcBcc($recipient);
             }
         }
-        if (isset(Config::$emailBCC) && count(Config::$emailBCC) > 0)
-        {
-            foreach (Config::$emailBCC as $recipient)
-            {
+        if (is_array($this->settings) && !empty($this->settings['emailBCC'])) {
+            foreach ($this->settings['emailBCC'] as $recipient) {
                 $this->addCcBcc($recipient, false,true);
             }
         }
+
         $email['recipient'] = html_entity_decode($this->emailRecipient, ENT_QUOTES);
         $email['subject'] = $this->emailSubject;
         $email['body'] = $this->emailBody;
@@ -310,45 +316,6 @@ class Email
         }
 
         return true;
-    }
-
-    /**
-     * Gets current user's employeeID, positionID, groupID
-     * and assigns them to email object variables
-     */
-    private function initOrgchart()
-    {
-        // set up org chart assets
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new \Orgchart\Login($oc_db, $oc_db);
-        $oc_login->loginUser();
-        $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
-        $this->position = new \Orgchart\Position($oc_db, $oc_login);
-        $this->group = new \Orgchart\Group($oc_db, $oc_login);
-        $this->orgchartInitialized = true;
-    }
-
-    /**
-     * Initialize portal db object
-     * @return void
-     */
-    function initPortalDB()
-    {
-        // set up org chart assets
-        $db_config = new DbConfig;
-        $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-    }
-
-    /**
-     * Initialize Nexus db object
-     * @return void
-     */
-    function initNexusDB()
-    {
-        // set up org chart assets
-        $nexus_config = new Config;
-        $this->nexus_db = new \Leaf\Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
 
     private function getHeaders()
@@ -556,11 +523,9 @@ class Email
             if ($emailTemplateID < 2)
                 $this->setTemplateByID($emailTemplateID, $emailPrefix);
 
-            $dir = new VAMC_Directory;
-
             foreach ($approvers as $approver) {
                 if (strlen($approver['approverID']) > 0) {
-                    $tmp = $dir->lookupLogin($approver['approverID']);
+                    $tmp = $this->vamc->lookupLogin($approver['approverID']);
                     $this->addRecipient($tmp[0]['Email']);
                 }
 
@@ -574,7 +539,7 @@ class Email
 
                         foreach ($chief as $member) {
                             if (strlen($member['userID']) > 0) {
-                                $tmp = $dir->lookupLogin($member['userID']);
+                                $tmp = $this->vamc->lookupLogin($member['userID']);
                                 $this->addRecipient($tmp[0]['Email']);
                             }
                         }
@@ -587,7 +552,7 @@ class Email
                         $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
                         foreach ($quadrad as $member) {
                             if (strlen($member['userID']) > 0) {
-                                $tmp = $dir->lookupLogin($member['userID']);
+                                $tmp = $this->vamc->lookupLogin($member['userID']);
                                 $this->addRecipient($tmp[0]['Email']);
                             }
                         }
@@ -595,14 +560,12 @@ class Email
 
                     // special case for a person designated by the requestor
                     case -1:
-                        $form = new Form($this->portal_db, $loggedInUser);
-
                         // find the next step
                         $varsStep = array(':stepID' => $approver['stepID']);
                         $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
-                        $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
+                        $resEmpUID = $this->form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
                         $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
 
                         //check if the requester has any backups
@@ -611,13 +574,13 @@ class Email
                         $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
 
                         if ($empUID > 0) {
-                            $tmp = $dir->lookupEmpUID($empUID);
+                            $tmp = $this->vamc->lookupEmpUID($empUID);
                             $this->addRecipient($tmp[0]['Email']);
                         }
 
                         // add for backups
                         foreach ($backupIds as $row) {
-                            $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
+                            $tmp = $this->vamc->lookupEmpUID($row['backupEmpUID']);
                             if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                                 $this->addCcBcc($tmp[0]['Email']);
                             }
@@ -629,20 +592,18 @@ class Email
                         $vars = array(':recordID' => $recordID);
                         $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
                         $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
-                        $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
+                        $tmp = $this->vamc->lookupLogin($resRequestor[0]['userID']);
                         $this->addRecipient($tmp[0]['Email']);
                         break;
 
                     // special case for a group designated by the requestor
                     case -3:
-                        $form = new Form($this->portal_db, $loggedInUser);
-
                         // find the next step
                         $varsStep = array(':stepID' => $approver['stepID']);
                         $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
-                        $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
+                        $resGroupID = $this->form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
                         $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
 
                         if ($groupID > 0) {
@@ -674,10 +635,8 @@ class Email
 
             $this->setTemplateByID($emailTemplateID, $emailPrefix);
 
-            $dir = new VAMC_Directory;
-
             // Get user email and send
-            $tmp = $dir->lookupLogin($recordInfo['userID']);
+            $tmp = $this->vamc->lookupLogin($recordInfo['userID']);
             $this->addRecipient($tmp[0]['Email']);
             $this->sendMail();
         } elseif ($emailTemplateID > 1) {

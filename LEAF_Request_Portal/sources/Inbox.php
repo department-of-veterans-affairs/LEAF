@@ -23,19 +23,20 @@ class Inbox
 
     private $dir;
 
-    public function __construct($db, $login)
+    public function __construct($db, $login, $form)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->form = new Form($db, $login);
+        $this->form = $form;
     }
 
     /**
      * Retrieve the current user's inbox
+     * @param VAMC_directory $vamc
      * @param int Optional dependencyID to filter inbox based on the dependencyID
      * @return array database result
      */
-    public function getInbox($dependencyID = 0)
+    public function getInbox($vamc, $dependencyID = 0)
     {
         $vars = array();
         $tmpQuery = '';
@@ -252,11 +253,7 @@ class Inbox
                         if ($res[$i]['hasAccess'])
                         {
                             // populate relevant info
-                            if (!isset($this->dir))
-                            {
-                                $this->dir = new VAMC_Directory;
-                            }
-                            $user = $this->dir->lookupEmpUID($empUID);
+                            $user = $vamc->lookupEmpUID($empUID);
 
                             $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
                             $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
@@ -277,14 +274,8 @@ class Inbox
                             $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
                             $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
 
-                            if($res[$i]['hasAccess']){
-
-                                if (!isset($this->dir))
-                                {
-                                    $this->dir = new VAMC_Directory;
-                                }
-
-                                $user = $this->dir->lookupEmpUID($empUID);
+                            if ($res[$i]['hasAccess']) {
+                                $user = $vamc->lookupEmpUID($empUID);
 
                                 $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
 

@@ -11,9 +11,12 @@ class GroupController extends RESTfulResponse
 
     private $group;
 
-    public function __construct($db, $login)
+    private $upload_dir;
+
+    public function __construct($db, $login, $upload_dir)
     {
         $this->group = new Group($db, $login);
+        $this->upload_dir = $upload_dir;
     }
 
     public function get($act)
@@ -116,7 +119,7 @@ class GroupController extends RESTfulResponse
         $this->index['POST']->register('group/[digit]', function ($args) use ($group) {
             try
             {
-                $group->modify($args[0]);
+                $group->modify($args[0], $this->upload_dir);
             }
             catch (Exception $e)
             {

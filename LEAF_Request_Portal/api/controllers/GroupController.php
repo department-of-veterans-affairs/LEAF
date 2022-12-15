@@ -17,9 +17,9 @@ class GroupController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    public function __construct($db, $login, $dataActionLogger, $employee, $vamc)
     {
-        $this->group = new Group($db, $login);
+        $this->group = new Group($db, $login, $dataActionLogger, $employee, $vamc);
         $this->login = $login;
     }
 

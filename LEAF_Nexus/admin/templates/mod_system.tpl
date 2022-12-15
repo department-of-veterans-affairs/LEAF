@@ -7,7 +7,7 @@
 
         <div class="item">
             <label for="subHeading">Site Sub-heading:&nbsp;</label>
-            <input id="subHeading" type="text" style="width: 300px" title="" value="<!--{$subheading}-->" />
+            <input id="subHeading" type="text" style="width: 300px" title="" value="<!--{$subHeading}-->" />
         </div>
 
         <div class="item">

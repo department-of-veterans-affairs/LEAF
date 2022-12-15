@@ -13,9 +13,9 @@ class ClassicPhonebookController extends RESTfulResponse
 
     private $phonebook;
 
-    public function __construct($db, $login)
+    public function __construct($vamc)
     {
-        $this->phonebook = new VAMC_Directory();
+        $this->phonebook = $vamc;
     }
 
     public function get($act)

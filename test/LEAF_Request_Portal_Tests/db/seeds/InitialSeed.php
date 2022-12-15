@@ -56,7 +56,7 @@ class InitialSeed extends AbstractSeed
             ('dbversion', '3848'),
             ('version', '2240'),
             ('heading', 'Heading'),
-            ('subheading', 'subHeading');
+            ('subHeading', 'subHeading');
         ";
         $this->execute($settingsData);
 

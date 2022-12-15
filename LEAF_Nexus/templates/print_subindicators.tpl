@@ -36,9 +36,9 @@
             <!--{/if}-->
             </div>
             <!--{if $indicator.isWritable == 0}-->
-            <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape}-->: </span>
+            <span class="printsubHeading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape}-->: </span>
             <!--{else}-->
-            <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape}-->: </span>
+            <span class="printsubHeading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape}-->: </span>
             <!--{/if}-->
             <span class="printResponse" id="xhrIndicator_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid}-->">
                 <!--{include file="print_subindicators_ajax.tpl"}-->
@@ -48,14 +48,14 @@
       <div class="printsubblock">
         <div class="printsublabel">
             <!--{if $indicator.required == 1 && $indicator.isEmpty == true}-->
-                <div class="printsubheading_missing">
+                <div class="printsubHeading_missing">
             <!--{else}-->
-                <div class="printsubheading">
+                <div class="printsubHeading">
             <!--{/if}-->
             <!--{if $indicator.format == null}-->
-                <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape|indent:$depth:""}--></span>
+                <span class="printsubHeading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape|indent:$depth:""}--></span>
             <!--{else}-->
-                <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape|indent:$depth:""}--></span>
+                <span class="printsubHeading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags|escape}-->"><!--{$indicator.name|strip_tags|escape|indent:$depth:""}--></span>
             <!--{/if}-->
         <!--{/if}-->
             <br style="clear: both" />

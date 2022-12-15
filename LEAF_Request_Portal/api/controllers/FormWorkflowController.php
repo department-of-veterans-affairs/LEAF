@@ -19,10 +19,10 @@ class FormWorkflowController extends RESTfulResponse
 
     private $emailPrefix;
 
-    public function __construct($db, $login, $emailPrefix)
+    public function __construct($db, $login, $emailPrefix, $form_workflow)
     {
         $this->db = $db;
-        $this->formWorkflow = new FormWorkflow($db, $login, 0);
+        $this->formWorkflow = $form_workflow;
         $this->login = $login;
         $this->emailPrefix = $emailPrefix;
     }

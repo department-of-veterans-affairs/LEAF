@@ -119,7 +119,7 @@ function openContent(url) {
     		// make box size more predictable
     		$('.printmainblock').each(function() {
                 var boxSizer = {};
-    			$(this).find('.printsubheading').each(function() {
+    			$(this).find('.printsubHeading').each(function() {
     				layer = $(this).position().top;
     				if(boxSizer[layer] == undefined) {
     					boxSizer[layer] = $(this).height();
@@ -128,7 +128,7 @@ function openContent(url) {
     					boxSizer[layer] = $(this).height();
     				}
     			});
-    			$(this).find('.printsubheading').each(function() {
+    			$(this).find('.printsubHeading').each(function() {
     				layer = $(this).position().top;
     				if(boxSizer[layer] != undefined) {
                         $(this).height(boxSizer[layer]);

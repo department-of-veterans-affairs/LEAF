@@ -15,10 +15,13 @@ class OpenController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    private $form;
+
+    public function __construct($db, $login, $form)
     {
         $this->short = new Shortener($db, $login);
         $this->login = $login;
+        $this->form = $form;
     }
 
     public function get($act)
@@ -35,7 +38,7 @@ class OpenController extends RESTfulResponse
         });
 
         $this->index['GET']->register('open/form/query/[text]', function ($args) use ($short) {
-            return $short->getFormQuery($args[0]);
+            return $short->getFormQuery($args[0], $this->form);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

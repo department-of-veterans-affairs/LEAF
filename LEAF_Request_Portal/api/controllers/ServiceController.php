@@ -11,17 +11,17 @@ class ServiceController extends RESTfulResponse
 
     private $API_VERSION = 1;    // Integer
 
-    private $system;
+    private $service;
 
     private $db;
 
     private $login;
 
-    public function __construct($db, $login)
+    public function __construct($db, $login, $service)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->service = new Service($db, $login);
+        $this->service = $service;
     }
 
     public function get($act)

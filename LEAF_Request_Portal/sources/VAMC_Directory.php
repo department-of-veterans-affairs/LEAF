@@ -45,16 +45,12 @@ class VAMC_Directory
     private $log = array('<span style="color: red">Debug Log is ON</span>');    // error log for debugging
 
     // Connect to the database
-    public function __construct()
+    public function __construct($employee, $group)
     {
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $login = new \Orgchart\Login($oc_db, $oc_db);
-//        $login->loginUser();
-        $this->Employee = new \Orgchart\Employee($oc_db, $login);
-        $this->Group = new \Orgchart\Group($oc_db, $login);
-        $this->Group->setNoLimit();
+        $this->Employee = $employee;
+        $this->Group = $group;
 
+        $this->Group->setNoLimit();
         $this->Employee->setNoLimit();
     }
 

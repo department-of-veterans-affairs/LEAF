@@ -32,22 +32,23 @@ class Form
 
     private $login;
 
+    private $site_paths;
+
     private $cache = array();
 
-    public function __construct($db, $login)
+    private $vamc;
+
+    public function __construct(\Leaf\Db $db, \Portal\Login $login, array $site_paths, \Orgchart\Employee $employee, \Orgchart\Position $position, \Orgchart\Group $group, VAMC_Directory $vamc)
     {
         $this->db = $db;
         $this->login = $login;
+        $this->site_paths = $site_paths;
+        $this->employee = $employee;
+        $this->position = $position;
+        $this->group = $group;
+        $this->vamc = $vamc;
 
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new \Orgchart\Login($oc_db, $oc_db);
-        $oc_login->loginUser();
-        $this->oc_dbName = $config->dbName;
-
-        $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
-        $this->position = new \Orgchart\Position($oc_db, $oc_login);
-        $this->group = new \Orgchart\Group($oc_db, $oc_login);
+        $this->oc_dbName = $site_paths['orgchart_database'];
     }
 
     /**
@@ -611,12 +612,10 @@ class Form
             $vars
         );
 
-        $dir = new VAMC_Directory;
-
         $res2 = array();
         foreach ($res as $line)
         {
-            $user = $dir->lookupLogin($line['userID']);
+            $user = $this->vamc->lookupLogin($line['userID']);
 
             // if 'groupID' is set, this means there is an entry for it in the `indicator_mask`
             // database table and the access permissions for that indicator needs to be checked
@@ -786,8 +785,6 @@ class Form
 
             $file = $this->getFileHash($recordID, $indicatorID, $series, $data[$indicatorID]['value'][$index]);
 
-            $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-
             if (isset($value[$index])) {
                 $_POST['overwrite'] = true;
                 $_POST['series'] = 1;
@@ -801,8 +798,8 @@ class Form
 
                 $this->doModify($recordID);
 
-                if (file_exists($uploadDir . $file)) {
-                    unlink($uploadDir . $file);
+                if (file_exists($this->site_paths['site_uploads'] . $file)) {
+                    unlink($this->site_paths['site_uploads'] . $file);
                 }
 
                 $return_value = true;
@@ -881,8 +878,7 @@ class Form
             );
         }
 
-        $dir = new VAMC_Directory;
-        $user = $dir->lookupLogin($res[0]['userID']);
+        $user = $this->vamc->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
 
         $data = array('name' => $name,
@@ -1075,14 +1071,13 @@ class Form
                     $fileExtension = strtolower($fileExtension);
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
-                        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-                        if (!is_dir($uploadDir))
+                        if (!is_dir($this->site_paths['site_uploads']))
                         {
-                            mkdir($uploadDir, 0755, true);
+                            mkdir($this->site_paths['site_uploads'], 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, \Leaf\XSSHelpers::sanitizeHTML()($_FILES[$indicator]['name']));
+                        move_uploaded_file($_FILES[$indicator]['tmp_name'], $this->site_paths['site_uploads'] . $sanitizedFileName);
                     }
                     else
                     {
@@ -1161,12 +1156,15 @@ class Form
      * Submit a request and start the workflow if it has not already been submitted
      *
      * @param int $recordID
+     * @param string $emailPrefix
+     * @param Email $email
      *
      * @return int|array
      *
      * Created at: 10/3/2022, 7:40:04 AM (America/New_York)
+     * Last Updated: 12/15/2022, 8:05:46 AM (America/New_York)
      */
-    public function doSubmit(int $recordID, string $emailPrefix): int|array
+    public function doSubmit(int $recordID, string $emailPrefix, Email $email): int|array
     {
         $recordID = (int)$recordID;
 
@@ -1305,7 +1303,7 @@ class Form
 
                 $errors = array();
                 // trigger initial submit event
-                $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID);
+                $FormWorkflow = new FormWorkflow($this->db, $this->login, $recordID, $this, $this->vamc, $email);
                 $FormWorkflow->setEventFolder('../scripts/events/');
 
                 foreach ($workflowIDs as $id) {
@@ -2393,12 +2391,10 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            $dir = new VAMC_Directory;
-
             $total = count($res);
 
             for ($i = 0; $i < $total; $i++) {
-                $user = $dir->lookupLogin($res[$i]['userID']);
+                $user = $this->vamc->lookupLogin($res[$i]['userID']);
                 $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[$i]['userID'];
                 $res[$i]['name'] = $name;
             }
@@ -2548,9 +2544,7 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            $dir = new VAMC_Directory;
-
-            $user = $dir->lookupLogin($userID);
+            $user = $this->vamc->lookupLogin($userID);
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
             $comment = "Initiator changed to {$name}";
@@ -3240,8 +3234,6 @@ class Form
 
             if ($joinActionHistory)
             {
-                $dir = new VAMC_Directory;
-
                 $actionHistorySQL =
                        'SELECT recordID, stepID, userID, time, description,
                             actionTextPasttense, actionType, comment
@@ -3260,7 +3252,7 @@ class Form
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
                 {
-                    $user = $dir->lookupLogin($item['userID'], true);
+                    $user = $this->vamc->lookupLogin($item['userID'], true);
                     $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
                     $item['approverName'] = $name;
 
@@ -3299,8 +3291,6 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                $dir = new VAMC_Directory;
-
                 $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
                 FROM action_history
                 LEFT JOIN records USING (recordID)
@@ -3316,7 +3306,7 @@ class Form
                 $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
 
                 foreach ($res2 as $item) {
-                    $user = $dir->lookupLogin($item['resolvedBy'], true);
+                    $user = $this->vamc->lookupLogin($item['resolvedBy'], true);
                     $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
                     $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
                 }
@@ -3880,14 +3870,10 @@ class Form
             return $errors;
         }
 
-        // prepends $uploadDir with '../' if $uploadDir ends up being relative './UPLOADS/'
-        $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
-        $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
-
         $cleanedFile = \Leaf\XSSHelpers::scrubFilename($fileName);
 
-        $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
-        $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $sourceFile = $this->site_paths['site_uploads'] . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
+        $destFile = $this->site_paths['site_uploads'] . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
 
         if (!copy($sourceFile, $destFile)) {
             $errors = error_get_last();
@@ -3976,9 +3962,8 @@ class Form
      * @param $days
      * @throws \SmartyException
      */
-    function sendReminderEmail($recordID, $days, $emailPrefix) {
-
-        $email = new Email();
+    function sendReminderEmail($recordID, $days, $email, $emailPrefix)
+    {
         $email->setSender('leaf.noreply@va.gov');
         $email->addSmartyVariables(array(
             "daysSince" => $days

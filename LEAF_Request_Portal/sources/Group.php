@@ -29,16 +29,22 @@ class Group
      */
     private $dataActionLogger;
 
+    private $employee;
+
+    private $vamc;
+
     /**
      * @param \Leaf\Db $db
      * @param Login $login
      * @param \Leaf\DataActionLogger $dataActionLogger
      */
-    public function __construct(\Leaf\Db $db, Login $login)
+    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger, \Orgchart\Employee $employee, VAMC_Directory $vamc)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = $dataActionLogger;
+        $this->employee = $employee;
+        $this->vamc = $vamc;
     }
 
     /**
@@ -189,10 +195,9 @@ class Group
             $members = array();
             if (count($res) > 0)
             {
-                $dir = new VAMC_Directory();
                 foreach ($res as $member)
                 {
-                    $dirRes = $dir->lookupLogin($member['userID'], false, true);
+                    $dirRes = $this->vamc->lookupLogin($member['userID'], false, true);
 
                     if (isset($dirRes[0]))
                     {
@@ -237,10 +242,6 @@ class Group
      */
     public function addMember($member, $groupID): void
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
         if (is_numeric($groupID)) {
             $sql_vars = array(':userID' => $member,
                 ':groupID' => $groupID,);
@@ -256,8 +257,8 @@ class Group
             ]);
 
             // include the backups of employees
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
+            $emp = $this->employee->lookupLogin($member);
+            $backups = $this->employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
                 $sql_vars = array(':userID' => $backup['userName'],
                     ':groupID' => $groupID,
@@ -316,10 +317,6 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
         if (is_numeric($groupID) && $member != '')
         {
             $sql_vars = array(':userID' => $member,
@@ -334,8 +331,8 @@ class Group
 
             // include the backups of employee
 
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
+            $emp = $this->employee->lookupLogin($member);
+            $backups = $this->employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
                 $sql_vars = array(':userID' => $backup['userName'],
                     ':groupID' => $groupID,
@@ -359,10 +356,6 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
         if (is_numeric($groupID) && $member != '')
         {
             $sql_vars = array(':userID' => $member,
@@ -376,8 +369,8 @@ class Group
             $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
 
             // include the backups of employee
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
+            $emp = $this->employee->lookupLogin($member);
+            $backups = $this->employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
                 $sql_vars = array(':userID' => $backup['userName'],
                     ':groupID' => $groupID,
@@ -470,8 +463,7 @@ class Group
      */
     private function getEmployeeDisplay($employeeID): string
     {
-        $dir = new VAMC_Directory();
-        $dirRes = $dir->lookupLogin($employeeID);
+        $dirRes = $this->vamc->lookupLogin($employeeID);
 
         $empData = $dirRes[0];
         $empDisplay =$empData["firstName"]." ".$empData["lastName"];

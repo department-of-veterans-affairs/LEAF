@@ -17,22 +17,27 @@ $login->loginUser();
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
+
 switch ($action) {
     case 'getform':
-        $form = new Portal\Form($db, $login);
         header('Content-type: application/json');
         echo $form->getFormJSON($_GET['recordID']);
 
         break;
     case 'getprogress': // support legacy customizations
-           $form = new Portal\Form($db, $login);
-           header('Content-type: application/json');
-           // this method does not exist in Form class
-           // echo $form->getProgressJSON($_GET['recordID']);
-           // but this one does
-           echo $form->getProgress($_GET['recordID']);
+        header('Content-type: application/json');
+        // this method does not exist in Form class
+        // echo $form->getProgressJSON($_GET['recordID']);
+        // but this one does
+        echo $form->getProgress($_GET['recordID']);
 
-           break;
+        break;
     case 'getrecentactions':
         if (!is_numeric($_GET['lastStatusTime']))
         {

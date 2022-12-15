@@ -13,9 +13,12 @@ class EmployeeController extends RESTfulResponse
 
     private $employee;
 
-    public function __construct($db, $login)
+    private $upload_dir;
+
+    public function __construct($db, $login, $upload_dir)
     {
         $this->employee = new Employee($db, $login);
+        $this->upload_dir = $upload_dir;
     }
 
     public function get($act)
@@ -77,7 +80,7 @@ class EmployeeController extends RESTfulResponse
         $this->index['POST']->register('employee/[digit]', function ($args) use ($employee) {
             try
             {
-                return $employee->modify($args[0]);
+                return $employee->modify($args[0], $this->upload_dir);
             }
             catch (Exception $e)
             {

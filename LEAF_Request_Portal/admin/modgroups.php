@@ -5,7 +5,9 @@
 
 require_once '../libs/loaders/Leaf_autoloader.php';
 
-$dir = new Portal\VAMC_Directory();
+$employee = new Orgchart\Employee($oc_db, $oc_login);
+$group = new Orgchart\Group($oc_db, $oc_login);
+$dir = new Portal\VAMC_Directory($employee, $group);
 
 $groups = $db->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
 echo 'Access Groups:';

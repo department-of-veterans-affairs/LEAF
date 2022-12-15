@@ -75,7 +75,7 @@ class System
         $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($subHeading));
         $vars = array(':input' => $in);
 
-        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subheading"', $vars);
+        $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subHeading"', $vars);
 
         return 1;
     }

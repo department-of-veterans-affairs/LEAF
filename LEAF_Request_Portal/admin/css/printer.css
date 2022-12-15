@@ -217,21 +217,21 @@ table#tform td {
     background-color: #ee9a9a;
 }
 
-div.printsubheading {
+div.printsubHeading {
     position: relative; /* ie6 workaround */
     padding: 4px 16px 4px 16px;
     border-bottom: 1px solid black;
     background-color: #f4f4f4;
 }
 
-div.printsubheading_missing {
+div.printsubHeading_missing {
     position: relative; /* ie6 workaround */
     padding: 4px 16px 4px 16px;
     border-bottom: 1px solid black;
     background-color: #ee9a9a;
 }
 
-span.printsubheading {
+span.printsubHeading {
     font-weight: normal;
     font-size: 10px;
 }

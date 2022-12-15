@@ -17,9 +17,9 @@ class FormEditorController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    public function __construct($db, $login, $form)
     {
-        $this->form = new Form($db, $login);
+        $this->form = $form;
         $this->formEditor = new FormEditor($db, $login);
         $this->login = $login;
     }

@@ -15,10 +15,13 @@ class InboxController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    private $vamc;
+
+    public function __construct($db, $login, $form, $vamc)
     {
-        $this->inbox = new Inbox($db, $login);
+        $this->inbox = new Inbox($db, $login, $form);
         $this->login = $login;
+        $this->vamc = $vamc;
     }
 
     public function get($act)
@@ -32,14 +35,14 @@ class InboxController extends RESTfulResponse
         });
 
         $this->index['GET']->register('inbox/dependency/[text]', function ($args) use ($inbox) {
-            return $inbox->getInbox($args[0]);
+            return $inbox->getInbox($this->vamc, $args[0]);
         });
 
         // TODO: This endpoint should be removed. Implementations of this in prod will need to be replaced
         // with inbox/dependency/[text]?masquerade=nonAdmin before this can be deleted.
         $this->index['GET']->register('inbox/dependency/[text]/nonadmin', function ($args) use ($inbox) {
             $_GET['masquerade'] = 'nonAdmin';
-            return $inbox->getInbox($args[0]);
+            return $inbox->getInbox($this->vamc, $args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

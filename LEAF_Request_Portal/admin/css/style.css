@@ -106,7 +106,7 @@ table#tform td {
     background-color: #ee9a9a;
 }
 
-div.printsubheading {
+div.printsubHeading {
     position: relative; /* ie6 workaround */
     padding: 4px 16px 4px 16px;
     border-bottom: 1px solid black;
@@ -114,7 +114,7 @@ div.printsubheading {
     max-width: 250px;
 }
 
-div.printsubheading_missing {
+div.printsubHeading_missing {
     position: relative; /* ie6 workaround */
     padding: 4px 16px 4px 16px;
     border-bottom: 1px solid black;
@@ -122,7 +122,7 @@ div.printsubheading_missing {
     max-width: 250px;
 }
 
-span.printsubheading {
+span.printsubHeading {
     font-weight: normal;
     font-size: 10px;
 }
@@ -592,9 +592,9 @@ fieldset > legend.foldable :link, fieldset > legend.foldable :visited {
  font-size: 110%;
 }
 
-fieldset { 
-    border: 1px solid #d7d7d7; 
-    padding: 0.5em; 
+fieldset {
+    border: 1px solid #d7d7d7;
+    padding: 0.5em;
     margin: 1em 0;
     min-width: 0; /* will otherwise default to fit content, which would disable horizontal scroll */
 }

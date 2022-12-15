@@ -103,7 +103,7 @@ switch ($action) {
 
            $t_form->assign('timeZone', $oc_settings['timeZone']);
            $t_form->assign('heading', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
-           $t_form->assign('subheading', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+           $t_form->assign('subHeading', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 
            $tagObj = new Orgchart\Tag($db, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
@@ -133,7 +133,7 @@ switch ($action) {
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            $t_form->assign('heading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
-           $t_form->assign('subheading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+           $t_form->assign('subHeading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -250,7 +250,7 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subheading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
 
 if (!isset($_GET['iframe']))

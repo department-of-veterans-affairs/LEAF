@@ -10,14 +10,16 @@ require_once '../../libs/loaders/Leaf_autoloader.php';
 $login->setBaseDir('../');
 $login->loginUser();
 
-$employee = new Orgchart\Employee($oc_db, $login);
-$group = new Orgchart\Group($oc_db, $login);
-$position = new Orgchart\Position($oc_db, $login);
-$tag = new Orgchart\Tag($oc_db, $login);
+$dal = new Leaf\DataActionLogger($db, $login);
+$employee = new Orgchart\Employee($oc_db, $oc_login);
+$group = new Orgchart\Group($oc_db, $oc_login);
+$position = new Orgchart\Position($oc_db, $oc_login);
+$tag = new Orgchart\Tag($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($employee, $group);
 
-$group_portal = new Portal\Group($db, $login);
-$service_portal = new Portal\Service($db, $login);
-$system_portal = new Portal\System($db, $login);
-$syncing = $system_portal->syncSystem($group_portal, $service_portal, $group, $employee, $tag, $position);
+$group_portal = new Portal\Group($db, $login, $dal, $employee, $vamc);
+$service_portal = new Portal\Service($db, $login, $dal, $employee, $vamc);
+$system_portal = new Portal\System($db, $login, $vamc);
+$syncing = $system_portal->syncSystem($group_portal, $service_portal, $group, $employee, $tag, $position, $settings['importTags']);
 
 echo $syncing;

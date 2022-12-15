@@ -58,20 +58,18 @@ class VAMC_Directory_maintenance_AD
     /**
      * Connect to the database
      * @param string $currDir
-     * @param \Config $config
      */
     public function __construct()
     {
         $this->time = time();
         $currDir = dirname(__FILE__);
-        $config = new Config();
 
         try
         {
             $this->db = new \PDO(
-                "mysql:host={$config->phonedbHost};dbname={$config->phonedbName}",
-                            $config->phonedbUser,
-                $config->phonedbPass,
+                "mysql:host={DIRECTORY_HOST};dbname={DIRECTORY_DB}",
+                            DIRECTORY_USER,
+                DIRECTORY_PASS,
                 array(\PDO::ATTR_PERSISTENT => true)
             );
             unset($config);

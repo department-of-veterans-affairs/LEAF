@@ -144,11 +144,11 @@ class Telemetry
      * Purpose: Get total size of all uploads in user upload directory
      * @return string
      */
-    public function getRequestUploadStorage():string
+    public function getRequestUploadStorage($upload_dir): string
     {
         $size = 0;
-        if (is_dir(Config::$uploadDir)) {
-            $iterator = new \DirectoryIterator(Config::$uploadDir);
+        if (is_dir($upload_dir)) {
+            $iterator = new \DirectoryIterator($upload_dir);
             foreach($iterator as $file) {
                 $size += $file->getSize();
             }

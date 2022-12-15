@@ -52,12 +52,18 @@ $main->assign('qrcodeURL', urlencode($qrcodeURL));
 
 $main->assign('useUI', false);
 
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
+
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
+
 switch ($action) {
     case 'showServiceFTEstatus':
         $main->assign('useUI', true);
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
 
-        $form = new Portal\Form($db, $login);
         $o_login = $t_login->fetch('login.tpl');
 
         $currentEmployee = $form->employee->lookupLogin($login->getUserID());
@@ -96,7 +102,6 @@ switch ($action) {
                 '../libs/js/choicesjs/choices.min.js'
             ));
 
-            $form = new Portal\Form($db, $login);
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
@@ -110,7 +115,7 @@ switch ($action) {
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
-            $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+            $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';
@@ -135,7 +140,7 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subheading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', $settings['version']);
 
 if (!isset($_GET['iframe']))
