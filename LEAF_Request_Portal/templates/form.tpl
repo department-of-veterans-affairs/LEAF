@@ -133,6 +133,9 @@ function updateProgress(focusNext=false) {
                 $('#nextQuestion').focus();
             }
         },
+        error: function(err) {
+            console.log('an error occurred during form progress checking', err);
+        },
         cache: false
     });
 }
