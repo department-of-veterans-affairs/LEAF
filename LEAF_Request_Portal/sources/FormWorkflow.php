@@ -40,7 +40,7 @@ class FormWorkflow
         }
     }
 
-    public function initRecordID($recordID)
+    public function initRecordID(int $recordID): void
     {
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
     }
@@ -49,11 +49,11 @@ class FormWorkflow
      * Checks if the current record has an active workflow
      * @return bool
      */
-    public function isActive()
+    public function isActive(): bool
     {
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT * FROM records_workflow_state
-        									WHERE recordID=:recordID', $vars);
+        $strSQL = 'SELECT * FROM records_workflow_state WHERE recordID = :recordID';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         return isset($res[0]);
     }
@@ -63,7 +63,7 @@ class FormWorkflow
      * @return array database result
      * @return array|int|null if no database result
      */
-    public function getCurrentSteps()
+    public function getCurrentSteps(): ?array
     {
         // check privileges
         $form = new Form($this->db, $this->login);
@@ -74,14 +74,15 @@ class FormWorkflow
 
         $steps = array();
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
-        									LEFT JOIN records USING (recordID)
-        									LEFT JOIN workflow_steps USING (stepID)
-        									LEFT JOIN step_dependencies USING (stepID)
-        									LEFT JOIN dependencies USING (dependencyID)
-        									LEFT JOIN records_dependencies USING (recordID, dependencyID)
-        									WHERE recordID=:recordID
-        										AND (filled=0 OR filled IS NULL)', $vars);
+        $strSQL = 'SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+            LEFT JOIN records USING (recordID)
+            LEFT JOIN workflow_steps USING (stepID)
+            LEFT JOIN step_dependencies USING (stepID)
+            LEFT JOIN dependencies USING (dependencyID)
+            LEFT JOIN records_dependencies USING (recordID, dependencyID)
+            WHERE recordID = :recordID
+            AND (filled = 0 OR filled IS NULL)';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         $numRes = count($res);
         if ($numRes > 0)
@@ -94,8 +95,8 @@ class FormWorkflow
 
                 // check permissions
                 $vars = array(':dependencyID' => $res[$i]['dependencyID']);
-                $res2 = $this->db->prepared_query('SELECT * FROM dependency_privs
-                									WHERE dependencyID=:dependencyID', $vars);
+                $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
+                $res2 = $this->db->prepared_query($strSQL, $vars);
 
                 // dependencyID 1 is for a special service chief group
                 if ($res[$i]['dependencyID'] == 1 && !$res[$i]['hasAccess'])
@@ -110,10 +111,14 @@ class FormWorkflow
                 if ($res[$i]['dependencyID'] == 8 && !$res[$i]['hasAccess'])
                 {
                     $quadGroupIDs = $this->login->getQuadradGroupID();
-                    $vars3 = array(':serviceID' => $res[$i]['serviceID']);
-                    $res3 = $this->db->prepared_query("SELECT * FROM services
-                    									WHERE groupID IN ($quadGroupIDs)
-                    										AND serviceID=:serviceID", $vars3);
+                    $vars3 = array(
+                        ':serviceID' => $res[$i]['serviceID'],
+                        ':quadGroupIDs' => $quadGroupIDs
+                    );
+                    $strSQL = 'SELECT * FROM services
+                        WHERE groupID IN (:quadGroupIDs)
+                        AND serviceID = :serviceID';
+                    $res3 = $this->db->prepared_query($strSQL, $vars3);
 
                     if (isset($res3[0]))
                     {
@@ -134,8 +139,9 @@ class FormWorkflow
                         //check if the requester has any backups
                         //get nexus db
                         $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empId' => $empUID);
-                        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                        $vars4 = array(':empID' => $empUID);
+                        $strSQL = 'SELECT * FROM relation_employee_backup WHERE empUID = :empID';
+                        $backupIds = $nexusDB->prepared_query($strSQL, $vars4);
 
                         if ($empUID == $this->login->getEmpUID())
                         {
@@ -197,7 +203,8 @@ class FormWorkflow
 
                     // find actual group name
                     $vars = array(':groupID' => $groupID);
-                    $tGroup = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $vars);
+                    $strSQL = 'SELECT * FROM `groups` WHERE groupID = :groupID';
+                    $tGroup = $this->db->prepared_query($strSQL, $vars);
                     if (count($tGroup) >= 0)
                     {
                         $res[$i]['description'] = $tGroup[0]['name'];
@@ -229,8 +236,9 @@ class FormWorkflow
 
                 // load step modules
                 $varsSm = array(':stepID' => $res[$i]['stepID']);
-                $resSm = $this->db->prepared_query('SELECT moduleName, moduleConfig FROM step_modules
-                                                        WHERE stepID=:stepID', $varsSm);
+                $strSQL = 'SELECT moduleName, moduleConfig FROM step_modules
+                    WHERE stepID = :stepID';
+                $resSm = $this->db->prepared_query($strSQL, $varsSm);
                 foreach($resSm as $module) {
                     $steps[$res[$i]['dependencyID']]['stepModules'][] = $module;
                 }
@@ -258,7 +266,7 @@ class FormWorkflow
     /**
      * Get the last action made to the request
      */
-    public function getLastAction()
+    public function getLastAction(): ?array
     {
         // check privileges
         $form = new Form($this->db, $this->login);
@@ -268,39 +276,42 @@ class FormWorkflow
         }
 
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT * FROM action_history
-	    									WHERE recordID=:recordID
-	    										AND actionType IS NOT NULL
-    											AND dependencyID != 0
-	    									ORDER BY actionID DESC
-	    									LIMIT 1', $vars);
+        $strSQL = 'SELECT * FROM action_history
+            WHERE recordID = :recordID
+            AND actionType IS NOT NULL
+            AND dependencyID != 0
+            ORDER BY actionID DESC
+            LIMIT 1';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         // backwards compatibility for records where action_history.stepID doesn't exist
         if ($res[0]['stepID'] > 0)
         {
             $vars = array(':actionID' => $res[0]['actionID']);
-            $res = $this->db->prepared_query('SELECT * FROM action_history
-	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
-	    									LEFT JOIN category_count USING (recordID)
-	    									LEFT JOIN categories USING (categoryID)
-	    									LEFT JOIN dependencies USING (dependencyID)
-	    									LEFT JOIN step_dependencies USING (stepID)
-	    									LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
-	    									WHERE actionID=:actionID
-    											LIMIT 1', $vars);
+            $strSQL = 'SELECT * FROM action_history
+                LEFT JOIN actions ON actions.actionType = action_history.actionType
+                LEFT JOIN category_count USING (recordID)
+                LEFT JOIN categories USING (categoryID)
+                LEFT JOIN dependencies USING (dependencyID)
+                LEFT JOIN step_dependencies USING (stepID)
+                LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
+                WHERE actionID = :actionID
+                LIMIT 1';
+            $res = $this->db->prepared_query($strSQL, $vars);
         }
         else
         {
             $vars = array(':actionID' => $res[0]['actionID']);
-            $res = $this->db->prepared_query('SELECT * FROM action_history
-	    									LEFT JOIN actions ON actions.actionType = action_history.actionType
-	    									LEFT JOIN category_count USING (recordID)
-	    									LEFT JOIN categories USING (categoryID)
-	    									LEFT JOIN dependencies USING (dependencyID)
-	    									LEFT JOIN step_dependencies USING (dependencyID)
-	    									LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
-	    									WHERE actionID=:actionID
-    											LIMIT 1', $vars);
+            $strSQL = 'SELECT * FROM action_history
+                LEFT JOIN actions ON actions.actionType = action_history.actionType
+                LEFT JOIN category_count USING (recordID)
+                LEFT JOIN categories USING (categoryID)
+                LEFT JOIN dependencies USING (dependencyID)
+                LEFT JOIN step_dependencies USING (dependencyID)
+                LEFT JOIN workflow_steps ON step_dependencies.stepID=workflow_steps.stepID
+                WHERE actionID = :actionID
+                LIMIT 1';
+            $res = $this->db->prepared_query($strSQL, $vars);
         }
 
         // dependencyID -1 is for a person designated by the requestor
@@ -332,7 +343,7 @@ class FormWorkflow
     /**
      * Get the last action made to the request with a summary of events
      */
-    public function getLastActionSummary()
+    public function getLastActionSummary(): array | int
     {
         $lastActionData = $this->getLastAction();
         // check access
@@ -341,9 +352,10 @@ class FormWorkflow
         }
 
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle, workflowID FROM signatures
-                                            LEFT JOIN workflow_steps USING (stepID)
-	    									WHERE recordID=:recordID', $vars);
+        $strSQL = 'SELECT signatureID, signature, recordID, stepID, dependencyID, userID, timestamp, stepTitle, workflowID FROM signatures
+            LEFT JOIN workflow_steps USING (stepID)
+            WHERE recordID = :recordID';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         if(count($res) > 0) {
             $dir = new VAMC_Directory;
@@ -357,9 +369,10 @@ class FormWorkflow
 
             $stepsPendingSigs = [];
             $vars = array(':workflowID' => $res[0]['workflowID']);
-            $resWorkflow = $this->db->prepared_query('SELECT * FROM workflow_steps
-                                                        WHERE workflowID=:workflowID
-                                                            AND requiresDigitalSignature = 1', $vars);
+            $strSQL = 'SELECT * FROM workflow_steps
+                WHERE workflowID = :workflowID
+                AND requiresDigitalSignature = 1';
+            $resWorkflow = $this->db->prepared_query($strSQL, $vars);
             foreach($resWorkflow as $step) {
                 if(!isset($signedSteps[$step['stepID']])) {
                     $stepPendingSigs[] = $step['stepTitle'];
@@ -380,15 +393,18 @@ class FormWorkflow
      * @param int $stepID
      * @return array database result
      */
-    public function getDependencyActions($workflowID, $stepID)
+    public function getDependencyActions(int $workflowID, int $stepID): array
     {
-        $vars = array(':workflowID' => $workflowID,
-                      ':stepID' => $stepID, );
-        $res = $this->db->prepared_query('SELECT * FROM workflow_routes
-        									LEFT JOIN actions USING (actionType)
-        									WHERE workflowID=:workflowID
-        										AND stepID=:stepID
-        									ORDER BY sort ASC', $vars);
+        $vars = array(
+            ':workflowID' => $workflowID,
+            ':stepID' => $stepID,
+        );
+        $strSQL = 'SELECT * FROM workflow_routes
+            LEFT JOIN actions USING (actionType)
+            WHERE workflowID = :workflowID
+            AND stepID = :stepID
+            ORDER BY sort ASC';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         return $res;
     }
@@ -400,7 +416,7 @@ class FormWorkflow
      * @param string $comment
      * @return array {status(int), errors[string]}
      */
-    public function handleAction($dependencyID, $actionType, $comment, $emailPrefix)
+    public function handleAction(int $dependencyID, string $actionType, string $comment, string $emailPrefix): array
     {
         if (!is_numeric($dependencyID))
         {
@@ -417,19 +433,22 @@ class FormWorkflow
         $time = time();
 
         // first check if the user has access
-        $vars = array(':dependencyID' => $dependencyID,
-                      ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('SELECT * FROM dependency_privs
-        									LEFT JOIN users USING (groupID)
-        									WHERE dependencyID=:dependencyID
-        										AND userID=:userID', $vars);
+        $vars = array(
+            ':dependencyID' => $dependencyID,
+            ':userID' => $this->login->getUserID()
+        );
+        $strSQL = 'SELECT * FROM dependency_privs
+            LEFT JOIN users USING (groupID)
+            WHERE dependencyID = :dependencyID
+            AND userID = :userID';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         if (!$this->login->checkGroup(1) && !isset($res[0]['userID']))
         {
             // check special cases
             $vars = array(':recordID' => $this->recordID);
-            $res = $this->db->prepared_query('SELECT * FROM records
-            									WHERE recordID=:recordID', $vars);
+            $strSQL = 'SELECT * FROM records WHERE recordID = :recordID';
+            $res = $this->db->prepared_query($strSQL, $vars);
             switch ($dependencyID) {
                 case 1: // service chief
                     if (!$this->login->checkService($res[0]['serviceID']))
@@ -440,11 +459,14 @@ class FormWorkflow
                     break;
                 case 8: // quadrad
                     $quadGroupIDs = $this->login->getQuadradGroupID();
-                    $varsQuad = array(':serviceID' => $res[0]['serviceID']);
-
-                       $resQuad = $this->db->prepared_query("SELECT * FROM services
-							                				WHERE groupID IN ({$quadGroupIDs})
-							                				AND serviceID=:serviceID", $varsQuad);
+                    $varsQuad = array(
+                        ':serviceID' => $res[0]['serviceID'],
+                        ':quadGroupIDs' => $quadGroupIDs
+                    );
+                    $strSQL = "SELECT * FROM services
+                        WHERE groupID IN (:quadGroupIDs)
+                        AND serviceID = :serviceID";
+                    $resQuad = $this->db->prepared_query($strSQL, $varsQuad);
                     if (count($resQuad) == 0)
                     {
                         return array('status' => 0, 'errors' => array('Your account is not registered as an Executive Leadership Team member'));
@@ -455,10 +477,10 @@ class FormWorkflow
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
-
-                    $resPerson = $this->db->prepared_query('SELECT * FROM records_workflow_state
-									                			LEFT JOIN workflow_steps USING (stepID)
-                												WHERE recordID=:recordID', $varsPerson);
+                    $strSQL = 'SELECT * FROM records_workflow_state
+                        LEFT JOIN workflow_steps USING (stepID)
+                        WHERE recordID = :recordID';
+                    $resPerson = $this->db->prepared_query($strSQL, $varsPerson);
 
                     $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
@@ -474,8 +496,8 @@ class FormWorkflow
                     $form = new Form($this->db, $this->login);
 
                     $varsPerson = array(':recordID' => $this->recordID);
-                    $resPerson = $this->db->prepared_query('SELECT userID FROM records
-                                                                WHERE recordID=:recordID', $varsPerson);
+                    $strSQLPerson = 'SELECT userID FROM records WHERE recordID = :recordID';
+                    $resPerson = $this->db->prepared_query($strSQLPerson, $varsPerson);
 
                     if ($resPerson[0]['userID'] != $this->login->getUserID())
                     {
@@ -494,10 +516,10 @@ class FormWorkflow
                     $form = new Form($this->db, $this->login);
 
                     $varsGroup = array(':recordID' => $this->recordID);
-
-                    $resGroup = $this->db->prepared_query('SELECT * FROM records_workflow_state
-								                			LEFT JOIN workflow_steps USING (stepID)
-                											WHERE recordID=:recordID', $varsGroup);
+                    $strSQLGroup = 'SELECT * FROM records_workflow_state
+                        LEFT JOIN workflow_steps USING (stepID)
+                        WHERE recordID = :recordID';
+                    $resGroup = $this->db->prepared_query($strSQLGroup, $varsGroup);
 
                     $resGroupID = $form->getIndicator($resGroup[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
                     $groupID = $resGroupID[$resGroup[0]['indicatorID_for_assigned_groupID']]['value'];
@@ -516,12 +538,13 @@ class FormWorkflow
         // get every step associated with dependencyID
         $vars = array(':recordID' => $this->recordID,
                       ':dependencyID' => $dependencyID, );
-        $res = $this->db->prepared_query('SELECT * FROM step_dependencies
-        									RIGHT JOIN records_workflow_state USING (stepID)
-        									LEFT JOIN workflow_steps USING (stepID)
-        									LEFT JOIN dependencies USING (dependencyID)
-        									WHERE recordID=:recordID
-        										AND dependencyID=:dependencyID', $vars);
+        $strSQL = 'SELECT * FROM step_dependencies
+            RIGHT JOIN records_workflow_state USING (stepID)
+            LEFT JOIN workflow_steps USING (stepID)
+            LEFT JOIN dependencies USING (dependencyID)
+            WHERE recordID = :recordID
+            AND dependencyID = :dependencyID';
+        $res = $this->db->prepared_query($strSQL, $vars);
 
         if(count($res) == 0) {
             return array('status' => 0, 'errors' => array('This page is out of date. Please refresh for the latest status.'));
@@ -532,66 +555,81 @@ class FormWorkflow
         foreach ($res as $actionable)
         {
             // find out what the action is doing, and what the next step is
-            $vars2 = array(':workflowID' => $actionable['workflowID'],
-                           ':stepID' => $actionable['stepID'],
-                           ':actionType' => $actionType, );
-            $res2 = $this->db->prepared_query('SELECT * FROM workflow_routes
-            									LEFT JOIN actions USING (actionType)
-            									WHERE workflowID=:workflowID
-            										AND stepID=:stepID
-            										AND actionType=:actionType', $vars2);
+            $vars2 = array(
+                ':workflowID' => $actionable['workflowID'],
+                ':stepID' => $actionable['stepID'],
+                ':actionType' => $actionType,
+            );
+            $strSQL2 = 'SELECT * FROM workflow_routes
+                LEFT JOIN actions USING (actionType)
+                WHERE workflowID = :workflowID
+                AND stepID = :stepID
+                AND actionType = :actionType';
+            $res2 = $this->db->prepared_query($strSQL2, $vars2);
             // continue if the step and action is valid
             if (isset($res2[0]))
             {
                 $this->db->beginTransaction();
                 // write dependency information
-                $vars2 = array(':recordID' => $this->recordID,
-                              ':dependencyID' => $dependencyID,
-                              ':filled' => $res2[0]['fillDependency'],
-                              ':time' => $time, );
-                $this->db->prepared_query('INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
-                                               VALUES (:recordID, :dependencyID, :filled, :time)
-                                               ON DUPLICATE KEY
-                                                   UPDATE filled=:filled, time=:time', $vars2);
+                $vars2 = array(
+                    ':recordID' => $this->recordID,
+                    ':dependencyID' => $dependencyID,
+                    ':filled' => $res2[0]['fillDependency'],
+                    ':time' => $time, );
+                $strSQL2 = 'INSERT INTO records_dependencies (recordID, dependencyID, filled, time)
+                    VALUES (:recordID, :dependencyID, :filled, :time)
+                    ON DUPLICATE KEY
+                    UPDATE filled = :filled, time = :time';
+                $this->db->prepared_query($strSQL2, $vars2);
 
                 // don't write duplicate log entries
-                $vars2 = array(':recordID' => $this->recordID,
-                               ':userID' => $this->login->getUserID(),
-                               ':stepID' => $actionable['stepID'],
-                               ':dependencyID' => $dependencyID,
-                               ':actionType' => $actionType,
-                               ':actionTypeID' => 8,
-                               ':time' => $time,
-                               ':comment' => $comment, );
+                $vars2 = array(
+                    ':recordID' => $this->recordID,
+                    ':userID' => $this->login->getUserID(),
+                    ':stepID' => $actionable['stepID'],
+                    ':dependencyID' => $dependencyID,
+                    ':actionType' => $actionType,
+                    ':actionTypeID' => 8,
+                    ':time' => $time,
+                    ':comment' => $comment,
+                );
                 $logKey = sha1(serialize($vars2));
                 if (!isset($logCache[$logKey]))
                 {
                     // write log
                     $logCache[$logKey] = 1;
-                    $this->db->prepared_query('INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                    $strSQL2 ='INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
+                        VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                    $this->db->prepared_query($strSQL2, $vars2);
                 }
 
                 // get other action data
                 $varsAction = array(':actionType' => $actionType);
-                $resActionData = $this->db->prepared_query('SELECT * FROM actions WHERE actionType=:actionType', $varsAction);
+                $strSQLAction = 'SELECT * FROM actions WHERE actionType = :actionType';
+                $resActionData = $this->db->prepared_query($strSQLAction, $varsAction);
 
                 // write current status in main index
-                $vars2 = array(':recordID' => $this->recordID,
-                              ':lastStatus' => $resActionData[0]['actionTextPasttense'], );
-                $this->db->prepared_query('UPDATE records SET lastStatus=:lastStatus
-                								WHERE recordID=:recordID', $vars2);
+                $vars2 = array(
+                    ':recordID' => $this->recordID,
+                    ':lastStatus' => $resActionData[0]['actionTextPasttense'],
+                );
+                $strSQL2 = 'UPDATE records SET lastStatus=:lastStatus
+                    WHERE recordID = :recordID';
+                $this->db->prepared_query($strSQL2, $vars2);
 
                 $this->db->commitTransaction();
 
                 // see if all dependencies in the step are met
-                $vars2 = array(':recordID' => $this->recordID,
-                               ':stepID' => $actionable['stepID'], );
-                $res3 = $this->db->prepared_query('SELECT * FROM step_dependencies
-                										LEFT JOIN records_dependencies USING (dependencyID)
-                										WHERE stepID=:stepID
-                											AND recordID=:recordID
-                											AND filled=0', $vars2);
+                $vars2 = array(
+                    ':recordID' => $this->recordID,
+                    ':stepID' => $actionable['stepID'],
+                );
+                $strSQL3 = 'SELECT * FROM step_dependencies
+                    LEFT JOIN records_dependencies USING (dependencyID)
+                    WHERE stepID = :stepID
+                    AND recordID = :recordID
+                    AND filled = 0';
+                $res3 = $this->db->prepared_query($strSQL3, $vars2);
                 $numUnfilledDeps = count($res3);
 
                 // Trigger events if the next step is the same as the original step (eg: same-step loop)
@@ -604,12 +642,15 @@ class FormWorkflow
                     }
 
                     // clear current dependency since it's a loop
-                    $vars_clearDep = array(':recordID' => $this->recordID,
-                                           ':dependencyID' => $dependencyID, );
-                    $this->db->prepared_query('UPDATE records_dependencies SET
-                    								filled=0
-                    								WHERE recordID=:recordID
-                    									AND dependencyID=:dependencyID', $vars_clearDep);
+                    $vars_clearDep = array(
+                        ':recordID' => $this->recordID,
+                        ':dependencyID' => $dependencyID,
+                    );
+                    $strSQL_clearDep = 'UPDATE records_dependencies SET
+                        filled = 0
+                        WHERE recordID = :recordID
+                        AND dependencyID = :dependencyID';
+                    $this->db->prepared_query($strSQL_clearDep, $vars_clearDep);
                     $numUnfilledDeps = 1;
                 }
 
@@ -618,31 +659,38 @@ class FormWorkflow
                     || $actionType == 'sendback')
                 {	// handle sendback as a special case, since it doesn't fill any dependencies
                     // log step fulfillment data
-                    $vars2 = array(':recordID' => $this->recordID,
-                                ':stepID' => $actionable['stepID'],
-                                ':time' => $time, );
-                    $this->db->prepared_query('INSERT INTO records_step_fulfillment (recordID, stepID, fulfillmentTime)
-                                                   VALUES (:recordID, :stepID, :time)
-                								   ON DUPLICATE KEY UPDATE fulfillmentTime=:time', $vars2);
+                    $vars2 = array(
+                        ':recordID' => $this->recordID,
+                        ':stepID' => $actionable['stepID'],
+                        ':time' => $time,
+                    );
+                    $strSQL2 = 'INSERT INTO records_step_fulfillment (recordID, stepID, fulfillmentTime)
+                        VALUES (:recordID, :stepID, :time)
+                        ON DUPLICATE KEY UPDATE fulfillmentTime = :time';
+                    $this->db->prepared_query($strSQL2, $vars2);
 
                     // if the next step is to end it, then update the record's workflow's state
                     if ($res2[0]['nextStepID'] == 0)
                     {
                         $vars2 = array(':recordID' => $this->recordID);
-                        $this->db->prepared_query('DELETE FROM records_workflow_state
-                                                    WHERE recordID=:recordID', $vars2);
+                        $strSQL2 = 'DELETE FROM records_workflow_state
+                            WHERE recordID = :recordID';
+                        $this->db->prepared_query($strSQL2, $vars2);
                     }
                     else
                     {
-                        $vars2 = array(':recordID' => $this->recordID,
-                                       ':stepID' => $actionable['stepID'],
-                                       ':nextStepID' => $res2[0]['nextStepID'],
-                                       ':blockingStepID' => 0, );
-                        $this->db->prepared_query('UPDATE records_workflow_state SET
-	                                                    stepID=:nextStepID,
-	                                                    blockingStepID=:blockingStepID
-	                                                    WHERE recordID=:recordID
-	                                                        AND stepID=:stepID', $vars2);
+                        $vars2 = array(
+                            ':recordID' => $this->recordID,
+                            ':stepID' => $actionable['stepID'],
+                            ':nextStepID' => $res2[0]['nextStepID'],
+                            ':blockingStepID' => 0,
+                        );
+                        $strSQL2 = 'UPDATE records_workflow_state SET
+                            stepID = :nextStepID,
+                            blockingStepID = :blockingStepID
+                            WHERE recordID = :recordID
+                            AND stepID = :stepID';
+                        $this->db->prepared_query($strSQL2, $vars2);
 
                         // reset records_dependencies for the next step
                         $this->resetRecordsDependency($res2[0]['nextStepID']);
@@ -650,26 +698,30 @@ class FormWorkflow
 
                     // make sure the step is available
                     $vars2 = array(':recordID' => $this->recordID);
-                    $res3 = $this->db->prepared_query('SELECT * FROM category_count
-                    										LEFT JOIN categories USING (categoryID)
-                                                            LEFT JOIN workflows USING (workflowID)
-                                                            LEFT JOIN workflow_steps USING (workflowID)
-                                                            LEFT JOIN step_dependencies USING (stepID)
-                                                            LEFT JOIN records_dependencies USING (recordID, dependencyID)
-                    										WHERE category_count.recordID=:recordID
-                    											AND count > 0
-                    											AND workflowID > 0
-                                                                AND filled IS NULL', $vars2);
+                    $strSQL2 = 'SELECT * FROM category_count
+                        LEFT JOIN categories USING (categoryID)
+                        LEFT JOIN workflows USING (workflowID)
+                        LEFT JOIN workflow_steps USING (workflowID)
+                        LEFT JOIN step_dependencies USING (stepID)
+                        LEFT JOIN records_dependencies USING (recordID, dependencyID)
+                        WHERE category_count.recordID = :recordID
+                        AND count > 0
+                        AND workflowID > 0
+                        AND filled IS NULL';
+                    $res3 = $this->db->prepared_query($strSQL2, $vars2);
                     if (count($res3) > 0)
                     {
                         $this->db->beginTransaction();
                         foreach ($res3 as $nextStep)
                         {
-                            $vars2 = array(':recordID' => $this->recordID,
-                                          ':dependencyID' => $nextStep['dependencyID'],
-                                          ':filled' => 0, );
-                            $this->db->prepared_query('INSERT IGNORE INTO records_dependencies (recordID, dependencyID, filled)
-                                                           VALUES (:recordID, :dependencyID, :filled)', $vars2);
+                            $vars2 = array(
+                                ':recordID' => $this->recordID,
+                                ':dependencyID' => $nextStep['dependencyID'],
+                                ':filled' => 0,
+                            );
+                            $strSQL2 = 'INSERT IGNORE INTO records_dependencies (recordID, dependencyID, filled)
+                                VALUES (:recordID, :dependencyID, :filled)';
+                            $this->db->prepared_query($strSQL2, $vars2);
                         }
                         $this->db->commitTransaction();
                     }
@@ -678,10 +730,11 @@ class FormWorkflow
 
                     // determine if parallel workflows have shared steps
                     $vars2 = array(':recordID' => $this->recordID);
-                    $res3 = $this->db->prepared_query('SELECT * FROM records_workflow_state
-                    										LEFT JOIN workflow_steps USING (stepID)
-                    										LEFT JOIN step_dependencies USING (stepID)
-                    										WHERE recordID=:recordID', $vars2);
+                    $strSQL3 = 'SELECT * FROM records_workflow_state
+                        LEFT JOIN workflow_steps USING (stepID)
+                        LEFT JOIN step_dependencies USING (stepID)
+                        WHERE recordID = :recordID';
+                    $res3 = $this->db->prepared_query($strSQL2, $vars2);
                     // iterate through steps
                     if (count($res3) > 1)
                     {
@@ -690,13 +743,16 @@ class FormWorkflow
                             $conflictID = $this->checkDependencyConflicts($step, $res3);
                             if ($conflictID != 0 && $conflictID != $step['stepID'])
                             {
-                                $vars2 = array(':recordID' => $this->recordID,
-                                               ':stepID' => $step['stepID'],
-                                               ':blockingStepID' => $conflictID, );
-                                $this->db->prepared_query('UPDATE records_workflow_state SET
-                                                                blockingStepID=:blockingStepID
-                                                                WHERE recordID=:recordID
-                                                                    AND stepID=:stepID', $vars2);
+                                $vars2 = array(
+                                    ':recordID' => $this->recordID,
+                                    ':stepID' => $step['stepID'],
+                                    ':blockingStepID' => $conflictID,
+                                );
+                                $strSQL2 = 'UPDATE records_workflow_state SET
+                                    blockingStepID = :blockingStepID
+                                    WHERE recordID = :recordID
+                                    AND stepID = :stepID';
+                                $this->db->prepared_query($strSQL2, $vars2);
                             }
                         }
                     }
@@ -722,11 +778,12 @@ class FormWorkflow
       * @param string $userName Username
       * @return string
       */
-    public function getEmpUIDByUserName($userName)
+    public function getEmpUIDByUserName(string $userName): string
     {
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
-        return $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars)[0]["empUID"];
+        $strSQL = 'SELECT * FROM employee WHERE userName = :userName';
+        return $nexusDB->prepared_query($strSQL, $vars)[0]["empUID"];
     }
 
     /**
@@ -735,12 +792,13 @@ class FormWorkflow
      * @param string $empUID empUID to check
      * @return boolean
      */
-    public function checkIfBackup($empUID)
+    public function checkIfBackup(string $empUID): bool
     {
 
         $nexusDB = $this->login->getNexusDB();
-        $vars = array(':empId' => $empUID);
-        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+        $vars = array(':empID' => $empUID);
+        $strSQL = 'SELECT * FROM relation_employee_backup WHERE empUID =:empID';
+        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
         if ($empUID != $this->login->getEmpUID())
         {
@@ -767,7 +825,7 @@ class FormWorkflow
      * @return array {status(int), errors[]}
      * @throws Exception
      */
-    public function handleEvents($workflowID, $stepID, $actionType, $comment, $emailPrefix)
+    public function handleEvents(int $workflowID, int $stepID, string $actionType, string $comment, string $emailPrefix): array
     {
         $errors = array();
 
@@ -775,8 +833,9 @@ class FormWorkflow
         if ($actionType == 'sendback')
         {
             $vars2 = array(':recordID' => $this->recordID);
-            $res = $this->db->prepared_query('SELECT * FROM records_workflow_state
-                                                  WHERE recordID=:recordID', $vars2);
+            $strSQL2 = 'SELECT * FROM records_workflow_state
+                WHERE recordID = :recordID';
+            $res = $this->db->prepared_query($strSQL2, $vars2);
             if (count($res) == 0)
             {	// if the workflow state is empty, it means the request has been sent back to the requestor
                 $form = new Form($this->db, $this->login);
@@ -787,13 +846,13 @@ class FormWorkflow
             $email = new Email();
 
             $vars = array(':recordID' => $this->recordID);
-            $strSQL = "SELECT rec.title, rec.userID, ser.service FROM records AS rec ".
-                "LEFT JOIN services AS ser USING (serviceID) ".
-                "WHERE recordID=:recordID";
+            $strSQL = 'SELECT rec.title, rec.userID, ser.service FROM records AS rec
+                LEFT JOIN services AS ser USING (serviceID)
+                WHERE recordID = :recordID';
             $record = $this->db->prepared_query($strSQL, $vars);
 
             $vars = array(':stepID' => $stepID);
-            $strSQL = "SELECT stepTitle FROM workflow_steps WHERE stepID=:stepID";
+            $strSQL = 'SELECT stepTitle FROM workflow_steps WHERE stepID = :stepID';
             $groupName = $this->db->prepared_query($strSQL, $vars);
 
             $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
@@ -822,8 +881,8 @@ class FormWorkflow
               ':reqEmpUID'  => $requester[0]['empUiD'],
               ':authEmpUID' => $author[0]['empUID']
             );
-            $strSQL = "SELECT DISTINCT backupEmpUID FROM relation_employee_backup ".
-                "WHERE empUID IN (:reqEmpUID, :authEmpUID)";
+            $strSQL = 'SELECT DISTINCT backupEmpUID FROM relation_employee_backup
+                WHERE empUID IN (:reqEmpUID, :authEmpUID)';
             $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
             // Add backups to email recepients
@@ -843,14 +902,15 @@ class FormWorkflow
 
         // Handle Events
         $varEvents = array(':workflowID' => $workflowID,
-            ':stepID' => $stepID,
-            ':actionType' => $actionType, );
-        $strSQL = "SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt ".
-            "LEFT JOIN events as et USING (eventID) ".
-            "WHERE workflowID=:workflowID ".
-            "AND stepID=:stepID ".
-            "AND actionType=:actionType ".
-            "ORDER BY eventID ASC";
+                           ':stepID' => $stepID,
+                           ':actionType' => $actionType,
+        );
+        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
+            LEFT JOIN events as et USING (eventID)
+            WHERE workflowID = :workflowID
+            AND stepID = :stepID
+            AND actionType = :actionType
+            ORDER BY eventID ASC';
         $res = $this->db->prepared_query($strSQL, $varEvents);
 
         foreach ($res as $event)
@@ -879,10 +939,10 @@ class FormWorkflow
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
-                    $strSQL = "SELECT rec.title, rec.lastStatus, rec.userID, ser.service ".
-                        "FROM records AS rec ".
-                        "LEFT JOIN services AS ser USING (serviceID) ".
-                        "WHERE recordID=:recordID";
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                        FROM records AS rec
+                        LEFT JOIN services AS ser USING (serviceID)
+                        WHERE recordID = :recordID';
                     $approvers = $this->db->prepared_query($strSQL, $vars);
 
                     $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
@@ -906,8 +966,8 @@ class FormWorkflow
                     // Get backups to requester so they can be notified as well
                     $nexusDB = $this->login->getNexusDB();
                     $vars = array(':empUID' => $author[0]['empUID']);
-                    $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
-                        "WHERE empUID = :empUID";
+                    $strSQL = 'SELECT backupEmpUID FROM relation_employee_backup
+                        WHERE empUID = :empUID';
                     $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
                     // Add backups to email recepients
@@ -926,10 +986,10 @@ class FormWorkflow
                     $email = new Email();
 
                     $vars = array(':recordID' => $this->recordID);
-                    $strSQL = "SELECT rec.title, rec.lastStatus, rec.userID, ser.service ".
-                        "FROM records AS rec ".
-                        "LEFT JOIN services AS ser USING (serviceID) ".
-                        "WHERE recordID=:recordID";
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                        FROM records AS rec
+                        LEFT JOIN services AS ser USING (serviceID)
+                        WHERE recordID = :recordID';
                     $approvers = $this->db->prepared_query($strSQL, $vars);
 
                     $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
@@ -958,8 +1018,8 @@ class FormWorkflow
                         // Get backups to requester so they can be notified as well
                         $nexusDB = $this->login->getNexusDB();
                         $vars = array(':empUID' => $author[0]['empUID']);
-                        $strSQL = "SELECT backupEmpUID FROM relation_employee_backup ".
-                                        "WHERE empUID = :empUID";
+                        $strSQL = 'SELECT backupEmpUID FROM relation_employee_backup
+                            WHERE empUID = :empUID';
                         $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
                         // Add backups to email recepients
@@ -1024,7 +1084,7 @@ class FormWorkflow
      * Require admin access unless bypass is requested
      * Do not use in combination with multiple simultaneous workflows
      */
-    public function setStep($stepID, $bypassAdmin = false, $comment = '')
+    public function setStep(int $stepID, bool $bypassAdmin = false, string $comment = ''): bool
     {
         if (!is_numeric($stepID))
         {
@@ -1040,21 +1100,23 @@ class FormWorkflow
 
         // make sure the request has been submitted
         $vars = array(':recordID' => $this->recordID);
-        $res = $this->db->prepared_query('SELECT * FROM records
-            									WHERE recordID=:recordID', $vars);
+        $strSQL = 'SELECT * FROM records WHERE recordID = :recordID';
+        $res = $this->db->prepared_query($strSQL, $vars);
         if ($res[0]['submitted'] == 0)
         {
-            $vars = array(':recordID' => $this->recordID,
-                          ':submitted' => time(),
+            $vars = array(
+                ':recordID' => $this->recordID,
+                ':submitted' => time(),
             );
-            $res = $this->db->prepared_query('UPDATE records
-												SET submitted=:submitted
-            									WHERE recordID=:recordID', $vars);
+            $strSQL = 'UPDATE records
+                SET submitted = :submitted
+                WHERE recordID = :recordID';
+            $res = $this->db->prepared_query($strSQL, $vars);
         }
 
         $vars = array(':stepID' => $stepID);
-        $res = $this->db->prepared_query('SELECT * FROM workflow_steps
-            									WHERE stepID=:stepID', $vars);
+        $strSQL = 'SELECT * FROM workflow_steps WHERE stepID = :stepID';
+        $res = $this->db->prepared_query($strSQL, $vars);
         $stepName = $res[0]['stepTitle'];
 
         if ($comment != '')
@@ -1066,29 +1128,36 @@ class FormWorkflow
             $comment = "Moved to {$stepName} step";
         }
         // write log entry
-        $vars2 = array(':recordID' => $this->recordID,
-                ':userID' => $this->login->getUserID(),
-                ':dependencyID' => 0,
-                ':actionType' => 'move',
-                ':actionTypeID' => 8,
-                ':time' => time(),
-                ':comment' => $comment, );
-        $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+        $vars2 = array(
+            ':recordID' => $this->recordID,
+            ':userID' => $this->login->getUserID(),
+            ':dependencyID' => 0,
+            ':actionType' => 'move',
+            ':actionTypeID' => 8,
+            ':time' => time(),
+            ':comment' => $comment,
+        );
+        $strSQL2 = 'INSERT INTO action_history
+            (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+            VALUES
+            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+        $this->db->prepared_query($strSQL2, $vars2);
 
         $vars2 = array(':recordID' => $this->recordID);
-        $this->db->prepared_query('DELETE FROM records_workflow_state
-										WHERE recordID=:recordID', $vars2);
+        $strSQL2 = 'DELETE FROM records_workflow_state
+            WHERE recordID = :recordID';
+        $this->db->prepared_query($strSQL2, $vars2);
         $this->resetRecordsDependency($stepID);
-        $vars = array(':recordID' => $this->recordID,
-                      ':stepID' => $stepID, );
-        $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
-                                             VALUES (:recordID, :stepID)', $vars);
-
+        $vars = array(
+            ':recordID' => $this->recordID,
+            ':stepID' => $stepID,
+        );
+        $strSQL = 'INSERT INTO records_workflow_state (recordID, stepID) VALUES (:recordID, :stepID)';
+        $this->db->prepared_query($strSQL, $vars);
         return true;
     }
 
-    public function setEventFolder($folder)
+    public function setEventFolder(string $folder): void
     {
         $this->eventFolder = $folder;
     }
@@ -1099,7 +1168,7 @@ class FormWorkflow
      * @param array $steps
      * @return int conflicting step ID
      */
-    private function checkDependencyConflicts($dep, $steps)
+    private function checkDependencyConflicts(array $dep, array $steps): int
     {
         // iterate through steps
         foreach ($steps as $step)
@@ -1107,13 +1176,16 @@ class FormWorkflow
             // unblock step if prerequisites are met
             if ($dep['blockingStepID'] == $step['stepID'])
             {
-                $vars2 = array(':recordID' => $this->recordID,
-                               ':stepID' => $dep['stepID'],
-                               ':blockingStepID' => 0, );
-                $this->db->prepared_query('UPDATE records_workflow_state SET
-                                                blockingStepID=:blockingStepID
-                                                WHERE recordID=:recordID
-                                                    AND stepID=:stepID', $vars2);
+                $vars2 = array(
+                    ':recordID' => $this->recordID,
+                    ':stepID' => $dep['stepID'],
+                    ':blockingStepID' => 0,
+                );
+                $strSQL = 'UPDATE records_workflow_state SET
+                    blockingStepID = :blockingStepID
+                    WHERE recordID = :recordID
+                    AND stepID = :stepID';
+                $this->db->prepared_query($strSQL2, $vars2);
             }
 
             // if it's not the same dependency, find out if there are any conflicts
@@ -1133,12 +1205,15 @@ class FormWorkflow
 
                 if ($foundShared == 0)
                 {
-                    $vars = array(':dependencyID' => $dep['dependencyID'],
-                                  ':workflowID' => $step['workflowID'], );
-                    $res = $this->db->prepared_query('SELECT * FROM workflow_routes
-                    									LEFT JOIN step_dependencies USING (stepID)
-                    									WHERE dependencyID=:dependencyID
-                    										AND workflowID=:workflowID', $vars);
+                    $vars = array(
+                        ':dependencyID' => $dep['dependencyID'],
+                        ':workflowID' => $step['workflowID'],
+                    );
+                    $strSQL = 'SELECT * FROM workflow_routes
+                        LEFT JOIN step_dependencies USING (stepID)
+                        WHERE dependencyID = :dependencyID
+                        AND workflowID = :workflowID';
+                    $res = $this->db->prepared_query($strSQL, $vars);
 
                     if (isset($res[0]))
                     {
@@ -1151,21 +1226,23 @@ class FormWorkflow
         return 0;
     }
 
-    private function resetRecordsDependency($stepID)
+    private function resetRecordsDependency(int $stepID): void
     {
         $vars2 = array(':stepID' => $stepID);
-        $res3 = $this->db->prepared_query('SELECT * FROM step_dependencies
-                    										WHERE stepID=:stepID', $vars2);
+        $strSQL2 = 'SELECT * FROM step_dependencies
+            WHERE stepID = :stepID';
+        $res3 = $this->db->prepared_query($strSQL2, $vars2);
         if (count($res3) > 0)
         {
             foreach ($res3 as $stepDependency)
             {
                 $vars2 = array(':recordID' => $this->recordID,
                         ':dependencyID' => $stepDependency['dependencyID'], );
-                $this->db->prepared_query('UPDATE records_dependencies SET
-	                    										filled=0
-	                    										WHERE recordID=:recordID
-	                    											AND dependencyID=:dependencyID', $vars2);
+                $strSQL2 = 'UPDATE records_dependencies SET
+                    filled = 0
+                    WHERE recordID = :recordID
+                    AND dependencyID = :dependencyID';
+                $this->db->prepared_query($strSQL2, $vars2);
             }
         }
     }
