@@ -80,13 +80,6 @@ foreach ($all_settings as $setting) {
     $settings[$setting['setting']] = json_decode($setting['data'], true) ?: Leaf\XSSHelpers::sanitizeHTMLRich($setting['data']);
 }
 
-//error_log(print_r($settings, true));
-if (is_array($settings) && !empty($settings['emailCC'])) {
-    foreach ($settings['emailCC'] as $recipient) {
-        error_log('looping');
-    }
-}
-
 if (isset($settings['timeZone'])) {
     date_default_timezone_set($settings['timeZone']);
 }

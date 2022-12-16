@@ -95,8 +95,8 @@ if ($login->checkGroup(1))
     });
 }
 
-$controllerMap->register('form', function () use ($db, $oc_db, $login, $action, $emailPrefix, $form, $vamc) {
-    $formController = new Portal\FormController($db, $oc_db, $login, $emailPrefix, $form, $vamc);
+$controllerMap->register('form', function () use ($db, $oc_db, $login, $action, $settings, $form, $vamc) {
+    $formController = new Portal\FormController($db, $oc_db, $login, $settings, $form, $vamc);
     $formController->handler($action);
 });
 

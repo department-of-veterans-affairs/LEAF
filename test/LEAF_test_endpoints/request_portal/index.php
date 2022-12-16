@@ -15,9 +15,14 @@ require_once '../libs/loaders/Leaf_autoloader.php';
 $login->setBaseDir('../');
 $db;
 $oc_db;
-$settings;
+$emailPrefix = $settings['emailPrefix'];
 
+$oc_employee = new Orgchart\Employee($oc_db, $oc_login);
+$oc_position = new Orgchart\Position($oc_db, $oc_login);
+$oc_group = new Orgchart\Group($oc_db, $oc_login);
+$vamc = new Portal\VAMC_Directory($oc_employee, $oc_group);
 
+$form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_group, $vamc);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 $keyIndex = strpos($action, '/');
@@ -40,8 +45,8 @@ $controllerMap->register('formEditor', function () use ($db, $login, $form, $act
     $controller->handler($action);
 });
 
-$controllerMap->register('form', function () use ($db, $oc_db, $login, $settings, $form, $vamc, $action) {
-    $formController = new Portal\FormController($db, $oc_db, $login, $settings, $form, $vamc);
+$controllerMap->register('form', function () use ($db, $oc_db, $login, $emailPrefix, $form, $vamc, $action) {
+    $formController = new Portal\FormController($db, $oc_db, $login, $emailPrefix, $form, $vamc);
     $formController->handler($action);
 });
 

@@ -7,8 +7,9 @@ error_reporting(E_ERROR);
 
 require_once '../../libs/loaders/Leaf_autoloader.php';
 
-$oc_db = $oc_db;
+$oc_db;
 $oc_login->setBaseDir('../');
+$upload_dir = $oc_paths['site_uploads'];
 
 $oc_login->loginUser();
 if (!$oc_login->isLogin() || !$oc_login->isInDB())
@@ -33,22 +34,22 @@ $controllerMap = new Orgchart\ControllerMap();
 
 switch ($key) {
     case 'group':
-        $controllerMap->register('group', function () use ($oc_db, $oc_login, $action) {
-            $groupController = new Orgchart\GroupController($oc_db, $oc_login);
+        $controllerMap->register('group', function () use ($oc_db, $oc_login, $upload_dir, $action) {
+            $groupController = new Orgchart\GroupController($oc_db, $oc_login, $upload_dir);
             $groupController->handler($action);
         });
 
         break;
     case 'position':
-        $controllerMap->register('position', function () use ($oc_db, $oc_login, $action) {
-            $positionController = new Orgchart\PositionController($oc_db, $oc_login);
+        $controllerMap->register('position', function () use ($oc_db, $oc_login, $upload_dir, $action) {
+            $positionController = new Orgchart\PositionController($oc_db, $oc_login, $upload_dir);
             $positionController->handler($action);
         });
 
         break;
     case 'employee':
-        $controllerMap->register('employee', function () use ($oc_db, $oc_login, $action) {
-            $employeeController = new Orgchart\EmployeeController($oc_db, $oc_login);
+        $controllerMap->register('employee', function () use ($oc_db, $oc_login, $upload_dir, $action) {
+            $employeeController = new Orgchart\EmployeeController($oc_db, $oc_login, $upload_dir);
             $employeeController->handler($action);
         });
 

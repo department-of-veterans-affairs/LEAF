@@ -9,7 +9,7 @@ abstract class RESTfulResponse
 {
     /**
      * Returns result for HTTP GET requests
-     * @param array $actionList
+     * @param string $actionList
      * @return mixed
      */
     public function get($actionList)
@@ -19,7 +19,7 @@ abstract class RESTfulResponse
 
     /**
      * Returns result for HTTP POST requests
-     * @param array $actionList
+     * @param string $actionList
      * @return mixed
      */
     public function post($actionList)
@@ -29,7 +29,7 @@ abstract class RESTfulResponse
 
     /**
      * Returns result for HTTP DELETE requests
-     * @param array $actionList
+     * @param string $actionList
      * @return mixed
      */
     public function delete($actionList)
@@ -156,7 +156,7 @@ abstract class RESTfulResponse
                 break;
             case 'xml':
                 header('Content-type: text/xml');
-                $xml = new SimpleXMLElement('<?xml version="1.0"?><output></output>');
+                $xml = new \SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
                 echo $xml->asXML();
 
@@ -287,7 +287,7 @@ abstract class RESTfulResponse
     /**
      * Parses url input into generic format
      * @param string api path
-     * @return string parsed path
+     * @return array parsed path
      */
     public function parseAction($action)
     {
@@ -490,7 +490,7 @@ abstract class RESTfulResponse
     /**
      * flattenStructureCheckGrid is a wrapper for flattenStructureGridInput
      * @param array $out     Target data structure
-     * @param array $key     Current index
+     * @param int $key     Current index
      * @param array $hasGrid Signal for flattenStructure
      * @param array $columns Output columns
      */

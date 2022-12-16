@@ -14,7 +14,7 @@ require_once '../../../libs/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
 
-$emailPrefix = $settings['emailPrefix'];
+$settings;
 
 $oc_employee = new Orgchart\Employee($oc_db, $oc_login);
 $oc_position = new Orgchart\Position($oc_db, $oc_login);
@@ -39,8 +39,8 @@ $login->loginUser();
 
 $controllerMap = new Portal\ControllerMap();
 
-$controllerMap->register('form', function () use ($db, $oc_db, $login, $action, $emailPrefix, $form, $vamc) {
-    $formController = new Portal\FormController($db, $oc_db, $login, $emailPrefix, $form, $vamc);
+$controllerMap->register('form', function () use ($db, $oc_db, $login, $action, $settings, $form, $vamc) {
+    $formController = new Portal\FormController($db, $oc_db, $login, $settings, $form, $vamc);
     $formController->handler($action);
 });
 
