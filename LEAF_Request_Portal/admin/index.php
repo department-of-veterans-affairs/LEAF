@@ -100,21 +100,21 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
-                                           '../' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
+        $main->assign('javascripts', array('../..' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
+                                           '../..' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
         ));
 
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
 
-        $t_form->assign('orgchartPath', '../' . $site_paths['orgchart_path']);
+        $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           '../' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
-                                           '../' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
+                                           '../..' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
+                                           '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
@@ -128,14 +128,14 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../..' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . $site_paths['orgchart_path']);
+        $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
-                '../' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
+                '../..' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl')));
 
@@ -157,7 +157,7 @@ switch ($action) {
         $main->assign('stylesheets', array('css/mod_workflow.css',
                                            '../' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
-        $t_form->assign('orgchartPath', '../' . $site_paths['orgchart_path']);
+        $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('orgchartImportTags', $site_paths['importTags']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -373,7 +373,7 @@ switch ($action) {
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $config::$orgchartImportTags);
+        $t_form->assign('importTags', $settings['importTags']);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -387,7 +387,7 @@ switch ($action) {
 
             $main->assign('useUI', true);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $config::$orgchartImportTags);
+            $t_form->assign('importTags', $settings['importTags']);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 
@@ -427,7 +427,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+        $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
 
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
@@ -454,7 +454,7 @@ switch ($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+            $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 
@@ -482,7 +482,7 @@ switch ($action) {
 $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
+$t_menu->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
 $t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');

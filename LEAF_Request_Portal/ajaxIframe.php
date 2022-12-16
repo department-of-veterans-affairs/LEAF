@@ -105,7 +105,7 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+        $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));

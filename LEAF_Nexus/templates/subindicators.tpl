@@ -227,7 +227,7 @@
             <div dojoType="dijit.layout.ContentPane" id="indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series}-->" style="padding: 0px">
             <script type="dojo/method">
                 dojo.xhrGet({
-                    url: "<!--{$orgchartPath}-->/api/position/<!--{$indicator.data}-->",
+                    url: "..<!--{$orgchartPath}-->/api/position/<!--{$indicator.data}-->",
                     handleAs: 'json',
                     load: function(data, args) {
                         // IE7 workaround requires anchors to be manually created through DOM...
@@ -238,7 +238,7 @@
                             for(var i in data[3].data) {
                                 var pdLink = document.createElement('a');
                                 pdLink.innerHTML = data[3].data[i];
-                                pdLink.setAttribute('href', '<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.data}-->&indicatorID|strip_tags=3&file=' + encodeURIComponent(data[3].data[i]));
+                                pdLink.setAttribute('href', '..<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.data}-->&indicatorID|strip_tags=3&file=' + encodeURIComponent(data[3].data[i]));
                                 pdLink.setAttribute('class', 'printResponse');
                                 pdLink.setAttribute('target', '_blank');
 
@@ -252,7 +252,7 @@
 
                         var ocLink = document.createElement('div');
                         ocLink.innerHTML = '<img src="../libs/dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" /> View Details in Org. Chart';
-                        ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.data}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
+                        ocLink.setAttribute('onclick', "window.open('..<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.data}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
                         ocLink.setAttribute('class', 'buttonNorm');
                         ocLink.setAttribute('style', 'margin-top: 8px');
                         dojo.byId('indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series}-->').appendChild(ocLink);
@@ -270,14 +270,14 @@
                 if(typeof positionSelector == 'undefined') {
                     // I am so upset with IE7
                     if(document.createStyleSheet) {
-                        document.createStyleSheet('<!--{$orgchartPath}-->/css/positionSelector.css');
+                        document.createStyleSheet('..<!--{$orgchartPath}-->/css/positionSelector.css');
                         dojo.xhrGet({
-                            url: "<!--{$orgchartPath}-->/js/positionSelector.js",
+                            url: "..<!--{$orgchartPath}-->/js/positionSelector.js",
                             handleAs: 'text',
                             load: function(response) {
                                 eval(response);
                                 posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                                posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                                posSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 posSel.enableEmployeeSearch();
 
                                 posSel.setSelectHandler(function() {
@@ -286,16 +286,16 @@
 
                                 posSel.initialize();
                             }
-                        });                        
+                        });
                     }
                     else {
-                        dojo.create('style', {type: 'text/css', media: 'screen', innerHTML: '@import "<!--{$orgchartPath}-->/css/positionSelector.css";'}, document.getElementsByTagName('head')[0]);
+                        dojo.create('style', {type: 'text/css', media: 'screen', innerHTML: '@import "..<!--{$orgchartPath}-->/css/positionSelector.css";'}, document.getElementsByTagName('head')[0]);
                         dojo.xhrGet({
-                            url: "<!--{$orgchartPath}-->/js/positionSelector.js",
+                            url: "..<!--{$orgchartPath}-->/js/positionSelector.js",
                             handleAs: 'javascript',
                             load: function() {
                                 posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                                posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                                posSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 posSel.enableEmployeeSearch();
 
                                 posSel.setSelectHandler(function() {
@@ -309,7 +309,7 @@
                 }
                 else {
                     posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    posSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                     posSel.enableEmployeeSearch();
 
                     posSel.setSelectHandler(function() {
@@ -319,7 +319,7 @@
                     posSel.initialize();
                 }
             </script>
-            
+
             </div>
 
             <!--{/if}-->
@@ -327,20 +327,20 @@
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="empSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <div dojoType="dijit.form.TextBox" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="visibility: hidden">
-            
+
             <script type="dojo/method">
                 if(typeof employeeSelector == 'undefined') {
                     // I am so upset with IE7
                     if(document.createStyleSheet) {
-                        document.createStyleSheet('<!--{$orgchartPath}-->/css/employeeSelector.css');
+                        document.createStyleSheet('..<!--{$orgchartPath}-->/css/employeeSelector.css');
                         dojo.xhrGet({
-                            url: "<!--{$orgchartPath}-->/js/employeeSelector.js",
+                            url: "..<!--{$orgchartPath}-->/js/employeeSelector.js",
                             handleAs: 'text',
                             load: function(response) {
                                 eval(response);
                                 empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
+                                empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
+                                empSel.rootPath = '..<!--{$orgchartPath}-->/';
 
                                 empSel.setSelectHandler(function() {
                                     dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
@@ -348,17 +348,17 @@
 
                                 empSel.initialize();
                             }
-                        });                        
+                        });
                     }
                     else {
-                        dojo.create('style', {type: 'text/css', media: 'screen', innerHTML: '@import "<!--{$orgchartPath}-->/css/employeeSelector.css";'}, document.getElementsByTagName('head')[0]);
+                        dojo.create('style', {type: 'text/css', media: 'screen', innerHTML: '@import "..<!--{$orgchartPath}-->/css/employeeSelector.css";'}, document.getElementsByTagName('head')[0]);
                         dojo.xhrGet({
-                            url: "<!--{$orgchartPath}-->/js/employeeSelector.js",
+                            url: "..<!--{$orgchartPath}-->/js/employeeSelector.js",
                             handleAs: 'javascript',
                             load: function() {
                                 empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
+                                empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
+                                empSel.rootPath = '..<!--{$orgchartPath}-->/';
 
                                 empSel.setSelectHandler(function() {
                                     dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
@@ -371,8 +371,8 @@
                 }
                 else {
                     empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                    empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
+                    empSel.rootPath = '..<!--{$orgchartPath}-->/';
 
                     empSel.setSelectHandler(function() {
                         dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
