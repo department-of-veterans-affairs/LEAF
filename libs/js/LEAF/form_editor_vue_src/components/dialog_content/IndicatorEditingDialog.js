@@ -32,7 +32,7 @@ export default {
             formatInfo: {
                 text: `A single input for short text entries.`,
                 textarea: `A large area for multiple lines of text and limited text formatting options.`,
-                grid: `A table format with rows and columns.  Additional rows can be added during data entry.`,
+                grid: `A table format with rows and columns.  Additional rows can be added, removed, or moved during data entry.`,
                 number: `A single input used to store numeric data.  Useful for information that will be used for calculations.`,
                 currency: `A single input used to store currency values in dollars to two decimal places.`,
                 date: `Embeds a datepicker.`,

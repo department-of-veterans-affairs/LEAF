@@ -5,9 +5,7 @@ export default {
     inject: [
         'orgchartPath',
         'addOrgSelector',
-        'orgSelectorClassesAdded',     //JS classes for orgchart formats
-        'updateGridInstances',
-        'gridInstances'
+        'orgSelectorClassesAdded'     //JS classes for orgchart formats
     ],
     computed: {
         truncatedOptions() {
@@ -31,6 +29,17 @@ export default {
         printResponseID() {
             return `xhrIndicator_${this.indicator.indicatorID}_${this.indicator.series}`;
         },
+        gridOptions() {
+            //NOTE: uses LEAF global XSSHelpers
+            let options = JSON.parse(this.indicator.options);
+            options.map(o => {
+                o.name = XSSHelpers.stripAllTags(o.name);
+                if (o?.options) {
+                    o.options.map(ele => ele = XSSHelpers.stripAllTags(ele));
+                }
+            })
+            return options;
+        }
     },
     mounted() {
         switch(this.baseFormat) {
@@ -105,13 +114,6 @@ export default {
                     this.createOrgSelector(); 
                 }
                 break;
-            case 'grid':
-                const options = JSON.parse(this.indicator.options);
-                this.updateGridInstances(options, parseInt(this.indicator.indicatorID), parseInt(this.indicator.series));
-                this.gridInstances[this.indicator.indicatorID].input();
-                this.gridInstances[this.indicator.indicatorID].addRow();
-                this.updateGridPreview();
-                break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
@@ -120,7 +122,7 @@ export default {
                 document.querySelector(`#${this.printResponseID} .format-preview`)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
             default: 
-                document.getElementById(this.inputElID).setAttribute('aria-labelledby', this.labelSelector);
+                document.getElementById(this.inputElID)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
         
         }
@@ -150,22 +152,6 @@ export default {
             });
             if(orgSelector.enableEmployeeSearch !== undefined) orgSelector.enableEmployeeSearch();
             orgSelector.initialize();
-        },
-        /**
-         * removes images associated with grid data entry (preview shows only one row). Initially updating the src attributes avoids an error
-         */
-        updateGridPreview() {
-            const elSelector = `#grid_${this.indicator.indicatorID}_${this.indicator.series}_input tbody > tr > td`;
-            const elTDs = document.querySelectorAll(elSelector);
-            const arrowIndex = elTDs.length - 1;
-            const rmRowIndex = elTDs.length - 2;
-            let arrowImgs = elTDs[arrowIndex].querySelectorAll('img');//[up, down ]
-            let rmRowImg = elTDs[rmRowIndex].querySelector('img');
-            arrowImgs[0]?.setAttribute('src', '../' + arrowImgs[0]?.getAttribute('src'));
-            arrowImgs[1]?.setAttribute('src', '../' + arrowImgs[1]?.getAttribute('src'));
-            rmRowImg?.setAttribute('src', '../' + rmRowImg.getAttribute('src'));
-            elTDs[arrowIndex].innerText = '';
-            elTDs[rmRowIndex].innerText = '';
         }
     },
     template: `<div class="format-preview">
@@ -236,14 +222,26 @@ export default {
         </template>
 
         <template v-if="baseFormat==='grid'">
-            <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" :id="'tableStatus_' + indicator.indicatorID" role="status"></span>
             <div class="tableinput">
-                <table class="table" 
-                :id="'grid_' + indicator.indicatorID + '_' + indicator.series + '_input'" 
-                style="word-wrap: break-word; table-layout: fixed; height: 100%; display: table">
+                <table class="table" :id="'grid_' + indicator.indicatorID + '_' + indicator.series + '_input'"
+                    style="word-wrap: break-word; table-layout: fixed; height: 100%; display: table">
+
                     <thead :id="'gridTableHead_' + indicator.indicatorID">
+                        <tr>
+                            <td v-for="o in gridOptions">{{ o.name }}</td>
+                        </tr>
                     </thead>
                     <tbody :id="'gridTableBody_' + indicator.indicatorID">
+                        <tr>
+                            <td v-for="o in gridOptions" style="min-width: 150px;">
+                                <input v-if="o.type==='text'" style="width: 100%;" :aria-label="o.name" />
+                                <textarea v-if="o.type==='textarea'" rows="3" style="resize:none; width: 100%;" :aria-label="o.name"></textarea>
+                                <input type="date" v-if="o.type==='date'" style="width: 100%;" :aria-label="o.name" />
+                                <select v-if="o.type==='dropdown'" style="width: 100%;" :aria-label="o.name">
+                                    <option v-for="option in o.options">{{option}}</option>
+                                </select>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

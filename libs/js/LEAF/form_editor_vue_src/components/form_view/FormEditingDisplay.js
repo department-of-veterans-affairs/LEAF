@@ -1,7 +1,7 @@
 import FormatPreview from "./FormatPreview";
 
 export default {
-    name: 'FormEditingDisplay',  //NOTE: this will replace previous 'print-subindicators' component
+    name: 'FormEditingDisplay',  //NOTE: this will replace previous 'print-subindicators' and associated templates
     props: {
         depth: Number,
         formNode: Object,
@@ -16,7 +16,6 @@ export default {
         'editQuestion',
         'openAdvancedOptionsDialog',
         'openIfThenDialog',
-        'updateGridInstances',
         'listItems',
         'allListItemsAreAdded',
         'allowedConditionChildFormats',

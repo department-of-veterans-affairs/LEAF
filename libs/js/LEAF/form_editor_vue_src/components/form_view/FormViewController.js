@@ -9,7 +9,6 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
-            gridInstances: {},
             allowedConditionChildFormats: ['dropdown', 'text', 'multiselect'],
             showToolbars: true
         }
@@ -48,7 +47,6 @@ export default {
         return {
             listItems: Vue.computed(() => this.listItems),
             allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
-            gridInstances: Vue.computed(() => this.gridInstances),
             showToolbars: Vue.computed(() => this.showToolbars),
             orgchartPath: this.orgchartPath,
             addToListItemsObject: this.addToListItemsObject,
@@ -57,8 +55,7 @@ export default {
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListing: this.moveListing,
-            updateGridInstances: this.updateGridInstances,
+            moveListing: this.moveListing
         }
     },
     computed: {
@@ -94,15 +91,6 @@ export default {
         }
     },
     methods: {
-        /**
-         * NOTE: uses LEAF gridInput class for form data entry preview of grid format questions
-         * @param {array} options array of objects with grid format properties (name, id, type)
-         * @param {number} indicatorID 
-         * @param {number} series 
-         */
-        updateGridInstances(options = [], indicatorID = 0, series = 1) {
-            this.gridInstances[indicatorID] = new gridInput(options, indicatorID, series, '');
-        },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
          * @param {Object} event 

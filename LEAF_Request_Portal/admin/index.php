@@ -210,7 +210,6 @@ switch ($action) {
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                             '../../libs/js/choicesjs/choices.min.js',
-                                            '../js/gridInput.js',
                                             '../js/formQuery.js'
         ));
         $main->assign('stylesheets', array('../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
