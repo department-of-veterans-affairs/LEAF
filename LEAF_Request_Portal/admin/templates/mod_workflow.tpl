@@ -1773,7 +1773,8 @@ function loadWorkflow(workflowID) {
                     }
                 }
 
-            	  $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle +'</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
+                $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle + ' ' + emailNotificationIcon + '</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
+                
             	$('#step_' + res[i].stepID).css({
             		'left': parseFloat(res[i].posX) + 'px',
             		'top': posY + 'px',
