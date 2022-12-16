@@ -10,6 +10,8 @@ require_once 'formatters/portalGroupFormatter.php';
 require_once 'formatters/workflowFormatter.php';
 require_once 'formatters/primaryAdminFormatter.php';
 require_once 'formatters/emailTemplateFormatter.php';
+require_once 'formatters/TemplateEditorFormatter.php';
+require_once 'formatters/TemplateReportsFormatter.php';
 
 class LogFormatter{
 
@@ -24,6 +26,8 @@ class LogFormatter{
         LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,
         LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TEMPLATES,
         LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
+        LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TEMPLATES,
+        LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TEMPLATES,
     );
 
     public static function getFormattedString($logData, $logType){
@@ -83,7 +87,7 @@ class LogFormatter{
                 array_push($result["values"], $value);
             }
         }
-        
+
         return $result;
     }
 }
