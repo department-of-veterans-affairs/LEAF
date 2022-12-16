@@ -703,7 +703,8 @@
 							"    console.log(currentWorkflowID);\r",
 							"    pm.expect(currentWorkflowID).to.eql(70);  \r",
 							"\r",
-							"});"
+							"});\r",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -1238,23 +1239,23 @@
 	],
 	"variable": [
 		{
-			"id": "254c5436-ed2d-41b1-bac1-a29a5b72f429",
+			"id": "2a5a35b3-31f3-4622-8fed-d4c97202b20a",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "b8ebb883-4531-4f8f-8265-598179df6940",
+			"id": "fd5f1612-2a63-4175-846f-527bce9f22c2",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "90c524e2-814f-4b00-b169-800049d78408",
+			"id": "c1e0787a-b991-4efa-91e5-c67df634ff6c",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "464e4553-7332-4494-bd39-d408182e70bc",
+			"id": "851923ca-4210-43e3-8500-7aba3fc781a6",
 			"key": "categoryID",
 			"value": ""
 		}
