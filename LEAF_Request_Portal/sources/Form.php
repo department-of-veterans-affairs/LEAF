@@ -1164,7 +1164,7 @@ class Form
      * Created at: 10/3/2022, 7:40:04 AM (America/New_York)
      * Last Updated: 12/15/2022, 8:05:46 AM (America/New_York)
      */
-    public function doSubmit(int $recordID, string $emailPrefix, Email $email): int|array
+    public function doSubmit(int $recordID, ?string $emailPrefix, Email $email): int|array
     {
         $recordID = (int)$recordID;
 

@@ -829,7 +829,7 @@ class FormWorkflow
      * @return array {status(int), errors[]}
      * @throws Exception
      */
-    public function handleEvents(int $workflowID, int $stepID, string $actionType, string $comment, string $emailPrefix): array
+    public function handleEvents(int $workflowID, int $stepID, string $actionType, string $comment, ?string $emailPrefix): array
     {
         $errors = array();
 

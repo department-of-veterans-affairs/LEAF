@@ -150,12 +150,12 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
+                                           '../..' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                            '../../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           '../' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
+                                           '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('orgchartImportTags', $site_paths['importTags']);
