@@ -88,13 +88,14 @@ abstract class RESTfulResponse
      * Outputs in specified format based on $_GET['format']
      * Default to JSON
      *
-     * @param string|array $out
+     * @param string|array|null $out
      *
      * @return void
      *
      * Created at: 12/2/2022, 1:27:24 PM (America/New_York)
+     * Updated at: 12/16/2022, 7:12:01 AM (America/New_York)
      */
-    public function output(string|array $out = ''): void
+    public function output(null|string|array $out = ''): void
     {
         //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';

@@ -834,13 +834,13 @@ class FormEditor
 
     /**
      *
-     * @param int|null $filterById
+     * @param string|null $filterById
      *
      * @return array
      *
      * Created at: 12/5/2022, 10:45:38 AM (America/New_York)
      */
-    public function getHistory(?int $filterById): array
+    public function getHistory(?string $filterById): array
     {
         return $this->dataActionLogger->getHistory($filterById, "categoryID", \Leaf\LoggableTypes::FORM);
     }
