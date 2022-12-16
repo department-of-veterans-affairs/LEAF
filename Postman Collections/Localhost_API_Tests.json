@@ -286,7 +286,10 @@
 							"\r",
 							"});\r",
 							"\r",
-							"pm.globals.get(\"variable_key\");"
+							"pm.test(\"Your test name\", function () {\r",
+							"\tvar jsonData = pm.response.json();\r",
+							"\tpm.expect(jsonData.value).to.eql(100);\r",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -1231,23 +1234,23 @@
 	],
 	"variable": [
 		{
-			"id": "c6081292-aec3-4290-a1cd-3be1f16a4473",
+			"id": "dc86f581-0073-4b77-a248-2acbc0d74569",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "9f3dce11-983a-43bf-85b7-6405486cc522",
+			"id": "b9a9d111-56d9-4ce3-98d4-148f6a3e7fc5",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "53daa0cb-14ad-4bc5-891d-2a3308775860",
+			"id": "6c13ae32-b447-49b7-ab7a-4e4bc0c8d8ed",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "0d382663-55d8-4f1d-bda0-d2f27e773109",
+			"id": "eac21c09-c722-49f5-8710-d6f490f7353d",
 			"key": "categoryID",
 			"value": ""
 		}
