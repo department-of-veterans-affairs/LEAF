@@ -765,7 +765,7 @@ div#form_content_view {
                     font-family: monospace;
                 }
                 div.tableinput { /* fixes for grid tables */
-                    overflow-x: scroll;
+                    overflow-x: auto;
                     max-width: 900px;
                     
                     table {
