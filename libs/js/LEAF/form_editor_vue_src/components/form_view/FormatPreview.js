@@ -241,9 +241,9 @@ export default {
                 <table class="table" 
                 :id="'grid_' + indicator.indicatorID + '_' + indicator.series + '_input'" 
                 style="word-wrap: break-word; table-layout: fixed; height: 100%; display: table">
-                    <thead>
+                    <thead :id="'gridTableHead_' + indicator.indicatorID">
                     </thead>
-                    <tbody>
+                    <tbody :id="'gridTableBody_' + indicator.indicatorID">
                     </tbody>
                 </table>
             </div>

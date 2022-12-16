@@ -37,7 +37,7 @@
     </leaf-form-dialog>
 </div>
 
-<script src="https://unpkg.com/vue@3.2.45/dist/vue.global.js"></script>  <!-- DEV -->
+<script src="https://unpkg.com/vue@3.2.33/dist/vue.global.js"></script>  <!-- DEV -->
 <!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>  3.2.33 -->
 <script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
 
