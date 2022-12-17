@@ -58,7 +58,7 @@ class FormStackController extends RESTfulResponse
         });
 
         $this->index['POST']->register('formStack/import', function ($args) use ($formStack) {
-            $formStack->import();
+            return $formStack->importForm();
         });
 
         $this->index['POST']->register('formStack/importLiteral', function ($args) use ($formStack) {
