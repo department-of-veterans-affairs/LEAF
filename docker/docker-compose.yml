@@ -11,6 +11,10 @@ services:
     volumes:
       - './vue-app:/app'
       - '/vue-app/app/node_modules'
+      - '../libs/js/vue-dest:/app/vue-dest'
+    networks:
+      - leaf-sql
+      - leaf
     environment: 
       - CHOKIDAR_USEPOLLING=true
 

@@ -5,7 +5,7 @@ module.exports = {
     entry: './src/LEAF_FormEditor_main.js',
     output: {
         filename: 'LEAF_FormEditor_main_build.js',
-        path: path.resolve(__dirname, '../../libs/js/vue-dest')
+        path: path.resolve(__dirname, '/app/vue-dest')
     },
     resolve: {
         alias: {
