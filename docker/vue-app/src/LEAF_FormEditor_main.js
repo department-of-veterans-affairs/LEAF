@@ -1,6 +1,7 @@
+import { createApp } from 'vue';
 import LEAF_FormEditor_App_vue from "./LEAF_FormEditor_App_vue.js";
 
-const app = Vue.createApp(LEAF_FormEditor_App_vue);
+const app = createApp(LEAF_FormEditor_App_vue);
 
 /*This opt-in config setting is used to allow computed injections to be used without
 the value property.  per Vue dev, will not be needed after next minor update */

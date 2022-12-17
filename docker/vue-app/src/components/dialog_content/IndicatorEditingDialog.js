@@ -1,3 +1,5 @@
+import { computed } from 'vue';
+
 import GridCell from "../GridCell";
 import IndicatorPrivileges from "../IndicatorPrivileges";
 
@@ -97,7 +99,7 @@ export default {
     ],
     provide() {
         return {
-            gridJSON: Vue.computed(() => this.gridJSON),
+            gridJSON: computed(() => this.gridJSON),
             updateGridJSON: this.updateGridJSON
         }
     },

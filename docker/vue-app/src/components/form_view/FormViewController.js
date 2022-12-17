@@ -1,3 +1,5 @@
+import { computed } from 'vue';
+
 import FormEditingDisplay from './FormEditingDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
 import EditPropertiesPanel from './EditPropertiesPanel.js';
@@ -45,9 +47,9 @@ export default {
     },
     provide() {
         return {
-            listItems: Vue.computed(() => this.listItems),
-            allListItemsAreAdded: Vue.computed(() => this.allListItemsAreAdded),
-            showToolbars: Vue.computed(() => this.showToolbars),
+            listItems: computed(() => this.listItems),
+            allListItemsAreAdded: computed(() => this.allListItemsAreAdded),
+            showToolbars: computed(() => this.showToolbars),
             orgchartPath: this.orgchartPath,
             addToListItemsObject: this.addToListItemsObject,
             allowedConditionChildFormats: this.allowedConditionChildFormats,

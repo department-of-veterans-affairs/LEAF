@@ -1,9 +1,23 @@
 version: "3.7"
 
 services:
+  leaf_vue_ui:
+    container_name: leaf_vue_ui
+    build:
+      context: ./vue-app
+      dockerfile: leaf_vue.dockerfile
+    #ports:
+    #  - '8080:8080'
+    volumes:
+      - './vue-app:/app'
+      - '/vue-app/app/node_modules'
+    environment: 
+      - CHOKIDAR_USEPOLLING=true
+
+
   leaf-php-8:
     image: leaf-fpm
-    container_name: leaf-fpm
+    container_name: leaf-fpm-test
     env_file: 
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
@@ -39,7 +53,7 @@ services:
 
   leaf-nginx:
     image: leaf-nginx
-    container_name: leaf-nginx
+    container_name: leaf-nginx-test
     env_file: 
       - ./env_files/nginx_local.env
     build:
@@ -69,13 +83,13 @@ services:
 
   leaf-smtp:
     image: pelentan/fake-smtp:1.0
-    container_name: leaf-smtp
+    container_name: leaf-smtp-test
     env_file: 
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
     ports:
-      - 2525:25
-      - 5080:5080
+      - "2525:25"
+      - "5080:5080"
     restart: 'always'
     networks:
       - traefik
@@ -89,12 +103,12 @@ services:
       - "traefik.http.routers.leaf_smtp.tls.certresolver=dev_http"
 
   leaf-adminer:
-    container_name: leaf-adminer
+    container_name: leaf-adminer-test
     image: adminer
     environment:
       ADMINER_DEFAULT_SERVER: leaf-mysql
     ports:
-      - 8080:8080
+      - "8080:8080"
     networks:
       - traefik
       - leaf-sql
@@ -108,9 +122,9 @@ services:
 
   leaf-mysql:
     image: pelentan/leaf-mysql:2.0
-    container_name: leaf-mysql
+    container_name: leaf-mysql-test
     ports:
-      - 3306:3306
+      - "3306:3306"
     env_file: 
       - ./env_files/mysql_local.env
       - ./env_files/secrets.env
