@@ -142,8 +142,8 @@ class Email
             $strContent = str_replace("\r\n", '<br />', $strContent);
         }
         $smarty = new \Smarty;
-        $smarty->template_dir = __DIR__ . '/templates/email/';
-        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty->template_dir = __DIR__ . '/../templates/email/';
+        $smarty->compile_dir = __DIR__ . '/../templates_c/';
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         if (($tplVar != '') && ($strContent != '')) {
