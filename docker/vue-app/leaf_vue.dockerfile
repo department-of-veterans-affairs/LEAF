@@ -13,3 +13,4 @@ RUN npm install -g nodemon
 COPY . .
 
 CMD ["nodemon", "--ext", "js,css,vue", "--watch src", "--exec", "npm", "run", "dev-vue" ]
+#CMD ["npm", "run", "dev-vue" ]

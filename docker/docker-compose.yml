@@ -10,7 +10,8 @@ services:
     #  - '8080:8080'
     volumes:
       - './vue-app:/app'
-      - '/vue-app/app/node_modules'
+      #- '/vue-app/app/node_modules'
+      - '/app/node_modules'
       - '../libs/js/vue-dest:/app/vue-dest'
     networks:
       - leaf-sql
