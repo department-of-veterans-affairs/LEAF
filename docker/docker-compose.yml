@@ -6,11 +6,8 @@ services:
     build:
       context: ./vue-app
       dockerfile: leaf_vue.dockerfile
-    #ports:
-    #  - '8080:8080'
     volumes:
-      - './vue-app:/app'
-      #- '/vue-app/app/node_modules'
+      - './vue-app/src:/app/src'
       - '/app/node_modules'
       - '../libs/js/vue-dest:/app/vue-dest'
     networks:
