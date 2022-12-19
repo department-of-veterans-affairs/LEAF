@@ -446,17 +446,11 @@
 					"raw": "{  \r\n    \"formID\": \"form_12307\",\r\n    \"requestData\": \"Test Form\"   \r\n}"
 				},
 				"url": {
-					"raw": "https://leaf-preprod.va.gov/Academy/Demo1/api/new?formID=_form_12334&requestData=Test Request",
-					"protocol": "https",
+					"raw": "{{PreProd_URL}}/new?formID=_form_12334&requestData=Test Request",
 					"host": [
-						"leaf-preprod",
-						"va",
-						"gov"
+						"{{PreProd_URL}}"
 					],
 					"path": [
-						"Academy",
-						"Demo1",
-						"api",
 						"new"
 					],
 					"query": [
@@ -1055,7 +1049,7 @@
 	],
 	"variable": [
 		{
-			"id": "8953ca43-16ad-443b-a8bf-6b58016462fe",
+			"id": "3d2844ff-5705-4278-9e74-6e1c58628483",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
