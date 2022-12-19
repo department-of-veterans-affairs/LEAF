@@ -11,6 +11,7 @@ export default {
         'selectNewCategory',
         'getStapledFormsByCurrentCategory',
         'truncateText',
+        'stripAndDecodeHTML',
         'formsStapledCatIDs',
         'updateFormsStapledCatIDs'
     ],
@@ -55,11 +56,11 @@ export default {
          */
         categoryName() {
             let name = this.categoriesRecord.categoryName === '' ? 
-                'Untitled' : XSSHelpers.stripAllTags(this.categoriesRecord.categoryName);
+                'Untitled' : this.stripAndDecodeHTML(this.categoriesRecord.categoryName);
             return this.truncateText(name, 44);
         },
         formDescription() {
-            return XSSHelpers.stripAllTags(this.categoriesRecord.categoryDescription);
+            return this.stripAndDecodeHTML(this.categoriesRecord.categoryDescription);
         },
         availability () {
             return parseInt(this.categoriesRecord.visible) === 1 && this.workflowID > 0 ? 

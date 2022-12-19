@@ -1,8 +1,8 @@
 export default {
     data() {
         return {
-            categoryName: this.currentCategorySelection?.categoryName || 'Untitled',
-            categoryDescription: this.currentCategorySelection?.categoryDescription || '',
+            categoryName: this.stripAndDecodeHTML(this.currentCategorySelection?.categoryName) || 'Untitled',
+            categoryDescription: this.stripAndDecodeHTML(this.currentCategorySelection?.categoryDescription) || '',
             workflowID: parseInt(this.currentCategorySelection?.workflowID) || 0,
             needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
             sort: parseInt(this.currentCategorySelection?.sort) || 0,
@@ -22,11 +22,12 @@ export default {
         'updateCategoriesProperty',
         'openEditCollaboratorsDialog',
         'closeFormDialog',
-        'truncateText'
+        'truncateText',
+        'stripAndDecodeHTML',
 	],
     computed: {
         categoryDescriptionDisplay() {
-            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
+            return this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
         },
         workflowDescription() {
             let returnValue = '';
@@ -43,8 +44,8 @@ export default {
             return parseInt(this.needToKnow) === 1;
         },
         changesPending() {
-            const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
-            const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
+            const nameChanged = this.categoryName !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryName);
+            const descriptionChanged  = this.categoryDescription !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
             const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
             const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
             const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
@@ -53,7 +54,7 @@ export default {
             const changes = [
                 nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, sortChanged, visibleChanged, typeChanged
             ];
-            //console.log(changes)
+            console.log('form panel changes', changes)
             return changes.some(c => c === true);
         },
         formNameCharsRemaining() {

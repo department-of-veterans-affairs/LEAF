@@ -11,7 +11,6 @@ export default {
         FormatPreview
     },
     inject: [
-        'truncateText',
         'newQuestion',
         'editQuestion',
         'openAdvancedOptionsDialog',

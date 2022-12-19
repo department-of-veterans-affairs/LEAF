@@ -40,7 +40,8 @@ export default {
         'selectedFormNode',
         'newQuestion',
         'currentCategorySelection',   //corresponds to currently selected form being viewed (form or subform)
-        'currentCategoryIndicatorTotal'
+        'currentCategoryIndicatorTotal',
+        'stripAndDecodeHTML',
     ],
     mounted() {
         console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID);
@@ -348,7 +349,7 @@ export default {
             <!-- ENTIRE FORM EDIT / PREVIEW -->
             <div v-if="selectedFormNode===null" id="form_entry_and_preview">
                 <div class="form-section-header" style="display: flex; height: 28px;">
-                    <h3 style="margin: 0;">{{currentCategorySelection.categoryName}}</h3>
+                    <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
                     <button id="indicator_toolbar_toggle" class="btn-general"
                         @click.stop="toggleToolbars($event)">
                         {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars

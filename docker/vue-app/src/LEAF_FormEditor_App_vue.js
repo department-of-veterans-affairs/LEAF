@@ -112,6 +112,7 @@ export default {
             openIfThenDialog: this.openIfThenDialog,
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
+            stripAndDecodeHTML: this.stripAndDecodeHTML,
             showRestoreFields: this.showRestoreFields,
             toggleIndicatorCountSwitch: this.toggleIndicatorCountSwitch
         }
@@ -195,6 +196,17 @@ export default {
     methods: {
         truncateText(str='', maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
+        },
+        /**
+         * 
+         * @param {string} content 
+         * @returns string with tags removed and remaining characers decoded
+         */
+        stripAndDecodeHTML(content='') {
+            let text = XSSHelpers.stripAllTags(content);
+            const elDiv = document.createElement('div');
+            elDiv.innerHTML = text;
+            return elDiv.innerText;
         },
         /**
          * used to track whether js code and styles for orgchart formats have been downloaded from the nexus
@@ -326,7 +338,7 @@ export default {
                     break;
                 }
             }
-            if (newIndicator === true) {
+            if (newIndicator === true && this.currCategoryID===null) { //null if on form browser page
                 this.showCertificationStatus = true;
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
                     if (unresolvedLeafSRequests.length === 0) { // if no new request, create one
