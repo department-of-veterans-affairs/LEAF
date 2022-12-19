@@ -7,6 +7,9 @@ module.exports = {
         filename: 'LEAF_FormEditor_main_build.js',
         path: path.resolve(__dirname, '/app/vue-dest')
     },
+    watchOptions: {
+        poll: true
+    },
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js'
