@@ -842,7 +842,7 @@
 						"disabled": true
 					}
 				],
-				"url": "https://leaf-preprod.va.gov/Academy/Demo1/api/form/_form_00882/flat"
+				"url": "{{PreProd_URL}}/form/_form_00882/flat"
 			},
 			"response": []
 		},
@@ -1049,7 +1049,7 @@
 	],
 	"variable": [
 		{
-			"id": "3bf1939d-c98a-4b27-a20a-b2b712832ac5",
+			"id": "b30c06cc-317b-41fc-871a-d1a40075850c",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
