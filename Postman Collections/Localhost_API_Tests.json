@@ -530,7 +530,7 @@
 					"script": {
 						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
 						"exec": [
-							"\r",
+							"pm.globals.set(\"variable_key\", \"variable_value\");\r",
 							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
 							"    pm.response.to.have.status(200);\r",
 							"});\r",
@@ -1235,23 +1235,23 @@
 	],
 	"variable": [
 		{
-			"id": "3ee0896f-ac83-452d-a0df-16760394a617",
+			"id": "b543a224-418d-48e3-881d-9128c9c9d524",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "04d86117-31f2-4478-a4f4-38029c9a0d4b",
+			"id": "051c1f83-de59-4b90-a9bf-1537be1a5ab1",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "58c83644-c2b2-4ca3-8c64-26ede88d5a9b",
+			"id": "803ee1ff-6ea2-4b13-9482-24a0c68481b9",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "4991963f-7ce1-4e4b-8291-7c931e995cda",
+			"id": "9fc93c93-14f8-4bda-857f-4050661add68",
 			"key": "categoryID",
 			"value": ""
 		}
