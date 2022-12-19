@@ -406,7 +406,7 @@
 						}
 					}
 				},
-				"url": "https://localhost/LEAF_Request_Portal/api/form/categories"
+				"url": "{{PreProd_URL}}/form/categories"
 			},
 			"response": []
 		},
@@ -1055,7 +1055,7 @@
 	],
 	"variable": [
 		{
-			"id": "07c0b022-250d-4162-8ec2-e0f10ffd5de7",
+			"id": "8953ca43-16ad-443b-a8bf-6b58016462fe",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
