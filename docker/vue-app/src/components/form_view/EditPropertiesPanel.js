@@ -26,9 +26,6 @@ export default {
         'stripAndDecodeHTML',
 	],
     computed: {
-        categoryDescriptionDisplay() {
-            return this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
-        },
         workflowDescription() {
             let returnValue = '';
             if (this.workflowID !== 0) {
@@ -44,8 +41,8 @@ export default {
             return parseInt(this.needToKnow) === 1;
         },
         changesPending() {
-            const nameChanged = this.categoryName !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryName);
-            const descriptionChanged  = this.categoryDescription !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
+            const nameChanged = this.stripAndDecodeHTML(this.categoryName) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryName);
+            const descriptionChanged  = this.stripAndDecodeHTML(this.categoryDescription) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
             const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
             const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
             const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
@@ -67,8 +64,8 @@ export default {
     methods: {
         onSave(){
             let  editPropertyUpdates = [];
-            const nameChanged = this.categoryName !== this.currentCategorySelection.categoryName;
-            const descriptionChanged  = this.categoryDescription !== this.currentCategorySelection.categoryDescription;
+            const nameChanged = this.stripAndDecodeHTML(this.categoryName) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryName);
+            const descriptionChanged  = this.stripAndDecodeHTML(this.categoryDescription) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
             const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
             const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
             const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
