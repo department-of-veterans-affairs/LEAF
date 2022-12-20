@@ -8,6 +8,7 @@ export default {
     inject: [
         'APIroot',
         'truncateText',
+        'stripAndDecodeHTML',
         'selectNewCategory',
         'categories',
         'currCategoryID',
@@ -112,8 +113,7 @@ export default {
          */
         shortFormNameStripped(catID = '', len = 21) {
             const form = this.categories[catID] || '';
-            let name = form.categoryName || 'Untitled';
-            name = XSSHelpers.stripAllTags(name);
+            const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
             return this.truncateText(name, len).trim();
         },
     },

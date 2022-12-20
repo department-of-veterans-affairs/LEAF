@@ -203,10 +203,10 @@ export default {
          * @returns string with tags removed and remaining characers decoded
          */
         stripAndDecodeHTML(content='') {
-            let text = XSSHelpers.stripAllTags(content);
             const elDiv = document.createElement('div');
-            elDiv.innerHTML = text;
-            return elDiv.innerText;
+            elDiv.innerHTML = content;
+            const text = XSSHelpers.stripAllTags(elDiv.innerText);
+            return text;
         },
         /**
          * used to track whether js code and styles for orgchart formats have been downloaded from the nexus
