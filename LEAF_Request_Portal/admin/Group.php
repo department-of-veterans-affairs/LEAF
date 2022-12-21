@@ -174,6 +174,25 @@ class Group
     }
 
     /**
+     *
+     * @return void
+     *
+     * Created at: 12/8/2022, 10:45:57 AM (America/New_York)
+     */
+    public function cleanDb(): void
+    {
+        $sql_vars = array(':locallyManaged' => 0,
+                          ':active' => 0);
+
+        $sql = 'DELETE
+                FROM users
+                WHERE locallyManaged = :locallyManaged
+                AND active = :active';
+
+        $this->db->prepared_query($sql, $sql_vars);
+    }
+
+    /**
      * return array of userIDs
      * @param int $groupID
      *
