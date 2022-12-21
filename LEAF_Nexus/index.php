@@ -229,6 +229,11 @@ switch ($action) {
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
+        // validate this is a proper timezone and not some funny business.
+        if (!in_array($tz, DateTimeZone::listIdentifiers())) {
+            $tz = null;
+        }
+     
         if ($groupID != 0)
         {
             $group = new Orgchart\Group($oc_db, $oc_login);
