@@ -27,15 +27,17 @@ $employee = new Orgchart\Employee($oc_db, $oc_login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
+$uid = isset($_GET['empUID']) && is_numeric($_GET['empUID']) ? $_GET['empUID'] : 0;
+$indicatorID = isset($_GET['indicatorID']) && is_numeric($_GET['indicatorID']) ? $_GET['indicatorID'] : 0;
+
+
 switch ($action) {
     case 'getForm':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $uid = isset($_GET['empUID']) && is_numeric($_GET['empUID']) ? $_GET['empUID'] : 0;
-
-        $t_form->assign('form', $employee->getAllData($_GET['empUID']));
+        $t_form->assign('form', $employee->getAllData($uid));
         $t_form->assign('uid', $uid);
         $t_form->assign('categoryID', $employee->getDataTableCategoryID());
         $t_form->display('print_subindicators.tpl');
@@ -48,12 +50,12 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            if (is_numeric($_GET['indicatorID']) && is_numeric($_GET['empUID']))
+            if (is_numeric($_GET['empUID']))
             {
-                $t_form->assign('uid', $_GET['empUID']);
+                $t_form->assign('uid', $uid);
                 $t_form->assign('categoryID', $employee->getDataTableCategoryID());
-                $indicator = $employee->getAllData($_GET['empUID'], $_GET['indicatorID']);
-                $t_form->assign('indicator', $indicator[$_GET['indicatorID']]);
+                $indicator = $employee->getAllData($uid, $indicatorID);
+                $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -64,8 +66,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('form', $employee->getAllData((int)$_GET['empUID'], (int)$_GET['indicatorID']));
-        $t_form->assign('UID', (int)$_GET['empUID']);
+        $t_form->assign('form', $employee->getAllData($uid, $indicatorID));
+        $t_form->assign('UID', $uid);
         $t_form->assign('categoryID', $employee->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->display('ajaxForm.tpl');

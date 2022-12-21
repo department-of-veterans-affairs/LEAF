@@ -606,7 +606,7 @@ class Workflow
     public function saveStepData(int $stepID, array $data) : bool{
 
         $validSaveStep = TRUE;
-
+        
         // everything that seems to modify this stuff is run through here.
         if (!$this->login->checkGroup(1))
         {
@@ -620,10 +620,10 @@ class Workflow
         if( $validSaveStep === TRUE ){
             $vars = [
                 ':stepID' => $stepID,
-                ':stepData' => json_encode([
-                    'AutomateEmailGroup' => $data['Automate Email Group'],
-                    'DateSelected' => $data['Date Selected'],
-                    'DaysSelected' => $data['Days Selected']
+                ':stepData' => json_encode(['AutomatedEmailReminders' => [
+                        'AutomateEmailGroup' => $data['AutomatedEmailReminders']['Automate Email Group'],
+                        'DaysSelected' => $data['AutomatedEmailReminders']['Days Selected']
+                    ]
                 ])
             ];
 

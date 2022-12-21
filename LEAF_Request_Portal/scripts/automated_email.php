@@ -30,10 +30,10 @@ if (empty($getWorkflowStepsRes)) {
 foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // get our data, we need to see how many days back we need to look.
-    $eventDataArray = json_decode($workflowStep['stepData'], true, 2);
+    $eventDataArray = json_decode($workflowStep['stepData'], true, 3);
 
     // DateSelected * DaysSelected * what is a day anyway= how many days to bug this person.
-    $daysago = $eventDataArray['DateSelected'] * $eventDataArray['DaysSelected'];
+    $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
 
     // pass ?current=asdasd to get the present time for testing purposes
     if (!empty($_GET['current'])) {
@@ -42,7 +42,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     } else{
         $daysagotimestamp = time() - ($daysago * 60 * 60 * 24);
 
-        echo "Working on step: {$workflowStep['stepID']}, time calculation: {time()} - $daysago = $daysagotimestamp / {date('Y-m-d H:i:s',$daysagotimestamp)}\r\n";
+        echo "Working on step: {$workflowStep['stepID']}, time calculation: ".time()." - $daysago = $daysagotimestamp / ".date('Y-m-d H:i:s',$daysagotimestamp)."\r\n";
     }
 
 
