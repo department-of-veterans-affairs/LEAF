@@ -8,4 +8,5 @@ RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "dev-vue" ]
+#CMD ["npm", "run", "dev-vue" ]
+ENTRYPOINT ["tail", "-f", "/dev/null"]

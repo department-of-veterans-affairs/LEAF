@@ -19,7 +19,7 @@ services:
 
   leaf-php-8:
     image: leaf-fpm
-    container_name: leaf-fpm-test
+    container_name: leaf-fpm
     env_file: 
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
@@ -55,7 +55,7 @@ services:
 
   leaf-nginx:
     image: leaf-nginx
-    container_name: leaf-nginx-test
+    container_name: leaf-nginx
     env_file: 
       - ./env_files/nginx_local.env
     build:
@@ -85,7 +85,7 @@ services:
 
   leaf-smtp:
     image: pelentan/fake-smtp:1.0
-    container_name: leaf-smtp-test
+    container_name: leaf-smtp
     env_file: 
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
@@ -105,7 +105,7 @@ services:
       - "traefik.http.routers.leaf_smtp.tls.certresolver=dev_http"
 
   leaf-adminer:
-    container_name: leaf-adminer-test
+    container_name: leaf-adminer
     image: adminer
     environment:
       ADMINER_DEFAULT_SERVER: leaf-mysql
@@ -124,7 +124,7 @@ services:
 
   leaf-mysql:
     image: pelentan/leaf-mysql:2.0
-    container_name: leaf-mysql-test
+    container_name: leaf-mysql
     ports:
       - "3306:3306"
     env_file: 
