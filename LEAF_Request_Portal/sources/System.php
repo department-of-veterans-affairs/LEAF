@@ -864,7 +864,7 @@ class System
     /**
      * Set primary admin.
      *
-     * @return array array with response array
+     * @return string json is string
      */
     public function setPrimaryAdmin()
     {
@@ -939,6 +939,10 @@ class System
      */
     public function syncSystem(Group $org_group, Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): string
     {
+        // this is needed to clean up some databases where a user is currently not
+        // locally managed and they are also not active
+        $org_group->cleanDb();
+
         $nexus_services = array();
         $nexus_chiefs = array();
         $nexus_groups = array();
