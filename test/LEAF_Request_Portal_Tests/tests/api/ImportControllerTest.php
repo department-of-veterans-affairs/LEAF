@@ -28,7 +28,7 @@ final class ImportControllerTest extends TestCase
         self::$testFileName = uniqid() . '.xlsx';
 
         self::$reqClient = LEAFClient::createRequestPortalClient();
-        self::$testFilePath = __DIR__ . DIRECTORY_SEPARATOR . '../../../libs/tests/php-commons/spreadsheet/import_test.xlsx';
+        self::$testFilePath = __DIR__ . DIRECTORY_SEPARATOR . LIB_PATH . 'tests/php-commons/spreadsheet/import_test.xlsx';
         self::$testFileDest = __DIR__ . DIRECTORY_SEPARATOR . '../../../../LEAF_Request_Portal/files/' . self::$testFileName;
 
         $success = copy(self::$testFilePath, self::$testFileDest);

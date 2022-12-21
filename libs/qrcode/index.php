@@ -1,5 +1,6 @@
 <?php
-include '../loaders/Leaf_autoloader.php';
+
+require_once '../loaders/Leaf_autoloader.php';
 include 'qrlib.php';
 $cacheDir = 'cache/';
 

@@ -11,7 +11,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 if (!$login->isLogin() || !$login->isInDB())
@@ -185,6 +186,7 @@ switch ($action) {
 }
 
 $main->assign('login', $t_login->fetch('login.tpl'));
+$t_menu->assign('lib_path', LIB_PATH);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -193,5 +195,6 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
+$main->assign('lib_path', LIB_PATH);
 
 $main->display('main_iframe.tpl');

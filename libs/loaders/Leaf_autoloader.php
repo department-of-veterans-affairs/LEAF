@@ -14,9 +14,6 @@ $uri = '';
 for ($i=1; $i < count($uri_array) - 1; $i++) {
     $uri .= $uri_array[$i] . '/';
 }
-if (is_file(__DIR__ . '/../../' . $uri . 'globals.php')) {
-    require_once __DIR__ . '/../../' . $uri . 'globals.php';
-}
 
 if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons')) {
     if (is_dir(__DIR__ . '/../php-commons')) {

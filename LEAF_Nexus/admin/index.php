@@ -15,7 +15,8 @@
 */
 error_reporting(E_ERROR);
 
-require_once '../../libs/loaders/Leaf_autoloader.php';
+require_once '../globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -60,6 +61,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
+            $main->assign('lib_path', LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_refresh_directory.tpl'));
         }
         else
@@ -78,6 +80,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
+            $main->assign('lib_path', LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -138,6 +141,7 @@ switch ($action) {
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
            {
+                $t_form->assign('lib_path', LIB_PATH);
                $main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
            }
            else
@@ -154,7 +158,8 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        $main->assign('javascripts', array('../libs/js/LEAF/workbookhelper.js'));
+        $main->assign('javascripts', array(LIB_PATH . 'js/LEAF/workbookhelper.js'));
+        $t_form->assign('lib_path', LIB_PATH);
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
 
@@ -167,24 +172,24 @@ switch ($action) {
 
            $main->assign('useUI', true);
            $main->assign('javascripts', array('js/dialogController.js',
-                   '../libs/js/codemirror/lib/codemirror.js',
-                   '../libs/js/codemirror/mode/xml/xml.js',
-                   '../libs/js/codemirror/mode/javascript/javascript.js',
-                   '../libs/js/codemirror/mode/css/css.js',
-                   '../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                   '../libs/js/codemirror/addon/search/search.js',
-                   '../libs/js/codemirror/addon/search/searchcursor.js',
-                   '../libs/js/codemirror/addon/dialog/dialog.js',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.js',
-                   '../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                   '../libs/js/codemirror/addon/display/fullscreen.js',
+                   LIB_PATH . 'js/codemirror/lib/codemirror.js',
+                   LIB_PATH . 'js/codemirror/mode/xml/xml.js',
+                   LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
+                   LIB_PATH . 'js/codemirror/mode/css/css.js',
+                   LIB_PATH . 'js/codemirror/mode/htmlmixed/htmlmixed.js',
+                   LIB_PATH . 'js/codemirror/addon/search/search.js',
+                   LIB_PATH . 'js/codemirror/addon/search/searchcursor.js',
+                   LIB_PATH . 'js/codemirror/addon/dialog/dialog.js',
+                   LIB_PATH . 'js/codemirror/addon/scroll/simplescrollbars.js',
+                   LIB_PATH . 'js/codemirror/addon/scroll/annotatescrollbar.js',
+                   LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.js',
+                   LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
            ));
-           $main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
-                   '../libs/js/codemirror/addon/dialog/dialog.css',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                   '../libs/js/codemirror/addon/display/fullscreen.css',
+           $main->assign('stylesheets', array(LIB_PATH . 'js/codemirror/lib/codemirror.css',
+                   LIB_PATH . 'js/codemirror/addon/dialog/dialog.css',
+                   LIB_PATH . 'js/codemirror/addon/scroll/simplescrollbars.css',
+                   LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.css',
+                   LIB_PATH . 'js/codemirror/addon/display/fullscreen.css',
            ));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -196,9 +201,10 @@ switch ($action) {
 
                    break;
                case 'mod_templates_reports':
-                   $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
+                    $main->assign('lib_path', LIB_PATH);
+                    $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
 
-                   break;
+                    break;
                default:
                    break;
            }
@@ -229,6 +235,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
+            $t_form->assign('lib_path', LIB_PATH);
             $main->assign('body', $t_form->fetch('view_admin.tpl'));
         }
         else
@@ -243,6 +250,7 @@ switch ($action) {
 
 $memberships = $oc_login->getMembership();
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
+$t_menu->assign('lib_path', LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -252,6 +260,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
+$main->assign('lib_path', LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

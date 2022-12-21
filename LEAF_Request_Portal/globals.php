@@ -15,3 +15,4 @@ if (!defined('HTTP_HOST')) define('HTTP_HOST', getenv('APP_HTTP_HOST'));
 if (!defined('AUTH_URL')) define('AUTH_URL', getenv('APP_URL_AUTH'));
 if (!defined('AUTH_TYPE')) define('AUTH_TYPE', getenv('APP_AUTH_TYPE'));
 if (!defined('CIPHER_KEY')) define('CIPHER_KEY', getenv('APP_CIPHER_KEY'));
+if (!defined('LIB_PATH')) define('LIB_PATH', getenv('APP_LIB_PATH'));

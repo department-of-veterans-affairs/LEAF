@@ -5,7 +5,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 $action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 $script = isset($_GET['s']) ? Leaf\XSSHelpers::scrubFilename(Leaf\XSSHelpers::xscrub($_GET['s'])) : '';

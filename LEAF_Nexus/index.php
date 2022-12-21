@@ -11,7 +11,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -59,7 +60,7 @@ switch ($action) {
 
         $main->assign('useDojoUI', false);
 
-        $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array(LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
         $position = new Orgchart\Position($oc_db, $oc_login);
 
@@ -88,7 +89,7 @@ switch ($action) {
 
         $main->assign('useDojoUI', true);
 
-        $main->assign('javascripts', array('../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array(LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
@@ -110,6 +111,7 @@ switch ($action) {
         $main->assign('stylesheets', array('css/editor.css',
                                            'css/positionSelector.css', ));
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
+        $t_form->assign('lib_path', LIB_PATH);
         $main->assign('body', $t_form->fetch('editor.tpl'));
 
         $tabText = '';
@@ -272,6 +274,7 @@ switch ($action) {
         $t_form->assign('summary', $employee->getSummary($empUID));
         $t_form->assign('userID', $_SESSION['userID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('lib_path', LIB_PATH);
 
         $main->assign('body', $t_form->fetch('browse_employee.tpl'));
 
@@ -298,6 +301,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('lib_path', LIB_PATH);
         //$main->assign('useDojoUI', true);
         $main->assign('javascripts', array('js/groupSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
         $main->assign('stylesheets', array('css/groupSelector.css',
@@ -324,6 +328,8 @@ switch ($action) {
                                            'css/view_position.css',
                                            'css/groupSelector.css',
                                            'css/view_group.css', ));
+        $t_form->assign('lib_path', LIB_PATH);
+
         $main->assign('body', $t_form->fetch('browse_search.tpl'));
 
         $tabText = 'Search';
@@ -448,6 +454,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
+            $t_form->assign('lib_path', LIB_PATH);
             $main->assign('body', $t_form->fetch('view_admin.tpl'));
         }
         else
@@ -546,6 +553,7 @@ switch ($action) {
 $memberships = $oc_login->getMembership();
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
+$t_menu->assign('lib_path', LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -555,6 +563,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
+$main->assign('lib_path', LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

@@ -22,7 +22,7 @@
  * @return string
  */
 
- include_once '../../loaders/Leaf_autoloader.php';
+require_once __DIR__ . '/../../loaders/Leaf_autoloader.php';
 
 function smarty_modifier_sanitize($in)
 {

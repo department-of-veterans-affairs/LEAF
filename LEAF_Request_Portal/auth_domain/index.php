@@ -9,7 +9,8 @@
 
 */
 
-require_once '../../libs/loaders/Leaf_autoloader.php';
+require_once '../globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 if (isset($_SERVER['REMOTE_USER']))
 {

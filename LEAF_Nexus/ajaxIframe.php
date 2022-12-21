@@ -11,7 +11,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 $oc_login->loginUser();
 if (!$oc_login->isLogin() || !$oc_login->isInDB()) {
@@ -168,7 +169,7 @@ switch ($action) {
 
         break;
 }
-
+$t_menu->assign('lib_path', LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -179,5 +180,6 @@ $main->assign('city', $oc_settings['subHeading']);
 
 $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
 $main->assign('revision', Leaf\XSSHelpers::xscrub($rev[0]['data']));
+$main->assign('lib_path', LIB_PATH);
 
 $main->display('main_iframe.tpl');

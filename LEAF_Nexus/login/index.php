@@ -6,7 +6,8 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-require_once '../../libs/loaders/Leaf_autoloader.php';
+require_once '../globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 function getBaseDir()
 {
@@ -55,7 +56,7 @@ When logging into this system, you agree to the following:<br />
     </ul>
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
-   <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
+   <a href="<?= $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="<?= LIB_PATH; ?>dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
 
 </div>
 

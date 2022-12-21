@@ -11,7 +11,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -86,7 +87,7 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-            $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
+            $main->assign('stylesheets', array(LIB_PATH . 'js/choicesjs/choices.min.css'));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -95,11 +96,11 @@ switch ($action) {
                 'js/formSearch.js',
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',
-                '../libs/js/LEAF/XSSHelpers.js',
-                '../libs/jsapi/nexus/LEAFNexusAPI.js',
-                '../libs/jsapi/portal/LEAFPortalAPI.js',
-                '../libs/jsapi/portal/model/FormQuery.js',
-                '../libs/js/choicesjs/choices.min.js'
+                LIB_PATH . 'js/LEAF/XSSHelpers.js',
+                LIB_PATH . 'jsapi/nexus/LEAFNexusAPI.js',
+                LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+                LIB_PATH . 'jsapi/portal/model/FormQuery.js',
+                LIB_PATH . 'js/choicesjs/choices.min.js'
             ));
 
             $o_login = $t_login->fetch('login.tpl');
@@ -134,6 +135,7 @@ $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
+$t_menu->assign('lib_path', LIB_PATH);
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -142,6 +144,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', $settings['version']);
+$main->assign('lib_path', LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

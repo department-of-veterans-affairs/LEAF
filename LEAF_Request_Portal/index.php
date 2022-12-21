@@ -5,7 +5,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -102,8 +103,8 @@ switch ($action) {
         break;
     case 'view':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('css/view.css', '../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array('css/view.css', LIB_PATH . 'js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', LIB_PATH . 'js/LEAF/XSSHelpers.js', LIB_PATH . 'js/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         // prevent view if form is submitted
@@ -153,7 +154,7 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
+        $main->assign('stylesheets', array(LIB_PATH . 'js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array(
             'js/form.js',
             'js/gridInput.js',
@@ -162,13 +163,13 @@ switch ($action) {
             'js/formQuery.js',
             'js/formPrint.js',
             'js/jsdiff.js',
-            '../libs/js/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js',
-            '../libs/js/es6-promise/es6-promise.min.js',
-            '../libs/js/es6-promise/es6-promise.auto.min.js',
-            '../libs/js/jspdf/jspdf.min.js',
-            '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
-            '../libs/js/choicesjs/choices.min.js',
+            LIB_PATH . 'js/LEAF/XSSHelpers.js',
+            LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+            LIB_PATH . 'js/es6-promise/es6-promise.min.js',
+            LIB_PATH . 'js/es6-promise/es6-promise.auto.min.js',
+            LIB_PATH . 'js/jspdf/jspdf.min.js',
+            LIB_PATH . 'js/jspdf/jspdf.plugin.autotable.min.js',
+            LIB_PATH . 'js/choicesjs/choices.min.js',
             'js/titleValidator.js'
         ));
 
@@ -250,8 +251,8 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', '../libs/js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array(LIB_PATH . 'js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', LIB_PATH . 'js/choicesjs/choices.min.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -323,7 +324,7 @@ switch ($action) {
     case 'cancelled_request':
         $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="' . LIB_PATH . 'dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
 
         break;
@@ -443,7 +444,7 @@ switch ($action) {
 //        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
         $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
 
-        $main->assign('stylesheets', array('css/report.css', '../libs/js/choicesjs/choices.min.css'));
+        $main->assign('stylesheets', array('css/report.css', LIB_PATH . 'js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
                'js/formQuery.js',
@@ -451,9 +452,9 @@ switch ($action) {
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               '../libs/jsapi/portal/LEAFPortalAPI.js',
-               '../libs/js/LEAF/XSSHelpers.js',
-               '../libs/js/choicesjs/choices.min.js'
+               LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+               LIB_PATH . 'js/LEAF/XSSHelpers.js',
+               LIB_PATH . 'js/choicesjs/choices.min.js'
            ));
            $main->assign('useUI', true);
 
@@ -494,6 +495,8 @@ switch ($action) {
         $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
+        $main->assign('lib_path', LIB_PATH);
+
         $main->display(customTemplate('main.tpl'));
         exit();
     default:
@@ -540,6 +543,7 @@ $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
+$t_menu->assign('lib_path', LIB_PATH);
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
@@ -547,6 +551,7 @@ $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
+$main->assign('lib_path', LIB_PATH);
 
 if (!isset($_GET['iframe'])) {
     $main->display(customTemplate('main.tpl'));

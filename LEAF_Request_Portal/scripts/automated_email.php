@@ -1,6 +1,7 @@
 <?php
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once '../globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 $oc_employee = new Orgchart\Employee($oc_db, $oc_login);
 $oc_position = new Orgchart\Position($oc_db, $oc_login);

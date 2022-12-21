@@ -11,7 +11,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 function customTemplate($tpl)
 {
@@ -82,7 +83,7 @@ switch ($action) {
             }
             else
             {
-                echo '<img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
+                echo '<img src="' . LIB_PATH . 'dynicons/?img=emblem-readonly.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
             }
         }
 
@@ -322,6 +323,7 @@ switch ($action) {
             $main->assign('body', $body);
         }
 
+        $main->assign('lib_path', LIB_PATH);
         $main->display('main_iframe.tpl');
 
         break;
@@ -428,6 +430,8 @@ switch ($action) {
                 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
                 $main->assign('login', $t_login->fetch('login.tpl'));
+                $main->assign('lib_path', LIB_PATH);
+
                 $main->display('main.tpl');
             }
         }

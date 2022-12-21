@@ -12,7 +12,9 @@ else
 {
     define('BR', '<br />');
 }
-require_once '../../libs/loaders/Leaf_autoloader.php';
+
+require_once '../globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
 if (!isset($res[0]) || !is_numeric($res[0]['data']))

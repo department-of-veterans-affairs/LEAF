@@ -4,13 +4,12 @@ placeholder<br />
 
 <span id="editor_toolbar" class="noprint">
     <span id="editor_tools">
-        <!-- <div onclick="alert('placeholder')"><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="Add Sub-Group" title="Add Sub-Group" /> Add Sub-Group</div> -->
-        <span onclick="zoomIn();"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&amp;w=32" style="vertical-align: middle" alt="Zoom In" title="Zoom In" /> Zoom In</span>
-        <span onclick="zoomOut();"><img src="../libs/dynicons/?img=gnome-zoom-out.svg&amp;w=32" style="vertical-align: middle" alt="Zoom Out" title="Zoom Out" /> Zoom Out</span>
+        <span onclick="zoomIn();"><img src="<!--{$lib_path}-->dynicons/?img=gnome-zoom-in.svg&amp;w=32" style="vertical-align: middle" alt="Zoom In" title="Zoom In" /> Zoom In</span>
+        <span onclick="zoomOut();"><img src="<!--{$lib_path}-->dynicons/?img=gnome-zoom-out.svg&amp;w=32" style="vertical-align: middle" alt="Zoom Out" title="Zoom Out" /> Zoom Out</span>
         <!--{if $rootID != $topPositionID}-->
-        <span onclick="viewSupervisor();"><img src="../libs/dynicons/?img=go-up.svg&amp;w=32" style="vertical-align: middle" alt="Zoom Out" title="Zoom Out" /> Go Up One Level</span>
+        <span onclick="viewSupervisor();"><img src="<!--{$lib_path}-->dynicons/?img=go-up.svg&amp;w=32" style="vertical-align: middle" alt="Zoom Out" title="Zoom Out" /> Go Up One Level</span>
         <!--{/if}-->
-        <span onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="../libs/dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="Forward as Email" title="Forward as Email" /> Forward as Email</span>        
+        <span onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="<!--{$lib_path}-->dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="Forward as Email" title="Forward as Email" /> Forward as Email</span>
     </span>
 </span>
 
@@ -92,7 +91,7 @@ function zoomOut() {
     	alert('Minimum zoom level reached');
     	break;
  }
- jsPlumb.repaintEverything();	
+ jsPlumb.repaintEverything();
 }
 
 function applyZoomLevel() {
@@ -140,6 +139,9 @@ function saveLayout(positionID) {
         cache: false
     });
 }
+$t_form->assign('lib_path', LIB_PATH);
+$main->assign('lib_path', LIB_PATH);
+<!--{$lib_path}-->
 
 function changeSupervisor(currPositionID) {
     dialog.setContent('Supervisor\'s Name or Title: <div id="positionSelector"></div>');
@@ -148,7 +150,7 @@ function changeSupervisor(currPositionID) {
     posSel = new positionSelector('positionSelector');
     posSel.initialize();
     posSel.enableEmployeeSearch();
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -236,7 +238,7 @@ function addSubordinate(parentID) {
     dialog.setTitle('Add Subordinate');
     dialog.show(); // need to show early because of ie6
     $('#inputtitle').focus();
-    
+
     dialog.setSaveHandler(function() {
         dialog.indicateBusy();
         $.ajax({
@@ -264,8 +266,8 @@ function addSubordinate(parentID) {
                 parentDomPosition.left += 0;
                 parentDomPosition.top += 80;
                 positions[response].setDomPosition(parentDomPosition.left, parentDomPosition.top);
-                positions[response].addControl('<div class="button" onclick="removePosition('+response+');"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" alt="Remove Position" title="Remove Position" /> Remove Position</div>');
-                positions[response].addControl('<div class="button" onclick="changeSupervisor('+response+');"><img src="../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Change Supervisor</div>');
+                positions[response].addControl('<div class="button" onclick="removePosition('+response+');"><img src="<!--{$lib_path}-->dynicons/?img=process-stop.svg&amp;w=32" alt="Remove Position" title="Remove Position" /> Remove Position</div>');
+                positions[response].addControl('<div class="button" onclick="changeSupervisor('+response+');"><img src="<!--{$lib_path}-->dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Change Supervisor</div>');
                 // make position box draggable
                 draggableOptions.stop = function() {
                 	saveLayout(response);
@@ -288,7 +290,7 @@ function addSubordinate(parentID) {
 }
 
 function addSubgroup() {
-	
+
 }
 
 var levelLimit = 5;
@@ -309,14 +311,14 @@ function getSubordinates(positionID, level) {
 
         positions[subordinate[key].positionID].onLoad = function() {
         	var loadSubordinates = 1;
-        	var positionControls = '<div class="button" onclick="hideSubordinates('+subordinate[key].positionID+');"><img src="../libs/dynicons/?img=gnome-system-users.svg&amp;w=32" alt="Hide" title="Hide" /> Hide Subordinates</div>';
+        	var positionControls = '<div class="button" onclick="hideSubordinates('+subordinate[key].positionID+');"><img src="<!--{$lib_path}-->dynicons/?img=gnome-system-users.svg&amp;w=32" alt="Hide" title="Hide" /> Hide Subordinates</div>';
         	if(subordinate[key][15].data != '') {
                 var subData = $.parseJSON(subordinate[key][15].data);
                 if(subData[<!--{$rootID}-->] != undefined
                 	&& subData[<!--{$rootID}-->].hideSubordinates != undefined
                		&& subData[<!--{$rootID}-->].hideSubordinates == 1) {
 
-                	positionControls = '<div class="button" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Show" title="Show" /> Show Subordinates</div>';
+                	positionControls = '<div class="button" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="<!--{$lib_path}-->dynicons/?img=system-users.svg&amp;w=32" alt="Show" title="Show" /> Show Subordinates</div>';
                 	loadSubordinates = 0;
                 }
         	}
@@ -344,7 +346,7 @@ function getSubordinates(positionID, level) {
         		   positions[subordinate[key].positionID].addControl(positionControls);
         	}
         	else {
-        		positions[subordinate[key].positionID].addControl('<div class="button" onclick="removePosition('+subordinate[key].positionID+');"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=32" alt="Remove Position" title="Remove Position" /> Remove Position</div>');
+        		positions[subordinate[key].positionID].addControl('<div class="button" onclick="removePosition('+subordinate[key].positionID+');"><img src="<!--{$lib_path}-->dynicons/?img=process-stop.svg&amp;w=32" alt="Remove Position" title="Remove Position" /> Remove Position</div>');
         	}
 
         	var tPID = subordinate[key].positionID;
@@ -366,12 +368,12 @@ function getSubordinates(positionID, level) {
             	$('svg.editMode path').css({'stroke': '#d0d0d0'});
             });
 
-        	positions[subordinate[key].positionID].addControl('<div class="button" onclick="changeSupervisor('+subordinate[key].positionID+');"><img src="../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Change Supervisor</div>');
-        	positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=editor&amp;rootID='+subordinate[key].positionID+'\'"><img src="../libs/dynicons/?img=system-search.svg&amp;w=32" alt="Focus" title="Focus" /> Focus on This</div>');
+        	positions[subordinate[key].positionID].addControl('<div class="button" onclick="changeSupervisor('+subordinate[key].positionID+');"><img src="<!--{$lib_path}-->dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Change Supervisor</div>');
+        	positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=editor&amp;rootID='+subordinate[key].positionID+'\'"><img src="<!--{$lib_path}-->dynicons/?img=system-search.svg&amp;w=32" alt="Focus" title="Focus" /> Focus on This</div>');
 
             applyZoomLevel();
         };
-        
+
         positions[subordinate[key].positionID].draw(subordinate[key]);
     }
 }
@@ -407,7 +409,7 @@ function hideSubordinates(positionID) {
 }
 
 function removePosition(positionID) {
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this position?</span>');
+    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this position?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -501,7 +503,7 @@ $(function() {
     positions[<!--{$rootID}-->] = new position(<!--{$rootID}-->);
     positions[<!--{$rootID}-->].initialize('bodyarea');
     positions[<!--{$rootID}-->].setRootID(<!--{$rootID}-->);
-    positions[<!--{$rootID}-->].addControl('<div class="button" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Add Supervisor</div>');
+    positions[<!--{$rootID}-->].addControl('<div class="button" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="<!--{$lib_path}-->dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Add Supervisor</div>');
 
     draggableOptions.stop = function() {
         saveLayout(<!--{$rootID}-->);
@@ -514,7 +516,7 @@ $(function() {
             var positionData = $.parseJSON(positions[<!--{$rootID}-->].data[15].data);
             if(positionData[<!--{$rootID}-->] != undefined
                 && positionData[<!--{$rootID}-->].zoom != undefined) {
-                currentZoomLevel = positionData[<!--{$rootID}-->].zoom; 
+                currentZoomLevel = positionData[<!--{$rootID}-->].zoom;
             }
         }
 

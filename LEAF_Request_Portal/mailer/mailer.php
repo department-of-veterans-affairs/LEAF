@@ -11,7 +11,8 @@
 
 set_time_limit(10);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once '../globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 // Mail queue folder
 $currDir = dirname(__FILE__);

@@ -22,7 +22,7 @@
  * @return string
  */
 
- include '../../loaders/Leaf_autoloader.php';
+require_once '../../loaders/Leaf_autoloader.php';
 
 function smarty_modifier_sanitizeRichtext($in)
 {

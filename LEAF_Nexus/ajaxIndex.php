@@ -13,7 +13,8 @@
 
 error_reporting(E_ERROR);
 
-require_once '../libs/loaders/Leaf_autoloader.php';
+require_once 'globals.php';
+require_once LIB_PATH . 'loaders/Leaf_autoloader.php';
 
 if (isset($oc_settings['timeZone'])) {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($oc_settings['timeZone']));
