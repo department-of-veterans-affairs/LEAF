@@ -41,6 +41,7 @@ switch ($action) {
         $t_form->assign('form', $employee->getAllData($uid));
         $t_form->assign('uid', $uid);
         $t_form->assign('categoryID', $employee->getDataTableCategoryID());
+        $t_form->assign('lib_path', S_LIB_PATH);
         $t_form->display('print_subindicators.tpl');
 
         break;
@@ -57,6 +58,7 @@ switch ($action) {
                 $t_form->assign('categoryID', $employee->getDataTableCategoryID());
                 $indicator = $employee->getAllData($uid, $indicatorID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }

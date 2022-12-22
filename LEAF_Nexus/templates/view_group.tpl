@@ -37,15 +37,15 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1 role="heading" tabindex="0">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
-        <div onkeypress="triggerClickViewOrgchart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="../libs/dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
+        <div onkeypress="triggerClickViewOrgchart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="<!--{$lib_path}-->dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
-        <button class="options" onclick="editGroupName()" style="width: 100%"><img src="../libs/dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
-        <button class="options" id="button_addEmployeePosition" onclick="addEmployeePosition()" style="width: 100%"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</button>
-        <button class="options" onclick="viewHistory()"><img src="../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>
+        <button class="options" onclick="editGroupName()" style="width: 100%"><img src="<!--{$lib_path}-->dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
+        <button class="options" id="button_addEmployeePosition" onclick="addEmployeePosition()" style="width: 100%"><img src="<!--{$lib_path}-->dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</button>
+        <button class="options" onclick="viewHistory()"><img src="<!--{$lib_path}-->dynicons/?img=appointment.svg&amp;w=32" alt="View Status" title="View History" style="vertical-align: middle"> View History</button>
         <br />
         <br />
-        <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
+        <button class="options" onclick="confirmRemove()" style="width: 100%"><img src="<!--{$lib_path}-->dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Group</div>
     </button>
 
     <div class="toolbar_tags"><h1 role="heading" tabindex="0">Tags</h1>
@@ -68,21 +68,21 @@
     <div class="toolbar_security"><h1 role="heading" tabindex="0">Security Permissions</h1>
         <div tabindex="0">
         <!--{if $groupPrivileges[$groupID].read != 0}-->
-            <img src="../libs/dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" / > You have read access
+            <img src="<!--{$lib_path}-->dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" / > You have read access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" / tabindex="0"> You do not have read access
+            <img src="<!--{$lib_path}-->dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" / tabindex="0"> You do not have read access
         <!--{/if}-->
         </div>
         <div tabindex="0">
         <!--{if $groupPrivileges[$groupID].write != 0}-->
-            <img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
+            <img src="<!--{$lib_path}-->dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
         <!--{else}-->
-            <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access" style="vertical-align: middle" /> You do not have write access
+            <img src="<!--{$lib_path}-->dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access" style="vertical-align: middle" /> You do not have write access
         <!--{/if}-->
         </div>
         <!--{if $groupPrivileges[$groupID].grant != 0}-->
         <button class="buttonPermission"  style="width: 100%" onclick="window.open('index.php?a=view_group_permissions&amp;groupID=<!--{$groupID}-->','Orgchart','width=840,resizable=yes,scrollbars=yes,menubar=yes');">
-            <img src="../libs/dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle"/> Change Permissions
+            <img src="<!--{$lib_path}-->dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle"/> Change Permissions
         </button>
         <!--{/if}-->
     </div>
@@ -286,7 +286,7 @@ function confirmRemove() {
 	<!--{if count($tags) > 1}-->
 	   warning = '<br /><br /><span style="color: red">WARNING: This group may be shared by other projects. Check &quot;Tags&quot; to see which projects are using this group.</span>';
 	<!--{/if}-->
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
+    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
     	$.ajax({
@@ -309,7 +309,7 @@ function confirmRemove() {
 }
 
 function confirmUnlinkPosition(positionID) {
-	confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this position?</span>');
+	confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this position?</span>');
 	confirm_dialog.setTitle('Confirmation');
 	confirm_dialog.setSaveHandler(function() {
 		$.ajax({
@@ -326,7 +326,7 @@ function confirmUnlinkPosition(positionID) {
 }
 
 function confirmUnlinkEmployee(empUID) {
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this employee?</span>');
+    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this employee?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -346,7 +346,7 @@ function confirmDeleteTag(inTag) {
     var warning = '';
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
 
-    confirm_dialog.setContent('<img src="../libs/dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>'+ warning);
+    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>'+ warning);
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({

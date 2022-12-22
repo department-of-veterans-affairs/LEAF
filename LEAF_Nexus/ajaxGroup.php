@@ -32,6 +32,7 @@ switch ($action) {
         $t_form->assign('form', $group->getAllData((int)$_GET['groupID']));
         $t_form->assign('uid', (int)$_GET['groupID']);
         $t_form->assign('categoryID', $group->getDataTableCategoryID());
+        $t_form->assign('lib_path', S_LIB_PATH);
         $t_form->display('print_subindicators.tpl');
 
         break;
@@ -48,6 +49,7 @@ switch ($action) {
                 $t_form->assign('categoryID', $group->getDataTableCategoryID());
                 $indicator = $group->getAllData($_GET['groupID'], $_GET['indicatorID']);
                 $t_form->assign('indicator', $indicator[$_GET['indicatorID']]);
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -77,6 +79,7 @@ switch ($action) {
         foreach ($list as $item)
         {
             $t_form->assign('positionData', $item);
+            $t_form->assign('lib_path', S_LIB_PATH);
             $t_form->display('widget_position_small.tpl');
         }
 
@@ -111,6 +114,7 @@ switch ($action) {
         $t_form->assign('form', $group->getAllData((int)$_GET['gID']));
         $t_form->assign('uid', (int)$_GET['gID']);
         $t_form->assign('categoryID', $group->getDataTableCategoryID());
+        $t_form->assign('lib_path', S_LIB_PATH);
         $t_form->display('print_subindicators.tpl');
 
         break;

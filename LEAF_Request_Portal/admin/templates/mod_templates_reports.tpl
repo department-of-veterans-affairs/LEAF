@@ -10,7 +10,7 @@
 
     <main id="codeArea" class="main-content">
         <h2>LEAF Programmer</h2>
-        
+
         <div id="codeContainer" class="leaf-code-container">
             <div id="filename"></div>
             <div id="reportURL"></div>
@@ -34,8 +34,8 @@
             </div>
         </div>
     </main>
-    
-    <div class="leaf-right-nav"> 
+
+    <div class="leaf-right-nav">
         <aside class="sidenav-right" id="controls">
             <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
             <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="runReport();">Open Report</button>
@@ -50,7 +50,7 @@
 
 <script>
 
-function save() { 
+function save() {
 	$('#saveIndicator').attr('src', '../images/indicator.gif');
 	$.ajax({
 		type: 'POST',
@@ -58,7 +58,7 @@ function save() {
 			   file: codeEditor.getValue()},
 		url: '../api/system/reportTemplates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '<!--{$lib_path}-->dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			var time = new Date().toLocaleTimeString();
 			$('#saveStatus').html('<br /> Last saved: ' + time);
@@ -72,7 +72,7 @@ function save() {
 function newReport() {
     dialog.setTitle('New File');
     dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
-    
+
     dialog.setSaveHandler(function() {
     	var file = $('#newFilename').val();
         $.ajax({
@@ -103,7 +103,7 @@ function newReport() {
 function deleteReport() {
 	dialog_confirm.setTitle('Are you sure?');
 	dialog_confirm.setContent('This will irreversibly delete this report.');
-    
+
 	dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
@@ -115,7 +115,7 @@ function deleteReport() {
         });
         dialog_confirm.hide();
     });
-    
+
 	dialog_confirm.show();
 }
 
@@ -136,10 +136,10 @@ var currentFile = '';
 function loadContent(file) {
 	currentFile = file;
 	$('#codeContainer').css('display', 'none');
-	
+
 	var reportURL = window.location.origin + window.location.pathname;
 	reportURL = reportURL.replace('admin/', '') + 'report.php?a=' + file.replace('.tpl', '');
-	
+
 	$('#reportURL').html('URL: <a href="'+ reportURL +'" target="_blank">'+ reportURL +'</a>');
 	$('#controls').css('visibility', 'visible');
     if(isExcludedFile(file)) {

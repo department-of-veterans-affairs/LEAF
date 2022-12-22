@@ -244,8 +244,8 @@ function exportCSV()
     </div>
     <br/>
     <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" name="download" id="download">
-        <img src="../libs/dynicons/?img=go-next.svg&amp;w=32" alt="Download"> 
-        Download&nbsp; 
+        <img src="{$lib_path}dynicons/?img=go-next.svg&amp;w=32" alt="Download">
+        Download&nbsp;
     </button>
     <div id='progress'>Progress: <span></span></div>
 </div>

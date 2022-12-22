@@ -61,6 +61,7 @@ switch ($action) {
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_iframe->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_iframe->fetch('file_form.tpl'));
 
         break;
@@ -75,6 +76,7 @@ switch ($action) {
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('file', Leaf\XSSHelpers::xscrub(strip_tags($_GET['file'])));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_iframe->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_iframe->fetch('file_form_delete.tpl'));
 
         break;
@@ -115,6 +117,7 @@ switch ($action) {
         $t_iframe->assign('privileges', $oc_login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), Leaf\XSSHelpers::xscrub($type), (int)$_GET['UID']));
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
+        $t_iframe->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_iframe->fetch('permission_iframe.tpl'));
 
         break;
@@ -143,6 +146,7 @@ switch ($action) {
         $t_iframe->assign('positionTitle', $position->getTitle($positionID));
         $t_iframe->assign('permissions', $position->getPrivileges($positionID));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_iframe->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_iframe->fetch('view_position_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -169,7 +173,7 @@ switch ($action) {
 
         break;
 }
-$t_menu->assign('lib_path', LIB_PATH);
+$t_menu->assign('lib_path', S_LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -180,6 +184,6 @@ $main->assign('city', $oc_settings['subHeading']);
 
 $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
 $main->assign('revision', Leaf\XSSHelpers::xscrub($rev[0]['data']));
-$main->assign('lib_path', LIB_PATH);
+$main->assign('lib_path', S_LIB_PATH);
 
 $main->display('main_iframe.tpl');

@@ -92,6 +92,7 @@ switch ($action) {
             $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 
             $t_form->assign('form', $form->getFormByCategory($_GET['categoryID']));
+            $t_form->assign('lib_path', S_LIB_PATH);
             $t_form->display('print_form_ajax.tpl');
             $tabText = 'Form Editor';
         }

@@ -19,7 +19,7 @@
 <div id="links" style="position: absolute; padding: 24px; z-index: 1000; display: none; background-color: white; border: 1px solid black; width: 310px; box-shadow: 0 2px 6px #8e8e8e;">
     <a href="../{$orgchartPath}">
         <span class="menuButtonSmall" style="background-color: #ffecb7">
-            <img class="menuIconSmall" src="../../libs/dynicons/?img=system-users.svg&amp;w=76" style="position: relative" alt="Org Chart" title="Org Chart" />
+            <img class="menuIconSmall" src="{$lib_path}dynicons/?img=system-users.svg&amp;w=76" style="position: relative" alt="Org Chart" title="Org Chart" />
             <span class="menuTextSmall">Organizational Chart</span><br />
             <span class="menuDescSmall">Update/Review Org. Charts and Employee Information</span>
         </span>

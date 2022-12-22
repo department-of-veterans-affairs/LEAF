@@ -78,12 +78,13 @@ switch ($action) {
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
                 $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
             else
             {
-                echo '<img src="' . LIB_PATH . 'dynicons/?img=emblem-readonly.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
+                echo '<img src="' . S_LIB_PATH . 'dynicons/?img=emblem-readonly.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
             }
         }
 
@@ -107,6 +108,7 @@ switch ($action) {
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -186,10 +188,12 @@ switch ($action) {
 
         if ($parallelProcessing)
         {
+            $t_form->assign('lib_path', S_LIB_PATH);
             $t_form->display(customTemplate('submitForm_parallel_processing.tpl'));
         }
         else
         {
+            $t_form->assign('lib_path', S_LIB_PATH);
             $t_form->display(customTemplate('submitForm.tpl'));
         }
 
@@ -267,6 +271,7 @@ switch ($action) {
                 $t_form->assign('recordID', $recordID);
                 $t_form->assign('series', $series);
                 $t_form->assign('indicatorID', $indicatorID);
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $main->assign('body', $t_form->fetch('file_form_additional.tpl'));
             }
             else
@@ -277,6 +282,7 @@ switch ($action) {
                 $t_form->assign('recordID', $recordID);
                 $t_form->assign('series', $series);
                 $t_form->assign('indicatorID', $indicatorID);
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $main->assign('body', $t_form->fetch('file_form_error.tpl'));
             }
         }
@@ -323,7 +329,7 @@ switch ($action) {
             $main->assign('body', $body);
         }
 
-        $main->assign('lib_path', LIB_PATH);
+        $main->assign('lib_path', S_LIB_PATH);
         $main->display('main_iframe.tpl');
 
         break;
@@ -347,6 +353,7 @@ switch ($action) {
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('agenda', $view->buildViewStatus((int)$_GET['recordID'], $form, $vamc));
         $t_form->assign('dependencies', $form->getDependencyStatus($_GET['recordID']));
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $t_form->display('view_status.tpl');
 
@@ -412,6 +419,7 @@ switch ($action) {
                 }
 
                 $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[Leaf\XSSHelpers::xssafe($_GET['childCategoryID'])]) . ')' : '');
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->display(customTemplate('print_form_ajax.tpl'));
             }
             else
@@ -423,6 +431,7 @@ switch ($action) {
                 {
                     $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');
                 }
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $main->assign('body', $t_form->fetch(customTemplate('print_form_ajax.tpl')));
                 $tabText = 'Request #' . (int)$_GET['recordID'];
                 $main->assign('tabText', $tabText);
@@ -430,7 +439,7 @@ switch ($action) {
                 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
                 $main->assign('login', $t_login->fetch('login.tpl'));
-                $main->assign('lib_path', LIB_PATH);
+                $main->assign('lib_path', S_LIB_PATH);
 
                 $main->display('main.tpl');
             }
@@ -445,6 +454,7 @@ switch ($action) {
             if ($_GET['recordID'] > 0)
             {
                 $t_form->assign('tags', $form->getTags((int)$_GET['recordID']));
+                $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->display('print_form_ajax_tags.tpl');
             }
         }

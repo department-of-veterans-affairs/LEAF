@@ -1,6 +1,6 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<link rel=stylesheet href="<!--{$lib_path}-->js/codemirror/addon/merge/merge.css">
+<script src="<!--{$lib_path}-->js/diff-match-patch/diff-match-patch.js"></script>
+<script src="<!--{$lib_path}-->js/codemirror/addon/merge/merge.js"></script>
 <style>
 
 /* Glyph to improve usability of code compare */
@@ -36,7 +36,7 @@
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
-                
+
                 <div>
                     <table class="usa-table">
                         <tr>
@@ -55,37 +55,37 @@
             </div>
 
         </main>
-        
+
         <div class="leaf-right-nav">
             <aside class="sidenav-right">
 
                 <div id="controls" style="visibility: hidden">
-                    
+
                     <button class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
                         Save Changes<span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    
+
                     <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate" onclick="restore();">
                         Restore Original
                     </button>
-                    
+
                     <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
                         Stop Comparing
                     </button>
-                    
+
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate" id="btn_compare" onclick="compare();">
                         Compare to Original
                     </button>
-                    
+
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" target="_blank">
-                        <a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                        <a href="<!--{$lib_path}-->dynicons/gallery.php">Icon Library</a>
                     </button>
                 </div>
 
             </aside>
 
         </div>
-        
+
 </div>
 
 
@@ -94,7 +94,7 @@
 
 <script>
 
-function save() { 
+function save() {
 	$('#saveIndicator').attr('src', '../images/indicator.gif');
 	var data = '';
 	if(codeEditor.getValue == undefined) {
@@ -109,7 +109,7 @@ function save() {
 			   file: data},
 		url: '../api/system/templates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '<!--{$lib_path}-->dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			if($('#btn_compareStop').css('display') != 'none') {
 			    $('#btn_compare').css('display', 'none');
@@ -128,7 +128,7 @@ function save() {
 function restore() {
 	dialog.setTitle('Are you sure?');
 	dialog.setContent('This will restore the template to the original version.');
-	
+
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
@@ -140,7 +140,7 @@ function restore() {
 	    });
 		dialog.hide();
 	});
-	
+
 	dialog.show();
 }
 
@@ -184,7 +184,7 @@ function loadContent(file) {
     $('.CodeMirror').remove();
     $('#codeCompare').empty();
     $('#btn_compareStop').css('display', 'none');
-    
+
     initEditor();
 	currentFile = file;
 	$('#codeContainer').css('display', 'none');
@@ -259,7 +259,7 @@ $(function() {
 		},
 		cache: false
 	});
-	
+
 	loadContent('view_homepage.tpl');
 });
 </script>

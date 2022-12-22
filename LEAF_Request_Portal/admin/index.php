@@ -117,6 +117,8 @@ switch ($action) {
                                            '../..' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                            '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
+        $t_form->assign('lib_path', S_LIB_PATH);
+
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
         $tabText = 'User Access Groups';
@@ -150,10 +152,10 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array(LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array(S_LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js',
                                            '../..' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
-                                           LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
-                                           LIB_PATH . 'js/LEAF/XSSHelpers.js',
+                                           S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+                                           S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
                                            '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
@@ -161,6 +163,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('orgchartImportTags', $site_paths['importTags']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
 
@@ -173,25 +176,25 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-        $main->assign('javascripts', array(LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            LIB_PATH . 'js/filesaver/FileSaver.min.js',
-                                            LIB_PATH . 'js/codemirror/lib/codemirror.js',
-                                            LIB_PATH . 'js/codemirror/mode/xml/xml.js',
-                                            LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
-                                            LIB_PATH . 'js/codemirror/mode/css/css.js',
-                                            LIB_PATH . 'js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                            LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
-                                            LIB_PATH . 'js/LEAF/XSSHelpers.js',
-                                            LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
-                                            LIB_PATH . 'js/choicesjs/choices.min.js',
+        $main->assign('javascripts', array(S_LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            S_LIB_PATH . 'js/filesaver/FileSaver.min.js',
+                                            S_LIB_PATH . 'js/codemirror/lib/codemirror.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/xml/xml.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/css/css.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
+                                            S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
+                                            S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+                                            S_LIB_PATH . 'js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
-                                            LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-                                            LIB_PATH . 'js/codemirror/lib/codemirror.css',
-                                            LIB_PATH . 'js/codemirror/addon/display/fullscreen.css',
-                                            LIB_PATH . 'js/choicesjs/choices.min.css'
+                                            S_LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            S_LIB_PATH . 'js/codemirror/lib/codemirror.css',
+                                            S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.css',
+                                            S_LIB_PATH . 'js/choicesjs/choices.min.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -208,6 +211,8 @@ switch ($action) {
                 $t_form->assign('form', Leaf\XSSHelpers::xscrub($res[0]['categoryID']));
             }
         }
+
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('mod_form.tpl'));
 
@@ -226,23 +231,23 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            $main->assign('javascripts', array(LIB_PATH . 'js/codemirror/lib/codemirror.js',
-                                                LIB_PATH . 'js/codemirror/mode/xml/xml.js',
-                                                LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
-                                                LIB_PATH . 'js/codemirror/mode/css/css.js',
-                                                LIB_PATH . 'js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                                LIB_PATH . 'js/codemirror/addon/search/search.js',
-                                                LIB_PATH . 'js/codemirror/addon/search/searchcursor.js',
-                                                LIB_PATH . 'js/codemirror/addon/dialog/dialog.js',
-                                                LIB_PATH . 'js/codemirror/addon/scroll/annotatescrollbar.js',
-                                                LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.js',
-                                                LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
+            $main->assign('javascripts', array(S_LIB_PATH . 'js/codemirror/lib/codemirror.js',
+                                                S_LIB_PATH . 'js/codemirror/mode/xml/xml.js',
+                                                S_LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
+                                                S_LIB_PATH . 'js/codemirror/mode/css/css.js',
+                                                S_LIB_PATH . 'js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                                S_LIB_PATH . 'js/codemirror/addon/search/search.js',
+                                                S_LIB_PATH . 'js/codemirror/addon/search/searchcursor.js',
+                                                S_LIB_PATH . 'js/codemirror/addon/dialog/dialog.js',
+                                                S_LIB_PATH . 'js/codemirror/addon/scroll/annotatescrollbar.js',
+                                                S_LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.js',
+                                                S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
             ));
-            $main->assign('stylesheets', array(LIB_PATH . 'js/codemirror/lib/codemirror.css',
-                                                LIB_PATH . 'js/codemirror/addon/dialog/dialog.css',
-                                                LIB_PATH . 'js/codemirror/addon/scroll/simplescrollbars.css',
-                                                LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.css',
-                                                LIB_PATH . 'js/codemirror/addon/display/fullscreen.css',
+            $main->assign('stylesheets', array(S_LIB_PATH . 'js/codemirror/lib/codemirror.css',
+                                                S_LIB_PATH . 'js/codemirror/addon/dialog/dialog.css',
+                                                S_LIB_PATH . 'js/codemirror/addon/scroll/simplescrollbars.css',
+                                                S_LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.css',
+                                                S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.css',
             ));
 
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -250,18 +255,19 @@ switch ($action) {
 
             switch ($action) {
                 case 'mod_templates':
+                    $t_form->assign('lib_path', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates.tpl'));
                     $tabText = 'Template Editor';
 
                     break;
                 case 'mod_templates_reports':
-                    $main->assign('lib_path', LIB_PATH);
-                    $t_form->assign('lib_path', LIB_PATH);
+                    $t_form->assign('lib_path', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
                     $tabText = 'Editor';
 
                     break;
                 case 'mod_templates_email':
+                    $t_form->assign('lib_path', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_email.tpl'));
                     $tabText = 'Email Template Editor';
 
@@ -278,7 +284,7 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
-            $main->assign('lib_path', LIB_PATH);
+            $main->assign('lib_path', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -315,7 +321,8 @@ switch ($action) {
 
            if ($login->checkGroup(1))
            {
-               $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+               $t_form->assign('LEAF_NEXUS_URL', $site_paths['orgchart_path']);
+               $t_form->assign('lib_path', S_LIB_PATH);
 
                $main->assign('body', $t_form->fetch('view_form_library.tpl'));
            }
@@ -334,6 +341,7 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
+            $t_form->assign('lib_path', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_import_form.tpl'));
         }
         else
@@ -372,7 +380,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $main->assign('javascripts', array(LIB_PATH . 'js/LEAF/XSSHelpers.js',
+        $main->assign('javascripts', array(S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
@@ -418,6 +426,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
 
@@ -434,9 +443,9 @@ switch ($action) {
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
 
         $main->assign('javascripts', array(
-            LIB_PATH . 'js/LEAF/XSSHelpers.js',
-            LIB_PATH . 'jsapi/nexus/LEAFNexusAPI.js',
-            LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+            S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
+            S_LIB_PATH . 'jsapi/nexus/LEAFNexusAPI.js',
+            S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
         ));
 
         if ($login->checkGroup(1))
@@ -462,9 +471,9 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 
-            $main->assign('javascripts', array(LIB_PATH . 'js/jquery/jquery.min.js',
-                                           LIB_PATH . 'js/jquery/jquery-ui.custom.min.js',
-                                           LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js', ));
+            $main->assign('javascripts', array(S_LIB_PATH . 'js/jquery/jquery.min.js',
+                                           S_LIB_PATH . 'js/jquery/jquery-ui.custom.min.js',
+                                           S_LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js', ));
 
             $main->assign('body', $t_form->fetch(customTemplate('view_admin_menu.tpl')));
 
@@ -489,7 +498,7 @@ $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
 $t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
-$t_menu->assign('lib_path', LIB_PATH);
+$t_menu->assign('lib_path', S_LIB_PATH);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -498,7 +507,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
-$main->assign('lib_path', LIB_PATH);
+$main->assign('lib_path', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

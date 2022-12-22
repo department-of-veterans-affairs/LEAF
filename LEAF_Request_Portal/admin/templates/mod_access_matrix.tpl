@@ -24,7 +24,7 @@ button.buttonNorm {
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<script src="../../libs/js/LEAF/intervalQueue.js"></script>
+<script src="<!--{$lib_path}-->js/LEAF/intervalQueue.js"></script>
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -235,7 +235,7 @@ async function main() {
     groupMembers = tGroupMembers;
 
     let activeDependencies = await getActiveDependencies(workflows, dependencyGroups);
-    
+
     renderView(dependencyGroups, activeDependencies);
 }
 

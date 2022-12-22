@@ -7,12 +7,17 @@ $loader = new \Leaf\Psr4AutoloaderClass;
 $loader->register();
 
 $url = $_SERVER['APP_PORTAL_URL_AUTH'];
+error_log(print_r($url, true));
 $uri_array = explode('/', $url);
 
 $uri = '';
 
 for ($i=1; $i < count($uri_array) - 1; $i++) {
     $uri .= $uri_array[$i] . '/';
+}
+
+if (is_file(__DIR__ . '/../../' . $uri . 'globals.php')) {
+    require_once __DIR__ . '/../../' . $uri . 'globals.php';
 }
 
 if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons')) {
@@ -127,3 +132,5 @@ if (session_id() == '') {
 $login = new Portal\Login($oc_db, $db);
 $oc_login = new Orgchart\Login($oc_db, $oc_db);
 $data_action_logger = new Leaf\DataActionLogger($db, $login);
+error_log(print_r($uri_array, true));
+if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . $uri_array[0] . '/libs/');

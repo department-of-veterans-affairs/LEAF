@@ -421,12 +421,17 @@ class FormWorkflow
 
     /**
      * Handle an action
+     *
      * @param int $dependencyID
      * @param string $actionType
      * @param string $comment
-     * @return array {status(int), errors[string]}
+     * @param string|null $emailPrefix
+     *
+     * @return array
+     *
+     * Created at: 12/22/2022, 10:09:48 AM (America/New_York)
      */
-    public function handleAction(int $dependencyID, string $actionType, string $comment, string $emailPrefix): array
+    public function handleAction(int $dependencyID, string $actionType, string $comment, ?string $emailPrefix): array
     {
         if (!is_numeric($dependencyID))
         {

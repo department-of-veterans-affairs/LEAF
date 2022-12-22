@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css">
+<link rel="stylesheet" href="{$lib_path}css/leaf.css">
 
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
 
@@ -7,9 +7,9 @@
     var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     $(function() {
 		//load existing sitemap on page load
-        parseSitemapJSON(); 
+        parseSitemapJSON();
         // hide alert
-        $("#sitemap-alert").hide();           
+        $("#sitemap-alert").hide();
         $("#sortable").sortable({
             revert: true,
             stop: function(){
@@ -39,12 +39,12 @@
             },
         });
     }
-    
+
 	// builds sitemap JSON from sitemapOBJ
     function buildSitemapJSON(){
     	return JSON.stringify(sitemapOBJ);
     }
-        
+
     //refresh buttons after edit
     function refreshButtons(){
         $('ul.usa-sidenav').html('');
@@ -58,7 +58,7 @@
         });
         save();
     }
-         
+
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
@@ -66,7 +66,7 @@
     }
 
     // get difference between click and drag for editing cards
-    
+
     var body = document.getElementById("body");
     body.addEventListener("mousedown", function() {
         window.addEventListener("mousemove", drag);
@@ -102,7 +102,7 @@
         refreshButtons();
         save();
     }
-    
+
 	// generate unique id for sitemap button
     function generateNewButtonID(){
         do {
@@ -115,7 +115,7 @@
         while (buttonIDExists(result));
         return result;
     }
-    
+
 	// check if unique id already exists
     function buttonIDExists(newID) {
         $.each(sitemapOBJ.buttons,  function(index, value){
@@ -125,7 +125,7 @@
         });
         return false;
     }
-    
+
 	// brings up dialog to add a button
     function createGroup() {
         var dialog = createNewButtonDialog();
@@ -169,7 +169,7 @@
 	    $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
         return dialog;
     }
-    
+
 	// instantiates and pops up edit button dialog
     function editButtonDialog(buttonID) {
         var title = '';
@@ -237,9 +237,9 @@
         dialog.show();
         $('input:visible:first, select:visible:first').focus();
     }
-    
+
 	// saves sitemap json into the custom report
-    function save() { 
+    function save() {
         var newJson = buildSitemapJSON();
         $.ajax({
             type: 'POST',
@@ -258,7 +258,7 @@
 </script>
 
 <div class="leaf-center-content">
-            
+
     <aside class="sidenav">
         <h3 class="navhead"><!--{$city}-->  sitemap</h3>
         <ul class="usa-sidenav leaf-border-bottom">
@@ -269,7 +269,7 @@
         <div>
             <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View sitemap</a>
         </div>
-        
+
         <!--<div class="leaf-sidenav-bottomBtns">
             <button class="usa-button usa-button--outline">Move Up</button>
             <button class="usa-button usa-button--outline leaf-float-right">Move Down</button>

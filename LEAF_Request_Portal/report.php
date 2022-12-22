@@ -45,6 +45,7 @@ function customTemplate($tpl)
 
 $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));
+$t_menu->assign('lib_path', S_LIB_PATH);
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 
@@ -87,7 +88,7 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-            $main->assign('stylesheets', array(LIB_PATH . 'js/choicesjs/choices.min.css'));
+            $main->assign('stylesheets', array(S_LIB_PATH . 'js/choicesjs/choices.min.css'));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -96,11 +97,11 @@ switch ($action) {
                 'js/formSearch.js',
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',
-                LIB_PATH . 'js/LEAF/XSSHelpers.js',
-                LIB_PATH . 'jsapi/nexus/LEAFNexusAPI.js',
-                LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
-                LIB_PATH . 'jsapi/portal/model/FormQuery.js',
-                LIB_PATH . 'js/choicesjs/choices.min.js'
+                S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
+                S_LIB_PATH . 'jsapi/nexus/LEAFNexusAPI.js',
+                S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+                S_LIB_PATH . 'jsapi/portal/model/FormQuery.js',
+                S_LIB_PATH . 'js/choicesjs/choices.min.js'
             ));
 
             $o_login = $t_login->fetch('login.tpl');
@@ -135,7 +136,7 @@ $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
-$t_menu->assign('lib_path', LIB_PATH);
+$t_menu->assign('lib_path', S_LIB_PATH);
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -144,7 +145,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', $settings['version']);
-$main->assign('lib_path', LIB_PATH);
+$main->assign('lib_path', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

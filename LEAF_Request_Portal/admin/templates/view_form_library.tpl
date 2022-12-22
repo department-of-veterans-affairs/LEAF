@@ -25,7 +25,7 @@ function showPreview(recordID) {
     }
 
 	dialog_simple.setTitle('Preview');
-	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../../libs/dynicons/?img=edit-copy.svg&w=32" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
+	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="<!--{$lib_path}-->dynicons/?img=edit-copy.svg&w=32" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
@@ -79,7 +79,7 @@ $(function() {
             return 0;
         });
 
-        
+
         grid = new LeafFormGrid('forms', {readOnly: true});
         grid.setRootURL('../');
         grid.hideIndex();
@@ -118,10 +118,10 @@ $(function() {
                 }
             }},
             {name: 'Preview', indicatorID: 'preview', editable: false, sortable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../../libs/dynicons/?img=edit-find.svg&w=32" /> Preview</button>');
+            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="<!--{$lib_path}-->dynicons/?img=edit-find.svg&w=32" /> Preview</button>');
             }}
         ]);
-        
+
         grid.setPostRenderFunc(function() {
             $('#' + grid.getPrefixID() + 'table > tbody > tr > td').css({
                 'border-right': '0px',
@@ -158,16 +158,16 @@ $(function() {
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
-        <a role="button" class="buttonNorm leaf-marginBot-1rem" tabindex="0" href="?a=form" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img src="../../libs/dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back"/> Back to My Forms</a>
-        
+        <a role="button" class="buttonNorm leaf-marginBot-1rem" tabindex="0" href="?a=form" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img src="<!--{$lib_path}-->dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back"/> Back to My Forms</a>
+
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon"/> All Business Lines</div>
-        
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Administrative')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="../../libs/dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="<!--{$lib_path}-->dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon"/> All Business Lines</div>
+
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Administrative')" style="width: 220px"><img aria-hidden="true" src="<!--{$lib_path}-->dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 220px"><img aria-hidden="true" src="<!--{$lib_path}-->dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 220px"><img aria-hidden="true" src="<!--{$lib_path}-->dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="<!--{$lib_path}-->dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="<!--{$lib_path}-->dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
     </div>
     <div id="formEditor_content" style="margin-left: 238px; padding-left: 8px">
 

@@ -32,6 +32,7 @@ function customTemplate($tpl) {
 }
 
 $t_login->assign('name', Leaf\XSSHelpers::xscrub($login->getName()));
+$t_menu->assign('lib_path', S_LIB_PATH);
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('is_admin', $login->checkGroup(1));
@@ -94,6 +95,7 @@ switch ($action) {
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 
@@ -103,8 +105,8 @@ switch ($action) {
         break;
     case 'view':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('css/view.css', LIB_PATH . 'js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', LIB_PATH . 'js/LEAF/XSSHelpers.js', LIB_PATH . 'js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array('css/view.css', S_LIB_PATH . 'js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', S_LIB_PATH . 'js/LEAF/XSSHelpers.js', S_LIB_PATH . 'js/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         // prevent view if form is submitted
@@ -137,6 +139,7 @@ switch ($action) {
                 case 'review':
                     break;
                 default:
+                    $t_form->assign('lib_path', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch(customTemplate('form.tpl')));
 
                     break;
@@ -154,7 +157,7 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array(LIB_PATH . 'js/choicesjs/choices.min.css'));
+        $main->assign('stylesheets', array(S_LIB_PATH . 'js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array(
             'js/form.js',
             'js/gridInput.js',
@@ -163,13 +166,13 @@ switch ($action) {
             'js/formQuery.js',
             'js/formPrint.js',
             'js/jsdiff.js',
-            LIB_PATH . 'js/LEAF/XSSHelpers.js',
-            LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
-            LIB_PATH . 'js/es6-promise/es6-promise.min.js',
-            LIB_PATH . 'js/es6-promise/es6-promise.auto.min.js',
-            LIB_PATH . 'js/jspdf/jspdf.min.js',
-            LIB_PATH . 'js/jspdf/jspdf.plugin.autotable.min.js',
-            LIB_PATH . 'js/choicesjs/choices.min.js',
+            S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
+            S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+            S_LIB_PATH . 'js/es6-promise/es6-promise.min.js',
+            S_LIB_PATH . 'js/es6-promise/es6-promise.auto.min.js',
+            S_LIB_PATH . 'js/jspdf/jspdf.min.js',
+            S_LIB_PATH . 'js/jspdf/jspdf.plugin.autotable.min.js',
+            S_LIB_PATH . 'js/choicesjs/choices.min.js',
             'js/titleValidator.js'
         ));
 
@@ -239,6 +242,7 @@ switch ($action) {
                         $t_form->assign('childCategoryID', $childCatID);
                     }
                 }
+                $t_form->assign('lib_path', S_LIB_PATH);
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
 
@@ -251,8 +255,8 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array(LIB_PATH . 'js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', LIB_PATH . 'js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array(S_LIB_PATH . 'js/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', S_LIB_PATH . 'js/choicesjs/choices.min.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -289,6 +293,7 @@ switch ($action) {
         $t_form->assign('descriptionID', $descriptionID);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('errors', $errors);
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
 
@@ -317,6 +322,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordIDForStatus);
         $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus, $form, $vamc));
         $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('view_status.tpl'));
 
@@ -324,7 +330,7 @@ switch ($action) {
     case 'cancelled_request':
         $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="' . LIB_PATH . 'dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="' . S_LIB_PATH . 'dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
 
         break;
@@ -337,6 +343,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('import_from_webHR.tpl'));
 
@@ -355,6 +362,7 @@ switch ($action) {
 
         $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_bookmarks.tpl'));
 
         $tabText = 'Bookmarks';
@@ -405,6 +413,7 @@ switch ($action) {
         $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
+        $t_form->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
 
         break;
@@ -434,6 +443,7 @@ switch ($action) {
 
         $t_form->assign('sitemap', $settings['sitemap_json']);
         $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
+        $t_form->assign('lib_path', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
         break;
@@ -444,7 +454,7 @@ switch ($action) {
 //        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
         $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
 
-        $main->assign('stylesheets', array('css/report.css', LIB_PATH . 'js/choicesjs/choices.min.css'));
+        $main->assign('stylesheets', array('css/report.css', S_LIB_PATH . 'js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
                'js/formQuery.js',
@@ -452,9 +462,9 @@ switch ($action) {
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
-               LIB_PATH . 'js/LEAF/XSSHelpers.js',
-               LIB_PATH . 'js/choicesjs/choices.min.js'
+               S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+               S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
+               S_LIB_PATH . 'js/choicesjs/choices.min.js'
            ));
            $main->assign('useUI', true);
 
@@ -473,7 +483,7 @@ switch ($action) {
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('powerQueryURL', $powerQueryURL);
-
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
@@ -495,7 +505,7 @@ switch ($action) {
         $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
-        $main->assign('lib_path', LIB_PATH);
+        $main->assign('lib_path', S_LIB_PATH);
 
         $main->display(customTemplate('main.tpl'));
         exit();
@@ -525,6 +535,7 @@ switch ($action) {
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
+        $t_form->assign('lib_path', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
@@ -543,7 +554,7 @@ $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
-$t_menu->assign('lib_path', LIB_PATH);
+$t_menu->assign('lib_path', S_LIB_PATH);
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
@@ -551,7 +562,7 @@ $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
-$main->assign('lib_path', LIB_PATH);
+$main->assign('lib_path', S_LIB_PATH);
 
 if (!isset($_GET['iframe'])) {
     $main->display(customTemplate('main.tpl'));

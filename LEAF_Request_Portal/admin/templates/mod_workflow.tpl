@@ -1,14 +1,14 @@
 <div id="sideBar" style="float: left; width: 180px">
-    <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
+    <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="<!--{$lib_path}-->dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
     <div id="workflowList"></div>
     <br />
-    <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
+    <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button" tabindex="0"><img src="<!--{$lib_path}-->dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
     <br />
-    <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="../../libs/dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
+    <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 120%; display: none" role="button" tabindex="0"><img src="<!--{$lib_path}-->dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete workflow</div><br />
     <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 120%; display: none" role="button" tabindex="0">Edit Actions</div><br />
     <div id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size: 120%; display: none" role="button" tabindex="0">Edit Events</div><br />
-    <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 120%; display: none;" role="button" tabindex="0"><img src="../../libs/dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
+    <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 120%; display: none;" role="button" tabindex="0"><img src="<!--{$lib_path}-->dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>
 </div>
 <div id="workflow" style="margin-left: 184px; background-color: #444444; margin-top: 16px; overflow-x: auto; overflow-y: auto; width: 72%;"></div>
 
@@ -250,7 +250,7 @@ function addEmailReminderDialog(stepID){
     dialog.setTitle('Email Reminder');
     let output = '<label for="edit_email_check">Enable Automated Emails? </label> <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()"><div id="edit_email_container"></div><br>';
     dialog.setContent(output);
-    
+
     dialog.setValidator('reminder_days', function() {
         if ($('#edit_email_check').prop('checked') == true && (parseInt($('#reminder_days').val()) === NaN || parseInt($('#reminder_days').val()) < 1)) {
             return false;
@@ -314,7 +314,7 @@ function editEmailChecked() {
     let editSelectdatesString = "";
     if (emailChecked.checked) {
         editSelectdatesString += '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days"> days of inactivity. <br>';
-      
+
         createElement("div", "edit_date_select", "edit_email_container");
         document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
     } else {
@@ -1043,7 +1043,7 @@ function editActionType(actionType) {
                           <tr>\
                               <td>Icon</td>\
                               <td><input id="actionIcon" type="text" maxlength="50" value="'+res[0].actionIcon+'" ></input></td>\
-                              <td>eg: go-next.svg <a href="../../libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
+                              <td>eg: go-next.svg <a href="<!--{$lib_path}-->dynicons/gallery.php" target="_blank">List of available icons</a></td>\
                           </tr>\
     		          </table>\
     		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
@@ -1110,7 +1110,7 @@ function newAction() {
                       <tr>\
                           <td>Icon</td>\
                           <td><input id="actionIcon" type="text" maxlength="50" value="go-next.svg"></input></td>\
-                          <td>eg: go-next.svg <a href="../../libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
+                          <td>eg: go-next.svg <a href="<!--{$lib_path}-->dynicons/gallery.php" target="_blank">List of available icons</a></td>\
                       </tr>\
 		          </table>\
 		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
@@ -1274,7 +1274,7 @@ function showActionInfo(params, evt) {
             	output += '<li><b>Email - Notify the requestor</b></li>';
             }
             for(let i in res) {
-                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</b> <img src="../../libs/dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
+                output += '<li><b title="'+ res[i].eventID +'">'+ res[i].eventType +' - '+ res[i].eventDescription +'</b> <img src="<!--{$lib_path}-->dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent('+ currentWorkflow +', '+ stepID +', \''+ params.action +'\', \''+ res[i].eventID +'\')" alt="Remove Action" title="Remove Action" /></li>';
             }
             output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_'+ currentWorkflow + '_' + stepID + '_'+ params.action +'">Add Event</span>';
             output += '</ul></div>';
@@ -1490,14 +1490,14 @@ function showStepInfo(stepID) {
                 type: 'GET',
                 url: '../api/workflow/step/' + stepID + '/dependencies',
                 success: function(res) {
-                    var control_removeStep = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
-                    let output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
+                    var control_removeStep = '<img style="cursor: pointer" src="<!--{$lib_path}-->dynicons/?img=dialog-error.svg&w=16" onclick="removeStep('+ stepID +')" alt="Remove" />';
+                    let output = '<h2>stepID: #'+ stepID +' '+ control_removeStep +'</h2><br />Step: <b>' + steps[stepID].stepTitle + '</b> <img style="cursor: pointer" src="<!--{$lib_path}-->dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep('+ stepID +')" alt="Edit Step" /><br />';
 
                     output += '<br /><br /><div>Requirements:<ul>';
                     var tDeps = {};
                     for(let i in res) {
-                    	control_editDependency = '<img style="cursor: pointer" src="../../libs/dynicons/?img=accessories-text-editor.svg&w=16" onclick="editRequirement('+ res[i].dependencyID +')" alt="Edit Requirement" />';
-                    	control_unlinkDependency = '<img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="unlinkDependency('+ stepID +', '+ res[i].dependencyID +')" alt="Remove" />';
+                    	control_editDependency = '<img style="cursor: pointer" src="<!--{$lib_path}-->dynicons/?img=accessories-text-editor.svg&w=16" onclick="editRequirement('+ res[i].dependencyID +')" alt="Edit Requirement" />';
+                    	control_unlinkDependency = '<img style="cursor: pointer" src="<!--{$lib_path}-->dynicons/?img=dialog-error.svg&w=16" onclick="unlinkDependency('+ stepID +', '+ res[i].dependencyID +')" alt="Remove" />';
                         if (res[i].dependencyID == 1) { // special case for service chief and quadrad
                             output += '<li><b style="color: green">'+ res[i].description +'</b> '+ control_editDependency + ' ' + control_unlinkDependency + ' (depID: '+ res[i].dependencyID +')</li>';
                         } else if (res[i].dependencyID == 8) { // special case for service chief and quadrad
@@ -1520,7 +1520,7 @@ function showStepInfo(stepID) {
                         	if (tDeps[res[i].dependencyID] == undefined) { //
                         		tDeps[res[i].dependencyID] = 1;
                                 output += '<li style="padding-bottom: 8px"><b title="depID: '+ res[i].dependencyID +'" onclick="dependencyGrantAccess('+ res[i].dependencyID +')">'+ res[i].description +'</b> ' + control_editDependency + ' ' + control_unlinkDependency
-                                + '<ul id="step_'+ stepID +'_dep'+ res[i].dependencyID +'"><li style="padding-top: 8px"><span class="buttonNorm" onclick="dependencyGrantAccess('+ res[i].dependencyID +')"><img src="../../libs/dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
+                                + '<ul id="step_'+ stepID +'_dep'+ res[i].dependencyID +'"><li style="padding-top: 8px"><span class="buttonNorm" onclick="dependencyGrantAccess('+ res[i].dependencyID +')"><img src="<!--{$lib_path}-->dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
                                 </ul></li>';
                         	}
                         }
@@ -1561,7 +1561,7 @@ function showStepInfo(stepID) {
                     for(let i in res) {
                         group = '';
                         if (res[i].groupID != null) {
-                            $('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><span style="white-space: nowrap"><b title="groupID: '+ res[i].groupID +'">'+ res[i].name +'</b> <img style="cursor: pointer" src="../../libs/dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess('+ res[i].dependencyID +', '+ res[i].groupID +')" alt="Remove" /></span></li>');
+                            $('#step_'+ stepID +'_dep' + res[i].dependencyID).prepend('<li><span style="white-space: nowrap"><b title="groupID: '+ res[i].groupID +'">'+ res[i].name +'</b> <img style="cursor: pointer" src="<!--{$lib_path}-->dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess('+ res[i].dependencyID +', '+ res[i].groupID +')" alt="Remove" /></span></li>');
                             counter++;
                         }
                         if (counter == 0
@@ -1769,12 +1769,12 @@ function loadWorkflow(workflowID) {
                     if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
                         let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
                         let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                        emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will go out every ${dayCount} ${dayText}" />`
+                        emailNotificationIcon = `<img src="<!--{$lib_path}-->dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will go out every ${dayCount} ${dayText}" />`
                     }
                 }
 
                 $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_'+ res[i].stepID +'">'+ res[i].stepTitle + ' ' + emailNotificationIcon + '</div><div class="workflowStepInfo" id="stepInfo_'+ res[i].stepID +'"></div>');
-                
+
             	$('#step_' + res[i].stepID).css({
             		'left': parseFloat(res[i].posX) + 'px',
             		'top': posY + 'px',
@@ -2086,7 +2086,7 @@ $(document).mouseup(function(e) {
         if (e.keyCode === 27) {
             container.hide();
         }
-    });    
+    });
 });
 
 $(function() {

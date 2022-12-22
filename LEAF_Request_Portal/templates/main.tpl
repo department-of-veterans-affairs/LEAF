@@ -13,39 +13,39 @@
     {/if}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
-        @import "../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
+        @import "{$lib_path}js/jquery/css/dcvamc/jquery-ui.custom.min.css";
 {section name=i loop=$stylesheets}
         @import "{$stylesheets[i]}";
 {/section}
         @import "css/style.css";
-        @import "../libs/js/jquery/chosen/chosen.min.css";
-        @import "../libs/js/jquery/trumbowyg/ui/trumbowyg.min.css";
+        @import "{$lib_path}js/jquery/chosen/chosen.min.css";
+        @import "{$lib_path}js/jquery/trumbowyg/ui/trumbowyg.min.css";
         /* backwards compat */
-        @import "../libs/js/jquery/icheck/skins/square/blue.css";
+        @import "{$lib_path}js/jquery/icheck/skins/square/blue.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
     </style>
-    <script type="text/javascript" src="../libs/js/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/jquery.min.js"></script>
     {if $useUI == true}
-    <script type="text/javascript" src="../libs/js/jquery/jquery-ui.custom.min.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/jquery-ui.custom.min.js"></script>
     <script type="text/javascript" src="js/dialogController.js"></script>
-    <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
-    <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/chosen/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <!--backwards compat -->
-    <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/icheck/icheck.js"></script>
     {else if $useLiteUI == true}
     <script type="text/javascript" src="js/dialogController.js"></script>
-    <script type="text/javascript" src="../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
-    <script type="text/javascript" src="../libs/js/jquery/trumbowyg/trumbowyg.min.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/chosen/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <!--backwards compat -->
-    <script type="text/javascript" src="../libs/js/jquery/icheck/icheck.js"></script>
+    <script type="text/javascript" src="{$lib_path}js/jquery/icheck/icheck.js"></script>
     {/if}
     {if !$logout}
         {if $leafSecure >= 1}
-        <script type="text/javascript" src="../libs/js/LEAF/sessionTimeout.js"></script>
+        <script type="text/javascript" src="{$lib_path}js/LEAF/sessionTimeout.js"></script>
         {else}
-        <script type="text/javascript" src="../libs/js/LEAF/sessionAnnounce.js"></script>
+        <script type="text/javascript" src="{$lib_path}js/LEAF/sessionAnnounce.js"></script>
         {/if}
     {/if}
 {section name=i loop=$javascripts}
@@ -62,7 +62,7 @@
 {/if}
 <div id="header">
     {if $qrcodeURL != ''}
-    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+    <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$lib_path}qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
       <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>

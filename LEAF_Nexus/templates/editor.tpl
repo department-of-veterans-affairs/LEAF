@@ -139,9 +139,6 @@ function saveLayout(positionID) {
         cache: false
     });
 }
-$t_form->assign('lib_path', LIB_PATH);
-$main->assign('lib_path', LIB_PATH);
-<!--{$lib_path}-->
 
 function changeSupervisor(currPositionID) {
     dialog.setContent('Supervisor\'s Name or Title: <div id="positionSelector"></div>');
