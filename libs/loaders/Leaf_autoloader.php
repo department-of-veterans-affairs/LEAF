@@ -7,7 +7,7 @@ $loader = new \Leaf\Psr4AutoloaderClass;
 $loader->register();
 
 $url = $_SERVER['APP_PORTAL_URL_AUTH'];
-error_log(print_r($url, true));
+
 $uri_array = explode('/', $url);
 
 $uri = '';
@@ -132,5 +132,5 @@ if (session_id() == '') {
 $login = new Portal\Login($oc_db, $db);
 $oc_login = new Orgchart\Login($oc_db, $oc_db);
 $data_action_logger = new Leaf\DataActionLogger($db, $login);
-error_log(print_r($uri_array, true));
+
 if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . $uri_array[0] . '/libs/');
