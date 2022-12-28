@@ -1398,10 +1398,10 @@ class Form
 
                         $conditionMet = false;
                         foreach ($conditions as $c) {
-                            //only continue if formats match, only check hide/show, only check if parent data exists
-                            if ($c->childFormat === $currFormat
-                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show')
-                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) {
+                            //only continue if:
+                            if ($c->childFormat === $currFormat //current format and condition format matches
+                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show') //outcome is hide or show
+                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) { //and parent data exists
 
                                 $parentFormat = $c->parentFormat;
 
@@ -1424,13 +1424,16 @@ class Form
                                                     break;
                                                 }
                                             }
-                                        } else if ($parentFormat === 'dropdown' && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                        } else if (($parentFormat === 'dropdown' || $parentFormat === 'radio')
+                                            && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                             $conditionMet = true;
                                         }
                                         break;
                                     case '!=':
                                         if (($parentFormat === 'multiselect' && !array_intersect($currentParentDataValue, $conditionParentValue))
-                                            || ($parentFormat === 'dropdown' && $currentParentDataValue[0] !== $conditionParentValue[0])) {
+                                            ||
+                                            (($parentFormat === 'dropdown' || $parentFormat === 'radio')
+                                            && $currentParentDataValue[0] !== $conditionParentValue[0])) {
                                             $conditionMet = true;
                                         }
                                         break;
