@@ -63,8 +63,8 @@ div.groupBlockWhite {
     background-color: #fff;
 }
 
-div.groupBlockWhite:hover {box-shadow: 2px 2px 4px #353535; background-color: #e9e9e9;}
-div.groupBlockWhite:focus, div.groupBlockWhite:active {outline: none; border: 0;}
+div.groupBlockWhite:hover, div.groupBlockWhite:focus {box-shadow: 2px 2px 4px #353535; background-color: #e9e9e9;}
+div.groupBlockWhite:active {outline: none; border: 0;}
 div.groupBlockWhite div {margin-top: 0.1rem; font-size: 0.8rem; color: #000; }
 div.groupBlockWhite .leaf-search-hilite {background:#fee685; padding: 0.1rem 0.1rem 0rem 0.2rem;}
 
@@ -84,4 +84,65 @@ div.groupBlockWhite h3 {
     font-weight: normal;
     font-family: 'PublicSans-Medium';
 
+}
+
+.table-bordered {
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 700px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.table-bordered thead tr {
+    background-color: #005ea2;
+    color: #ffffff;
+    text-align: left;
+}
+
+#inactive_table thead tr {
+    background-color: #727272;
+}
+
+.table-bordered th,
+.table-bordered td {
+    padding: 7px 10px;
+}
+
+.table-bordered tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.table-bordered tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.table-bordered tbody tr:hover {
+    background-color: #adebff;
+}
+
+.table-bordered tbody tr:last-of-type {
+    border-bottom: 2px solid #dddddd;
+}
+
+.table-bordered tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+th:nth-child(1) {
+    border-radius: 5px 0px 0px 0px;
+}
+
+th:nth-last-child(1) {
+    border-radius: 0px 5px 0px 0px;
+}
+
+#showInactive.fa-angle-down::after {
+    font-family: "PublicSans-Light";
+    content: " Hide Inactive Users";
+}
+#showInactive.fa-angle-right::after {
+    font-family: "PublicSans-Light";
+    content: " Show Inactive Users";
 }

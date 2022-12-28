@@ -92,8 +92,8 @@ services:
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
     ports:
-      - "2525:25" # smtp port
-      - "5080:5080" # web ui port
+      - 2525:25
+      - 5080:5080
     restart: 'always'
     networks:
       - traefik
@@ -153,10 +153,3 @@ networks:
     external: true
   leaf:
     external: true
-    
-
-
-
-
- 
-
