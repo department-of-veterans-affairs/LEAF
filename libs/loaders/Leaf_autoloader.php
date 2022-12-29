@@ -10,11 +10,11 @@ $url = $_SERVER['APP_PORTAL_URL_AUTH'];
 
 $uri_array = explode('/', $url);
 
-$uri = '';
+$uri = trim($_SERVER['REQUEST_URI'], '/');
 
-for ($i=1; $i < count($uri_array) - 1; $i++) {
+/*for ($i=1; $i < count($uri_array) - 1; $i++) {
     $uri .= $uri_array[$i] . '/';
-}
+}*/
 
 if (is_file(__DIR__ . '/../../' . $uri . 'globals.php')) {
     require_once __DIR__ . '/../../' . $uri . 'globals.php';
@@ -33,7 +33,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 
     $file_paths_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-    $vars = array(':site_path' => '/' . substr_replace($uri, "", -1));
+    $vars = array(':site_path' => '/' . $uri);
     $sql = 'SELECT site_path, site_uploads, portal_database, orgchart_path,
                 orgchart_database, libs_path
             FROM sites
