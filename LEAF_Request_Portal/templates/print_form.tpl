@@ -429,7 +429,7 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
 
 function handlePrintConditionalIndicators(formPrintConditions = {}) {
 
-    const allowedChildFormats = ['dropdown', 'text', 'multiselect'];
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio'];
 
     for (c in formPrintConditions) {
         const childFormat = formPrintConditions[c].format;  //current format of the controlled question
