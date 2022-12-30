@@ -3,7 +3,7 @@ export default {
         return {
             scrollY: window.scrollY,
             initialTop: 15,
-            modalElementID: 'leaf_xhrDialog',
+            modalElementID: 'leaf_dialog_content',
             modalBackgroundID: 'leaf-vue-dialog-background'
         }
     },

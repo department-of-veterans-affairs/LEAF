@@ -559,6 +559,7 @@ export default {
          * @returns {Array}
          */
         arrChildMultiselectValues() {
+            console.log('called computed sel vals')
             let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
             arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
             return arrValues;

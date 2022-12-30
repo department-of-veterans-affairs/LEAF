@@ -31,7 +31,7 @@ export default {
         },
         gridOptions() {
             //NOTE: uses LEAF global XSSHelpers
-            let options = JSON.parse(this.indicator.options);
+            let options = JSON.parse(this.indicator?.options || '[]');
             options.map(o => {
                 o.name = XSSHelpers.stripAllTags(o.name);
                 if (o?.options) {

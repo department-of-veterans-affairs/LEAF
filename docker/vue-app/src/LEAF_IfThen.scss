@@ -26,12 +26,12 @@ $BG-DarkNavy: #162e51;
         justify-content: space-between;
         align-items: center;
 
-        div {
+        > div {
             display: inline-block;
             width: 30%;
         }
     }
-    select, input {
+    select, input:not(.choices__input) {
         font-size: 85%;
         padding: 0.15em;
         text-overflow: ellipsis;

@@ -31,13 +31,13 @@ export default {
         }
     },
     methods: {
-        indexHover(event) {
-            event.currentTarget.classList.add('index-selected');
+        indexHover(event = {}) {
+            event?.currentTarget?.classList.add('index-selected');
         },
-        indexHoverOff(event){
-            event.currentTarget.classList.remove('index-selected');
+        indexHoverOff(event = {}){
+            event?.currentTarget?.classList.remove('index-selected');
         },
-        toggleSubMenu(event) {
+        toggleSubMenu(event = {}) {
             if(event?.keyCode === 32) event.preventDefault();
             this.subMenuOpen = !this.subMenuOpen;
         }

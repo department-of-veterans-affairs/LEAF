@@ -277,7 +277,7 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/required`,
                             data: {
-                                required: +this.required,
+                                required: this.required ? 1: 0,
                                 CSRFToken: this.CSRFToken
                             },
                             error: err => console.log('ind required post err', err)
@@ -290,14 +290,14 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/sensitive`,
                             data: {
-                                is_sensitive: +this.is_sensitive,
+                                is_sensitive: this.is_sensitive ? 1 : 0,
                                 CSRFToken: this.CSRFToken
                             },
                             error: err =>  console.log('ind is_sensitive post err', err)
                         })
                     );
                 }
-                if (sensitiveChanged && this.is_sensitive) { //+this.is_sensitive === 1
+                if (sensitiveChanged && this.is_sensitive === true) {
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -396,8 +396,8 @@ export default {
                             default: this.defaultValue,
                             parentID: this.parentID,
                             categoryID: this.formID,
-                            required: +this.required,
-                            is_sensitive: +this.is_sensitive,
+                            required: this.required ? 1 : 0,
+                            is_sensitive: this.is_sensitive ? 1 : 0,
                             sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
@@ -423,7 +423,7 @@ export default {
 
         },
         radioBehavior(event = {}) {
-            const targetId = event.target.id;
+            const targetId = event?.target.id;
             if (targetId.toLowerCase() === 'archived' && this.deleted) {
                 document.getElementById('deleted').checked = false
                 this.deleted = false;

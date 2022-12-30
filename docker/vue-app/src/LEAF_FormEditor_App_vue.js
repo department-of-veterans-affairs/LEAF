@@ -569,15 +569,15 @@ export default {
             this.showFormDialog = true;
         },
         /**
-         * 
+         * Opens the dialog for editing a form question, creating a new form section, or creating a new subquestion
          * @param {number|null} indicatorID 
          */
         openIndicatorEditingDialog(indicatorID = null) {
             let title = ''
-            if (indicatorID === null) { //this is a new form section
-                title = `<h2>Adding new question</h2>`;
+            if (indicatorID === null) { //new form section
+                title = `<h2>Adding new Section</h2>`;
             } else {
-                //if equal, this is being called to edit an existing question.  If not, the indicatorID passed is the parIndID of a new subquestion
+                //If equal, this is editing an existing question.  Otherwise, creating a new subquestion (param is its parentID)
                 title = this.currIndicatorID === parseInt(indicatorID) ? 
                 `<h2>Editing indicator ${indicatorID}</h2>` : `<h2>Adding question to ${indicatorID}</h2>`;
             }

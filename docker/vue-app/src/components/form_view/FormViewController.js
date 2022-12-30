@@ -102,7 +102,7 @@ export default {
          */
         moveListing(event = {}, indID = 0, moveup = false) {
             if (event?.keyCode === 32) event.preventDefault();
-            const parentEl = event.currentTarget.closest('ul');
+            const parentEl = event?.currentTarget?.closest('ul');
             const elToMove = document.getElementById(`index_listing_${indID}`);
             const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
             const newElsLI = oldElsLI.filter(li => li !== elToMove);
@@ -117,7 +117,7 @@ export default {
                         parentEl.appendChild(li);
                         this.listItems[liIndID].listIndex = i;
                     });
-                    event.currentTarget.focus();
+                    event?.currentTarget?.focus();
                 }
             } 
             else {
@@ -129,7 +129,7 @@ export default {
                         parentEl.appendChild(li);
                         this.listItems[liIndID].listIndex = i;
                     });
-                    event.currentTarget.focus();
+                    event?.currentTarget?.focus();
                 }
             }
         },
@@ -199,80 +199,85 @@ export default {
             item.newParentID = formParIndID;
             this.listItems[indID] = item;
         },
-        startDrag(evt = {}) {
-            evt.dataTransfer.dropEffect = 'move';
-            evt.dataTransfer.effectAllowed = 'move';
-            evt.dataTransfer.setData('text/plain', evt.target.id);
+        startDrag(event = {}) {
+            if(event?.dataTransfer) {
+                event.dataTransfer.dropEffect = 'move';
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', event.target.id);
+            }
         },
-        onDrop(evt = {}) {
-            evt.preventDefault();
-            const draggedElID = evt.dataTransfer.getData('text');
-            const parentEl = evt.currentTarget; //drop event is on the parent ul
+        onDrop(event = {}) {
+            if(event?.dataTransfer) {
+                event.preventDefault();
+                const draggedElID = event.dataTransfer.getData('text');
+                const parentEl = event.currentTarget; //drop event is on the parent ul
 
-            const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
-            const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
+                const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
+                const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
 
-            const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-            if (elsLI.length === 0) { //if the drop ul has no lis, just append it
-                try {
-                    parentEl.append(document.getElementById(draggedElID));
-                    this.updateListItems(indID, formParIndID, 0); 
-                } catch (error) {
-                    console.log(error);
-                }
-                
-            } else { //otherwise, find the closest li to the droppoint to insert before
-                let dist = 9999;
-                let closestLI_id = null;
-                elsLI.forEach(el => {
-                    const newDist = el.getBoundingClientRect().top - evt.clientY;
-                    if(el.id !== draggedElID && newDist > 0 && newDist < dist) {
-                        dist = newDist;
-                        closestLI_id = el.id;
-                    }
-                });
-            
-                try {
-                    if(closestLI_id !== null) {
-                        parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
-                    } else {
-                        //it's at the end of the list
+                const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                if (elsLI.length === 0) { //if the drop ul has no lis, just append it
+                    try {
                         parentEl.append(document.getElementById(draggedElID));
+                        this.updateListItems(indID, formParIndID, 0); 
+                    } catch (error) {
+                        console.log(error);
                     }
-                    //check the new indexes
-                    const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-                    newElsLI.forEach((li,i) => {
-                        const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
-                        this.updateListItems(indID, formParIndID, i);
+                    
+                } else { //otherwise, find the closest li to the droppoint to insert before
+                    let dist = 9999;
+                    let closestLI_id = null;
+                    elsLI.forEach(el => {
+                        const newDist = el.getBoundingClientRect().top - event.clientY;
+                        if(el.id !== draggedElID && newDist > 0 && newDist < dist) {
+                            dist = newDist;
+                            closestLI_id = el.id;
+                        }
                     });
-                } catch(error) {
-                    console.log(error);
+                
+                    try {
+                        if(closestLI_id !== null) {
+                            parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
+                        } else {
+                            //it's at the end of the list
+                            parentEl.append(document.getElementById(draggedElID));
+                        }
+                        //check the new indexes
+                        const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                        newElsLI.forEach((li,i) => {
+                            const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
+                            this.updateListItems(indID, formParIndID, i);
+                        });
+                    } catch(error) {
+                        console.log(error);
+                    }
+                }
+                if(parentEl.classList.contains('entered-drop-zone')){
+                    event.target.classList.remove('entered-drop-zone');
                 }
             }
-            if(parentEl.classList.contains('entered-drop-zone')){
-                evt.target.classList.remove('entered-drop-zone');
-            }
         },
         /**
          * 
-         * @param {Object} evt removes the drop zone hilite if target is ul
+         * @param {Object} event removes the drop zone hilite if target is ul
          */
-        onDragLeave(evt = {}) {
-            if(evt.target.classList.contains('form-index-listing-ul')){
-                evt.target.classList.remove('entered-drop-zone');
+        onDragLeave(event = {}) {
+            if(event?.target?.classList.contains('form-index-listing-ul')){
+                event.target.classList.remove('entered-drop-zone');
             }
+            
         },
         /**
          * 
-         * @param {Object} evt adds the drop zone hilite if target is ul
+         * @param {Object} event adds the drop zone hilite if target is ul
          */
-        onDragEnter(evt = {}) {
-            if(evt.target.classList.contains('form-index-listing-ul')){
-                evt.target.classList.add('entered-drop-zone');
+        onDragEnter(event = {}) {
+            if(event?.target?.classList.contains('form-index-listing-ul')){
+                event.target.classList.add('entered-drop-zone');
             }
         },
         toggleToolbars(event = {}) {
-            event.stopPropagation();
+            event?.stopPropagation();
             if (event?.keyCode === 32) event.preventDefault();
             this.showToolbars=!this.showToolbars;
         },
