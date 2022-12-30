@@ -136,9 +136,9 @@ export default {
         },
         createOrgSelector() {
             let orgSelector = {};
-            if (this.selType==='group') {
+            if (this.selType === 'group') {
                 orgSelector = new groupSelector(`orgSel_${this.indicator.indicatorID}`);
-            } else if (this.selType==='position') {
+            } else if (this.selType === 'position') {
                 orgSelector = new positionSelector(`orgSel_${this.indicator.indicatorID}`);
             } else {
                 orgSelector = new employeeSelector(`orgSel_${this.indicator.indicatorID}`);
@@ -156,14 +156,14 @@ export default {
     },
     template: `<div class="format-preview">
 
-        <input v-if="baseFormat==='text'" :id="inputElID" type="text" class="text_input_preview"/>
-        <input v-if="baseFormat==='number'" :id="inputElID" type="number" class="text_input_preview"/>
+        <input v-if="baseFormat === 'text'" :id="inputElID" type="text" class="text_input_preview"/>
+        <input v-if="baseFormat === 'number'" :id="inputElID" type="number" class="text_input_preview"/>
 
-        <template v-if="baseFormat==='currency'">
+        <template v-if="baseFormat === 'currency'">
             $&nbsp;<input :id="inputElID" type="number" min="0.00" step="0.01" class="text_input_preview"/>
         </template>
 
-        <template v-if="baseFormat==='textarea'">
+        <template v-if="baseFormat === 'textarea'">
             <textarea :id="inputElID" rows="6" class="textarea_input_preview"></textarea>
             <div :id="'textarea_format_button_' + indicator.indicatorID" 
                 @click="useAdvancedEditor" 
@@ -171,7 +171,7 @@ export default {
             </div>
         </template>
 
-        <template v-if="baseFormat==='radio'">
+        <template v-if="baseFormat === 'radio'">
             <template v-for="o, i in truncatedOptions" :key="'radio_prev_' + indicator.indicatorID + '_' + i">
                 <label class="checkable leaf_check" :for="inputElID + '_radio' + i">
                     <input type="radio" :id="inputElID + '_radio' + i" :name="indicator.indicatorID" class="icheck leaf_check"  />
@@ -181,7 +181,7 @@ export default {
             <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
         </template>
 
-        <template v-if="baseFormat==='checkboxes' || baseFormat==='checkbox'">
+        <template v-if="baseFormat === 'checkboxes' || baseFormat === 'checkbox'">
             <template v-for="o, i in truncatedOptions" :key="'check_prev_' + indicator.indicatorID + '_' + i">
                 <label class="checkable leaf_check" :for="inputElID + '_check' + i">
                     <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  />
@@ -191,37 +191,37 @@ export default {
             <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
         </template>
         
-        <fieldset v-if="baseFormat==='fileupload' || baseFormat==='image'" 
+        <fieldset v-if="baseFormat === 'fileupload' || baseFormat === 'image'" 
             style="padding: 0.5em;"><legend>File Attachment(s)</legend>
             <p style="margin-bottom: 0.5em;">Select File to attach:</p>
             <input :id="inputElID" name="formPacket" type="file" />
         </fieldset>
 
-        <template v-if="baseFormat==='date'">
+        <template v-if="baseFormat === 'date'">
             <input type="text" :id="inputElID" 
             style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace; background-color: white;" value="" />
         </template>
 
         
-        <select v-if="baseFormat==='dropdown'" :id="inputElID" style="width: 50%">
+        <select v-if="baseFormat === 'dropdown'" :id="inputElID" style="width: 50%">
             <option v-for="o, i in truncatedOptions" :key="'drop_prev_' + indicator.indicatorID + '_' + i">
             {{o}}
             </option>
             <option v-if="indicator?.options?.length > 5" style="padding-left: 0.4em" disabled>(preview showing first 5)</option>
         </select>
         
-        <select v-if="baseFormat==='multiselect'" multiple 
+        <select v-if="baseFormat === 'multiselect'" multiple 
             :id="inputElID">
             :name="'multi_prev_' + indicator.indicatorID + '_multiselect[]'"
             style="display:none">
         </select>
         
-        <template v-if="baseFormat==='orgchart_group' || baseFormat==='orgchart_position' || baseFormat==='orgchart_employee'">
+        <template v-if="baseFormat === 'orgchart_group' || baseFormat === 'orgchart_position' || baseFormat === 'orgchart_employee'">
             <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
             <input :id="'sel_prev_' + indicator.indicatorID" style="display: none;">
         </template>
 
-        <template v-if="baseFormat==='grid'">
+        <template v-if="baseFormat === 'grid'">
             <div class="tableinput">
                 <table class="table" :id="'grid_' + indicator.indicatorID + '_' + indicator.series + '_input'"
                     style="word-wrap: break-word; table-layout: fixed; height: 100%; display: table">
@@ -234,10 +234,10 @@ export default {
                     <tbody :id="'gridTableBody_' + indicator.indicatorID">
                         <tr>
                             <td v-for="o in gridOptions" style="min-width: 150px;">
-                                <input v-if="o.type==='text'" style="width: 100%;" :aria-label="o.name" />
-                                <textarea v-if="o.type==='textarea'" rows="3" style="resize:none; width: 100%;" :aria-label="o.name"></textarea>
-                                <input type="date" v-if="o.type==='date'" style="width: 100%;" :aria-label="o.name" />
-                                <select v-if="o.type==='dropdown'" style="width: 100%;" :aria-label="o.name">
+                                <input v-if="o.type === 'text'" style="width: 100%;" :aria-label="o.name" />
+                                <textarea v-if="o.type === 'textarea'" rows="3" style="resize:none; width: 100%;" :aria-label="o.name"></textarea>
+                                <input type="date" v-if="o.type === 'date'" style="width: 100%;" :aria-label="o.name" />
+                                <select v-if="o.type === 'dropdown'" style="width: 100%;" :aria-label="o.name">
                                     <option v-for="option in o.options">{{option}}</option>
                                 </select>
                             </td>

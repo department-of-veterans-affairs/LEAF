@@ -55,7 +55,7 @@ export default {
                     focus = cells[0];
                     break;
                 default: 
-                    if(column.querySelector('[title="Move column right"]')===null){
+                    if(column.querySelector('[title="Move column right"]') === null){
                         focus = column.previousElementSibling.querySelector('[title="Delete column"]');
                     } else {
                         focus = column.nextElementSibling.querySelector('[title="Delete column"]');
@@ -115,17 +115,17 @@ export default {
         }
     },
     template:`<div :id="id" class="cell">
-        <img v-if="column!==1" role="button" tabindex="0"
+        <img v-if="column !== 1" role="button" tabindex="0"
             @click="moveLeft" @keypress.space.enter.prevent="moveLeft"
             src="../../libs/dynicons/?img=go-previous.svg&w=16" 
             title="Move column left" alt="Move column left" style="cursor: pointer" />
-        <img v-if="column!==gridJSON.length" role="button" tabindex="0" 
+        <img v-if="column !== gridJSON.length" role="button" tabindex="0" 
             @click="moveRight"  @keypress.space.enter.prevent="moveRight" 
             src="../../libs/dynicons/?img=go-next.svg&w=16" 
             title="Move column right" alt="Move column right" style="cursor: pointer" /><br />
         <span class="columnNumber">
             <span>Column #{{column}}:</span>
-            <img v-if="gridJSON.length !==1" role="button" tabindex="0"
+            <img v-if="gridJSON.length !== 1" role="button" tabindex="0"
             @click="deleteColumn" @keypress.space.enter.prevent="deleteColumn"
             src="../../libs/dynicons/?img=process-stop.svg&w=16" 
             title="Delete column" alt="Delete column" />
@@ -139,7 +139,7 @@ export default {
             <option value="dropdown">Drop Down</option>
             <option value="textarea">Multi-line text</option>
         </select>
-        <span v-if="gridType==='dropdown'" class="dropdown">
+        <span v-if="gridType === 'dropdown'" class="dropdown">
             <label for="'gridcell_options_' + id">One option per line</label>
             <textarea :id="'gridcell_options_' + id" 
                 v-model="textareaDropOptions"

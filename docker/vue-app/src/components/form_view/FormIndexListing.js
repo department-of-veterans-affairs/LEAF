@@ -23,10 +23,10 @@ export default {
         'moveListing'
     ],
     mounted() {
-        console.log('Form Index list item mounted')
+        //console.log('Form Index list item mounted')
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
         this.addToListItemsObject(this.formNode, this.parentID, this.index);
-        if(this.selectedNodeIndicatorID!==null) {
+        if(this.selectedNodeIndicatorID !== null) {
             document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`).classList.add('index-selected');
         }
     },
@@ -75,7 +75,7 @@ export default {
     },
     template:`
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
-            :class="depth===0 ? 'section_heading' : 'subindicator_heading'"
+            :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             @click.stop="selectNewFormNode($event, formNode)"
             @keypress.enter.stop="selectNewFormNode($event, formNode)">
@@ -83,12 +83,12 @@ export default {
                 <span v-if="hasConditions" title="question is conditionally shown">→</span>
                 {{headingNumber}}&nbsp;{{indexDisplay}}
                 <div class="icon_move_container">
-                    <div v-show="formNode.indicatorID===selectedNodeIndicatorID" 
+                    <div v-show="formNode.indicatorID === selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" role="button" title="move item up"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, true)">
                     </div>
-                    <div v-show="formNode.indicatorID===selectedNodeIndicatorID"
+                    <div v-show="formNode.indicatorID === selectedNodeIndicatorID"
                         tabindex="0" class="icon_move down" role="button" title="move item down"
                         @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">

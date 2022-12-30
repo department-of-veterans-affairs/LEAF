@@ -59,8 +59,8 @@ export default {
             format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property here is just the format name
             description: this.ajaxIndicatorByID[this.currIndicatorID]?.description || '',
             defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
-            required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required)===1 || false,
-            is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive)===1 || false,
+            required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required) === 1 || false,
+            is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive) === 1 || false,
             parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? 
                     parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
             //sort can be 0, need to compare specifically against undefined
@@ -114,7 +114,7 @@ export default {
                 this.isLoadingParentIDs = false;
             });
         }
-        if(this.sort===null){
+        if(this.sort === null){
             this.sort = this.newQuestionSortValue;
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
@@ -158,7 +158,7 @@ export default {
          */
         newQuestionSortValue(){
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
-            const sortVal = (this.parentID===null) ?
+            const sortVal = (this.parentID === null) ?
                 this.ajaxFormByCategoryID.length :                                 //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
             return sortVal;
@@ -215,8 +215,9 @@ export default {
                 const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
-                console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
-                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
+                //keeping for now for potential debugging
+                //console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
+                //console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
                     indicatorEditingUpdates.push(
@@ -276,7 +277,7 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/required`,
                             data: {
-                                required: this.required ? 1 : 0,
+                                required: +this.required,
                                 CSRFToken: this.CSRFToken
                             },
                             error: err => console.log('ind required post err', err)
@@ -289,14 +290,14 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/sensitive`,
                             data: {
-                                is_sensitive: this.is_sensitive ? 1 : 0,
+                                is_sensitive: +this.is_sensitive,
                                 CSRFToken: this.CSRFToken
                             },
                             error: err =>  console.log('ind is_sensitive post err', err)
                         })
                     );
                 }
-                if (sensitiveChanged && +this.is_sensitive === 1) {
+                if (sensitiveChanged && this.is_sensitive) { //+this.is_sensitive === 1
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -319,7 +320,7 @@ export default {
                             type: 'POST',
                             url: `${this.APIroot}formEditor/${this.currIndicatorID}/disabled`,
                             data: {
-                                disabled: 1,  //can't undelete from there so this should be fine
+                                disabled: 1,
                                 CSRFToken: this.CSRFToken
                             },
                             error: err => console.log('ind disabled (archive) post err', err)
@@ -352,7 +353,7 @@ export default {
                         })
                     );
                 } /*
-                if(sortChanged) { //NOTE: (tentative) use Form Index for sorting.
+                if(sortChanged) { //NOTE: (tentative) using Form Index for sorting, but keeping so this can just be re-added if needed.
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -367,7 +368,7 @@ export default {
                 }*/
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
-                if (+this.is_sensitive === 1) {
+                if (this.is_sensitive) {
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -395,8 +396,8 @@ export default {
                             default: this.defaultValue,
                             parentID: this.parentID,
                             categoryID: this.formID,
-                            required: this.required ? 1 : 0,
-                            is_sensitive: this.is_sensitive ? 1 : 0,
+                            required: +this.required,
+                            is_sensitive: +this.is_sensitive,
                             sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
@@ -409,7 +410,7 @@ export default {
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 
                 if (res.length > 0) {
-                    const subnodeIndID = (this.archived===true || this.deleted===true) && 
+                    const subnodeIndID = (this.archived === true || this.deleted === true) && 
                             this.currIndicatorID === this.selectedNodeIndicatorID ? null: this.selectedNodeIndicatorID
                         
                     if (this.archived === true || this.deleted === true) {
@@ -525,7 +526,7 @@ export default {
                     @click="advNameEditorClick">
                     Advanced Formatting
                 </button>
-                <button v-show="name.length <= shortLabelTrigger && description===''" 
+                <button v-show="name.length <= shortLabelTrigger && description === ''" 
                     class="btn-general" 
                     style="margin-left: auto; width:135px"
                     title="access short label field"
@@ -534,7 +535,7 @@ export default {
                 </button>
             </div>
         </div>
-        <div v-show="description!=='' || name.length > shortLabelTrigger || showShortLabel===true">
+        <div v-show="description !== '' || name.length > shortLabelTrigger || showShortLabel === true">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label for="description">What would you call this field in a spreadsheet?</label>
                 <div>{{shortlabelCharsRemaining}}</div>
@@ -548,7 +549,7 @@ export default {
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
                         <option value="">None</option>
                         <option v-for="kv in Object.entries(formats)" 
-                        :value="kv[0]" :selected="kv[0]===format" :key="kv[0]">{{ kv[1] }}</option>
+                        :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
                     <button id="editing-format-assist" class="btn-general"
                         @click="toggleSelection($event, 'showDetailedFormatInfo')"
@@ -561,7 +562,7 @@ export default {
                     {{ format !== '' ? formatInfo[format] : 'No format.  Indicators without a format are often used to provide additional information for the user.  They are often used for form section headers.' }}
                 </div>
             </div>
-            <div v-show="format==='checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
+            <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox:</label>
                 <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
             </div>
@@ -570,7 +571,7 @@ export default {
                 <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
                 </textarea>
             </div>
-            <div v-if="format==='grid'" id="container_indicatorGrid">
+            <div v-if="format === 'grid'" id="container_indicatorGrid">
                 <span id="tableStatus" style="position: absolute; color: transparent" 
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
@@ -581,19 +582,19 @@ export default {
                     </button>&nbsp;Columns ({{gridJSON.length}}):
                 </div>
                 <div style="overflow-x: scroll;" id="gridcell_col_parent">
-                    <grid-cell v-if="gridJSON.length===0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
+                    <grid-cell v-if="gridJSON.length === 0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
                     <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                 </div>
             </div>
-            <div v-show="format!=='' && format!=='raw_data'" style="margin-top:0.75rem;">
+            <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
                 <textarea id="defaultValue" v-model="defaultValue"></textarea> 
             </div>
         </div>
-        <div v-show="!(!isEditingModal && format==='')" id="indicator-editing-attributes">
+        <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
             <b>Attributes</b>
             <div class="attribute-row">
-                <template v-if="format!==''">
+                <template v-if="format !== ''">
                     <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
                         <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
                             @change="preventSelectionIfFormatNone" />
@@ -631,10 +632,10 @@ export default {
             </button>
             <template v-if="showAdditionalOptions">
                 <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
-                    <template v-if="isLoadingParentIDs===false">
+                    <template v-if="isLoadingParentIDs === false">
                         <label for="container_parentID" style="margin-right: 1rem;">Parent Question ID
                             <select v-model.number="parentID" id="container_parentID" style="width:250px; margin-left:3px;">
-                                <option :value="null" :selected="parentID===null">None</option> 
+                                <option :value="null" :selected="parentID === null">None</option> 
                                 <template v-for="kv in Object.entries(listForParentIDs)">
                                     <option v-if="currIndicatorID !== parseInt(kv[0])" 
                                         :value="kv[0]" 

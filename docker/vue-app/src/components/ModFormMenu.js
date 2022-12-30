@@ -129,7 +129,7 @@ export default {
                     </button>
                 
                     <template v-if="menuOpen">
-                        <ul v-if="currCategoryID===null" id="form-editor-menu"
+                        <ul v-if="currCategoryID === null" id="form-editor-menu"
                             @mouseenter="showMenu" @mouseleave="hideMenu">
                             <li>
                                 <button id="createFormButton" @click="openNewFormDialog">
@@ -155,7 +155,7 @@ export default {
                         <ul v-else id="form-editor-menu"
                             @mouseenter="showMenu" 
                             @mouseleave="hideMenu">
-                            <li v-if="currentCategoryIndicatorTotal!==0">
+                            <li v-if="currentCategoryIndicatorTotal !== 0">
                                 <button @click="openNewFormDialog" title="add new internal use form">
                                 Add Internal-Use<span>➕</span>
                                 </button>
@@ -209,15 +209,15 @@ export default {
                     <button type="button" @click="selectNewCategory(null)" title="View All Forms">
                         <h2>Form Editor</h2>
                     </button>
-                    <span v-if="currCategoryID!==null" class="header-arrow">❯</span>
+                    <span v-if="currCategoryID !== null" class="header-arrow">❯</span>
                 </li>
-                <li v-if="currCategoryID!==null">
+                <li v-if="currCategoryID !== null">
                     <button type="button" :id="'header_'+currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
                         <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
                     </button>
-                    <span v-if="currSubformID!==null" class="header-arrow">❯</span>
+                    <span v-if="currSubformID !== null" class="header-arrow">❯</span>
                 </li>
-                <li v-if="currSubformID!==null">
+                <li v-if="currSubformID !== null">
                     <button :id="'header_' + currSubformID" @click="selectSubform(currSubformID)" title="select internal form">
                         <h2>{{shortFormNameStripped(currSubformID, 50)}}</h2>
                     </button>

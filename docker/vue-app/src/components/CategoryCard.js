@@ -72,7 +72,7 @@ export default {
          */
         workflow() {
             let msg = ''
-            if (this.workflowID===0) {
+            if (this.workflowID === 0) {
                 msg = 'No Workflow';
             } else {
                 msg = this.categoriesRecord.description !== null ? 'Workflow: ' + this.categoriesRecord.description : '';

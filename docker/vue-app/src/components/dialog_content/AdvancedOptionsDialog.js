@@ -25,7 +25,7 @@ export default {
     ],
     mounted(){
         document.querySelector(this.initialFocusElID)?.focus();
-        if(parseInt(this.hasDevConsoleAccess)===1) {
+        if(parseInt(this.hasDevConsoleAccess) === 1) {
             this.setupAdvancedOptions();
         }
     },
@@ -146,7 +146,7 @@ export default {
             });
         }
     },
-    template: `<div v-if="parseInt(hasDevConsoleAccess)===1">
+    template: `<div v-if="parseInt(hasDevConsoleAccess) === 1">
             <fieldset id="advanced" style="min-width: 700px; padding: 0.5em; margin:0"><legend tabindex="0">Template Variables and Controls</legend>
                 <table class="table" style="border-collapse: collapse; margin: 0; width: 100%;">
                     <tr>

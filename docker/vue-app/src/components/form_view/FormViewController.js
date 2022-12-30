@@ -44,7 +44,7 @@ export default {
         'stripAndDecodeHTML',
     ],
     mounted() {
-        console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID);
+        //console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID);
     },
     provide() {
         return {
@@ -65,7 +65,7 @@ export default {
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID] || '';
-            return item !== '' && this.allListItemsAreAdded && item.parentID===null ? `${item.currSortIndex + 1} ` : '';
+            return item !== '' && this.allListItemsAreAdded && item.parentID === null ? `${item.currSortIndex + 1} ` : '';
         }, 
         allListItemsAreAdded() {
             return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
@@ -101,7 +101,7 @@ export default {
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
         moveListing(event = {}, indID = 0, moveup = false) {
-            if (event?.keyCode===32) event.preventDefault();
+            if (event?.keyCode === 32) event.preventDefault();
             const parentEl = event.currentTarget.closest('ul');
             const elToMove = document.getElementById(`index_listing_${indID}`);
             const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
@@ -118,8 +118,6 @@ export default {
                         this.listItems[liIndID].listIndex = i;
                     });
                     event.currentTarget.focus();
-                } else {
-                    console.log('is first item');
                 }
             } 
             else {
@@ -132,8 +130,6 @@ export default {
                         this.listItems[liIndID].listIndex = i;
                     });
                     event.currentTarget.focus();
-                } else {
-                    console.log('is last item');
                 }
             }
         },
@@ -217,7 +213,7 @@ export default {
             const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
 
             const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-            if (elsLI.length===0) { //if the drop ul has no lis, just append it
+            if (elsLI.length === 0) { //if the drop ul has no lis, just append it
                 try {
                     parentEl.append(document.getElementById(draggedElID));
                     this.updateListItems(indID, formParIndID, 0); 
@@ -277,7 +273,7 @@ export default {
         },
         toggleToolbars(event = {}) {
             event.stopPropagation();
-            if (event?.keyCode===32) event.preventDefault();
+            if (event?.keyCode === 32) event.preventDefault();
             this.showToolbars=!this.showToolbars;
         },
     }, /*
@@ -310,7 +306,7 @@ export default {
             <div v-if="currSubformID === null && internalForms.length > 0"><em>x{{internalForms.length}} internal form(s)</em></div>
             <div v-if="currSubformID === null && ajaxSelectedCategoryStapled.length > 0"><em>x{{ajaxSelectedCategoryStapled.length}} stapled form(s)</em></div>
             <div style="margin: 1em 0">
-                <button v-if="selectedFormNode!==null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
+                <button v-if="selectedFormNode !== null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
                     @click="selectNewFormNode($event, null)" 
                     id="show_entire_form" 
                     title="Show entire form">Show entire form
@@ -347,7 +343,7 @@ export default {
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
         <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
             <!-- ENTIRE FORM EDIT / PREVIEW -->
-            <div v-if="selectedFormNode===null" id="form_entry_and_preview">
+            <div v-if="selectedFormNode === null" id="form_entry_and_preview">
                 <div class="form-section-header" style="display: flex; height: 28px;">
                     <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
                     <button id="indicator_toolbar_toggle" class="btn-general"

@@ -39,7 +39,7 @@ export default {
         this.getAllIndicators();
     },
     mounted(){
-        console.log('IFTHEN (form editor) mounted', this.vueData);
+        //console.log('IFTHEN (form editor) mounted', this.vueData);
     },
     updated() {
         if(this.conditions.selectedOutcome !== '') {
@@ -54,7 +54,7 @@ export default {
                 url: `${this.APIroot}form/indicator/list/unabridged`,
                 success: (res)=> {
                     const list = res;
-                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled)===0);
+                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
                     this.indicators = filteredList;
 
                     /* this.indicators.forEach(i => {
@@ -87,7 +87,7 @@ export default {
             
             const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //handle scenario if a parent is archived/deleted
-            if(indicator===undefined) {
+            if(indicator === undefined) {
                 this.parentFound = false;
                 this.selectedDisabledParentID = indicatorID===0 ? this.selectedDisabledParentID : parseInt(indicatorID);
                 return;
@@ -169,7 +169,7 @@ export default {
         updateSelectedParentValue(target = {}) {
             const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
             let value = '';
-            if (parFormat==='multiselect') {
+            if (parFormat === 'multiselect') {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -186,7 +186,7 @@ export default {
         updateSelectedChildValue(target = {}) {
             const childFormat = this.childIndicator.format.split('\n')[0].trim();
             let value = '';
-            if (childFormat==='multiselect') {
+            if (childFormat === 'multiselect') {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -220,7 +220,7 @@ export default {
                     const form = res;
                     form.forEach((formheader, index) => {
                         this.indicators.forEach(ind => {
-                            if (parseInt(ind.headerIndicatorID)===parseInt(formheader.indicatorID)){
+                            if (parseInt(ind.headerIndicatorID) === parseInt(formheader.indicatorID)){
                                 ind.formPage = index;
                             }
                         })
@@ -238,7 +238,7 @@ export default {
             if (!parent || !parent.parentIndicatorID) {
                 //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
                 //add information about the headerIndicatorID to the indicators
-                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID)===parseInt(initialIndicator.indicatorID));
+                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(initialIndicator.indicatorID));
                 indToUpdate.headerIndicatorID = parentIndicatorID;
             } else {
                 this.crawlParents(parent, initialIndicator);
@@ -312,7 +312,7 @@ export default {
                 const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
                 
                 if (childIndID !== undefined) {
-                    const hasActiveParentIndicator = this.indicators.some(ele => parseInt(ele.indicatorID)===parseInt(parentIndID));
+                    const hasActiveParentIndicator = this.indicators.some(ele => parseInt(ele.indicatorID) === parseInt(parentIndID));
                     const conditionsJSON = JSON.stringify(data.condition);
 
                     //get all conditions on this child
@@ -328,7 +328,7 @@ export default {
                     if(hasActiveParentIndicator) {
                         newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
                     } else {
-                        newConditions = currConditions.filter(c => !(c.parentIndID===this.selectedDisabledParentID && c.selectedOutcome===selectedOutcome && c.selectedChildValue===selectedChildValue))
+                        newConditions = currConditions.filter(c => !(c.parentIndID === this.selectedDisabledParentID && c.selectedOutcome === selectedOutcome && c.selectedChildValue === selectedChildValue))
                     }
                     
                     if (newConditions.length === 0) newConditions = null;
@@ -456,7 +456,7 @@ export default {
                 elSelectParent.choicesjs = choices;
             }
 
-            if(outcome==='pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && elExistingChoicesChild===null) {
+            if(outcome === 'pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && elExistingChoicesChild === null) {
                 let options = this.selectedChildValueOptions || [];
                 options = options.map(o =>({
                     value: o.trim(),
@@ -528,7 +528,7 @@ export default {
                     childIndID !== 0 && parentIndID !== 0 && 
                     selectedOp !== '' && selectedParentValue !== '' &&
                     (selectedOutcome && selectedOutcome.toLowerCase() !== "pre-fill" ||
-                    (selectedOutcome.toLowerCase()==="pre-fill" && selectedChildValue !== ''))
+                    (selectedOutcome.toLowerCase() === "pre-fill" && selectedChildValue !== ''))
                 );
             const elSave = document.getElementById('button_save');
             if (elSave !== null) elSave.style.display = isComplete ? 'block' : 'none';
@@ -591,7 +591,7 @@ export default {
                             <p style="margin-bottom: 0.5rem;"><b>This field will be hidden except:</b></p>
                             <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
+                                    :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                         {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
@@ -613,7 +613,7 @@ export default {
                             <p style="margin-bottom: 0.5rem;"><b>This field will be shown except:</b></p>
                             <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
+                                    :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                         {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
@@ -635,7 +635,7 @@ export default {
                             <p style="margin-bottom: 0.5rem;"><b>This field will be pre-filled:</b></p>
                             <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
                                 <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                    :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
+                                    :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                         {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
@@ -672,26 +672,26 @@ export default {
                     <select v-if="conditions.childIndID" title="select outcome"
                             name="child-outcome-selector"
                             @change="updateSelectedOutcome($event.target.value)">
-                            <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option> 
-                            <option value="Show" :selected="conditions.selectedOutcome.toLowerCase()==='show'">Hide this question except ...</option>
-                            <option value="Hide" :selected="conditions.selectedOutcome.toLowerCase()==='hide'">Show this question except ...</option>
-                            <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question</option>
+                            <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option> 
+                            <option value="Show" :selected="conditions.selectedOutcome.toLowerCase() === 'show'">Hide this question except ...</option>
+                            <option value="Hide" :selected="conditions.selectedOutcome.toLowerCase() === 'hide'">Show this question except ...</option>
+                            <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase() === 'pre-fill'">Pre-fill this Question</option>
                     </select>
-                    <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
+                    <span v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill'" class="input-info">Enter a pre-fill value</span>
                     <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text -->
-                    <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && childFormat==='dropdown'"
+                    <select v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && childFormat === 'dropdown'"
                         name="child-prefill-value-selector"
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)">
-                        <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>    
+                        <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>    
                         <option v-for="val in selectedChildValueOptions" 
                             :value="val"
                             :key="val"
-                            :selected="textValueDisplay(conditions.selectedChildValue)===val">
+                            :selected="textValueDisplay(conditions.selectedChildValue) === val">
                             {{ val }} 
                         </option>
                     </select>
-                    <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && conditions.childFormat==='multiselect'"
+                    <select v-else-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && conditions.childFormat === 'multiselect'"
                         placeholder="select some options"
                         multiple="true"
                         id="child_prefill_entry"
@@ -699,7 +699,7 @@ export default {
                         name="child-prefill-value-selector"
                         @change="updateSelectedChildValue($event.target)">   
                     </select>
-                    <input v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && childFormat==='text'" 
+                    <input v-else-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && childFormat === 'text'" 
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)"
                         :value="textValueDisplay(conditions.selectedChildValue)" />
@@ -716,7 +716,7 @@ export default {
                             <option v-for="i in selectableParents" 
                             :title="i.name" 
                             :value="i.indicatorID"
-                            :selected="parseInt(conditions.parentIndID)===parseInt(i.indicatorID)"
+                            :selected="parseInt(conditions.parentIndID) === parseInt(i.indicatorID)"
                             :key="i.indicatorID">
                             {{getIndicatorName(parseInt(i.indicatorID)) }} (indicator {{i.indicatorID}})
                             </option>
@@ -726,27 +726,27 @@ export default {
                         <!-- NOTE: OPERATOR SELECTION -->
                         <select
                             v-model="selectedOperator">
-                            <option v-if="conditions.selectedOp===''" value="" selected>Select a condition</option>
+                            <option v-if="conditions.selectedOp === ''" value="" selected>Select a condition</option>
                             <option v-for="o in selectedParentOperators" 
                             :value="o.val"
                             :key="o.val"
-                            :selected="conditions.selectedOp===o.val">
+                            :selected="conditions.selectedOp === o.val">
                             {{ o.text }}
                             </option>
                         </select>
                     </div>
                     <div>    
                         <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
-                        <select v-if="parentFormat==='dropdown'"
+                        <select v-if="parentFormat === 'dropdown'"
                             id="parent_compValue_entry"
                             @change="updateSelectedParentValue($event.target)">
-                            <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>    
+                            <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>    
                             <option v-for="val in selectedParentValueOptions"
                                 :key="val"
-                                :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
+                                :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
                             </option>
                         </select>
-                        <select v-else-if="parentFormat==='multiselect'"
+                        <select v-else-if="parentFormat === 'multiselect'"
                             id="parent_compValue_entry"
                             placeholder="select some options" multiple="true"
                             style="display: none;"
@@ -755,12 +755,12 @@ export default {
                     </div>
                 </div>
                 <div v-if="conditionComplete"><h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
-                    <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'">will 
-                    <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+                    <span v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill'">will 
+                    <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
                     </span>
                     <span v-else>will 
                         <span style="color: #00A91C; font-weight: bold;">
-                        be {{conditions.selectedOutcome==="Show" ? 'shown' : 'hidden'}}
+                        be {{conditions.selectedOutcome === "Show" ? 'shown' : 'hidden'}}
                         </span>
                     </span>
                 </div>

@@ -21,7 +21,7 @@ export default {
         'showToolbars'
     ],
     mounted() {
-        console.log('form editing area mounted');
+        //console.log('form editing area mounted');
     },
     computed: {
         children() {
@@ -35,7 +35,7 @@ export default {
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
             let item = this.listItems[ID];
-            return this.allListItemsAreAdded && (item.parentID===null || item.newParentID===null);
+            return this.allListItemsAreAdded && (item.parentID === null || item.newParentID === null);
         },
         sensitiveImg() {
             return this.sensitive ? 
@@ -115,7 +115,7 @@ export default {
                     class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                 
                 <!-- FORMAT PREVIEW -->
-                <div v-if="formNode.format!==''" class="form_data_entry_preview">
+                <div v-if="formNode.format !== ''" class="form_data_entry_preview">
                     <format-preview :indicator="formNode" :key="'FP_' + formNode.indicatorID"></format-preview>
                 </div>
             </div>

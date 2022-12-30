@@ -159,7 +159,7 @@ export default {
         activeCategories() {
             let active = [];
             for (let c in this.categories) {
-                if (this.categories[c].parentID==='' && parseInt(this.categories[c].workflowID)!==0) {
+                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) !== 0) {
                     active.push({...this.categories[c]});
                 }
             }
@@ -172,7 +172,7 @@ export default {
         inactiveCategories() {
             let inactive = [];
             for (let c in this.categories) {
-                if (this.categories[c].parentID==='' && parseInt(this.categories[c].workflowID)===0) {
+                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) === 0) {
                     inactive.push({...this.categories[c]});
                 }
             }
@@ -185,7 +185,7 @@ export default {
         internalForms() {
             let internalForms = [];
             for(let c in this.categories){
-                if (this.categories[c].parentID===this.currCategoryID) {
+                if (this.categories[c].parentID === this.currCategoryID) {
                     const internal = {...this.categories[c]};
                     internalForms.push(internal);
                 }
@@ -338,7 +338,7 @@ export default {
                     break;
                 }
             }
-            if (newIndicator === true && this.currCategoryID===null) { //null if on form browser page
+            if (newIndicator === true && this.currCategoryID === null) { //null if on form browser page
                 this.showCertificationStatus = true;
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
                     if (unresolvedLeafSRequests.length === 0) { // if no new request, create one

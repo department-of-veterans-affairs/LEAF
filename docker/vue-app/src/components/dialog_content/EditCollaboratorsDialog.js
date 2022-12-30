@@ -39,7 +39,7 @@ export default {
         ];
         Promise.all(loadCalls).then(()=> {
             const elSelect = document.getElementById('selectFormCollaborators');
-            if(elSelect!==null) elSelect.focus();
+            if(elSelect !== null) elSelect.focus();
         });
     },
     computed: {
@@ -93,7 +93,7 @@ export default {
                         write: 1
                     },
                     success: (res) => { //returns null uwu
-                        const group = this.collaborators.find(c => parseInt(c.groupID)===parseInt(this.group.groupID));
+                        const group = this.collaborators.find(c => parseInt(c.groupID) === parseInt(this.group.groupID));
                         if (group === undefined) {
                             this.collaborators.push({groupID: this.group.groupID, name: this.group.name});
                             this.group = '';

@@ -29,11 +29,9 @@ export default {
                     cache: false,
                     data: pkg,
                     success: (res) => {
-                        if(res===true) { //NOTE: false if there were issues, newCatID on success would be better
-                            console.log('form import success');
-                        } else {
-                            alert(res);
-                        }
+                        if(res === false) { //NOTE: true for success, false if there were issues, newCatID on success would be better
+                            console.log('possible error during form import');
+                        } 
                         this.closeFormDialog();
                         this.selectNewCategory(null);
                     },

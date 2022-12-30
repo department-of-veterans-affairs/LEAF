@@ -34,7 +34,7 @@ export default {
                 const catID = this.categories[c].categoryID;
                 const parID = this.categories[c].parentID;
                 const isNotAlreadyMerged = this.ajaxSelectedCategoryStapled.every(form => form.stapledCategoryID !== catID)
-                if (WF_ID===0 && catID !== this.formID && parID === '' && isNotAlreadyMerged) {
+                if (WF_ID === 0 && catID !== this.formID && parID === '' && isNotAlreadyMerged) {
                     mergeable.push({...this.categories[c]});
                 }
             }

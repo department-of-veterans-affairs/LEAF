@@ -51,7 +51,7 @@ export default {
             const changes = [
                 nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, sortChanged, visibleChanged, typeChanged
             ];
-            console.log('form panel changes', changes)
+            //console.log('form panel changes', changes)  //keep for potential debugging
             return changes.some(c => c === true);
         },
         formNameCharsRemaining() {
@@ -205,7 +205,7 @@ export default {
     },
     template: `<div id="edit-properties-panel">
         <span class="form-id">ID: {{currCategoryID}}
-            <span v-if="currSubformID!==null">(subform {{currSubformID}})</span>
+            <span v-if="currSubformID !== null">(subform {{currSubformID}})</span>
         </span>
         <div id="edit-properties-description">
             <label for="categoryName">Form name
@@ -235,12 +235,12 @@ export default {
                             title="select workflow"
                             v-model.number="workflowID"
                             style="width:300px;"
-                            :style="{color: workflowID===0 ? '#cb0000' : 'black'}">
-                            <option value="0" :selected="workflowID===0">No Workflow.  Users cannot submit requests</option>
+                            :style="{color: workflowID === 0 ? '#cb0000' : 'black'}">
+                            <option value="0" :selected="workflowID === 0">No Workflow.  Users cannot submit requests</option>
                             <template v-for="r in ajaxWorkflowRecords" :key="'workflow_' + r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
-                                    :selected="workflowID===parseInt(r.workflowID)">
+                                    :selected="workflowID === parseInt(r.workflowID)">
                                     ID#{{r.workflowID}}: {{truncateText(r.description,35)}}
                                 </option>
                             </template>
@@ -262,8 +262,8 @@ export default {
                     <div style="display: flex; flex-wrap: wrap; row-gap: 0.5rem;">
                         <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
                             <select id="availability" title="Select Availability" v-model.number="visible">
-                                <option value="1" :selected="visible===1">Available</option>
-                                <option value="0" :selected="visible===0">Hidden</option>
+                                <option value="1" :selected="visible === 1">Available</option>
+                                <option value="0" :selected="visible === 0">Hidden</option>
                             </select>
                         </label>
 
@@ -273,8 +273,8 @@ export default {
 
                         <label for="formType">Form Type
                         <select id="formType" title="Change type of form" v-model="type" >
-                            <option value="" :selected="type===''">Standard</option>
-                            <option value="parallel_processing" :selected="type==='parallel_processing'">Parallel Processing</option>
+                            <option value="" :selected="type === ''">Standard</option>
+                            <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
                         </select></label>
                     </div>
                 </div>

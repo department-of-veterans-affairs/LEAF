@@ -101,8 +101,8 @@ export default {
                     They will also only allow the specified groups to apply search filters for this field.<br/>
                     All others will see "[protected data]".
                 </div>
-                <template v-if="statusMessageError===''">
-                    <div v-if="groupsWithPrivileges.length===0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
+                <template v-if="statusMessageError === ''">
+                    <div v-if="groupsWithPrivileges.length === 0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
                     <div v-else style="margin:0.5rem 0">
                         <div style="color: #cb0000;">Special access restrictions are enabled.</div>
                         <ul>
