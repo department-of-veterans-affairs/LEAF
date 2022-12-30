@@ -1011,6 +1011,37 @@
             <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
+            <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Account must not be a 'Zero' account.</span>
+            <script type="text/javascript">
+                formValidator["id<!--{$indicator.indicatorID}-->"] = {
+                    setValidator: function() {
+                        let elInput = $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val();
+                        let elEmpUserName = elInput.trim().replace('userName:', '');
+                        let isZero = elEmpUserName.slice(-1) === '0';
+
+                        return !isZero ?? true;
+                    },
+                    setSubmitValid: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_error').offset().top-50
+                        }, 700).clearQueue();
+                    },
+                    setValidatorError: function() {
+                        $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').css('border', '2px solid red');
+
+                        if ($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
+                        }
+                        else {
+                            $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
+                        }
+                    },
+                    setValidatorOk: function() {
+                        $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').css('border', '1px solid gray');
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
+                    }
+                };
+            </script>
 
             <script>
             var leaf_employeeSelector = leaf_employeeSelector ?? {};
@@ -1041,6 +1072,9 @@
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').val(res);
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                                     $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
+                                },
+                                fail: function(err) {
+                                    console.log(err);
                                 }
                             });
                         }
