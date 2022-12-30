@@ -42,7 +42,7 @@ export default {
         ];
         Promise.all(loadCalls).then((res)=> {
             //console.log(res);
-        });
+        }).catch(err => console.log('an error has occurred', err));
     },
     computed: {
         availableGroups() {

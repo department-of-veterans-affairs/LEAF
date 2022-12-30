@@ -40,7 +40,8 @@ export default {
                             this.closeFormDialog();
                             this.selectNewCategory(null);
                         }
-                    }
+                    },
+                    error: err => console.log('an error has occurred', err)
                 });
 
             } else {

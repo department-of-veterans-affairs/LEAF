@@ -40,7 +40,7 @@ export default {
         Promise.all(loadCalls).then(()=> {
             const elSelect = document.getElementById('selectFormCollaborators');
             if(elSelect !== null) elSelect.focus();
-        });
+        }).catch(err => console.log('an error has occurred', err));
     },
     computed: {
         availableGroups() {

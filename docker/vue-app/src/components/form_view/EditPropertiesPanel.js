@@ -200,7 +200,7 @@ export default {
                 .then(()=> {
                     //console.log('promise all:', editPropertyUpdates);
                     this.closeFormDialog();
-                });
+                }).catch(err => console.log('an error has occurred', err));
         }
     },
     template: `<div id="edit-properties-panel">

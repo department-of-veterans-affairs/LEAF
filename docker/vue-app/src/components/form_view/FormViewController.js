@@ -173,7 +173,7 @@ export default {
                 if (res.length > 0) {
                     this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                 }
-            });
+            }).catch(err => console.log('an error has occurred', err));
 
         },
         /**

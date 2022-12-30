@@ -47,7 +47,9 @@ export default {
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
-                    this.getStapledFormsByCurrentCategory(this.formID).then(res => this.setCurrCategoryStaples(res));
+                    this.getStapledFormsByCurrentCategory(this.formID)
+                        .then(res => this.setCurrCategoryStaples(res))
+                        .catch(err => console.log('an error has occurred', err));
                     this.updateFormsStapledCatIDs(stapledCatID, true);
                 },
                 error: err => console.log(err)
@@ -70,7 +72,7 @@ export default {
                                 this.setCurrCategoryStaples(res);
                                 this.updateFormsStapledCatIDs(this.catIDtoStaple);
                                 this.catIDtoStaple = '';
-                            });
+                            }).catch(err => console.log('an error has occurred', err));
                         }
                     },
                     error: err => console.log(err),

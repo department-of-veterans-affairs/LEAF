@@ -72,7 +72,8 @@ export default {
                             packet.subforms[subID].name = f.categoryName;
                             packet.subforms[subID].description = f.categoryDescription;
                             packet.subforms[subID].packet = res;
-                        }
+                        },
+                        error: err => console.log('an error has occurred', err)
                     })
                 );
             });
@@ -83,7 +84,8 @@ export default {
                     url: `${this.APIroot}form/_${catID}/workflow`,
                     success: res => {
                         packet.workflowID = res[0].workflowID;
-                    }
+                    },
+                    error: err => console.log('an error has occurred', err)
                 })
             );
 
@@ -97,7 +99,7 @@ export default {
 
                 let outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
                 saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
-            });
+            }).catch(err => console.log('an error has occurred', err));
         },
         selectMainForm(catID = this.currCategoryID) {
             this.selectNewCategory(catID, false);

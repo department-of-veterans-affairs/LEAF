@@ -112,7 +112,7 @@ export default {
             this.getFormParentIDs().then(res => {
                 this.listForParentIDs = res;
                 this.isLoadingParentIDs = false;
-            });
+            }).catch(err => console.log('an error has occurred', err));
         }
         if(this.sort === null){
             this.sort = this.newQuestionSortValue;
@@ -419,7 +419,7 @@ export default {
                     this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
                 }
                 this.closeFormDialog();
-            });
+            }).catch(err => console.log('an error has occurred', err));
 
         },
         radioBehavior(event = {}) {

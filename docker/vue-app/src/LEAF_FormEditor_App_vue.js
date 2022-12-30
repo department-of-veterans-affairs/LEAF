@@ -310,7 +310,7 @@ export default {
                 const indicatorList = res[0];
                 const leafSecureRecords = res[1];
                 this.checkLeafSRequestStatus(indicatorList, leafSecureRecords);
-            });
+            }).catch(err => console.log('an error has occurred', err));
 
         },
         /**
@@ -351,7 +351,7 @@ export default {
                         document.getElementById('secureBtn').innerText = 'Check Certification Progress';
                         document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
                     }
-                })
+                }).catch(err => console.log('an error has occurred', err));
             }
         },
         /**
@@ -493,7 +493,9 @@ export default {
                     document.getElementById('header_' + catID)?.focus(); //focus the breadcrumb/button for the main form
                 }).catch(err => console.log('error getting form info: ', err));
 
-                this.getStapledFormsByCurrentCategory(this.currCategoryID).then(res => this.ajaxSelectedCategoryStapled = res);
+                this.getStapledFormsByCurrentCategory(this.currCategoryID)
+                    .then(res => this.ajaxSelectedCategoryStapled = res)
+                    .catch(err => console.log('an error has occurred', err));
 
             } else {  //nav to form card browser.
                 this.appIsLoadingCategoryList = true;

@@ -24,7 +24,7 @@ export default {
             for (let s in res) {
                 this.updateFormsStapledCatIDs(res[s].stapledCategoryID);
             }
-        });
+        }).catch(err => console.log('an error has occurred', err));
     },
     computed: {
         workflowID() {

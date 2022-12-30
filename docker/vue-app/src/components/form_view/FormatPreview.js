@@ -107,7 +107,8 @@ export default {
                         success: ()=> {
                             this.addOrgSelector(this.selType);
                             this.createOrgSelector();
-                        }
+                        },
+                        error: err => console.log('an error has occurred', err)
                     });
 
                 } else {
