@@ -79,7 +79,7 @@ export default {
             
             nextColumnRight.after(column);
             setTimeout(()=> {  //clear stack
-            column.querySelector(`[title="Move column ${nextColumnRightImg === null ? 'left' : 'right'}"]`)?.focus();
+                column.querySelector(`[title="Move column ${nextColumnRightImg === null ? 'left' : 'right'}"]`)?.focus();
             }, 0);
             document.getElementById('tableStatus').setAttribute('aria-label', `Moved right to column ${this.column + 1} of ${this.gridJSONlength}`);
             this.updateGridJSON();

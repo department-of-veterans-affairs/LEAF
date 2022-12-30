@@ -42,7 +42,8 @@ export default {
         //console.log('IFTHEN (form editor) mounted', this.vueData);
     },
     updated() {
-        if(this.conditions.selectedOutcome !== '') {
+        const outcome = this.conditions.selectedOutcome.toLowerCase();
+        if(["pre-fill", "show", "hide"].includes(outcome)) {
             this.updateChoicesJS();
         }
     },
@@ -89,7 +90,7 @@ export default {
             //handle scenario if a parent is archived/deleted
             if(indicator === undefined) {
                 this.parentFound = false;
-                this.selectedDisabledParentID = indicatorID===0 ? this.selectedDisabledParentID : parseInt(indicatorID);
+                this.selectedDisabledParentID = indicatorID === 0 ? this.selectedDisabledParentID : parseInt(indicatorID);
                 return;
             } else {
                 this.parentFound = true;
@@ -441,11 +442,14 @@ export default {
             const outcome = this.conditions.selectedOutcome.toLowerCase();
            
             if(parentFormat === 'multiselect' && elSelectParent !== null && !elSelectParent.choicesjs) {
+                let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
+                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+
                 let options = this.selectedParentValueOptions || [];
                 options = options.map(o =>({
                     value: o.trim(),
                     label: o.trim(),
-                    selected: this.arrParentMultiselectValues.includes(o.trim())
+                    selected: arrValues.includes(o.trim())
                 }));
                 const choices = new Choices(elSelectParent, {
                     allowHTML: false,
@@ -457,11 +461,14 @@ export default {
             }
 
             if(outcome === 'pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && elExistingChoicesChild === null) {
+                let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
+                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+                
                 let options = this.selectedChildValueOptions || [];
                 options = options.map(o =>({
                     value: o.trim(),
                     label: o.trim(),
-                    selected: this.arrChildMultiselectValues.includes(o.trim())
+                    selected: arrValues.includes(o.trim())
                 }));
                 const choices = new Choices(elSelectChild, {
                     allowHTML: false,
@@ -483,8 +490,8 @@ export default {
          */
         parentFormat() {
             if(this.selectedParentIndicator?.format) {
-                const f = this.selectedParentIndicator.format
-                return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
+                const f = this.selectedParentIndicator.format.toLowerCase();
+                return f.split('\n')[0].trim();
             } else return '';
         },
         /**
@@ -493,8 +500,8 @@ export default {
          */
         childFormat() {
             if(this.childIndicator?.format){
-                const f = this.childIndicator.format;
-                return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
+                const f = this.childIndicator.format.toLowerCase();
+                return f.split('\n')[0].trim();
             } else return '';
         },
         /**
@@ -553,25 +560,6 @@ export default {
             const prefill = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'pre-fill');
 
             return {show,hide,prefill};
-        },
-        /**
-         * 
-         * @returns {Array}
-         */
-        arrChildMultiselectValues() {
-            console.log('called computed sel vals')
-            let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
-            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
-            return arrValues;
-        },
-        /**
-         * 
-         * @returns {Array}
-         */
-        arrParentMultiselectValues() {
-            let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
-            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
-            return arrValues;
         }
     },
     watch: {
