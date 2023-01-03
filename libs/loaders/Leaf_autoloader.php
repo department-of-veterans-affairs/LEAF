@@ -118,7 +118,12 @@ if (session_id() == '') {
         $session_db = $oc_db;
     }
 
-    $sessionHandler = new \Portal\Session($session_db);
+    if (class_exists('Portal\Session')) {
+        $sessionHandler = new Portal\Session($session_db);
+    } else {
+        $sessionHandler = new Orgchart\Session($session_db);
+    }
+
     session_set_save_handler($sessionHandler, true);
     session_start();
     $cookie = session_get_cookie_params();
@@ -130,7 +135,12 @@ if (session_id() == '') {
     setcookie('PHPSESSID', $id, time() + 2592000, $cookie['path'], $cookie['domain'], $https, true);
 }
 
-$login = new Portal\Login($oc_db, $db);
+if (class_exists('Portal\Login')) {
+    $login = new Portal\Login($oc_db, $db);
+} else {
+    $login = new Orgchart\Login($oc_db, $db);
+}
+
 $oc_login = new Orgchart\Login($oc_db, $oc_db);
 $data_action_logger = new Leaf\DataActionLogger($db, $login);
 
