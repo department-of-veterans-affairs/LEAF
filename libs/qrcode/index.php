@@ -1,6 +1,6 @@
 <?php
 
-require_once '../loaders/Leaf_autoloader.php';
+require_once '../php-commons/XSSHelpers.php';
 include 'qrlib.php';
 $cacheDir = 'cache/';
 
