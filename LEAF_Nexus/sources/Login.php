@@ -108,12 +108,12 @@ class Login
 
     public function loginUser()
     {
-        $authType = '/auth_domain/?r=';
+        $authType = '/../auth_domain/?r=';
         $nonBrowserAuth = '/login/?r=';
 
         if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
-            $authType = '/auth_cookie/?r=';
-            $nonBrowserAuth = '/auth_cookie/?r=';
+            $authType = '/../auth_cookie/?r=';
+            $nonBrowserAuth = '/../auth_cookie/?r=';
         }
 
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
