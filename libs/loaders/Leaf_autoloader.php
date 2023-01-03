@@ -5,20 +5,21 @@ require_once __DIR__ . '/../smarty/bootstrap.php';
 
 $loader = new \Leaf\Psr4AutoloaderClass;
 $loader->register();
-
-$url = $_SERVER['APP_PORTAL_URL_AUTH'];
+//error_log(print_r($_SERVER, true));
+/* $url = $_SERVER['APP_PORTAL_URL_AUTH'];
 
 $uri_array = explode('/', $url);
 
 $uri = trim($_SERVER['REQUEST_URI'], '/');
-
+//error_log(print_r($uri, true));
+error_log(print_r($_SERVER, true));
 /*for ($i=1; $i < count($uri_array) - 1; $i++) {
     $uri .= $uri_array[$i] . '/';
-}*/
+}
 
 if (is_file(__DIR__ . '/../../' . $uri . 'globals.php')) {
     require_once __DIR__ . '/../../' . $uri . 'globals.php';
-}
+} */
 
 if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons')) {
     if (is_dir(__DIR__ . '/../php-commons')) {
@@ -33,7 +34,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 
     $file_paths_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-    $vars = array(':site_path' => '/' . $uri);
+    $vars = array(':site_path' => '/' . PORTAL_PATH);
     $sql = 'SELECT site_path, site_uploads, portal_database, orgchart_path,
                 orgchart_database, libs_path
             FROM sites
@@ -41,7 +42,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 
     $site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
-
+    //error_log(print_r($site_paths, true));
 
     $working_dir = str_replace('/libs/loaders/Leaf_autoloader.php', '', __FILE__);
 
@@ -109,7 +110,7 @@ if (count($_GET) > 0) {
         }
     }
 }
-
+//error_log(print_r($loader, true));
 if (session_id() == '') {
     if(defined('DIRECTORY_HOST')) {
         $session_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
@@ -133,4 +134,4 @@ $login = new Portal\Login($oc_db, $db);
 $oc_login = new Orgchart\Login($oc_db, $oc_db);
 $data_action_logger = new Leaf\DataActionLogger($db, $login);
 
-if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . $uri_array[0] . '/libs/');
+if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . $_SERVER['HTTP_HOST'] . '/libs/');

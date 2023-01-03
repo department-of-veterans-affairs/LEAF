@@ -22,7 +22,8 @@ ini_set('display_errors', 0);
 
 */
 
-require_once '../loaders/Leaf_autoloader.php';
+/*require_once 'globals.php';
+require_once '../loaders/Leaf_autoloader.php';*/
 
 class Dynicon
 {
