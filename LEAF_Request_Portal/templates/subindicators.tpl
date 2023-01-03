@@ -1028,13 +1028,7 @@
                     },
                     setValidatorError: function() {
                         $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').css('border', '2px solid red');
-
-                        if ($('#<!--{$indicator.indicatorID|strip_tags}-->_error').css('display') != 'none') {
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
-                        }
-                        else {
-                            $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
-                        }
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_error').show('fade');
                     },
                     setValidatorOk: function() {
                         $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').css('border', '1px solid gray');
