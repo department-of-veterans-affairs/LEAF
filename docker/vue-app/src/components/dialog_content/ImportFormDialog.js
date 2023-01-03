@@ -29,9 +29,10 @@ export default {
                     cache: false,
                     data: pkg,
                     success: (res) => {
-                        if(res === false) { //NOTE: true for success, false if there were issues, newCatID on success would be better
-                            console.log('possible error during form import');
-                        } 
+                        //NOTE: returns true on success, or various messages alerted to user if there were issues.
+                        if(res!==true) {
+                            alert(res);
+                        }
                         this.closeFormDialog();
                         this.selectNewCategory(null);
                     },

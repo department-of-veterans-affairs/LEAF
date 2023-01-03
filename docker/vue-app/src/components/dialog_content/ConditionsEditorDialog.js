@@ -170,7 +170,7 @@ export default {
         updateSelectedParentValue(target = {}) {
             const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
             let value = '';
-            if (parFormat === 'multiselect') {
+            if (parFormat.toLowerCase() === 'multiselect') {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -236,8 +236,7 @@ export default {
             const parentIndicatorID = parseInt(indicator.parentIndicatorID);
             const parent = this.indicators.find(i => parseInt(i.indicatorID) === parentIndicatorID);
 
-            if (!parent || !parent.parentIndicatorID) {
-                //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
+            if (parent===undefined || parent.parentIndicatorID===null) {
                 //add information about the headerIndicatorID to the indicators
                 let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(initialIndicator.indicatorID));
                 indToUpdate.headerIndicatorID = parentIndicatorID;

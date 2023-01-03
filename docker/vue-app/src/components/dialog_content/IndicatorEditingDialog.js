@@ -129,7 +129,7 @@ export default {
             return this.multianswerFormats.includes(this.format);
         },
         fullFormatForPost() {
-            let fullFormat = this.format;
+            let fullFormat = this.format.toLowerCase();
             switch(this.format){
                 case 'grid':
                     this.updateGridJSON();
