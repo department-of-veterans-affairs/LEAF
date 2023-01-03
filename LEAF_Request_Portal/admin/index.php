@@ -117,7 +117,7 @@ switch ($action) {
                                            '../..' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                            '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('lib_path', '../..' . T_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
