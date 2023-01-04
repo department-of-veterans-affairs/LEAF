@@ -75,7 +75,7 @@ nationalEmployeeSelector.prototype.initialize = function() {
 			'+ domains +'\
 			</select>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
-			<img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+			<img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
 			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" aria-label="Search for user to add as ' + arialLabelText + '"></input></div>\
 			<div id="'+this.prefixID+'result" aria-label="search results"></div>');

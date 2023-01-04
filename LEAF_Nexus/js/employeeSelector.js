@@ -32,7 +32,7 @@ function employeeSelector(containerID) {
 employeeSelector.prototype.initialize = function() {
     var t = this;
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'border" class="employeeSelectorBorder">\
-			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+			<div style="float: left"><img id="'+this.prefixID+'icon" src="'+ t.rootPath +'../../libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
 			<img id="'+this.prefixID+'iconBusy" src="'+ t.rootPath +'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" /></div>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="'+this.prefixID+'status" role="status"></span>\
 			<input id="'+this.prefixID+'input" type="search" class="employeeSelectorInput" aria-label="search input"/></div>\
@@ -170,10 +170,10 @@ employeeSelector.prototype.search = function() {
                                     $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
                                     $('#' + t.prefixID + 'emp0_message').text(txt);
                                     setTimeout(function(){ $('#' + t.prefixID + 'status').text('No results found for term ' + txt); }, 2500);
-                                    
+
                                 }else{
                                 	setTimeout(function(){ $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below'); }, 2500);
-                                    
+
                                 }
 
 		            	t.selectionData = new Object();
@@ -264,7 +264,7 @@ employeeSelector.prototype.search = function() {
 		            },
 		            cache: false
 		        };
-	    	
+
 	    	if(this.useJSONP == 1) {
 	    		ajaxOptions.url += '&format=jsonp';
 	    		ajaxOptions.dataType = 'jsonp';
