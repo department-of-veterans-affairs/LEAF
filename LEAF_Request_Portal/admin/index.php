@@ -101,8 +101,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../..' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
-                                           '../..' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
+        $main->assign('javascripts', array($site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
+                                           $site_paths['orgchart_path'] . '/js/groupSelector.js',
         ));
 
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
@@ -114,8 +114,8 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           '../..' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
-                                           '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
+                                           $site_paths['orgchart_path'] . '/css/employeeSelector.css',
+                                           $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $t_form->assign('lib_path', '../..' . T_LIB_PATH);
 
