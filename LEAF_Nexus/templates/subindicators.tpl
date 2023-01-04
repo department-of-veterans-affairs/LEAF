@@ -341,6 +341,7 @@
                                 empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
                                 empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 empSel.rootPath = '..<!--{$orgchartPath}-->/';
+                                empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
 
                                 empSel.setSelectHandler(function() {
                                     dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
@@ -359,6 +360,7 @@
                                 empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
                                 empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 empSel.rootPath = '..<!--{$orgchartPath}-->/';
+                                empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
 
                                 empSel.setSelectHandler(function() {
                                     dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
@@ -373,6 +375,7 @@
                     empSel = new employeeSelector('empSel_<!--{$indicator.indicatorID|strip_tags}-->');
                     empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                     empSel.rootPath = '..<!--{$orgchartPath}-->/';
+                    empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
 
                     empSel.setSelectHandler(function() {
                         dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;

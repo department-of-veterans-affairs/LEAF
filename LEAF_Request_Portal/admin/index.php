@@ -97,6 +97,7 @@ $main->assign('useDojoUI', true);
 
 switch ($action) {
     case 'mod_groups':
+
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -108,6 +109,7 @@ switch ($action) {
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
 
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
+        $t_form->assign('absOrgchartPath', ABSOLUTE_ORG_PATH);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);

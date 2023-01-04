@@ -211,7 +211,7 @@ function removeUser(groupID = -1, userID = -1) {
  * Import user from orgchart.
  * @param {int} serviceID - ID of service
  * @param {string} selectedUserName - Username being imported
- */ 
+ */
 function importUser(serviceID = 0, selectedUserName = '') {
     if (serviceID === 0) {
         console.log('Invalid serviceID');
@@ -265,7 +265,7 @@ function deleteService(serviceID = 0) {
  * Build the modal for when the user selects a service.
  * @param {int} serviceID - ID of service
  * @param {string} serviceName - Name of the service
- */ 
+ */
 function initiateModal(serviceID = 0, serviceName = '') {
     if (serviceID === 0 || serviceName === '') {
         return;
@@ -318,6 +318,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
                 empSel = new nationalEmployeeSelector('employeeSelector');
                 empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                 empSel.rootPath = '<!--{$orgchartPath}-->/';
+                empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
                 empSel.outputStyle = 'micro';
                 empSel.initialize();
                 // Update on any action
@@ -343,7 +344,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
 }
 
 /**
- * Initiate widgets for each service 
+ * Initiate widgets for each service
  * @param {int} serviceID - ID for service being represented
  * @param {string} serviceName - name of service being represented
  * @return function
@@ -421,7 +422,7 @@ function viewHistory(groupID = -1){
     });
 }
 
-/** 
+/**
  * Convert to title case.
  * @param {string} str - string to be converted
  */

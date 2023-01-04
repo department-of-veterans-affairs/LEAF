@@ -574,6 +574,7 @@ function getGroupList() {
                                 empSel = new nationalEmployeeSelector('employeeSelector');
                                 empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                                 empSel.rootPath = '<!--{$orgchartPath}-->/';
+                                empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
                                 empSel.outputStyle = 'micro';
                                 empSel.initialize();
                                 // Update on any action
@@ -639,6 +640,7 @@ function getGroupList() {
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
+                        empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.setCancelHandler(function() {
@@ -715,6 +717,7 @@ function getGroupList() {
                         empSel = new nationalEmployeeSelector('employeeSelector');
                         empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
+                        empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.showButtons();

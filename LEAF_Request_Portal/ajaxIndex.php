@@ -77,6 +77,7 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
+                //$t_form->assign('orgchartPath', ABSOLUTE_ORG_PATH);
                 $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);
                 $t_form->assign('lib_path', S_LIB_PATH);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
