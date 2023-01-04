@@ -19,7 +19,8 @@ const ConditionsEditor = Vue.createApp({
             showRemoveConditionModal: false,
             showConditionEditor: false,
             editingCondition: '',
-            enabledParentFormats: ['dropdown', 'multiselect', 'radio']
+            enabledParentFormats: ['dropdown', 'multiselect', 'radio', 'checkboxes'],
+            multiOptionFormats: ['multiselect', 'checkboxes']
         }
     },
     beforeMount(){
@@ -180,9 +181,9 @@ const ConditionsEditor = Vue.createApp({
          * @param {Object} target (DOM element)
          */
         updateSelectedParentValue(target = {}) {
-            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
+            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim().toLowerCase();
             let value = '';
-            if (parFormat==='multiselect') {
+            if (this.multiOptionFormats.includes(parFormat)) {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -199,7 +200,7 @@ const ConditionsEditor = Vue.createApp({
         updateSelectedChildValue(target = {}) {
             const childFormat = this.childIndicator.format.split('\n')[0].trim();
             let value = '';
-            if (childFormat==='multiselect') {
+            if (this.multiOptionFormats.includes(childFormat)) {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -225,7 +226,7 @@ const ConditionsEditor = Vue.createApp({
 
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
                 this.selectableParents = this.indicators.filter(i => {
-                    const parFormat = i.format?.split('\n')[0].trim();
+                    const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
                             parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) && this.enabledParentFormats.includes(parFormat);
                 });
@@ -465,10 +466,10 @@ const ConditionsEditor = Vue.createApp({
          */
         getOperatorText(condition = {}) {
             const op = condition.selectedOp;
-            const parFormat = condition.parentFormat;
+            const parFormat = condition.parentFormat.toLowerCase();
             switch(op){
                 case '==':
-                    return parFormat === 'multiselect' ? 'includes' : 'is';
+                    return this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
                 case '!=':
                     return 'is not';
                 case '>':
@@ -507,12 +508,15 @@ const ConditionsEditor = Vue.createApp({
             const parentFormat = this.conditions.parentFormat.toLowerCase();
             const outcome = this.conditions.selectedOutcome.toLowerCase();
            
-            if(parentFormat === 'multiselect' && elSelectParent !== null && !elSelectParent.choicesjs) {
+            if(this.multiOptionFormats.includes(parentFormat) && elSelectParent !== null && !elSelectParent.choicesjs) {
                 let options = this.selectedParentValueOptions || [];
+                let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
+                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+
                 options = options.map(o =>({
                     value: o.trim(),
                     label: o.trim(),
-                    selected: this.arrParentMultiselectValues.includes(o.trim())
+                    selected: arrValues.includes(o.trim())
                 }));
                 const choices = new Choices(elSelectParent, {
                     allowHTML: false,
@@ -523,12 +527,15 @@ const ConditionsEditor = Vue.createApp({
                 elSelectParent.choicesjs = choices;
             }
 
-            if(outcome==='pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && elExistingChoicesChild===null) {
+            if(outcome==='pre-fill' && this.multiOptionFormats.includes(childFormat) && elSelectChild !== null && elExistingChoicesChild===null) {
                 let options = this.selectedChildValueOptions || [];
+                let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
+                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+
                 options = options.map(o =>({
                     value: o.trim(),
                     label: o.trim(),
-                    selected: this.arrChildMultiselectValues.includes(o.trim())
+                    selected: arrValues.includes(o.trim())
                 }));
                 const choices = new Choices(elSelectChild, {
                     allowHTML: false,
@@ -547,8 +554,8 @@ const ConditionsEditor = Vue.createApp({
          */
         parentFormat() {
             if(this.selectedParentIndicator?.format) {
-                const f = this.selectedParentIndicator.format
-                return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
+                const f = this.selectedParentIndicator.format;
+                return f.split('\n')[0].trim().toLowerCase();
             } else return '';
         },
         /**
@@ -558,7 +565,7 @@ const ConditionsEditor = Vue.createApp({
         childFormat() {
             if(this.childIndicator?.format){
                 const f = this.childIndicator.format;
-                return f.indexOf("\n") === -1 ? f : f.substr(0, f.indexOf("\n")).trim();
+                return f.split('\n')[0].trim().toLowerCase();
             } else return '';
         },
         /**
@@ -613,24 +620,6 @@ const ConditionsEditor = Vue.createApp({
             const prefill = this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === 'pre-fill');
 
             return {show,hide,prefill};
-        },
-        /**
-         * 
-         * @returns {Array}
-         */
-        arrChildMultiselectValues() {
-            let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
-            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
-            return arrValues;
-        },
-        /**
-         * 
-         * @returns {Array}
-         */
-        arrParentMultiselectValues() {
-            let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
-            arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
-            return arrValues;
         }
     },
     template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
@@ -739,7 +728,7 @@ const ConditionsEditor = Vue.createApp({
                             <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question</option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
-                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio -->
+                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
                     <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
                         name="child-prefill-value-selector"
                         id="child_prefill_entry"
@@ -752,7 +741,7 @@ const ConditionsEditor = Vue.createApp({
                             {{ val }} 
                         </option>
                     </select>
-                    <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && conditions.childFormat==='multiselect'"
+                    <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && conditions.childFormat==='multiselect' || childFormat==='checkboxes'"
                         placeholder="select some options"
                         multiple="true"
                         id="child_prefill_entry"
@@ -797,7 +786,7 @@ const ConditionsEditor = Vue.createApp({
                         </select>
                     </div>
                     <div>    
-                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect, radio) -->
+                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect, radio, checkboxes) -->
                         <select v-if="parentFormat==='dropdown' || parentFormat==='radio'"
                             id="parent_compValue_entry"
                             @change="updateSelectedParentValue($event.target)">
@@ -807,7 +796,7 @@ const ConditionsEditor = Vue.createApp({
                                 :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
                             </option>
                         </select>
-                        <select v-else-if="parentFormat==='multiselect'"
+                        <select v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"
                             id="parent_compValue_entry"
                             placeholder="select some options" multiple="true"
                             style="display: none;"
