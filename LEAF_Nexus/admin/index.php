@@ -218,17 +218,17 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
-                                           'js/positionSelector.js',
-                                           'js/groupSelector.js',
-                                           'js/dialogController.js',
-                                           'js/orgchartForm.js', ));
-        $main->assign('stylesheets', array('css/employeeSelector.css',
-                                           'css/view_employee.css',
-                                           'css/positionSelector.css',
-                                           'css/view_position.css',
-                                           'css/groupSelector.css',
-                                           'css/view_group.css', ));
+        $main->assign('javascripts', array('../js/nationalEmployeeSelector.js',
+                                           '../js/positionSelector.js',
+                                           '../js/groupSelector.js',
+                                           '../js/dialogController.js',
+                                           '../js/orgchartForm.js', ));
+        $main->assign('stylesheets', array('../css/employeeSelector.css',
+                                           '../css/view_employee.css',
+                                           '../css/positionSelector.css',
+                                           '../css/view_position.css',
+                                           '../css/groupSelector.css',
+                                           '../css/view_group.css', ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $oc_login->getDomain());
