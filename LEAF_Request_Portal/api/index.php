@@ -193,6 +193,18 @@ $controllerMap->register('note', function() use ($db, $login, $action) {
     $NotesController->handler($action);
 });
 
+$controllerMap->register('templateEditor', function () use ($db, $login, $action) {
+    require 'controllers/TemplateEditorController.php';
+    $TemplateEditorController = new TemplateEditorController($db, $login);
+    $TemplateEditorController->handler($action);
+});
+
+$controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
+    require 'controllers/TemplateReportsController.php';
+    $TemplateReportsController = new TemplateReportsController($db, $login);
+    $TemplateReportsController->handler($action);
+});
+
 $controllerMap->runControl($key);
 
 //echo '<br />' . memory_get_peak_usage();
