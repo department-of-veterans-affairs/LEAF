@@ -162,7 +162,7 @@
  * Purpose: Save all fields to template files
  */
 function save() {
-	$('#saveIndicator').attr('src', '../images/indicator.gif');
+	$('#saveIndicator').attr('src', '../../images/indicator.gif');
 	let data = '';
 	let subject = '';
 	// If any changes made to emailTo, emailCc, body or subject

@@ -19,7 +19,7 @@ button.buttonNorm {
 
 <div id="access_matrix_container" class="leaf-width-100pct">
     <h2>Access Matrix</h2>
-    <div id="access_matrix"><img src="../images/indicator.gif" style="vertical-align: middle" /> Loading... </div>
+    <div id="access_matrix"><img src="../../images/indicator.gif" style="vertical-align: middle" /> Loading... </div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->

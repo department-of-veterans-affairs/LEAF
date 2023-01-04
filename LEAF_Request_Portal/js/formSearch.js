@@ -22,6 +22,7 @@ var LeafFormSearch = function(containerID) {
 	var ALL_OC_EMPLOYEE_DATA_FIELDS = '0.0';
 
 	function renderUI() {
+        console.log(rootURL);
 		$('#' + containerID).html('<div style="display:flex; align-items:center; width:fit-content; width: -moz-fit-content;">\
 			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../libs/dynicons/?img=search.svg&w=16">\
 			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
