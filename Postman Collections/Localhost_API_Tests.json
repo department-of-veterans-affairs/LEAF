@@ -603,8 +603,8 @@
 				"auth": {
 					"type": "ntlm",
 					"ntlm": {
-						"password": "tester",
-						"username": "tester"
+						"password": "",
+						"username": ""
 					}
 				},
 				"method": "POST",
@@ -613,7 +613,7 @@
 					"mode": "raw",
 					"raw": "{\r\n     \"categoryID\": 12345\",\r\n     \"categoryName\": \"TestForm\",\r\n     \"categoryDescription\": \"Postman categoryDescription\"\r\n}"
 				},
-				"url": "{{Local_URL}}/form/categories/new"
+				"url": "{{Local_URL}}/form/new"
 			},
 			"response": []
 		},
@@ -1230,23 +1230,23 @@
 	],
 	"variable": [
 		{
-			"id": "57c4ae3b-307b-49e4-b5e2-0b9f3794e0d9",
+			"id": "7a641075-2cc4-43fa-ace7-55322e4ac339",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "32a0ccba-34ec-4eb7-8c87-60261a268162",
+			"id": "fa3a4dc6-d918-41ad-84c4-c430525025e5",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "5bae473b-a383-4e64-a8e9-a7b66c97c9e3",
+			"id": "e893fa29-e048-43b6-b454-7d8889e9c328",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "6129e36b-7ef3-4f53-ab77-843176a3fd02",
+			"id": "6c05758b-b8c9-4bbe-84ba-e5615791801d",
 			"key": "categoryID",
 			"value": ""
 		}
