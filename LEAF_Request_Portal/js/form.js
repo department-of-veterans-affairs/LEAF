@@ -75,7 +75,10 @@ var LeafForm = function(containerID) {
                 linkedChildConditions.push(...getConditionsLinkedToChild(id, parentElID)); //get all other possible parents controlling the above children
             });
 
-            const allConditions = [...linkedParentConditions, ...linkedChildConditions];
+            let allConditions = [...linkedParentConditions, ...linkedChildConditions];
+            let hideShowConditions = allConditions.filter(c => ['show', 'hide'].includes(c.selectedOutcome.toLowerCase()));
+            let prefillConditions = allConditions.filter(c => !['show', 'hide'].includes(c.selectedOutcome.toLowerCase()));
+            allConditions = [...hideShowConditions, ...prefillConditions]; //orders them so that prefills would be last
 
             const conditionsByChild = {}
             allConditions.map(c => {
