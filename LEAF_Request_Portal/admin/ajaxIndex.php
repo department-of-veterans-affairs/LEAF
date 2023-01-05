@@ -203,7 +203,7 @@ switch ($action) {
         }
 
         /*
-            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            First time around, gethistoryslice = false, so this loads view_history_all which calls
             this method again which loads view_history & displays it appropriately in the paginator
         */
         if($gethistoryslice)
@@ -215,10 +215,10 @@ switch ($action) {
                 //special case for getting group history, since the only group tracked in portal is sysadmin
                 $adminHistory = $type->getHistory(1);
                 $adminHistory = $adminHistory ?? array();
-                
+
                 $allGroupHistory = $type->getHistory(null);
                 $allGroupHistory = $allGroupHistory ?? array();
-    
+
                 $totalHistory = array_merge($allGroupHistory, $adminHistory);
                 $type = $orgchartGroup;
             }
@@ -247,7 +247,7 @@ switch ($action) {
         $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
+
         if($tz == null){
             $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))
@@ -297,6 +297,16 @@ switch ($action) {
             case 'emailTemplate':
                 include '../sources/EmailTemplate.php';
                 $type = new \EmailTemplate($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'templateEditor':
+                include '../sources/TemplateEditor.php';
+                $type = new \TemplateEditor($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'templateReports':
+                include '../sources/TemplateReports.php';
+                $type = new \TemplateReports($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }
