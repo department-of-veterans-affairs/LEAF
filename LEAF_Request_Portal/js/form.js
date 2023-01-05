@@ -98,7 +98,7 @@ var LeafForm = function(containerID) {
          */
         const getConditionsLinkedToParent = (parentID=0)=> {
             let conditionsLinkedToParent = [];
-            if(parentID!==0) {
+            if(parentID !== 0) {
                 for (let entry in formConditionsByChild) {
                     const formConditions = formConditionsByChild[entry].conditions || [];
                     formConditions.forEach(c => {
@@ -123,7 +123,7 @@ var LeafForm = function(containerID) {
          */
         const getConditionsLinkedToChild = (childID=0, currParentID=0)=> {
             let conditionsLinkedToChild = [];
-            if(childID!==0 && currParentID !==0) {
+            if(childID !== 0 && currParentID !== 0) {
                 for (let entry in formConditionsByChild) {
                     if (parseInt(entry.slice(2)) === parseInt(childID)) {
                         const formConditions = formConditionsByChild[entry].conditions || [];
@@ -185,10 +185,10 @@ var LeafForm = function(containerID) {
          */
         const getParentValue = (pFormat='', pIndID=0) => {
             let val = '';
-            if (pFormat==='radio') {
+            if (pFormat === 'radio') {
                 val = sanitize(document.querySelector(`input[id^="${pIndID}_radio"]:checked`)?.value.trim()) || '';
             } 
-            if (pFormat==='dropdown') {
+            if (pFormat === 'dropdown') {
                 val = sanitize(document.getElementById(pIndID)?.value.trim()) || '';
             }
             return val;
@@ -207,204 +207,187 @@ var LeafForm = function(containerID) {
             }
         }
 
-        //conditions to check for specific child
-        const makeComparisons = (childID=0, arrChildConditions=[])=> {
-            let prefillValue = '';
+        /**
+         *
+         * @param {string} childID indicator ID of the child question, used to select associated DOM elements
+         * @param {array} arrChildConditions array of conditions objects associated with the child question
+         */
+        const makeComparisons = (childID='', arrChildConditions=[]) => {
+            const multiOptionFormats = ['multiselect', 'checkboxes'];
+            //childFormat should be the same for all list elements, since formats that don't match the current question format are already removed.
+            const childFormat = arrChildConditions[0].childFormat.toLowerCase();
+            const chosenShouldUpdate = childFormat === 'dropdown';
+
+            //used in the outcome switch after condition checking.
+            let conditionOutcomes = [];
+            if (arrChildConditions.filter(c => c.selectedOutcome.toLowerCase() === 'hide').length > 0) conditionOutcomes.push('hide');
+            if (arrChildConditions.filter(c => c.selectedOutcome.toLowerCase() === 'show').length > 0) conditionOutcomes.push('show');
+            if (arrChildConditions.filter(c => c.selectedOutcome.toLowerCase() === 'pre-fill').length > 0) conditionOutcomes.push('pre-fill');
+            if (conditionOutcomes.length > 2) console.log('there are both hide and show conditions on the same question. check conditions setup');
+
 
             //get child input elements and their start values
-            const elChildInput = $('#' + childID); //text, multisel and dropd
+            const elChildInput = $('#' + childID); //gets the input elements for text, multiselect and dropdown formats
 
-            //make an input so that radio entries can be cleared if the display state changes to hidden
-            const radioEmpty = $(`input[id^="${childID}_radio0"]`);
-            if (arrChildConditions[0].childFormat === 'radio' && radioEmpty.length===0) {
+            const radioEmpty = $(`input[id^="${childID}_radio0"]`); //radio format
+            if (childFormat === 'radio' && radioEmpty.length === 0) {
                 $(`div.response.blockIndicator_${childID}`).prepend(`<input id="${childID}_radio0" name="${childID}" value="" style="display:none;" />`);
             }
             const elChildRadioBtns = $(`input[id^="${childID}_radio"]`);
             const radioValue = $(`input[id^="${childID}_radio"]:checked`).val();
 
-            const elChildCheckboxes = $(`input[type="checkbox"][id^="${childID}"]`);
-            //Array.from(document.querySelectorAll(`input[type="checkbox"][id^="${childID}"]`));
-
+            const elChildCheckboxes = $(`input[type="checkbox"][id^="${childID}"]`); //checkboxes format
             let checkboxStartValues = '';
-            elChildCheckboxes.map(cb => { if(cb.checked===true) checkboxStartValues += cb.value });
+            elChildCheckboxes.map((i, cb) => { if(cb.checked === true) checkboxStartValues += cb.value });
 
-            //this will be used to check if the end value is different after checking conditions
-            const childStartValue = elChildInput.val() || radioValue  || checkboxStartValues || '';
+            //used later to check if the end value is different after checking conditions
+            const childStartValue = elChildInput.val()?.join ? elChildInput.val().join() : elChildInput.val() || radioValue  || checkboxStartValues || '';
+
 
             handleChildValidators(childID);
 
-            arrChildConditions.forEach(cond => {
-                const chosenShouldUpdate = cond.childFormat === 'dropdown';
-                let comparisonResult = false;
+            let hideShowConditionMet = false;
+            let childPrefillValue = '';
 
-                /* more than one condition might control a similar outcome.  We need to test if any are met.
-                 -- if the outcomes are the same, && the outsome IS prefill, && the prefill value is the same, group them,
-                 -- if the outcomes are the same && it is NOT prefill, group them */
-                let arrComparisonValues = [];
-                arrChildConditions.map(c => {
-                    if (cond.selectedOutcome === c.selectedOutcome &&
-                        ((cond.selectedOutcome.toLowerCase() === "pre-fill" && cond.selectedChildValue.trim() === c.selectedChildValue.trim()) ||
-                        cond.selectedOutcome.toLowerCase() !== "pre-fill"
-                        )
-                    ) arrComparisonValues.push({ [c.parentIndID]: { compVal: c.selectedParentValue.trim(), parentFormat: c.parentFormat.toLowerCase() } });
-                });
+            arrChildConditions.forEach(cond => {
+                const parentFormat = cond.parentFormat.toLowerCase();
+                const parent_id = cond.parentIndID;
+                const parentComparisonValues =  cond.selectedParentValue.trim();
+                const outcome = cond.selectedOutcome.toLowerCase();
 
                 switch (cond.selectedOp) {
-                    case '==': 
-                        arrComparisonValues.forEach(entry => {
-                            const parent_id = Object.keys(entry)[0];
-                            const parentFormat = entry[parent_id].parentFormat;
-                            const isMultiOptionParent = parentFormat==='multiselect' || parentFormat==='checkboxes';
-
-                            if(!isMultiOptionParent) {
-                                const parent_val = getParentValue(parentFormat, parent_id);
-                                if (entry[parent_id].compVal === parent_val) {
-                                    comparisonResult = true;
-                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-                                        prefillValue = cond.selectedChildValue.trim();
-                                    }
-                                }
-                            } else {
-                                //values from the condition to compare against.  for multioption formats this will be a string of values separated with \n
-                                const arrCompareValues = entry[parent_id].compVal.split('\n').map(option => option.replaceAll('\r', '').trim());
-                                //actual selected items for multiselect and checkboxes
-                                const multiselectOptions = Array.from(document.getElementById(parent_id)?.selectedOptions || []);
-                                const parentCheckboxes = Array.from(document.querySelectorAll(`input[type="checkbox"][id^="${parent_id}"]:checked`) || []);
-                                if (
-                                    (parentFormat==='multiselect' && valIncludesMultiselOption(multiselectOptions, arrCompareValues)) ||
-                                    (parentFormat==='checkboxes' && valIncludesMultiselOption(parentCheckboxes, arrCompareValues))
-                                    ) {
-                                    comparisonResult = true;
-                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-                                        prefillValue = cond.selectedChildValue.trim();
-                                    }
-                                }
+                    case '==':
+                        //these are repetitive, but potentially more confusing in a method because of their alteration of variables and comparison differences between operators
+                        if(multiOptionFormats.includes(parentFormat)) {
+                            //values from the condition to compare against. For multioption formats this will be a string of values separated with \n
+                            const arrCompareValues = parentComparisonValues.split('\n').map(option => option.replaceAll('\r', '').trim());
+                            //actual selected elements for multiselect and checkboxes (option or input elements)
+                            const selectionElements = parentFormat === 'multiselect' ?
+                                Array.from(document.getElementById(parent_id)?.selectedOptions || []) :
+                                Array.from(document.querySelectorAll(`input[type="checkbox"][id^="${parent_id}"]:checked`) || []);
+                            //hide and show should be mutually exclusive and only matter once, so don't continue if it has already become true
+                            if (['hide', 'show'].includes(outcome) && !hideShowConditionMet && valIncludesMultiselOption(selectionElements, arrCompareValues)) {
+                                hideShowConditionMet = true;
                             }
-                        });
+                            //likewise if there are mult controllers for a prefill then they should have the same prefill value
+                            if(outcome === 'pre-fill' && childPrefillValue === '' && valIncludesMultiselOption(selectionElements, arrCompareValues)) {
+                                childPrefillValue = cond.selectedChildValue.trim();
+                            }
+
+                        } else {
+                            const parent_val = getParentValue(parentFormat, parent_id);
+                            if(['hide', 'show'].includes(outcome) && !hideShowConditionMet && parentComparisonValues === parent_val) {
+                                hideShowConditionMet = true;
+                            }
+                            if(outcome === 'pre-fill' && childPrefillValue === '' && parentComparisonValues === parent_val) {
+                                childPrefillValue = cond.selectedChildValue.trim();
+                            }
+                        }
                         break;
                     case '!=':
-                        arrComparisonValues.forEach(entry => {
-                            const parent_id = Object.keys(entry)[0];
-                            const parentFormat = entry[parent_id].parentFormat;
-                            const isMultiOptionParent = parentFormat==='multiselect' || parentFormat==='checkboxes';
+                        if(multiOptionFormats.includes(parentFormat)) {
+                            const arrCompareValues = parentComparisonValues.split('\n').map(option => option.replaceAll('\r', '').trim());
+                            const selectionElements = parentFormat === 'multiselect' ?
+                                Array.from(document.getElementById(parent_id)?.selectedOptions || []) :
+                                Array.from(document.querySelectorAll(`input[type="checkbox"][id^="${parent_id}"]:checked`) || []);
 
-                            if(!isMultiOptionParent) {
-                                const parent_val = getParentValue(parentFormat, parent_id);
-                                if (entry[parent_id] !== parent_val) {
-                                    comparisonResult = true;
-                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-                                        prefillValue = cond.selectedChildValue.trim();
-                                    }
-                                }
-                            } else {
-                                const arrCompareValues = entry[parent_id].compVal.split('\n').map(option => option.replaceAll('\r', '').trim());
-                                const multiselectOptions = Array.from(document.getElementById(parent_id)?.selectedOptions || []);
-                                const parentCheckboxes = Array.from(document.querySelectorAll(`input[type="checkbox"][id^="${parent_id}"]:checked`) || []);
-                                if (
-                                    (parentFormat==='multiselect' && !valIncludesMultiselOption(multiselectOptions, arrCompareValues)) ||
-                                    (parentFormat==='checkboxes' && !valIncludesMultiselOption(parentCheckboxes, arrCompareValues))
-                                    ) {
-                                    comparisonResult = true;
-                                    if (cond.selectedOutcome.toLowerCase() === "pre-fill") {
-                                        prefillValue = cond.selectedChildValue.trim();
-                                    }
-                                }
+                            if (['hide', 'show'].includes(outcome) && !hideShowConditionMet && !valIncludesMultiselOption(selectionElements, arrCompareValues)) {
+                                hideShowConditionMet = true;
                             }
-                        });
-                        break;
-                    case '>':  
-                        //comparisonResult = arrComparisonValues.some(v => v > sanitize(parent_val));
-                        break;
-                    case '<':
-                        //comparisonResult = arrComparisonValues.some(v => v < sanitize(parent_val));
+                            if(outcome === 'pre-fill' && childPrefillValue === '' && !valIncludesMultiselOption(selectionElements, arrCompareValues)) {
+                                childPrefillValue = cond.selectedChildValue.trim();
+                            }
+
+                        } else {
+                            const parent_val = getParentValue(parentFormat, parent_id);
+                            if(['hide', 'show'].includes(outcome) && !hideShowConditionMet && parentComparisonValues !== parent_val) {
+                                hideShowConditionMet = true;
+                            }
+                            if(outcome === 'pre-fill' && childPrefillValue === '' && parentComparisonValues === parent_val) {
+                                childPrefillValue = cond.selectedChildValue.trim();
+                            }
+                        }
                         break;
                     default:
                         console.log(cond.selectedOp);
                         break;
                 }
+            });
 
-                //update child states and/or values
-                switch (cond.selectedOutcome.toLowerCase()) {
+            //update child states and/or values.  there should be at most 2 types here, a hide OR show, and a prefill
+            conditionOutcomes.forEach(co => {
+                switch (co) {
                     case 'hide':
-                        if (comparisonResult === true) {
-                            clearValues(cond.childFormat, childID);
+                        if (hideShowConditionMet === true) {
+                            clearValues(childFormat, childID);
                         } else {
                             $('.blockIndicator_' + childID).show();
                         }
                         break;
                     case 'show':
-                        if (comparisonResult === true) {
+                        if (hideShowConditionMet === true) {
                             $('.blockIndicator_' + childID).show();
                         } else {
-                            clearValues(cond.childFormat, childID);
+                            clearValues(childFormat, childID);
                         }
                         break;
                     case 'pre-fill':
                         let indBlock = $(`div.response.blockIndicator_${childID}`);
-                        if (prefillValue !== '') {
-                            if(cond.childFormat === 'multiselect' || cond.childFormat === 'checkboxes') {
-                                const arrPrefills = prefillValue.split('\n');
-                                const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
-                                arrChoices.forEach(textVal => $(`input[id^="${childID}_"][value="${textVal}"]`).prop("checked", true));
-                                elChildCheckboxes.prop("disabled", true);
+                        if (childPrefillValue !== '') {
+                            if(indBlock.css('display') !== 'none') { //don't continue if the question is in a hidden state because of other conditions
+                                if(multiOptionFormats.includes(childFormat)) {
+                                    const arrPrefills = childPrefillValue.split('\n');
+                                    const arrChoices = arrPrefills.map(item =>  $('<div/>').html(item).text().trim());
+                                    $(`input[id^="${childID}_"]`).prop("checked", false); //clear out possible selections
+                                    arrChoices.forEach(textVal => $(`input[id^="${childID}_"][value="${textVal}"]`).prop("checked", true));
+                                    elChildCheckboxes.prop("disabled", true);
 
-                                if(cond.childFormat === 'multiselect') {
-                                    let elSelectChoices = elChildInput[0].choicesjs;
-                                    elSelectChoices?.removeActiveItems();
-                                    elSelectChoices?.setChoiceByValue(arrChoices);
-                                    elSelectChoices?.disable();
+                                    if(childFormat === 'multiselect') {
+                                        let elSelectChoices = elChildInput[0].choicesjs;
+                                        elSelectChoices?.removeActiveItems();
+                                        elSelectChoices?.setChoiceByValue(arrChoices);
+                                        elSelectChoices?.disable();
+                                    }
+
+                                } else {
+                                    const text = $('<div/>').html(childPrefillValue).text().trim();
+                                    elChildInput.val(text);  //text, dropd
+                                    elChildInput.attr('disabled', 'disabled');
+                                    $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true); //radio
+                                    elChildRadioBtns.prop("disabled", true);
                                 }
-                            } else {
-                                const text = $('<div/>').html(prefillValue).text().trim();
-                                elChildInput.val(text);  //text, dropd
-                                elChildInput.attr('disabled', 'disabled');
-                                $(`input[id^="${childID}_radio"][value="${text}"]`).prop("checked", true); //radio
-                                elChildRadioBtns.prop("disabled", true);
                             }
-                            //timing fix for data value (set empty if in a hidden state bc of other conditions)
-                            setTimeout(()=> {
-                                if(indBlock.css('display')==='none') {
-                                    clearValues(cond.childFormat, childID);
-                                }
-                            });
 
                         } else {
-                            //just re-enable selection/editing.  resetting causes issues here.
+                            //just re-enable selection/editing.  Can't clear them since that would rm normal entries
                             elChildInput.removeAttr('disabled');
                             elChildInput[0]?.choicesjs?.enable();
                             elChildRadioBtns.prop("disabled", false);
                             elChildCheckboxes.prop("disabled", false);
-
-                            setTimeout(()=> { //temp timing fix for validation
-                                if(indBlock.css('display')==='none') {
-                                    if (childRequiredValidators[childID].validator !== undefined && dialog !== null) {
-                                        dialog.requirements[childID] = hideShowValidator;
-                                    }
-                                }
-                            });
                         }
                         break; 
                     default:
-                        console.log(cond.selectedOutcome);
+                        console.log(co);
                         break;
                 }
-                //check end values and trigger update if values have changed
-                let checkboxEndValues = '';
-                elChildCheckboxes.map(cb => { if(cb.checked===true) checkboxEndValues += cb.value });
+            })
 
-                const childEndValue = elChildInput.val() || $(`input[id^="${childID}_radio"]:checked`).val() || checkboxEndValues || '';
+            //check end values and trigger update if values have changed
+            let checkboxEndValues = '';
+            elChildCheckboxes.map((i, cb) => { if(cb.checked === true) checkboxEndValues += cb.value });
 
-                if(childStartValue !== childEndValue) {
-                    elChildInput.trigger('change');
-                    $(`input[id^="${childID}_radio"]`).trigger('change');
-                    if (chosenShouldUpdate) {
-                        const val = elChildInput.val();
-                        elChildInput.chosen().val(val);
-                        elChildInput.chosen({ width: '100%' });
-                        elChildInput.trigger('chosen:updated');
-                    }
+            const childEndValue = elChildInput.val()?.join ? elChildInput.val().join() : elChildInput.val() || $(`input[id^="${childID}_radio"]:checked`).val() || checkboxEndValues || '';
+
+            if(childStartValue !== childEndValue) {
+                elChildInput.trigger('change');
+                $(`input[id^="${childID}_"]`).trigger('change');  //radio and checkboxes
+                if (chosenShouldUpdate) {
+                    const val = elChildInput.val();
+                    elChildInput.chosen().val(val);
+                    elChildInput.chosen({ width: '100%' });
+                    elChildInput.trigger('chosen:updated');
                 }
-            });
+            }
         }
 
         //confirm that the parent indicators exist on the form (in case of archive/deletion)
