@@ -1016,6 +1016,11 @@
                 formValidator["id<!--{$indicator.indicatorID}-->"] = {
                     setValidator: function() {
                         let elInput = $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val();
+                        
+                        if (typeof elInput === 'undefined') {
+                            return true;
+                        }
+                        
                         let elEmpUserName = elInput.trim().replace('userName:', '');
                         let isZero = elEmpUserName.slice(-1) === '0';
 
