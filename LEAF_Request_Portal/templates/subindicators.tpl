@@ -1022,7 +1022,8 @@
                         }
                         
                         let elEmpUserName = elInput.trim().replace('userName:', '');
-                        let isZero = elEmpUserName.slice(-1) === '0';
+                        let sufNum = elEmpUserName.match(/[0-9]+$/) ?? false;
+                        let isZero = sufNum ? Number(elEmpUserName.match(/[0-9]+$/)[0]) === 0 : false;
 
                         return !isZero ?? true;
                     },
