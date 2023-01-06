@@ -862,7 +862,7 @@
 							"pm.test(\"Contains expected value\", function () {\r",
 							"    const response = pm.response.json();    // response is stored js object\r",
 							"         //  create an array with only this ID\r",
-							"    const formIDs = response.map(formID => formID.1);  //  .map goes through each element of array (formIDs)\r",
+							"    const formIDs = response.map(formID => formID.indicatorID);  //  .map goes through each element of array (formIDs)\r",
 							"    pm.variables.set('formIDs', formIDs); //Creates a variable or updates an existing one.\r",
 							"                                        //2nd formIDs is the var defined on line 3 - Only works in collection runner\r",
 							"    console.log(formIDs);  //\r",
@@ -1230,23 +1230,23 @@
 	],
 	"variable": [
 		{
-			"id": "93576524-22f7-4f28-8b11-d2d0de0a1e7b",
+			"id": "1806d950-6e02-47ab-80cb-54f033b9682d",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "530df222-2644-46c1-9e9c-47911df2bdb2",
+			"id": "a4f26d3e-81a8-4a73-8ed9-5f69f3b5f600",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "71872bab-9f11-49ac-9666-94fe93e990ac",
+			"id": "f7079f69-da2f-4580-8e7f-cd2bc9e3c543",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "fde899f0-61be-41e3-b15b-bbdd5471d8ca",
+			"id": "70617a66-7f71-4f7c-8164-72cddb57971d",
 			"key": "categoryID",
 			"value": ""
 		}
