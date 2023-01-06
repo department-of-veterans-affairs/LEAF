@@ -583,7 +583,7 @@
 							"//pm.variables.set('currentCatID', catIDs.shift());    //array or modify original array (catIDs)  //Set variable currenCatID\r",
 							"\r",
 							"//// if(Array.isArray(catIDs) && catIDs.length > 0) {  //array item must have length > 0  (a valid Cat ID)\r",
-							"////     postman.setNextRequest('POST Category');      //iterate through all members of array   USE Test Name VID: 7:08 - 9:16\r",
+							"////     postman.setNextRequest('POST Category');      //iterate through all members of array   USE Test Name VID: 7:08-9:16\r",
 							"////     console.log('POST CATEGORY');                 //Can also use in Test section\r",
 							"//// } else {\r",
 							"////     postman.setNextRequest(null);\r",
@@ -1230,23 +1230,23 @@
 	],
 	"variable": [
 		{
-			"id": "e0131c5a-7ab0-4544-ba7c-870c4a442c4e",
+			"id": "da972076-2945-4748-bd51-0f1584cd6480",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "15e49fd1-93d6-418e-9109-fb9f5c92f4f7",
+			"id": "4197a8ce-6c8d-4153-99e5-188e1a0c735d",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "f4932dfd-2323-470f-9ea4-21af3d17d6ae",
+			"id": "f009d7ae-0dd7-4f1e-b1aa-37516649c2bc",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "d8e9635a-e320-4df9-abbc-9b5c0f220c84",
+			"id": "d3920706-83d1-47fb-9fa8-7854ef018b9f",
 			"key": "categoryID",
 			"value": ""
 		}
