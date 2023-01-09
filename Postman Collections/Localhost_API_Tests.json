@@ -1234,25 +1234,28 @@
 					"raw": "{  \r\n    \"formID\": \"form_12307\",\r\n    \"requestData\": \"Test Form\"   \r\n}"
 				},
 				"url": {
-					"raw": "{{Local_URL}}/note?recordID=268&note=Some note to post to the db&userID=tester",
+					"raw": "{{Local_URL}}/new",
 					"host": [
 						"{{Local_URL}}"
 					],
 					"path": [
-						"note"
+						"new"
 					],
 					"query": [
 						{
 							"key": "recordID",
-							"value": "268"
+							"value": "268",
+							"disabled": true
 						},
 						{
 							"key": "note",
-							"value": "Some note to post to the db"
+							"value": "Some note to post to the db",
+							"disabled": true
 						},
 						{
 							"key": "userID",
-							"value": "tester"
+							"value": "tester",
+							"disabled": true
 						}
 					]
 				}
@@ -1291,23 +1294,23 @@
 	],
 	"variable": [
 		{
-			"id": "46fe4711-bac4-48a0-87d2-5a7c65cbbe04",
+			"id": "b23ff0ef-f5dc-4ba6-8589-4f6a1bc35637",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "2942cdbc-be53-4695-afca-038bbef04822",
+			"id": "baa2696c-1482-4585-a57d-e8ef4eabbac3",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "34d611f9-62d2-4a9e-8564-677ee5713a22",
+			"id": "53784dd2-b773-4664-b59b-3a91a70ce31e",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "633db350-7f40-4d78-9505-6eaf568f67ea",
+			"id": "d711bf10-8ef0-4851-a38b-0b167d841cd2",
 			"key": "categoryID",
 			"value": ""
 		}
