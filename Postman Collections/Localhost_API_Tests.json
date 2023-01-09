@@ -1197,6 +1197,67 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "FIX Local - Post a note Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f211c6f6-517d-47d4-9606-9a5eb5cdbb2e",
+						"exec": [
+							"pm.test(\"Form-getAPI-URL.  Status = 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var time = pm.response.responseTime\r",
+							"\r",
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "2e7398b9-d8a0-4cc3-8451-11a20f1a3a25",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \r\n    \"formID\": \"form_12307\",\r\n    \"requestData\": \"Test Form\"   \r\n}"
+				},
+				"url": {
+					"raw": "{{Local_URL}}/note?recordID=268&note=Some note to post to the db&userID=tester",
+					"host": [
+						"{{Local_URL}}"
+					],
+					"path": [
+						"note"
+					],
+					"query": [
+						{
+							"key": "recordID",
+							"value": "268"
+						},
+						{
+							"key": "note",
+							"value": "Some note to post to the db"
+						},
+						{
+							"key": "userID",
+							"value": "tester"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {
@@ -1230,23 +1291,23 @@
 	],
 	"variable": [
 		{
-			"id": "951d1343-b8b6-4c7d-ac85-192fb3f2861e",
+			"id": "b4b686d1-d83e-414c-a5b1-115c45fb97f4",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "c89eba42-7773-4d72-a9e4-507a7f6af02a",
+			"id": "427920a8-c771-40db-a381-93916a35d04d",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "b38dc306-089b-4bc2-bb0a-204419e131b4",
+			"id": "de72cea9-b0aa-4d81-9109-a67cae0a48c7",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "a1045945-e9a0-4fc7-b87b-a8e698840ced",
+			"id": "29d70ea0-2a2d-4991-a921-00e07b67d413",
 			"key": "categoryID",
 			"value": ""
 		}
