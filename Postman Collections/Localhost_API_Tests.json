@@ -611,7 +611,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"TestForm\",\r\n    \"description\": \"TestDescription\",\r\n    CSRFToken: csrfToken\r\n}"
+					"raw": "{\r\n    \"name\": \"TestForm\",\r\n    \"description\": \"TestDescription\",\r\n    CSRFToken: token\r\n}"
 				},
 				"url": "{{Local_URL}}/new"
 			},
@@ -1230,23 +1230,23 @@
 	],
 	"variable": [
 		{
-			"id": "41c9c370-d660-4d5b-ae74-033906753d08",
+			"id": "3cb09b73-3eae-4b80-8cd1-0dba583c6c59",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "5ddaa55c-c4a0-4fab-8c3b-b770f9ca52de",
+			"id": "eccac804-3c9c-45fc-8319-0bbc1fd6fda0",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "40790033-f377-472e-aa1c-260f119311c1",
+			"id": "e2a7a835-3e3e-4cd5-98fc-8b04ee3a3446",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "ef1d2c78-dcd3-4603-80bf-45bf1d0ad39b",
+			"id": "e6e4896c-17c9-4690-b10c-8ae2c15cd31c",
 			"key": "categoryID",
 			"value": ""
 		}
