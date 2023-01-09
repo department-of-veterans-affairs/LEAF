@@ -1011,7 +1011,7 @@
             <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
-            {* <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Account must not be a 'Zero' account.</span>
+            <!--{* <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Account must not be a 'Zero' account.</span>
             <script type="text/javascript">
                 formValidator["id<!--{$indicator.indicatorID}-->"] = {
                     setValidator: function() {
@@ -1041,7 +1041,7 @@
                         $('#<!--{$indicator.indicatorID|strip_tags}-->_error').hide('fade');
                     }
                 };
-            </script> *}
+            </script> *}-->
 
             <script>
             var leaf_employeeSelector = leaf_employeeSelector ?? {};
