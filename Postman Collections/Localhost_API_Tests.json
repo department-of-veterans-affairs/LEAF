@@ -1199,7 +1199,7 @@
 			"response": []
 		},
 		{
-			"name": "FIX Local - Post a note Copy",
+			"name": "FIX Local - Create Request",
 			"event": [
 				{
 					"listen": "test",
@@ -1291,23 +1291,23 @@
 	],
 	"variable": [
 		{
-			"id": "b4b686d1-d83e-414c-a5b1-115c45fb97f4",
+			"id": "46fe4711-bac4-48a0-87d2-5a7c65cbbe04",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "427920a8-c771-40db-a381-93916a35d04d",
+			"id": "2942cdbc-be53-4695-afca-038bbef04822",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "de72cea9-b0aa-4d81-9109-a67cae0a48c7",
+			"id": "34d611f9-62d2-4a9e-8564-677ee5713a22",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "29d70ea0-2a2d-4991-a921-00e07b67d413",
+			"id": "633db350-7f40-4d78-9505-6eaf568f67ea",
 			"key": "categoryID",
 			"value": ""
 		}
