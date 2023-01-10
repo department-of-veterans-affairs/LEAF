@@ -1,7 +1,6 @@
 <?php
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
+namespace Leaf;
 
 class TemplateReportsFormatter{
 
