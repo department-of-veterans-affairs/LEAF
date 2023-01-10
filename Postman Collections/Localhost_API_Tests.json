@@ -691,7 +691,8 @@
 			},
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": {}
 				},
 				"method": "POST",
 				"header": [
@@ -703,7 +704,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"TestForm\",\r\n    \"description\": \"TestDescription\",\r\n    CSRFToken: token\r\n}"
+					"raw": "{\r\n    \"name\": \"TestForm\",\r\n    \"description\": \"TestDescription\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost/LEAF_Request_Portal/api/form/new",
@@ -1403,23 +1404,23 @@
 	],
 	"variable": [
 		{
-			"id": "316af5b5-932c-43eb-85c2-0edcc10a2f4a",
+			"id": "71d20b62-3280-4f9c-9b71-c8b054af8a2a",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "cb2097a3-296c-4ade-be55-38a7d4959cba",
+			"id": "8b314ada-0b91-4ff5-a2ba-d7d04743656b",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "5d8f5197-6920-49c2-aa6a-e91562a64b4a",
+			"id": "94ef6b3b-bed2-4178-8e97-4b8a550c71e4",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "1df7a568-1bcc-4c6b-a505-871a716652c1",
+			"id": "f897ac86-cace-49b6-8718-a917a11e1443",
 			"key": "categoryID",
 			"value": ""
 		}
