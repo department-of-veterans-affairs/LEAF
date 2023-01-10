@@ -83,14 +83,14 @@ div.specialties {
     <input id="searchRosterInput" type="text" placeholder="Search by Name, Process, or Location" />
     <img id="searchRosterBtn"
         class="searchIcon"
-        src="{$lib_path}dynicons/?img=search.svg&w=25"
+        src="{$libsPath}dynicons/?img=search.svg&w=25"
         alt="search icon" />
 </div>
 
 <div id="coaches"></div>
 
-<script src="{$lib_path}jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
-<script src="{$lib_path}jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
+<script src="{$libsPath}jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
+<script src="{$libsPath}jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 /**
@@ -165,7 +165,7 @@ CoachQuery.prototype.parseResults = function (results) {
                     + "&series=" + result.series
                     + "&form=" + result.recordID
                     + "&file=0"
-                : "{$lib_path}dynicons/?img=system-users.svg&w=150";
+                : "{$libsPath}dynicons/?img=system-users.svg&w=150";
 
             coaches.push({
                 "id": result.recordID,

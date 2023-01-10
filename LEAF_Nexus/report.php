@@ -58,7 +58,7 @@ switch ($action) {
         $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
 
         break;
@@ -67,7 +67,6 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-//    			$main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
             if ($oc_login->isLogin())
             {
                 $o_login = $t_login->fetch('login.tpl');
@@ -102,7 +101,7 @@ $memberships = $oc_login->getMembership();
 
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
 $t_menu->assign('action', $action);
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -112,7 +111,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::scrubNewLinesFromURL($oc_settings['version']));
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

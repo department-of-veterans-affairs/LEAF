@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="{$lib_path}css/leaf.css">
-
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
 
 <script>

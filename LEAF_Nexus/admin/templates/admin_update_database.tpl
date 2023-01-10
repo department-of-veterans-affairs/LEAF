@@ -10,7 +10,7 @@
 <div id="editdialog1" style="visibility: hidden">
     <div>
         <div id="editxhr" style="width: 500px; height: 400px; overflow: auto">
-            <div style="position: absolute; left: 10px"><button id="button_cancelchange"><img src="<!--{$lib_path}-->dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button></div>
+            <div style="position: absolute; left: 10px"><button id="button_cancelchange"><img src="<!--{$libsPath}-->dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button></div>
             <div style="border-bottom: 2px solid black; text-align: right"><br /><br />&nbsp;</div><br />
             <span>Search: </span><input id="query" type="text" /><div id="loadIndicator" style="visibility: hidden; float: right"><img src="../images/indicator.gif" alt="loading..." /></div>
             <br /><div id="results"></div>

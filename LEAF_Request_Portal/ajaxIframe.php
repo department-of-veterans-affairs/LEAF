@@ -48,7 +48,7 @@ $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" a
 
 $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('hide_main_control', true);
@@ -72,7 +72,7 @@ switch ($action) {
         $t_iframe->assign('series', (int)$_GET['series']);
         $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_iframe->assign('lib_path', S_LIB_PATH);
+        $t_iframe->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_iframe->fetch('file_form.tpl'));
 
         break;
@@ -84,7 +84,7 @@ switch ($action) {
            $t_iframe->assign('series', (int)$_GET['series']);
            $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
            $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
-           $t_iframe->assign('lib_path', S_LIB_PATH);
+           $t_iframe->assign('libsPath', S_LIB_PATH);
            $main->assign('body', $t_iframe->fetch('file_image_form.tpl'));
 
            break;
@@ -157,7 +157,8 @@ switch ($action) {
                         $t_form->assign('childCategoryID', Leaf\XSSHelpers::xscrub($_GET['childCategoryID']));
                     }
                 }
-                $t_form->assign('lib_path', S_LIB_PATH);
+                $t_form->assign('libsPath', S_LIB_PATH);
+                $t_form->assign('portalPath', PORTAL_PATH);
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl')));
 
@@ -190,7 +191,7 @@ switch ($action) {
 }
 
 $main->assign('login', $t_login->fetch('login.tpl'));
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -199,6 +200,6 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 $main->display('main_iframe.tpl');

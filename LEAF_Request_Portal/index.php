@@ -32,7 +32,7 @@ function customTemplate($tpl) {
 }
 
 $t_login->assign('name', Leaf\XSSHelpers::xscrub($login->getName()));
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('is_admin', $login->checkGroup(1));
@@ -95,7 +95,7 @@ switch ($action) {
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 
@@ -139,7 +139,7 @@ switch ($action) {
                 case 'review':
                     break;
                 default:
-                    $t_form->assign('lib_path', S_LIB_PATH);
+                    $t_form->assign('libsPath', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch(customTemplate('form.tpl')));
 
                     break;
@@ -242,7 +242,8 @@ switch ($action) {
                         $t_form->assign('childCategoryID', $childCatID);
                     }
                 }
-                $t_form->assign('lib_path', S_LIB_PATH);
+                $t_form->assign('libsPath', S_LIB_PATH);
+                $t_form->assign('portalPath', PORTAL_PATH);
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
 
@@ -293,7 +294,8 @@ switch ($action) {
         $t_form->assign('descriptionID', $descriptionID);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('errors', $errors);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('portalPath', PORTAL_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
 
@@ -322,7 +324,7 @@ switch ($action) {
         $t_form->assign('recordID', $recordIDForStatus);
         $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus, $form, $vamc));
         $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('view_status.tpl'));
 
@@ -343,7 +345,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('import_from_webHR.tpl'));
 
@@ -362,7 +364,7 @@ switch ($action) {
 
         $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_bookmarks.tpl'));
 
         $tabText = 'Bookmarks';
@@ -413,12 +415,17 @@ switch ($action) {
         $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
 
         break;
     case 'search':
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('javascripts', array(
+                'js/form.js',
+                'js/formGrid.js',
+                'js/formQuery.js',
+                'js/formSearch.js'
+        ));
         $main->assign('useUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
@@ -443,7 +450,7 @@ switch ($action) {
 
         $t_form->assign('sitemap', $settings['sitemap_json']);
         $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
         break;
@@ -483,7 +490,8 @@ switch ($action) {
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('powerQueryURL', $powerQueryURL);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('portalPath', PORTAL_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
@@ -505,7 +513,7 @@ switch ($action) {
         $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
-        $main->assign('lib_path', S_LIB_PATH);
+        $main->assign('libsPath', S_LIB_PATH);
 
         $main->display(customTemplate('main.tpl'));
         exit();
@@ -535,7 +543,7 @@ switch ($action) {
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
@@ -554,7 +562,7 @@ $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
 $t_menu->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
@@ -562,7 +570,7 @@ $main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 if (!isset($_GET['iframe'])) {
     $main->display(customTemplate('main.tpl'));

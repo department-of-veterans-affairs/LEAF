@@ -109,7 +109,8 @@ switch ($action) {
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
 
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
-        $t_form->assign('absOrgchartPath', ABSOLUTE_ORG_PATH);
+        $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
+        $t_form->assign('domainPath', DOMAIN_PATH);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $site_paths['importTags'][0]);
@@ -119,7 +120,7 @@ switch ($action) {
                                            $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                            $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
-        $t_form->assign('lib_path', '../..' . S_LIB_PATH);
+        $t_form->assign('libsPath', '../..' . S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
@@ -137,6 +138,8 @@ switch ($action) {
         ));
 
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
+        $t_form->assign('domainPath', DOMAIN_PATH);
+        $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
@@ -165,7 +168,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('orgchartImportTags', $site_paths['importTags']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
 
@@ -214,7 +217,8 @@ switch ($action) {
             }
         }
 
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('portalpath', PORTAL_PATH);
 
         $main->assign('body', $t_form->fetch('mod_form.tpl'));
 
@@ -257,19 +261,19 @@ switch ($action) {
 
             switch ($action) {
                 case 'mod_templates':
-                    $t_form->assign('lib_path', S_LIB_PATH);
+                    $t_form->assign('libsPath', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates.tpl'));
                     $tabText = 'Template Editor';
 
                     break;
                 case 'mod_templates_reports':
-                    $t_form->assign('lib_path', S_LIB_PATH);
+                    $t_form->assign('libsPath', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
                     $tabText = 'Editor';
 
                     break;
                 case 'mod_templates_email':
-                    $t_form->assign('lib_path', S_LIB_PATH);
+                    $t_form->assign('libsPath', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_email.tpl'));
                     $tabText = 'Email Template Editor';
 
@@ -286,7 +290,7 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
-            $main->assign('lib_path', S_LIB_PATH);
+            $main->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -324,7 +328,8 @@ switch ($action) {
            if ($login->checkGroup(1))
            {
                $t_form->assign('LEAF_NEXUS_URL', $site_paths['orgchart_path']);
-               $t_form->assign('lib_path', S_LIB_PATH);
+               $t_form->assign('libsPath', S_LIB_PATH);
+               $t_form->assign('portalPath', PORTAL_PATH);
 
                $main->assign('body', $t_form->fetch('view_form_library.tpl'));
            }
@@ -343,7 +348,7 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
-            $t_form->assign('lib_path', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_import_form.tpl'));
         }
         else
@@ -388,7 +393,8 @@ switch ($action) {
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
         $t_form->assign('importTags', $settings['importTags']);
-//   		$main->assign('stylesheets', array('css/mod_groups.css'));
+        $t_form->assign('portalPath', PORTAL_PATH);
+
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
         $tabText = 'Site Settings';
@@ -428,7 +434,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
 
@@ -500,7 +506,7 @@ $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
 $t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -509,7 +515,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

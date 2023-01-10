@@ -45,7 +45,7 @@ function customTemplate($tpl)
 
 $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 
@@ -78,6 +78,8 @@ switch ($action) {
         $t_form->assign('services', $form->getServices2());
         $t_form->assign('resolvedServiceID', $resolvedService[0]['groupID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('portalPath', PORTAL_PATH);
 
         $main->assign('body', $t_form->fetch('reports/showServiceFTEstatus.tpl'));
         $tabText = 'Service FTE Status';
@@ -88,7 +90,11 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-            $main->assign('stylesheets', array(S_LIB_PATH . 'js/choicesjs/choices.min.css'));
+            $main->assign('stylesheets', array(
+                S_LIB_PATH . 'js/choicesjs/choices.min.css',
+                S_LIB_PATH . "js/jquery/layout-grid/css/layout-grid.min.css",
+                S_LIB_PATH . 'css/leaf.css'
+            ));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -101,7 +107,11 @@ switch ($action) {
                 S_LIB_PATH . 'jsapi/nexus/LEAFNexusAPI.js',
                 S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
                 S_LIB_PATH . 'jsapi/portal/model/FormQuery.js',
-                S_LIB_PATH . 'js/choicesjs/choices.min.js'
+                S_LIB_PATH . 'js/choicesjs/choices.min.js',
+                S_LIB_PATH . "js/LEAF/intervalQueue.js",
+                S_LIB_PATH . 'js/jquery/layout-grid/js/layout-grid.min.js',
+                S_LIB_PATH . 'js/moment/moment.min.js',
+                S_LIB_PATH . 'js/moment/moment-timezone-with-data.min.js'
             ));
 
             $o_login = $t_login->fetch('login.tpl');
@@ -118,6 +128,8 @@ switch ($action) {
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
+            $t_form->assign('libsPath', S_LIB_PATH);
+            $t_form->assign('portalPath', PORTAL_PATH);
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';
@@ -136,7 +148,7 @@ $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
@@ -145,7 +157,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
 $main->assign('revision', $settings['version']);
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

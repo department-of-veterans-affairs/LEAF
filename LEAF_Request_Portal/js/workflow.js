@@ -15,7 +15,8 @@ var LeafWorkflow = function(containerID, CSRFToken) {
     var antiDblClick = 0;
     var actionPreconditionFunc;
     var actionSuccessCallback;
-    var rootURL = '';
+    var portalPath = '';
+    var libsPath = '';
 
     /**
      * @memberOf LeafWorkflow
@@ -48,7 +49,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         // Check if CSRFToken has Changed (Timeout Fix)
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/formWorkflow/getCSRFToken',
+            url: portalPath + 'api/formWorkflow/getCSRFToken',
             async: false,
             success: function(res) {
                 data.CSRFToken = res;
@@ -58,10 +59,10 @@ var LeafWorkflow = function(containerID, CSRFToken) {
             }
         });
 
-        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></div>');
+        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ portalPath +'images/largespinner.gif" alt="loading..." /></div>');
         $.ajax({
             type: 'POST',
-            url: rootURL + 'api/formWorkflow/' + currRecordID + '/apply',
+            url: portalPath + 'api/formWorkflow/' + currRecordID + '/apply',
             data: data,
             success: function(response) {
                 if (response !== "Invalid Token.") {
@@ -78,13 +79,13 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         for (var i in response.errors) {
                             errors += response.errors[i] + '<br />';
                         }
-                        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' + rootURL + '../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> ' + errors + '<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
+                        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' + libsPath + 'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> ' + errors + '<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>');
                         $("#workflowbtn_tryagain").on('click', function () {
                             getWorkflow(currRecordID);
                         });
                     }
                 } else {
-                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' + rootURL + '../libs/dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>');
+                    $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' + libsPath + 'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>');
                     $("#workflowbtn_tryagain").on('click', function () {
                         getWorkflow(currRecordID);
                         setTimeout(function() {
@@ -158,7 +159,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         for(var i in step.dependencyActions) {
             var icon = '';
             if(step.dependencyActions[i].actionIcon != '') {
-                icon = '<img src="'+ rootURL +'../libs/dynicons/?img='+ step.dependencyActions[i].actionIcon +'&amp;w=22" alt="'+ step.dependencyActions[i].actionText +'" style="vertical-align: middle" />';
+                icon = '<img src="'+ libsPath +'dynicons/?img='+ step.dependencyActions[i].actionIcon +'&amp;w=22" alt="'+ step.dependencyActions[i].actionText +'" style="vertical-align: middle" />';
             }
 
             $('#form_dep_container'+ step.dependencyID).append('<div id="button_container'+ step.dependencyID +'_'+ step.dependencyActions[i].actionType +'" style="float: '+ step.dependencyActions[i].actionAlignment +'">\
@@ -220,7 +221,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         if (step.requiresDigitalSignature == true) {
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'ajaxScript.php?a=workflowStepModules&s=LEAF_digital_signature&stepID=' + step.stepID,
+                url: portalPath + 'ajaxScript.php?a=workflowStepModules&s=LEAF_digital_signature&stepID=' + step.stepID,
                 dataType: 'script',
                 success: function() {
                     workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
@@ -242,7 +243,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                     $(`#form_dep_container${step.dependencyID} .button`).attr('disabled', true);
                     $.ajax({
                         type: 'GET',
-                        url: rootURL + 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
+                        url: portalPath + 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
                         dataType: 'script',
                         success: function() {
                             workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step);
@@ -260,7 +261,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         for(var u in step.jsSrcList) {
             $.ajax({
                 type: 'GET',
-                url: rootURL + step.jsSrcList[u],
+                url: portalPath + step.jsSrcList[u],
                 dataType: 'script',
                 success: function() {
                     workflowModule[step.dependencyID].init(currRecordID);
@@ -288,7 +289,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         if(step.dependencyID == -1) {
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
+                url: portalPath + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
                     let name = '';
 
@@ -309,7 +310,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         else if(step.dependencyID == -3) { // dependencyID -3 : special case for group designated by the requestor
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
+                url: portalPath + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
                 success: function(res) {
                     let name = '';
 
@@ -339,7 +340,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
     function getLastAction(recordID, res) {
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/formWorkflow/' + recordID + '/lastActionSummary',
+            url: portalPath + 'api/formWorkflow/' + recordID + '/lastActionSummary',
             dataType: 'json',
             success: function(lastActionSummary) {
                 response = lastActionSummary.lastAction;
@@ -410,7 +411,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         var month = sigTime.getMonth() + 1;
                         var date = sigTime.getDate();
                         var year = sigTime.getFullYear();
-                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="'+ rootURL +'../libs/dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />'
+                        $('#workflowSignatureContainer').append('<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">'+ lastActionSummary.signatures[i].stepTitle +' - Digitally signed<br /><span style="font-size: 140%; line-height: 200%"><img src="'+ libsPath +'dynicons/?img=application-certificate.svg&w=32" style="vertical-align: middle; padding-right: 4px" alt="digital signature (beta) logo" />'
                                 + lastActionSummary.signatures[i].name + ' '
                                 + month + '/' + date + '/' + year
                                 +'</span><br /><span aria-hidden="true" style="font-size: 75%">x'+ lastActionSummary.signatures[i].signature.substr(0, 32) +'</span></div>');
@@ -444,7 +445,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
         return $.ajax({
             type: 'GET',
-            url: rootURL + 'api/formWorkflow/'+ recordID +'/currentStep' + masquerade,
+            url: portalPath + 'api/formWorkflow/'+ recordID +'/currentStep' + masquerade,
             dataType: 'json',
             success: function(res) {
                 for(var i in res) {
@@ -489,6 +490,6 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         getWorkflow: getWorkflow,
         setActionPreconditionFunc: setActionPreconditionFunc,
         setActionSuccessCallback: setActionSuccessCallback,
-        setRootURL: function(url) { rootURL = url; }
+        setPortalPath: function(url) { portalPath = url; }
     }
 };

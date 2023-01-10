@@ -61,7 +61,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
-            $main->assign('lib_path', S_LIB_PATH);
+            $main->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_refresh_directory.tpl'));
         }
         else
@@ -80,7 +80,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
-            $main->assign('lib_path', S_LIB_PATH);
+            $main->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -137,11 +137,13 @@ switch ($action) {
 
            $t_form->assign('heading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
            $t_form->assign('subHeading', \Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
+           $t_form->assign('domainPath', DOMAIN_PATH);
+           $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
 
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
            {
-                $t_form->assign('lib_path', S_LIB_PATH);
+                $t_form->assign('libsPath', S_LIB_PATH);
                $main->assign('body', $t_form->fetch('setup_medical_center.tpl'));
            }
            else
@@ -159,7 +161,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $main->assign('javascripts', array(S_LIB_PATH . 'js/LEAF/workbookhelper.js'));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
 
@@ -197,12 +199,12 @@ switch ($action) {
 
            switch ($action) {
                case 'mod_templates':
-                    $t_form->assign('lib_path', S_LIB_PATH);
+                    $t_form->assign('libsPath', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates.tpl'));
 
                    break;
                case 'mod_templates_reports':
-                    $t_form->assign('lib_path', S_LIB_PATH);
+                    $t_form->assign('libsPath', S_LIB_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
 
                     break;
@@ -232,11 +234,13 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $oc_login->getDomain());
+        $t_form->assign('domainPath', DOMAIN_PATH);
+        $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
 
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
-            $t_form->assign('lib_path', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('view_admin.tpl'));
         }
         else
@@ -251,7 +255,7 @@ switch ($action) {
 
 $memberships = $oc_login->getMembership();
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -261,7 +265,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {

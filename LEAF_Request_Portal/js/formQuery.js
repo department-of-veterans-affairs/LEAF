@@ -8,6 +8,7 @@ var LeafFormQuery = function() {
 	var query = {};
 	var successCallback = null;
 	var rootURL = '';
+    var portalPath = '';
     var useJSONP = false;
     var extraParams = '';
 
@@ -241,7 +242,7 @@ var LeafFormQuery = function() {
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/form/query?q=' + queryUrl + extraParams,
+        		url: portalPath + 'api/form/query?q=' + queryUrl + extraParams,
         		dataType: 'json',
         		success: successCallback
         	});
@@ -249,7 +250,7 @@ var LeafFormQuery = function() {
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
+        		url: portalPath + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
         		success: successCallback
         	});
@@ -268,8 +269,8 @@ var LeafFormQuery = function() {
 		setQuery: function(inc) { query = inc; },
 		setLimit: setLimit,
 		setLimitOffset: setLimitOffset,
-		setRootURL: function(url) { rootURL = url; },
-		getRootURL: function() { return rootURL; },
+		setPortalPath: function(url) { portalPath = url; },
+		getPortalPath: function() { return portalPath; },
         useJSONP: function(state) { useJSONP = state; },
         setExtraParams: setExtraParams,
 		join: join,

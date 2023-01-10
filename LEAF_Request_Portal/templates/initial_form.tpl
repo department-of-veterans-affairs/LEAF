@@ -131,7 +131,7 @@ $(function() {
                 <!--{/if}-->
 
                 <button class="buttonNorm" type="submit" style="display: block; margin-top: 0.75rem; margin-left:auto">
-                    <img src="<!--{$lib_path}-->dynicons/?img=go-next.svg&amp;w=30" alt="" />Click here to Proceed&nbsp;
+                    <img src="<!--{$libsPath}-->dynicons/?img=go-next.svg&amp;w=30" alt="" />Click here to Proceed&nbsp;
                 </button>
             </div>
 

@@ -120,7 +120,7 @@
             <!--{foreach from=$indicator.value item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
                     <!--{if $indicator.value[$idx] != 'no'}-->
-                        <li><img class="print" src="<!--{$lib_path}-->dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
+                        <li><img class="print" src="<!--{$libsPath}-->dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
                         <!--{$option|sanitize}--></li>
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->
@@ -134,7 +134,7 @@
             <!--{if $indicator.value[0] != ''}-->
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
-            <a href="file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse"><img src="<!--{$lib_path}-->dynicons/?img=mail-attachment.svg&amp;w=24" alt="file" /><!--{$file}--></a><br />
+            <a href="file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse"><img src="<!--{$libsPath}-->dynicons/?img=mail-attachment.svg&amp;w=24" alt="file" /><!--{$file}--></a><br />
             <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
             <!--{else}-->
@@ -185,7 +185,7 @@
                     success: function(data) {
                         if(data.title != false) {
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').append('<div style="border: 1px solid black" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos">\
-                                    <img src="<!--{$lib_path}-->dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" style="float: left; padding: 4px" /><b>' + data.title + '</b><br />' + data[2].data + '-' + data[13].data + '-' + data[14].data + '</div>');
+                                    <img src="<!--{$libsPath}-->dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" style="float: left; padding: 4px" /><b>' + data.title + '</b><br />' + data[2].data + '-' + data[13].data + '-' + data[14].data + '</div>');
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').on('click', function() {
                                 window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|escape}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');
                             });
@@ -251,6 +251,7 @@
             // fix for IE scroll bar
             $('#xhrIndicator_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').css('max-width', parseInt($('.printmainlabel').css('width')) * .85 + 'px');
             var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->, <!--{$recordID}-->);
+            gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.setLibsPath(<!--{$libsPath}-->);
             $(function() {
                 gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.output(<!--{$indicator.value|json_encode}-->);
             })

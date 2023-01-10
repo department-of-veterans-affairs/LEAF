@@ -11,7 +11,7 @@
         <h2>Site Settings</h2>
 
         <form class="usa-form">
-        
+
             <label for="heading" class="usa-label">Title of LEAF site</label>
             <input id="heading" class="usa-input" type="text" title="" size="48" />
 
@@ -172,7 +172,7 @@ function renderSiteType() {
 
 function renderSettings(res) {
     var query = new LeafFormQuery();
-    query.setRootURL('../');
+    query.setPortalPath('<!--{$portalPath}-->');
     query.addTerm('categoryID', '=', 'leaf_secure');
 
     for(var i in res) {

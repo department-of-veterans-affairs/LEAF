@@ -1,8 +1,8 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Options</h1>
-        <div onclick="window.location='?a=browse_group';"><img src="<!--{$lib_path}-->dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="Search Groups" title="Search Groups" /> View Groups</div>
-        <div onclick="window.location='?a=browse_position';"><img src="<!--{$lib_path}-->dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="Search Position" title="Search Position" /> View Positions</div>
-        <div onclick="window.location='?a=browse_employee';"><img src="<!--{$lib_path}-->dynicons/?img=contact-new.svg&amp;w=32" style="vertical-align: middle" alt="Search Employees" title="Search Employees" /> View Employees</div>
+        <div onclick="window.location='?a=browse_group';"><img src="<!--{$libsPath}-->dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="Search Groups" title="Search Groups" /> View Groups</div>
+        <div onclick="window.location='?a=browse_position';"><img src="<!--{$libsPath}-->dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="Search Position" title="Search Position" /> View Positions</div>
+        <div onclick="window.location='?a=browse_employee';"><img src="<!--{$libsPath}-->dynicons/?img=contact-new.svg&amp;w=32" style="vertical-align: middle" alt="Search Employees" title="Search Employees" /> View Employees</div>
     </div>
 </div>
 
@@ -103,6 +103,7 @@ $(function() {
     ppInterval = setInterval(function(){postProcess();}, 300);
 
     orgchartForm = new orgchartForm('orgchartForm');
+    orgchartForm.setLibsPath = <!--{$libsPath}-->;
     orgchartForm.initialize();
 });
 

@@ -1,4 +1,4 @@
-<script src="<!--{$lib_path}-->js/sha1.js"></script>
+<script src="<!--{$libsPath}-->js/sha1.js"></script>
 <script>
     let CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -51,7 +51,7 @@
             if (icon.indexOf('/') != -1) {
                 icon = '<img src="' + icon + '" alt="icon for ' + name + '" style="vertical-align: middle" />';
             } else {
-                icon = '<img src="<!--{$lib_path}-->dynicons/?img=' + icon + '&w=76" alt="icon for ' + name + '" style="vertical-align: middle" />';
+                icon = '<img src="<!--{$libsPath}-->dynicons/?img=' + icon + '&w=76" alt="icon for ' + name + '" style="vertical-align: middle" />';
             }
         }
         return icon;
@@ -222,12 +222,12 @@
         });
     }
 
-    function loadWorkflow(recordID, dependencyID, prefixID, rootURL) {
+    function loadWorkflow(recordID, dependencyID, prefixID, URL) {
         dialog_message.setTitle('Apply Action to #' + recordID);
         currRecordID = recordID;
         dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
         workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
-        workflow.setRootURL(rootURL);
+        workflow.setPortalPath(URL);
         workflow.setActionSuccessCallback(function () {
             dialog_message.hide();
             $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);

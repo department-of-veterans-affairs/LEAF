@@ -15,23 +15,23 @@ var LeafFormSearch = function(containerID) {
 	var searchFunc = null;
 	var leafFormQuery = new LeafFormQuery();
 	var widgetCounter = 0;
-	var rootURL = '';
+	let libsPath = '';
+    let portalPath = '';
 
 	// constants
 	var ALL_DATA_FIELDS = '0';
 	var ALL_OC_EMPLOYEE_DATA_FIELDS = '0.0';
 
 	function renderUI() {
-        console.log(rootURL);
-		$('#' + containerID).html('<div style="display:flex; align-items:center; width:fit-content; width: -moz-fit-content;">\
-			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ rootURL +'../../libs/dynicons/?img=search.svg&w=16">\
-			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ rootURL +'images/indicator.gif">\
+        $('#' + containerID).html('<div style="display:flex; align-items:center; width:fit-content; width: -moz-fit-content;">\
+			    <img id="'+prefixID+'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="'+ libsPath +'dynicons/?img=search.svg&w=16">\
+			    <img id="'+prefixID+'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="'+ portalPath +'images/indicator.gif">\
 					<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="status" role="status"></span>\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="'+prefixID+'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
 			    <button class="buttonNorm" id="'+prefixID+'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="'+prefixID+'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <button id="'+prefixID+'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url('+ rootURL +'../libs/dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
+		        <button id="'+prefixID+'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url('+ libsPath +'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="'+prefixID+'searchTerms"></table>\
 		        <button class="buttonNorm" id="'+prefixID+'addTerm" style="float: left">And...</button>\
@@ -767,7 +767,7 @@ var LeafFormSearch = function(containerID) {
 			gate = 'AND';
 		}
 		let widget = '<tr id="'+prefixID+'widget_'+widgetCounter+'" style="border-spacing: 5px">\
-						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ rootURL +'../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
+						<td id="'+prefixID+'widgetRemove_'+widgetCounter+'"><button id="widgetRemoveButton"><img src="'+ libsPath +'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
 						<td style="text-align: center"><strong id="'+prefixID+'widgetGate_'+widgetCounter+'" value="'+gate+'">'+ gate +'</strong></td>\
 						<td><select id="'+prefixID+'widgetTerm_'+widgetCounter+'" style="width: 150px" class="chosen" aria-label="condition">\
             				<option value="title">Title</option>\
@@ -881,6 +881,7 @@ var LeafFormSearch = function(containerID) {
 		search: search,
 		showBusy: showBusy,
 		showNotBusy: showNotBusy,
-		setRootURL: function(url) { rootURL = url; }
+        setLibsPath: function(url) { libsPath = url; },
+		setPortalPath: function(url) { portalPath = url; }
 	}
 };

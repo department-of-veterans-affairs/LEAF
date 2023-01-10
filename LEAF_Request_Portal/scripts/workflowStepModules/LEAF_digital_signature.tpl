@@ -68,7 +68,7 @@ workflowStepModule[{{$stepID}}]['LEAF_digital_signature'] = (function() {
 		.css({'margin': 'auto',
 			  'width': '95%',
 			  'text-align': 'center'})
-		.html("<br style='clear: both' /><img src='{$lib_path}dynicons/?img=application-certificate.svg&w=24' alt='Digital Signature (Beta) Enabled' title='Digital Signature (Beta) Enabled' style='vertical-align: middle'> Digital Signature (Beta) Enabled")
+		.html("<br style='clear: both' /><img src='{$libsPath}dynicons/?img=application-certificate.svg&w=24' alt='Digital Signature (Beta) Enabled' title='Digital Signature (Beta) Enabled' style='vertical-align: middle'> Digital Signature (Beta) Enabled")
 		.appendTo('#form_dep' + step.dependencyID);
 
 		if(typeof Signer == 'undefined') {

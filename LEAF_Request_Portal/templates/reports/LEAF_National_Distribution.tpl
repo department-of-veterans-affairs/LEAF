@@ -1,5 +1,5 @@
 <!--{if $empMembership['groupID'][1]}-->
-<script src="{$lib_path}js/LEAF/intervalQueue.js"></script>
+<script src="{$libsPath}js/LEAF/intervalQueue.js"></script>
 <style>
 li {
     padding: 8px;

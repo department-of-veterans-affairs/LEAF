@@ -23,8 +23,8 @@
         background-color: rgb(209, 223, 255);
     }
     table#requests td {
-        border: 1px solid black; 
-        padding: 8px; 
+        border: 1px solid black;
+        padding: 8px;
         font-size: 12px;
     }
     .buttonNorm.takeAction, .buttonNorm.buttonDaySearch {
@@ -43,7 +43,7 @@
     <h1>Mass Action</h1>
     <div id="actionContainer">
         <label for="action"> Choose Action </label>
-        <select id="action" name="action">  
+        <select id="action" name="action">
             <option value="">-Select-</option>
             <option value="cancel">Cancel</option>
             <option value="restore">Restore</option>
@@ -60,7 +60,7 @@
         <button class="buttonNorm buttonDaySearch" id="submitSearchByDays">Search Requests</button>
     </div>
 
-    <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy">
+    <img id="iconBusy" src=".//images/indicator.gif" class="employeeSelectorIcon" alt="busy">
     <div id="searchResults">
         <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
         <div class="progress"></div>

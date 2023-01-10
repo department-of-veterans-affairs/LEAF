@@ -5,7 +5,7 @@
 var LeafFormQuery = function() {
 	var query = {};
 	var successCallback = null;
-	var rootURL = '';
+	var portalPath = '';
 	var useJSONP = false;
 
 	clearTerms();
@@ -94,7 +94,7 @@ var LeafFormQuery = function() {
 					break;
 			}
 		}
-    	
+
     	for(var i in input.joins) {
     		join(input.joins[i]);
     	}
@@ -153,7 +153,7 @@ var LeafFormQuery = function() {
 
     /**
      * Sort results
-     * @param 
+     * @param
      * @memberOf LeafFormQuery
      */
     function sort(column, direction) {
@@ -222,11 +222,11 @@ var LeafFormQuery = function() {
     	if(query.getData != undefined && query.getData.length == 0) {
     		delete query.getData;
     	}
-    	
+
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/form/query?q=' + JSON.stringify(query),
+        		url: portalPath + 'api/form/query?q=' + JSON.stringify(query),
         		dataType: 'json',
         		success: successCallback,
         		cache: false
@@ -235,7 +235,7 @@ var LeafFormQuery = function() {
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/form/query?q=' + JSON.stringify(query) + '&format=jsonp',
+        		url: portalPath + 'api/form/query?q=' + JSON.stringify(query) + '&format=jsonp',
         		dataType: 'jsonp',
         		success: successCallback,
         		cache: false
@@ -255,8 +255,8 @@ var LeafFormQuery = function() {
 		setQuery: function(inc) { query = inc; },
 		setLimit: setLimit,
 		setLimitOffset: setLimitOffset,
-		setRootURL: function(url) { rootURL = url; },
-		getRootURL: function() { return rootURL; },
+		setPortalPath: function(url) { portalPath = url; },
+		getPortalPath: function() { return portalPath; },
 		useJSONP: function(state) { useJSONP = state; },
 		join: join,
 		sort: sort,

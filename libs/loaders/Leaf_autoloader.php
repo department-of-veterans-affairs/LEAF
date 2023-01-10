@@ -146,4 +146,5 @@ $data_action_logger = new Leaf\DataActionLogger($db, $login);
 
 if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . $_SERVER['HTTP_HOST'] . '/libs/');
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . $_SERVER['HTTP_HOST'] . $site_paths['orgchart_path']);
-
+if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . $_SERVER['HTTP_HOST'] . $site_paths['site_path']);
+if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . $_SERVER['HTTP_HOST']);

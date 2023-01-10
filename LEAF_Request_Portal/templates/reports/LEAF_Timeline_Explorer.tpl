@@ -1,11 +1,6 @@
 <script src="js/lz-string/lz-string.min.js"></script>
-<script src="{$lib_path}js/LEAF/intervalQueue.js"></script>
-<link rel="stylesheet" type="text/css" href="{$lib_path}js/jquery/layout-grid/css/layout-grid.min.css" />
-<script src="{$lib_path}js/jquery/layout-grid/js/layout-grid.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/4.2.7/style/dc.css" />
-<script src="{$lib_path}js/moment/moment.min.js"></script>
-<script src="{$lib_path}js/moment/moment-timezone-with-data.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.2.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/4.2.7/dc.min.js"></script>
@@ -365,7 +360,7 @@ function loadData(site, categoryID) {
         query.addTerm('deleted', '=', 0);
         query.addTerm('categoryID', '=', categoryID);
         query.addTerm('stepID', '=', 'resolved');
-        query.setRootURL(siteURL);
+        query.setPortalPath(siteURL);
         query.join('action_history');
         query.join('service');
         query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');

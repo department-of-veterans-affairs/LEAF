@@ -30,7 +30,7 @@ var LeafForm = function(containerID) {
     function setRecordID(id) {
         recordID = id;
     }
-    
+
     function setPostModifyCallback(func) {
         postModifyCallback = func;
     }
@@ -44,7 +44,7 @@ var LeafForm = function(containerID) {
         return input;
     }
 
-    
+
     function handleConditionalIndicators(formConditionsByChild = {}, dialog = null) {
         const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio'];
 
@@ -141,7 +141,7 @@ var LeafForm = function(containerID) {
         const valIncludesMultiselOption = (selectedOptions = [], arrOptions = []) => {
             let result = false;
             let vals = selectedOptions.map(sel => sanitize(sel.label.replaceAll('\r', '').trim()));
-            
+
             vals.forEach(v => {
                 if (arrOptions.includes(v)) {
                     result = true;
@@ -269,7 +269,7 @@ var LeafForm = function(containerID) {
                             }
                         });
                         break;
-                    case '>':  
+                    case '>':
                         //comparisonResult = arrCompVals.some(v => v > sanitize(val));
                         break;
                     case '<':
@@ -334,7 +334,7 @@ var LeafForm = function(containerID) {
                                 }
                             });
                         }
-                        break; 
+                        break;
                     default:
                         console.log(cond.selectedOutcome);
                         break;
@@ -391,7 +391,7 @@ var LeafForm = function(containerID) {
             $('#'+id).on('change', checkConditions);
             $(`input[id^="${id}_radio"]`).on('change', checkConditions);
         });
-        
+
     }
 
     function doModify() {
@@ -515,7 +515,7 @@ var LeafForm = function(containerID) {
                 dialog.enableLiveValidation();
 
                 handleConditionalIndicators(formConditions, dialog);
-                
+
             },
             error: function(response) {
                 dialog.setContent("Error: " + response);

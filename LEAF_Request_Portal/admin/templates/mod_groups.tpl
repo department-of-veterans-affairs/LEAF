@@ -573,8 +573,8 @@ function getGroupList() {
 
                                 empSel = new nationalEmployeeSelector('employeeSelector');
                                 empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
-                                empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
+                                empSel.domainPath = '<!--{$domainPath}-->/';
+                                empSel.absOrgPath = '<!--{$absOrgPath}-->/';
                                 empSel.outputStyle = 'micro';
                                 empSel.initialize();
                                 // Update on any action

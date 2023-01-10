@@ -8,8 +8,8 @@
     {/if}
     <style type="text/css" media="screen">
         {if $useDojo == true && $useDojoUI == true}
-        @import "{$lib_path}js/jquery/css/dcvamc/jquery-ui.custom.min.css";
-        @import "{$lib_path}js/jquery/chosen/chosen.min.css";
+        @import "{$libsPath}js/jquery/css/dcvamc/jquery-ui.custom.min.css";
+        @import "{$libsPath}js/jquery/chosen/chosen.min.css";
         {/if}
         @import "../css/style.css";
 {section name=i loop=$stylesheets}
@@ -22,8 +22,8 @@
         @import "../{$stylesheets_print[i]}";
 {/section}
     </style>
-    {if $useDojo == true}<script type="text/javascript" src="{$lib_path}js/jquery/jquery.min.js"></script>
-    {if $useDojoUI == true}<script type="text/javascript" src="{$lib_path}js/jquery/jquery-ui.custom.min.js"></script>{/if}
+    {if $useDojo == true}<script type="text/javascript" src="{$libsPath}js/jquery/jquery.min.js"></script>
+    {if $useDojoUI == true}<script type="text/javascript" src="{$libsPath}js/jquery/jquery-ui.custom.min.js"></script>{/if}
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="../{$javascripts[i]}"></script>

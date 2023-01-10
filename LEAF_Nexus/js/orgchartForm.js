@@ -10,14 +10,15 @@ function orgchartForm(containerID) {
 	this.dialog = null;
 	this.updateEvents = new Object();
 	this.currUID = null;
+    this.libsPath = '';
 }
 
 orgchartForm.prototype.initialize = function() {
 	$('#' + this.containerID).html('<div id="'+this.prefixID+'xhrDialog" style="visibility: hidden">\
 				<form id="'+this.prefixID+'record" enctype="multipart/form-data" action="javascript:void(0);">\
 				    <div>\
-				        <button id="'+this.prefixID+'button_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
-				        <button id="'+this.prefixID+'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
+				        <button id="'+this.prefixID+'button_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="' + this.libsPath + 'dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
+				        <button id="'+this.prefixID+'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="' + this.libsPath + 'dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
 				        <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>\
 				        <div id="'+this.prefixID+'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
 				        <div id="'+this.prefixID+'xhr" style="width: 500px; height: 400px; overflow: auto"></div>\

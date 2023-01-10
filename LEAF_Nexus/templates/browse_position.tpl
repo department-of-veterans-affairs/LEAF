@@ -26,6 +26,7 @@ $(function() {
     });
 
     orgchartForm = new orgchartForm('orgchartForm');
+    orgchartForm.setLibsPath = <!--{$libsPath}-->;
     orgchartForm.initialize();
 
 });

@@ -48,7 +48,7 @@ $(document).ready(function(){
 
     // Do the search from the input textbox if it is requested
     leafSearch = new LeafFormSearch('searchRequestsContainer');
-    leafSearch.setRootURL('./');
+    leafSearch.setPortalPath('./');
     leafSearch.setOrgchartPath(orgChartPath);
     leafSearch.setSearchFunc(function(search) {
         extraTerms = search;

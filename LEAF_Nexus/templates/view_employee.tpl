@@ -1,15 +1,15 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->
-        <div onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->', '<!--{$empUID}-->');"><img src="<!--{$lib_path}-->dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
+        <div onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->', '<!--{$empUID}-->');"><img src="<!--{$libsPath}-->dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
         <br />
       <!--{/if}-->
-        <div onclick="assignBackup();"><img src="<!--{$lib_path}-->dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
+        <div onclick="assignBackup();"><img src="<!--{$libsPath}-->dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
         <br />
 <!--{if $summary.employee.deleted == 0}-->
-        <div onclick="disableAccount();"><img src="<!--{$lib_path}-->dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
+        <div onclick="disableAccount();"><img src="<!--{$libsPath}-->dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
 <!--{else}-->
-        <div onclick="enableAccount();"><img src="<!--{$lib_path}-->dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
+        <div onclick="enableAccount();"><img src="<!--{$libsPath}-->dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
 <!--{/if}-->
     </div>
 </div>
@@ -137,7 +137,7 @@ function getBackupForInfo() {
 }
 
 function removeBackup(backupEmpUID) {
-    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this backup?</span>');
+    confirm_dialog.setContent('<img src="<!--{$libsPath}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to remove this backup?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -162,6 +162,8 @@ function assignBackup() {
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
     empSel.clearSearch();
+    empSel.domainPath = '<!--{$domainPath}-->';
+    empSel.absOrgPath = '<!--{$absOrgPath}-->';
 
     dialog.setSaveHandler(function() {
         if(empSel.selection != '') {
@@ -198,7 +200,7 @@ function assignBackup() {
 }
 
 function disableAccount(backupEmpUID) {
-    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to disable this account?</span>');
+    confirm_dialog.setContent('<img src="<!--{$libsPath}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to disable this account?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -219,7 +221,7 @@ function disableAccount(backupEmpUID) {
 }
 
 function enableAccount(backupEmpUID) {
-    confirm_dialog.setContent('<img src="<!--{$lib_path}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to enable this account?</span>');
+    confirm_dialog.setContent('<img src="<!--{$libsPath}-->dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to enable this account?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -279,6 +281,7 @@ $(function() {
     getBackupForInfo();
 
     orgchartForm = new orgchartForm('orgchartForm');
+    orgchartForm.setLibsPath = <!--{$libsPath}-->;
     orgchartForm.initialize();
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');

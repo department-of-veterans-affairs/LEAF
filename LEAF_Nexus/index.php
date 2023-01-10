@@ -77,7 +77,7 @@ switch ($action) {
         $main->assign('qrcodeURL', $qrcodeURL);
         $main->assign('stylesheets', array('css/editor.css'));
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('navigator.tpl'));
 
         $tabText = '';
@@ -112,7 +112,7 @@ switch ($action) {
         $main->assign('stylesheets', array('css/editor.css',
                                            'css/positionSelector.css', ));
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('editor.tpl'));
 
         $tabText = '';
@@ -148,13 +148,15 @@ switch ($action) {
             $t_form->assign('groups', $employee->listGroups($empUID));
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('domainPath', DOMAIN_PATH);
+            $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
             $t_form->assign('is_admin', $oc_login->getMembership()['groupID'][1]);
 
             $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
 
             if (count($summary['employee']) > 0)
             {
-                $t_form->assign('lib_path', S_LIB_PATH);
+                $t_form->assign('libsPath', S_LIB_PATH);
                 $main->assign('body', $t_form->fetch('view_employee.tpl'));
             }
             else
@@ -198,8 +200,10 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
+            $t_form->assign('domainPath', DOMAIN_PATH);
+            $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
             $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
-            $t_form->assign('lib_path', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
 
             if (count($summary) > 0)
             {
@@ -250,11 +254,13 @@ switch ($action) {
             $t_form->assign('tag_hierarchy', $tag->getAll());
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
+            $t_form->assign('domainPath', DOMAIN_PATH);
+            $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
             $t_form->assign('timeZone', $tz);
 
             if (count($resGroup) > 0)
             {
-                $t_form->assign('lib_path', S_LIB_PATH);
+                $t_form->assign('libsPath', S_LIB_PATH);
                 $main->assign('body', $t_form->fetch('view_group.tpl'));
             }
             else
@@ -283,7 +289,7 @@ switch ($action) {
         $t_form->assign('summary', $employee->getSummary($empUID));
         $t_form->assign('userID', $_SESSION['userID']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('browse_employee.tpl'));
 
@@ -299,6 +305,8 @@ switch ($action) {
         $main->assign('javascripts', array('js/positionSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
         $main->assign('stylesheets', array('css/positionSelector.css',
                                            'css/view_position.css', ));
+
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('browse_position.tpl'));
 
         $tabText = 'Positions';
@@ -310,7 +318,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         //$main->assign('useDojoUI', true);
         $main->assign('javascripts', array('js/groupSelector.js', 'js/dialogController.js', 'js/orgchartForm.js'));
         $main->assign('stylesheets', array('css/groupSelector.css',
@@ -337,7 +345,7 @@ switch ($action) {
                                            'css/view_position.css',
                                            'css/groupSelector.css',
                                            'css/view_group.css', ));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch('browse_search.tpl'));
 
@@ -378,7 +386,7 @@ switch ($action) {
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
         $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -409,7 +417,7 @@ switch ($action) {
         $t_form->assign('groupTitle', $group->getTitle($groupID));
         $t_form->assign('permissions', $group->getPrivileges($groupID));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_group_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -440,7 +448,7 @@ switch ($action) {
         $t_form->assign('positionTitle', $position->getTitle($positionID));
         $t_form->assign('permissions', $position->getPrivileges($positionID));
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_position_permissions.tpl'));
 
         $tabText = 'Permission Editor';
@@ -466,7 +474,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
-            $t_form->assign('lib_path', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('view_admin.tpl'));
         }
         else
@@ -483,7 +491,7 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('lib_path', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
 
             $main->assign('body', $t_form->fetch(customTemplate('view_summary.tpl')));
 
@@ -497,7 +505,7 @@ switch ($action) {
         $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
-        $t_form->assign('lib_path', S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
 
         break;
@@ -547,7 +555,7 @@ switch ($action) {
 
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('lib_path', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
             if ($action != 'menu' && $action != '')
@@ -568,7 +576,7 @@ switch ($action) {
 $memberships = $oc_login->getMembership();
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
 $t_menu->assign('isAdmin', $memberships['groupID'][1]);
-$t_menu->assign('lib_path', S_LIB_PATH);
+$t_menu->assign('libsPath', S_LIB_PATH);
 $main->assign('login', $t_login->fetch('login.tpl'));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
@@ -578,7 +586,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['heading']));
 $main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($oc_settings['subHeading']));
 $main->assign('revision', Leaf\XSSHelpers::xscrub($oc_settings['version']));
-$main->assign('lib_path', S_LIB_PATH);
+$main->assign('libsPath', S_LIB_PATH);
 
 if (!isset($_GET['iframe']))
 {
