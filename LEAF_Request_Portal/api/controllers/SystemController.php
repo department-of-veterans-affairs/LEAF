@@ -70,26 +70,6 @@ class SystemController extends RESTfulResponse
             return $system->getGroups();
         });
 
-        $this->index['GET']->register('system/templates', function ($args) use ($system) {
-            return $system->getTemplateList();
-        });
-
-        $this->index['GET']->register('system/templates/[text]', function ($args) use ($system) {
-            return $system->getTemplate($args[0]);
-        });
-
-        $this->index['GET']->register('system/templates/[text]/standard', function ($args) use ($system) {
-            return $system->getTemplate($args[0], true);
-        });
-
-        $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
-            return $system->getReportTemplateList();
-        });
-
-        $this->index['GET']->register('system/reportTemplates/[text]', function ($args) use ($system) {
-            return $system->getReportTemplate($args[0]);
-        });
-
         $this->index['GET']->register('system/files', function ($args) use ($system) {
             return $system->getFileList();
         });
@@ -119,18 +99,6 @@ class SystemController extends RESTfulResponse
 
         $this->index['POST']->register('system/actions', function ($args) use ($db, $login, $system) {
             return $system->addAction();
-        });
-
-        $this->index['POST']->register('system/templates/[text]', function ($args) use ($system) {
-            return $system->setTemplate($args[0]);
-        });
-
-        $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
-            return $system->newReportTemplate($_POST['filename']);
-        });
-
-        $this->index['POST']->register('system/reportTemplates/[text]', function ($args) use ($system) {
-            return $system->setReportTemplate($args[0]);
         });
 
         $this->index['POST']->register('system/settings/heading', function ($args) use ($system) {
@@ -187,14 +155,6 @@ class SystemController extends RESTfulResponse
 
         $this->index['DELETE'] = new ControllerMap();
         $this->index['DELETE']->register('system', function ($args) {
-        });
-
-        $this->index['DELETE']->register('system/templates/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeCustomTemplate($args[0]);
-        });
-
-        $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeReportTemplate($args[0]);
         });
 
         $this->index['DELETE']->register('system/files/[text]', function ($args) use ($db, $login, $system) {

@@ -80,6 +80,10 @@
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" target="_blank">
                         <a href="<!--{$libsPath}-->dynicons/gallery.php">Icon Library</a>
                     </button>
+
+                    <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">
+                        View History
+                    </button>
                 </div>
 
             </aside>
@@ -91,6 +95,8 @@
 
 
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_dialog.tpl"}-->
+
 
 <script>
 
@@ -107,7 +113,7 @@ function save() {
 		type: 'POST',
 		data: {CSRFToken: '<!--{$CSRFToken}-->',
 			   file: data},
-		url: '../api/system/templates/_' + currentFile,
+        url: '../api/templateEditor/_' + currentFile,
 		success: function(res) {
 			$('#saveIndicator').attr('src', '<!--{$libsPath}-->dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
@@ -132,7 +138,7 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/system/templates/_' + currentFile + '?' +
+            url: '../api/templateEditor/_' + currentFile + '?' +
                 $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
 	        success: function() {
 	            loadContent(currentFile);
@@ -153,7 +159,7 @@ function compare() {
 
     $.ajax({
         type: 'GET',
-        url: '../api/system/templates/_' + currentFile + '/standard',
+        url: '../api/templateEditor/_' + currentFile + '/standard',
         success: function(standard) {
             codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                 mode: "htmlmixed",
@@ -192,7 +198,7 @@ function loadContent(file) {
 	$('#filename').html(file.replace('.tpl', ''));
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/templates/_' + file,
+        url: '../api/templateEditor/_' + file,
 		success: function(res) {
 		    currentFileContent = res.file;
 			$('#codeContainer').fadeIn();
@@ -235,6 +241,28 @@ function initEditor () {
     updateEditorSize();
 }
 
+function viewHistory() {
+     dialog_message.setContent('');
+     dialog_message.setTitle('Access Template History');
+     dialog_message.show();
+     dialog_message.indicateBusy();
+     $.ajax({
+         type: 'GET',
+         url: 'ajaxIndex.php?a=gethistory&type=templateEditor&id=' + currentFile,
+         dataType: 'text',
+         success: function(res) {
+             dialog_message.setContent(res);
+             dialog_message.indicateIdle();
+             dialog_message.show();
+         },
+         fail: function() {
+             dialog_message.setContent('Loading failed.');
+             dialog_message.show();
+         },
+         cache: false
+     });
+ }
+
 var codeEditor = null;
 $(function() {
 	dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
@@ -247,7 +275,7 @@ $(function() {
 
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/templates',
+        url: '../api/templateEditor/',
 		success: function(res) {
 			var buffer = '<ul class="leaf-ul">';
 			for(var i in res) {
@@ -261,5 +289,8 @@ $(function() {
 	});
 
 	loadContent('view_homepage.tpl');
+
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+
 });
 </script>

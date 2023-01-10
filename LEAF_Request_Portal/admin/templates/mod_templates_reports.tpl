@@ -1,3 +1,17 @@
+<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
+<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
+<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<style>
+    /* Glyph to improve usability of code compare */
+    .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy {
+        visibility: hidden;
+    }
+    .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy::before {
+        visibility: visible;
+        content: '\25ba\25ba\25ba';
+    }
+    </style>
+
 <div class="leaf-center-content">
 
     <div class="leaf-left-nav">
@@ -40,6 +54,9 @@
             <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem" onclick="save();">Save Changes<span id="saveStatus" class="leaf-display-block leaf-font0-5rem"></span></button>
             <button class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="runReport();">Open Report</button>
             <button id="deleteButton" class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="deleteReport();">Delete Report</button>
+            <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">
+                View History
+            </button>
         </aside>
     </div>
 
@@ -47,6 +64,8 @@
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_dialog.tpl"}-->
+
 
 <script>
 
@@ -56,7 +75,7 @@ function save() {
 		type: 'POST',
 		data: {CSRFToken: '<!--{$CSRFToken}-->',
 			   file: codeEditor.getValue()},
-		url: '../api/system/reportTemplates/_' + currentFile,
+        url: '../api/reportTemplates/_' + currentFile,
 		success: function(res) {
 			$('#saveIndicator').attr('src', '<!--{$libsPath}-->dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
@@ -77,7 +96,7 @@ function newReport() {
     	var file = $('#newFilename').val();
         $.ajax({
             type: 'POST',
-            url: '../api/system/reportTemplates',
+            url: '../api/reportTemplates',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	filename: file},
             success: function(res) {
@@ -107,7 +126,7 @@ function deleteReport() {
 	dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/system/reportTemplates/_' + currentFile + '?' +
+            url: '../api/reportTemplates/_' + currentFile + '?' +
                 $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
             success: function() {
                 location.reload();
@@ -149,7 +168,7 @@ function loadContent(file) {
 	$('#filename').html(file.replace('.tpl', ''));
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/reportTemplates/_' + file,
+        url: '../api/reportTemplates/_' + file,
 		success: function(res) {
 			$('#codeContainer').fadeIn();
 			codeEditor.setValue(res.file);
@@ -168,7 +187,7 @@ function updateEditorSize() {
 function updateFileList() {
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/reportTemplates',
+		url: '../api/reportTemplates',
 		success: function(res) {
             var buffer = '<ul class="leaf-ul">';
             var bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
@@ -188,6 +207,28 @@ function updateFileList() {
 		cache: false
 	});
 }
+
+function viewHistory() {
+     dialog_message.setContent('');
+     dialog_message.setTitle('Access Template History');
+     dialog_message.show();
+     dialog_message.indicateBusy();
+     $.ajax({
+         type: 'GET',
+         url: 'ajaxIndex.php?a=gethistory&type=templateReports&id=' + currentFile,
+         dataType: 'text',
+         success: function(res) {
+             dialog_message.setContent(res);
+             dialog_message.indicateIdle();
+             dialog_message.show();
+         },
+         fail: function() {
+             dialog_message.setContent('Loading failed.');
+             dialog_message.show();
+         },
+         cache: false
+     });
+ }
 
 var codeEditor = null;
 var dialog, dialog_confirm;
@@ -220,5 +261,7 @@ $(function() {
 
     updateFileList();
 	loadContent('example');
+
+    dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
 });
 </script>

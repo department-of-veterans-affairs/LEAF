@@ -221,6 +221,7 @@ switch ($action) {
         $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
 
         if ($tz == null) {
+            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if (isset($settings['timeZone'])) {
                 $tz = $settings['timeZone'];
             } else {
@@ -260,6 +261,16 @@ switch ($action) {
                 break;
             case 'emailTemplate':
                 $type = new Portal\EmailTemplate($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'templateEditor':
+                include '../sources/TemplateEditor.php';
+                $type = new \TemplateEditor($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'templateReports':
+                include '../sources/TemplateReports.php';
+                $type = new \TemplateReports($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

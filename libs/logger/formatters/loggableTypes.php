@@ -26,4 +26,6 @@ class LoggableTypes {
     const EMAIL_TEMPLATE_CC = "email_template_cc";
     const EMAIL_TEMPLATE_SUBJECT = "email_template_subject";
     const EMAIL_TEMPLATE_BODY = "email_template_body";
+    const TEMPLATE_BODY = "template_body";
+    const TEMPLATE_REPORTS_BODY = "template_reports_body";
 }
