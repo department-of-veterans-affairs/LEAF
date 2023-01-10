@@ -619,6 +619,7 @@
 							"if (pm.request.method !== 'GET' && !(pm.request.headers.has('x-csrf-token'))) {\r",
 							"\r",
 							"  var csrfRequest = pm.request.clone();\r",
+							"  console.log(csrfRequest);\r",
 							"  csrfRequest.method = 'GET';\r",
 							"  if (pm.request.method === 'POST') {\r",
 							"    // for POST method usually it is ....<something>Collection in the URL\r",
@@ -1402,23 +1403,23 @@
 	],
 	"variable": [
 		{
-			"id": "6a445f6c-3687-4ff4-8e2d-8a6d9dedff24",
+			"id": "316af5b5-932c-43eb-85c2-0edcc10a2f4a",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "a8cb1db4-b6c6-4cbc-aa2f-dd02e169efca",
+			"id": "cb2097a3-296c-4ade-be55-38a7d4959cba",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "a9c37891-4e88-4493-92ef-e689d7897496",
+			"id": "5d8f5197-6920-49c2-aa6a-e91562a64b4a",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "63beae4d-e6b2-427a-8fd6-d5828173ed7d",
+			"id": "1df7a568-1bcc-4c6b-a505-871a716652c1",
 			"key": "categoryID",
 			"value": ""
 		}
