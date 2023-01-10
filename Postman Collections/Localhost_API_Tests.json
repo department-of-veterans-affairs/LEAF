@@ -599,8 +599,10 @@
 							"    if (err) {\r",
 							"      console.log(err);\r",
 							"    } else {\r",
-							"      var csrfToken = res.headers.get('x-csrf-token');\r",
-							"      if (csrfToken) {\r",
+							"      //var csrfToken = res.headers.get('x-csrf-token');\r",
+							"      var csrfToken = res.headers.get('xsrf-token');\r",
+							"\t\r",
+							"\t  if (csrfToken) {\r",
 							"        console.log('csrfToken fetched:' + csrfToken);\r",
 							"        pm.request.headers.upsert({\r",
 							"          key: 'x-csrf-token',\r",
@@ -659,7 +661,8 @@
 					{
 						"key": "X-XSRF-TOKEN",
 						"value": "{{xsrf-token}}",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					}
 				],
 				"body": {
@@ -1364,23 +1367,23 @@
 	],
 	"variable": [
 		{
-			"id": "1f5522c2-a4c7-43fd-aaac-1f91d3e7c78b",
+			"id": "3466b352-a149-4da4-8e02-8ecc321b904b",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "63483a7b-549c-4b1b-bd03-c7fdefff1d59",
+			"id": "59c5df26-2406-40c5-b895-6de425457e00",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "2568b034-1e67-46e9-9c15-78eb4694eb39",
+			"id": "c40e911c-76d7-4455-9123-22d065b86e48",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "80af4c9e-746b-436d-969b-1e38b0021216",
+			"id": "8623ad33-b870-4476-98ba-c93864fec797",
 			"key": "categoryID",
 			"value": ""
 		}
