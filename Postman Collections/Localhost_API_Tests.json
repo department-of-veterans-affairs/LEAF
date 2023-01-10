@@ -592,7 +592,8 @@
 			],
 			"id": "39ef254e-1888-4b5d-9874-7addbb704335",
 			"protocolProfileBehavior": {
-				"disableBodyPruning": true
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
 			},
 			"request": {
 				"auth": {
@@ -1283,23 +1284,23 @@
 	],
 	"variable": [
 		{
-			"id": "85663d1e-f42f-468b-aa0a-49a82f9c0d06",
+			"id": "16a4e983-a75b-4bee-9d9a-be95fd6cca8f",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "c9bca42e-246b-426d-9344-119575575732",
+			"id": "1408edcd-b442-49b4-b818-00cc619d753d",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "9fa4a506-b2cc-493e-be90-d6b6c0ebdd4b",
+			"id": "e096345d-0441-43d9-a33f-b024aea01aa1",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "0118efa6-da21-4273-a920-bccc1dbe541f",
+			"id": "794a96f6-a87a-47a3-b82f-f9839de696f9",
 			"key": "categoryID",
 			"value": ""
 		}
