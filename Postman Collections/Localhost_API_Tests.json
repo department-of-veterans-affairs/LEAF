@@ -416,7 +416,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{  \r\n    \"categoryID\": \"form_11e07\",\r\n    \"categoryName\": \"AUT (Copy)\"   \r\n}\r\n\r\nFOR POST REQUESTS",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1284,23 +1284,23 @@
 	],
 	"variable": [
 		{
-			"id": "16a4e983-a75b-4bee-9d9a-be95fd6cca8f",
+			"id": "efd3c88d-44a2-4847-bb26-f94bd6bfb39d",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "1408edcd-b442-49b4-b818-00cc619d753d",
+			"id": "0e69ccd5-75d5-45d5-b59d-6e78695a0c4c",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "e096345d-0441-43d9-a33f-b024aea01aa1",
+			"id": "384c6901-1fac-4660-b0c8-a83a3bdc8268",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "794a96f6-a87a-47a3-b82f-f9839de696f9",
+			"id": "e21bb8d2-f2de-4a36-8c9b-c784ae90c664",
 			"key": "categoryID",
 			"value": ""
 		}
