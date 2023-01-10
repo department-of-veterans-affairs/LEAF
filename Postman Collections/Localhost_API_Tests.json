@@ -1284,16 +1284,13 @@
 	],
 	"auth": {
 		"type": "ntlm",
-		"ntlm": {
-			"password": "",
-			"username": ""
-		}
+		"ntlm": {}
 	},
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "bbd804ea-3994-4cfd-ba10-c37aa8d7d2b4",
+				"id": "a1cd1e75-2873-4b7d-aad6-a921bdca39f9",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1303,7 +1300,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "d52eddde-4375-4834-b318-25e833a20edd",
+				"id": "e67433fc-aa4a-461d-9df3-12827c0c3e5f",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1313,23 +1310,23 @@
 	],
 	"variable": [
 		{
-			"id": "27ff12bf-958c-4f79-85cc-0857238c475f",
+			"id": "e1fe8425-88cc-44fc-b1ad-3559d45d3588",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "6c62cee0-824c-4805-8cd6-f46cea790fe5",
+			"id": "c5dbd406-ce7d-49e5-a2eb-f4691b5cf5b8",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "948ef8d4-ee99-4240-9450-fcd771a25c49",
+			"id": "06434590-a167-46b9-8101-5306537a9a9a",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "efd76b2f-7560-4ff3-8bb7-b1fcdc7752a1",
+			"id": "d35ea021-ab0f-4a29-bac2-453a62a629bc",
 			"key": "categoryID",
 			"value": ""
 		}
