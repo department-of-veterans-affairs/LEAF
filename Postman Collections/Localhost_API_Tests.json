@@ -600,7 +600,13 @@
 					"type": "noauth"
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{xsrf-token}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"name\": \"TestForm\",\r\n    \"description\": \"TestDescription\",\r\n    CSRFToken: token\r\n}"
@@ -616,7 +622,7 @@
 					],
 					"query": [
 						{
-							"key": "CSRFToken",
+							"key": "XSRF-TOKEN",
 							"value": "token",
 							"disabled": true
 						}
@@ -1303,23 +1309,23 @@
 	],
 	"variable": [
 		{
-			"id": "61df06f4-0844-4729-b9f6-091532199130",
+			"id": "b13327cf-f7e9-4f48-98e1-7d037521365d",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "a9de74c5-91d1-4f10-8a5d-3799097e9992",
+			"id": "7a93e594-09d1-486c-8ee0-48876adfb063",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "eba05ce8-1b20-40e6-b46f-4b802eb18d17",
+			"id": "2cce821a-c2f1-42ed-907a-e16dbbecbef2",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "3bdcb2d6-c669-4f10-a4f7-56268b2a64e4",
+			"id": "e9d2bf53-2cba-4b68-abee-ef5925651d05",
 			"key": "categoryID",
 			"value": ""
 		}
