@@ -49,7 +49,7 @@ const ConditionsEditor = Vue.createApp({
                 url: '../api/form/indicator/list/unabridged',
                 success: (res)=> {
                     const list = res;
-                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled)===0);
+                    const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
                     this.indicators = filteredList;
                     
                     /* this.indicators.forEach(i => {
@@ -101,9 +101,9 @@ const ConditionsEditor = Vue.createApp({
             
             const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //handle scenario if a parent is archived/deleted
-            if(indicator===undefined) {
+            if(indicator === undefined) {
                 this.parentFound = false;
-                this.selectedDisabledParentID = indicatorID===0 ? this.selectedDisabledParentID : parseInt(indicatorID);
+                this.selectedDisabledParentID = indicatorID === 0 ? this.selectedDisabledParentID : parseInt(indicatorID);
                 return;
             } else {
                 this.parentFound = true;
@@ -238,7 +238,7 @@ const ConditionsEditor = Vue.createApp({
                     const form = res;
                     form.forEach((formheader, index) => {
                         this.indicators.forEach(ind => {
-                            if (parseInt(ind.headerIndicatorID)===parseInt(formheader.indicatorID)){
+                            if (parseInt(ind.headerIndicatorID) === parseInt(formheader.indicatorID)){
                                 ind.formPage = index;
                             }
                         })
@@ -256,7 +256,7 @@ const ConditionsEditor = Vue.createApp({
             if (!parent || !parent.parentIndicatorID) {
                 //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
                 //add information about the headerIndicatorID to the indicators
-                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID)===parseInt(initialIndicator.indicatorID));
+                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(initialIndicator.indicatorID));
                 indToUpdate.headerIndicatorID = parentIndicatorID;
             } else {
                 this.crawlParents(parent, initialIndicator);
@@ -327,7 +327,7 @@ const ConditionsEditor = Vue.createApp({
                 const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
                 
                 if (childIndID !== undefined) {
-                    const hasActiveParentIndicator = this.indicators.some(ele => parseInt(ele.indicatorID)===parseInt(parentIndID));
+                    const hasActiveParentIndicator = this.indicators.some(ele => parseInt(ele.indicatorID) === parseInt(parentIndID));
                     const conditionsJSON = JSON.stringify(data.condition);
 
                     //get all conditions on this child
@@ -343,7 +343,7 @@ const ConditionsEditor = Vue.createApp({
                     if(hasActiveParentIndicator) {
                         newConditions = currConditions.filter(c => JSON.stringify(c) !== conditionsJSON);
                     } else {
-                        newConditions = currConditions.filter(c => !(c.parentIndID===this.selectedDisabledParentID && c.selectedOutcome===selectedOutcome && c.selectedChildValue===selectedChildValue))
+                        newConditions = currConditions.filter(c => !(c.parentIndID === this.selectedDisabledParentID && c.selectedOutcome === selectedOutcome && c.selectedChildValue === selectedChildValue))
                     }
                     
                     if (newConditions.length === 0) newConditions = null;
@@ -527,7 +527,7 @@ const ConditionsEditor = Vue.createApp({
                 elSelectParent.choicesjs = choices;
             }
 
-            if(outcome==='pre-fill' && this.multiOptionFormats.includes(childFormat) && elSelectChild !== null && elExistingChoicesChild===null) {
+            if(outcome === 'pre-fill' && this.multiOptionFormats.includes(childFormat) && elSelectChild !== null && elExistingChoicesChild === null) {
                 let options = this.selectedChildValueOptions || [];
                 let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
@@ -599,7 +599,7 @@ const ConditionsEditor = Vue.createApp({
                     childIndID !== 0 && parentIndID !== 0 && 
                     selectedOp !== '' && selectedParentValue !== '' &&
                     (selectedOutcome && selectedOutcome.toLowerCase() !== "pre-fill" ||
-                    (selectedOutcome.toLowerCase()==="pre-fill" && selectedChildValue !== ''))
+                    (selectedOutcome.toLowerCase() === "pre-fill" && selectedChildValue !== ''))
                 );
         },
         /**

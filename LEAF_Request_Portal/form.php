@@ -1435,7 +1435,7 @@ class Form
             } else {
                 //check if there are conditions that result in required questions being in a hidden state, and adjust percentage
                 $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                $singleChoiceParentFormats = array('radio, dropdown');
+                $singleChoiceParentFormats = array('radio', 'dropdown');
 
                 foreach ($resRequestRequired as $ind) {
                     //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
@@ -1474,7 +1474,7 @@ class Form
                                             }
                                         } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                             $conditionMet = true;
-                                        } 
+                                        }
                                         break;
                                     case '!=':
                                         if ((in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
@@ -1495,7 +1495,7 @@ class Form
                         }
                     }
                 }
-                if ($countRequestRequired===0) {
+                if ($countRequestRequired === 0) {
                     $returnValue = 100;
                 } else {
                     $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
