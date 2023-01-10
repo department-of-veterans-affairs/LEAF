@@ -605,7 +605,23 @@
 					"mode": "raw",
 					"raw": "{\r\n    \"name\": \"TestForm\",\r\n    \"description\": \"TestDescription\",\r\n    CSRFToken: token\r\n}"
 				},
-				"url": "{{Local_URL}}/form/new"
+				"url": {
+					"raw": "{{Local_URL}}/form/new?CSRFToken=",
+					"host": [
+						"{{Local_URL}}"
+					],
+					"path": [
+						"form",
+						"new"
+					],
+					"query": [
+						{
+							"key": "CSRFToken",
+							"value": "",
+							"type": "text"
+						}
+					]
+				}
 			},
 			"response": []
 		},
@@ -1287,23 +1303,23 @@
 	],
 	"variable": [
 		{
-			"id": "636ce40a-b1b8-4652-8f6a-58e30f52494c",
+			"id": "d7e22aeb-41e2-49ce-a79f-88e8342ccc68",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "65504202-29d5-4f82-a17a-bfb096a9296a",
+			"id": "0577082e-8047-4ffb-accf-5e246d4a5ad9",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "88120bbd-28ff-4e88-83ab-add048e7b0c8",
+			"id": "568dc194-ef21-4be5-8cfc-dcb787dd7a6d",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "750ff0b3-3861-4118-aca8-6db437611418",
+			"id": "6a7160ee-e1b2-441c-86cb-1e411f6b359a",
 			"key": "categoryID",
 			"value": ""
 		}
