@@ -1,0 +1,8 @@
+node_modules
+leaf_vue.dockerfile
+docker-compose.yml
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.vscode
