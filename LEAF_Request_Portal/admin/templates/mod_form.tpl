@@ -525,7 +525,8 @@ function editIndicatorPrivileges(indicatorID) {
     portalAPI.FormEditor.getIndicator(
         indicatorID,
         function(indicator) {
-            const indicatorName = indicator[indicatorID]?.name || '[blank]';
+            let indicatorName = indicator[indicatorID]?.name || '[blank]';
+            indicatorName = indicatorName.replace(/"/g, '&quot;').replace(/'/g, '\\\'');
             dialog_simple.setTitle('Edit Indicator Read Privileges - ' + indicatorID);
             portalAPI.FormEditor.getIndicatorPrivileges(indicatorID,
                 function (groups) {
