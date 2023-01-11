@@ -325,10 +325,10 @@ class Form
     // Expects POST input: $_POST['service'], title, priority, num(categoryID)
     public function newForm($userID)
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
+        /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
             return 'Error: Invalid token.';
-        }
+        }*/
         $title = $this->sanitizeInput($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
