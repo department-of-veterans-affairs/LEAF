@@ -260,6 +260,7 @@
 							"//console.log(cookieJar.status);\r",
 							"//cookieJar.set(URL, { name: PHPSESSID, value: cookieJar.cookie, httpOnly: true }, callback (error, cookie));\r",
 							"\r",
+							"\r",
 							"//PICK UP HERE \t\r",
 							"pm.environment.set(\"xsrf-token\", decodeURIComponent(pm.cookies.get(\"XSRF-TOKEN\")));\r",
 							"\tconsole.log(\"xsrf-token\");\r",
@@ -1373,23 +1374,23 @@
 	],
 	"variable": [
 		{
-			"id": "a9eefc28-6897-4db2-83a8-6a99cb9cb88a",
+			"id": "a4c71251-5b3c-4f80-bf58-cb5ee790a281",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string"
 		},
 		{
-			"id": "ed7ab7fe-8a5b-46c7-9a1a-d0f5ba43375c",
+			"id": "0fd991c3-0bc0-447d-9a5c-d01554568b89",
 			"key": "formCategories",
 			"value": ""
 		},
 		{
-			"id": "897d5c42-19da-42e6-8bda-b29576512094",
+			"id": "70f2cb22-6515-4bcb-9c26-98c30c63d8c7",
 			"key": "CategoryID",
 			"value": ""
 		},
 		{
-			"id": "bac14b34-460d-41a1-97d5-e7db36ab869c",
+			"id": "5fba2f41-6680-4f86-82ba-0dfe39d9647a",
 			"key": "categoryID",
 			"value": ""
 		}
