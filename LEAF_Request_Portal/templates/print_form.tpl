@@ -1200,6 +1200,8 @@ $(function() {
     form.setRecordID(<!--{$recordID|strip_tags|escape}-->);
 
     workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
+    workflow.setAbsPortPath('<!--{$absPortPath}-->');
+    workflow.setLibsPath('<!--{$libsPath}-->');
     <!--{if $submitted > 0}-->
     workflow.getWorkflow(<!--{$recordID|strip_tags|escape}-->);
     <!--{/if}-->

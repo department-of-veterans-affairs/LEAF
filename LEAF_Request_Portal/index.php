@@ -243,7 +243,7 @@ switch ($action) {
                     }
                 }
                 $t_form->assign('libsPath', S_LIB_PATH);
-                $t_form->assign('portalPath', PORTAL_PATH);
+                $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH . '/');
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
 
@@ -491,7 +491,7 @@ switch ($action) {
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('powerQueryURL', $powerQueryURL);
         $t_form->assign('libsPath', S_LIB_PATH);
-        $t_form->assign('portalPath', PORTAL_PATH);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH . '/');
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 

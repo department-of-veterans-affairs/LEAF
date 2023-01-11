@@ -281,7 +281,7 @@ $(function() {
     getBackupForInfo();
 
     orgchartForm = new orgchartForm('orgchartForm');
-    orgchartForm.setLibsPath = <!--{$libsPath}-->;
+    orgchartForm.libsPath = '<!--{$libsPath}-->';
     orgchartForm.initialize();
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');

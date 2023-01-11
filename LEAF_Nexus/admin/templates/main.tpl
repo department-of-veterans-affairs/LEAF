@@ -18,13 +18,13 @@
         {/if}
         @import "../css/style.css";
 {section name=i loop=$stylesheets}
-        @import "../{$stylesheets[i]}";
+        @import "{$stylesheets[i]}";
 {/section}
     </style>
     <style type="text/css" media="print">
         @import "../css/printer.css";
 {section name=i loop=$stylesheets_print}
-        @import "../{$stylesheets_print[i]}";
+        @import "{$stylesheets_print[i]}";
 {/section}
     </style>
     {if $useDojo == true}
@@ -32,7 +32,7 @@
     {if $useDojoUI == true}<script type="text/javascript" src="{$libsPath}js/jquery/jquery-ui.custom.min.js"></script>{/if}
     {/if}
 {section name=i loop=$javascripts}
-    <script type="text/javascript" src="../{$javascripts[i]}"></script>
+    <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>

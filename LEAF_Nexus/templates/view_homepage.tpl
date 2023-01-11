@@ -278,7 +278,7 @@ $(function() {
         cache: false
     });
     orgchartForm = new orgchartForm('orgchartForm');
-    orgchartForm.setLibsPath = <!--{$libsPath}-->;
+    orgchartForm.libsPath = '<!--{$libsPath}-->'
     orgchartForm.initialize();
     <!--{include file="site_elements/orgchartForm_updateOutlook.js.tpl"}-->
     <!--{/if}-->

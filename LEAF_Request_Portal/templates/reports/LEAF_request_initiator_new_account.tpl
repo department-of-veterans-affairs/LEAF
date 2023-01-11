@@ -65,7 +65,8 @@ $(function() {
 
     var empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-    empSel.rootPath = '<!--{$orgchartPath}-->/';
+    empSel.domainPath = '<!--{$domainPath}-->/';
+    empSel.absOrgPath = '<!--{$absOrgPath}-->/';
     empSel.outputStyle = 'micro';
     empSel.setResultHandler(function() {
         if(this.numResults > 0) {
@@ -78,7 +79,8 @@ $(function() {
 
     var empSelNew = new nationalEmployeeSelector('newEmployeeSelector');
     empSelNew.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-    empSelNew.rootPath = '<!--{$orgchartPath}-->/';
+    empSelNew.domainPath = '<!--{$domainPath}-->/';
+    empSelNew.absOrgPath = '<!--{$absOrgPath}-->/';
     empSelNew.outputStyle = 'micro';
     empSelNew.setResultHandler(function() {
         if(this.numResults > 0) {

@@ -5,7 +5,6 @@
 
 function nationalEmployeeSelector(containerID) {
   this.apiPath = "./api/?a=";
-  this.rootPath = "";
   this.domainPath = "";
   this.absOrgPath = "";
   this.useJSONP = 0;
@@ -95,12 +94,12 @@ nationalEmployeeSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.domainPath +
-      'libs/dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+      '/libs/dynicons//?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
             <img id="' +
       this.prefixID +
       'iconBusy" src="' +
       t.absOrgPath +
-      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
+      '/images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
             <input id="' +
       this.prefixID +
       'input" type="search" class="employeeSelectorInput" aria-label="Search for user to add as ' +

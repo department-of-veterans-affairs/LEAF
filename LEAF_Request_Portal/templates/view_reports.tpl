@@ -59,6 +59,8 @@ function loadWorkflow(recordID, prefixID) {
     currRecordID = recordID;
     dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
     workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
+    workflow.setAbsPortPath('<!--{$absPortPath}-->');
+    workflow.setLibsPath('<!--{$libsPath}-->');
     workflow.setActionSuccessCallback(function() {
         dialog_message.hide();
         $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1300);
@@ -1039,6 +1041,8 @@ $(function() {
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
+    leafSearch.setLibsPath('<!--{$libsPath}-->');
+    leafSearch.setPortalPath('<!--{$portalPath}-->');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
 

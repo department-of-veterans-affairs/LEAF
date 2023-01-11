@@ -64,7 +64,7 @@ $(function() {
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 
     orgchartForm = new orgchartForm('orgchartForm');
-    orgchartForm.setLibsPath = <!--{$libsPath}-->;
+    orgchartForm.libsPath = '<!--{$libsPath}-->';
     orgchartForm.initialize();
 });
 

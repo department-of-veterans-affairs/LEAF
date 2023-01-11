@@ -426,7 +426,7 @@ function addTag() {
 var dialog;
 $(function() {
     orgchartForm = new orgchartForm('orgchartForm');
-    orgchartForm.setLibsPath = <!--{$libsPath}-->;
+    orgchartForm.libsPath = '<!--{$libsPath}-->'
     orgchartForm.initialize();
 
     // Load group form and data

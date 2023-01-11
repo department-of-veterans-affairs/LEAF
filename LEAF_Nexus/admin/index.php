@@ -80,7 +80,7 @@ switch ($action) {
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {
-            $main->assign('libsPath', S_LIB_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -97,8 +97,10 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('css/employeeSelector.css', 'css/mod_system.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/employeeSelector.js'));
+           $main->assign('stylesheets', array('../css/employeeSelector.css',
+                                        '../css/mod_system.css'));
+           $main->assign('javascripts', array('../js/dialogController.js',
+                                        '../js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -110,6 +112,7 @@ switch ($action) {
 
            $tagObj = new Orgchart\Tag($db, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
+           $t_form->assign('libsPath', S_LIB_PATH);
 
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -130,8 +133,10 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/nationalEmployeeSelector.js'));
+           $main->assign('stylesheets', array('css/mod_groups.css',
+                                        '../css/employeeSelector.css'));
+           $main->assign('javascripts', array('../js/dialogController.js',
+                                        '../js/nationalEmployeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -173,8 +178,8 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js',
-                   S_LIB_PATH . 'js/codemirror/lib/codemirror.js',
+
+           $main->assign('javascripts', array(S_LIB_PATH . 'js/codemirror/lib/codemirror.js',
                    S_LIB_PATH . 'js/codemirror/mode/xml/xml.js',
                    S_LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
                    S_LIB_PATH . 'js/codemirror/mode/css/css.js',
@@ -186,6 +191,7 @@ switch ($action) {
                    S_LIB_PATH . 'js/codemirror/addon/scroll/annotatescrollbar.js',
                    S_LIB_PATH . 'js/codemirror/addon/search/matchesonscrollbar.js',
                    S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
+                   '../../js/dialogController.js',
            ));
            $main->assign('stylesheets', array(S_LIB_PATH . 'js/codemirror/lib/codemirror.css',
                    S_LIB_PATH . 'js/codemirror/addon/dialog/dialog.css',

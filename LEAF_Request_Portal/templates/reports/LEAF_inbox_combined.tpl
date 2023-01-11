@@ -227,7 +227,7 @@
         currRecordID = recordID;
         dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
         workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
-        workflow.setPortalPath(URL);
+        workflow.setAbsPortPath(URL);
         workflow.setActionSuccessCallback(function () {
             dialog_message.hide();
             $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);

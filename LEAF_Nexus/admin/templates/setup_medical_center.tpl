@@ -276,7 +276,8 @@ function createGroup() {
 
 	var empSel = new nationalEmployeeSelector('employee');
 	empSel.apiPath = '../api/';
-	empSel.rootPath = '../';
+	empSel.domainPath = '<!--{$domainPath}-->';
+    empSel.absOrgPath = '<!--{$absOrgPath}-->';
 
 	empSel.initialize();
 
@@ -287,9 +288,7 @@ function setupLeadership() {
 	$('.step').removeClass('buttonNormSelected');
     $('#menu_leadership').addClass('buttonNormSelected');
 
-	$('#setupContainer').html('<div id="leaderHeader">
-	    <div class="buttonNorm" onclick="createGroup();"
-	        style="float: right; width: 150px; font-size: 120%"><img src="<!--{$libsPath}-->dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create <span id="leadershipNomenclature" style="font-size: 14px">Group</span></div><br style="clear: both" /></div>\
+	$('#setupContainer').html('<div id="leaderHeader"><div class="buttonNorm" onclick="createGroup();"style="float: right; width: 150px; font-size: 120%"><img src="<!--{$libsPath}-->dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create <span id="leadershipNomenclature" style="font-size: 14px">Group</span></div><br style="clear: both" /></div>\
 			<div id="leaders"></div>');
 
 	var leadershipNomenclature = '';
