@@ -2,7 +2,7 @@
 
     <!-- Menu tooggle on smaller screens  -->
     <li id="toggleMenu" role="button" aria-haspopup="true">
-        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
+        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i></a>
     </li>
 
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
@@ -47,7 +47,7 @@
             <li><a href="../report.php?a=LEAF_Timeline_Explorer">Timeline Explorer<i class="leaf-nav-icon-space"></i></a></li>
 
             <!--{if $siteType == 'national_primary'}-->
-                <li><a href="javascript:void(0)">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
+                <li><a href="../report.php?a=LEAF_National_Distribution">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
             <!--{/if}-->
 
             <li class="lev3">

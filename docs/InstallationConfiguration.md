@@ -147,7 +147,7 @@ class Config
 ## Docker Compose
 
 Open up a terminal and navigate to the LEAF/docker directory.  
-Run the command `docker-compose -p leaf_20 up --build -d`  
+Run the command `docker compose -p leaf_20 up --build -d`  
 Docker will build the local environment based on the docker-compose.yml file.  
 Check to see that docker is running your local environment.
 
@@ -160,7 +160,7 @@ Navigate to https://localhost/LEAF_Nexus or https://localhost/LEAF_Request_Porta
 
 ## Running without HTTPS
 ### Docker
-In `docker/docker-compose.yml`, comment out the line `- 443:443`.  Next, in `docker/php/Dockerfile`, comment out the line `EXPOSE 443`.  Finally, rebuild the images with `docker-compose build --no-cache` and navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal.
+In `docker/docker-compose.yml`, comment out the line `- 443:443`.  Next, in `docker/php/Dockerfile`, comment out the line `EXPOSE 443`.  Finally, rebuild the images with `docker compose build --no-cache` and navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal.
 
 
 ## Checking Email
@@ -169,3 +169,20 @@ Fake SMTP server is installed as part of the Docker stack to receive email local
 
 Username: tester
 Password: tester
+
+
+## Vue Development
+
+Dev mode: Log in to container and run the command:
+
+npm run dev-vue
+
+webpack will watch for changes to /docker/vue-app/src
+**Remember to build for production if src files have been edited**
+
+
+Production mode: Log in to container and run the command:
+
+npm run build-vue
+
+webpack will build to /libs/js/vue-dest

@@ -1,0 +1,983 @@
+$BG-DarkNavy: #162e51;
+$base_navy: #005EA2;
+$LtNavy: #1476bd;
+$charcoal: #252f3e;
+$dk-gray: #4a5778;
+$BG_LightGray: #dcdee0;
+$BG_Pearl: #f3f3f5;
+$manila: #feffd1;
+$USWDS_LtGray: #c9c9c9;
+$USWDS_Cyan: #00bde3;
+$lt_cyan: #E0F4FA;
+$BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
+
+@mixin flexcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body { /* fixes header not extending entire width */
+    min-width: -moz-fit-content; /*firefox prior to nov 2021*/
+    min-width: fit-content;
+} 
+
+/* general app-wide styles and resets */
+#vue-formeditor-app {
+    padding: 2rem 1rem;
+    min-height: 100vh;
+}
+#vue-formeditor-app * {
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+}
+#vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
+.leaf-vue-dialog button:not(.choices__button,[class*="trumbowyg"]) {
+    @include flexcenter;
+    cursor: pointer;
+    font-weight: bolder;
+    padding: 2px 0.4em;
+    border-radius: 3px;
+    white-space: nowrap;
+    line-height: normal;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        outline: 2px solid #20a0f0 !important;
+    }
+}
+button.btn-general, button.btn-confirm {
+    background-color: white;
+    color: $base_navy;
+    border: 2px solid $base_navy;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        background-color: $base_navy;
+        color: white;
+        border: 2px solid black !important;
+    }
+    &.disabled {
+        cursor: auto !important;
+        &:active {
+            border: 2px solid $base_navy !important;
+        }
+    }
+}
+button.btn-confirm {
+    color: white;
+    background-color: $base_navy;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+label {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    white-space: nowrap;
+    margin-bottom: 2px;
+    &.checkable {
+        margin-bottom: 0;
+    }
+}
+
+
+
+#form-editor-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    height: 50px;
+
+    h2 {
+        margin: 0;
+        font-size: 22px;
+        color: black;
+        @include flexcenter;
+    }
+    button {
+        background-color: transparent;
+        border: 0;
+    }
+    button#form-editor-menu-toggle {
+        height: 32px;
+        margin-right: 0.2rem;
+        color: white;
+        font-weight: normal;
+        background-color: black;
+        border: 2px solid #000;
+
+        &:hover, &:focus, &:active {
+            border: 2px solid #000 !important;
+        }
+
+        > span {
+            margin-right: 4px;
+            font-size: 1.2rem;
+            font-weight: normal;
+            display: inline-block;
+            width: 10px;
+            color: $USWDS_Cyan;
+        }
+    }
+
+    span.header-arrow {
+        position: absolute;
+        color: $BG-DarkNavy;
+        font-size: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        right: -1.5rem; 
+        font-weight: bold;
+    }
+
+    nav {
+        @include flexcenter;
+        > ul {
+            @include flexcenter;
+            > li {
+                position: relative;
+                &:not(:first-child) {
+                    margin-right: 2.25rem;
+                }
+            }
+        }
+        ul {
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+    }
+    ul#internalForms {
+        background-color: lighten(#e8f2ff, 8%);
+    }
+    ul#stapledForms {
+        color: white;
+        font-weight: 400;
+        background-color: desaturate(darken(#e8f2ff, 70%), 15%);
+    }
+    ul#form-editor-menu {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        z-index: 1;
+        width: 200px;
+        color: $charcoal;
+        background-color: #e8f2ff;
+        border: 1px solid black;
+        border-bottom: 0;
+        border-radius: 3px;
+        box-shadow: 1px 1px 4px 1px rgba(0,0,30,0.3);
+
+        li {
+            display: flex;
+            flex-direction: column;
+
+            a, button {
+                @include flexcenter;
+                justify-content: space-between;
+                height: 100%;
+                min-height: 42px;
+                text-decoration: none;
+                color: inherit;
+                padding: 0.2em 0.2em 0.2em 0.4em;
+                border: 0;
+                border-radius: 0;
+                font-weight: bold;
+                text-align: left;
+                border-bottom: 1px solid black;
+        
+                &.selected, &:hover, &:focus, &:active {
+                    z-index: 1;
+                    background-color:  $base_navy;
+                    border: 0 !important;
+                    border-bottom: 1px solid black !important;
+                    outline: 2px solid #20a0f0 !important;
+                    color: white;
+                }
+                span.staple-sort-info {
+                    font-size: 90%;
+                    font-weight: 400;
+                }
+            }
+
+            ul {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+}
+
+
+
+
+/* base dialog modal styling */
+#leaf-vue-dialog-background {
+    @include flexcenter;
+    width: 100vw; 
+    height: 100%;
+    z-index: 999;
+    background-color: rgba(0,0,20,0.5);
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.leaf-vue-dialog {
+    position: absolute;
+    margin: auto;
+    width: auto;
+    min-width: 450px;
+    resize: horizontal;
+    z-index: 9999;
+    min-width: 530px;
+    max-width: 900px;
+    height: auto;
+    min-height: 0;
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
+    overflow: hidden;
+
+    * {
+        box-sizing: border-box;
+        font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+        line-height: 1.5;
+    }
+
+    > div {
+        padding: 0.75rem 1rem;
+    }
+    li {
+        display: flex;
+        align-items: center;
+    }
+    .leaf-vue-dialog-title {
+        color: $charcoal;
+        border-top: 3px solid white;
+        border-left: 3px solid white;
+        border-right: 3px solid #cadff0;
+        border-bottom: 2px solid #cadff0;
+        border-radius: 3px;
+        background-color: $lt_cyan;
+        cursor: move;
+    
+        h2 {
+            color: inherit;
+            margin: 0;
+        }
+    } 
+    #leaf-vue-dialog-close {
+        @include flexcenter;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    #leaf-vue-dialog-cancel-save {
+        display:flex; 
+        justify-content: space-between; 
+        margin-top: 1em;
+        #button_save {
+            margin-right:auto;
+        }
+        #button_cancelchange {
+            margin-left: auto;
+        }
+    }
+}
+
+
+#indicator-editing-dialog-content {
+    > div {
+        margin-bottom: 2rem;
+    }
+    button {
+        font-size:  80%;
+    }
+    input, select {
+        min-height: 24px;
+    }
+    #name {
+        width: 100%;
+        margin-bottom: 0.4rem;
+        padding: 0.2rem 0.4rem;
+        display:block;
+    }
+    #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
+        width: 100%;
+    }
+    #formatDetails {
+        margin: 0.5rem 0;
+    }
+    #indicator-editing-attributes {
+        position: relative;
+        margin-top: 1.5rem;
+        padding: 0;
+        min-width: -moz-fit-content;
+        min-width: fit-content;
+
+        .attribute-row {
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-start;
+            margin: 1rem 0;
+        }
+        #archived-warning, #deletion-warning {
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: #cb0000;
+            font-size: 90%;
+        }
+        #indicatorPrivileges {
+            line-height: 1.4;
+        }
+    }
+    
+    div.cell {
+        width: 200px;
+        min-width: 200px;
+        text-align: center;
+        border: 1px grey solid;
+        padding: 10px;
+        vertical-align: top;
+        display: table-cell;
+
+        span.columnNumber {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-weight: bolder;
+        }
+        input, select {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+
+
+#edit-properties-panel {
+    padding: 0;
+    position: relative;
+    display: flex;
+    margin-bottom: 1.25rem;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: hidden;
+
+    > div {
+        min-width: 400px;
+        padding: 0.75rem;
+        display: flex; 
+        flex-direction:column;
+        width: 50%;
+    }
+
+    input, select {
+        border: 1px inset #dde;
+        border-radius: 2px;
+        line-height: normal;
+        min-height: 24px;
+    }
+    input {
+        padding-left: 0.4em;
+    }
+
+    #edit-properties-description {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        align-self: center;
+        border-right: 1px solid $charcoal;
+
+        #categoryName {
+            width: 100%;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            padding: 0.2rem 0.5rem;
+            border: 1px inset #dde;
+            border-radius: 2px;
+            resize: none;
+        }
+
+    }
+    .form-id {
+        position: absolute; 
+        right: 0.75rem;
+        bottom: 1px;
+        font-size: 0.75rem;
+    }
+    .panel-properties {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-top: 1rem;
+        height: 100%;
+        input, select {
+            margin-left: 3px;
+        }
+    }
+    #availability, #categorySort {
+        margin-right: 1.5rem;
+    }
+}
+
+
+
+
+/* Form History modal */
+#history-slice td {
+    font-size: 14px !important;
+}
+#history-page-buttons button#next, #history-slice button#prev {
+    width: 135px;
+}
+
+
+
+/* form browser cards */
+.browser-category-card {
+    position: relative;
+    margin: 0 1rem 1rem 0;
+    width: 350px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    border-radius: 4px;
+    color: black;
+    overflow: hidden;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+
+    &:hover, &:focus, &:active {
+        box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25); 
+    }
+    > div {
+        padding: 0.2rem 0.4rem;
+    }
+    .formPreviewTitle {
+        font-weight: bold;
+        padding: 0.4rem;
+    }
+    .formPreviewDescription {
+        height: 100%;
+        font-size: 14px;
+        line-height: 1.3;
+    }
+    .formPreviewStatus {
+        margin-top: auto;
+        font-size: 80%;
+        color: #cb0000;
+    }
+    .formPreviewWorkflow {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        color: white;
+        background-color: $BG-DarkNavy;
+    }
+    
+}
+
+div#form_content_view {
+    margin: 0 auto; 
+    display:flex; 
+    flex-direction: column; 
+    width: 100%;
+}
+
+
+#form_index_and_editing {
+    display: flex; 
+}
+
+
+/* form index */
+#form_index_display {
+    position: relative;
+    margin: 0;
+    padding: 0.75rem;
+    width: 400px;
+    flex: 0 0 400px;
+    align-self:flex-start;
+    margin-right: 1.25rem;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+
+    .section_heading {
+        font-weight: bolder;
+        color: $base_navy;
+    }
+    .subindicator_heading {
+        font-weight: normal;
+        color: black;
+    }
+    ul {
+        margin: 0;
+        padding: 0 0 4px 0; /* btm padding needed for drop zones */
+        padding-left: 1em;
+        display: flex;
+        flex-direction: column; 
+        min-height: 6px;  /*NOTE: min height needed for drop zones*/
+    }
+    ul#base_drop_area {
+        padding: 0 0 6px 0;
+    }
+    ul.entered-drop-zone {
+        background-color: #e8ebf0;
+    }
+    li {
+        position: relative;
+        cursor: grab;
+        margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
+        border-radius: 2px;
+        outline: none !important;
+    }
+    li > div {
+        display: flex;
+        align-items: center;
+        width: 100%; 
+        height: 40px;
+        border-bottom: 1px solid #d0d0d4;
+        padding-bottom: 0.9em;
+
+        .icon_move_container {
+            @include flexcenter;
+            flex-direction: column;
+            margin-left: auto;
+            margin-right: 0.2em;
+
+            .icon_move {
+                @include flexcenter;
+                cursor: pointer;
+                width: 0;
+                height: 0;
+                background-color: transparent;
+                border-radius: 2px;
+                border: 8px solid transparent;
+                margin-left: auto;
+
+                &.up {
+                    margin-bottom: 0.4em;
+                    border-bottom: 14px solid $BG-DarkNavy;
+                    &:hover, &:focus, &:active {
+                        outline: none !important;
+                        border-bottom: 14px solid $USWDS_Cyan;
+                    }
+                }
+                &.down {
+                    border-top: 14px solid $BG-DarkNavy;
+                    &:hover, &:focus, &:active {
+                        outline: none !important;
+                        border-top: 14px solid $USWDS_Cyan;
+                    }
+                }
+            }
+        }
+
+        .sub-menu-chevron {
+            height: 100%;
+            align-self: center;
+            font-size: 1.4em; 
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer; 
+            transform: scaleX(0.6);
+        }
+    }
+
+    li:first-child {
+        margin-top: 0.8em;
+    }
+    li:last-child {
+        margin-bottom: 0;
+    }
+    li.index-selected::before, li:focus::before {
+        position: absolute;
+        top: -0.2em;
+        left: -0.5em;
+        content: '';
+        width: 3px;
+        height: calc(100% - 0.6em);
+        border-radius: 60% / 3px;
+        background-color: $base_navy;
+    }
+}
+
+
+
+/* form editing and entry preview */
+#form_entry_and_preview {
+    display:flex;
+    flex-direction: column;
+    align-self: flex-start;
+    width: 100%;
+    background-color: white;
+    padding: 0.75rem;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: hidden;
+
+    .form-section-header {
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+
+        #indicator_toolbar_toggle {
+            width: 120px;
+        }
+    }
+
+    div.printformblock {
+        page-break-inside: avoid;
+    }
+
+    div.printResponse {
+        padding: 0;
+        min-height: 50px;
+        float: none; /* style.css style collision */
+        border-radius: 4px;
+        border-left: 6px solid $BG_Pearl;
+
+        &:not(.form-header) {
+            margin-left: 0.5rem;
+        }
+    }
+
+    .form_editing_area {
+        padding-bottom: 1rem;
+        background-color: white;
+
+        div[class*="SelectorBorder"] {
+            background-color: transparent;
+        }
+        tr[class*="Selector"]:hover {
+            background-color: #e1f3f8;
+        }
+        .indicator-name-preview {
+            padding: 0.75rem 0.25rem 0 0.75rem;
+            /* text editor can insert p tags when used.  this keeps them from disrupting icons in the indicator name display */
+            > p {
+                display: inline;
+            }
+            .input-required-sensitive {
+                color: #cb0000;
+                margin-left: 0.4em;
+            }
+        }
+
+        &.conditional {
+            background-color: saturate(darken($BG_Pearl, 2%), 15%);
+        }
+
+        div[id^="form_editing_toolbar_"] {
+            padding: 3px 0;
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            background-color: $BG_Pearl;
+            font-size: 90%;
+            color: black;
+
+            > div {
+                display: flex; 
+                align-items: center;
+                /*align-self: stretch;*/
+            }
+            span.sensitive-icon {
+                display:flex; 
+                align-items: center; 
+                margin-left: 0.4rem;
+            }
+            img {
+                max-width: none;
+            }
+            button {
+                padding: 2px 0.4rem;
+            }
+            button.icon {
+                margin-right: 0.3em;
+                padding: 0;
+                background-color: transparent;
+                border-radius: 2px;
+                border: 0;
+
+                img {
+                    display: block;
+                }
+            }
+            button.add-subquestion {
+                width: -moz-fit-content; /*firefox prior to nov 2021*/
+                width: fit-content;
+            }
+        }
+        &.form-header {
+            background-color: $manila;
+            font-weight:  bolder;
+        }
+
+        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
+            font-size: 110%;
+        }
+
+        .form_data_entry_preview {
+            padding: 0 0.25rem 0 0.75rem;
+
+            .format-preview {
+                position: relative;
+                margin-top: 0.2em;
+
+                /* format specific styling */
+                .text_input_preview {
+                    display: inline-block;
+                    width: 50%;
+                    font-size: 1.3em; 
+                    font-family: monospace;
+                    background-color: white;
+                    border: 1px solid gray;
+                    padding: 0.25em;
+                }
+                .textarea_input_preview {
+                    width: 100%; 
+                    padding: 0.5em; 
+                    font-size: 1.3em; 
+                    font-family: monospace;
+                }
+                div.tableinput { /* fixes for grid tables */
+                    overflow-x: auto;
+                    max-width: 900px;
+                    
+                    table {
+                        margin: 0;
+                        input {
+                            width: 100%;
+                        }
+                        img {
+                            max-width: none;
+                        }
+                    }
+                }
+
+                .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
+                    margin-bottom: 0.5em;
+                }
+            }
+        }
+    }
+}
+
+/* checkboxes and radio */
+.checkable.leaf_check {
+    cursor: pointer;
+    position: relative;
+    display:flex;
+    align-items: center;
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: 600px;
+    margin-bottom: 0.2em;
+}
+input[class*="icheck"][class*="leaf_check"], 
+input[class*="ischecked"][class*="leaf_check"] { 
+    opacity: 0;
+    cursor: pointer;
+    width: 18px;
+    flex: 0 0 18px;
+    height: 18px;
+    margin: 2px;
+}
+span.leaf_check {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    left: 0;
+    width: 18px;
+    height: 18px;
+    background-color: transparent;
+    border: 1px solid rgb(151, 150, 149);
+    border-radius: 2px;
+}
+span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active,
+input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check,
+input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check {
+    border: 2px solid #47e;
+}
+input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
+    border-radius: 50%;
+}
+span.leaf_check::after {
+    content: "";
+    box-sizing: content-box; /* needed to fix leaf.css collision */
+    position: absolute;
+    top: 10%;
+    left: 30%;
+    width: 25%;
+    height: 50%;
+    background-color: transparent;
+    border: 1px solid #FFF;
+    border-width: 0px 3px 3px 0px;
+    border-radius: 2px;
+    transform: rotate(40deg);
+    display: none;
+}
+input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check,
+input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check {
+    background-color: #47e;
+    border: 1px solid #47e;
+    opacity: 1;
+}
+input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
+input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
+    display: block;
+}
+
+/** modifications to choicesjs styles **/
+.choices__inner div.choices__item.choices__item--selectable,
+.choices__inner div.choices__item.is-highlighted  {
+    background-color: #f6faff;
+    background-image: linear-gradient(0, #eee 50%, #fff 53%);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color:black;
+}
+button.choices__button {
+    filter: brightness(25%); 
+}
+button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
+    filter: brightness(0);
+    transform: scale(1.05);
+    border-left: 1px solid black !important;
+}
+.choices__list {
+    color: black;
+}
+.choices__list.choices__list--dropdown.is-active .is-highlighted {
+    background-color: #E8F2FF;
+    box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
+}
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
+    opacity: 0.75;
+}
+.choices input {  /* prevent leaf.css corruption */
+    float: none;
+    &:hover, &:focus, &:active {
+        outline: none;
+    }
+} 
+
+@media only screen and (max-width: 550px) {
+    .leaf-vue-dialog {
+        min-width: 350px;
+    }
+    #vue-formeditor-app {
+        padding: 1rem 0;
+        min-width: 350px;
+    
+        > div {
+            flex-direction: column;
+
+            #form-editor-menu {
+                width: 100%;
+                margin: 0;
+
+                a {
+                    border-radius: 0;
+                }
+            }
+        }
+        #form-editor-header {
+            height: auto;
+            padding: 0;
+            nav {
+                width: 100%;
+                justify-content: flex-start;
+                > ul {
+                    flex-direction: column;
+                    width: 100%;
+
+                    > li {
+                        align-self: flex-start;
+                        &:first-child {
+                            margin-left: auto;
+                        }
+                        button {
+                            margin: 0.5rem 0;
+                        }
+                        #form-editor-menu {
+                            right: 0;
+                            button { 
+                                margin: 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        #secure_forms_info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        #forms, #forms_inactive {
+            justify-content: center;
+        }
+
+        div#form_content_view {
+            margin: 0;
+        }
+        #edit-properties-panel {
+            flex-direction: column;
+            > div {
+                width: 100%;
+            }
+            #edit-properties-description {
+                border-right: 0;
+                border-bottom: 1px solid $charcoal;
+            }
+        }
+
+        #form_entry_and_preview {
+            min-width: 400px;
+        }
+
+        #form_index_and_editing {
+            flex-direction: column;
+        
+            #form_index_display {
+                width: 100%;
+                margin: 0;
+                margin-bottom: 1rem;
+                flex: 0 0 100%;
+            }
+
+            .form_editing_area {
+                &.form-header .indicator-name-preview, 
+                &.form-header div[id^="form_editing_toolbar_"] {
+                    font-size: 100%;
+                }
+            }
+        }
+    }
+}

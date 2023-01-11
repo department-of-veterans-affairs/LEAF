@@ -108,8 +108,13 @@ function treeClick(indicatorID, series) {
     });
     form.dialog().clickSave();
 }
+function onKeyPressClick(event){
+    if(event?.keyCode === 13 || event?.keyCode === 32) {
+        $(event.target).trigger('click');
+    }
+}
 
-function updateProgress() {
+function updateProgress(focusNext=false) {
     $.ajax({
         type: 'GET',
         url: "./api/form/<!--{$recordID}-->/progress",
@@ -120,9 +125,16 @@ function updateProgress() {
                 $('#progressLabel').text(response + '%');
             }
             else {
-                savechange = '<button class="buttonNorm" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
+                savechange = '<div tabindex="0" class="buttonNorm" onkeypress="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
                 $('#progressControl').html(savechange);
             }
+            window.scrollTo(0,0);
+            if(focusNext===true){
+                $('#nextQuestion').focus();
+            }
+        },
+        error: function(err) {
+            console.log('an error occurred during form progress checking', err);
         },
         cache: false
     });
@@ -222,7 +234,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');" onkeypress="onKeyPressClick(event)">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);
@@ -235,7 +247,7 @@ $(function() {
         form.dialog().indicateBusy();
         form.setPostModifyCallback(function() {
             getNext();
-            updateProgress();
+            updateProgress(true);
         });
         form.dialog().clickSave();
     });
@@ -244,7 +256,7 @@ $(function() {
         form.dialog().indicateBusy();
         form.setPostModifyCallback(function() {
             getPrev();
-            updateProgress();
+            updateProgress(true);
         });
         form.dialog().clickSave();
     });
