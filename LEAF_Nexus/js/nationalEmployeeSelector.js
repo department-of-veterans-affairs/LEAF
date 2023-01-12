@@ -4,7 +4,7 @@
  */
 
 function nationalEmployeeSelector(containerID) {
-  this.apiPath = "./api/?a=";
+  this.apiPath = "api/?a=";
   this.domainPath = "";
   this.absOrgPath = "";
   this.useJSONP = 0;
@@ -234,7 +234,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
   var announceID = this.prefixID;
 
   var ajaxOptions = {
-    url: this.apiPath + apiOption,
+    url: this. absOrgPath + this.apiPath + apiOption,
     dataType: "json",
     data: { q: query, noLimit: this.optionNoLimit, domain: domain },
     success: function (response) {
@@ -502,6 +502,7 @@ nationalEmployeeSelector.prototype.search = function () {
         }
 
         // search local directory, since an empUID query implies that the user already exists in the local dir.
+        console.log('test ' + this.absOrgPath);
         var apiOption = "national/employee/search";
         if (this.q.substr(0, 1) == "#") {
           apiOption = "employee/search";
@@ -509,7 +510,7 @@ nationalEmployeeSelector.prototype.search = function () {
         var announceID = this.prefixID;
 
         var ajaxOptions = {
-          url: this.apiPath + apiOption,
+          url: this.absOrgPath + this.apiPath + apiOption,
           dataType: "json",
           data: { q: this.q, noLimit: this.optionNoLimit, domain: domain },
           success: function (response) {
