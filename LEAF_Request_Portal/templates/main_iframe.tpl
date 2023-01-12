@@ -28,13 +28,13 @@
     <script type="text/javascript" src="{$libsPath}js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="{$libsPath}js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <!--backwards compat -->
-    <script type="text/javascript" src="../{$libsPath}js/jquery/icheck/icheck.js"></script>
+    <script type="text/javascript" src="{$libsPath}js/jquery/icheck/icheck.js"></script>
     {else if $useLiteUI == true}
     <script type="text/javascript" src="js/dialogController.js"></script>
     <script type="text/javascript" src="{$libsPath}js/jquery/chosen/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="{$libsPath}js/jquery/trumbowyg/trumbowyg.min.js"></script>
     <!--backwards compat -->
-    <script type="text/javascript" src="../{$libsPath}js/jquery/icheck/icheck.js"></script>
+    <script type="text/javascript" src="{$libsPath}js/jquery/icheck/icheck.js"></script>
     {/if}
 {section name=i loop=$javascripts}
     <script type="text/javascript" src="{$javascripts[i]}"></script>
