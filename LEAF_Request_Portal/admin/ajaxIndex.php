@@ -265,12 +265,12 @@ switch ($action) {
                 break;
             case 'templateEditor':
                 include '../sources/TemplateEditor.php';
-                $type = new \TemplateEditor($db, $login);
+                $type = new Portal\TemplateEditor($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'templateReports':
                 include '../sources/TemplateReports.php';
-                $type = new \TemplateReports($db, $login);
+                $type = new Portal\TemplateReports($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }
