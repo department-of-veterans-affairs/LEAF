@@ -62,7 +62,7 @@ class DB
                 }
             });
         } catch (PDOException $e) {
-            trigger_error('DB conn: ' . $e->getMessage());
+            error_log('DB conn: ' . $e->getMessage());
 
             if (!$abortOnError) {
                 echo '<script>var min=5,max=10,timeWait=Math.ceil(Math.random()*(max-min))+min;function tryAgain(){timeWait--;let t=document.querySelector("#tryAgain");t.innerHTML="Loading in "+timeWait+" seconds...",t.style.pointerEvents="none",setTimeout(function(){timeWait>1?tryAgain():location.reload()},1e3)}</script>';
