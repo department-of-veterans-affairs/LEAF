@@ -174,13 +174,13 @@ $controllerMap->register('note', function() use ($db, $login, $action, $form) {
 
 $controllerMap->register('templateEditor', function () use ($db, $login, $action) {
     require 'controllers/TemplateEditorController.php';
-    $TemplateEditorController = new TemplateEditorController($db, $login);
+    $TemplateEditorController = new Portal\TemplateEditorController($db, $login);
     $TemplateEditorController->handler($action);
 });
 
 $controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
     require 'controllers/TemplateReportsController.php';
-    $TemplateReportsController = new TemplateReportsController($db, $login);
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
     $TemplateReportsController->handler($action);
 });
 
