@@ -90,7 +90,7 @@ class FormWorkflow
         $numRes = count($res);
         if ($numRes > 0)
         {
-            if ($numRes == 1 && $res[0]['dependencyID'] < 0 && $res[0]['filled'] == 1) {
+            if ($numRes == 1 && $res[0]['filled'] == 1) {
                 $res[0]['filled'] = 0;
             }
 
