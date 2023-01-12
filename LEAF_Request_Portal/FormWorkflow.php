@@ -66,7 +66,7 @@ class FormWorkflow
      * @return array database result
      * @return null if no database result
      */
-    public function getCurrentSteps(): ?array
+    public function getCurrentSteps(): array|int|null
     {
         // check privileges
         require_once 'form.php';
@@ -120,7 +120,7 @@ class FormWorkflow
                         ':quadGroupIDs' => $quadGroupIDs
                     );
                     $strSQL = 'SELECT * FROM services
-                        WHERE groupID IN (:quadGroupIDs)
+                        WHERE find_in_set(groupID, :quadGroupIDs)
                         AND serviceID = :serviceID';
                     $res3 = $this->db->prepared_query($strSQL, $vars3);
 
