@@ -134,17 +134,17 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../..' . $site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array(ABSOLUTE_ORG_PATH . '/js/nationalEmployeeSelector.js',
+        ));
+        $main->assign('stylesheets', array('css/mod_groups.css',
+                                ABSOLUTE_ORG_PATH . '/css/employeeSelector.css',
         ));
 
-        $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('domainPath', DOMAIN_PATH);
         $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $main->assign('stylesheets', array('css/mod_groups.css',
-                '../..' . $site_paths['orgchart_path'] . '/css/employeeSelector.css',
-        ));
+
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl')));
 
         $tabText = 'Service Chiefs';
