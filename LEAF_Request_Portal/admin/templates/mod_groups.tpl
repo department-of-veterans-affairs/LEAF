@@ -332,7 +332,7 @@ function pruneMember(groupID, userID) {
 function addNexusMember(groupID, empUID) {
     $.ajax({
         type: 'POST',
-        url: `<!--{$orgchartPath}-->/api/?a=group/${groupID}/employee`,
+        url: `<!--{$absOrgPath}-->/api/?a=group/${groupID}/employee`,
         data: {
             CSRFToken: '<!--{$CSRFToken}-->',
             empUID: empUID
@@ -453,7 +453,7 @@ function getGroupList() {
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(
                                     '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
-                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><br /><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
+                                    '<a class="leaf-group-link" href="<!--{$absOrgPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><br /><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
 
                                 $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
                                 let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
@@ -461,8 +461,8 @@ function getGroupList() {
                                 let counter = 0;
                                 for(let i in res) {
                                     if (res[i].backupID == null) {
-                                        let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
-                                        let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
+                                        let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$absOrgPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
+                                        let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$absOrgPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                                         let backups = `<td style="font-size: 0.8em">`;
                                         let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
                                         let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
@@ -560,7 +560,7 @@ function getGroupList() {
                                         });
                                         $.ajax({
                                             type: 'DELETE',
-                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
+                                            url: '<!--{$absOrgPath}-->/api/group/' + groupID + '/local/tag?' +
                                                 $.param({tag: '<!--{$orgchartImportTag}-->',
                                                          CSRFToken: '<!--{$CSRFToken}-->'}),
                                             success: function() {
@@ -572,7 +572,6 @@ function getGroupList() {
                                 });
 
                                 empSel = new nationalEmployeeSelector('employeeSelector');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                                 empSel.domainPath = '<!--{$domainPath}-->/';
                                 empSel.absOrgPath = '<!--{$absOrgPath}-->/';
                                 empSel.outputStyle = 'micro';
@@ -586,7 +585,7 @@ function getGroupList() {
                                         let selectedUserName = empSel.selectionData[empSel.selection].userName;
                                         $.ajax({
                                             type: 'POST',
-                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                            url: '<!--{$absOrgPath}-->/api/employee/import/_' + selectedUserName,
                                             data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                             success: function(res) {
                                                 if(!isNaN(res)) {
@@ -638,9 +637,9 @@ function getGroupList() {
                             '<h2 role="heading" tabindex="-1">System Administrators</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Administrator</h3></div><div id="employeeSelector"></div></br><div id="adminSummary"></div><div class="leaf-marginTop-2rem">');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                        empSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
                         empSel.domainPath = '<!--{$domainPath}-->/';
-                        empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
+                        empSel.absRootPath = '<!--{$absOrgPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.setCancelHandler(function() {
@@ -651,7 +650,7 @@ function getGroupList() {
                                 let selectedUserName = empSel.selectionData[empSel.selection].userName;
                                 $.ajax({
                                     type: 'POST',
-                                    url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                    url: '<!--{$absOrgPath}-->/api/employee/import/_' + selectedUserName,
                                     data: {CSRFToken: '<!--{$CSRFToken}-->'},
                                     success: function(res) {
                                         if(!isNaN(res)) {
@@ -673,7 +672,7 @@ function getGroupList() {
                                 $('#adminSummary').html('');
                                 let counter = 0;
                                 for(let i in res) {
-                                    $('#adminSummary').append('<a class="leaf-user-link" href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Lname) +', '+toTitleCase(res[i].Fname)+'</span></a> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Lname)+', '+ toTitleCase(res[i].Fname)  +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
+                                    $('#adminSummary').append('<a class="leaf-user-link" href="<!--{$absOrgPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-qtrRem leaf-marginLeft-qtrRem"><span class="leaf-bold leaf-font0-8rem">'+ toTitleCase(res[i].Lname) +', '+toTitleCase(res[i].Fname)+'</span></a> - <a tabindex="0" aria-label="REMOVE ' + toTitleCase(res[i].Lname)+', '+ toTitleCase(res[i].Fname)  +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="removeAdmin_'+ counter +'">REMOVE</a></div>');
                                     $('#removeAdmin_' + counter).on('click', function(userID) {
                                         return function() {
                                             removeAdmin(userID);
@@ -715,9 +714,9 @@ function getGroupList() {
                             '<h2 role="heading" tabindex="-1">Primary Administrator</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div></br></br><div id="primaryAdminSummary"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                        empSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
                         empSel.domainPath = '<!--{$domainPath}-->/';
-                        empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
+                        empSel.absRootPath = '<!--{$absOrgPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
                         dialog.showButtons();
@@ -762,7 +761,7 @@ function getGroupList() {
                                     if(res[i].primary_admin == 1)
                                     {
                                         foundPrimary = true;
-                                        $('#primaryAdminSummary').append('<a class="leaf-user-link" href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Lname) +', '+ toTitleCase(res[i].Fname) +'</span></a> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
+                                        $('#primaryAdminSummary').append('<a class="leaf-user-link" href="<!--{$absOrgPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div><span class="leaf-bold leaf-font0-9rem">'+ toTitleCase(res[i].Lname) +', '+ toTitleCase(res[i].Fname) +'</span></a> - <a tabindex="0" aria-label="Unset '+ toTitleCase(res[i].Fname)  + ' ' + toTitleCase(res[i].Lname) +'" href="#" class="text-secondary-darker leaf-font0-8rem" id="unsetPrimaryAdmin">UNSET</a></div>');
                                         $('#unsetPrimaryAdmin').on('click', function() {
                                                 unsetPrimaryAdmin();
                                                 dialog.hide();
@@ -867,7 +866,7 @@ function tagAndUpdate(groupID, callback) {
     $.when(
             $.ajax({
                 type: 'POST',
-                url: '<!--{$orgchartPath}-->/api/group/'+ groupID + '/tag',
+                url: '<!--{$absOrgPath}-->/api/group/'+ groupID + '/tag',
                 data: {
                     tag: '<!--{$orgchartImportTag}-->',
                     CSRFToken: '<!--{$CSRFToken}-->'
@@ -899,7 +898,7 @@ function importGroup() {
     dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog.showButtons();
     let groupSel = new groupSelector('groupSel_container');
-    groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    groupSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
         if(groupSel.numResults == 0) {
@@ -955,7 +954,7 @@ function createGroup() {
         });
         $.ajax({
             type: 'POST',
-            url: '<!--{$orgchartPath}-->/api/group',
+            url: '<!--{$absOrgPath}-->/api/group',
             data: {title: $('#groupNameInput').val(),
                    CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {

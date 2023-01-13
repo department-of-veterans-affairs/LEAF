@@ -221,7 +221,7 @@ function importUser(serviceID = 0, selectedUserName = '') {
     }
     $.ajax({
         type: 'POST',
-        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+        url: '<!--{$absOrgPath}-->/api/employee/import/_' + selectedUserName,
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res) {
             if(!isNaN(res)) {
@@ -281,7 +281,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
                 }
                 dialog.setContent(
                     '<div class="leaf-float-right"><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div>' +
-                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
+                    '<a class="leaf-group-link" href="<!--{$absOrgPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
                 $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
                 let counter = 0;
                 for(let i in res) {
@@ -289,7 +289,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
                     if (res[i].active == 1) {
                         if (res[i].backupID == null) {
                             let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
-                            $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                            $('#employee_table').append('<a href="<!--{$absOrgPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
                             // Check for Backups
                             for (let j in res) {
                                 if (res[i].userName == res[j].backupID) {
@@ -316,7 +316,6 @@ function initiateModal(serviceID = 0, serviceName = '') {
                 });
 
                 empSel = new nationalEmployeeSelector('employeeSelector');
-                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                 empSel.domainPath = '<!--{$domainPath}-->/';
                 empSel.absOrgPath = '<!--{$absOrgPath}-->/';
                 empSel.outputStyle = 'micro';
