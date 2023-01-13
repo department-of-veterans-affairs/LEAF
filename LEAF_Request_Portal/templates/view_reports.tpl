@@ -798,7 +798,7 @@ function showJSONendpoint() {
     var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    var jsonPath = pwd + leafSearch.getLeafFormQuery().getPortalPath() + 'api/form/query/?q=' + queryString;
+    var jsonPath = pwd + leafSearch.getLeafFormQuery().getPortalPath() + '/api/form/query/?q=' + queryString;
     var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
@@ -873,7 +873,7 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getPortalPath() + 'api/open/form/query/_' + res);
+            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getPortalPath() + '/api/open/form/query/_' + res);
            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
                 $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
@@ -1042,7 +1042,7 @@ $(function() {
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setLibsPath('<!--{$libsPath}-->');
-    leafSearch.setPortalPath('<!--{$portalPath}-->');
+    leafSearch.setPortalPath('<!--{$absPortPath}-->');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
 

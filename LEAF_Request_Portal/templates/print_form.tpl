@@ -146,7 +146,7 @@ var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
 function doSubmit(recordID) {
-	$('#submitControl').empty().html('<img alt="Submitting..." src="./images/indicator.gif" />Submitting...');
+	$('#submitControl').empty().html('<img alt="Submitting..." src="<!--{$absPortPath}-->/images/indicator.gif" />Submitting...');
 	$.ajax({
 		type: 'POST',
 		url: "./api/form/" + recordID + "/submit",

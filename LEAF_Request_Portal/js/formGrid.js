@@ -126,7 +126,7 @@ var LeafFormGrid = function(containerID, options) {
     function getIndicator(indicatorID, series) {
         $.ajax({
             type: 'GET',
-            url: portalPath + 'api/form/'+ recordID +'/rawIndicator/' + indicatorID + '/' + series,
+            url: portalPath + '/api/form/'+ recordID +'/rawIndicator/' + indicatorID + '/' + series,
             dataType: 'json',
             success: function(response) {
                 var data = response[indicatorID].displayedValue != '' ? response[indicatorID].displayedValue : response[indicatorID].value;
@@ -586,7 +586,7 @@ var LeafFormGrid = function(containerID, options) {
             $('#' + prefixID + 'tfoot').html('');
         }
         else {
-            $('#' + prefixID + 'tfoot').html('<tr><td colspan='+colspan+' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="'+ portalPath +'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>');
+            $('#' + prefixID + 'tfoot').html('<tr><td colspan='+colspan+' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="'+ portalPath +'/images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>');
         }
 
         $('#' + prefixID + 'tbody').append(buffer);
@@ -635,7 +635,7 @@ var LeafFormGrid = function(containerID, options) {
     function loadData(recordIDs, callback) {
         currentData = [];
         var colspan = showIndex ? headers.length + 1 : headers.length;
-        $('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="'+ portalPath +'images/largespinner.gif" alt="loading..." /></td></tr>');
+        $('#' + prefixID + 'tbody').html('<tr><td colspan="'+colspan+'" style="text-align: left; padding: 8px">Building report... <img src="'+ portalPath +'/images/largespinner.gif" alt="loading..." /></td></tr>');
 
         var headerIDList = '';
         for(var i in headers) {
@@ -646,7 +646,7 @@ var LeafFormGrid = function(containerID, options) {
 
         $.ajax({
             type: 'POST',
-            url: portalPath + 'api/form/customData',
+            url: portalPath + '/api/form/customData',
             dataType: 'json',
             data: {recordList: recordIDs,
                    indicatorList: headerIDList,

@@ -118,7 +118,7 @@ function main() {
     let leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.setLibsPath('<!--{$libsPath}-->');
-    leafSearch.setPortalPath('<!--{$portalPath}-->');
+    leafSearch.setPortalPath('<!--{$absPortPath}-->');
 
     let extendedQueryState = 0; // 0 = not run, 1 = completed extra query for records created by current user
     let loadAllResults = false;

@@ -203,7 +203,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        $t_form->assign('absPortalPath', ABSOLUTE_PORT_PATH);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
@@ -256,7 +256,7 @@ switch ($action) {
         }
 
         $t_form->assign('libsPath', S_LIB_PATH);
-        $t_form->assign('portalPath', ABSOLUTE_PORT_PATH . '/');
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch('mod_form.tpl'));
 
@@ -300,18 +300,21 @@ switch ($action) {
             switch ($action) {
                 case 'mod_templates':
                     $t_form->assign('libsPath', S_LIB_PATH);
+                    $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates.tpl'));
                     $tabText = 'Template Editor';
 
                     break;
                 case 'mod_templates_reports':
                     $t_form->assign('libsPath', S_LIB_PATH);
+                    $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
                     $tabText = 'Editor';
 
                     break;
                 case 'mod_templates_email':
                     $t_form->assign('libsPath', S_LIB_PATH);
+                    $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_email.tpl'));
                     $tabText = 'Email Template Editor';
 
@@ -329,6 +332,7 @@ switch ($action) {
         if ($login->checkGroup(1))
         {
             $main->assign('libsPath', S_LIB_PATH);
+                $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -368,7 +372,7 @@ switch ($action) {
                $t_form->assign('LEAF_NEXUS_URL', $site_paths['orgchart_path']);
                $t_form->assign('domainPath', DOMAIN_PATH);
                $t_form->assign('libsPath', S_LIB_PATH);
-               $t_form->assign('portalPath', PORTAL_PATH);
+               $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
                $main->assign('body', $t_form->fetch('view_form_library.tpl'));
            }
@@ -388,6 +392,7 @@ switch ($action) {
         if ($login->checkGroup(1))
         {
             $t_form->assign('libsPath', S_LIB_PATH);
+            $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
             $main->assign('body', $t_form->fetch('admin_import_form.tpl'));
         }
         else
@@ -409,6 +414,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         if ($login->checkGroup(1))
         {
+            $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
             $main->assign('body', $t_form->fetch('admin_upload_file.tpl'));
         }
         else
@@ -432,7 +438,7 @@ switch ($action) {
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
         $t_form->assign('importTags', $settings['importTags']);
-        $t_form->assign('portalPath', PORTAL_PATH);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -474,6 +480,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
 

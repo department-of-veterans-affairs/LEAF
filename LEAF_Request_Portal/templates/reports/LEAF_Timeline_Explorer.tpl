@@ -46,18 +46,11 @@
 
 $('#body').addClass("loading");
 let CSRFToken = '<!--{$CSRFToken}-->';
+let absPortPath = '<!--{$absPortPath}-->';
 
 let tempFilename = 'temp_leaf_timeline_data.txt';
 let excludedSteps = []; // array of stepIDs to be excluded
 let getDataFields = {};
-
-/**
- * Purpose: Get Site URL
- * @param $site
- */
-function getSiteURL(site) {
-    return site;
-}
 
 /**
  * Purpose: Parse request data
@@ -350,7 +343,6 @@ let queryFirstDateSubmitted = '';
  * @param categoryID
  */
 function loadData(site, categoryID) {
-    let siteURL = getSiteURL(site);
     let promise = new Promise((resolve, reject) => {
         let query = new LeafFormQuery();
         let batchLimit = 5000;
@@ -360,7 +352,7 @@ function loadData(site, categoryID) {
         query.addTerm('deleted', '=', 0);
         query.addTerm('categoryID', '=', categoryID);
         query.addTerm('stepID', '=', 'resolved');
-        query.setPortalPath(siteURL);
+        query.setPortalPath(absPortPath);
         query.join('action_history');
         query.join('service');
         query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');
@@ -397,16 +389,14 @@ let categoryData = {};
  * @param categoryID
  */
 function loadCategory(site, categoryID) {
-    let siteURL = getSiteURL(site);
-
     return $.ajax({
         type: 'GET',
-        url: siteURL + 'api/form/_' + categoryID + '/workflow'
+        url: absPortPath + '/api/form/_' + categoryID + '/workflow'
     })
     .then(function(workflow) {
         return $.ajax({
             type: 'GET',
-            url: siteURL + 'api/workflow/' + workflow[0].workflowID
+            url: absPortPath + '/api/workflow/' + workflow[0].workflowID
         })
         .then(function(workflowData) {
             if(categoryData[site] == undefined) {
@@ -426,10 +416,9 @@ let dataCategories = {};
  * @param limitCategoryID
  */
 function getCategories(site) {
-    let siteURL = getSiteURL(site);
     return $.ajax({
         type: 'GET',
-        url: siteURL + 'api/formStack/categoryList/all'
+        url: absPortPath + '/api/formStack/categoryList/all'
     })
     .then(function(categories) {
         for(let i in categories) {
@@ -1166,8 +1155,7 @@ function start() {
     let today = new Date();
     $('#generateDate').html(today.toLocaleDateString());
 
-    let siteURL = './';
-    getCategories(siteURL)
+    getCategories(absPortPath)
     .then(function(data) {
         $('#progressbar').progressbar('option', 'max', Object.keys(data).length);
 
@@ -1175,9 +1163,9 @@ function start() {
         queue.setConcurrency(3);
         queue.setWorker(function(item) {
             $('#progressbar').progressbar('option', 'value', queue.getLoaded());
-        	return loadCategory(siteURL, item).then(function() {
+        	return loadCategory(absPortPath, item).then(function() {
                 $('#progressDetail').html(`Loading data (${dataCategories[item]})...`);
-            	return loadData(siteURL, item);
+            	return loadData(absPortPath, item);
             });
         });
         queue.onComplete(function() {

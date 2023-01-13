@@ -172,7 +172,7 @@ function renderSiteType() {
 
 function renderSettings(res) {
     var query = new LeafFormQuery();
-    query.setPortalPath('<!--{$portalPath}-->');
+    query.setPortalPath('<!--{$absPortPath}-->');
     query.addTerm('categoryID', '=', 'leaf_secure');
 
     for(var i in res) {

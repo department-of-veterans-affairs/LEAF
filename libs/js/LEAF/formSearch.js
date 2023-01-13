@@ -34,7 +34,7 @@ var LeafFormSearch = function (containerID) {
         prefixID +
         'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
         portalPath +
-        'images/indicator.gif">\
+        '/images/indicator.gif">\
 					<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="status" role="status"></span>\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="' +
         prefixID +

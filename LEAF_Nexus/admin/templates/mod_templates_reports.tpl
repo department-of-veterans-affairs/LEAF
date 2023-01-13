@@ -22,7 +22,7 @@
 <script>
 
 function save() {
-	$('#saveIndicator').attr('src', '../images/indicator.gif');
+	$('#saveIndicator').attr('src', '<!--{$absOrgPath}-->/images/indicator.gif');
 	$.ajax({
 		type: 'POST',
 		data: {CSRFToken: '<!--{$CSRFToken}-->',

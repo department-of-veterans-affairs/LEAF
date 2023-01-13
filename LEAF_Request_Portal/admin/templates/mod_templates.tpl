@@ -101,7 +101,7 @@
 <script>
 
 function save() {
-	$('#saveIndicator').attr('src', '../../images/indicator.gif');
+	$('#saveIndicator').attr('src', '<!--{$absPortPath}-->/images/indicator.gif');
 	var data = '';
 	if(codeEditor.getValue == undefined) {
 	    data = codeEditor.edit.getValue();

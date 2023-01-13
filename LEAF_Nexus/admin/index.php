@@ -62,6 +62,7 @@ switch ($action) {
         if (isset($memberships['groupID'][1]))
         {
             $main->assign('libsPath', S_LIB_PATH);
+            $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
             $main->assign('body', $t_form->fetch('admin_refresh_directory.tpl'));
         }
         else
@@ -81,6 +82,7 @@ switch ($action) {
         if (isset($memberships['groupID'][1]))
         {
             $t_form->assign('libsPath', S_LIB_PATH);
+                $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH );
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else
@@ -206,11 +208,13 @@ switch ($action) {
            switch ($action) {
                case 'mod_templates':
                     $t_form->assign('libsPath', S_LIB_PATH);
+                    $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates.tpl'));
 
                    break;
                case 'mod_templates_reports':
                     $t_form->assign('libsPath', S_LIB_PATH);
+                    $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
 
                     break;

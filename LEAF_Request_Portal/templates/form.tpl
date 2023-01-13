@@ -11,7 +11,7 @@
                 <br style="clear: both" />
             </div>
             <div>
-                <img src="images/indicator.gif" id="loadIndicator" style="visibility: hidden; float: right" alt="loading..." />
+                <img src="<!--{$absPortPath}-->/images/indicator.gif" id="loadIndicator" style="visibility: hidden; float: right" alt="loading..." />
                 <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
                     <div>
                         <div id="xhr" style="padding: 16px"></div>
@@ -165,7 +165,7 @@ function cancelRequest() {
 
 function manualSaveChange()
 {
-    $("#save_indicator").html('<img src="images/indicator.gif" alt="Saving..." /> Saving...');
+    $("#save_indicator").html('<img src="<!--{$absPortPath}-->/images/indicator.gif" alt="Saving..." /> Saving...');
     setTimeout("$('#save_indicator').html('<img src=\"<!--{$libsPath}-->dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
     form.setPostModifyCallback(function() {
         getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);

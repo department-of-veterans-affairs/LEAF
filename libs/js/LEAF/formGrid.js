@@ -69,7 +69,7 @@ var LeafFormGrid = function (containerID, options) {
       type: "GET",
       url:
         portalPath +
-        "api/form/" +
+        "/api/form/" +
         recordID +
         "/rawIndicator/" +
         indicatorID +
@@ -662,7 +662,7 @@ var LeafFormGrid = function (containerID, options) {
           colspan +
           ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
           portalPath +
-          'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>'
+          '/images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>'
       );
     }
 
@@ -713,7 +713,7 @@ var LeafFormGrid = function (containerID, options) {
         colspan +
         '" style="text-align: left; padding: 8px">Building report... <img src="' +
         portalPath +
-        'images/largespinner.gif" alt="loading..." /></td></tr>'
+        '/images/largespinner.gif" alt="loading..." /></td></tr>'
     );
 
     var headerIDList = "";
@@ -725,7 +725,7 @@ var LeafFormGrid = function (containerID, options) {
 
     $.ajax({
       type: "POST",
-      url: portalPath + "api/form/customData",
+      url: portalPath + "/api/form/customData",
       dataType: "json",
       data: {
         recordList: recordIDs,
@@ -843,7 +843,7 @@ var LeafFormGrid = function (containerID, options) {
       });
       var tForm = $(document.createElement("form"));
       tForm.attr({
-        action: portalPath + "api/converter/json?format=csv",
+        action: portalPath + "/api/converter/json?format=csv",
         method: "POST",
       });
       var tInput = $(document.createElement("input"));

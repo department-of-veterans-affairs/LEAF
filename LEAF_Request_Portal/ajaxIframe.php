@@ -73,6 +73,7 @@ switch ($action) {
         $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_iframe->assign('libsPath', S_LIB_PATH);
+        $t_iframe->assign('absPortPath', ABSOLUTE_PORT_PATH);
         $main->assign('body', $t_iframe->fetch('file_form.tpl'));
 
         break;
@@ -85,6 +86,7 @@ switch ($action) {
            $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
            $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
            $t_iframe->assign('libsPath', S_LIB_PATH);
+           $t_iframe->assign('absPortPath', ABSOLUTE_PORT_PATH);
            $main->assign('body', $t_iframe->fetch('file_image_form.tpl'));
 
            break;
@@ -162,7 +164,6 @@ switch ($action) {
                     }
                 }
                 $t_form->assign('libsPath', S_LIB_PATH);
-                $t_form->assign('portalPath', PORTAL_PATH);
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form_iframe.tpl')));
 

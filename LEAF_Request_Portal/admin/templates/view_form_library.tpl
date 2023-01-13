@@ -62,7 +62,6 @@ $(function() {
 
     query = new LeafFormQuery();
     query.useJSONP(true);
-    //query.setPortalPath('<!--{$LEAF_NEXUS_URL}-->/LEAF/library/');
     query.setPortalPath('<!--{$domainPath}-->/LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
@@ -82,7 +81,7 @@ $(function() {
 
 
         grid = new LeafFormGrid('forms', {readOnly: true});
-        grid.setPortalPath('<!--{$portalPath}-->');
+        grid.setPortalPath('<!--{$absPortPath}-->');
         grid.hideIndex();
         grid.importQueryResult(tData);
         grid.setHeaders([
@@ -140,7 +139,7 @@ $(function() {
 
     var leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setLibsPath('<!--{$libsPath}-->');
-    leafSearch.setPortalPath('<!--{$portalPath}-->');
+    leafSearch.setPortalPath('<!--{$absPortPath}-->');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.setSearchFunc(function(search) {
         query.clearTerms();

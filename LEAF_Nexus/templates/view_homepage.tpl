@@ -41,7 +41,7 @@
         <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #5A79A5">
             <div id="searchBorder" style="white-space: nowrap; background-color: #5a79a5;">
                 <img id="searchIcon" src="<!--{$libsPath}-->dynicons/?img=search.svg&w=16" style="position: absolute; margin-left: 66px; padding: 10px" alt="search" />
-                <img id="searchIconBusy" src="images/indicator.gif" style="display: none; position: absolute; margin-left: 66px; padding: 10px" alt="search" />
+                <img id="searchIconBusy" src="<!--{$absOrgPath}-->/images/indicator.gif" style="display: none; position: absolute; margin-left: 66px; padding: 10px" alt="search" />
                 Search <input id="search" name="search" aria-label="Search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
             </div>
         </div>

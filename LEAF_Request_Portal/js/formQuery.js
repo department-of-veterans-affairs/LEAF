@@ -241,7 +241,7 @@ var LeafFormQuery = function() {
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: portalPath + 'api/form/query?q=' + queryUrl + extraParams,
+        		url: portalPath + '/api/form/query?q=' + queryUrl + extraParams,
         		dataType: 'json',
         		success: successCallback
         	});
@@ -249,7 +249,7 @@ var LeafFormQuery = function() {
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: portalPath + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
+        		url: portalPath + '/api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
         		success: successCallback
         	});

@@ -113,6 +113,7 @@ switch ($action) {
                                            'css/positionSelector.css', ));
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
         $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
         $main->assign('body', $t_form->fetch('editor.tpl'));
 
         $tabText = '';
@@ -556,6 +557,7 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('libsPath', S_LIB_PATH);
+            $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH);
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
             if ($action != 'menu' && $action != '')

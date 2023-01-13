@@ -2005,7 +2005,7 @@ function viewHistory(categoryId){
 function fetchLEAFSRequests(searchResolved) {
     let deferred = $.Deferred();
     let query = new LeafFormQuery();
-    query.setPortalPath('<!--{$portalPath}-->');
+    query.setPortalPath('<!--{$absPortPath}-->');
     query.addTerm('categoryID', '=', 'leaf_secure');
 
     if (searchResolved) {

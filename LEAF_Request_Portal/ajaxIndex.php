@@ -186,6 +186,7 @@ switch ($action) {
         $t_form->assign('lastActionTime', $lastActionTime);
         $t_form->assign('requestLabel', $requestLabel);
         $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if ($parallelProcessing)

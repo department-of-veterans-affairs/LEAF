@@ -62,6 +62,7 @@ switch ($action) {
         $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_iframe->assign('libsPath', S_LIB_PATH);
+        $t_iframe->assign('absOrgPath', ABSOLUTE_ORG_PATH);
         $main->assign('body', $t_iframe->fetch('file_form.tpl'));
 
         break;

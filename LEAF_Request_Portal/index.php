@@ -96,6 +96,7 @@ switch ($action) {
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
         $t_form->assign('libsPath', S_LIB_PATH);
+        $t_iframe->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 
@@ -140,6 +141,7 @@ switch ($action) {
                     break;
                 default:
                     $t_form->assign('libsPath', S_LIB_PATH);
+                    $t_iframe->assign('absPortPath', ABSOLUTE_PORT_PATH);
                     $main->assign('body', $t_form->fetch(customTemplate('form.tpl')));
 
                     break;
@@ -346,6 +348,7 @@ switch ($action) {
 
         $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
         $t_form->assign('libsPath', S_LIB_PATH);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch('import_from_webHR.tpl'));
 
