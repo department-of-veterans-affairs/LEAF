@@ -163,9 +163,9 @@ switch ($action) {
             'js/gridInput.js',
             'js/workflow.js',
             'js/formGrid.js',
-            'js/formQuery.js',
             'js/formPrint.js',
             'js/jsdiff.js',
+            S_LIB_PATH . 'js/LEAF/formQuery.js',
             S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
             S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
             S_LIB_PATH . 'js/es6-promise/es6-promise.min.js',
@@ -423,7 +423,7 @@ switch ($action) {
         $main->assign('javascripts', array(
                 'js/form.js',
                 'js/formGrid.js',
-                'js/formQuery.js',
+                S_LIB_PATH . 'js/LEAF/formQuery.js',
                 'js/formSearch.js'
         ));
         $main->assign('useUI', true);
@@ -464,7 +464,7 @@ switch ($action) {
         $main->assign('stylesheets', array('css/report.css', S_LIB_PATH . 'js/choicesjs/choices.min.css'));
         $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
-               'js/formQuery.js',
+               S_LIB_PATH . 'js/LEAF/formQuery.js',
                'js/formSearch.js',
                'js/gridInput.js',
                'js/workflow.js',
@@ -519,7 +519,11 @@ switch ($action) {
         exit();
     default:
 
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('javascripts', array('js/form.js',
+                                    'js/formGrid.js',
+                                    S_LIB_PATH . 'js/LEAF/formQuery.js',
+                                    'js/formSearch.js'
+        ));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');

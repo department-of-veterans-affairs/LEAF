@@ -7,8 +7,7 @@
 var LeafFormQuery = function() {
 	var query = {};
 	var successCallback = null;
-	var rootURL = '';
-    var portalPath = '';
+	var portalPath = '';
     var useJSONP = false;
     var extraParams = '';
 

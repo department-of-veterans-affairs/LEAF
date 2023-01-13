@@ -64,7 +64,10 @@ $form = new Portal\Form($db, $login, $settings, $oc_employee, $oc_position, $oc_
 switch ($action) {
     case 'showServiceFTEstatus':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
+        $main->assign('javascripts', array('js/form.js',
+                                    'js/workflow.js',
+                                    'js/formGrid.js',
+                                    S_LIB_PATH . 'js/LEAF/formQuery.js'));
 
         $o_login = $t_login->fetch('login.tpl');
 
@@ -99,7 +102,7 @@ switch ($action) {
                 'js/form.js',
                 'js/workflow.js',
                 'js/formGrid.js',
-                'js/formQuery.js',
+                S_LIB_PATH . 'js/LEAF/formQuery.js',
                 'js/formSearch.js',
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',

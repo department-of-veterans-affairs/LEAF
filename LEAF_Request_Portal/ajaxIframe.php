@@ -90,7 +90,11 @@ switch ($action) {
            break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
+        $main->assign('javascripts', array('js/form.js',
+                            'js/workflow.js',
+                            'js/formGrid.js',
+                            S_LIB_PATH . 'js/LEAF/formQuery.js',
+                            'js/jsdiff.js'));
 
         $oc_employee = new Orgchart\Employee($oc_db, $oc_login);
         $oc_position = new Orgchart\Position($oc_db, $oc_login);

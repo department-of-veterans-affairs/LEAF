@@ -7,6 +7,7 @@ var LeafFormQuery = function() {
 	var successCallback = null;
 	var portalPath = '';
 	var useJSONP = false;
+    var extraParams = '';
 
 	clearTerms();
 
@@ -205,6 +206,14 @@ var LeafFormQuery = function() {
     }
 
     /**
+     * Add extra parameters to the end of the query API URL
+     * @param string params
+     */
+    function setExtraParams(params) {
+        extraParams = params;
+    }
+
+    /**
      * @param funct - Success callback (see format for jquery ajax success)
      * @memberOf LeafFormQuery
      */
@@ -223,10 +232,14 @@ var LeafFormQuery = function() {
     		delete query.getData;
     	}
 
+        let el = document.createElement('div');
+        el.innerHTML = JSON.stringify(query);
+        let queryUrl = el.innerText;
+
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: portalPath + 'api/form/query?q=' + JSON.stringify(query),
+        		url: portalPath + 'api/form/query?q=' + queryUrl + extraParams,
         		dataType: 'json',
         		success: successCallback,
         		cache: false
@@ -235,7 +248,7 @@ var LeafFormQuery = function() {
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: portalPath + 'api/form/query?q=' + JSON.stringify(query) + '&format=jsonp',
+        		url: portalPath + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
         		success: successCallback,
         		cache: false
@@ -258,6 +271,7 @@ var LeafFormQuery = function() {
 		setPortalPath: function(url) { portalPath = url; },
 		getPortalPath: function() { return portalPath; },
 		useJSONP: function(state) { useJSONP = state; },
+        setExtraParams: setExtraParams,
 		join: join,
 		sort: sort,
 		onSuccess: onSuccess,

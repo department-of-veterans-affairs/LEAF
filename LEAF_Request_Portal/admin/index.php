@@ -193,7 +193,7 @@ switch ($action) {
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                             '../../libs/js/choicesjs/choices.min.js',
-                                            '../js/formQuery.js'
+                                            S_LIB_PATH . '/js/LEAF/formQuery.js'
         ));
         $main->assign('stylesheets', array('../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
@@ -203,6 +203,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('absPortalPath', ABSOLUTE_PORT_PATH);
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
@@ -230,7 +231,7 @@ switch ($action) {
                                             S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
                                             S_LIB_PATH . 'js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
-                                            '../js/formQuery.js'
+                                            S_LIB_PATH . 'js/LEAF/formQuery.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             S_LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
@@ -255,8 +256,8 @@ switch ($action) {
         }
 
         $t_form->assign('libsPath', S_LIB_PATH);
-        $t_form->assign('portalpath', PORTAL_PATH);
-        error_log(S_LIB_PATH);
+        $t_form->assign('portalPath', ABSOLUTE_PORT_PATH . '/');
+
         $main->assign('body', $t_form->fetch('mod_form.tpl'));
 
         $tabText = 'Form Editor';
@@ -365,6 +366,7 @@ switch ($action) {
            if ($login->checkGroup(1))
            {
                $t_form->assign('LEAF_NEXUS_URL', $site_paths['orgchart_path']);
+               $t_form->assign('domainPath', DOMAIN_PATH);
                $t_form->assign('libsPath', S_LIB_PATH);
                $t_form->assign('portalPath', PORTAL_PATH);
 
@@ -425,7 +427,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array(S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
-                                           '../js/formQuery.js'));
+                                           S_LIB_PATH . 'js/LEAF/formQuery.js'));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 

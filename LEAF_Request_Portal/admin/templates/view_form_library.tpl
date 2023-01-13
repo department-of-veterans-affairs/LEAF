@@ -1,6 +1,6 @@
 <script src="../js/dialogController.js"></script>
 <script src="../js/formGrid.js"></script>
-<script src="../js/formQuery.js"></script>
+<script src="<!--{$libsPath}-->js/LEAF/formQuery.js"></script>
 <script src="../js/formSearch.js"></script>
 <script src="../js/LeafPreview.js"></script>
 
@@ -62,7 +62,8 @@ $(function() {
 
     query = new LeafFormQuery();
     query.useJSONP(true);
-    query.setPortalPath('<!--{$LEAF_NEXUS_URL}-->LEAF/library/');
+    //query.setPortalPath('<!--{$LEAF_NEXUS_URL}-->/LEAF/library/');
+    query.setPortalPath('<!--{$domainPath}-->/LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
         var tData = [];

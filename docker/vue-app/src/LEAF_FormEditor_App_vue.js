@@ -23,6 +23,7 @@ export default {
     data() {
         return {
             APIroot: '../api/',
+            PortalPath: portalPath,
             CSRFToken: CSRFToken,
             siteSettings: {},
             showCertificationStatus: false,
@@ -153,7 +154,7 @@ export default {
     },
     computed: {
         /**
-         * 
+         *
          * @returns {array} of categories object records
          */
         activeCategories() {
@@ -166,7 +167,7 @@ export default {
             return active;
         },
         /**
-         * 
+         *
          * @returns {array} of categories object records
          */
         inactiveCategories() {
@@ -179,7 +180,7 @@ export default {
             return inactive;
         },
         /**
-         * 
+         *
          * @returns {array} of internal forms associated with the main form
          */
         internalForms() {
@@ -198,8 +199,8 @@ export default {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
         /**
-         * 
-         * @param {string} content 
+         *
+         * @param {string} content
          * @returns string with tags removed and remaining characers decoded
          */
         stripAndDecodeHTML(content='') {
@@ -222,7 +223,7 @@ export default {
             this.indicatorCountSwitch = !this.indicatorCountSwitch;
         },
         /**
-         * 
+         *
          * @returns {array} of objects with all fields from categories and workflow tables for enabled forms
          */
         getCategoryListAll() {
@@ -237,7 +238,7 @@ export default {
             });
         },
         /**
-         * 
+         *
          * @returns {array} of objects with all fields from the workflows table
          */
         getWorkflowRecords() {
@@ -251,7 +252,7 @@ export default {
             });
         },
         /**
-         * 
+         *
          * @returns {Object} of all records from the portal's settings table
          */
         getSiteSettings() {
@@ -266,16 +267,16 @@ export default {
             });
         },
         /**
-         * 
-         * @param {boolean} searchResolved 
+         *
+         * @param {boolean} searchResolved
          * @returns {Object} of LEAF Secure Certification requests
          */
         fetchLEAFSRequests(searchResolved = false) {
             return new Promise((resolve, reject)=> {
                 let query = new LeafFormQuery();
-                query.setRootURL('../');
+                query.setPortalPath(PortalPath);
                 query.addTerm('categoryID', '=', 'leaf_secure');
-            
+
                 if (searchResolved === true) {
                     query.addTerm('stepID', '=', 'resolved');
                     query.join('recordResolutionData');
@@ -315,7 +316,7 @@ export default {
         },
         /**
          * checks status of LEAF Secure Certification requests and adds HTML contents based on status
-         * @param {array} indicatorList 
+         * @param {array} indicatorList
          * @param {Object} leafSRequests
          */
         checkLeafSRequestStatus(indicatorList = [], leafSRequests = {}) {
@@ -355,8 +356,8 @@ export default {
             }
         },
         /**
-         * 
-         * @param {string} catID 
+         *
+         * @param {string} catID
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '') {
@@ -374,8 +375,8 @@ export default {
             });
         },
         /**
-         * 
-         * @param {string} catID 
+         *
+         * @param {string} catID
          * @returns {array} of objects with information about forms stapled to CatID
          */
         getStapledFormsByCurrentCategory(catID = '') {
@@ -391,8 +392,8 @@ export default {
             });
         },
         /**
-         * 
-         * @param {number} indID 
+         *
+         * @param {number} indID
          * @returns {Object} with property information about the specific indicator
          */
         getIndicatorByID(indID) {
@@ -407,7 +408,7 @@ export default {
         },
         /**
          * builds the categories object from the array resolved by getCategoryListAll, for local data use
-         * @param {array} obj 
+         * @param {array} obj
          */
         setCategories(obj = []) {
             for(let i in obj) {
@@ -416,16 +417,16 @@ export default {
         },
         /**
          * sets app data for staples associated with the currently selected form
-         * @param {array} stapledForms 
+         * @param {array} stapledForms
          */
         setCurrCategoryStaples(stapledForms = []) {
             this.ajaxSelectedCategoryStapled = stapledForms;
         },
         /**
          * updates app categories object property value
-         * @param {string} catID 
-         * @param {string} keyName 
-         * @param {string} keyValue 
+         * @param {string} catID
+         * @param {string} keyName
+         * @param {string} keyValue
          */
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             this.categories[catID][keyName] = keyValue;
@@ -433,8 +434,8 @@ export default {
         },
         /**
          * updates app formsStapledCatIDs to track which forms have staples for card info
-         * @param {string} stapledCatID 
-         * @param {string} removeCatID 
+         * @param {string} stapledCatID
+         * @param {string} removeCatID
          */
         updateFormsStapledCatIDs(stapledCatID = '', removeCatID = false) {
             if(removeCatID === true) {
@@ -445,19 +446,19 @@ export default {
             } else {
                 if(!this.formsStapledCatIDs.includes(stapledCatID)) {
                     this.formsStapledCatIDs = [...this.formsStapledCatIDs, stapledCatID];
-                } 
+                }
             }
         },
         /**
          * adds an entry to the app's categories object when a new form is created
-         * @param {string} catID 
+         * @param {string} catID
          * @param {Object} record of properties for the new form
          */
         addNewCategory(catID = '', record = {}) {
             this.categories[catID] = record;
         },
         /**
-         * 
+         *
          * @param {string|null} catID of the form to select TODO: see if this can be refact to empty str
          * @param {boolean} isSubform whether it is a main or a subform
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
@@ -513,7 +514,7 @@ export default {
             }
         },
         /**
-         * 
+         *
          * @param {Object} event
          * @param {Object} node of the form section selected in the Form Index
          */
@@ -572,7 +573,7 @@ export default {
         },
         /**
          * Opens the dialog for editing a form question, creating a new form section, or creating a new subquestion
-         * @param {number|null} indicatorID 
+         * @param {number|null} indicatorID
          */
         openIndicatorEditingDialog(indicatorID = null) {
             let title = ''
@@ -580,7 +581,7 @@ export default {
                 title = `<h2>Adding new Section</h2>`;
             } else {
                 //If equal, this is editing an existing question.  Otherwise, creating a new subquestion (param is its parentID)
-                title = this.currIndicatorID === parseInt(indicatorID) ? 
+                title = this.currIndicatorID === parseInt(indicatorID) ?
                 `<h2>Editing indicator ${indicatorID}</h2>` : `<h2>Adding question to ${indicatorID}</h2>`;
             }
             this.setCustomDialogTitle(title);
@@ -589,7 +590,7 @@ export default {
         },
         /**
          * get indicator info for indicatorID, and then open advanced options for that indicator
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
          */
         openAdvancedOptionsDialog(indicatorID = 0) {
             this.ajaxIndicatorByID = {};
@@ -598,19 +599,19 @@ export default {
                 this.ajaxIndicatorByID = res;
                 this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicatorID}</h2>`);
                 this.setFormDialogComponent('advanced-options-dialog');
-                this.showFormDialog = true;   
+                this.showFormDialog = true;
             }).catch(err => console.log('error getting indicator information', err));
         },
         openNewFormDialog() {
             const titleHTML = this.currCategoryID === null ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
             this.setCustomDialogTitle(titleHTML);
             this.setFormDialogComponent('new-form-dialog');
-            this.showFormDialog = true; 
+            this.showFormDialog = true;
         },
         openImportFormDialog() {
             this.setCustomDialogTitle('<h2>Import Form</h2>');
             this.setFormDialogComponent('import-form-dialog');
-            this.showFormDialog = true;  
+            this.showFormDialog = true;
         },
         openFormHistoryDialog() {
             this.setCustomDialogTitle(`<h2>Form History</h2>`);
@@ -629,7 +630,7 @@ export default {
         },
         /**
          * get information about the indicator and open indicator editing
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
          */
         editQuestion(indicatorID = 0) {
             this.ajaxIndicatorByID = {};
