@@ -502,7 +502,6 @@ nationalEmployeeSelector.prototype.search = function () {
         }
 
         // search local directory, since an empUID query implies that the user already exists in the local dir.
-        console.log('test ' + this.absOrgPath);
         var apiOption = "national/employee/search";
         if (this.q.substr(0, 1) == "#") {
           apiOption = "employee/search";

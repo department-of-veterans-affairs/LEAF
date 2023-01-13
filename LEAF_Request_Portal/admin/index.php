@@ -102,8 +102,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array($site_paths['orgchart_path'] . '/js/nationalEmployeeSelector.js',
-                                           $site_paths['orgchart_path'] . '/js/groupSelector.js',
+        $main->assign('javascripts', array(ABSOLUTE_ORG_PATH . '/js/nationalEmployeeSelector.js',
+                                           ABSOLUTE_ORG_PATH . '/js/groupSelector.js',
         ));
 
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
@@ -117,8 +117,8 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           $site_paths['orgchart_path'] . '/css/employeeSelector.css',
-                                           $site_paths['orgchart_path'] . '/css/groupSelector.css',
+                                           ABSOLUTE_ORG_PATH . '/css/employeeSelector.css',
+                                           ABSOLUTE_ORG_PATH . '/css/groupSelector.css',
         ));
         $t_form->assign('libsPath', '../..' . S_LIB_PATH);
 
@@ -158,12 +158,12 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array(S_LIB_PATH . 'js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../..' . $site_paths['orgchart_path'] . '/js/groupSelector.js',
+                                           ABSOLUTE_ORG_PATH . '/js/groupSelector.js',
                                            S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
                                            S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           '../..' . $site_paths['orgchart_path'] . '/css/groupSelector.css',
+                                           ABSOLUTE_ORG_PATH . '/css/groupSelector.css',
         ));
         $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('orgchartImportTags', $site_paths['importTags']);
@@ -209,7 +209,7 @@ switch ($action) {
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 
-        $tabText = 'Form Editor Testing';        
+        $tabText = 'Form Editor Testing';
         break;
     */
     case 'form':
@@ -256,7 +256,7 @@ switch ($action) {
 
         $t_form->assign('libsPath', S_LIB_PATH);
         $t_form->assign('portalpath', PORTAL_PATH);
-
+        error_log(S_LIB_PATH);
         $main->assign('body', $t_form->fetch('mod_form.tpl'));
 
         $tabText = 'Form Editor';
