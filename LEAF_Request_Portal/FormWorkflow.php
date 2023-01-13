@@ -117,10 +117,9 @@ class FormWorkflow
                     $quadGroupIDs = $this->login->getQuadradGroupID();
                     $vars3 = array(
                         ':serviceID' => $res[$i]['serviceID'],
-                        ':quadGroupIDs' => $quadGroupIDs
                     );
                     $strSQL = 'SELECT * FROM services
-                        WHERE find_in_set(groupID, :quadGroupIDs)
+                        WHERE groupID IN ('.$quadGroupIDs.')
                         AND serviceID = :serviceID';
                     $res3 = $this->db->prepared_query($strSQL, $vars3);
 
@@ -271,7 +270,7 @@ class FormWorkflow
     /**
      * Get the last action made to the request
      */
-    public function getLastAction(): ?array
+    public function getLastAction(): array|null|int
     {
         // check privileges
         require_once 'form.php';
@@ -469,11 +468,10 @@ class FormWorkflow
                     $quadGroupIDs = $this->login->getQuadradGroupID();
                     $varsQuad = array(
                         ':serviceID' => $res[0]['serviceID'],
-                        ':quadGroupIDs' => $quadGroupIDs
                     );
-                    $strSQL = "SELECT * FROM services
-                        WHERE groupID IN (:quadGroupIDs)
-                        AND serviceID = :serviceID";
+                    $strSQL = 'SELECT * FROM services
+                        WHERE groupID IN ('.$quadGroupIDs.')
+                        AND serviceID = :serviceID';
                     $resQuad = $this->db->prepared_query($strSQL, $varsQuad);
                     if (count($resQuad) == 0)
                     {
