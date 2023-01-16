@@ -29,7 +29,7 @@ var LeafFormSearch = function (containerID) {
         prefixID +
         'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
         libsPath +
-        '../libs/dynicons/?img=search.svg&w=16">\
+        'dynicons/?img=search.svg&w=16">\
 			    <img id="' +
         prefixID +
         'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +

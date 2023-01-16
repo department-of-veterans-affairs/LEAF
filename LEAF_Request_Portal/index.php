@@ -96,7 +96,7 @@ switch ($action) {
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
         $t_form->assign('libsPath', S_LIB_PATH);
-        $t_iframe->assign('absPortPath', ABSOLUTE_PORT_PATH);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 
@@ -141,7 +141,7 @@ switch ($action) {
                     break;
                 default:
                     $t_form->assign('libsPath', S_LIB_PATH);
-                    $t_iframe->assign('absPortPath', ABSOLUTE_PORT_PATH);
+                    $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
                     $main->assign('body', $t_form->fetch(customTemplate('form.tpl')));
 
                     break;
@@ -245,7 +245,7 @@ switch ($action) {
                     }
                 }
                 $t_form->assign('libsPath', S_LIB_PATH);
-                $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH . '/');
+                $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
                 $main->assign('body', $t_form->fetch(customTemplate('print_form.tpl')));
 
@@ -439,6 +439,8 @@ switch ($action) {
 
         $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
 
@@ -494,7 +496,7 @@ switch ($action) {
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('powerQueryURL', $powerQueryURL);
         $t_form->assign('libsPath', S_LIB_PATH);
-        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH . '/');
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_reports.tpl')));
 
@@ -543,6 +545,7 @@ switch ($action) {
         $t_form->assign('is_admin', (int)$login->checkGroup(1));
         $t_form->assign('orgchartPath', '..' . $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 

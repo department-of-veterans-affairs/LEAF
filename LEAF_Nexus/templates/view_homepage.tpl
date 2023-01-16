@@ -184,6 +184,7 @@ var sideOffset = 580;
 var timer = 0;
 $(function() {
     empSel = new employeeSelector('employeeSelector');
+    empSel.libsPath = '<!--{$libsPath}-->';
     empSel.initialize();
     empSel.hideInput();
     empSel.setSelectHandler(function() {
@@ -193,6 +194,7 @@ $(function() {
     empSel.emailHref = true;
 
     posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
     posSel.initialize();
     posSel.hideInput();
     posSel.setSelectHandler(function() {
@@ -201,6 +203,7 @@ $(function() {
     posSel.setSelectLink('?a=view_position');
 
     grpSel = new groupSelector('groupSelector');
+    grpSel.libsPath = '<!--{$libsPath}-->';
     grpSel.configInputID('#search');
     grpSel.initialize();
     grpSel.searchTag('service');
@@ -211,6 +214,7 @@ $(function() {
     grpSel.setSelectLink('?a=navigator_service');
 
     grp2Sel = new groupSelector('group2Selector');
+    grp2Sel.libsPath = '<!--{$libsPath}-->';
     grp2Sel.configInputID('#search');
     grp2Sel.initialize();
     grp2Sel.hideInput();

@@ -273,6 +273,7 @@ function addGroup() {
     dialog.show(); // need to show early because of ie6
 
     grpSel = new groupSelector('groupSelector');
+    grpSel.libsPath = '<!--{$libsPath}-->';
     grpSel.initialize();
     //grpSel.searchTag('service');
 
@@ -323,6 +324,7 @@ function changeSupervisor() {
     dialog.show(); // need to show early because of ie6
 
     posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
     posSel.initialize();
     posSel.enableEmployeeSearch();
 

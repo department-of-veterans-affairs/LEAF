@@ -152,10 +152,12 @@ function addEmployeePosition() {
     dialog.show(); // need to show early because of ie6
 
     empSel = new employeeSelector('employeeSelector');
+    empSel.libsPath = '<!--{$libsPath}-->';
     empSel.initialize();
     empSel.hideInput();
 
     posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
     posSel.initialize();
     posSel.enableEmployeeSearch();
 
@@ -215,6 +217,7 @@ function addEmployee() {
     dialog.show(); // need to show early because of ie6
 
     empSel = new employeeSelector('employeeSelector');
+    empSel.libsPath = '<!--{$libsPath}-->';
     empSel.initialize();
 
     dialog.setSaveHandler(function() {
@@ -240,6 +243,7 @@ function addGroup() {
     dialog.show(); // need to show early because of ie6
 
     grpSel = new groupSelector('groupSelector');
+    grpSel.libsPath = '<!--{$libsPath}-->';
     grpSel.initialize();
 
     dialog.setSaveHandler(function() {

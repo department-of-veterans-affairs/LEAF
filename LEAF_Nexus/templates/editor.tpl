@@ -145,6 +145,7 @@ function changeSupervisor(currPositionID) {
     dialog.show(); // need to show early because of ie6
 
     posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
     posSel.initialize();
     posSel.enableEmployeeSearch();
 

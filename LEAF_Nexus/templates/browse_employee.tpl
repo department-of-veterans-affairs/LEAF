@@ -30,6 +30,7 @@ var empSel;
 var intval;
 $(function() {
     empSel = new employeeSelector('employeeSelector');
+    empSel.libsPath = '<!--{$libsPath}-->';
     empSel.initialize();
     empSel.enableNoLimit();
 

@@ -31,8 +31,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
 
-<script src="{$libsPath}js/jquery/jquery-ui.custom.min.js"></script>
-<script src="{$libsPath}js/promise-pollyfill/polyfill.min.js"></script>
+<script src="<!--{$libsPath}-->js/jquery/jquery-ui.custom.min.js"></script>
+<script src="<!--{$libsPath}-->js/promise-pollyfill/polyfill.min.js"></script>
 
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
 <div id="uploadBox">

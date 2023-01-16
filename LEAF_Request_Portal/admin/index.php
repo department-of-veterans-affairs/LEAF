@@ -331,8 +331,8 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
-            $main->assign('libsPath', S_LIB_PATH);
-                $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
+            $t_form->assign('libsPath', S_LIB_PATH);
+            $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else

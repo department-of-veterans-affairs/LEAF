@@ -82,7 +82,7 @@ switch ($action) {
         if (isset($memberships['groupID'][1]))
         {
             $t_form->assign('libsPath', S_LIB_PATH);
-                $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH );
+            $t_form->assign('absOrgPath', ABSOLUTE_ORG_PATH );
             $main->assign('body', $t_form->fetch('admin_update_database.tpl'));
         }
         else

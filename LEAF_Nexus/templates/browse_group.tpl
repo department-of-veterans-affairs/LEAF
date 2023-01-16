@@ -53,6 +53,7 @@ var intval;
 var dialog;
 $(function() {
 	grpSel = new groupSelector('groupSelector');
+    grpSel.libsPath = '<!--{$libsPath}-->';
 	grpSel.initialize();
 	grpSel.enableNoLimit();
 

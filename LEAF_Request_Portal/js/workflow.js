@@ -49,7 +49,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         // Check if CSRFToken has Changed (Timeout Fix)
         $.ajax({
             type: 'GET',
-            url: absPortPath + 'api/formWorkflow/getCSRFToken',
+            url: absPortPath + '/api/formWorkflow/getCSRFToken',
             async: false,
             success: function(res) {
                 data.CSRFToken = res;
@@ -59,10 +59,10 @@ var LeafWorkflow = function(containerID, CSRFToken) {
             }
         });
 
-        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ absPortPath +'images/largespinner.gif" alt="loading..." /></div>');
+        $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ absPortPath +'/images/largespinner.gif" alt="loading..." /></div>');
         $.ajax({
             type: 'POST',
-            url: absPortPath + 'api/formWorkflow/' + currRecordID + '/apply',
+            url: absPortPath + '/api/formWorkflow/' + currRecordID + '/apply',
             data: data,
             success: function(response) {
                 if (response !== "Invalid Token.") {
@@ -340,7 +340,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
     function getLastAction(recordID, res) {
         $.ajax({
             type: 'GET',
-            url: absPortPath + 'api/formWorkflow/' + recordID + '/lastActionSummary',
+            url: absPortPath + '/api/formWorkflow/' + recordID + '/lastActionSummary',
             dataType: 'json',
             success: function(lastActionSummary) {
                 response = lastActionSummary.lastAction;

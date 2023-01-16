@@ -198,6 +198,7 @@ function addEmployeePosition() {
     empSel.hideInput();
 
     posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
     posSel.initialize();
     posSel.enableEmployeeSearch();
 

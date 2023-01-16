@@ -18,6 +18,7 @@ var posSel;
 var intval;
 $(function() {
 	posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
 	posSel.initialize();
 	posSel.enableNoLimit();
 

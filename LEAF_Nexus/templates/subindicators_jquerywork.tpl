@@ -196,6 +196,7 @@
 /*
                     $.getScript("./js/positionSelector.js", function() {
                         var posSel = new positionSelector('posSel_{/literal}{$indicator.indicatorID}{literal}');
+                        posSel.libsPath = '<!--{$libsPath}-->';
 
                         posSel.setSelectHandler(function() {
                             dojo.byId('{/literal}{$indicator.indicatorID}{literal}').value = posSel.selection;
@@ -210,6 +211,7 @@
                         load: function(response) {
                             eval(response);
                             posSel = new positionSelector('posSel_{/literal}{$indicator.indicatorID}{literal}');
+                            posSel.libsPath = '<!--{$libsPath}-->';
 
                             posSel.setSelectHandler(function() {
                                 dojo.byId('{/literal}{$indicator.indicatorID}{literal}').value = posSel.selection;
@@ -221,6 +223,7 @@
             	}
                 else {
                     posSel = new positionSelector('posSel_{/literal}{$indicator.indicatorID}{literal}');
+                    posSel.libsPath = '<!--{$libsPath}-->';
 
                     posSel.setSelectHandler(function() {
                         dojo.byId('{/literal}{$indicator.indicatorID}{literal}').value = posSel.selection;

@@ -115,6 +115,7 @@ function renderResult(leafSearch, res) {
 
 function main() {
     let query = new LeafFormQuery();
+    query.setPortalPath('<!--{$absPortPath}-->');
     let leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.setLibsPath('<!--{$libsPath}-->');

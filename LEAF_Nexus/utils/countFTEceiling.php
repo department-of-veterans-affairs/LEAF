@@ -40,6 +40,8 @@
 <script type="text/javascript">
 /* <![CDATA[ */
 
+let libsPath = <?= S_LIB_PATH; ?>
+
 function add(a, b) {
 	return Math.round((parseFloat(a) + parseFloat(b)) * 100)/100;
 }
@@ -98,6 +100,7 @@ function countFTE(positionID) {
     posSel = new positionSelector('position');
     posSel.apiPath = '../api/?a=';
     posSel.rootPath = '../';
+    posSel.libsPath = libsPath;
     posSel.optionEmployeeSearch = 1;
     posSel.initialize();
     posSel.setSelectHandler(function() {

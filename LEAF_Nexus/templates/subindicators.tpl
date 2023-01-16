@@ -277,6 +277,7 @@
                             load: function(response) {
                                 eval(response);
                                 posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
+                                posSel.libsPath = '<!--{$libsPath}-->';
                                 posSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 posSel.enableEmployeeSearch();
 
@@ -295,6 +296,7 @@
                             handleAs: 'javascript',
                             load: function() {
                                 posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
+                                posSel.libsPath = '<!--{$libsPath}-->';
                                 posSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 posSel.enableEmployeeSearch();
 
@@ -309,6 +311,7 @@
                 }
                 else {
                     posSel = new positionSelector('posSel_<!--{$indicator.indicatorID|strip_tags}-->');
+                    posSel.libsPath = '<!--{$libsPath}-->';
                     posSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                     posSel.enableEmployeeSearch();
 
@@ -342,6 +345,7 @@
                                 empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 empSel.rootPath = '..<!--{$orgchartPath}-->/';
                                 empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
+                                empSel.libsPath = '<!--{$libsPath}-->';
 
                                 empSel.setSelectHandler(function() {
                                     dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
@@ -361,6 +365,7 @@
                                 empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                                 empSel.rootPath = '..<!--{$orgchartPath}-->/';
                                 empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
+                                empSel.libsPath = '<!--{$libsPath}-->';
 
                                 empSel.setSelectHandler(function() {
                                     dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;
@@ -376,6 +381,7 @@
                     empSel.apiPath = '..<!--{$orgchartPath}-->/api/';
                     empSel.rootPath = '..<!--{$orgchartPath}-->/';
                     empSel.absRootPath = '<!--{$absOrgchartPath}-->/';
+                    empSel.libsPath = '<!--{$libsPath}-->';
 
                     empSel.setSelectHandler(function() {
                         dojo.byId('<!--{$indicator.indicatorID|strip_tags}-->').value = empSel.selection;

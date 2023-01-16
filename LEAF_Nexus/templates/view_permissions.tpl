@@ -170,6 +170,7 @@ function addEmployee() {
     dialog.show(); // need to show early because of ie6
 
     empSel = new employeeSelector('employeeSelector');
+    empSel.libsPath = '<!--{$libsPath}-->';
     empSel.initialize();
 
     dialog.setSaveHandler(function() {
@@ -195,6 +196,7 @@ function addPosition() {
     dialog.show(); // need to show early because of ie6
 
     posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
     posSel.initialize();
 
     dialog.setSaveHandler(function() {
@@ -220,6 +222,7 @@ function addGroup() {
     dialog.show(); // need to show early because of ie6
 
     grpSel = new groupSelector('groupSelector');
+    grpSel.libsPath = '<!--{$libsPath}-->';
     grpSel.initialize();
 
     dialog.setSaveHandler(function() {

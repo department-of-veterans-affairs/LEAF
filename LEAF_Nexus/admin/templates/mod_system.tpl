@@ -148,6 +148,7 @@
             empSel = new employeeSelector('primaryAdmin');
             empSel.apiPath = '../api/?a=';
             empSel.rootPath = '../';
+            empSel.libsPath = '<!--{$libsPath}-->';
             empSel.initialize();
             empSel.enableNoLimit();
 

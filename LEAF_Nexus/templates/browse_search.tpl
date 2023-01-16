@@ -73,6 +73,7 @@ var empSel, posSel, grpSel;
 var ppInterval;
 $(function() {
 	empSel = new employeeSelector('employeeSelector');
+    empSel.libsPath = '<!--{$libsPath}-->';
 	empSel.initialize();
 	empSel.hideInput();
     empSel.setSelectHandler(function() {
@@ -80,6 +81,7 @@ $(function() {
     });
 
 	posSel = new positionSelector('positionSelector');
+    posSel.libsPath = '<!--{$libsPath}-->';
 	posSel.initialize();
 	posSel.hideInput();
     posSel.setSelectHandler(function() {
@@ -87,6 +89,7 @@ $(function() {
     });
 
 	grpSel = new groupSelector('groupSelector');
+    grpSel.libsPath = '<!--{$libsPath}-->';
 	grpSel.initialize();
 	grpSel.hideInput();
 	grpSel.setSelectHandler(function() {
