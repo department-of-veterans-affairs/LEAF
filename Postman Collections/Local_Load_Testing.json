@@ -55,7 +55,7 @@
 					}
 				}
 			],
-			"_postman_id": "cb2ec41d-478e-499c-9dc9-e9910d342f52",
+			"id": "cb2ec41d-478e-499c-9dc9-e9910d342f52",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -74,7 +74,7 @@
 						}
 					}
 				},
-				"url": "{{Local_URL}}/api/formWorkflow/getCSRFToken"
+				"url": "https://localhost/LEAF_Request_Portal/api/formWorkflow/getCSRFToken"
 			},
 			"response": []
 		},
@@ -121,7 +121,7 @@
 					}
 				}
 			],
-			"_postman_id": "5011904f-bfaa-44f4-bb03-0c7d80628cbb",
+			"id": "5011904f-bfaa-44f4-bb03-0c7d80628cbb",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {},
@@ -187,10 +187,7 @@
 							"value": "{{CSRFToken}}",
 							"type": "text"
 						}
-					],
-					"options": {
-						"formdata": {}
-					}
+					]
 				},
 				"url": {
 					"raw": "https://localhost/LEAF_Request_Portal/api/form/new",
