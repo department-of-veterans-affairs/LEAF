@@ -1,0 +1,263 @@
+{
+	"info": {
+		"_postman_id": "fb58dcd7-1634-4e7f-b3b8-f8539f336845",
+		"name": "LOCAL_LOAD_TESTING",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Local - getCSRFToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c57ea32b-2a69-4e4a-a2c3-644fa0144d1d",
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"getCSRFToken\", function () {\r",
+							"    //const response = pm.response.json();    // response is stored js object\r",
+							"\tvar response = pm.response.text();\r",
+							"\tstr1 = response.slice(1);\r",
+							"\tstr2 = str1.slice(0, -1);\r",
+							"\ttoken = str2;\r",
+							"\tconsole.log(token);\r",
+							"\t\r",
+							"\tpm.globals.set(\"CSRFToken\", token);\r",
+							"\tconsole.log(\"CSRFToken Retreived from GET request: \" + pm.globals.get(\"CSRFToken\"));\r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "94ef5633-60b5-466e-a324-38ce91df8460",
+						"exec": [
+							"\r",
+							"\r",
+							"\r",
+							"/* const random = Math.random().toString(36).substring(2);\r",
+							"const formCategories = \"formCategories \" + random;\r",
+							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
+							"*/\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "cb2ec41d-478e-499c-9dc9-e9910d342f52",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{Local_URL}}/api/formWorkflow/getCSRFToken"
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Create Form NEW",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
+						"exec": [
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0fc167b9-bc0d-418f-9538-f3c0c537db90",
+						"exec": [
+							"\r",
+							"pm.globals.get(\"CSRFToken\");\r",
+							"console.log(\"CSRF Token for POST Request: \" + pm.globals.get(\"CSRFToken\"))\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "5011904f-bfaa-44f4-bb03-0c7d80628cbb",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {},
+				"followOriginalHttpMethod": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text"
+					},
+					{
+						"key": "service",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "title",
+						"value": "Test Title",
+						"type": "text"
+					},
+					{
+						"key": "priority",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "numform_b7c34",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "service",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "form_1234",
+							"type": "text"
+						},
+						{
+							"key": "priority",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "numform_b7c34",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "CSRFToken",
+							"value": "{{CSRFToken}}",
+							"type": "text"
+						}
+					],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/LEAF_Request_Portal/api/form/new",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"LEAF_Request_Portal",
+						"api",
+						"form",
+						"new"
+					],
+					"query": [
+						{
+							"key": "XSRF-TOKEN",
+							"value": "token",
+							"disabled": true
+						},
+						{
+							"key": "service",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "title",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "priority",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "ntlm",
+		"ntlm": {}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b34056d3-1de3-401a-bb16-a290a54b3458",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "a8db27db-16f6-4bdf-b0e4-83098b584abe",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
