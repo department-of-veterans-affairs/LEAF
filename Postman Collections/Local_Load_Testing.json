@@ -86,7 +86,6 @@
 					"script": {
 						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
 						"exec": [
-							"pm.test(\"getCSRFToken\", function () {\r",
 							"    //const response = pm.response.json();    // response is stored js object\r",
 							"\tvar response = pm.response.text();\r",
 							"\tstr1 = response.slice(1);\r",
@@ -97,7 +96,6 @@
 							"\tpm.globals.set(\"CSRFToken\", token);\r",
 							"\tconsole.log(\"CSRFToken Retreived from GET request: \" + pm.globals.get(\"CSRFToken\"));\r",
 							"\r",
-							"});\r",
 							"\r",
 							"\r",
 							"\r",
