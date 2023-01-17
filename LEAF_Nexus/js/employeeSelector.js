@@ -239,6 +239,10 @@ employeeSelector.prototype.search = function() {
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('keypress', t.getSelectorFunction(response[i].empUID));
 		                	t.numResults++;
+
+							if(response[i].deleted > 0){
+								$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelectorDisable');
+							}
 		            	}
 
 		            	if(t.numResults == 1) {

@@ -364,90 +364,12 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupLastName($lastName)
-    {
-        $lastName = $this->parseWildcard($lastName);
-
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE lastName LIKE :lastName
-                    	AND deleted = 0
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
-
-        $vars = array(':lastName' => $lastName);
-        $result = $this->db->prepared_query($sql, $vars);
-
-        if (count($result) == 0)
-        {
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticLastName LIKE :lastName
-                	AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
-
-            $vars = array(':lastName' => metaphone($lastName));
-            if ($vars[':lastName'] != '')
-            {
-                $phoneticResult = $this->db->prepared_query($sql, $vars);
-
-                foreach ($phoneticResult as $res)
-                {  // Prune matches
-                    if (levenshtein(strtolower($res['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff)
-                    {
-                        $result[] = $res;
-                    }
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    public function lookupFirstName($firstName)
-    {
-        $firstName = $this->parseWildcard($firstName);
-
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE firstName LIKE :firstName
-                    	AND deleted = 0
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
-
-        $vars = array(':firstName' => $firstName);
-        $result = $this->db->prepared_query($sql, $vars);
-
-        if (count($result) == 0)
-        {
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticFirstName LIKE :firstName
-                	AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
-
-            $vars = array(':firstName' => metaphone($firstName));
-            if ($vars[':firstName'] != '')
-            {
-                $phoneticResult = $this->db->prepared_query($sql, $vars);
-                foreach ($phoneticResult as $res)
-                {  // Prune matches
-                    if (levenshtein(strtolower($res['firstName']), trim(strtolower($firstName), '*')) <= $this->maxStringDiff)
-                    {
-                        $result[] = $res;
-                    }
-                }
-            }
-        }
-
-        return $result;
-    }
-
     public function lookupAllUsersLastName($lastName)
     {
         $lastName = $this->parseWildcard($lastName);
 
         $sql = "SELECT * FROM {$this->tableName}
-                    WHERE lastName LIKE :lastName
-                    AND deleted >= 0
+                    WHERE lastName LIKE :lastName 
                     ORDER BY {$this->sortBy} {$this->sortDir}
                     {$this->limit}";
 
@@ -457,8 +379,7 @@ class Employee extends Data
         if (count($result) == 0)
         {
             $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticLastName LIKE :lastName
-                AND deleted >= 0 
+                WHERE phoneticLastName LIKE :lastName 
                 ORDER BY {$this->sortBy} {$this->sortDir}
                 {$this->limit}";
 
@@ -485,8 +406,7 @@ class Employee extends Data
         $firstName = $this->parseWildcard($firstName);
 
         $sql = "SELECT * FROM {$this->tableName}
-                    WHERE firstName LIKE :firstName
-                    AND deleted >= 0 
+                    WHERE firstName LIKE :firstName 
                     ORDER BY {$this->sortBy} {$this->sortDir}
                     {$this->limit}";
 
@@ -497,7 +417,6 @@ class Employee extends Data
         {
             $sql = "SELECT * FROM {$this->tableName}
                 WHERE phoneticFirstName LIKE :firstName
-                AND deleted >= 0 =
                 ORDER BY {$this->sortBy} {$this->sortDir}
                 {$this->limit}";
 
