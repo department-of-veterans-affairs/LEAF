@@ -1,6 +1,7 @@
 <script>
 $(function() {
     var query = new LeafFormQuery();
+    query.setPortalPath('<!--{$absPortPath}-->');
     query.addTerm('categoryID', '=', 'leaf_devconsole');
     query.addTerm('stepID', '!=', 'resolved');
     query.onSuccess(function(data) {

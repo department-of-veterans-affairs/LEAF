@@ -16,6 +16,7 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 function getData() {
 	// Create a new Query
 	var query = new LeafFormQuery();
+    query.setPortalPath('<!--{$absPortPath}-->');
 
 	// This would limit results to only find a specific service, by its serviceID
 	//query.addTerm('serviceID', '=', 14);

@@ -34,6 +34,7 @@ function findAssociatedRequests(oldAccount, newAccount) {
     $('#newAccountName').html(newAccount);
 
     var query = new LeafFormQuery();
+    query.setPortalPath('<!--{$absPortPath}-->');
     query.addTerm('userID', '=', oldAccount);
     query.onSuccess(function(res) {
         var recordIDs = '';

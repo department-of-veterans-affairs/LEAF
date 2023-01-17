@@ -8,6 +8,7 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 $(function() {
 
 var query = new LeafFormQuery();
+query.setPortalPath = '<!--{$absPortPath}-->';
 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
 $.ajax({
@@ -33,7 +34,7 @@ $.ajax({
         var facts = crossfilter(parsedData);
         var dimCategory = facts.dimension(function(d) { return d.categoryName; });
         var dimSubmittedByMonth = facts.dimension(function(d) { return d3.time.month(d.submitted); });
-        
+
         var groupSubmittedByMonth = dimSubmittedByMonth.group().reduceCount(function(d) { d.submitted });
 
         var minDate = dimSubmittedByMonth.bottom(1)[0].submitted;
@@ -49,13 +50,13 @@ $.ajax({
             .x(d3.time.scale().domain([minDate, maxDate]))
             .xUnits(d3.time.months)
             .elasticY(true);
-        
+
         // counter
         chart_count
             .valueAccessor(function(d) { return d; })
             .group(dimSubmittedByMonth.groupAll())
             .formatNumber(d3.format(',.0f'));
-      
+
         dc.renderAll();
     }
 });

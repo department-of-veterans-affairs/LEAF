@@ -21,6 +21,7 @@ function invertTable() {
 
 function getFTEs(serviceID) {
 	var query = new LeafFormQuery();
+    query.setPortalPath('<!--{$absPortPath}-->');
 	if(serviceID != 0) {
     	query.addTerm('serviceID', '=', serviceID);
     }
