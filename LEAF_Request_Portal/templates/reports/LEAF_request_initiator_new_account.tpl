@@ -43,6 +43,7 @@ function findAssociatedRequests(oldAccount, newAccount) {
             recordIDs += res[i].recordID + ',';
         }
         var formGrid = new LeafFormGrid('grid');
+        formGrid.setLibsPath("<!--{$libsPath}-->");
         formGrid.setPortalPath('<!--{$absPortPath}-->');
         formGrid.enableToolbar();
         formGrid.setDataBlob(res);

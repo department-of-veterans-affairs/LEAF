@@ -1106,6 +1106,7 @@ $(function() {
     // Step 2
     var selectedIndicators = [];
     grid = new LeafFormGrid('results');
+    grid.setLibsPath("<!--{$libsPath}-->");
     grid.setPortalPath('<!--{$absPortPath}-->');
     grid.enableToolbar();
     var extendedToolbar = false;

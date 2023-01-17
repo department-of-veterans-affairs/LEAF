@@ -155,6 +155,7 @@ var lastScreenSize = null;
 
 $(function() {
     form = new LeafForm('formContainer');
+    form.setLibsPath("<!--{$libsPath}-->");
     form.setRecordID(<!--{$recordID}-->);
 
     /* General popup window */

@@ -18,6 +18,7 @@ workflowStepModule[{{$stepID}}]['LEAF_workflow_indicator'] = (function() {
 				</div>');
 
 		form = new LeafForm(prefixID + 'anchor');
+        form.setLibsPath("{{$libsPath}}");
 		form.initCustom(prefixID + 'anchor', prefixID + 'container', prefixID + 'anchor', prefixID + 'anchor', prefixID + 'anchor');
 		form.setHtmlFormID('form_dep'+ depID);
 		form.setRecordID(recordID);

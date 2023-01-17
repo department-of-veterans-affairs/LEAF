@@ -1192,6 +1192,7 @@ $(function() {
     $('#progressBar').progressbar({max: 100});
 
     form = new LeafForm('formContainer');
+    form.setLibsPath("<!--{$libsPath}-->");
     print = new printer();
 
     $('#btn_printForm').on('click', function() {

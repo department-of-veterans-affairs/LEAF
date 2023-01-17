@@ -37,6 +37,8 @@
 <script id="mass-action-js" src="./js/pages/mass_action.js"
         data-token="<!--{$CSRFToken}-->"
         data-orgChartPath="<!--{$orgchartPath}-->"
+        data-libsPath="<!--{$libsPath}-->"
+        data-portalPath="<!--{$portalPath}-->"
         type="text/javascript"></script>
 
 <div id="massActionContainer">

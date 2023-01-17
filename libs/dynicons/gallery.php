@@ -48,10 +48,10 @@
 <div>
 <p class="block" style="font-size: 14px">
 Dynicons dynamically creates and caches PNG images for the purpose of rapidly embedding icons of arbitrary size.
-</p> 
+</p>
 <div class="block" style="font-size: 12px">Usage:
 <ul>
-    <li><span style="font-size: 14px; font-family: courier new">&lt;img src="//<b>[server]</b>/libs/dynicons/?img=<b>[SVG file]</b>&amp;w=<b>[width in pixels]</b>" /&gt;</span></li>
+    <li><span style="font-size: 14px; font-family: courier new">&lt;img src="https://<b>[domain]</b>/libs/dynicons/?img=<b>[SVG file]</b>&amp;w=<b>[width in pixels]</b>" /&gt;</span></li>
     <li>Relative paths recommended</li>
     <li><a href="?noSVG=1">Click here if you are using IE7 or if your browser does not support SVG.</a></li>
 </ul>

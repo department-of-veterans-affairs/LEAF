@@ -6,6 +6,8 @@
 let leafSearch;
 let massActionToken = document.getElementById("mass-action-js").getAttribute("data-token");
 let orgChartPath = document.getElementById("mass-action-js").getAttribute("data-orgChartPath");
+let libsPath = document.getElementById("mass-action-js").getAttribute("data-libsPath");
+let portalPath = document.getElementById("mass-action-js").getAttribute("data-portalPath");
 let processedRequests = 0;
 let totalActions = 0;
 let successfulActionRecordIDs = [];
@@ -27,7 +29,7 @@ $(document).ready(function(){
 
     // Confirm submission for mass action and perform action if accepted
     $("button.takeAction").click(function() {
-        dialog_confirm.setContent('<img src="../../../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
+        dialog_confirm.setContent('<img src="' + libsPath + 'dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?');
 
         dialog_confirm.setSaveHandler(function() {
             executeMassAction();

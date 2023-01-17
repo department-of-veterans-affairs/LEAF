@@ -205,6 +205,7 @@ $(function() {
     $('#progressBar').progressbar({max: 100});
 
     form = new LeafForm('formContainer');
+    form.setLibsPath("<!--{$libsPath}-->");
     form.initCustom('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     form.setRecordID(<!--{$recordID}-->);
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');

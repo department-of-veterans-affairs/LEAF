@@ -10,6 +10,7 @@ var LeafForm = function(containerID) {
     var prefixID = 'LeafForm' + Math.floor(Math.random()*1000) + '_';
     var htmlFormID = prefixID + 'record';
     var dialog;
+    var libsPath;
     var recordID = 0;
     var postModifyCallback;
 
@@ -17,8 +18,8 @@ var LeafForm = function(containerID) {
             <form id="'+prefixID+'record" enctype="multipart/form-data" action="javascript:void(0);">\
                 <div>\
                     <div id="form-xhr-cancel-save-menu" style="border-bottom: 2px solid black; height: 30px">\
-                        <button id="'+prefixID+'button_cancelchange" class="buttonNorm" ><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
-                        <button id="'+prefixID+'button_save" class="buttonNorm"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
+                        <button id="'+prefixID+'button_cancelchange" class="buttonNorm" ><img src="' + libsPath + 'dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
+                        <button id="'+prefixID+'button_save" class="buttonNorm"><img src="' + libsPath + 'dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
                     </div>\
                     <div id="'+prefixID+'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
                     <div id="'+prefixID+'xhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto"></div>\
@@ -544,6 +545,8 @@ var LeafForm = function(containerID) {
         doModify: doModify,
         getForm: getForm,
         initCustom: initCustom,
-        setHtmlFormID: setHtmlFormID
+        setHtmlFormID: setHtmlFormID,
+        setLibsPath: function(url) { libsPath = url; }
+
     }
 };

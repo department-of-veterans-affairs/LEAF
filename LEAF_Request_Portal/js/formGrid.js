@@ -19,6 +19,7 @@ var LeafFormGrid = function(containerID, options) {
     var preRenderFunc = null;
     var postRenderFunc = null;
     var portalPath = '';
+    var libsPath = '';
     var isRenderingVirtualHeader = true;
     var isRenderingBody = false;
 
@@ -722,7 +723,7 @@ var LeafFormGrid = function(containerID, options) {
     function enableToolbar() {
         containerID = prefixID + 'gridToolbar';
         $('#' + containerID).css('display', 'block');
-        $('#' + containerID).html('<br/><button type="button" id="'+ prefixID +'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>');
+        $('#' + containerID).html('<br/><button type="button" id="'+ prefixID +'getExcel" class="buttonNorm"><img src="' + libsPath + 'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>');
 
         $('#' + prefixID + 'getExcel').on('click', function() {
             if(currentRenderIndex != currentData.length) {
@@ -865,6 +866,7 @@ var LeafFormGrid = function(containerID, options) {
         getDataByRecordID: getDataByRecordID,
         disableVirtualHeader: function() { isRenderingVirtualHeader = false },
         stop: function() { isRenderingBody = false },
-        setPortalPath: function(url) { portalPath = url; }
+        setPortalPath: function(url) { portalPath = url; },
+        setLibsPath: function(url) { libsPath = url; }
     }
 };

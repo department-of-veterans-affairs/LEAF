@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css" />
+<link rel="stylesheet" href="{$libsPath}css/leaf.css" />
 
 <script>
 

@@ -36,6 +36,7 @@ function getFTEs(serviceID) {
         }
 
         var formGrid = new LeafFormGrid('grid');
+        formGrid.setLibsPath("<!--{$libsPath}-->");
         formGrid.setPortalPath('<!--{$absPortPath}-->');
         formGrid.enableToolbar();
         formGrid.hideIndex();

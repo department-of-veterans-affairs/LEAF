@@ -182,23 +182,23 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            '../../libs/js/filesaver/FileSaver.min.js',
-                                            '../../libs/js/codemirror/lib/codemirror.js',
-                                            '../../libs/js/codemirror/mode/xml/xml.js',
-                                            '../../libs/js/codemirror/mode/javascript/javascript.js',
-                                            '../../libs/js/codemirror/mode/css/css.js',
-                                            '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                            '../../libs/js/codemirror/addon/display/fullscreen.js',
-                                            '../../libs/js/LEAF/XSSHelpers.js',
-                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
-                                            '../../libs/js/choicesjs/choices.min.js',
+        $main->assign('javascripts', array(S_LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            S_LIB_PATH . 'js/filesaver/FileSaver.min.js',
+                                            S_LIB_PATH . 'js/codemirror/lib/codemirror.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/xml/xml.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/javascript/javascript.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/css/css.js',
+                                            S_LIB_PATH . 'js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.js',
+                                            S_LIB_PATH . 'js/LEAF/XSSHelpers.js',
+                                            S_LIB_PATH . 'jsapi/portal/LEAFPortalAPI.js',
+                                            S_LIB_PATH . 'js/choicesjs/choices.min.js',
                                             S_LIB_PATH . '/js/LEAF/formQuery.js'
         ));
-        $main->assign('stylesheets', array('../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-                                            '../../libs/js/codemirror/lib/codemirror.css',
-                                            '../../libs/js/codemirror/addon/display/fullscreen.css',
-                                            '../../libs/js/choicesjs/choices.min.css'
+        $main->assign('stylesheets', array(S_LIB_PATH . 'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            S_LIB_PATH . 'js/codemirror/lib/codemirror.css',
+                                            S_LIB_PATH . 'js/codemirror/addon/display/fullscreen.css',
+                                            S_LIB_PATH . 'js/choicesjs/choices.min.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);

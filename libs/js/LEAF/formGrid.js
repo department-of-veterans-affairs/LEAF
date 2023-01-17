@@ -20,6 +20,7 @@ var LeafFormGrid = function (containerID, options) {
   var preRenderFunc = null;
   var postRenderFunc = null;
   var portalPath = "";
+  var libsPath = "";
   var isRenderingVirtualHeader = true;
   var isRenderingBody = false;
 
@@ -804,7 +805,7 @@ var LeafFormGrid = function (containerID, options) {
     $("#" + containerID).html(
       '<button type="button" id="' +
         prefixID +
-        'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export</button>'
+        'getExcel" class="buttonNorm"><img src="' + libsPath + 'dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export</button>'
     );
 
     $("#" + prefixID + "getExcel").on("click", function () {
@@ -949,6 +950,9 @@ var LeafFormGrid = function (containerID, options) {
     },
     setPortalPath: function (url) {
       portalPath = url;
+    },
+    setLibsPath: function (url) {
+      libsPath = url;
     },
   };
 };

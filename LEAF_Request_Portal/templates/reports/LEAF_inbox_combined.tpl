@@ -88,6 +88,7 @@
             }
         });
         let formGrid = new LeafFormGrid('depList' + hash + '_' + depID);
+        formGrid.setLibsPath("<!--{$libsPath}-->");
         formGrid.setPortalPath('<!--{$absPortPath}-->');
         formGrid.disableVirtualHeader(); // TODO: figure out why headers aren't sized correctly
         formGrid.setDataBlob(res);

@@ -128,6 +128,7 @@ $.ajax({
 
         var grid = new LeafFormGrid('grid_service_vacancy', {readOnly: true});
         grid.setPortalPath('<!--{$absPortPath}-->');
+        grid.setLibsPath('<!--{$libsPath}-->');
         grid.disableVirtualHeader();
         grid.hideIndex();
         grid.enableToolbar();
