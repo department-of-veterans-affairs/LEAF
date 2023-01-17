@@ -74,7 +74,7 @@
 						}
 					}
 				},
-				"url": "https://localhost/LEAF_Request_Portal/api/formWorkflow/getCSRFToken"
+				"url": "http://localhost/LEAF_Request_Portal/api/formWorkflow/getCSRFToken"
 			},
 			"response": []
 		},
