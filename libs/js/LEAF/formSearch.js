@@ -1300,6 +1300,7 @@ var LeafFormSearch = function (containerID) {
     getLastSearch: getLastSearch,
     generateQuery: generateSearchQuery,
     getLeafFormQuery: function () {
+        leafFormQuery.setPortalPath(portalPath);
       return leafFormQuery;
     },
     renderPreviousAdvancedSearch: renderPreviousAdvancedSearch,

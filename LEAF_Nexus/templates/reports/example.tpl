@@ -127,6 +127,7 @@ $.ajax({
         }
 
         var grid = new LeafFormGrid('grid_service_vacancy', {readOnly: true});
+        grid.setPortalPath('<!--{$absPortPath}-->');
         grid.disableVirtualHeader();
         grid.hideIndex();
         grid.enableToolbar();

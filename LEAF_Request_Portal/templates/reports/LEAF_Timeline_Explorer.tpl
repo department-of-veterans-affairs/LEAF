@@ -462,6 +462,7 @@ function renderGrid() {
     }
 
     let grid = new LeafFormGrid('gridData', {readOnly: true});
+    grid.setPortalPath('<!--{$absPortPath}-->');
     grid.hideIndex();
     grid.enableToolbar();
     grid.setData(dataTimelineRes);

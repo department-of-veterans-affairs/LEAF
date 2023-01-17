@@ -35,6 +35,7 @@ function getFTEs(serviceID) {
         }
 
         var formGrid = new LeafFormGrid('grid');
+        formGrid.setPortalPath('<!--{$absPortPath}-->');
         formGrid.enableToolbar();
         formGrid.hideIndex();
         formGrid.setDataBlob(res);
@@ -98,9 +99,9 @@ $(function() {
     	getFTEs($('#service').val());
     });
     getFTEs($('#service').val());
-    
-    
-    
+
+
+
     $("#invert").click(function(){
         invertTable();
     });

@@ -7,6 +7,7 @@ var CSRFToken = '<!--{$CSRFToken}-->';
 function renderResult(leafSearch, res) {
     let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     let grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
+    grid.setPortalPath('<!--{$absPortPath}-->');
     grid.hideIndex();
     grid.setDataBlob(res);
     grid.setHeaders([

@@ -45,6 +45,7 @@ var LeafSecureReviewDialog = function(domId) {
 
     function buildSensitiveGrid(sensitiveFields) {
         var gridSensitive = new LeafFormGrid(prefixID +'sensitiveFields');
+        gridSensitive.setPortalPath({$absPortPath});
         gridSensitive.hideIndex();
         gridSensitive.setData(sensitiveFields);
         gridSensitive.setDataBlob(sensitiveFields);
@@ -65,6 +66,7 @@ var LeafSecureReviewDialog = function(domId) {
 
     function buildNonSensitiveGrid(nonSensitiveFields) {
         var gridNonSensitive = new LeafFormGrid(prefixID + 'nonSensitiveFields');
+        gridNonSensitive.setPortalPath({$absPortPath});
         gridNonSensitive.hideIndex();
         gridNonSensitive.setData(nonSensitiveFields);
         gridNonSensitive.setDataBlob(nonSensitiveFields);
