@@ -1,0 +1,162 @@
+{
+	"info": {
+		"_postman_id": "9143b730-2691-4136-b87f-953341db04f9",
+		"name": "PP_LOAD_TESTING",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PP-Create Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
+						"exec": [
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0fc167b9-bc0d-418f-9538-f3c0c537db90",
+						"exec": [
+							"\r",
+							"pm.globals.get(\"CSRFToken\");\r",
+							"console.log(\"CSRF Token for POST Request: \" + pm.globals.get(\"CSRFToken\"))\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"_postman_id": "dcdc33d1-c2f5-42da-8c83-a6f53cc95569",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {},
+				"followOriginalHttpMethod": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text"
+					},
+					{
+						"key": "service",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "title",
+						"value": "Test Title",
+						"type": "text"
+					},
+					{
+						"key": "priority",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "numform_b7c34",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "service",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "form_1234",
+							"type": "text"
+						},
+						{
+							"key": "priority",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "numform_b7c34",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "CSRFToken",
+							"value": "{{CSRFToken}}",
+							"type": "text"
+						}
+					],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "{{PreProd_URL}}/api/form/new",
+					"host": [
+						"{{PreProd_URL}}"
+					],
+					"path": [
+						"api",
+						"form",
+						"new"
+					],
+					"query": [
+						{
+							"key": "XSRF-TOKEN",
+							"value": "token",
+							"disabled": true
+						},
+						{
+							"key": "service",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "title",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "priority",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
