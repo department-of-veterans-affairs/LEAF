@@ -95,6 +95,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 case 'orgchart_group':
                     grpSel = new groupSelector('grpSelector');
                     grpSel.domainPath = domainPath+'/';
+                    grpSel.libsPath = libsPath;
                     grpSel.apiPath = orgChartPath+'/api/';
                     grpSel.setSelectHandler(function(){
                         $('#'+this.prefixID+'grp'+this.selection).removeClass('groupSelected');

@@ -120,7 +120,7 @@ switch ($action) {
                                            ABSOLUTE_ORG_PATH . '/css/employeeSelector.css',
                                            ABSOLUTE_ORG_PATH . '/css/groupSelector.css',
         ));
-        $t_form->assign('libsPath', '../..' . S_LIB_PATH);
+        $t_form->assign('libsPath', S_LIB_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 

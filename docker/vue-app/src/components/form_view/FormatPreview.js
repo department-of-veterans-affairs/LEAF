@@ -45,7 +45,7 @@ export default {
         switch(this.baseFormat) {
             case 'raw_data':
                 break;
-            case 'date': 
+            case 'date':
                 $(`#${this.inputElID}`).datepicker({
                     autoHide: true,
                     showAnim: "slideDown",
@@ -58,7 +58,7 @@ export default {
             case 'dropdown':
                 $(`#${this.inputElID}`).chosen({
                     disable_search_threshold: 5,
-                    allow_single_deselect: true, 
+                    allow_single_deselect: true,
                     width: '50%'
                 });
                 $(`#${this.inputElID}_chosen input.chosen-search-input`).attr('aria-labelledby', this.labelSelector);
@@ -112,7 +112,7 @@ export default {
                     });
 
                 } else {
-                    this.createOrgSelector(); 
+                    this.createOrgSelector();
                 }
                 break;
             case 'checkbox':
@@ -122,10 +122,10 @@ export default {
             case 'radio':
                 document.querySelector(`#${this.printResponseID} .format-preview`)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
-            default: 
+            default:
                 document.getElementById(this.inputElID)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
-        
+
         }
     },
     methods: {
@@ -147,6 +147,7 @@ export default {
             orgSelector.apiPath = `${this.orgchartPath}/api/`;
             orgSelector.rootPath = `${this.orgchartPath}/`;
             orgSelector.basePath = `${this.orgchartPath}/`;
+            orgSelector.libsPath = `${this.libsPath}`;
             orgSelector.setSelectHandler(()=> {
                 $(`#sel_prev_${this.indicator.indicatorID}`).val(orgSelector.selection);
                 $(`#orgSel_${this.indicator.indicatorID} input.${this.selType}SelectorInput`).val(`${this.selectorInputPrefix}` + orgSelector.selection);
@@ -166,8 +167,8 @@ export default {
 
         <template v-if="baseFormat === 'textarea'">
             <textarea :id="inputElID" rows="6" class="textarea_input_preview"></textarea>
-            <div :id="'textarea_format_button_' + indicator.indicatorID" 
-                @click="useAdvancedEditor" 
+            <div :id="'textarea_format_button_' + indicator.indicatorID"
+                @click="useAdvancedEditor"
                 style="text-align: right; font-size: 12px"><span class="link">formatting options</span>
             </div>
         </template>
@@ -191,32 +192,32 @@ export default {
             </template>
             <div v-if="indicator?.options?.length > 5" style="padding-left: 0.4em"><b> ...</b></div>
         </template>
-        
-        <fieldset v-if="baseFormat === 'fileupload' || baseFormat === 'image'" 
+
+        <fieldset v-if="baseFormat === 'fileupload' || baseFormat === 'image'"
             style="padding: 0.5em;"><legend>File Attachment(s)</legend>
             <p style="margin-bottom: 0.5em;">Select File to attach:</p>
             <input :id="inputElID" name="formPacket" type="file" />
         </fieldset>
 
         <template v-if="baseFormat === 'date'">
-            <input type="text" :id="inputElID" 
+            <input type="text" :id="inputElID"
             style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace; background-color: white;" value="" />
         </template>
 
-        
+
         <select v-if="baseFormat === 'dropdown'" :id="inputElID" style="width: 50%">
             <option v-for="o, i in truncatedOptions" :key="'drop_prev_' + indicator.indicatorID + '_' + i">
             {{o}}
             </option>
             <option v-if="indicator?.options?.length > 5" style="padding-left: 0.4em" disabled>(preview showing first 5)</option>
         </select>
-        
-        <select v-if="baseFormat === 'multiselect'" multiple 
+
+        <select v-if="baseFormat === 'multiselect'" multiple
             :id="inputElID">
             :name="'multi_prev_' + indicator.indicatorID + '_multiselect[]'"
             style="display:none">
         </select>
-        
+
         <template v-if="baseFormat === 'orgchart_group' || baseFormat === 'orgchart_position' || baseFormat === 'orgchart_employee'">
             <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
             <input :id="'sel_prev_' + indicator.indicatorID" style="display: none;">

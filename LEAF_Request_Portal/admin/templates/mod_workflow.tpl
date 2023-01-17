@@ -1955,6 +1955,7 @@ function setEmailReminderHTML(workflowID, stepID, actionType){
         grpSel.basePath = '<!--{$orgchartPath}-->/';
         grpSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
         grpSel.tag = '<!--{$orgchartImportTags[0]}-->';
+        grpSel.tag = '<!--{$libsPath}-->';
         grpSel.setSelectHandler(function() {
             $('#recipientGroupID').val(grpSel.selection);
         });

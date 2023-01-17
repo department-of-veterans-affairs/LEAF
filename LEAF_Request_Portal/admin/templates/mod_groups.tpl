@@ -899,6 +899,7 @@ function importGroup() {
     dialog.showButtons();
     let groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
+    groupSel.libsPath = '<!--{$libsPath}-->';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
         if(groupSel.numResults == 0) {

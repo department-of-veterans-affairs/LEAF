@@ -865,6 +865,7 @@
                     let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
                     grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
                     grpSel.rootPath = '<!--{$orgchartPath}-->/';
+                    grpSel.libsPath = '<!--{$libsPath}-->/';
                     grpSel.searchTag('<!--{$orgchartImportTag}-->');
 
                     grpSel.setSelectHandler(function() {
@@ -1017,11 +1018,11 @@
                 formValidator["id<!--{$indicator.indicatorID}-->"] = {
                     setValidator: function() {
                         let elInput = $('#empSel_<!--{$indicator.indicatorID|strip_tags}--> input.employeeSelectorInput').val();
-                        
+
                         if (typeof elInput === 'undefined') {
                             return true;
                         }
-                        
+
                         let elEmpUserName = elInput.trim().replace('userName:', '');
                         let sufNum = elEmpUserName.match(/[0-9]+$/) ?? false;
                         let isZero = sufNum ? Number(elEmpUserName.match(/[0-9]+$/)[0]) === 0 : false;

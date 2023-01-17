@@ -430,6 +430,7 @@ var LeafFormSearch = function(containerID) {
 					let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 					grpSel.apiPath = orgchartPath + '/api/';
 					grpSel.rootPath = orgchartPath + '/';
+                    grpSel.libsPath = libsPath;
 
 					grpSel.setSelectHandler(function() {
 						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
@@ -446,6 +447,7 @@ var LeafFormSearch = function(containerID) {
 			let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
 			grpSel.apiPath = orgchartPath + '/api/';
 			grpSel.rootPath = orgchartPath + '/';
+            grpSel.libsPath = libsPath;
 
 			grpSel.setSelectHandler(function() {
 				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
