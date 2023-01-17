@@ -17,7 +17,7 @@ class Employee extends Data
 {
     public $debug = false;
 
-    //     from main search triggers deep search)
+    //     from main search triggers deep search
 
     public $position;
 
@@ -301,7 +301,7 @@ class Employee extends Data
      * @param int $positionID
      * @return array
      */
-    public function getPositions($empUID)
+    public function getPositions($empUID) 
     {
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_position_employee
@@ -421,6 +421,83 @@ class Employee extends Data
             $sql = "SELECT * FROM {$this->tableName}
                 WHERE phoneticFirstName LIKE :firstName
                 	AND deleted = 0
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
+
+            $vars = array(':firstName' => metaphone($firstName));
+            if ($vars[':firstName'] != '')
+            {
+                $phoneticResult = $this->db->prepared_query($sql, $vars);
+                foreach ($phoneticResult as $res)
+                {  // Prune matches
+                    if (levenshtein(strtolower($res['firstName']), trim(strtolower($firstName), '*')) <= $this->maxStringDiff)
+                    {
+                        $result[] = $res;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    public function lookupAllUsersLastName($lastName)
+    {
+        $lastName = $this->parseWildcard($lastName);
+
+        $sql = "SELECT * FROM {$this->tableName}
+                    WHERE lastName LIKE :lastName
+                    AND deleted >= 0
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
+
+        $vars = array(':lastName' => $lastName);
+        $result = $this->db->prepared_query($sql, $vars);
+
+        if (count($result) == 0)
+        {
+            $sql = "SELECT * FROM {$this->tableName}
+                WHERE phoneticLastName LIKE :lastName
+                AND deleted >= 0 
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
+
+            $vars = array(':lastName' => metaphone($lastName));
+            if ($vars[':lastName'] != '')
+            {
+                $phoneticResult = $this->db->prepared_query($sql, $vars);
+
+                foreach ($phoneticResult as $res)
+                {  // Prune matches
+                    if (levenshtein(strtolower($res['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff)
+                    {
+                        $result[] = $res;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    public function lookupAllUsersFirstName($firstName)
+    {
+        $firstName = $this->parseWildcard($firstName);
+
+        $sql = "SELECT * FROM {$this->tableName}
+                    WHERE firstName LIKE :firstName
+                    AND deleted >= 0 
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
+
+        $vars = array(':firstName' => $firstName);
+        $result = $this->db->prepared_query($sql, $vars);
+
+        if (count($result) == 0)
+        {
+            $sql = "SELECT * FROM {$this->tableName}
+                WHERE phoneticFirstName LIKE :firstName
+                AND deleted >= 0 =
                 ORDER BY {$this->sortBy} {$this->sortDir}
                 {$this->limit}";
 
@@ -702,7 +779,6 @@ class Employee extends Data
                     $input = trim('*' . $input);
                     $searchResult = array_merge($searchResult, $this->searchDeeper($input));
                 }
-
                 break;
             // Format: First Last
             case ($idx = strpos($input, ' ')) > 0 && strpos(strtolower($input), 'username:') === false:
@@ -776,12 +852,14 @@ class Employee extends Data
                 {
                     $this->log[] = 'Format Detected: Last OR First';
                 }
-                $res = $this->lookupLastName($input);
+                $res = $this->lookupAllUsersLastName($input);
+                // $res2 = $this->lookupLastName($input);
+
                 // Check first names if theres few hits for last names
                 if (count($res) <= $this->deepSearch)
                 {
                     $this->log[] = 'Extra search on first names';
-                    $res = array_merge($res, $this->lookupFirstName($input));
+                    $res = array_merge($res, $this->lookupAllUsersFirstName($input));
                     // Try to look for service
                     if (count($res) <= $this->deepSearch)
                     {
@@ -843,8 +921,9 @@ class Employee extends Data
                 $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
             }
         }
-
+        error_log(print_r($finalResult, true));
         return $finalResult;
+        
     }
 
     // Translates the * wildcard to SQL % wildcard
