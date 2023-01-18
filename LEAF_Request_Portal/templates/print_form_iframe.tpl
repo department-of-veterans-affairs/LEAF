@@ -154,8 +154,7 @@ function scrollPage(id) {
 var lastScreenSize = null;
 
 $(function() {
-    form = new LeafForm('formContainer');
-    form.setLibsPath("<!--{$libsPath}-->");
+    form = new LeafForm('formContainer', "<!--{$libsPath}-->");
     form.setRecordID(<!--{$recordID}-->);
 
     /* General popup window */

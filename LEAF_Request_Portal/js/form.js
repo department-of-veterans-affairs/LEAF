@@ -5,12 +5,12 @@ var form;
 var formValidator = {};
 var formRequired = {};
 var formConditions = {};
-var LeafForm = function(containerID) {
+var LeafForm = function(containerID, libsPath) {
     var containerID = containerID;
     var prefixID = 'LeafForm' + Math.floor(Math.random()*1000) + '_';
     var htmlFormID = prefixID + 'record';
     var dialog;
-    var libsPath;
+    var libsPath = libsPath;
     var recordID = 0;
     var postModifyCallback;
 

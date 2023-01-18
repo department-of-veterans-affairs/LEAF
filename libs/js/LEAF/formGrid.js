@@ -51,8 +51,7 @@ var LeafFormGrid = function (containerID, options) {
   $("#" + prefixID + "thead").css({ "background-color": headerColor });
 
   if (options == undefined) {
-    form = new LeafForm(prefixID + "form");
-    form.setLibsPath(libsPath);
+    form = new LeafForm(prefixID + "form", libsPath);
   }
 
   /**

@@ -13,7 +13,7 @@ workflowModule[1] = (function() {
 				</div>\
 				</div>');
 
-		form = new LeafForm(prefixID + 'anchor');
+		form = new LeafForm(prefixID + 'anchor', libsPath);
 		form.initCustom(prefixID + 'anchor', prefixID + 'container', prefixID + 'anchor', prefixID + 'anchor', prefixID + 'anchor');
 		form.setHtmlFormID('form_dep'+ depID);
 		form.setRecordID(recordID);

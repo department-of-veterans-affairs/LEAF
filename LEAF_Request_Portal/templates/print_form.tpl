@@ -1191,8 +1191,7 @@ this.portalAPI.setCSRFToken('<!--{$CSRFToken}-->');
 $(function() {
     $('#progressBar').progressbar({max: 100});
 
-    form = new LeafForm('formContainer');
-    form.setLibsPath("<!--{$libsPath}-->");
+    form = new LeafForm('formContainer', "<!--{$libsPath}-->");
     print = new printer();
 
     $('#btn_printForm').on('click', function() {
