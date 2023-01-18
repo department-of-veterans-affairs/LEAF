@@ -10,6 +10,7 @@ function position(positionID) {
 	this.parentID = 0;
 	this.parentContainerID;
 	this.containerHeader;
+    this.libsPath;
 
 	this.prefixID = 'pos' + Math.floor(Math.random()*1000) + '_';
 	this.data = new Object();
@@ -27,8 +28,8 @@ position.prototype.initialize = function (parentContainerID) {
 				<div id="'+ prefixedPID + '_title' +'" class="positionSmall_title"></div>\
 				<div id="'+ prefixedPID + '_container' +'" class="positionSmall_data">\
 					<div id="'+ prefixedPID + '_content"></div>\
-					<div id="'+ prefixedPID + '_controls" style="visibility: hidden; display: none"><div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="../libs/dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div> \
-					<div class="button" onclick="addSubordinate('+this.positionID+')"><img src="../libs/dynicons/?img=list-add.svg&amp;w=32" alt="Add Icon" title="Add Icon" /> Add Subordinate</div></div>\
+					<div id="'+ prefixedPID + '_controls" style="visibility: hidden; display: none"><div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="' + this.libsPath +'dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div> \
+					<div class="button" onclick="addSubordinate('+this.positionID+')"><img src="' + this.libsPath +'dynicons/?img=list-add.svg&amp;w=32" alt="Add Icon" title="Add Icon" /> Add Subordinate</div></div>\
 				</div>\
 			  </div>';
 	$('#' + parentContainerID).append(buffer);
@@ -55,11 +56,11 @@ position.prototype.initialize = function (parentContainerID) {
 };
 
 position.prototype.onLoad = function() {
-	
+
 };
 
 position.prototype.onDrawComplete = function() {
-	
+
 };
 
 position.prototype.prepContent = function(response) {
@@ -89,7 +90,7 @@ position.prototype.prepContent = function(response) {
         		x = layout[this.parentID].x;
         	}
     	}
-    	
+
     	this.setDomPosition(x, y);
     }
 };
@@ -141,7 +142,7 @@ position.prototype.setNumFTE = function (numFTE) {
 position.prototype.setTitle = function (title) {
 	if(title == '') {
 		title = '';
-	} 
+	}
 	$('#' + this.prefixID + this.positionID + '_title').html(title);
 };
 

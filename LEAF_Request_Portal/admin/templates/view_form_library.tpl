@@ -82,6 +82,7 @@ $(function() {
 
         grid = new LeafFormGrid('forms', {readOnly: true});
         grid.setPortalPath('<!--{$absPortPath}-->');
+        grid.setLibsPath('<!--{$libsPath}-->');
         grid.hideIndex();
         grid.importQueryResult(tData);
         grid.setHeaders([

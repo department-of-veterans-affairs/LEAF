@@ -200,6 +200,7 @@ function addSupervisor(positionID) {
                 loadTimer = 0;
                 // create position box
                 positions[response] = new position(response);
+                positions[response].libsPath = '<!--{$libsPath}-->';
                 positions[response].initialize('bodyarea');
                 positions[response].setRootID(0);
                 positions[response].setTitle($('#inputtitle').val());
@@ -256,6 +257,7 @@ function addSubordinate(parentID) {
             	loadTimer = 0;
             	// create position box
                 positions[response] = new position(response);
+                positions[response].libsPath = '<!--{$libsPath}-->';
                 positions[response].initialize('bodyarea');
                 positions[response].setRootID(parentID);
                 positions[response].setTitle($('#inputtitle').val());
@@ -303,6 +305,7 @@ function getSubordinates(positionID, level) {
     	var subordinate = positions[positionID].data.subordinates;
 
         positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
+        positions[subordinate[key].positionID].libsPath = '<!--{$libsPath}-->';
         positions[subordinate[key].positionID].initialize('bodyarea');
         positions[subordinate[key].positionID].setRootID(<!--{$rootID}-->);
         positions[subordinate[key].positionID].setParentID(positionID);
@@ -499,6 +502,7 @@ $(function() {
 
     jsPlumb.setSuspendDrawing(true);
     positions[<!--{$rootID}-->] = new position(<!--{$rootID}-->);
+    positions[<!--{$rootID}-->].libsPath = '<!--{$libsPath}-->';
     positions[<!--{$rootID}-->].initialize('bodyarea');
     positions[<!--{$rootID}-->].setRootID(<!--{$rootID}-->);
     positions[<!--{$rootID}-->].addControl('<div class="button" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="<!--{$libsPath}-->dynicons/?img=system-users.svg&amp;w=32" alt="Change Supervisor" title="Change Supervisor" /> Add Supervisor</div>');

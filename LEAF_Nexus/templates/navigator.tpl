@@ -93,6 +93,7 @@ function getSubordinates(positionID, level) {
         var subordinate = positions[positionID].data.subordinates;
 
         positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
+        positions[subordinate[key].positionID].libsPath = '<!--{$libsPath}-->';
         positions[subordinate[key].positionID].initialize('bodyarea');
         positions[subordinate[key].positionID].setRootID(<!--{$rootID}-->);
         positions[subordinate[key].positionID].setParentID(positionID);
@@ -193,6 +194,7 @@ $(function() {
 
     jsPlumb.setSuspendDrawing(true);
     positions[<!--{$rootID}-->] = new position(<!--{$rootID}-->);
+    positions[<!--{$rootID}-->].libsPath = '<!--{$libsPath}-->';
     positions[<!--{$rootID}-->].initialize('bodyarea');
     positions[<!--{$rootID}-->].setRootID(<!--{$rootID}-->);
     //jsPlumb.draggable(positions[<!--{$rootID}-->].getDomID(), draggableOptions);

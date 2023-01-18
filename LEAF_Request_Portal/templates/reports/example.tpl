@@ -60,6 +60,7 @@ function getData() {
 
         // Initialize the Grid
         var formGrid = new LeafFormGrid('grid'); // 'grid' maps to the associated HTML element ID
+        formGrid.setLibsPath("<!--{$libsPath}-->");
         formGrid.setPortalPath('<!--{$absPortPath}-->');
 
         // This enables the Export button
