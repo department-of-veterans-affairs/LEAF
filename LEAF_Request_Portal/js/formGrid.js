@@ -29,6 +29,7 @@ var LeafFormGrid = function(containerID, options) {
 
     if(options == undefined) {
         form = new LeafForm(prefixID + 'form');
+        form.setLibsPath(libsPath);
     }
 
     /**
