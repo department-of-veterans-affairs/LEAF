@@ -298,14 +298,18 @@ class Employee extends Data
 
     /**
      * Get positions associated with an employee
-     * @param int $positionID
-     * @return array
+     *
+     * @param int |
+     * @return int
+     * Created at: 1/18/2023, 2:16:45 PM (America/New_York)
      */
-    public function getPositions($empUID) 
+    public function getPositions(int | string $empUID): int | array | bool
     {
         $vars = array(':empUID' => $empUID);
-        $res = $this->db->prepared_query('SELECT * FROM relation_position_employee
-                                            WHERE empUID=:empUID', $vars);
+        $sql = 'SELECT * 
+                FROM relation_position_employee
+                WHERE empUID=:empUID';
+        $res = $this->db->prepared_query($sql, $vars);
 
         return $res;
     }
@@ -364,24 +368,34 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupAllUsersLastName($lastName)
+    /**
+     * Looks for all user's lastname
+     * 
+     * @param string $lastName
+     * @return array
+     * 
+     * Created at: 1/18/2023, 2:17:23 PM (America/New_York)
+     */
+    public function lookupAllUsersLastName(string $lastName): array
     {
         $lastName = $this->parseWildcard($lastName);
 
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE lastName LIKE :lastName 
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+        $sql = "SELECT * 
+                FROM {$this->tableName}
+                WHERE lastName LIKE :lastName 
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $vars = array(':lastName' => $lastName);
         $result = $this->db->prepared_query($sql, $vars);
 
         if (count($result) == 0)
         {
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticLastName LIKE :lastName 
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+            $sql = "SELECT * 
+                    FROM {$this->tableName}
+                    WHERE phoneticLastName LIKE :lastName 
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             $vars = array(':lastName' => metaphone($lastName));
             if ($vars[':lastName'] != '')
@@ -401,24 +415,34 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupAllUsersFirstName($firstName)
+    /**
+     * Looks for all user's firstname
+     * 
+     * @param string $firstName
+     * @return array
+     * 
+     * Created at: 1/18/2023, 2:18:09 PM (America/New_York)
+     */
+    public function lookupAllUsersFirstName(string $firstName): array
     {
         $firstName = $this->parseWildcard($firstName);
 
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE firstName LIKE :firstName 
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+        $sql = "SELECT * 
+                FROM {$this->tableName}
+                WHERE firstName LIKE :firstName 
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $vars = array(':firstName' => $firstName);
         $result = $this->db->prepared_query($sql, $vars);
 
         if (count($result) == 0)
         {
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticFirstName LIKE :firstName
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+            $sql = "SELECT * 
+                    FROM {$this->tableName}
+                    WHERE phoneticFirstName LIKE :firstName
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             $vars = array(':firstName' => metaphone($firstName));
             if ($vars[':firstName'] != '')
@@ -840,7 +864,6 @@ class Employee extends Data
                 $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
             }
         }
-        error_log(print_r($finalResult, true));
         return $finalResult;
         
     }

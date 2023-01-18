@@ -27,6 +27,11 @@
     cursor: pointer;
 }
 
+.employeeSelector:hover {
+    background-color: #fffdcc;
+    color: black;
+}
+
 .employeeSelectorDisable{
     width: 99%;
     font-size: 14px;
@@ -36,9 +41,8 @@
     cursor: pointer;
 }
 
-.employeeSelector:hover {
-    background-color: #fffdcc;
-    color: black;
+.employeeSelectorDisable:hover{
+    background-color: #b7b7b7 !important;
 }
 
 .employeeSelected {
