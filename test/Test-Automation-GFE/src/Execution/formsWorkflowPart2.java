@@ -311,11 +311,11 @@ public class formsWorkflowPart2 extends setupFramework {
 			WebElement ele = driver.findElement(By.cssSelector("table tr:last-child td > button"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
-			waitMethods.waiter(waitMethods.w100);
+			waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Restore Deleted Question");
-	    	waitMethods.waiter(waitMethods.w100);
+	    	waitMethods.waiter(waitMethods.w300);
 	    	driver.switchTo().alert().accept();		//Dismiss js alert
-	    	waitMethods.waiter(waitMethods.w100); 
+	    	waitMethods.waiter(waitMethods.w300); 
 	    	driver.navigate().back();			
 		}
 		
