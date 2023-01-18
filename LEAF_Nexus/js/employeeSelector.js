@@ -266,6 +266,7 @@ employeeSelector.prototype.search = function() {
 
 		                t.showNotBusy();
 		            },
+					error: function(){console.log("Failed to gather users information.");},
 		            cache: false
 		        };
 	    	
