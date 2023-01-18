@@ -204,7 +204,7 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('absPortPath', ABSOLUTE_PORT_PATH);
         $t_form->assign('libsPath', S_LIB_PATH);
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../..' . $site_paths['orgchart_path']);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 
