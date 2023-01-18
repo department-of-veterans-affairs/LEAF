@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class PortalGroupFormatter{
-
+class PortalGroupFormatter
+{
     const TEMPLATES = [
         DataActions::IMPORT.'-'.LoggableTypes::PORTAL_GROUP => [
             "message"=>"<strong>%s</strong> group was imported",

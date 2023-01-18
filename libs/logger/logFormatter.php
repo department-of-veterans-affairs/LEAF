@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class LogFormatter{
-
+class LogFormatter
+{
     const formatters = array(
         LoggableTypes::GROUP => GroupFormatter::TEMPLATES,
         LoggableTypes::SERVICE_CHIEF => ServiceChiefFormatter::TEMPLATES,
@@ -80,6 +80,3 @@ class LogFormatter{
         return $result;
     }
 }
-
-
-

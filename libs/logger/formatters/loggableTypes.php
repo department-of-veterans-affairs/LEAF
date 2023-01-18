@@ -2,7 +2,8 @@
 
 namespace Leaf;
 
-class LoggableTypes {
+class LoggableTypes
+{
     const GROUP = 'group';
     const PRIVILEGES = 'privileges';
     const POSITION = 'position';

@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class GroupFormatter {
-
+class GroupFormatter
+{
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::GROUP => [
             "message"=>"Group %s created",

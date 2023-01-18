@@ -2,7 +2,8 @@
 
 namespace Leaf;
 
-class ServiceChiefFormatter {
+class ServiceChiefFormatter
+{
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::SERVICE_CHIEF => [
             "message"=>"<strong>%s</strong> has been added to <strong>%s</strong>",

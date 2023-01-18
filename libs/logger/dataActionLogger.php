@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class DataActionLogger{
-
+class DataActionLogger
+{
     protected $db;
     protected $login;
 

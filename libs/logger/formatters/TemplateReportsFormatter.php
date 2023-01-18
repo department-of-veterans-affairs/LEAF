@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class TemplateReportsFormatter{
-
+class TemplateReportsFormatter
+{
     const TEMPLATES = [
         DataActions::MODIFY.'-'.LoggableTypes::TEMPLATE_REPORTS_BODY => [
             "message" => "Body of <strong>%s</strong> was edited",

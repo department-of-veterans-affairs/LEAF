@@ -2,14 +2,14 @@
 
 namespace Leaf;
 
-class WorkflowFormatter {
+class WorkflowFormatter
+{
     /** Templates for determining what data to grab based on the workflow action.
      * Action data is retrieved from the data_log_items table.
      * Each action consists of three rows, each serving as an attribute of the action.
      * The attributes differ based on the type of action.
      * The attributes are described in the variables property of each template.
      */
-
 
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_STEP => [
@@ -64,5 +64,4 @@ class WorkflowFormatter {
         ]
 
     ];
-
 }

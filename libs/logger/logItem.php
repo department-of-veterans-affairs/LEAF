@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class LogItem{
-
+class LogItem
+{
     public $tableName;
     public $column;
     public $value;

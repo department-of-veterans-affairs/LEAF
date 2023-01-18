@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class FormFormatter{
-
+class FormFormatter
+{
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::FORM => [
             "message"=> "Form %s has been created",

@@ -2,8 +2,8 @@
 
 namespace Leaf;
 
-class PrimaryAdminFormatter{
-
+class PrimaryAdminFormatter
+{
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::PRIMARY_ADMIN => [
             "message" => "User %s has been set as primary admin",
