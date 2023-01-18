@@ -81,7 +81,7 @@ class FormWorkflow
      * @return array database result
      * @return array|int|null if no database result
      */
-    public function getCurrentSteps(): ?array
+    public function getCurrentSteps(): array|int|null
     {
         // check privileges
         if (!$this->form->hasReadAccess($this->recordID))
@@ -91,21 +91,27 @@ class FormWorkflow
 
         $steps = array();
         $vars = array(':recordID' => $this->recordID);
-        $strSQL = 'SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+        $strSQL = 'SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
             LEFT JOIN records USING (recordID)
             LEFT JOIN workflow_steps USING (stepID)
             LEFT JOIN step_dependencies USING (stepID)
             LEFT JOIN dependencies USING (dependencyID)
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            WHERE recordID = :recordID
-            AND (filled = 0 OR filled IS NULL)';
+            WHERE recordID = :recordID';
         $res = $this->db->prepared_query($strSQL, $vars);
 
         $numRes = count($res);
         if ($numRes > 0)
         {
+            if ($numRes == 1 && $res[0]['filled'] == 1) {
+                $res[0]['filled'] = 0;
+            }
+
             for ($i = 0; $i < $numRes; $i++)
             {
+                if ($res[$i]['filled'] == 1) {
+                    continue;
+                }
                 $res[$i]['dependencyActions'] = $this->getDependencyActions($res[$i]['workflowID'], $res[$i]['stepID']);
                 // override access if user is in the admin group
                 $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess
@@ -133,7 +139,7 @@ class FormWorkflow
                         ':quadGroupIDs' => $quadGroupIDs
                     );
                     $strSQL = 'SELECT * FROM services
-                        WHERE groupID IN (:quadGroupIDs)
+                        WHERE find_in_set(groupID, :quadGroupIDs)
                         AND serviceID = :serviceID';
                     $res3 = $this->db->prepared_query($strSQL, $vars3);
 

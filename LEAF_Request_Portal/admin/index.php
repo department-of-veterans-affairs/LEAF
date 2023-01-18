@@ -175,7 +175,6 @@ switch ($action) {
         $tabText = 'Workflow Editor';
 
         break;
-    /*
     case 'form_vue':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -213,7 +212,6 @@ switch ($action) {
 
         $tabText = 'Form Editor Testing';
         break;
-    */
     case 'form':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
