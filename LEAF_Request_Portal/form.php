@@ -1398,9 +1398,19 @@ class Form
             $resCountCompletedRequired = 0;
             $resCompletedIndIDs = array();
             foreach($resCompleted as $entry) {
-                $resCompletedIndIDs[(int)$entry['indicatorID']] = $entry['data'];
-                if((int)$entry['required'] === 1) {
-                    $resCountCompletedRequired++;
+                $arrData = @unserialize($entry['data']) === false ? array($entry['data']) : unserialize($entry['data']);
+                //need to filter out checkboxes entries that have all 'no' values
+                $allNo = true;
+                foreach ($arrData as $ele) {
+                    if($ele !== 'no') {
+                        $allNo = false;
+                    };
+                }
+                if ($allNo === false) {
+                    $resCompletedIndIDs[(int) $entry['indicatorID']] = $entry['data'];
+                    if ((int) $entry['required'] === 1) {
+                        $resCountCompletedRequired++;
+                    }
                 }
             }
         
@@ -1423,6 +1433,9 @@ class Form
                 $returnValue = 100;
 
             } else {
+                //check if there are conditions that result in required questions being in a hidden state, and adjust percentage
+                $multiChoiceParentFormats = array('multiselect', 'checkboxes');
+                $singleChoiceParentFormats = array('radio', 'dropdown');
 
                 foreach ($resRequestRequired as $ind) {
                     //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
@@ -1435,40 +1448,37 @@ class Form
                         foreach ($conditions as $c) {
                             //only continue if:
                             if ($c->childFormat === $currFormat //current format and condition format matches
-                                && (strtolower($c->selectedOutcome)==='hide' || strtolower($c->selectedOutcome)==='show') //outcome is hide or show
-                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) { //and parent data exists
+                                && (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome ) === 'show') //outcome is hide or show
+                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) { //and parent data exists and is not all 'no' (unchecked checkboxes format)
 
                                 $parentFormat = $c->parentFormat;
-
+                                $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
                                 $currentParentDataValue =  preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int)$c->parentIndID]);
-                                if ($parentFormat==='multiselect') {
+                                if (in_array($parentFormat, $multiChoiceParentFormats)) {
                                     $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
                                 } else {
                                     $currentParentDataValue = array($currentParentDataValue);
                                 }
                                 
-                                $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
                                 $operator = $c->selectedOp;
 
                                 switch($operator) {
                                     case '==':
-                                        if ($parentFormat === 'multiselect') { //true if the current data value includes any of the condition values
+                                        if (in_array($parentFormat, $multiChoiceParentFormats)) {
+                                            //true if the current data value includes any of the condition values
                                             foreach ($currentParentDataValue as $v) {
                                                 if (in_array($v, $conditionParentValue)) {
                                                     $conditionMet = true;
                                                     break;
                                                 }
                                             }
-                                        } else if (($parentFormat === 'dropdown' || $parentFormat === 'radio')
-                                            && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                        } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                             $conditionMet = true;
-                                        } 
+                                        }
                                         break;
                                     case '!=':
-                                        if (($parentFormat === 'multiselect' && !array_intersect($currentParentDataValue, $conditionParentValue))
-                                            || 
-                                            (($parentFormat === 'dropdown' || $parentFormat === 'radio')
-                                            && $currentParentDataValue[0] !== $conditionParentValue[0])) {
+                                        if ((in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
+                                            (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] !== $conditionParentValue[0])) {
                                             $conditionMet = true;
                                         } 
                                         break;
@@ -1478,14 +1488,14 @@ class Form
 
                             }
                             //if the question is not being shown due to its conditions, do not count it as a required question
-                            if(($conditionMet===false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet===true && strtolower($c->selectedOutcome) === 'hide')) {
+                            if(($conditionMet === false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
                                 $countRequestRequired--;
                                 break;
                             }
                         }
                     }
                 }
-                if ($countRequestRequired===0) {
+                if ($countRequestRequired === 0) {
                     $returnValue = 100;
                 } else {
                     $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
