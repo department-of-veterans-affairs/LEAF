@@ -67,7 +67,7 @@ function findAssociatedRequests(oldAccount, newAccount) {
 $(function() {
 
     var empSel = new nationalEmployeeSelector('employeeSelector');
-    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    //empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     empSel.domainPath = '<!--{$domainPath}-->/';
     empSel.absOrgPath = '<!--{$absOrgPath}-->/';
     empSel.outputStyle = 'micro';
@@ -81,7 +81,7 @@ $(function() {
     empSel.initialize();
 
     var empSelNew = new nationalEmployeeSelector('newEmployeeSelector');
-    empSelNew.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    //empSelNew.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     empSelNew.domainPath = '<!--{$domainPath}-->/';
     empSelNew.absOrgPath = '<!--{$absOrgPath}-->/';
     empSelNew.outputStyle = 'micro';

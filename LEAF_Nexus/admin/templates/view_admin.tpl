@@ -103,7 +103,7 @@ function newEmployee() {
     var empSel = new nationalEmployeeSelector('empSelector_container');
     empSel.domainPath = '<!--{$domainPath}-->';
     empSel.absOrgPath = '<!--{$absOrgPath}-->';
-    empSel.apiPath = '../api/';
+    empSel.apiPath = 'api/';
     empSel.initialize();
 //    empSel.setDomain('<!--{$userDomain}-->');
 

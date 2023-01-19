@@ -120,7 +120,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 case 'orgchart_employee':
                     empSel = new nationalEmployeeSelector('empSelector');
                     empSel.domainPath = domainPath+'/';
-                    empSel.apiPath = orgChartPath+'/api/';
+                    //empSel.apiPath = orgChartPath+'/api/';
                     empSel.setSelectHandler(function(){
                         var selectedUserName = empSel.selectionData[empSel.selection].userName;
                         $.ajax({

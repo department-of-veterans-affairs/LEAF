@@ -1085,7 +1085,7 @@
 
                 function initEmployeeSelector() {
                     let empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    //empSel.apiPath = '<!--{$orgchartPath}-->/api/';
                     empSel.domainPath = '<!--{$domainPath}-->/';
                     empSel.absOrgPath = '<!--{$absOrgPath}-->/';
 

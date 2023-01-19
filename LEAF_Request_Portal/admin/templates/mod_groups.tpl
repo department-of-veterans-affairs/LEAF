@@ -637,7 +637,7 @@ function getGroupList() {
                             '<h2 role="heading" tabindex="-1">System Administrators</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Administrator</h3></div><div id="employeeSelector"></div></br><div id="adminSummary"></div><div class="leaf-marginTop-2rem">');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
+                        //empSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
                         empSel.domainPath = '<!--{$domainPath}-->/';
                         empSel.absRootPath = '<!--{$absOrgPath}-->/';
                         empSel.outputStyle = 'micro';
@@ -714,7 +714,7 @@ function getGroupList() {
                             '<h2 role="heading" tabindex="-1">Primary Administrator</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Set Primary Administrator</h3><div id="employeeSelector"></div></br></br><div id="primaryAdminSummary"></div>');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
+                        //empSel.apiPath = '<!--{$absOrgPath}-->/api/?a=';
                         empSel.domainPath = '<!--{$domainPath}-->/';
                         empSel.absRootPath = '<!--{$absOrgPath}-->/';
                         empSel.outputStyle = 'micro';
