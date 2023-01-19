@@ -137,31 +137,34 @@ class NationalEmployee extends NationalData
         return $result;
     }
 
-    public function lookupLastName($lastName)
+    /**
+     * Looks for all user's lastname
+     *
+     * @param string $lastName
+     * @return array
+     * 
+     * Created at: 1/19/2023, 10:29:15 AM (America/New_York)
+     */
+    public function lookupAllUsersLastName(string $lastName): array
     {
         $lastName = $this->parseWildcard($lastName);
 
         $vars = array(':lastName' => $lastName);
         $domain = $this->addDomain($vars);
         $sql = "SELECT * FROM {$this->tableName}
-                    WHERE lastName LIKE :lastName
-                    	AND deleted = 0
-                    	{$domain}
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+                WHERE lastName LIKE :lastName {$domain}
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
+        if (count($result) == 0){
             $vars = array(':lastName' => metaphone($lastName));
             $domain = $this->addDomain($vars);
             $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticLastName LIKE :lastName
-                	AND deleted = 0
-                	{$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+                    WHERE phoneticLastName LIKE :lastName {$domain}
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             if ($vars[':lastName'] != '')
             {
@@ -180,31 +183,34 @@ class NationalEmployee extends NationalData
         return $result;
     }
 
-    public function lookupFirstName($firstName)
+    /**
+     * Looks for all user's fistname
+     *
+     * @param string $firstName
+     * @return array
+     * 
+     * Created at: 1/19/2023, 10:26:56 AM (America/New_York)
+     */
+    public function lookupAllUsersFirstName(string $firstName): array
     {
         $firstName = $this->parseWildcard($firstName);
 
         $vars = array(':firstName' => $firstName);
         $domain = $this->addDomain($vars);
         $sql = "SELECT * FROM {$this->tableName}
-                    WHERE firstName LIKE :firstName
-                    	AND deleted = 0
-                    	{$domain}
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+                WHERE firstName LIKE :firstName {$domain}
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
+        if (count($result) == 0){
             $vars = array(':firstName' => metaphone($firstName));
             $domain = $this->addDomain($vars);
             $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticFirstName LIKE :firstName
-                	AND deleted = 0
-                	{$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+                    WHERE phoneticFirstName LIKE :firstName {$domain}
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             if ($vars[':firstName'] != '')
             {
@@ -437,12 +443,12 @@ class NationalEmployee extends NationalData
                 {
                     $this->log[] = 'Format Detected: Last OR First';
                 }
-                $res = $this->lookupLastName($input);
+                $res = $this->lookupAllUsersLastName($input);
                 // Check first names if theres few hits for last names
                 if (count($res) < $this->deepSearch)
                 {
                     $this->log[] = 'Extra search on first names';
-                    $res = array_merge($res, $this->lookupFirstName($input));
+                    $res = array_merge($res, $this->lookupAllUsersFirstName($input));
                     // Try to look for service
                     if (count($res) == 0)
                     {

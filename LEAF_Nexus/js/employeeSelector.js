@@ -157,7 +157,7 @@ employeeSelector.prototype.search = function() {
 		            	t.selection = '';
 		            	$('#' + t.prefixID + 'result').html('');
 		            	var buffer = '';
-		            	if(t.outputStyle == 'standard') {
+		            	if(t.outputStyle == 'micro') {
 		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 		            	else {
@@ -240,7 +240,7 @@ employeeSelector.prototype.search = function() {
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('keypress', t.getSelectorFunction(response[i].empUID));
 		                	t.numResults++;
 
-							if(response[i].deleted > 0){
+							if (response[i].deleted > 0){
 								$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelectorDisable');
 							}
 		            	}

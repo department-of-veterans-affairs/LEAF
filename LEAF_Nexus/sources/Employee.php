@@ -299,11 +299,12 @@ class Employee extends Data
     /**
      * Get positions associated with an employee
      *
-     * @param int |
-     * @return int
-     * Created at: 1/18/2023, 2:16:45 PM (America/New_York)
+     * @param int|string $empUID
+     * @return int|array|bool
+     * 
+     * Created at: 1/19/2023, 10:22:32 AM (America/New_York)
      */
-    public function getPositions(int | string $empUID): int | array | bool
+    public function getPositions(int|string $empUID): int|array|bool
     {
         $vars = array(':empUID' => $empUID);
         $sql = 'SELECT * 
@@ -389,8 +390,7 @@ class Employee extends Data
         $vars = array(':lastName' => $lastName);
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
+        if (count($result) == 0){
             $sql = "SELECT * 
                     FROM {$this->tableName}
                     WHERE phoneticLastName LIKE :lastName 
@@ -436,8 +436,7 @@ class Employee extends Data
         $vars = array(':firstName' => $firstName);
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
+        if (count($result) == 0){
             $sql = "SELECT * 
                     FROM {$this->tableName}
                     WHERE phoneticFirstName LIKE :firstName
