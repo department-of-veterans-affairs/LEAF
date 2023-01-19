@@ -102,6 +102,9 @@ input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
 input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after {
     display: block;
 }
+input:disabled ~ span.leaf_check:hover {
+    cursor: not-allowed;
+}
 
 
 /** modifications to choicesjs styles **/
