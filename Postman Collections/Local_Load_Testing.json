@@ -6,6 +6,79 @@
 	},
 	"item": [
 		{
+			"name": "Local - getCSRFTokenMR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c57ea32b-2a69-4e4a-a2c3-644fa0144d1d",
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"getCSRFToken\", function () {\r",
+							"    //const response = pm.response.json();    // response is stored js object\r",
+							"\tvar response = pm.response.text();\r",
+							"\tstr1 = response.slice(0, -1);\r",
+							"\tstr2 = str1.slice(0, -1);\r",
+							"\ttoken = str2;\r",
+							"\tconsole.log(token);\r",
+							"\t\r",
+							"\tpm.globals.set(\"CSRFToken\", token);\r",
+							"\tconsole.log(\"CSRFToken Retreived from GET request: \" + pm.globals.get(\"CSRFToken\"));\r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "94ef5633-60b5-466e-a324-38ce91df8460",
+						"exec": [
+							"\r",
+							"\r",
+							"\r",
+							"/* const random = Math.random().toString(36).substring(2);\r",
+							"const formCategories = \"formCategories \" + random;\r",
+							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
+							"*/\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "915733f2-d2d3-408d-acd7-d89c9e6e7866",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/LEAF_Request_Portal/api/formWorkflow/getCSRFToken"
+			},
+			"response": []
+		},
+		{
 			"name": "Local - Create Form NEW",
 			"event": [
 				{
