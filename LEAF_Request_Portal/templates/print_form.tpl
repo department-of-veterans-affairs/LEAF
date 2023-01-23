@@ -1118,7 +1118,8 @@ function admin_changeInitiator() {
     function init_empSel() {
         empSel = new employeeSelector('empSel_changeInitiator');
         empSel.apiPath = '<!--{$orgchartPath}-->/api/';
-        empSel.rootPath = '<!--{$orgchartPath}-->/';
+        empSel.absRootPath = '<!--{$orgchartPath}-->/';
+        empSel.libsPath = '<!--{$libsPath}-->/';
 
         empSel.setSelectHandler(function() {
             if(empSel.selectionData[empSel.selection] != undefined) {

@@ -103,7 +103,7 @@ switch ($action) {
                 'js/workflow.js',
                 'js/formGrid.js',
                 S_LIB_PATH . 'js/LEAF/formQuery.js',
-                'js/formSearch.js',
+                S_LIB_PATH . 'js/LEAF/formSearch.js',
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',
                 S_LIB_PATH . 'js/LEAF/XSSHelpers.js',

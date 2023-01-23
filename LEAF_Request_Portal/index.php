@@ -427,7 +427,7 @@ switch ($action) {
                 'js/form.js',
                 'js/formGrid.js',
                 S_LIB_PATH . 'js/LEAF/formQuery.js',
-                'js/formSearch.js'
+                S_LIB_PATH . 'js/LEAF/formSearch.js'
         ));
         $main->assign('useUI', true);
 
@@ -470,7 +470,7 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
                S_LIB_PATH . 'js/LEAF/formQuery.js',
-               'js/formSearch.js',
+               S_LIB_PATH . 'js/LEAF/formSearch.js',
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
@@ -527,7 +527,7 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js',
                                     'js/formGrid.js',
                                     S_LIB_PATH . 'js/LEAF/formQuery.js',
-                                    'js/formSearch.js'
+                                    S_LIB_PATH . 'js/LEAF/formSearch.js'
         ));
         $main->assign('useLiteUI', true);
 

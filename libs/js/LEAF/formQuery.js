@@ -3,68 +3,68 @@
  */
 
 var LeafFormQuery = function() {
-	var query = {};
-	var successCallback = null;
-	var portalPath = '';
-	var useJSONP = false;
+    var query = {};
+    var successCallback = null;
+    var portalPath = '';
+    var useJSONP = false;
     var extraParams = '';
 
-	clearTerms();
+    clearTerms();
 
     /**
      * Reset search terms
      * @memberOf LeafFormQuery
      */
     function clearTerms() {
-    	query = {};
-    	query.terms = [];
-    	query.joins = [];
-    	query.sort = {};
-    	query.getData = [];
+        query = {};
+        query.terms = [];
+        query.joins = [];
+        query.sort = {};
+        query.getData = [];
     }
 
     /**
-	 * Add a new search term
-	 * @param id - columnID
-	 * @param operator - SQL comparison operator
-	 * @param match - search term to match on
-	 * @param gate - AND or OR gate
-	 * @memberOf LeafFormQuery
-	 */
+     * Add a new search term
+     * @param id - columnID
+     * @param operator - SQL comparison operator
+     * @param match - search term to match on
+     * @param gate - AND or OR gate
+     * @memberOf LeafFormQuery
+     */
     function addTerm(id, operator, match, gate) {
-		// @TODO IE Fix (No overloading)
-		if (gate === undefined) {
-			gate = 'AND';
-		}
-    	var temp = {};
-    	temp.id = id;
-    	temp.operator = operator;
-    	temp.match = match;
-		temp.gate = gate;
-    	query.terms.push(temp);
+        // @TODO IE Fix (No overloading)
+        if (gate === undefined) {
+            gate = 'AND';
+        }
+        var temp = {};
+        temp.id = id;
+        temp.operator = operator;
+        temp.match = match;
+        temp.gate = gate;
+        query.terms.push(temp);
     }
 
     /**
-	 * Add a new search term for data table
-	 * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
-	 * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
-	 * @param operator - SQL comparison operator
-	 * @param match - search term to match on
-	 * @param gate - AND or OR gate
-	 * @memberOf LeafFormQuery
-	 */
+     * Add a new search term for data table
+     * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
+     * @param indicatorID - indicatorID / dependencyID / "0" to search all indicators
+     * @param operator - SQL comparison operator
+     * @param match - search term to match on
+     * @param gate - AND or OR gate
+     * @memberOf LeafFormQuery
+     */
     function addDataTerm(id, indicatorID, operator, match, gate) {
-		// @TODO IE Fix (No overloading)
-		if (gate === undefined) {
-			gate = 'AND';
-		}
-    	var temp = {};
-    	temp.id = id;
-    	temp.indicatorID = indicatorID;
-    	temp.operator = operator;
-    	temp.match = match;
-		temp.gate = gate;
-    	query.terms.push(temp);
+        // @TODO IE Fix (No overloading)
+        if (gate === undefined) {
+            gate = 'AND';
+        }
+        var temp = {};
+        temp.id = id;
+        temp.indicatorID = indicatorID;
+        temp.operator = operator;
+        temp.match = match;
+        temp.gate = gate;
+        query.terms.push(temp);
     }
 
 
@@ -74,35 +74,35 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function importQuery(input) {
-		for(let i in input.terms) {
-			switch(Object.keys(input.terms[i]).length) {
-				case 3:
-					addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match);
-					break;
-				case 4:
-					if (input.terms[i].gate === undefined) {
-						addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match);
-						break;
-					} else {
-						addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
-						break;
-					}
-				case 5:
-					addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
-					break;
-				default:
-					console.log('Format error');
-					break;
-			}
-		}
+        for(let i in input.terms) {
+            switch(Object.keys(input.terms[i]).length) {
+                case 3:
+                    addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match);
+                    break;
+                case 4:
+                    if (input.terms[i].gate === undefined) {
+                        addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match);
+                        break;
+                    } else {
+                        addTerm(input.terms[i].id, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+                        break;
+                    }
+                case 5:
+                    addDataTerm(input.terms[i].id, input.terms[i].indicatorID, input.terms[i].operator, input.terms[i].match, input.terms[i].gate);
+                    break;
+                default:
+                    console.log('Format error');
+                    break;
+            }
+        }
 
-    	for(var i in input.joins) {
-    		join(input.joins[i]);
-    	}
+        for(var i in input.joins) {
+            join(input.joins[i]);
+        }
 
-    	for(var i in input.getData) {
-    		getData(input.getData[i]);
-    	}
+        for(var i in input.getData) {
+            getData(input.getData[i]);
+        }
     }
 
     /**
@@ -112,13 +112,13 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function setLimit(offset, limit) {
-    	if(limit === undefined) {
-    		query.limit = offset;
-    	}
-    	else {
-        	query.limit = limit;
-        	setLimitOffset(offset);
-    	}
+        if(limit === undefined) {
+            query.limit = offset;
+        }
+        else {
+            query.limit = limit;
+            setLimitOffset(offset);
+        }
     }
 
     /**
@@ -127,7 +127,7 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function setLimitOffset(offset) {
-    	query.limitOffset = offset;
+        query.limitOffset = offset;
     }
 
     /**
@@ -136,9 +136,9 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function join(table) {
-    	if(query.joins.indexOf(table) == -1) {
-        	query.joins.push(table);
-    	}
+        if(query.joins.indexOf(table) == -1) {
+            query.joins.push(table);
+        }
     }
 
     /**
@@ -147,9 +147,9 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function getData(indicatorID) {
-    	if(query.getData.indexOf(indicatorID) == -1) {
-        	query.getData.push(indicatorID);
-    	}
+        if(query.getData.indexOf(indicatorID) == -1) {
+            query.getData.push(indicatorID);
+        }
     }
 
     /**
@@ -158,51 +158,51 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function sort(column, direction) {
-    	query.sort.column = column;
-    	query.sort.direction = direction;
+        query.sort.column = column;
+        query.sort.direction = direction;
     }
 
     /**
-	 * Update an existing search term
-	 * @param id - columnID or "stepID"
-	 * @param operator - SQL comparison operator
-	 * @param match - search term to match on
-	 * @param gate - AND or OR gate
-	 * @memberOf LeafFormQuery
-	 */
+     * Update an existing search term
+     * @param id - columnID or "stepID"
+     * @param operator - SQL comparison operator
+     * @param match - search term to match on
+     * @param gate - AND or OR gate
+     * @memberOf LeafFormQuery
+     */
     function updateTerm(id, operator, match, gate) {
-    	for(var i in query.terms) {
-    		if(query.terms[i].id == id
-    				&& query.terms[i].operator == operator) {
-    			query.terms[i].match = match;
-				query.terms[i].gate = gate;
-    			return;
-    		}
-    	}
-    	addTerm(id, operator, match, gate);
+        for(var i in query.terms) {
+            if(query.terms[i].id == id
+                    && query.terms[i].operator == operator) {
+                query.terms[i].match = match;
+                query.terms[i].gate = gate;
+                return;
+            }
+        }
+        addTerm(id, operator, match, gate);
     }
 
     /**
-	 * Update an existing data search term
-	 * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
-	 * @param indicatorID - indicatorID / dependencyID
-	 * @param operator - SQL comparison operator
-	 * @param match - search term to match on
-	 * @param gate - AND or OR gate
-	 * @memberOf LeafFormQuery
-	 */
+     * Update an existing data search term
+     * @param id - columnID / 'data' to search data table / 'dependencyID' to search records_dependencies data, matching on 'filled'
+     * @param indicatorID - indicatorID / dependencyID
+     * @param operator - SQL comparison operator
+     * @param match - search term to match on
+     * @param gate - AND or OR gate
+     * @memberOf LeafFormQuery
+     */
     function updateDataTerm(id, indicatorID, operator, match, gate) {
-    	var found = 0;
-    	for(var i in query.terms) {
-    		if(query.terms[i].id == id
-    				&& query.terms[i].indicatorID == indicatorID
-    				&& query.terms[i].operator == operator) {
-    			query.terms[i].match = match;
-				query.terms[i].gate = gate;
-    			return;
-    		}
-    	}
-    	addDataTerm(id, indicatorID, operator, match, gate);
+        var found = 0;
+        for(var i in query.terms) {
+            if(query.terms[i].id == id
+                    && query.terms[i].indicatorID == indicatorID
+                    && query.terms[i].operator == operator) {
+                query.terms[i].match = match;
+                query.terms[i].gate = gate;
+                return;
+            }
+        }
+        addDataTerm(id, indicatorID, operator, match, gate);
     }
 
     /**
@@ -218,7 +218,7 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function onSuccess(funct) {
-    	successCallback = funct;
+        successCallback = funct;
     }
 
     /**
@@ -228,53 +228,53 @@ var LeafFormQuery = function() {
      * @memberOf LeafFormQuery
      */
     function execute() {
-    	if(query.getData != undefined && query.getData.length == 0) {
-    		delete query.getData;
-    	}
+        if(query.getData != undefined && query.getData.length == 0) {
+            delete query.getData;
+        }
 
         let el = document.createElement('div');
         el.innerHTML = JSON.stringify(query);
         let queryUrl = el.innerText;
 
-    	if(useJSONP == false) {
-        	return $.ajax({
-        		type: 'GET',
-        		url: portalPath + '/api/form/query?q=' + queryUrl + extraParams,
-        		dataType: 'json',
-        		success: successCallback,
-        		cache: false
-        	});
-    	}
-    	else {
-        	return $.ajax({
-        		type: 'GET',
-        		url: portalPath + '/api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
-        		dataType: 'jsonp',
-        		success: successCallback,
-        		cache: false
-        	});
-    	}
+        if(useJSONP == false) {
+            return $.ajax({
+                type: 'GET',
+                url: portalPath + '/api/form/query?q=' + queryUrl + extraParams,
+                dataType: 'json',
+                success: successCallback,
+                cache: false
+            });
+        }
+        else {
+            return $.ajax({
+                type: 'GET',
+                url: portalPath + '/api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
+                dataType: 'jsonp',
+                success: successCallback,
+                cache: false
+            });
+        }
     }
 
-	return {
-		clearTerms: clearTerms,
-		addTerm: addTerm,
-		addDataTerm: addDataTerm,
-		importQuery: importQuery,
-		getQuery: function() { return query; },
-		getData: getData,
-		updateTerm: updateTerm,
-		updateDataTerm: updateDataTerm,
-		setQuery: function(inc) { query = inc; },
-		setLimit: setLimit,
-		setLimitOffset: setLimitOffset,
-		setPortalPath: function(url) { portalPath = url; },
-		getPortalPath: function() { return portalPath; },
-		useJSONP: function(state) { useJSONP = state; },
+    return {
+        clearTerms: clearTerms,
+        addTerm: addTerm,
+        addDataTerm: addDataTerm,
+        importQuery: importQuery,
+        getQuery: function() { return query; },
+        getData: getData,
+        updateTerm: updateTerm,
+        updateDataTerm: updateDataTerm,
+        setQuery: function(inc) { query = inc; },
+        setLimit: setLimit,
+        setLimitOffset: setLimitOffset,
+        setPortalPath: function(url) { portalPath = url; },
+        getPortalPath: function() { return portalPath; },
+        useJSONP: function(state) { useJSONP = state; },
         setExtraParams: setExtraParams,
-		join: join,
-		sort: sort,
-		onSuccess: onSuccess,
-		execute: execute
-	}
+        join: join,
+        sort: sort,
+        onSuccess: onSuccess,
+        execute: execute
+    }
 };

@@ -6,8 +6,7 @@
 
 function employeeSelector(containerID) {
 	this.apiPath = './api/?a=';
-	this.rootPath = '';
-    this.absRootPath = '';
+	this.absRootPath = '';
     this.libsPath = '';
 	this.useJSONP = 0;
 	this.selection = '';
@@ -182,7 +181,7 @@ employeeSelector.prototype.search = function() {
 		            	for(var i in response) {
 		                	t.selectionData[response[i].empUID] = response[i];
 
-		                	var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.rootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
+		                	var photo = response[i].data[1] != undefined && response[i].data[1].data != '' ? '<img class="employeeSelectorPhoto" src="' + t.absRootPath + 'image.php?categoryID=1&amp;UID='+response[i].empUID+'&amp;indicatorID=1" alt="photo" />' : '';
 		                	var positionTitle = response[i].positionData != undefined ? response[i].positionData.positionTitle : '';
 		                	var groupTitle = '';
 
