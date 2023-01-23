@@ -865,7 +865,7 @@
                     let grpSel = new groupSelector('grpSel_<!--{$indicator.indicatorID}-->');
                     grpSel.apiPath = '<!--{$orgchartPath}-->/api/';
                     grpSel.rootPath = '<!--{$orgchartPath}-->/';
-                    grpSel.libsPath = '<!--{$libsPath}-->/';
+                    grpSel.libsPath = '<!--{$libsPath}-->';
                     grpSel.searchTag('<!--{$orgchartImportTag}-->');
 
                     grpSel.setSelectHandler(function() {
@@ -954,6 +954,8 @@
                 function initPositionSelector() {
                     let posSel = new positionSelector('posSel_<!--{$indicator.indicatorID}-->');
                     posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    posSel.rootPath = '<!--{$orgchartPath}-->/';
+                    posSel.libsPath = '<!--{$libsPath}-->';
                     posSel.enableEmployeeSearch();
 
                     posSel.setSelectHandler(function() {
