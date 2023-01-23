@@ -1420,7 +1420,7 @@ class Form
 
                 foreach ($resCompleted as $entry) {
                     $arrData = @unserialize($entry['data']) === false ? array($entry['data']) : unserialize($entry['data']);
-                    $entryFormat = explode(PHP_EOL, $entry['format'])[0];
+                    $entryFormat = trim(explode(PHP_EOL, $entry['format'])[0]);
 
                     /*Edgecases: Checkbox and checkboxes format entries save the value 'no' if their corresponding input checkbox is unchecked.
                     Verifying that entries for these formats do not consist solely of 'no' values prevents a miscount that can occur if
