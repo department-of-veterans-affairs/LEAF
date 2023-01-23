@@ -428,8 +428,8 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
 }
 
 function handlePrintConditionalIndicators(formPrintConditions = {}) {
-
-    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio'];
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'];
+    const multiChoiceFormats = ['multiselect', 'checkboxes'];
 
     for (c in formPrintConditions) {
         const childFormat = formPrintConditions[c].format;  //current format of the controlled question
@@ -439,12 +439,10 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
         let comparison = false;
 
         for (let i in conditions) {
-            const parentFormat = conditions[i].parentFormat;
+            const parentFormat = conditions[i].parentFormat.toLowerCase();
+            const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1'); //dropdown, text and radio elements
+            const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 > span > ul > li`)); //multiselect and checkboxes li elements
 
-            //dropdown element
-            const elParentInd = document.getElementById('data_' + conditions[i].parentIndID + '_1');
-            //multiselect li elements
-            const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 li`));
             let arrParVals = [];
             selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
 
@@ -452,51 +450,40 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             const outcome = conditions[i].selectedOutcome.toLowerCase();
 
             if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
-                const val = parentFormat !== 'multiselect' ? elParentInd?.innerHTML.trim() : arrParVals;  //parent's current values entered into the form
 
-                let compVal = '';
-                if (parentFormat !== 'multiselect') { //parent values specified in the condition, w encoding rm'd
-                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
-                } else {
-                    compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
-                    compVal = compVal.map(v => v.trim());
-                }
+                if (comparison !== true) { //no need to re-assess if it has already become true
+                    const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerHTML.trim();
 
-                switch (conditions[i].selectedOp) {
-                    case '==':
-                        if (parentFormat !== 'multiselect') {
-                            comparison = comparison===false ? val === compVal : comparison;
-                        } else {
-                            comparison = comparison===false ? valIncludesMultiselOption(val, compVal) : comparison;
-                        }
-                        break;
-                    case '!=':
-                        if (parentFormat !== 'multiselect') {
-                            comparison = comparison===false ? val !== compVal : comparison;
-                        } else {
-                            comparison = comparison===false ? !valIncludesMultiselOption(val, compVal) : comparison;
-                        }
-                        break;
-                    case '>':
-                        comparison = val > compVal;
-                        break;
-                    case '<':
-                        comparison = val < compVal;
-                        break;
-                    default:
-                        console.log(conditions[i].selectedOp);
-                        break;
+                    let compVal = '';
+                    if (multiChoiceFormats.includes(parentFormat)) {
+                        compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                        compVal = compVal.map(v => v.trim());
+                    } else {
+                        compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+                    }
+
+                    switch (conditions[i].selectedOp) {
+                        case '==':
+                            comparison = multiChoiceFormats.includes(parentFormat) ? valIncludesMultiselOption(val, compVal) : val === compVal;
+                            break;
+                        case '!=':
+                            comparison = multiChoiceFormats.includes(parentFormat) ? !valIncludesMultiselOption(val, compVal) : val !== compVal;
+                            break;
+                        default:
+                            console.log(conditions[i].selectedOp);
+                            break;
+                    }
                 }
 
                 switch (outcome) {
                     case 'hide':
-                        if (elChildInd !== null){
-                            elChildInd.style.display = comparison===true ? 'none' : 'block';
+                        if (elChildInd !== null) {
+                            elChildInd.style.display = comparison === true ? 'none' : 'block';
                         }
                         break;
                     case 'show':
-                        if (elChildInd !== null){
-                            elChildInd.style.display = comparison===true ? 'block' : 'none';
+                        if (elChildInd !== null) {
+                            elChildInd.style.display = comparison === true ? 'block' : 'none';
                         }
                         break;
                     default:
