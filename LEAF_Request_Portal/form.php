@@ -1386,36 +1386,8 @@ class Form
             $returnValue = 100;
 
         } else {
-
-            //get indicatorID, data, and required for all completed questions for non-disabled indicators
-            $resCompleted = $this->db->prepared_query('SELECT indicatorID, `data`, `required` FROM `data` LEFT JOIN indicators
-                                                                USING (indicatorID)
-                                                                WHERE recordID=:recordID
-                                                                    AND indicators.disabled = 0
-                                                                    AND data != ""
-                                                                    AND data IS NOT NULL', $vars);
-            //use to count the number of required completions and organize completed data for possible condition checks                              
-            $resCountCompletedRequired = 0;
-            $resCompletedIndIDs = array();
-            foreach($resCompleted as $entry) {
-                $arrData = @unserialize($entry['data']) === false ? array($entry['data']) : unserialize($entry['data']);
-                //need to filter out checkboxes entries that have all 'no' values
-                $allNo = true;
-                foreach ($arrData as $ele) {
-                    if($ele !== 'no') {
-                        $allNo = false;
-                    };
-                }
-                if ($allNo === false) {
-                    $resCompletedIndIDs[(int) $entry['indicatorID']] = $entry['data'];
-                    if ((int) $entry['required'] === 1) {
-                        $resCountCompletedRequired++;
-                    }
-                }
-            }
-        
+            //use recordInfo about forms associated with the recordID to get the total number of required questions on the request
             $allRequiredIndicators = $this->db->prepared_query("SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0", array());
-            //use recordInfo about forms associated with the record to get the total number of required questions on the request
             $categories = array();
             foreach($resRecordInfoEachForm as $form) {
                 if((int)$form['count'] === 1) {
@@ -1429,76 +1401,135 @@ class Form
                 }
             }
             $countRequestRequired = count($resRequestRequired);
-            if($resCountCompletedRequired === $countRequestRequired) {
+            //if there are no required questions we are done
+            if($countRequestRequired === 0) {
                 $returnValue = 100;
 
             } else {
-                //check if there are conditions that result in required questions being in a hidden state, and adjust percentage
-                $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                $singleChoiceParentFormats = array('radio', 'dropdown');
+                //get indicatorID, format, data, and required for all completed questions for non-disabled indicators
+                $resCompleted = $this->db->prepared_query('SELECT indicatorID, `format`, `data`, `required` FROM `data` LEFT JOIN indicators
+                                                                USING (indicatorID)
+                                                                WHERE recordID=:recordID
+                                                                    AND indicators.disabled = 0
+                                                                    AND data != ""
+                                                                    AND data IS NOT NULL', $vars);
 
-                foreach ($resRequestRequired as $ind) {
-                    //if a required question is not complete, and there are conditions...(conditions could potentially have the string null due to a past import issue)
-                    if(!in_array((int)$ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
-                        
-                        $conditions = json_decode(strip_tags($ind['conditions']));
-                        $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
+                //used to count the number of required completions and organize completed data for possible condition checks
+                $resCountCompletedRequired = 0;
+                $resCompletedIndIDs = array();
 
-                        $conditionMet = false;
-                        foreach ($conditions as $c) {
-                            //only continue if:
-                            if ($c->childFormat === $currFormat //current format and condition format matches
-                                && (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome ) === 'show') //outcome is hide or show
-                                && in_array((int)$c->parentIndID, array_keys($resCompletedIndIDs))) { //and parent data exists and is not all 'no' (unchecked checkboxes format)
+                foreach ($resCompleted as $entry) {
+                    $arrData = @unserialize($entry['data']) === false ? array($entry['data']) : unserialize($entry['data']);
+                    $entryFormat = trim(explode(PHP_EOL, $entry['format'])[0]);
 
-                                $parentFormat = $c->parentFormat;
-                                $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
-                                $currentParentDataValue =  preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int)$c->parentIndID]);
-                                if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                    $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
-                                } else {
-                                    $currentParentDataValue = array($currentParentDataValue);
-                                }
-                                
-                                $operator = $c->selectedOp;
-
-                                switch($operator) {
-                                    case '==':
-                                        if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                            //true if the current data value includes any of the condition values
-                                            foreach ($currentParentDataValue as $v) {
-                                                if (in_array($v, $conditionParentValue)) {
-                                                    $conditionMet = true;
-                                                    break;
-                                                }
-                                            }
-                                        } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
-                                            $conditionMet = true;
-                                        }
-                                        break;
-                                    case '!=':
-                                        if ((in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
-                                            (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] !== $conditionParentValue[0])) {
-                                            $conditionMet = true;
-                                        } 
-                                        break;
-                                    default:
-                                        break;
-                                }
-
-                            }
-                            //if the question is not being shown due to its conditions, do not count it as a required question
-                            if(($conditionMet === false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
-                                $countRequestRequired--;
+                    /*Edgecases: Checkbox and checkboxes format entries save the value 'no' if their corresponding input checkbox is unchecked.
+                    Verifying that entries for these formats do not consist solely of 'no' values prevents a miscount that can occur if
+                    they are later updated to be required, since not having empty values is no longer confirmation that they are answered.*/
+                    $checkBoxesAllNo = strtolower($entryFormat) === 'checkbox' || strtolower($entryFormat) === 'checkboxes';
+                    if ($checkBoxesAllNo === true) {
+                        foreach ($arrData as $ele) {
+                            if ($ele !== 'no') {
+                                $checkBoxesAllNo = false;
                                 break;
                             }
                         }
                     }
+                    /*Grid formats are likewise not necessarily answered if they are not empty strings.  Unanswered grid cells are empty */
+                    $gridContainsEmptyValue = false;
+                    if (strtolower($entryFormat) === 'grid' && isset($arrData['cells'])) {
+                        $arrRowEntries = $arrData['cells'];
+                        foreach ($arrRowEntries as $row) {
+                            if (in_array("", $row)) {
+                                $gridContainsEmptyValue = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ($checkBoxesAllNo === false && $gridContainsEmptyValue === false) {
+                        if ((int) $entry['required'] === 1) {
+                            $resCountCompletedRequired++;
+                            if ($resCountCompletedRequired === $countRequestRequired) {
+                                break;
+                            }
+                        }
+                        //save the data entry (whether required or not) in case it is needed for condition checking
+                        $resCompletedIndIDs[(int) $entry['indicatorID']] = $entry['data'];
+                    }
                 }
-                if ($countRequestRequired === 0) {
+
+                if ($resCountCompletedRequired === $countRequestRequired) {
                     $returnValue = 100;
+
                 } else {
-                    $returnValue = round(100 * ($resCountCompletedRequired/$countRequestRequired));
+                    //finally, check if there are conditions that result in required questions being in a hidden state, and adjust count and percentage
+                    $multiChoiceParentFormats = array('multiselect', 'checkboxes');
+                    $singleChoiceParentFormats = array('radio', 'dropdown');
+
+                    foreach ($resRequestRequired as $ind) {
+                        //if question is not complete, and there are conditions (conditions could potentially have the string null due to a past import issue) ...
+                        if (!in_array((int) $ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
+
+                            $conditions = json_decode(strip_tags($ind['conditions']));
+                            $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
+
+                            $conditionMet = false;
+                            foreach ($conditions as $c) {
+                                if ($c->childFormat === $currFormat //if current format and condition format match
+                                    && (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome) === 'show')) { //and outcome is hide or show
+
+                                    $parentFormat = $c->parentFormat;
+                                    $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
+                                    //if parent data does not exist, use an empty string, since potential 'not' comparisons would need this.
+                                    $currentParentDataValue = preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int) $c->parentIndID] ?? '');
+
+                                    if (in_array($parentFormat, $multiChoiceParentFormats)) {
+                                        $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
+                                    } else {
+                                        $currentParentDataValue = array($currentParentDataValue);
+                                    }
+
+                                    $operator = $c->selectedOp;
+
+                                    switch ($operator) {
+                                        case '==':
+                                            if (in_array($parentFormat, $multiChoiceParentFormats)) {
+                                                //true if the current data value includes any of the condition values
+                                                foreach ($currentParentDataValue as $v) {
+                                                    if (in_array($v, $conditionParentValue)) {
+                                                        $conditionMet = true;
+                                                        break;
+                                                    }
+                                                }
+                                            } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                                $conditionMet = true;
+                                            }
+                                            break;
+                                        case '!=':
+                                            if (
+                                                (in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
+                                                (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] !== $conditionParentValue[0])
+                                            ) {
+                                                $conditionMet = true;
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+
+                                }
+                                //if the question is not being shown due to its conditions, do not count it as a required question
+                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                                    $countRequestRequired--;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if ($countRequestRequired === 0) {
+                        $returnValue = 100;
+                    } else {
+                        $returnValue = round(100 * ($resCountCompletedRequired / $countRequestRequired));
+                    }
                 }
             }
         } 
