@@ -1214,7 +1214,7 @@ class FormWorkflow
                     blockingStepID = :blockingStepID
                     WHERE recordID = :recordID
                     AND stepID = :stepID';
-                $this->db->prepared_query($strSQL2, $vars2);
+                $this->db->prepared_query($strSQL, $vars2);
             }
 
             // if it's not the same dependency, find out if there are any conflicts
