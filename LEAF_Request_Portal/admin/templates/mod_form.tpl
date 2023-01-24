@@ -686,7 +686,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>
             <fieldset><legend>Default Answer</legend>
-                <textarea id="default" style="width: 50%;"></textarea>
+                <div id="default-answer"></div>
             </fieldset>
         </fieldset>
         <fieldset><legend>Attributes</legend>
@@ -735,7 +735,20 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             $('#container_indicatorMultiAnswer').css('display', 'block');
             if (formatOptionsStr !== '') $('#indicatorMultiAnswer').val(formatOptionsStr);
             break;
+        case 'orgchart_employee':
+            $('#default-answer').html('<div id="default" style="width: math(100% - 50px);"></div>');
+            empSel = new employeeSelector('default');
+            empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+            empSel.rootPath = '<!--{$orgchartPath}-->/';
+            empSel.outputStyle = 'micro';
+            empSel.initialize();
+            empSel.setSelectHandler(function () {
+                $('#default').val(empSel.selectionData[empSel.selection].userName);
+                $('.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
+            });
+            break;
         default:
+            $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
             break;
     }
 }
@@ -1392,7 +1405,8 @@ function getForm(indicatorID, series) {
                 })
             );
         }
-
+        
+        console.log($('#default').val());
         if(defaultChanged){
             calls.push(
                 $.ajax({
