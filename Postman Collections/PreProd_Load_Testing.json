@@ -52,7 +52,10 @@
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {},
-				"followOriginalHttpMethod": true
+				"followOriginalHttpMethod": true,
+				"insecureHTTPParser": true,
+				"disableUrlEncoding": false,
+				"strictSSL": false
 			},
 			"request": {
 				"auth": {
