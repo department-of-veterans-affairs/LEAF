@@ -116,8 +116,7 @@
 						{
 							"key": "CSRFToken",
 							"value": "{{CSRFToken}}",
-							"type": "text",
-							"disabled": true
+							"type": "text"
 						}
 					]
 				},
