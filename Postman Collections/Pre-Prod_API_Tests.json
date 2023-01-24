@@ -323,7 +323,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{PreProd_URL}}form/categories"
+				"url": "{{PreProd_URL}}/form/categories"
 			},
 			"response": []
 		},
@@ -1049,7 +1049,7 @@
 	],
 	"variable": [
 		{
-			"id": "c04a138e-36c5-4127-837f-88e93460ca01",
+			"id": "4e12f84d-0e5f-45a3-8084-87889da33a65",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
