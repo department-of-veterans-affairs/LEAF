@@ -61,6 +61,163 @@ class FormWorkflow
         return isset($res[0]);
     }
 
+    public function getActionable($records) {
+        require_once 'form.php';
+        $form = new Form($this->db, $this->login);
+
+        $numRecords = count($records);
+        if ($numRecords == 0) {
+            return $records;
+        }
+
+        $recordIDs = '';
+
+        foreach ($records as $item) {
+            $recordIDs .= (int)$item['recordID'] . ',';
+        }
+        $recordIDs = trim($recordIDs, ',');
+        
+        $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+            LEFT JOIN records USING (recordID)
+            LEFT JOIN workflow_steps USING (stepID)
+            LEFT JOIN step_dependencies USING (stepID)
+            LEFT JOIN dependencies USING (dependencyID)
+            LEFT JOIN records_dependencies USING (recordID, dependencyID)
+            WHERE recordID IN ($recordIDs)";
+        $res = $this->db->prepared_query($strSQL, []);
+
+        foreach ($res as $i => $record) {
+            if ($record['filled'] == 1 && $numRecords > 1) {
+                continue;
+            }
+
+            // override access if user is in the admin group
+            $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
+
+            // check permissions
+            $vars = array(':dependencyID' => $res[$i]['dependencyID']);
+            $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
+            $res2 = $this->db->prepared_query($strSQL, $vars);
+
+            // dependencyID 1 is for a special service chief group
+            if ($res[$i]['dependencyID'] == 1 && !$res[$i]['isActionable'])
+            {
+                if ($this->login->checkService($res[$i]['serviceID']))
+                {
+                    $res[$i]['isActionable'] = true;
+                }
+            }
+
+            // dependencyID 8 is for a special quadrad group
+            if ($res[$i]['dependencyID'] == 8 && !$res[$i]['isActionable'])
+            {
+                $quadGroupIDs = $this->login->getQuadradGroupID();
+                $vars3 = array(
+                    ':serviceID' => $res[$i]['serviceID'],
+                );
+                $strSQL = 'SELECT * FROM services
+                    WHERE groupID IN ('.$quadGroupIDs.')
+                    AND serviceID = :serviceID';
+                $res3 = $this->db->prepared_query($strSQL, $vars3);
+
+                if (isset($res3[0]))
+                {
+                    $res[$i]['isActionable'] = true;
+                }
+            }
+
+            // dependencyID -1 is for a person designated by the requestor
+            if ($res[$i]['dependencyID'] == -1)
+            {
+                $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+
+                // make sure the right person has access
+                if (!$res[$i]['isActionable'])
+                {
+                    $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
+
+                    //check if the requester has any backups
+                    //get nexus db
+                    $nexusDB = $this->login->getNexusDB();
+                    $vars4 = array(':empID' => $empUID);
+                    $strSQL = 'SELECT * FROM relation_employee_backup WHERE empUID = :empID';
+                    $backupIds = $nexusDB->prepared_query($strSQL, $vars4);
+
+                    if ($empUID == $this->login->getEmpUID())
+                    {
+                        $res[$i]['isActionable'] = true;
+                    }
+                    else
+                    {
+                        //check and provide access to backups
+                        foreach ($backupIds as $row)
+                        {
+                            if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                            {
+                                $res[$i]['isActionable'] = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // dependencyID -2 is for requestor followup
+            if ($res[$i]['dependencyID'] == -2 && !$res[$i]['isActionable'])
+            {
+                $isActionable = $res[$i]['userID'] == $this->login->getUserID();
+
+                if(!$isActionable){
+                    $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
+                    $isActionable = $this->checkIfBackup($empUID);
+                }
+
+                $res[$i]['isActionable'] = $isActionable;
+            }
+
+            // dependencyID -3 is for a group designated by the requestor
+            if ($res[$i]['dependencyID'] == -3)
+            {
+                $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
+
+                // make sure the right person has access
+                if (!$res[$i]['isActionable'])
+                {
+                    if ($this->login->checkGroup($groupID))
+                    {
+                        $res[$i]['isActionable'] = true;
+                    }
+                }
+
+                $res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+
+                // find actual group name
+                $vars = array(':groupID' => $groupID);
+                $strSQL = 'SELECT * FROM `groups` WHERE groupID = :groupID';
+                $tGroup = $this->db->prepared_query($strSQL, $vars);
+                if (count($tGroup) >= 0)
+                {
+                    $res[$i]['description'] = $tGroup[0]['name'];
+                }
+
+                $res[$i]['description'] ?? 'Warning: Group Name has not been imported in the User Access Group';
+            }
+
+            // check groups associated with dependency privileges
+            foreach ($res2 as $group)
+            {
+                if ($this->login->checkGroup($group['groupID']))
+                {
+                    $res[$i]['isActionable'] = true;
+
+                    break;
+                }
+            }
+        }
+
+        return $res;
+    }
+
     /**
      * Retrieves current steps of a form's workflow, controls access to steps
      * @return array database result
@@ -77,15 +234,7 @@ class FormWorkflow
         }
 
         $steps = array();
-        $vars = array(':recordID' => $this->recordID);
-        $strSQL = 'SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
-            LEFT JOIN records USING (recordID)
-            LEFT JOIN workflow_steps USING (stepID)
-            LEFT JOIN step_dependencies USING (stepID)
-            LEFT JOIN dependencies USING (dependencyID)
-            LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            WHERE recordID = :recordID';
-        $res = $this->db->prepared_query($strSQL, $vars);
+        $res = $this->getActionable([['recordID' => $this->recordID]]);
 
         $numRes = count($res);
         if ($numRes > 0)
@@ -100,138 +249,9 @@ class FormWorkflow
                     continue;
                 }
                 $res[$i]['dependencyActions'] = $this->getDependencyActions($res[$i]['workflowID'], $res[$i]['stepID']);
-                // override access if user is in the admin group
-                $res[$i]['hasAccess'] = $this->login->checkGroup(1); // initialize hasAccess
 
-                // check permissions
-                $vars = array(':dependencyID' => $res[$i]['dependencyID']);
-                $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
-                $res2 = $this->db->prepared_query($strSQL, $vars);
+                $res[$i]['hasAccess'] = $res[$i]['isActionable'];
 
-                // dependencyID 1 is for a special service chief group
-                if ($res[$i]['dependencyID'] == 1 && !$res[$i]['hasAccess'])
-                {
-                    if ($this->login->checkService($res[$i]['serviceID']))
-                    {
-                        $res[$i]['hasAccess'] = true;
-                    }
-                }
-
-                // dependencyID 8 is for a special quadrad group
-                if ($res[$i]['dependencyID'] == 8 && !$res[$i]['hasAccess'])
-                {
-                    $quadGroupIDs = $this->login->getQuadradGroupID();
-                    $vars3 = array(
-                        ':serviceID' => $res[$i]['serviceID'],
-                    );
-                    $strSQL = 'SELECT * FROM services
-                        WHERE groupID IN ('.$quadGroupIDs.')
-                        AND serviceID = :serviceID';
-                    $res3 = $this->db->prepared_query($strSQL, $vars3);
-
-                    if (isset($res3[0]))
-                    {
-                        $res[$i]['hasAccess'] = true;
-                    }
-                }
-
-                // dependencyID -1 is for a person designated by the requestor
-                if ($res[$i]['dependencyID'] == -1)
-                {
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
-
-                    // make sure the right person has access
-                    if (!$res[$i]['hasAccess'])
-                    {
-                        $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
-
-                        //check if the requester has any backups
-                        //get nexus db
-                        $nexusDB = $this->login->getNexusDB();
-                        $vars4 = array(':empID' => $empUID);
-                        $strSQL = 'SELECT * FROM relation_employee_backup WHERE empUID = :empID';
-                        $backupIds = $nexusDB->prepared_query($strSQL, $vars4);
-
-                        if ($empUID == $this->login->getEmpUID())
-                        {
-                            $res[$i]['hasAccess'] = true;
-                        }
-                        else
-                        {
-                            //check and provide access to backups
-                            foreach ($backupIds as $row)
-                            {
-                                if ($row['backupEmpUID'] == $this->login->getEmpUID())
-                                {
-                                    $res[$i]['hasAccess'] = true;
-                                }
-                            }
-                        }
-                    }
-
-                    require_once 'VAMC_Directory.php';
-                    $dir = new VAMC_Directory;
-
-                    $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
-
-                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-
-                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
-                    }
-                }
-
-                // dependencyID -2 is for requestor followup
-                if ($res[$i]['dependencyID'] == -2 && !$res[$i]['hasAccess'])
-                {
-                    $hasAccess = $res[$i]['userID'] == $this->login->getUserID();
-
-                    if(!$hasAccess){
-                        $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
-                        $hasAccess = $this->checkIfBackup($empUID);
-                    }
-
-                    $res[$i]['hasAccess'] = $hasAccess;
-                }
-
-                // dependencyID -3 is for a group designated by the requestor
-                if ($res[$i]['dependencyID'] == -3)
-                {
-                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
-                    $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-
-                    // make sure the right person has access
-                    if (!$res[$i]['hasAccess'])
-                    {
-                        if ($this->login->checkGroup($groupID))
-                        {
-                            $res[$i]['hasAccess'] = true;
-                        }
-                    }
-
-                    $res[$i]['description'] = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
-
-                    // find actual group name
-                    $vars = array(':groupID' => $groupID);
-                    $strSQL = 'SELECT * FROM `groups` WHERE groupID = :groupID';
-                    $tGroup = $this->db->prepared_query($strSQL, $vars);
-                    if (count($tGroup) >= 0)
-                    {
-                        $res[$i]['description'] = $tGroup[0]['name'];
-                    }
-
-                    $res[$i]['description'] ?? 'Warning: Group Name has not been imported in the User Access Group';
-                }
-
-                foreach ($res2 as $group)
-                {
-                    if ($this->login->checkGroup($group['groupID']))
-                    {
-                        $res[$i]['hasAccess'] = true;
-
-                        break;
-                    }
-                }
 
                 if (!isset($steps[$res[$i]['dependencyID']]))
                 {
