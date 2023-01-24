@@ -30,8 +30,8 @@
 						"id": "0fc167b9-bc0d-418f-9538-f3c0c537db90",
 						"exec": [
 							"\r",
-							"pm.globals.get(\"CSRFToken\");\r",
-							"console.log(\"CSRF Token for POST Request: \" + pm.globals.get(\"CSRFToken\"))\r",
+							"//pm.globals.get(\"CSRFToken\");\r",
+							"//console.log(\"CSRF Token for POST Request: \" + pm.globals.get(\"CSRFToken\"))\r",
 							"\r",
 							"\r",
 							"\r",
