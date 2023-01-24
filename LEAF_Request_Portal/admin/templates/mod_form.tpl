@@ -736,7 +736,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             if (formatOptionsStr !== '') $('#indicatorMultiAnswer').val(formatOptionsStr);
             break;
         case 'orgchart_employee':
-            $('#default-answer').html('<div id="default" style="width: math(100% - 50px);"></div>');
+            $('#default-answer').html('<div id="default"></div>');
             empSel = new employeeSelector('default');
             empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
             empSel.rootPath = '<!--{$orgchartPath}-->/';
@@ -1310,8 +1310,10 @@ function getForm(indicatorID, series) {
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
-
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
+                if (formatName === 'orgchart_employee') {
+                    $('#default-answer .employeeSelectorInput').val('userName:' + res[indicatorID].default);
+                }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
             },
@@ -1405,8 +1407,7 @@ function getForm(indicatorID, series) {
                 })
             );
         }
-        
-        console.log($('#default').val());
+
         if(defaultChanged){
             calls.push(
                 $.ajax({
