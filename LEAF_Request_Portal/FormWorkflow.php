@@ -63,7 +63,7 @@ class FormWorkflow
         return isset($res[0]);
     }
 
-    private function getDependency(int $depID) {
+    private function getDependency(int $depID): array {
         if(!isset($this->cache["dependencyID{$depID}"])) {
             $vars = array(':dependencyID' => $depID);
             $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
@@ -73,7 +73,7 @@ class FormWorkflow
         return $this->cache["dependencyID{$depID}"];
     }
 
-    private function getServiceQuadrads(int $serviceID) {
+    private function getServiceQuadrads(int $serviceID): array {
         if(!isset($this->cache["serviceQuadrads{$serviceID}"])) {
             $quadGroupIDs = $this->login->getQuadradGroupID(); // get csv of ints
             $vars3 = array(
