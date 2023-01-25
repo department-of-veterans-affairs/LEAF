@@ -145,7 +145,7 @@ class NationalEmployee extends NationalData
      * 
      * @return array
      * 
-     * Created at: 1/25/2023, 12:44:32 PM (America/New_York)
+     * Updated at: 1/25/2023, 12:44:32 PM (America/New_York)
      */
     public function lookupAllUsersLastName(string $lastName, bool $disabled): array
     {
@@ -197,7 +197,7 @@ class NationalEmployee extends NationalData
      * 
      * @return array
      * 
-     * Created at: 1/25/2023, 12:43:43 PM (America/New_York)
+     * Updated at: 1/25/2023, 12:43:43 PM (America/New_York)
      */
     public function lookupAllUsersFirstName(string $firstName, bool $disabled): array
     {
@@ -340,7 +340,19 @@ class NationalEmployee extends NationalData
         return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
     }
 
-    public function search(string $input, string $indicatorID = '', bool $includeDisabled = false)
+
+    /**
+     * Search for users 
+     *
+     * @param string $input
+     * @param string $indicatorID
+     * @param bool $includeDisabled
+     * 
+     * @return array|bool
+     * 
+     * Created at: 1/25/2023, 1:17:29 PM (America/New_York)
+     */
+    public function search(string $input, string $indicatorID = '', bool $includeDisabled = false): array|bool
     {
         $input = html_entity_decode($input, ENT_QUOTES);
         if (strlen($input) > 3 && $this->limit != 'LIMIT 100')

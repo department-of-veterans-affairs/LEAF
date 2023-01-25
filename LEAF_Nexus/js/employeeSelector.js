@@ -226,7 +226,7 @@ employeeSelector.prototype.search = function() {
 									<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
 									<td class="employeeSelectorContact">'+ email + phone +'</td>\
 								</tr>');
-		                	}else {
+		                	} else {
 			                	
 								if (response[i].deleted > 0){
 									$('#' + t.prefixID + 'result_table').append('\
@@ -235,7 +235,7 @@ employeeSelector.prototype.search = function() {
 										<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
 										<td class="employeeSelectorContact">'+ email + phone +'</td>\
 									</tr>');
-								}else{
+								} else {
 									$('#' + t.prefixID + 'result_table').append('\
 									<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
 										<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle + '</span></td>\
