@@ -58,6 +58,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
         $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api');
         $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api/controllers');
         $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/sources');
+        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/scripts/events');
     }
 
     if (is_dir($working_dir . $site_paths['orgchart_path'])) {
