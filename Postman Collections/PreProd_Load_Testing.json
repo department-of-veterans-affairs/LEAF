@@ -66,22 +66,26 @@
 					{
 						"key": "service",
 						"value": "",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					},
 					{
 						"key": "title",
 						"value": "Test Title",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					},
 					{
 						"key": "priority",
 						"value": "",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					},
 					{
 						"key": "numform_c79f6",
 						"value": "1",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					}
 				],
 				"body": {
