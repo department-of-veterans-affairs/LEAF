@@ -292,7 +292,7 @@
 							"});\r",
 							"\r",
 							"var time = pm.response.responseTime;\r",
-							"console.log(\"Response time: \" + time);\r",
+							"console.log(\"Response time: \" + time + \"ms\");\r",
 							"\r",
 							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
 							"\r",
@@ -1050,7 +1050,7 @@
 	],
 	"variable": [
 		{
-			"id": "1828da9e-178a-4738-91ac-cf19c4fdab22",
+			"id": "4805bd5b-dd6d-4029-8967-12daa7ee29ad",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
