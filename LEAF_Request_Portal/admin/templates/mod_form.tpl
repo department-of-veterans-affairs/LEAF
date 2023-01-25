@@ -747,6 +747,30 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
                 $('.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
             });
             break;
+        case 'orgchart_group':
+            $('#default-answer').html('<div id="default"></div>');
+            let groupSel = new groupSelector('groupSel_container');
+            groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+            groupSel.basePath = '../';
+            groupSel.setResultHandler(function() {
+                if(groupSel.numResults == 0) {
+                    groupSel.hideResults();
+                }
+                else {
+                    groupSel.showResults();
+                }
+
+                // prevent services from showing up as search results
+                for(let i in groupSel.jsonResponse) {
+                    $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).attr('tabindex', '0');
+                    if(groupSel.jsonResponse[i].tags.service != undefined) {
+                        $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
+                    }
+                }
+            });
+            groupSel.initialize();
+
+            break;
         default:
             $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
             break;
@@ -1311,8 +1335,12 @@ function getForm(indicatorID, series) {
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
+                // this only works after all the required elements are rendered.
                 if (formatName === 'orgchart_employee') {
                     $('#default-answer .employeeSelectorInput').val('userName:' + res[indicatorID].default);
+                }
+                if (formatName === 'orgchart_group') {
+
                 }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();

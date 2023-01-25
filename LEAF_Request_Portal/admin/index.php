@@ -247,14 +247,16 @@ switch ($action) {
                                             '../../libs/js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js',
-                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js'
+                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/groupSelector.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
                                             '../../libs/js/codemirror/addon/display/fullscreen.css',
                                             '../../libs/js/choicesjs/choices.min.css',
-                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css'
+                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/groupSelector.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
