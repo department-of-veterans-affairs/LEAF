@@ -63,7 +63,12 @@ class FormWorkflow
         return isset($res[0]);
     }
 
-    private function getDependency(int $depID): array {
+    /**
+     * Retrieve groupIDs associated with the given dependencyID
+     * @param int $depID dependencyID
+     * @return array database result
+     */
+    private function getDependencyPrivileges(int $depID): array {
         if(!isset($this->cache["dependencyID{$depID}"])) {
             $vars = array(':dependencyID' => $depID);
             $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
@@ -73,7 +78,12 @@ class FormWorkflow
         return $this->cache["dependencyID{$depID}"];
     }
 
-    private function getServiceQuadrads(int $serviceID): array {
+    /**
+     * Determine if the current user is a member of a quadrad for the specified serviceID
+     * @param int $serviceID
+     * @return bool
+     */
+    private function checkServiceQuadradAccess(int $serviceID): bool {
         if(!isset($this->cache["serviceQuadrads{$serviceID}"])) {
             $quadGroupIDs = $this->login->getQuadradGroupID(); // get csv of ints
             $vars3 = array(
@@ -82,14 +92,18 @@ class FormWorkflow
             $strSQL = 'SELECT * FROM services
                 WHERE groupID IN ('.$quadGroupIDs.')
                 AND serviceID = :serviceID';
-            $this->cache["serviceQuadrads{$serviceID}"] = $this->db->prepared_query($strSQL, $vars3);
+            $this->cache["serviceQuadrads{$serviceID}"] = isset($this->db->prepared_query($strSQL, $vars3)[0]);
         }
 
         return $this->cache["serviceQuadrads{$serviceID}"];
     }
     
+    /**
+     * Retrieve the group name associated with a groupID
+     * @param int $groupID
+     * @return string
+     */
     private function getActionableGroupName(int $groupID): string {
-        // find actual group name
         if(isset($this->cache['getActionableGroupName'.$groupID])) {
             return $this->cache['getActionableGroupName'.$groupID];
         }
@@ -107,6 +121,12 @@ class FormWorkflow
         return $groupName;
     }
 
+    /**
+     * Adds an "isActionable" parameter for each record within $records
+     * @param object $form instance of Form
+     * @param array $records result set from a query on db:records. Requires 'recordID'. 
+     * @return array amended $records
+     */
     public function getActionable(object $form, array $records): array {
         $numRecords = count($records);
         if ($numRecords == 0) {
@@ -134,7 +154,7 @@ class FormWorkflow
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
 
             // check permissions
-            $res2 = $this->getDependency($res[$i]['dependencyID']);
+            $res2 = $this->getDependencyPrivileges($res[$i]['dependencyID']);
             if ($res[$i]['isActionable']) {
                 continue;
             }
@@ -145,12 +165,7 @@ class FormWorkflow
                     break;
 
                 case 8: // dependencyID 8 is for a special quadrad group
-                    $res3 = $this->getServiceQuadrads($res[$i]['serviceID']);
-
-                    if (isset($res3[0]))
-                    {
-                        $res[$i]['isActionable'] = true;
-                    }
+                    $res[$i]['isActionable'] = $this->checkServiceQuadradAccess($res[$i]['serviceID']);
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
