@@ -23,6 +23,8 @@ class FormWorkflow
 
     private $recordID;
 
+    private $cache = array();
+
     // workflow actions are triggered from ./api/ except on submit
     private $eventFolder = '../scripts/events/';
 
@@ -61,10 +63,32 @@ class FormWorkflow
         return isset($res[0]);
     }
 
-    public function getActionable($records) {
-        require_once 'form.php';
-        $form = new Form($this->db, $this->login);
+    private function getDependency(int $depID) {
+        if(!isset($this->cache["dependencyID{$depID}"])) {
+            $vars = array(':dependencyID' => $depID);
+            $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
+            $this->cache["dependencyID{$depID}"] = $this->db->prepared_query($strSQL, $vars);
+        }
+        
+        return $this->cache["dependencyID{$depID}"];
+    }
 
+    private function getServiceQuadrads(int $serviceID) {
+        if(!isset($this->cache["serviceQuadrads{$serviceID}"])) {
+            $quadGroupIDs = $this->login->getQuadradGroupID(); // get csv of ints
+            $vars3 = array(
+                ':serviceID' => $serviceID,
+            );
+            $strSQL = 'SELECT * FROM services
+                WHERE groupID IN ('.$quadGroupIDs.')
+                AND serviceID = :serviceID';
+            $this->cache["serviceQuadrads{$serviceID}"] = $this->db->prepared_query($strSQL, $vars3);
+        }
+
+        return $this->cache["serviceQuadrads{$serviceID}"];
+    }
+
+    public function getActionable(object $form, array $records): array {
         $numRecords = count($records);
         if ($numRecords == 0) {
             return $records;
@@ -83,21 +107,15 @@ class FormWorkflow
             LEFT JOIN step_dependencies USING (stepID)
             LEFT JOIN dependencies USING (dependencyID)
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            WHERE recordID IN ($recordIDs)";
+            WHERE recordID IN ({$recordIDs})";
         $res = $this->db->prepared_query($strSQL, []);
 
         foreach ($res as $i => $record) {
-            if ($record['filled'] == 1 && $numRecords > 1) {
-                continue;
-            }
-
             // override access if user is in the admin group
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
 
             // check permissions
-            $vars = array(':dependencyID' => $res[$i]['dependencyID']);
-            $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
-            $res2 = $this->db->prepared_query($strSQL, $vars);
+            $res2 = $this->getDependency($res[$i]['dependencyID']);
 
             // dependencyID 1 is for a special service chief group
             if ($res[$i]['dependencyID'] == 1 && !$res[$i]['isActionable'])
@@ -111,14 +129,7 @@ class FormWorkflow
             // dependencyID 8 is for a special quadrad group
             if ($res[$i]['dependencyID'] == 8 && !$res[$i]['isActionable'])
             {
-                $quadGroupIDs = $this->login->getQuadradGroupID();
-                $vars3 = array(
-                    ':serviceID' => $res[$i]['serviceID'],
-                );
-                $strSQL = 'SELECT * FROM services
-                    WHERE groupID IN ('.$quadGroupIDs.')
-                    AND serviceID = :serviceID';
-                $res3 = $this->db->prepared_query($strSQL, $vars3);
+                $res3 = $this->getServiceQuadrads($res[$i]['serviceID']);
 
                 if (isset($res3[0]))
                 {
@@ -127,9 +138,9 @@ class FormWorkflow
             }
 
             // dependencyID -1 is for a person designated by the requestor
-            if ($res[$i]['dependencyID'] == -1)
+            if ($res[$i]['dependencyID'] == -1 && !$res[$i]['isActionable'])
             {
-                $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
 
                 // make sure the right person has access
                 if (!$res[$i]['isActionable'])
@@ -175,9 +186,9 @@ class FormWorkflow
             }
 
             // dependencyID -3 is for a group designated by the requestor
-            if ($res[$i]['dependencyID'] == -3)
+            if ($res[$i]['dependencyID'] == -3 && !$res[$i]['isActionable'])
             {
-                $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
                 $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
 
                 // make sure the right person has access
@@ -234,7 +245,7 @@ class FormWorkflow
         }
 
         $steps = array();
-        $res = $this->getActionable([['recordID' => $this->recordID]]);
+        $res = $this->getActionable($form, [['recordID' => $this->recordID]]);
 
         $numRes = count($res);
         if ($numRes > 0)
