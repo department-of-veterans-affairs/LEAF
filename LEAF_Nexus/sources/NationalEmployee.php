@@ -345,14 +345,13 @@ class NationalEmployee extends NationalData
      * Search for users 
      *
      * @param string $input
-     * @param string $indicatorID
      * @param bool $includeDisabled
      * 
      * @return array|bool
      * 
      * Created at: 1/25/2023, 1:17:29 PM (America/New_York)
      */
-    public function search(string $input, string $indicatorID = '', bool $includeDisabled = false): array|bool
+    public function search(string $input, $indicatorID = '', bool $includeDisabled = false): array|bool
     {
         $input = html_entity_decode($input, ENT_QUOTES);
         if (strlen($input) > 3 && $this->limit != 'LIMIT 100')
