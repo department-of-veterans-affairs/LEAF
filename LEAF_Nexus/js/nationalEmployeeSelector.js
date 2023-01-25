@@ -351,7 +351,8 @@ nationalEmployeeSelector.prototype.search = function() {
 					dataType: 'json',
 					data: {q: this.q,
 						noLimit: this.optionNoLimit,
-						domain: domain},
+						domain: domain,
+						includeDisabled: true},
 					success: function(response) {
 						t.currRequest = null;
 						t.numResults = 0;
@@ -434,9 +435,14 @@ nationalEmployeeSelector.prototype.search = function() {
 							}
 
 							$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
-
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('keypress', t.getSelectorFunction(response[i].empUID));
+
+							// if (response[i].deleted > 0){
+							// 	$('#' + t.prefixID + 'emp' + response[i].empUID).hide();
+							// 	$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+							// $('#' + t.prefixID + 'emp0_message').text(txt);
+							// }
 							$('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
 							t.numResults++;
 						}
@@ -462,6 +468,7 @@ nationalEmployeeSelector.prototype.search = function() {
 
 						t.showNotBusy();
 					},
+					error: function(){console.log("Failed to gather users information.");},
 					cache: false
 				};
 				var t = this;
