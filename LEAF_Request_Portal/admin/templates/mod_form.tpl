@@ -1372,6 +1372,11 @@ function getForm(indicatorID, series) {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
                     },
+                    success: function(res) {
+                        if (res === 'size limit exceeded') {
+                            alert(`The format for indicator ${indicatorID} was not saved because it exceeded size limitations`);
+                        }
+                    },
                     error: function(response) {
                         console.log(response);
                     }
