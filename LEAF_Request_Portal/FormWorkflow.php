@@ -801,10 +801,15 @@ class FormWorkflow
       */
     public function getEmpUIDByUserName(string $userName): string
     {
+        if(isset($this->cache['getEmpUIDByUserName'.$userName])) {
+            return $this->cache['getEmpUIDByUserName'.$userName];
+        }
+
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
         $strSQL = 'SELECT * FROM employee WHERE userName = :userName';
-        return $nexusDB->prepared_query($strSQL, $vars)[0]["empUID"];
+        $this->cache['getEmpUIDByUserName'.$userName] = $nexusDB->prepared_query($strSQL, $vars)[0]["empUID"];
+        return $this->cache['getEmpUIDByUserName'.$userName];
     }
 
     /**
