@@ -1,13 +1,11 @@
+<?php
 
-/*
-    Form Generator
-    Date Created: September 11, 2007
-
-*/
+/**
+ * Form Generator
+ * Date Created: September 11, 2007
+ */
 
 namespace Portal;
-
-define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
 class Form
 {
