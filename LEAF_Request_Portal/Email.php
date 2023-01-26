@@ -574,10 +574,10 @@ class Email
      * Purpose: Add approvers to email from given record ID*
      * @param int $recordID
      * @param int $emailTemplateID
-     * @param string $loggedInUser
+     * @param mixed $loggedInUser
      * @throws Exception
      */
-    function attachApproversAndEmail(int $recordID, int $emailTemplateID, string $loggedInUser): void
+    function attachApproversAndEmail(int $recordID, int $emailTemplateID, mixed $loggedInUser): void
     {
 
         // Lookup approvers of current record so we can notify
