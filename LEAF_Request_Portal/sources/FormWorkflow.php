@@ -565,6 +565,7 @@ class FormWorkflow
 
         $logCache = array();
         // iterate through steps
+        error_log(print_r($res, true));
         foreach ($res as $actionable)
         {
             // find out what the action is doing, and what the next step is
@@ -582,6 +583,7 @@ class FormWorkflow
             // continue if the step and action is valid
             if (isset($res2[0]))
             {
+                error_log(print_r('line 586', true));
                 $this->db->beginTransaction();
                 // write dependency information
                 $vars2 = array(
@@ -594,7 +596,7 @@ class FormWorkflow
                     ON DUPLICATE KEY
                     UPDATE filled = :filled, time = :time';
                 $this->db->prepared_query($strSQL2, $vars2);
-
+                error_log('line 599');
                 // don't write duplicate log entries
                 $vars2 = array(
                     ':recordID' => $this->recordID,
@@ -615,12 +617,12 @@ class FormWorkflow
                         VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
                     $this->db->prepared_query($strSQL2, $vars2);
                 }
-
+error_log('line 620');
                 // get other action data
                 $varsAction = array(':actionType' => $actionType);
                 $strSQLAction = 'SELECT * FROM actions WHERE actionType = :actionType';
                 $resActionData = $this->db->prepared_query($strSQLAction, $varsAction);
-
+error_log('line 625');
                 // write current status in main index
                 $vars2 = array(
                     ':recordID' => $this->recordID,
@@ -629,9 +631,9 @@ class FormWorkflow
                 $strSQL2 = 'UPDATE records SET lastStatus=:lastStatus
                     WHERE recordID = :recordID';
                 $this->db->prepared_query($strSQL2, $vars2);
-
+error_log('line 634');
                 $this->db->commitTransaction();
-
+error_log('transaction committed');
                 // see if all dependencies in the step are met
                 $vars2 = array(
                     ':recordID' => $this->recordID,
@@ -643,6 +645,7 @@ class FormWorkflow
                     AND recordID = :recordID
                     AND filled = 0';
                 $res3 = $this->db->prepared_query($strSQL3, $vars2);
+                error_log('line 648');
                 $numUnfilledDeps = count($res3);
 
                 // Trigger events if the next step is the same as the original step (eg: same-step loop)
@@ -666,7 +669,7 @@ class FormWorkflow
                     $this->db->prepared_query($strSQL_clearDep, $vars_clearDep);
                     $numUnfilledDeps = 1;
                 }
-
+error_log('line 672');
                 // if all dependencies are met, update the record's workflow state
                 if ($numUnfilledDeps == 0
                     || $actionType == 'sendback')
@@ -681,7 +684,7 @@ class FormWorkflow
                         VALUES (:recordID, :stepID, :time)
                         ON DUPLICATE KEY UPDATE fulfillmentTime = :time';
                     $this->db->prepared_query($strSQL2, $vars2);
-
+error_log('line 687');
                     // if the next step is to end it, then update the record's workflow's state
                     if ($res2[0]['nextStepID'] == 0)
                     {
@@ -708,7 +711,7 @@ class FormWorkflow
                         // reset records_dependencies for the next step
                         $this->resetRecordsDependency($res2[0]['nextStepID']);
                     }
-
+error_log('line 714');
                     // make sure the step is available
                     $vars2 = array(':recordID' => $this->recordID);
                     $strSQL2 = 'SELECT * FROM category_count
@@ -722,6 +725,7 @@ class FormWorkflow
                         AND workflowID > 0
                         AND filled IS NULL';
                     $res3 = $this->db->prepared_query($strSQL2, $vars2);
+                    error_log('line 728');
                     if (count($res3) > 0)
                     {
                         $this->db->beginTransaction();
@@ -738,7 +742,7 @@ class FormWorkflow
                         }
                         $this->db->commitTransaction();
                     }
-
+error_log('line 745');
                     // Done with database updates for dependency/state
 
                     // determine if parallel workflows have shared steps
@@ -748,6 +752,7 @@ class FormWorkflow
                         LEFT JOIN step_dependencies USING (stepID)
                         WHERE recordID = :recordID';
                     $res3 = $this->db->prepared_query($strSQL2, $vars2);
+                    error_log('line 755');
                     // iterate through steps
                     if (count($res3) > 1)
                     {
@@ -769,7 +774,7 @@ class FormWorkflow
                             }
                         }
                     }
-
+error_log('line 777');
                     // Handle events if all dependencies in the step have been met
                     $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment, $emailPrefix);
                     if (count($status['errors']) > 0)
@@ -781,7 +786,7 @@ class FormWorkflow
         }
 
         $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense'], 'nextStep' => $res2[0]['nextStepID']);
-
+error_log(print_r($comment_post, true));
         return array('status' => 1, 'errors' => $errors, 'comment' => $comment_post);
     }
 
