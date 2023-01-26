@@ -128,7 +128,7 @@ export default {
             <span>Column #{{column}}:</span>
             <img v-if="gridJSON.length !== 1" role="button" tabindex="0"
             @click="deleteColumn" @keypress.space.enter.prevent="deleteColumn"
-            :src="libsPath + 'dynicons/svg/process-stop.svg'" style="width: 16px"
+            :src="libsPath + 'dynicons/svg/process-stop.svg'" style="width: 16px; cursor: pointer"
             title="Delete column" alt="Delete column" />
         </span>
         <label :for="'gridcell_title_' + id">Title:</label>

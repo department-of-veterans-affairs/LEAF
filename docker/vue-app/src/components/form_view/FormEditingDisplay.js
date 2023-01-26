@@ -40,7 +40,7 @@ export default {
         },
         sensitiveImg() {
             return this.sensitive ? 
-                `<img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px" alt="" class="sensitive-icon"
+                `<img src="${this.libsPath}dynicons/svg/eye_invisible.svg" style="width: 16px" alt="" class="sensitive-icon"
                     title="This field is sensitive" />` : '';
         },
         conditionalQuestion() {
