@@ -2703,6 +2703,7 @@ class Form
 
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
+        $filterActionable = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -2905,6 +2906,12 @@ class Form
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
+                            case 'actionable':
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NOT NULL AND submitted > 0 AND deleted = 0)";
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+                                $filterActionable = true;
+
+                                break;
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
@@ -2949,6 +2956,11 @@ class Form
 
                                 break;
                             case 'notResolved': // backwards compat
+                                $conditions .= "{$gate}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
+                                $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
+
+                                break;
+                            case 'actionable':
                                 $conditions .= "{$gate}(records_workflow_state.stepID IS NULL AND submitted > 0 AND deleted = 0)";
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
@@ -3440,6 +3452,32 @@ class Form
         if ($this->isNeedToKnow())
         {
             $data = $this->checkReadAccess($data);
+        }
+
+        // check actionable
+        if ($filterActionable)
+        {
+            include_once 'FormWorkflow.php';
+            $FormWorkflow = new FormWorkflow($this->db, $this->login, 0);
+
+            $actionable = $FormWorkflow->getActionable($this, $data);
+
+            $actionLookup = [];
+            foreach($actionable as $t) {
+                if(!isset($actionLookup[$t['recordID']])) {
+                    $actionLookup[$t['recordID']] = $t['isActionable'];
+                }
+            }
+            $countPurged = 0;
+            foreach($data as $i => $v) {
+                if($actionLookup[$v['recordID']] != true) {
+                    unset($data[$i]);
+                    $countPurged++;
+                }
+            }
+            if($countPurged > 0) {
+                header('LEAF-Query: continue');
+            }
         }
 
         // check if data is being requested as part of the query

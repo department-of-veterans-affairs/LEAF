@@ -585,6 +585,7 @@ var LeafFormSearch = function(containerID) {
 						categories += '<option value="submitted">Submitted</option>';
 						categories += '<option value="deleted">Cancelled</option>';
 						categories += '<option value="resolved">Resolved</option>';
+                        categories += '<option value="actionable">Actionable by me</option>';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].stepID +'">'+ res[i].description + ': ' + res[i].stepTitle +'</option>';
 						}

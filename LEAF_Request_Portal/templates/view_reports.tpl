@@ -1393,8 +1393,18 @@ $(function() {
                 }
             }
             leafSearch.getLeafFormQuery().setQuery(inQuery);
+
+            // We usually don't want to see deleted requests, but this parameter still needs to be
+            // passed into the API. To simplify the user interface, the parameter is removed before
+            // rendering the view. Explicit searches for deleted requests are not affected.
             if(!isSearchingDeleted(leafSearch)) {
-                inQuery.terms.pop();
+                for(let i in inQuery.terms) {
+                    if(inQuery.terms[i].id == 'deleted'
+                        && inQuery.terms[i].operator == '='
+                        && parseInt(inQuery.terms[i].match) == 0) {
+                        inQuery.terms.splice(i, 1);
+                    }
+                }
             }
             leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
             headers = headers.concat(inIndicators);
