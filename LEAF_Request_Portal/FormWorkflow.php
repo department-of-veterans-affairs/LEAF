@@ -204,6 +204,8 @@ class FormWorkflow
                     $res[$i]['isActionable'] = $this->checkEmployeeAccess($empUID);
 
                     $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                    require_once 'VAMC_Directory.php';
+                    $dir = new VAMC_Directory; 
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
 
                     $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
