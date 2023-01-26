@@ -1053,9 +1053,12 @@ error_log(print_r($res, true));
 
                     break;
                 default:
+                error_log(print_r('line 1056', true));
                     $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
+                    error_log(print_r($eventFile, true));
                     if (is_file($eventFile))
                     {
+                        error_log(print_r('line 1061', true));
                         $eventInfo = array('recordID' => $this->recordID,
                                            'workflowID' => $workflowID,
                                            'stepID' => $stepID,
@@ -1063,7 +1066,7 @@ error_log(print_r($res, true));
                                            'comment' => $comment, );
 
                         $customClassName = "\Portal\CustomEvent_{$event['eventID']}";
-
+error_log(print_r($customClassName, true));
                         try
                         {
                             $event = new $customClassName($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
@@ -1078,6 +1081,7 @@ error_log(print_r($res, true));
                     }
                     else
                     {
+                        error_log(print_r('line 1084', true));
                         trigger_error('Custom event not found: ' . $eventFile);
                     }
 
