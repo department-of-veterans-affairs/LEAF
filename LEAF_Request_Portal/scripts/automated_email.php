@@ -54,17 +54,36 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     // step id, I think workflow id is also needed here
     $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
 
-    // get the records that have not been responded to, had actions taken on, in x amount of time
+    // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
         JOIN services USING(serviceID) 
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
+        AND initialNotificationSent = 0
         AND deleted = 0;';
 
-    $getRecordRes = $db->prepared_query($getRecordSql, $getRecordVar);
+    $getRecordResInitial = $db->prepared_query($getRecordSql, $getRecordVar);
 
+    // PUT THE daysagotimestamp for the second query here, we will need to figure that one out!
+
+    // get the other entries
+    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
+
+    // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
+        FROM records_workflow_state
+        JOIN records ON records.recordID = records_workflow_state.recordID
+        JOIN services USING(serviceID) 
+        WHERE records_workflow_state.stepID = :stepID
+        AND lastNotified <= :lastNotified
+        AND initialNotificationSent = 1
+        AND deleted = 0;';
+
+    $getRecordResAfter = $db->prepared_query($getRecordSql, $getRecordVar);
+
+    $getRecordRes = array_merge($getRecordResInitial,$getRecordResAfter);
     // make sure we have records to work with
     if (empty($getRecordRes)) {
         // @todo: need to look at how other scripts output errors
@@ -74,7 +93,6 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // go through each and send an email
     foreach ($getRecordRes as $record) {
-
         // send the email
         $email = new Email();
 
@@ -102,10 +120,14 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             ':lastNotified' => date('Y-m-d H:i:s')
         ];
         $updateRecordsWorkflowStateSql = 'UPDATE records_workflow_state
-                                            SET lastNotified=:lastNotified
+                                            SET lastNotified=:lastNotified, initialNotificationSent=1
                                             WHERE recordID=:recordID';
         $db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
 
         echo "Email sent for {$record['recordID']} \r\n";
     }
+}
+
+function notify($record){
+ 
 }
