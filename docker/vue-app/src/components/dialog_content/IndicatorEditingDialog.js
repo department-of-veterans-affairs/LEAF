@@ -254,6 +254,11 @@ export default {
                                 format: this.fullFormatForPost,
                                 CSRFToken: this.CSRFToken
                             },
+                            success: function(res) {
+                                if (res === 'size limit exceeded') {
+                                    alert(`The format for indicator ${this.currIndicatorID} was not saved because it exceeded size limitations`);
+                                }
+                            },
                             error: err => console.log('ind format post err', err)
                         })
                     );

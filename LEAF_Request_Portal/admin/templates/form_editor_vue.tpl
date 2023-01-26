@@ -37,10 +37,13 @@
     </leaf-form-dialog>
 </div>
 
-<script type="text/javascript" src="../../libs/js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
+<script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/LEAF_FormEditor_main_build.js" defer></script>
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
+    const APIroot = '<!--{$APIroot}-->';
+    const libsPath = '<!--{$libsPath}-->';
+    
     let postRenderFormBrowser;
 
     $(function() {
