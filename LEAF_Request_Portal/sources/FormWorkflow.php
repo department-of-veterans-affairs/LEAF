@@ -1053,7 +1053,7 @@ error_log(print_r($comment_post, true));
                                            'actionType' => $actionType,
                                            'comment' => $comment, );
 
-                        $customClassName = "CustomEvent_{$event['eventID']}";
+                        $customClassName = "\Portal\CustomEvent_{$event['eventID']}";
 
                         try
                         {
