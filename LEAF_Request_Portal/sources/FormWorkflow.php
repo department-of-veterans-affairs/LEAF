@@ -1068,6 +1068,7 @@ error_log(print_r($customClassName, true));
                             case 'check_orgchart_exists':
                                 error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_check_orgchart_exists($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                //$event = new $customClassName($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                             case 'create_leaf':
                                 error_log(print_r($event['eventID'], true));

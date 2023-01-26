@@ -65,18 +65,21 @@ class Psr4AutoloaderClass
     {
         // the current namespace prefix
         $prefix = $class;
-
+        error_log(print_r('68', true));
+        error_log(print_r($prefix, true));
         // work backwards through the namespace names of the fully-qualified
         // class name to find a mapped file name
         while (false !== $pos = strrpos($prefix, '\\')) {
 
             // retain the trailing namespace separator in the prefix
             $prefix = substr($class, 0, $pos + 1);
-
+            error_log(print_r('line 68', true));
+            error_log(print_r($prefix, true));
             // the rest is the relative class name
             $relative_class = substr($class, $pos + 1);
 
             // try to load a mapped file for the prefix and relative class
+            error_log(print_r('before mapped file', true));
             $mapped_file = $this->loadMappedFile($prefix, $relative_class);
             if ($mapped_file) {
                 return $mapped_file;
@@ -101,6 +104,10 @@ class Psr4AutoloaderClass
      */
     protected function loadMappedFile($prefix, $relative_class)
     {
+        error_log(print_r('line 107', true));
+        error_log(print_r($prefix, true));
+        error_log(print_r($relative_class, true));
+        error_log(print_r($this->prefixes, true));
         // are there any base directories for this namespace prefix?
         if (isset($this->prefixes[$prefix]) === false) {
             return false;
@@ -117,6 +124,7 @@ class Psr4AutoloaderClass
                   . '.php';
 
             // if the mapped file exists, require it
+            error_log(print_r('requiring the file', true));
             if ($this->requireFile($file)) {
                 // yes, we're done
                 return $file;
