@@ -569,7 +569,6 @@ class FormWorkflow
 
         $logCache = array();
         // iterate through steps
-        error_log(print_r($res, true));
         foreach ($res as $actionable)
         {
             // find out what the action is doing, and what the next step is
@@ -587,7 +586,6 @@ class FormWorkflow
             // continue if the step and action is valid
             if (isset($res2[0]))
             {
-                error_log(print_r('line 586', true));
                 $this->db->beginTransaction();
                 // write dependency information
                 $vars2 = array(
@@ -600,7 +598,7 @@ class FormWorkflow
                     ON DUPLICATE KEY
                     UPDATE filled = :filled, time = :time';
                 $this->db->prepared_query($strSQL2, $vars2);
-                error_log('line 599');
+
                 // don't write duplicate log entries
                 $vars2 = array(
                     ':recordID' => $this->recordID,
@@ -621,12 +619,12 @@ class FormWorkflow
                         VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
                     $this->db->prepared_query($strSQL2, $vars2);
                 }
-error_log('line 620');
+
                 // get other action data
                 $varsAction = array(':actionType' => $actionType);
                 $strSQLAction = 'SELECT * FROM actions WHERE actionType = :actionType';
                 $resActionData = $this->db->prepared_query($strSQLAction, $varsAction);
-error_log('line 625');
+
                 // write current status in main index
                 $vars2 = array(
                     ':recordID' => $this->recordID,
@@ -635,9 +633,9 @@ error_log('line 625');
                 $strSQL2 = 'UPDATE records SET lastStatus=:lastStatus
                     WHERE recordID = :recordID';
                 $this->db->prepared_query($strSQL2, $vars2);
-error_log('line 634');
+
                 $this->db->commitTransaction();
-error_log('transaction committed');
+
                 // see if all dependencies in the step are met
                 $vars2 = array(
                     ':recordID' => $this->recordID,
@@ -649,7 +647,7 @@ error_log('transaction committed');
                     AND recordID = :recordID
                     AND filled = 0';
                 $res3 = $this->db->prepared_query($strSQL3, $vars2);
-                error_log('line 648');
+
                 $numUnfilledDeps = count($res3);
 
                 // Trigger events if the next step is the same as the original step (eg: same-step loop)
@@ -673,7 +671,7 @@ error_log('transaction committed');
                     $this->db->prepared_query($strSQL_clearDep, $vars_clearDep);
                     $numUnfilledDeps = 1;
                 }
-error_log('line 672');
+
                 // if all dependencies are met, update the record's workflow state
                 if ($numUnfilledDeps == 0
                     || $actionType == 'sendback')
@@ -688,7 +686,7 @@ error_log('line 672');
                         VALUES (:recordID, :stepID, :time)
                         ON DUPLICATE KEY UPDATE fulfillmentTime = :time';
                     $this->db->prepared_query($strSQL2, $vars2);
-error_log('line 687');
+
                     // if the next step is to end it, then update the record's workflow's state
                     if ($res2[0]['nextStepID'] == 0)
                     {
@@ -715,7 +713,7 @@ error_log('line 687');
                         // reset records_dependencies for the next step
                         $this->resetRecordsDependency($res2[0]['nextStepID']);
                     }
-error_log('line 714');
+
                     // make sure the step is available
                     $vars2 = array(':recordID' => $this->recordID);
                     $strSQL2 = 'SELECT * FROM category_count
@@ -729,7 +727,7 @@ error_log('line 714');
                         AND workflowID > 0
                         AND filled IS NULL';
                     $res3 = $this->db->prepared_query($strSQL2, $vars2);
-                    error_log('line 728');
+
                     if (count($res3) > 0)
                     {
                         $this->db->beginTransaction();
@@ -746,7 +744,7 @@ error_log('line 714');
                         }
                         $this->db->commitTransaction();
                     }
-error_log('line 745');
+
                     // Done with database updates for dependency/state
 
                     // determine if parallel workflows have shared steps
@@ -756,7 +754,7 @@ error_log('line 745');
                         LEFT JOIN step_dependencies USING (stepID)
                         WHERE recordID = :recordID';
                     $res3 = $this->db->prepared_query($strSQL2, $vars2);
-                    error_log('line 755');
+
                     // iterate through steps
                     if (count($res3) > 1)
                     {
@@ -778,7 +776,7 @@ error_log('line 745');
                             }
                         }
                     }
-error_log('line 777');
+
                     // Handle events if all dependencies in the step have been met
                     $status = $this->handleEvents($actionable['workflowID'], $actionable['stepID'], $actionType, $comment, $emailPrefix);
                     if (count($status['errors']) > 0)
@@ -788,9 +786,9 @@ error_log('line 777');
                 } // End update the record's workflow state
             }
         }
-error_log('line 787');
+
         $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense'], 'nextStep' => $res2[0]['nextStepID']);
-error_log(print_r($comment_post, true));
+
         return array('status' => 1, 'errors' => $errors, 'comment' => $comment_post);
     }
 
@@ -849,7 +847,6 @@ error_log(print_r($comment_post, true));
      */
     public function handleEvents(int $workflowID, int $stepID, string $actionType, string $comment, ?string $emailPrefix): array
     {
-        error_log('line 848');
         $errors = array();
 
         // Take care of special events (sendback)
@@ -859,7 +856,6 @@ error_log(print_r($comment_post, true));
             $strSQL2 = 'SELECT * FROM records_workflow_state
                 WHERE recordID = :recordID';
             $res = $this->db->prepared_query($strSQL2, $vars2);
-            error_log('line 858');
             if (count($res) == 0)
             {	// if the workflow state is empty, it means the request has been sent back to the requestor
                 $this->form->openForEditing($this->recordID);
@@ -871,12 +867,12 @@ error_log(print_r($comment_post, true));
                 LEFT JOIN services AS ser USING (serviceID)
                 WHERE recordID = :recordID';
             $record = $this->db->prepared_query($strSQL, $vars);
-            error_log('line 870');
+
 
             $vars = array(':stepID' => $stepID);
             $strSQL = 'SELECT stepTitle FROM workflow_steps WHERE stepID = :stepID';
             $groupName = $this->db->prepared_query($strSQL, $vars);
-            error_log('line 875');
+
 
             $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
 
@@ -889,9 +885,9 @@ error_log(print_r($comment_post, true));
                 "comment" => $comment,
                 "siteRoot" => $this->siteRoot
             ));
-            error_log('line 888');
+
             $this->email->setTemplateByID(Email::SEND_BACK, $emailPrefix);
-            error_log('line 890');
+
 
             $requester = $this->vamc->lookupLogin($record[0]['userID']);
             $author = $this->vamc->lookupLogin($this->login->getUserID());
@@ -907,7 +903,7 @@ error_log(print_r($comment_post, true));
             $strSQL = 'SELECT DISTINCT backupEmpUID FROM relation_employee_backup
                 WHERE empUID IN (:reqEmpUID, :authEmpUID)';
             $backupIds = $nexusDB->prepared_query($strSQL, $vars);
-error_log('before backups');
+
             // Add backups to email recepients
             foreach($backupIds as $backup) {
               // Don't re-email requestor or author if they are backups of each other
@@ -917,7 +913,7 @@ error_log('before backups');
                   $this->email->addRecipient($theirBackup[0]['Email']);
               }
             }
-error_log('after backups');
+
             $this->email->setSender($author[0]['Email']);
 
             $this->email->sendMail();
@@ -935,16 +931,14 @@ error_log('after backups');
             AND actionType = :actionType
             ORDER BY eventID ASC';
         $res = $this->db->prepared_query($strSQL, $varEvents);
-        error_log(print_r('line 934', true));
-error_log(print_r($res, true));
+
         foreach ($res as $event)
         {
             $customEvent = '';
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
-            error_log(print_r('line 942', true));
-            error_log($customEvent);
+
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     $this->email->addSmartyVariables(array(
@@ -1057,12 +1051,11 @@ error_log(print_r($res, true));
 
                     break;
                 default:
-                error_log(print_r('line 1056', true));
+
                     $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
-                    error_log(print_r($eventFile, true));
+
                     if (is_file($eventFile))
                     {
-                        error_log(print_r('line 1061', true));
                         $eventInfo = array('recordID' => $this->recordID,
                                            'workflowID' => $workflowID,
                                            'stepID' => $stepID,
@@ -1073,24 +1066,31 @@ error_log(print_r($res, true));
 error_log(print_r($customClassName, true));
                         switch ($event['eventID']) {
                             case 'check_orgchart_exists':
+                                error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_check_orgchart_exists($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                             case 'create_leaf':
+                                error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_create_leaf($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                             case 'create_orgchart':
+                                error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_create_orgchart($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                             case 'Concur_Email':
+                                error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_Concur_Email($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                             case 'LeafSecure_Certified':
+                                error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_LeafSecure_Certified($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                             case 'LeafSecure_DeveloperConsole':
+                                error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_LeafSecure_DeveloperConsole($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
                         }
+                        error_log(print_r($event, true));
                         try
                         {
 
