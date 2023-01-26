@@ -10,6 +10,10 @@
 
 namespace Portal;
 
+use CustomEvent_;
+use CustomEvent_LeafSecure_Certified;
+use CustomEvent_LeafSecure_DeveloperConsole;
+
 class FormWorkflow
 {
     public $siteRoot = '';
@@ -1067,15 +1071,36 @@ error_log(print_r($res, true));
 
                         $customClassName = "\Portal\CustomEvent_{$event['eventID']}";
 error_log(print_r($customClassName, true));
+                        switch ($event['eventID']) {
+                            case 'check_orgchart_exists':
+                                $event = new CustomEvent_check_orgchart_exists($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                break;
+                            case 'create_leaf':
+                                $event = new CustomEvent_create_leaf($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                break;
+                            case 'create_orgchart':
+                                $event = new CustomEvent_create_orgchart($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                break;
+                            case 'Concur_Email':
+                                $event = new CustomEvent_Concur_Email($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                break;
+                            case 'LeafSecure_Certified':
+                                $event = new CustomEvent_LeafSecure_Certified($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                break;
+                            case 'LeafSecure_DeveloperConsole':
+                                $event = new CustomEvent_LeafSecure_DeveloperConsole($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                                break;
+                        }
                         try
                         {
-                            $event = new $customClassName($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+
                             error_log(print_r('line 1070', true));
                             error_log(print_r($event, true));
                             $event->execute();
                         }
                         catch (Exception $e)
                         {
+                            error_log(print_r($e, true));
                             $errors[] = $e->getMessage();
                         }
                     }
