@@ -65,10 +65,10 @@ class FormWorkflow
 
     /**
      * Retrieve groupIDs associated with the given dependencyID
-     * @param int $depID dependencyID
+     * @param int|null $depID dependencyID
      * @return array database result
      */
-    private function getDependencyPrivileges(int $depID): array {
+    private function getDependencyPrivileges(int|null $depID): array {
         if(!isset($this->cache["dependencyID{$depID}"])) {
             $vars = array(':dependencyID' => $depID);
             $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
@@ -100,10 +100,10 @@ class FormWorkflow
     
     /**
      * Retrieve the group name associated with a groupID
-     * @param int $groupID
+     * @param int|string|null $groupID
      * @return string|null null if no matching groupID
      */
-    private function getActionableGroupName(int $groupID): string|null {
+    private function getActionableGroupName(int|string|null $groupID): string|null {
         if(isset($this->cache['getActionableGroupName'.$groupID])) {
             return $this->cache['getActionableGroupName'.$groupID];
         }
