@@ -931,6 +931,7 @@ error_log('after backups');
             AND actionType = :actionType
             ORDER BY eventID ASC';
         $res = $this->db->prepared_query($strSQL, $varEvents);
+        error_log(print_r('line 934', true));
 error_log(print_r($res, true));
         foreach ($res as $event)
         {
@@ -938,6 +939,7 @@ error_log(print_r($res, true));
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
+            error_log(print_r('line 942', true));
             error_log($customEvent);
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
@@ -1065,6 +1067,7 @@ error_log(print_r($res, true));
                         try
                         {
                             $event = new $customClassName($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                            error_log(print_r('line 1070', true));
                             error_log(print_r($event, true));
                             $event->execute();
                         }
@@ -1083,6 +1086,7 @@ error_log(print_r($res, true));
         }
 
         $return_value = array('status' => 1, 'errors' => $errors);
+        error_log(print_r('line 1089', true));
         error_log(print_r($return_value, true));
         return $return_value;
     }
