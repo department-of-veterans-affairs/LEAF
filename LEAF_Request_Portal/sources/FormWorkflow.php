@@ -784,7 +784,7 @@ error_log('line 777');
                 } // End update the record's workflow state
             }
         }
-
+error_log('line 787');
         $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense'], 'nextStep' => $res2[0]['nextStepID']);
 error_log(print_r($comment_post, true));
         return array('status' => 1, 'errors' => $errors, 'comment' => $comment_post);
@@ -845,6 +845,7 @@ error_log(print_r($comment_post, true));
      */
     public function handleEvents(int $workflowID, int $stepID, string $actionType, string $comment, ?string $emailPrefix): array
     {
+        error_log('line 848');
         $errors = array();
 
         // Take care of special events (sendback)
@@ -854,6 +855,7 @@ error_log(print_r($comment_post, true));
             $strSQL2 = 'SELECT * FROM records_workflow_state
                 WHERE recordID = :recordID';
             $res = $this->db->prepared_query($strSQL2, $vars2);
+            error_log('line 858');
             if (count($res) == 0)
             {	// if the workflow state is empty, it means the request has been sent back to the requestor
                 $this->form->openForEditing($this->recordID);
@@ -865,10 +867,12 @@ error_log(print_r($comment_post, true));
                 LEFT JOIN services AS ser USING (serviceID)
                 WHERE recordID = :recordID';
             $record = $this->db->prepared_query($strSQL, $vars);
+            error_log('line 870');
 
             $vars = array(':stepID' => $stepID);
             $strSQL = 'SELECT stepTitle FROM workflow_steps WHERE stepID = :stepID';
             $groupName = $this->db->prepared_query($strSQL, $vars);
+            error_log('line 875');
 
             $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
 
@@ -881,7 +885,9 @@ error_log(print_r($comment_post, true));
                 "comment" => $comment,
                 "siteRoot" => $this->siteRoot
             ));
+            error_log('line 888');
             $this->email->setTemplateByID(Email::SEND_BACK, $emailPrefix);
+            error_log('line 890');
 
             $requester = $this->vamc->lookupLogin($record[0]['userID']);
             $author = $this->vamc->lookupLogin($this->login->getUserID());
@@ -897,7 +903,7 @@ error_log(print_r($comment_post, true));
             $strSQL = 'SELECT DISTINCT backupEmpUID FROM relation_employee_backup
                 WHERE empUID IN (:reqEmpUID, :authEmpUID)';
             $backupIds = $nexusDB->prepared_query($strSQL, $vars);
-
+error_log('before backups');
             // Add backups to email recepients
             foreach($backupIds as $backup) {
               // Don't re-email requestor or author if they are backups of each other
@@ -907,7 +913,7 @@ error_log(print_r($comment_post, true));
                   $this->email->addRecipient($theirBackup[0]['Email']);
               }
             }
-
+error_log('after backups');
             $this->email->setSender($author[0]['Email']);
 
             $this->email->sendMail();
@@ -925,13 +931,14 @@ error_log(print_r($comment_post, true));
             AND actionType = :actionType
             ORDER BY eventID ASC';
         $res = $this->db->prepared_query($strSQL, $varEvents);
-
+error_log(print_r($res, true));
         foreach ($res as $event)
         {
             $customEvent = '';
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
+            error_log($customEvent);
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     $this->email->addSmartyVariables(array(
@@ -1058,6 +1065,7 @@ error_log(print_r($comment_post, true));
                         try
                         {
                             $event = new $customClassName($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
+                            error_log(print_r($event, true));
                             $event->execute();
                         }
                         catch (Exception $e)
@@ -1074,7 +1082,9 @@ error_log(print_r($comment_post, true));
             }
         }
 
-        return array('status' => 1, 'errors' => $errors);
+        $return_value = array('status' => 1, 'errors' => $errors);
+        error_log(print_r($return_value, true));
+        return $return_value;
     }
 
     /**
