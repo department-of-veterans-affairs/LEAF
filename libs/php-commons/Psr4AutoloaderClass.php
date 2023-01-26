@@ -143,10 +143,13 @@ class Psr4AutoloaderClass
      */
     protected function requireFile($file)
     {
+        error_log(print_r($file, true));
         if (file_exists($file)) {
+            error_log(print_r('Its true', true));
             require $file;
             return true;
         }
+        error_log(print_r('its false', true));
         return false;
     }
 }

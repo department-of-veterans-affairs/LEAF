@@ -1062,9 +1062,9 @@ class FormWorkflow
                                            'actionType' => $actionType,
                                            'comment' => $comment, );
 
-                        $customClassName = "\Portal\CustomEvent_{$event['eventID']}";
+                        $customClassName = "Portal\\CustomEvent_{$event['eventID']}";
 error_log(print_r($customClassName, true));
-                        switch ($event['eventID']) {
+                        /*switch ($event['eventID']) {
                             case 'check_orgchart_exists':
                                 error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_check_orgchart_exists($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
@@ -1090,11 +1090,11 @@ error_log(print_r($customClassName, true));
                                 error_log(print_r($event['eventID'], true));
                                 $event = new CustomEvent_LeafSecure_DeveloperConsole($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                                 break;
-                        }
+                        }*/
                         error_log(print_r($event, true));
                         try
                         {
-
+                            $event = new $customClassName($this->db, $this->login, $this->vamc, $this->email, $this->siteRoot, $eventInfo);
                             error_log(print_r('line 1070', true));
                             error_log(print_r($event, true));
                             $event->execute();
