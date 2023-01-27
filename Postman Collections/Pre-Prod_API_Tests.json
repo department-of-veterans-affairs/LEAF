@@ -234,7 +234,165 @@
 			"response": []
 		},
 		{
-			"name": "Local - FIX Create Form",
+			"name": "PP-Create Request Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e6bef6d-a600-48a8-b2b8-09d084aed38b",
+						"exec": [
+							"var time = pm.response.responseTime;\r",
+							"console.log(\"Response time: \" + time + \" ms\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0fc167b9-bc0d-418f-9538-f3c0c537db90",
+						"exec": [
+							"\r",
+							"//pm.globals.get(\"CSRFToken\");\r",
+							"//console.log(\"CSRF Token for POST Request: \" + pm.globals.get(\"CSRFToken\"))\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "2ebe9f0f-4b8e-48d5-ae8a-187a122f9ea6",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {},
+				"followOriginalHttpMethod": true,
+				"insecureHTTPParser": true,
+				"disableUrlEncoding": false,
+				"strictSSL": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "CSRFToken",
+						"value": "{{CSRFToken}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "service",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "title",
+						"value": "Test Title",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "priority",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "numform_c79f6",
+						"value": "1",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "service",
+							"value": "Acute Care",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "form_1234",
+							"type": "text"
+						},
+						{
+							"key": "priority",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "numform_b7c34",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "CSRFToken",
+							"value": "{{CSRFToken}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://leaf-preprod.va.gov/Academy/Demo1/api/form/new",
+					"protocol": "http",
+					"host": [
+						"leaf-preprod",
+						"va",
+						"gov"
+					],
+					"path": [
+						"Academy",
+						"Demo1",
+						"api",
+						"form",
+						"new"
+					],
+					"query": [
+						{
+							"key": "XSRF-TOKEN",
+							"value": "token",
+							"disabled": true
+						},
+						{
+							"key": "service",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "title",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "priority",
+							"value": null,
+							"type": "text",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Local - Create New Form",
 			"event": [
 				{
 					"listen": "test",
@@ -789,7 +947,7 @@
 	],
 	"variable": [
 		{
-			"id": "244a5006-d926-4497-bddf-dd4bb0f0195b",
+			"id": "b59a651e-7db7-4c7e-b656-078f004e5e70",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
