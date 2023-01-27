@@ -195,7 +195,7 @@
 						}
 					}
 				},
-				"url": "{{PreProd_URL}}/form/categories"
+				"url": "http://leaf-preprod.va.gov/Academy/Demo1/api/form/categories"
 			},
 			"response": []
 		},
@@ -318,56 +318,6 @@
 				}
 			],
 			"id": "07a54ba3-1c1a-4e2b-bc59-36e549f16ebf",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": "https://leaf-preprod.va.gov/Academy/Demo1/api/form/categories"
-			},
-			"response": []
-		},
-		{
-			"name": "PP Portal - Form Categories Load",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "f1e2e9ba-99d9-445d-810d-1c288935aa2c",
-						"exec": [
-							"\r",
-							"pm.test(\"Form-getAPI-URL.  Status = 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"var time = pm.response.responseTime;\r",
-							"console.log(\"Response time: \" + time + \" ms\");\r",
-							"\r",
-							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
-							"\r",
-							"\r",
-							"pm.test(\"Contains expected value\", function () {\r",
-							"    const response = pm.response.json();\r",
-							"    const jsonIDs = response.map(jsonID => jsonID.categoryID);      //jsonIDs is the array containing IDs\r",
-							"    //console.log(jsonIDs);\r",
-							"    pm.variables.set('jsonIDs', jsonIDs); //Creates a variable or updates an existing one.\r",
-							"                                        //2nd jsonIDs is the var defined on line 3 - Only works in collection runner\r",
-							"    console.log(jsonIDs);\r",
-							"\r",
-							"    let currentJsonID = jsonIDs.shift();\r",
-							"    console.log(currentJsonID);\r",
-							"    pm.expect(currentJsonID).to.eql(\"form_c79f6\");  //    //form_854b7\r",
-							"\r",
-							"});\r",
-							"\r",
-							"  "
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"id": "e540fdc1-9202-43ec-a79f-08a471b63a05",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -1100,7 +1050,7 @@
 	],
 	"variable": [
 		{
-			"id": "a8d87fd7-e73f-46c0-a085-22109e87a1e6",
+			"id": "e6bb1a84-f21b-4213-abad-f9e99c4b1dc3",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
