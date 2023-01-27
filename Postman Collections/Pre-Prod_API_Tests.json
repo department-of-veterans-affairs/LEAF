@@ -508,7 +508,7 @@
 							"\r",
 							"pm.test(\"Contains expected value\", function () {\r",
 							"    const response = pm.response.json();\r",
-							"    const jsonIDs = response.map(jsonID => jsonID.actionType);      //jsonIDs is the array containing IDs\r",
+							"    const jsonIDs = response.map(jsonID => jsonID.indicatorID);      //jsonIDs is the array containing IDs\r",
 							"    //console.log(jsonIDs);\r",
 							"    pm.variables.set('jsonIDs', jsonIDs); //Creates a variable or updates an existing one.\r",
 							"                                        //2nd jsonIDs is the var defined on line 3 - Only works in collection runner\r",
@@ -806,7 +806,7 @@
 	],
 	"variable": [
 		{
-			"id": "4dcb52c4-6b6a-4628-af5f-231c1529dd51",
+			"id": "c6a20741-e470-4e78-b789-bb5288d94c2e",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
