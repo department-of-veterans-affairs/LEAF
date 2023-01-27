@@ -504,7 +504,21 @@
 							"\r",
 							"var time = pm.response.responseTime\r",
 							"\r",
-							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200))"
+							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200))\r",
+							"\r",
+							"pm.test(\"Contains expected value\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const jsonIDs = response.map(jsonID => jsonID.actionType);      //jsonIDs is the array containing IDs\r",
+							"    //console.log(jsonIDs);\r",
+							"    pm.variables.set('jsonIDs', jsonIDs); //Creates a variable or updates an existing one.\r",
+							"                                        //2nd jsonIDs is the var defined on line 3 - Only works in collection runner\r",
+							"    console.log(jsonIDs);\r",
+							"\r",
+							"    let currentJsonID = jsonIDs.shift();\r",
+							"    console.log(currentJsonID);\r",
+							"    pm.expect(currentJsonID).to.eql(\"AcceptJob\");  //    //form_854b7\r",
+							"\r",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -792,7 +806,7 @@
 	],
 	"variable": [
 		{
-			"id": "2cbce691-3395-4987-8aa9-c850103ee567",
+			"id": "cda0fd0a-e545-4ba7-896e-d35d5c40dcb5",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
