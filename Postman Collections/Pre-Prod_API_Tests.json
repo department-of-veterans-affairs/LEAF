@@ -510,89 +510,6 @@
 			"response": []
 		},
 		{
-			"name": "PP - FIX Form Indicators Copy",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "c57ea32b-2a69-4e4a-a2c3-644fa0144d1d",
-						"exec": [
-							"pm.test(\"Form-Categories.  Status = 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"var time = pm.response.responseTime;\r",
-							"pm.test('Response time: ' + time + ' ms', () => pm.response.to.have.status(200));\r",
-							"\r",
-							"pm.test(\"JSON Contains expected value\", function () {\r",
-							"    const response = pm.response.json();\r",
-							"    const catIDs = response.map(catID => catID.categoryID);         //catIDs is the array containing IDs\r",
-							"    console.log(catIDs);\r",
-							"    pm.variables.set('catIDs', catIDs); //2nd catIDs is the var defined on line 3 - Only works in collection runner\r",
-							"});\r",
-							"\r",
-							"/* \r",
-							"pm.test(\"Contains expected value\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    console.log(jsonData.response);   \r",
-							"    pm.expect(jsonData.categoryID).to.eql(\"form_11e07\");  //iterate through\r",
-							"});\r",
-							"*/\r",
-							"\r",
-							"\r",
-							"\r",
-							"//    \"categoryID\": \"form_11e07\",\r",
-							"//    \"categoryName\": \"AUT (Copy)\"\r",
-							"/*\r",
-							"pm.test(\"Response time is less than limit\", function() {\r",
-							"var limit = 10;\r",
-							"pm.expect(pm.response.responseTime, \"Response time was longer than \" + limit + \" ms.\").to.be.below(limit);\r",
-							"console.log(\"Response Time: \" + pm.response.responseTime + \" ms\" + \" / Response Date: \" + pm.response.headers.get(\"Date\"));\r",
-							"});\r",
-							"\r",
-							"*/"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "94ef5633-60b5-466e-a324-38ce91df8460",
-						"exec": [
-							"/* const random = Math.random().toString(36).substring(2);\r",
-							"const formCategories = \"formCategories \" + random;\r",
-							"pm.collectionVariables.set(\"formCategories\", formCategories);\r",
-							"*/"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"id": "67a4a9ea-1469-44c5-a0e8-820be34e55f1",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{  \r\n    \"categoryID\": \"form_11e07\",\r\n    \"categoryName\": \"AUT (Copy)\"   \r\n}\r\n\r\nFOR POST REQUESTS",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "http://leaf-preprod.va.gov/Academy/Demo1/api/form/categories"
-			},
-			"response": []
-		},
-		{
 			"name": "PP Portal - Workflow",
 			"event": [
 				{
@@ -1050,7 +967,7 @@
 	],
 	"variable": [
 		{
-			"id": "c9b00242-870c-43e3-9b84-43011673339e",
+			"id": "dff64562-5afe-40bd-a4dd-3fb8abd3affd",
 			"key": "CSFRToken",
 			"value": "Input CSFR Token",
 			"type": "string",
