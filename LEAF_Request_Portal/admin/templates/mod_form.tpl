@@ -719,6 +719,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
     $('#container_indicatorSingleAnswer').css('display', 'none');
+    $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
     switch(indFormat?.toLowerCase()) {
         case 'grid':
             $('#container_indicatorGrid').css('display', 'block');
@@ -727,13 +728,6 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
         case 'checkbox':   //single option entry box
             $('#container_indicatorSingleAnswer').css('display', 'block');
             if (formatOptionsStr !== '') $('#indicatorSingleAnswer').val(formatOptionsStr);
-            break;
-        case 'radio':      //multiple option entry box
-        case 'checkboxes':
-        case 'multiselect':
-        case 'dropdown':
-            $('#container_indicatorMultiAnswer').css('display', 'block');
-            if (formatOptionsStr !== '') $('#indicatorMultiAnswer').val(formatOptionsStr);
             break;
         case 'orgchart_employee':
             $('#default-answer').html('<div id="default"></div>');
@@ -792,8 +786,14 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             posSel.initialize();
 
             break;
+        case 'radio':      //multiple option entry box
+        case 'checkboxes':
+        case 'multiselect':
+        case 'dropdown':
+            $('#container_indicatorMultiAnswer').css('display', 'block');
+            if (formatOptionsStr !== '') $('#indicatorMultiAnswer').val(formatOptionsStr);
+            break;
         default:
-            $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
             break;
     }
 }

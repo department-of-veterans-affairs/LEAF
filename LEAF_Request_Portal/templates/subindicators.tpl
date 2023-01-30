@@ -1099,7 +1099,6 @@
                             url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
                         })
                         .then(function(res) {
-                            console.log(res);
                             if(res.employee != undefined && res.employee.userName != '') {
                                 var first = res.employee.firstName;
                                 var last = res.employee.lastName;
