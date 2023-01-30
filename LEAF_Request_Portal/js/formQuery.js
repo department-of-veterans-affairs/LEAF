@@ -224,8 +224,57 @@ var LeafFormQuery = function() {
     }
 
     /**
+     * Execute search query in chunks, returning the full result set
+     * @param limitOffset Used in subsequent recursive calls to track current offset
+     * @returns Promise resolving to query response
+     * @memberOf LeafFormQuery
+     */
+    let results = {};
+    let batchSize = 500;
+    function getBulkData(limitOffset) {
+        if(limitOffset == undefined) {
+            limitOffset = 0;
+        }
+        if(limitOffset == 0) {
+            results = {};
+        }
+
+        query.limit = batchSize;
+        query.limitOffset = limitOffset;
+
+        let el = document.createElement('div');
+        el.innerHTML = JSON.stringify(query);
+        let queryUrl = el.innerText;
+
+        let dataType = 'json';
+        let usingJSONP = '';
+        if(useJSONP) {
+            dataType = 'jsonp';
+            usingJSONP = '&format=jsonp';
+        }
+
+        return $.ajax({
+            type: 'GET',
+            url: rootURL + 'api/form/query?q=' + queryUrl + extraParams + usingJSONP,
+            dataType: dataType
+        }).then(function(res, resStatus, resJqXHR) {
+            results = Object.assign(results, res);
+
+            if(Object.keys(res).length == batchSize
+                || resJqXHR.getResponseHeader('leaf-query') == 'continue') {
+                return getBulkData(limitOffset + batchSize);
+            }
+            else {
+                if(typeof successCallback == 'function') {
+                    successCallback(results, resStatus, resJqXHR);
+                }
+                return results;
+            }
+        });
+    }
+
+    /**
      * Execute search query
-     * @param callback - Success callback
      * @returns $.ajax() object
      * @memberOf LeafFormQuery
      */
@@ -233,7 +282,11 @@ var LeafFormQuery = function() {
     	if(query.getData != undefined && query.getData.length == 0) {
     		delete query.getData;
     	}
-    	
+
+        if(query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 1000) {
+            return getBulkData();
+        }
+
         let el = document.createElement('div');
         el.innerHTML = JSON.stringify(query);
         let queryUrl = el.innerText;
