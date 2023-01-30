@@ -4,8 +4,8 @@
 
 <!--    -->
 
-
-<!--       
+  
+       
 	<test name="Home Page">
 		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/">
 		<parameter name="browser" value="chrome"/>
@@ -15,7 +15,7 @@
 		</parameter>
 	</test>   
 
-      
+ <!-- 
   		
 	<test name="User Access Groups">
 		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/?a=mod_groups">
@@ -50,7 +50,7 @@
 	</test>    
 
  
-
+ -->
 
 	<test name="Org Chart Workflow">
 		<parameter name="env" value="https://leaf.va.gov/Academy/orgchart/">
@@ -61,7 +61,9 @@
 		</parameter>
 	</test>    
  
-    
+   
+ <!--  
+ 
  
  	<test name="Report Builder Workflow">
 		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/?a=reports">
@@ -82,7 +84,7 @@
 			</classes>
 		</parameter>
 	</test>    
-<!--  
+ 
 	<test name="Forms Workflow Part 2">
 		<parameter name="env" value="https://leaf.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
@@ -101,7 +103,7 @@
 		</parameter>
 	</test>   
 
- -->
+
 
 </suite>
 
