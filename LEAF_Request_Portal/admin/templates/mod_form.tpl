@@ -1339,7 +1339,7 @@ function getForm(indicatorID, series) {
                 if (formatName === 'orgchart_employee') {
                     $.ajax({
                             type: 'GET',
-                            url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
+                            url: '<!--{$orgchartPath}-->/api/employee/' + String(res[indicatorID].default)
                     })
                     .then(function(res) {
                         console.log(res);
@@ -1349,11 +1349,7 @@ function getForm(indicatorID, series) {
                             var middle = res.employee.middleName;
 
                             var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
                             $('#default-answer .employeeSelectorInput').val('userName:' + res.employee.userName);
-                            query.done(function() {
-                                empSel.select(String(res[indicatorID].default));
-                            });
                         }
                     });
                     $('#default').val(res[indicatorID].default);
