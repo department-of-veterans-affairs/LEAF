@@ -7,6 +7,7 @@
 var LeafFormQuery = function() {
 	var query = {};
 	var successCallback = null;
+    var progressCallback = null;
 	var rootURL = '';
     var useJSONP = false;
     var extraParams = '';
@@ -224,7 +225,16 @@ var LeafFormQuery = function() {
     }
 
     /**
-     * Execute search query in chunks, returning the full result set
+     * onProgress assigns a callback to be called on every getBulkData() iteration
+     * @param funct - funct(int Progress). Progress is the number of records that have been processed
+     * @memberOf LeafFormQuery
+     */
+    function onProgress(funct) {
+        progressCallback = funct;
+    }
+
+    /**
+     * Execute search query in chunks
      * @param limitOffset Used in subsequent recursive calls to track current offset
      * @returns Promise resolving to query response
      * @memberOf LeafFormQuery
@@ -262,7 +272,11 @@ var LeafFormQuery = function() {
 
             if(Object.keys(res).length == batchSize
                 || resJqXHR.getResponseHeader('leaf-query') == 'continue') {
-                return getBulkData(limitOffset + batchSize);
+                let newOffset = limitOffset + batchSize;
+                if(typeof progressCallback == 'function') {
+                    progressCallback(newOffset);
+                }
+                return getBulkData(newOffset);
             }
             else {
                 if(typeof successCallback == 'function') {
@@ -328,6 +342,7 @@ var LeafFormQuery = function() {
 		join: join,
 		sort: sort,
 		onSuccess: onSuccess,
+        onProgress: onProgress,
 		execute: execute
 	}
 };
