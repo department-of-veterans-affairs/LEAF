@@ -1374,7 +1374,7 @@ function getForm(indicatorID, series) {
                     },
                     success: function(res) {
                         if (res === 'size limit exceeded') {
-                            alert(`The format for indicator ${indicatorID} was not saved because it exceeded size limitations`);
+                            alert(`The input format was not saved because it was too long.\nIf you require extended length, please submit a yourit ticket.`);
                         }
                     },
                     error: function(response) {
