@@ -1093,26 +1093,28 @@
                         importFromNational(empSel);
                     });
                     empSel.initialize();
+                    console.log('<!--{$indicator.value != ''}-->');
                     <!--{if $indicator.value != ''}-->
-                    $.ajax({
-                        type: 'GET',
-                        url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
-                    })
-                    .then(function(res) {
-                        if(res.employee != undefined && res.employee.userName != '') {
-                            var first = res.employee.firstName;
-                            var last = res.employee.lastName;
-                            var middle = res.employee.middleName;
+                        $.ajax({
+                            type: 'GET',
+                            url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
+                        })
+                        .then(function(res) {
+                            console.log(res);
+                            if(res.employee != undefined && res.employee.userName != '') {
+                                var first = res.employee.firstName;
+                                var last = res.employee.lastName;
+                                var middle = res.employee.middleName;
 
-                            var formatted = last + ", " + first + " " + middle;
-                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
-                            //here, updates search field value when modal is opened
-                            $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
-                            query.done(function() {
-                                empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
-                            });
-                        }
-                    });
+                                var formatted = last + ", " + first + " " + middle;
+                                var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                                //here, updates search field value when modal is opened
+                                $("#"+ empSel.prefixID+"input").val("userName:" + res.employee.userName);
+                                query.done(function() {
+                                    empSel.select("<!--{$indicator.value|strip_tags|escape|trim}-->");
+                                });
+                            }
+                        });
                     <!--{/if}-->
 
                     return empSel;

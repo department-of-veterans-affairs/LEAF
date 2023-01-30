@@ -743,7 +743,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             empSel.outputStyle = 'micro';
             empSel.initialize();
             empSel.setSelectHandler(function () {
-                $('#default').val(empSel.selectionData[empSel.selection].userName);
+                $('#default').val(empSel.selectionData[empSel.selection].empUID);
                 $('.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
             });
             break;
@@ -1337,11 +1337,30 @@ function getForm(indicatorID, series) {
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
                 // this only works after all the required elements are rendered.
                 if (formatName === 'orgchart_employee') {
-                    $('#default-answer .employeeSelectorInput').val('userName:' + res[indicatorID].default);
-                }
-                if (formatName === 'orgchart_group') {
+                    $.ajax({
+                            type: 'GET',
+                            url: '<!--{$orgchartPath}-->/api/employee/<!--{$indicator.value|strip_tags|escape|trim}-->'
+                    })
+                    .then(function(res) {
+                        console.log(res);
+                        if(res.employee != undefined && res.employee.userName != '') {
+                            var first = res.employee.firstName;
+                            var last = res.employee.lastName;
+                            var middle = res.employee.middleName;
 
+                            var formatted = last + ", " + first + " " + middle;
+                            var query = empSel.runSearchQuery("userName:" + res.employee.userName);
+                            $('#default-answer .employeeSelectorInput').val('userName:' + res.employee.userName);
+                            query.done(function() {
+                                empSel.select(String(res[indicatorID].default));
+                            });
+                        }
+                    });
+                    $('#default').val(res[indicatorID].default);
                 }
+                // if (formatName === 'orgchart_group') {
+
+                // }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
             },
