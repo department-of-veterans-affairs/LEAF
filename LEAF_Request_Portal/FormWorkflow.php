@@ -65,10 +65,10 @@ class FormWorkflow
 
     /**
      * Retrieve groupIDs associated with the given dependencyID
-     * @param int $depID dependencyID
+     * @param int|null $depID dependencyID
      * @return array database result
      */
-    private function getDependencyPrivileges(int $depID): array {
+    private function getDependencyPrivileges(int|null $depID): array {
         if(!isset($this->cache["dependencyID{$depID}"])) {
             $vars = array(':dependencyID' => $depID);
             $strSQL = 'SELECT * FROM dependency_privs WHERE dependencyID = :dependencyID';
@@ -100,10 +100,10 @@ class FormWorkflow
     
     /**
      * Retrieve the group name associated with a groupID
-     * @param int $groupID
-     * @return string
+     * @param int|string|null $groupID
+     * @return string|null null if no matching groupID
      */
-    private function getActionableGroupName(int $groupID): string {
+    private function getActionableGroupName(int|string|null $groupID): string|null {
         if(isset($this->cache['getActionableGroupName'.$groupID])) {
             return $this->cache['getActionableGroupName'.$groupID];
         }
@@ -153,12 +153,39 @@ class FormWorkflow
             // override access if user is in the admin group
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
 
-            // check permissions
             $res2 = $this->getDependencyPrivileges($res[$i]['dependencyID']);
+
+            // This optimization skips supplemental orgchart info for admins. Include it
+            // before skipping the rest of this loop.
             if ($res[$i]['isActionable']) {
+                switch($res[$i]['dependencyID']) {
+                    case -1: // dependencyID -1 is for a person designated by the requestor
+                        require_once 'VAMC_Directory.php';
+                        $dir = new VAMC_Directory;
+                        $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                        $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
+    
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+    
+                        if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
+                        }
+                        break;
+                    case -3: // dependencyID -3 is for a group designated by the requestor
+                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
+                        $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
+        
+                        // get actual group name
+                        $res[$i]['description'] = $this->getActionableGroupName($groupID);
+                        break;
+                    default:
+                        break;
+                }
+
                 continue;
             }
 
+            // check permissions
             switch($res[$i]['dependencyID']) {
                 case 1: // dependencyID 1 is for a special service chief group
                     $res[$i]['isActionable'] = $this->login->checkService($res[$i]['serviceID']);
@@ -175,6 +202,17 @@ class FormWorkflow
                     $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
              
                     $res[$i]['isActionable'] = $this->checkEmployeeAccess($empUID);
+
+                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                    require_once 'VAMC_Directory.php';
+                    $dir = new VAMC_Directory; 
+                    $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
+
+                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+
+                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
+                    }
                     break;
 
                 case -2: // dependencyID -2 is for requestor followup
