@@ -246,6 +246,7 @@ export default {
                     );
                 }
                 if(fullFormatChanged) {
+                    const ID = this.currIndicatorID;
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -256,7 +257,7 @@ export default {
                             },
                             success: function(res) {
                                 if (res === 'size limit exceeded') {
-                                    alert(`The format for indicator ${this.currIndicatorID} was not saved because it exceeded size limitations`);
+                                    alert(`The format for indicator ${ID} was not saved because it exceeded size limitations`);
                                 }
                             },
                             error: err => console.log('ind format post err', err)
