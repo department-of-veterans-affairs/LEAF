@@ -744,12 +744,12 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             empSel.initialize();
             empSel.setSelectHandler(function () {
                 $('#default').val(empSel.selectionData[empSel.selection].empUID);
-                $('.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
+                $('#default .employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
             });
             break;
         case 'orgchart_group':
             $('#default-answer').html('<div id="default"></div>');
-            let groupSel = new groupSelector('groupSel_container');
+            let groupSel = new groupSelector('default');
             groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
             groupSel.basePath = '../';
             groupSel.setResultHandler(function() {
@@ -767,6 +767,11 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
                         $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
                     }
                 }
+            });
+            groupSel.setSelectHandler(function() {
+                console.log(groupSel.selectionData[groupSel.selection]);
+                $('#default').val(groupSel.selectionData[groupSel.selection].groupID);
+                $('#default .groupSelectorInput').val(String('group#' + groupSel.selectionData[groupSel.selection].groupID));
             });
             groupSel.initialize();
 
@@ -1342,7 +1347,6 @@ function getForm(indicatorID, series) {
                             url: '<!--{$orgchartPath}-->/api/employee/' + String(res[indicatorID].default)
                     })
                     .then(function(res) {
-                        console.log(res);
                         if(res.employee != undefined && res.employee.userName != '') {
                             var first = res.employee.firstName;
                             var last = res.employee.lastName;
@@ -1354,9 +1358,9 @@ function getForm(indicatorID, series) {
                     });
                     $('#default').val(res[indicatorID].default);
                 }
-                // if (formatName === 'orgchart_group') {
-
-                // }
+                if (formatName === 'orgchart_group') {
+                    $('#default-answer .groupSelectorInput').val('group#' + res[indicatorID].default);
+                }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
             },
