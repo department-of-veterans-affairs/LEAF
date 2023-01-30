@@ -1093,7 +1093,6 @@
                         importFromNational(empSel);
                     });
                     empSel.initialize();
-                    console.log('<!--{$indicator.value != ''}-->');
                     <!--{if $indicator.value != ''}-->
                         $.ajax({
                             type: 'GET',

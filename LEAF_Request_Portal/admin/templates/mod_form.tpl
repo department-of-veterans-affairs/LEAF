@@ -744,7 +744,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             empSel.initialize();
             empSel.setSelectHandler(function () {
                 $('#default').val(empSel.selectionData[empSel.selection].empUID);
-                $('#default .employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
+                $('#default input.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
             });
             break;
         case 'orgchart_group':
@@ -771,9 +771,25 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             groupSel.setSelectHandler(function() {
                 console.log(groupSel.selectionData[groupSel.selection]);
                 $('#default').val(groupSel.selectionData[groupSel.selection].groupID);
-                $('#default .groupSelectorInput').val(String('group#' + groupSel.selectionData[groupSel.selection].groupID));
+                $('#default input.groupSelectorInput').val(String('group#' + groupSel.selectionData[groupSel.selection].groupID));
             });
             groupSel.initialize();
+
+            break;
+        case 'orgchart_position':
+            $('#default-answer').html('<div id="default"></div>');
+            let posSel = new positionSelector('default');
+            posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+            posSel.enableEmployeeSearch();
+
+            posSel.setSelectHandler(function() {
+                $('#default').val(posSel.selection)
+                $('#default input.positionSelectorInput').val('#'+posSel.selection);
+            });
+            posSel.setResultHandler(function() {
+                $('#default').val(posSel.selection)
+            });
+            posSel.initialize();
 
             break;
         default:
@@ -1342,24 +1358,13 @@ function getForm(indicatorID, series) {
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
                 // this only works after all the required elements are rendered.
                 if (formatName === 'orgchart_employee') {
-                    $.ajax({
-                            type: 'GET',
-                            url: '<!--{$orgchartPath}-->/api/employee/' + String(res[indicatorID].default)
-                    })
-                    .then(function(res) {
-                        if(res.employee != undefined && res.employee.userName != '') {
-                            var first = res.employee.firstName;
-                            var last = res.employee.lastName;
-                            var middle = res.employee.middleName;
-
-                            var formatted = last + ", " + first + " " + middle;
-                            $('#default-answer .employeeSelectorInput').val('userName:' + res.employee.userName);
-                        }
-                    });
-                    $('#default').val(res[indicatorID].default);
+                    $('#default-answer input.employeeSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
                 }
                 if (formatName === 'orgchart_group') {
-                    $('#default-answer .groupSelectorInput').val('group#' + res[indicatorID].default);
+                    $('#default-answer input.groupSelectorInput').val(res[indicatorID].default ? 'group#' + res[indicatorID].default : '');
+                }
+                if (formatName === 'orgchart_position') {
+                    $('#default-answer input.positionSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
                 }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
