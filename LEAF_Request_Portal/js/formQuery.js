@@ -246,6 +246,7 @@ var LeafFormQuery = function() {
         if(limitOffset == 0) {
             results = {};
         }
+        limitOffset = parseInt(limitOffset);
 
         query.limit = batchSize;
         query.limitOffset = limitOffset;
@@ -255,15 +256,15 @@ var LeafFormQuery = function() {
         let queryUrl = el.innerText;
 
         let dataType = 'json';
-        let usingJSONP = '';
+        let urlParamJSONP = '';
         if(useJSONP) {
             dataType = 'jsonp';
-            usingJSONP = '&format=jsonp';
+            urlParamJSONP = '&format=jsonp';
         }
 
         return $.ajax({
             type: 'GET',
-            url: rootURL + 'api/form/query?q=' + queryUrl + extraParams + usingJSONP,
+            url: rootURL + 'api/form/query?q=' + queryUrl + extraParams + urlParamJSONP,
             dataType: dataType
         }).then(function(res, resStatus, resJqXHR) {
             results = Object.assign(results, res);
