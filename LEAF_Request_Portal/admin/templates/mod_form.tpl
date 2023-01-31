@@ -774,6 +774,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             $('#default-answer').html('<div id="default"></div>');
             let posSel = new positionSelector('default');
             posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+            posSel.rootPath = '<!--{$orgchartPath}-->/';
             posSel.enableEmployeeSearch();
 
             posSel.setSelectHandler(function() {
