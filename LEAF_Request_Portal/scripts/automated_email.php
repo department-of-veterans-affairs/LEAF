@@ -42,17 +42,17 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // pass ?current=asdasd to get the present time for testing purposes
     if (!empty($_GET['current'])) {
-        $daysagotimestamp = time();
+        $intialdaysagotimestamp = time();
         echo "Present day, Present time \r\n";
     } else{
-        $daysagotimestamp = time() - ($daysago * 60 * 60 * 24);
+        $intialdaysagotimestamp = time() - ($daysago * 60 * 60 * 24);
 
-        echo "Working on step: {$workflowStep['stepID']}, time calculation: ".time()." - $daysago = $daysagotimestamp / ".date('Y-m-d H:i:s',$daysagotimestamp)."\r\n";
+        echo "Working on step: {$workflowStep['stepID']}, time calculation: ".time()." - $daysago = $intialdaysagotimestamp / ".date('Y-m-d H:i:s',$intialdaysagotimestamp)."\r\n";
     }
 
 
     // step id, I think workflow id is also needed here
-    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
+    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialdaysagotimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
@@ -68,8 +68,21 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // PUT THE daysagotimestamp for the second query here, we will need to figure that one out!
 
+    // DateSelected * DaysSelected * what is a day anyway= how many days to bug this person.
+    $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
+
+    // pass ?current=asdasd to get the present time for testing purposes
+    if (!empty($_GET['current'])) {
+        $intialdaysagotimestamp = time();
+        echo "Present day, Present time \r\n";
+    } else{
+        $intialdaysagotimestamp = time() - ($daysago * 60 * 60 * 24);
+
+        echo "Working on step: {$workflowStep['stepID']}, time calculation: ".time()." - $daysago = $intialdaysagotimestamp / ".date('Y-m-d H:i:s',$intialdaysagotimestamp)."\r\n";
+    }
+
     // get the other entries
-    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
+    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialdaysagotimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
