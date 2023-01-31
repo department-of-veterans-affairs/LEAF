@@ -1,7 +1,5 @@
 /**
  * Form Query Helper
- * @deprecated for functionality
- * @TODO Replaced by libs/js/LEAF/formQuery.js
  */
 
 var LeafFormQuery = function() {
@@ -297,7 +295,7 @@ var LeafFormQuery = function() {
     		delete query.getData;
     	}
 
-        if(query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 1000) {
+        if(query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 9999) {
             return getBulkData();
         }
 
