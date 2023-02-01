@@ -17,7 +17,7 @@ $protocol = 'https';
 $siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
 
 // allow us to control if this is in days or minutes
-if (!empty($_GET['current'])) {
+if (!empty($_GET['minutes'])) {
     $timeAdjustment = 60;
 } else {
     $timeAdjustment = 60 * 60 * 24;
