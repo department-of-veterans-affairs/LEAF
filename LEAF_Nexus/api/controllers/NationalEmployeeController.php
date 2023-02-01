@@ -40,8 +40,12 @@ class NationalEmployeeController extends RESTfulResponse
             {
                 $employee->setDomain($_GET['domain']);
             }
+            if (isset($_GET['includeDisabled'])) {
+                return $employee->search($_GET['q'], $_GET['indicatorID'], $_GET['includeDisabled']);
+            } else {
+                return $employee->search($_GET['q'], $_GET['indicatorID']);
+            }
 
-            return $employee->search($_GET['q'], $_GET['indicatorID']);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
