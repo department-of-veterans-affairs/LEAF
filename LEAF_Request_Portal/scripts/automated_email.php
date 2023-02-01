@@ -16,6 +16,13 @@ error_reporting(E_ALL);
 $protocol = 'https';
 $siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
 
+// allow us to control if this is in days or minutes
+if (!empty($_GET['current'])) {
+    $timeAdjustment = 60;
+} else {
+    $timeAdjustment = 60 * 60 * 24;
+}
+
 // this was what the random function I found used.
 $comment = '';
 
@@ -31,6 +38,7 @@ if (empty($getWorkflowStepsRes)) {
     echo "No automated emails setup! \r\n";
     exit();
 }
+echo date('Y-m-d H:i:s')."\r\n";
 // go over the selected events
 foreach ($getWorkflowStepsRes as $workflowStep) {
 
@@ -41,18 +49,12 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
 
     // pass ?current=asdasd to get the present time for testing purposes
-    if (!empty($_GET['current'])) {
-        $intialdaysagotimestamp = time();
-        echo "Present day, Present time \r\n";
-    } else{
-        $intialdaysagotimestamp = time() - ($daysago * 60 * 60 * 24);
+    $intialDaysAgoTimestamp = time() - ($daysago * $timeAdjustment);
 
-        echo "Working on step: {$workflowStep['stepID']}, time calculation: ".time()." - $daysago = $intialdaysagotimestamp / ".date('Y-m-d H:i:s',$intialdaysagotimestamp)."\r\n";
-    }
-
+    echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialDaysAgoTimestamp)."\r\n";
 
     // step id, I think workflow id is also needed here
-    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialdaysagotimestamp)];
+    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialDaysAgoTimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
@@ -71,18 +73,12 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         
         $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
 
-        // pass ?current=asdasd to get the present time for testing purposes
-        if (!empty($_GET['current'])) {
-            $intialdaysagotimestamp = time();
-            echo "Present day, Present time \r\n";
-        } else{
-            $additionaldaysagotimestamp = time() - ($addldaysago * 60 * 60 * 24);
+        $additionalDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
 
-            echo "Working on step: {$workflowStep['stepID']}, time calculation: ".time()." - $addldaysago = $additionaldaysagotimestamp / ".date('Y-m-d H:i:s',$additionaldaysagotimestamp)."\r\n";
-        }
+        echo "Working on step: {$workflowStep['stepID']}, Additional Notification: ".date('Y-m-d H:i:s',$additionalDaysAgoTimestamp)."\r\n";
 
         // get the other entries
-        $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$additionaldaysagotimestamp)];
+        $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$additionalDaysAgoTimestamp)];
 
     }
 
@@ -141,8 +137,4 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
         echo "Email sent for {$record['recordID']} \r\n";
     }
-}
-
-function notify($record){
- 
 }
