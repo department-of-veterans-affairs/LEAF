@@ -137,31 +137,40 @@ class NationalEmployee extends NationalData
         return $result;
     }
 
-    public function lookupLastName($lastName)
+    /**
+     * Looks for all user's lastname
+     *
+     * @param string $lastName
+     * @param bool $disabled
+     * 
+     * @return array
+     * 
+     * Updated at: 1/25/2023, 12:44:32 PM (America/New_York)
+     */
+    public function lookupAllUsersLastName(string $lastName, bool $disabled): array
     {
         $lastName = $this->parseWildcard($lastName);
+        $disabled_clause = $disabled ?  " AND deleted = 0 "  : "";
 
         $vars = array(':lastName' => $lastName);
         $domain = $this->addDomain($vars);
         $sql = "SELECT * FROM {$this->tableName}
-                    WHERE lastName LIKE :lastName
-                    	AND deleted = 0
-                    	{$domain}
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+                WHERE lastName LIKE :lastName {$domain}"
+                . $disabled_clause .
+                "ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
+
 
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
+        if (count($result) == 0){
             $vars = array(':lastName' => metaphone($lastName));
             $domain = $this->addDomain($vars);
             $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticLastName LIKE :lastName
-                	AND deleted = 0
-                	{$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+                    WHERE phoneticLastName LIKE :lastName {$domain}"
+                    . $disabled_clause .
+                    "ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             if ($vars[':lastName'] != '')
             {
@@ -180,31 +189,39 @@ class NationalEmployee extends NationalData
         return $result;
     }
 
-    public function lookupFirstName($firstName)
+    /**
+          * Looks for all user's fistname
+     *
+     * @param string $firstName
+     * @param bool $disabled
+     * 
+     * @return array
+     * 
+     * Updated at: 1/25/2023, 12:43:43 PM (America/New_York)
+     */
+    public function lookupAllUsersFirstName(string $firstName, bool $disabled): array
     {
         $firstName = $this->parseWildcard($firstName);
+        $disabled_clause = $disabled ?  " AND deleted = 0 "  : "";
 
         $vars = array(':firstName' => $firstName);
         $domain = $this->addDomain($vars);
         $sql = "SELECT * FROM {$this->tableName}
-                    WHERE firstName LIKE :firstName
-                    	AND deleted = 0
-                    	{$domain}
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+                WHERE firstName LIKE :firstName {$domain}"
+                . $disabled_clause .
+                "ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
+        if (count($result) == 0){
             $vars = array(':firstName' => metaphone($firstName));
             $domain = $this->addDomain($vars);
             $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticFirstName LIKE :firstName
-                	AND deleted = 0
-                	{$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+                    WHERE phoneticFirstName LIKE :firstName {$domain}"
+                    . $disabled_clause .
+                    "ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             if ($vars[':firstName'] != '')
             {
@@ -323,7 +340,18 @@ class NationalEmployee extends NationalData
         return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
     }
 
-    public function search($input, $indicatorID = '')
+
+    /**
+     * Search for users 
+     *
+     * @param string $input
+     * @param bool $includeDisabled
+     * 
+     * @return array|bool
+     * 
+     * Created at: 1/25/2023, 1:17:29 PM (America/New_York)
+     */
+    public function search(string $input, $indicatorID = '', bool $includeDisabled = false): array|bool
     {
         $input = html_entity_decode($input, ENT_QUOTES);
         if (strlen($input) > 3 && $this->limit != 'LIMIT 100')
@@ -437,12 +465,12 @@ class NationalEmployee extends NationalData
                 {
                     $this->log[] = 'Format Detected: Last OR First';
                 }
-                $res = $this->lookupLastName($input);
+                $res = $this->lookupAllUsersLastName($input, $includeDisabled);
                 // Check first names if theres few hits for last names
                 if (count($res) < $this->deepSearch)
                 {
                     $this->log[] = 'Extra search on first names';
-                    $res = array_merge($res, $this->lookupFirstName($input));
+                    $res = array_merge($res, $this->lookupAllUsersFirstName($input, $includeDisabled));
                     // Try to look for service
                     if (count($res) == 0)
                     {

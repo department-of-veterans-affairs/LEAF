@@ -351,7 +351,8 @@ nationalEmployeeSelector.prototype.search = function() {
 					dataType: 'json',
 					data: {q: this.q,
 						noLimit: this.optionNoLimit,
-						domain: domain},
+						domain: domain,
+						includeDisabled: true},
 					success: function(response) {
 						t.currRequest = null;
 						t.numResults = 0;
@@ -434,7 +435,6 @@ nationalEmployeeSelector.prototype.search = function() {
 							}
 
 							$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
-
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('keypress', t.getSelectorFunction(response[i].empUID));
 							$('#' + t.prefixID + 'status').append(' ' + response[i].userName + ' ' + positionTitle + ' ' + email + ',');
@@ -462,6 +462,7 @@ nationalEmployeeSelector.prototype.search = function() {
 
 						t.showNotBusy();
 					},
+					error: function(){console.log("Failed to gather users information.");},
 					cache: false
 				};
 				var t = this;

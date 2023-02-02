@@ -736,6 +736,10 @@ div#emailReminder input,  div#emailReminder .chosen-container {
 div#emailReminder .groupSelectorInput {
     margin-bottom: 0px;
 }
+div#subordinate_site_warning {
+    padding: 0.25rem 0.5rem;
+    background-color: #ffffc0;
+}
 
 @media(max-width: 520px) {
     #header:not(.usa-header) {
