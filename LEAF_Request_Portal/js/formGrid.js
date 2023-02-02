@@ -21,6 +21,7 @@ var LeafFormGrid = function(containerID, options) {
     var rootURL = '';
     var isRenderingVirtualHeader = true;
     var isRenderingBody = false;
+    let renderHistory = {}; // index of rendered recordIDs
 
     $('#' + containerID).html('<div id="'+prefixID+'grid"></div><div id="'+prefixID+'form" style="display: none"></div>');
 
@@ -498,6 +499,12 @@ var LeafFormGrid = function(containerID, options) {
                 break;
             }
 
+            // Prevent duplicate DOM IDs from being generated
+            if(renderHistory[currentData[i].recordID] != undefined) {
+                continue;
+            }
+
+            renderHistory[currentData[i].recordID] = 1;
             buffer += '<tr id="'+prefixID + 'tbody_tr'+currentData[i].recordID+'">';
             if(showIndex) {
                 buffer += '<td><a href="index.php?a=printview&recordID='+currentData[i].recordID+'">'+currentData[i].recordID+'</a></td>';
