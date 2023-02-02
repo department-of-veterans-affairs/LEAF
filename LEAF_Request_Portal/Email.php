@@ -109,9 +109,9 @@ class Email
 
     /**
      * Set email sender object variable
-     * @param $strAddress
+     * @param string|null $strAddress
      */
-    public function setSender(string $strAddress): void
+    public function setSender(string|null $strAddress): void
     {
         $this->emailSender = $strAddress;
     }
@@ -155,10 +155,10 @@ class Email
 
     /**
      * Purpose: To check that email address is not already attached to this email send
-     * @param string $address
+     * @param string|null $address
      * @return bool
      */
-    public function emailActiveNotAlreadyAdded(string $address): bool
+    public function emailActiveNotAlreadyAdded(string|null $address): bool
     {
 
         if ( ( strpos($this->emailRecipient, $address) === false  )
@@ -182,11 +182,11 @@ class Email
 
     /**
      * Purpose: Add Receipient to email
-     * @param string $address
+     * @param string|null $address
      * @param bool $requiredAddress
      * @return bool
      */
-    public function addRecipient(string $address, bool $requiredAddress = false): bool
+    public function addRecipient(string|null $address, bool $requiredAddress = false): bool
     {
         if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0){
             return false;
@@ -243,13 +243,13 @@ class Email
 
     /**
      * Scrubs email address and adds to object email CC array if valid
-     * @param string $strEmailAddress
+     * @param string|null $strEmailAddress
      * @param bool $requiredAddress
      * @param bool $isBcc
      * @return bool
      */
 
-    public function addCcBcc(string $address, bool $requiredAddress = false, bool $isBcc = false): bool
+    public function addCcBcc(string|null $address, bool $requiredAddress = false, bool $isBcc = false): bool
     {
         if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0) {
             return false;
