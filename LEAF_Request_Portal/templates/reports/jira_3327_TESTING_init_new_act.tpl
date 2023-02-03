@@ -62,29 +62,31 @@ orgchart employee format questions to refer to the new account, and update group
 
 const CSRFToken = '<!--{$CSRFToken}-->';
     
-function reassignInitiator(recordID, newAccount) {
+function reassignInitiator(item) {
     return new Promise ((resolve, reject) => {
-        $.ajax({
-            type: 'POST',
-            url: `./api/form/${recordID}/initiator`,
-            data: {
-                CSRFToken: CSRFToken,
-                initiator: newAccount
-            },
-            success: res => {
-                $('#section3 #initiators_updated').append(`Request # ${recordID} reassigned to ${newAccount}<br />`);
-                resolve('updated');
-            },
-            error: err => {
-                console.log(err);
-                reject(err);
-            }
+        const { recordID, newAccount } = item;
+
+        let formData = new FormData();
+        formData.append('CSRFToken', CSRFToken);
+        formData.append('initiator', newAccount);
+
+        fetch(`./api/form/${recordID}/initiator`, {
+            method: 'POST',
+            body: formData
+        }).then(() => {
+            $('#section3 #initiators_updated').append(`Request # ${recordID} reassigned to ${newAccount}<br />`);
+            resolve('updated')
+        }).catch(err => {
+            console.log(err);
+            reject(err);
         });
     });
 }
 
-function updateOrgEmployeeData(recordID, indicatorID, newEmpUID, newAccount) {
+function updateOrgEmployeeData(item) {
     return new Promise ((resolve, reject) => {
+        const { recordID, indicatorID, newEmpUID, newAccount } = item;
+
         let formData = new FormData();
         formData.append('CSRFToken', CSRFToken);
         formData.append(`${indicatorID}`, newEmpUID);
@@ -102,35 +104,121 @@ function updateOrgEmployeeData(recordID, indicatorID, newEmpUID, newAccount) {
     });
 }
 
-function prepare(res, accountInfo = {}, queue = {}) {
-    for(let recordID in res) {
-        queue.push({
-            ...accountInfo,
-            recordID,
-            indicatorID: res[recordID].indicatorID
-        });
-    }
-    $('#reassign').on('click', function() {
-        $('#section2').css('display', 'none');
-        $('#section3').css('display', 'inline');
-        return queue.start().then((res) => {
-            console.log(res);
+function searchGroupsOldAccount(accountInfo, queue) {
+    const { oldAccount } = accountInfo;
+    return new Promise ((resolve, reject) => {
+        //all groups and members
+        fetch(`./api/group/members`)
+            .then(res => res.json())
+            .then(data => {
+                let groupInfo = {};
+                //groups associated with old account
+                const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount));
+                selectedAccountGroups.forEach(g => {
+                    const memberSettings = g.members.find(m => m.userName === oldAccount);
+                    if (parseInt(memberSettings.active) === 1) {
+                        groupInfo[`group_${g.groupID}`] = {
+                            ...g,
+                            memberSettings
+                        };
+                    }
+                });
+
+                if (Object.keys(groupInfo).length > 0) {
+                    let recordIDs = '';
+                    for (let i in groupInfo) {
+                        recordIDs += groupInfo[i].groupID + ',';
+                    }
+                    const formGrid = new LeafFormGrid('grid_groups_info');
+                    formGrid.enableToolbar();
+                    formGrid.hideIndex();
+                    formGrid.setDataBlob(groupInfo);
+                    formGrid.setHeaders([
+                        {
+                            name: 'Group Name',
+                            indicatorID: 'groupName',
+                            editable: false,
+                            callback: function(data, blob) {
+                                $('#'+data.cellContainerID).html(blob[`group_${data.recordID}`]?.name);
+                            }
+                        },
+                        {
+                            name: 'Group Member Username',
+                            indicatorID: 'groupMember',
+                            editable: false,
+                            callback: function(data, blob) {
+                                $('#'+data.cellContainerID).html(blob[`group_${data.recordID}`]?.memberSettings.userName);
+                            }
+                        }
+                    ]);
+                    formGrid.loadData(recordIDs);
+
+                    accountInfo.taskType = 'update_group_membership';
+                    enqueueTask(groupInfo, accountInfo, queue);
+                    resolve(groupInfo);
+                } else {
+                    $('#grid_initiator').append('No records found');
+                }
+
+        }).catch(err => {
+            console.log(err);
+            reject(err);
         });
     });
 }
 
-function assignTaskForRecord(item) {
-    const { taskType, recordID, indicatorID, oldAccount, newAccount, oldEmpUID, newEmpUID } = item;
+function addUserToGroup(item) {
+    return new Promise ((resolve, reject) => {
+        //TODO:
 
-    switch(taskType) {
+        const { locallyManaged, userAccountGroupID, newAccount } = item;
+        if (parseInt(locallyManaged) === 1) {
+            let formData = new FormData();
+            formData.append('CSRFToken', CSRFToken);
+            formData.append('userID', newAccount);
+
+            fetch(`./api/group/${userAccountGroupID}/members`, {
+                method: 'POST',
+                body: formData
+            }).then((res) => {
+                console.log('grp post res', res)
+                $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID}<br />`);
+                resolve('updated')
+            }).catch(err => {
+                console.log(err);
+                reject(err);
+            });
+        }
+    });
+}
+
+function enqueueTask(res = {}, accountInfo = {}, queue = {}) {
+    let count = 0;
+    for(let recordID in res) {
+        const item = {
+            ...accountInfo,
+            recordID: /^group_/.test(recordID) ? 0 : recordID,
+            indicatorID: res[recordID]?.indicatorID || 0,
+            userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
+            locallyManaged: res[recordID]?.memberSettings?.locallyManaged || null,
+            regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged || null,
+        }
+        queue.push(item);
+        count += 1;
+    }
+    console.log(`queued ${count} task${count > 1 ? 's' : ''}`);
+}
+
+function processTask(item) {
+    switch(item.taskType) {
         case 'update_initiator':
-            return reassignInitiator(recordID, newAccount);
-            break;
+            return reassignInitiator(item);
         case 'update_orgchart_employee_field':
-            return updateOrgEmployeeData(recordID, indicatorID, newEmpUID, newAccount);
-            break;
+            return updateOrgEmployeeData(item);
+        case 'update_group_membership':
+            return addUserToGroup(item);
         default:
-            console.log('hit default', taskType);
+            console.log('hit default', item);
             return 'default case';
             break;
     }
@@ -155,14 +243,15 @@ function findAssociatedRequests(empSel, empSelNew) {
         taskType: ''
     }
 
-    let calls = [];
-    const queue = new intervalQueue();
-    queue.setConcurrency(3);
-    
     $('#section1').css('display', 'none');
     $('#section2').css('display', 'inline');
     $('#oldAccountName').html(oldAccount);
     $('#newAccountName').html(newAccount);
+
+    const queue = new intervalQueue();
+    queue.setConcurrency(3);
+
+    let calls = [];
 
     const queryInitiator = new LeafFormQuery();
     queryInitiator.addTerm('userID', '=', oldAccount);
@@ -196,7 +285,7 @@ function findAssociatedRequests(empSel, empSelNew) {
             formGrid.loadData(recordIDs);
 
             accountInfo.taskType = 'update_initiator';
-            prepare(res, accountInfo, queue);
+            enqueueTask(res, accountInfo, queue);
         } else {
             $('#grid_initiator').append('No records found');
         }
@@ -236,56 +325,66 @@ function findAssociatedRequests(empSel, empSelNew) {
                     });
                 }},
                 {
-                    name: 'Orgchart Employee',
+                    name: 'Orgchart Employee Entry',
                     request: 'request',
                     editable: false,
                     callback: function(data, blob) {
-                        //blob[data.recordID].userID
-                        $('#'+data.cellContainerID).html('TEMP INFO');
+                        $('#'+data.cellContainerID).html(`indicator ${blob[data.recordID].indicatorID}, empUID ${blob[data.recordID].data}`);
                 }}
             ]);
             formGrid.loadData(recordIDs);
 
             accountInfo.taskType = 'update_orgchart_employee_field';
-            prepare(res, accountInfo, queue);
+            enqueueTask(res, accountInfo, queue);
         } else {
             $('#grid_orgchart_employee').append('No records found');
         }
     });
     calls.push(queryOrgchartEmployee.execute());
 
+    /*  ******************************************************************************* */
+    calls.push(searchGroupsOldAccount(accountInfo, queue));
+
+
+
     Promise.all(calls).then((res)=> {
-        console.log(res);
-        queue.setWorker(item => {
-            return assignTaskForRecord(item);
+        console.log('NOTE: promise all: ', res);
+        queue.setWorker(item => { //queue items added in 'enqueueTask' function
+            return processTask(item);
+        });
+        $('#reassign').on('click', function() {
+            $('#section2').css('display', 'none');
+            $('#section3').css('display', 'inline');
+            return queue.start().then((res) => {
+                console.log(res);
+            });
         });
 
     }).catch(err => console.log(err));
 }
 
 $(function() {
-
     const empSel = new nationalEmployeeSelector('employeeSelector');
-    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
     empSel.rootPath = '<!--{$orgchartPath}-->/';
     empSel.outputStyle = 'micro';
     empSel.setResultHandler(function() {
         if(this.numResults > 0) {
             for(let i in this.selectionData) {
-				$('#' + this.prefixID + 'emp' + i + ' > .employeeSelectorName').append('<br /><span style="font-weight: normal">' + this.selectionData[i].userName + '</span>');
+                $(`#${this.prefixID}emp${i} > .employeeSelectorName`).append(`<br /><span style="font-weight: normal">${this.selectionData[i].userName}</span>`);
             }
         }
     });
     empSel.initialize();
 
     const empSelNew = new nationalEmployeeSelector('newEmployeeSelector');
-    empSelNew.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+    empSelNew.apiPath = '<!--{$orgchartPath}-->/api/';
     empSelNew.rootPath = '<!--{$orgchartPath}-->/';
     empSelNew.outputStyle = 'micro';
     empSelNew.setResultHandler(function() {
         if(this.numResults > 0) {
             for(let i in this.selectionData) {
-				$('#' + this.prefixID + 'emp' + i + ' > .employeeSelectorName').append('<br /><span style="font-weight: normal">' + this.selectionData[i].userName + '</span>');
+                $(`#${this.prefixID}emp${i} > .employeeSelectorName`).append(`<br /><span style="font-weight: normal">${this.selectionData[i].userName}</span>`);
             }
         }
     });
@@ -330,10 +429,15 @@ $(function() {
     <h3>Requests referring to the old account</h3>
     <br />
     <div id="grid_orgchart_employee" class="grid_table"></div>
+
+    <h3>Groups for Old Account</h3>
+    <br />
+    <div id="grid_groups_info" class="grid_table"></div>
     
 </div>
 <div id="section3" style="display: none">
     <div id="initiators_updated"></div>
     <div id="orgchart_employee_updated"></div>
+    <div id="groups_updated"></div>
 </div>
 
