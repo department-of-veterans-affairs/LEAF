@@ -473,6 +473,22 @@ switch ($action) {
         $tabText = 'Recover disabled fields';
 
         break;
+    case 'test_3327_admin':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array(
+            '../js/formGrid.js',
+            '../js/formQuery.js'
+        ));
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('APIroot', '../api/');
+
+        $main->assign('body', $t_form->fetch(customTemplate('test_3327_admin.tpl')));
+        break;
     case 'access_matrix':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
