@@ -473,7 +473,7 @@ switch ($action) {
         $tabText = 'Recover disabled fields';
 
         break;
-    case 'test_3327_admin':
+    case 'mod_account_updater':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -487,7 +487,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('APIroot', '../api/');
 
-        $main->assign('body', $t_form->fetch(customTemplate('test_3327_admin.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
         break;
     case 'access_matrix':
         $t_form = new Smarty;

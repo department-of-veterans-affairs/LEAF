@@ -1,18 +1,22 @@
 <style>
-#content {
-	padding: 1rem;
-}
+
 body {
     min-width: fit-content;
 }
 #bodyarea {
     width: fit-content;
+    padding: 1rem;
 }
 .grid_table {
     margin-bottom: 3rem;
 }
 div [id^="LeafFormGrid"] {
     max-width: 850px;
+}
+div [id^="LeafFormGrid"] table {
+    background-color: white;
+    margin: 0.5rem 0;
+    width: 100%;
 }
 #account_input_area {
     display: flex;
@@ -53,7 +57,7 @@ orgchart employee format questions to refer to the new account, and update group
 <br /><br />
 
 <script src="<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js"></script>
-<script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script src="../../libs/js/LEAF/intervalQueue.js"></script>
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
 
@@ -61,6 +65,7 @@ orgchart employee format questions to refer to the new account, and update group
 <script>
 
 const CSRFToken = '<!--{$CSRFToken}-->';
+const APIroot = '<!--{$APIroot}-->'
     
 function reassignInitiator(item) {
     return new Promise ((resolve, reject) => {
@@ -70,7 +75,7 @@ function reassignInitiator(item) {
         formData.append('CSRFToken', CSRFToken);
         formData.append('initiator', newAccount);
 
-        fetch(`./api/form/${recordID}/initiator`, {
+        fetch(`${APIroot}form/${recordID}/initiator`, {
             method: 'POST',
             body: formData
         }).then(() => {
@@ -91,7 +96,7 @@ function updateOrgEmployeeData(item) {
         formData.append('CSRFToken', CSRFToken);
         formData.append(`${indicatorID}`, newEmpUID);
         
-        fetch(`./api/form/${recordID}`, {
+        fetch(`${APIroot}form/${recordID}`, {
             method: 'POST',
             body: formData
         }).then(() => {
@@ -108,7 +113,7 @@ function searchGroupsOldAccount(accountInfo, queue) {
     const { oldAccount } = accountInfo;
     return new Promise ((resolve, reject) => {
         //all groups and members
-        fetch(`./api/group/members`)
+        fetch(`${APIroot}group/members`)
             .then(res => res.json())
             .then(data => {
                 let groupInfo = {};
@@ -129,7 +134,9 @@ function searchGroupsOldAccount(accountInfo, queue) {
                     for (let i in groupInfo) {
                         recordIDs += groupInfo[i].groupID + ',';
                     }
-                    const formGrid = new LeafFormGrid('grid_groups_info');
+                    const formGrid = new LeafFormGrid('grid_groups_info', {});
+
+                    formGrid.setRootURL('../');
                     formGrid.enableToolbar();
                     formGrid.hideIndex();
                     formGrid.setDataBlob(groupInfo);
@@ -177,7 +184,7 @@ function addUserToGroup(item) {
             formData.append('CSRFToken', CSRFToken);
             formData.append('userID', newAccount);
 
-            fetch(`./api/group/${userAccountGroupID}/members`, {
+            fetch(`${APIroot}group/${userAccountGroupID}/members`, {
                 method: 'POST',
                 body: formData
             }).then((res) => {
@@ -254,6 +261,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     let calls = [];
 
     const queryInitiator = new LeafFormQuery();
+    queryInitiator.setRootURL('../');
     queryInitiator.addTerm('userID', '=', oldAccount);
     queryInitiator.onSuccess(function(res) {
         if (res instanceof Object && Object.keys(res).length > 0) {
@@ -261,17 +269,30 @@ function findAssociatedRequests(empSel, empSelNew) {
             for (let i in res) {
                 recordIDs += res[i].recordID + ',';
             }
-            const formGrid = new LeafFormGrid('grid_initiator');
+            /*Passing empty object 2nd param prevents the formGrid from instantiating a LeafForm class. 
+            The class is not needed here, and also has hardcoded references to images in libs, which causes errors*/
+            const formGrid = new LeafFormGrid('grid_initiator', {});
+            formGrid.setRootURL('../');
             formGrid.enableToolbar();
+            formGrid.hideIndex();
             formGrid.setDataBlob(res);
             formGrid.setHeaders([
+                {
+                    name: 'UID',
+                    indicatorID: 'uid',
+                    editable: false,
+                    callback: function(data, blob) {
+                        const link = `<a href="../index.php?a=printview&recordID=${data.recordID}" target="_blank">${data.recordID}</a>`
+                        $('#'+data.cellContainerID).html(link);
+                    }
+                },
                 {
                     name: 'Title',
                     indicatorID: 'title',
                     callback: function(data, blob) {
                         $('#'+data.cellContainerID).html(blob[data.recordID].title);
                         $('#'+data.cellContainerID).on('click', function() {
-                            window.open('index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
                 }},
                 {
@@ -295,7 +316,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     /* *********************************************************************************** */
     
     const queryOrgchartEmployee = new LeafFormQuery();
-    
+    queryOrgchartEmployee.setRootURL('../');
     queryOrgchartEmployee.importQuery({
         "terms":[
             {"id":"data","indicatorID":"0.0","operator":"=","match": oldEmpUID,"gate":"AND"},
@@ -311,17 +332,28 @@ function findAssociatedRequests(empSel, empSelNew) {
             for (let i in res) {
                 recordIDs += res[i].recordID + ',';
             }
-            const formGrid = new LeafFormGrid('grid_orgchart_employee');
+            const formGrid = new LeafFormGrid('grid_orgchart_employee', {});
+            formGrid.setRootURL('../');
             formGrid.enableToolbar();
+            formGrid.hideIndex();
             formGrid.setDataBlob(res);
             formGrid.setHeaders([
+                {
+                    name: 'UID',
+                    indicatorID: 'uid',
+                    editable: false,
+                    callback: function(data, blob) {
+                        const link = `<a href="../index.php?a=printview&recordID=${data.recordID}" target"="_blank">${data.recordID}</a>`
+                        $('#'+data.cellContainerID).html(link);
+                    }
+                },
                 {
                     name: 'Title', 
                     indicatorID: 'title', 
                     callback: function(data, blob) {
                         $('#'+data.cellContainerID).html(blob[data.recordID].title);
                         $('#'+data.cellContainerID).on('click', function() {
-                            window.open('index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                     });
                 }},
                 {
@@ -348,7 +380,6 @@ function findAssociatedRequests(empSel, empSelNew) {
 
 
     Promise.all(calls).then((res)=> {
-        console.log('NOTE: promise all: ', res);
         queue.setWorker(item => { //queue items added in 'enqueueTask' function
             return processTask(item);
         });
