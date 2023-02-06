@@ -6,7 +6,6 @@
 /*
     General configuration
     Date: August 9, 2011
-
     Central place to put org. chart config
     This should be kept outside of web accessible directories
 */

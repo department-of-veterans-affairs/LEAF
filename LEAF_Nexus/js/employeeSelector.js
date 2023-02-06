@@ -164,17 +164,17 @@ employeeSelector.prototype.search = function() {
 		            		buffer = '<table class="employeeSelectorTable"><tr><th>Name</th><th>Location</th><th>Contact</th></tr><tbody id="' + t.prefixID + 'result_table"></tbody></table>';
 		            	}
 
-                                $('#' + t.prefixID + 'result').html(buffer);
+						$('#' + t.prefixID + 'result').html(buffer);
 
-                                if(response.length == 0) {
-                                    $('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
-                                    $('#' + t.prefixID + 'emp0_message').text(txt);
-                                    setTimeout(function(){ $('#' + t.prefixID + 'status').text('No results found for term ' + txt); }, 2500);
-                                    
-                                }else{
-                                	setTimeout(function(){ $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below'); }, 2500);
-                                    
-                                }
+						if(response.length == 0) {
+							$('#' + t.prefixID + 'result_table').append('<tr id="' + t.prefixID + 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' + t.prefixID + 'emp0_message" style="color: red"></span>&quot;</td></tr>');
+							$('#' + t.prefixID + 'emp0_message').text(txt);
+							setTimeout(function(){ $('#' + t.prefixID + 'status').text('No results found for term ' + txt); }, 2500);
+							
+						}else{
+							setTimeout(function(){ $('#' + t.prefixID + 'status').text('Search results found for term ' + txt + ' listed below'); }, 2500);
+							
+						}
 
 		            	t.selectionData = new Object();
 		            	for(var i in response) {
@@ -221,17 +221,28 @@ employeeSelector.prototype.search = function() {
 		                	}
 
 		                	if(t.outputStyle == 'micro') {
-			                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
-			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
-			                			<td class="employeeSelectorContact">'+ email + phone +'</td>\
-			                			</tr>');
-		                	}
-		                	else {
-			                	$('#' + t.prefixID + 'result_table').append('<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
-			                			<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
-		                    			<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
-		                    			<td class="employeeSelectorContact">'+ email + phone +'</td>\
-			                			</tr>');
+			                	$('#' + t.prefixID + 'result_table').append('\
+								<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+									<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle +'</span></td>\
+									<td class="employeeSelectorContact">'+ email + phone +'</td>\
+								</tr>');
+		                	} else {
+			                	
+								if (response[i].deleted > 0){
+									$('#' + t.prefixID + 'result_table').append('\
+									<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+										<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + " <em>(Disabled user)</em>" + '<br /><span class="employeeSelectorTitle">'+ positionTitle + '</span></td>\
+										<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
+										<td class="employeeSelectorContact">'+ email + phone +'</td>\
+									</tr>');
+								} else {
+									$('#' + t.prefixID + 'result_table').append('\
+									<tr tabindex="0" id="'+ t.prefixID + 'emp' + response[i].empUID +'">\
+										<td class="employeeSelectorName" title="' + response[i].empUID + ' - ' + response[i].userName + '">' + photo + linkText + '<br /><span class="employeeSelectorTitle">'+ positionTitle + '</span></td>\
+										<td class="employeeSelectorService">'+ groupTitle + '<span>' +  room + '</span></td>\
+										<td class="employeeSelectorContact">'+ email + phone +'</td>\
+									</tr>');
+								}
 		                	}
 
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).addClass('employeeSelector');
@@ -239,6 +250,10 @@ employeeSelector.prototype.search = function() {
 		                	$('#' + t.prefixID + 'emp' + response[i].empUID).on('click', t.getSelectorFunction(response[i].empUID));
 							$('#' + t.prefixID + 'emp' + response[i].empUID).on('keypress', t.getSelectorFunction(response[i].empUID));
 		                	t.numResults++;
+
+							// if (response[i].deleted > 0){
+							// 	$('#' + t.prefixID + 'emp' + response[i].empUID).;
+							// }
 		            	}
 
 		            	if(t.numResults == 1) {
@@ -262,6 +277,7 @@ employeeSelector.prototype.search = function() {
 
 		                t.showNotBusy();
 		            },
+					error: function(){console.log("Failed to gather users information.");},
 		            cache: false
 		        };
 	    	
