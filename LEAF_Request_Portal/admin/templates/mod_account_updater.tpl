@@ -3,12 +3,33 @@
 body {
     min-width: fit-content;
 }
+h2, h3 {
+    margin: 0.5rem 0;
+}
+button.buttonNorm {
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 2px;
+}
+button.buttonNorm:focus, button.buttonNorm:active {
+    border: 1px solid black !important;
+}
 #bodyarea {
     width: fit-content;
     padding: 1rem;
 }
 .grid_table {
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
+}
+.updates_output {
+    margin: 1rem 0;
+}
+#section3 {
+    padding: 0.5rem;
+    background-color: white;
+}
+#queue_completed {
+    color: #085;
 }
 div [id^="LeafFormGrid"] {
     max-width: 850px;
@@ -22,12 +43,15 @@ div [id^="LeafFormGrid"] table {
     display: flex;
 }
 .card {
-    min-width: 300px;
+    min-width: 325px;
     width: 50%;
     border: 1px solid rgb(44, 44, 44);
     border-radius: 3px;
     padding: 0.75rem; 
-    
+}
+
+#employeeSelector div[id$="_border"], #newEmployeeSelector div[id$="_border"] {
+    height: 30px;
 }
 .card:first-child {
     margin-right: 10px;
@@ -48,13 +72,13 @@ div [id^="LeafFormGrid"] table {
 
 
 
-<h2 style="margin: 0.5rem 0;">New Account Updater</h2>
+<h2>New Account Updater</h2>
 <p style="max-width: 850px;">
 This utility will restore access for people who have been asigned a new Active Directory account.
 It can be used to update the initiator of requests created under the old account, update the content of
 orgchart employee format questions to refer to the new account, and update group memberships.
 </p>
-<br /><br />
+<br/>
 
 <script src="<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js"></script>
 <script src="../../libs/js/LEAF/intervalQueue.js"></script>
@@ -62,9 +86,22 @@ orgchart employee format questions to refer to the new account, and update group
 
 
 <script>
-
 const CSRFToken = '<!--{$CSRFToken}-->';
-const APIroot = '<!--{$APIroot}-->'
+const APIroot = '<!--{$APIroot}-->';
+
+function resetEntryFields(empSel, empSelNew) {
+    empSel.clearSearch();
+    empSelNew.clearSearch();
+    $('#oldAccountName').html('');
+    $('#newAccountName').html('');
+
+    $('#grid_initiator').html('');
+    $('#grid_orgchart_employee').html('');
+    $('#grid_groups_info').html('');
+
+    $('#section1').css('display', 'block');
+    $('#section2').css('display', 'none');
+}
     
 function reassignInitiator(item) {
     return new Promise ((resolve, reject) => {
@@ -174,9 +211,8 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
 }
 
 function addUserToGroup(item) {
+    //TODO: regional vs local?  active only?
     return new Promise ((resolve, reject) => {
-        //TODO:
-
         const { locallyManaged, userAccountGroupID, newAccount } = item;
         if (parseInt(locallyManaged) === 1) {
             let formData = new FormData();
@@ -187,7 +223,6 @@ function addUserToGroup(item) {
                 method: 'POST',
                 body: formData
             }).then((res) => {
-                console.log('grp post res', res)
                 $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID}<br />`);
                 resolve('updated')
             }).catch(err => {
@@ -250,7 +285,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     }
 
     $('#section1').css('display', 'none');
-    $('#section2').css('display', 'inline');
+    $('#section2').css('display', 'block');
     $('#oldAccountName').html(oldAccount);
     $('#newAccountName').html(newAccount);
 
@@ -322,8 +357,7 @@ function findAssociatedRequests(empSel, empSelNew) {
             {"id":"deleted","operator":"=","match":0,"gate":"AND"}
         ],
         "joins":["service"],
-        "sort":{},
-        "limit":10000,"limitOffset":0
+        "sort":{}
     });
     queryOrgchartEmployee.onSuccess(function(res) {
         if (res instanceof Object && Object.keys(res).length > 0) {
@@ -342,7 +376,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     indicatorID: 'uid',
                     editable: false,
                     callback: function(data, blob) {
-                        const link = `<a href="../index.php?a=printview&recordID=${data.recordID}" target"="_blank">${data.recordID}</a>`
+                        const link = `<a href="../index.php?a=printview&recordID=${data.recordID}" target="_blank">${data.recordID}</a>`
                         $('#'+data.cellContainerID).html(link);
                     }
                 },
@@ -360,7 +394,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     request: 'request',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#'+data.cellContainerID).html(`indicator ${blob[data.recordID].indicatorID}, empUID ${blob[data.recordID].data}`);
+                        $('#'+data.cellContainerID).html(`indicator ${blob[data.recordID].indicatorID}`);
                 }}
             ]);
             formGrid.loadData(recordIDs);
@@ -374,9 +408,8 @@ function findAssociatedRequests(empSel, empSelNew) {
     calls.push(queryOrgchartEmployee.execute());
 
     /*  ******************************************************************************* */
+
     calls.push(searchGroupsOldAccount(accountAndTaskInfo, queue));
-
-
 
     Promise.all(calls).then((res)=> {
         queue.setWorker(item => { //queue items added in 'enqueueTask' function
@@ -384,9 +417,12 @@ function findAssociatedRequests(empSel, empSelNew) {
         });
         $('#reassign').on('click', function() {
             $('#section2').css('display', 'none');
-            $('#section3').css('display', 'inline');
+            $('#section3').css('display', 'block');
             return queue.start().then((res) => {
-                console.log(res);
+                let elStatus = document.getElementById('queue_completed');
+                if (elStatus !== null) {
+                    elStatus.style.display = 'block';
+                }
             });
         });
 
@@ -425,49 +461,57 @@ $(function() {
     $('#run').on('click', function() {
         findAssociatedRequests(empSel, empSelNew);
     });
+    $('#reset').on('click', function() {
+        resetEntryFields(empSel, empSelNew);
+    })
 });
-
 </script>
 
-<div id="section1">
-    <div id="account_input_area">
-        <div class="card">
-            <h2 style="margin-top: 0;">Old Account</h2>
-            <div id="employeeSelector"></div>
+<main>
+    <div id="section1">
+        <div id="account_input_area">
+            <div class="card">
+                <h2>Old Account</h2>
+                <div id="employeeSelector"></div>
+            </div>
+            <div class="card">
+                <h2>New Account</h2>
+                <div id="newEmployeeSelector"></div>
+            </div>
         </div>
-        <div class="card">
-            <h2 style="margin-top: 0;">New Account</h2>
-            <div id="newEmployeeSelector"></div>
-        </div>
+        <br style="clear: both" /><br />
+        <button class="buttonNorm" id="run">Preview Changes</button>
+        <div id="preview_no_results_found" style="display: none">No associated requests or groups were found for the old account selected</div>
     </div>
-    <br style="clear: both" /><br />
-    <button class="buttonNorm" id="run">Preview Changes</button>
-    <div id="preview_no_results_found" style="display: none">No associated requests or groups were found for the old account selected</div>
-</div>
-<div id="section2" style="display: none">
-    <p>The requests listed below are associated with the old account "<span id="oldAccountName" style="font-weight: bold"></span>"</p>
-    <p>Please review them and the new account "<span id="newAccountName" style="font-weight: bold"></span>".</p>
-    <p>Activate the button to update them to reflect the new account.</p>
-    <br />
-    <button class="buttonNorm" id="reassign">Update These Requests</button>
-    <hr />
+    <div id="section2" style="display: none">
+        <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>"</p>
+        <p>The new account you have selected is "<span id="newAccountName" style="font-weight: bold"></span>".</p>
+        <p>Please review the results below. &nbsp;Activate the button to update them to reflect the new account.</p>
+        <br />
+        <div style="display:flex; margin-bottom:3rem;">
+            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update These Requests</button>
+            <button class="buttonNorm" id="reset">Start Over</button>
+        </div>
 
-    <h3>Requests created by the old account</h3>
-    <div id="grid_initiator" class="grid_table"></div>
-    
-    
-    <h3>Requests referring to the old account</h3>
-    <br />
-    <div id="grid_orgchart_employee" class="grid_table"></div>
+        <h3>Requests created by the old account</h3>
+        <div id="grid_initiator" class="grid_table"></div>
+        
+        <h3>Orgchart Employee fields containing the old account</h3>
+        <div id="grid_orgchart_employee" class="grid_table"></div>
 
-    <h3>Groups for Old Account</h3>
-    <br />
-    <div id="grid_groups_info" class="grid_table"></div>
-    
-</div>
-<div id="section3" style="display: none">
-    <div id="initiators_updated"></div>
-    <div id="orgchart_employee_updated"></div>
-    <div id="groups_updated"></div>
-</div>
-
+        <h3>Groups for Old Account</h3>
+        <div id="grid_groups_info" class="grid_table"></div>
+    </div>
+    <div id="section3" style="display: none">
+        <div id="initiators_updated" class="updates_output">
+            <p><b>Initiator Updates</b></p>
+        </div>
+        <div id="orgchart_employee_updated" class="updates_output">
+            <p><b>Orgchart Employee Field Updates</b></p>
+        </div>
+        <div id="groups_updated" class="updates_output">
+            <p><b>Group Updates</b></p>
+        </div>
+        <div id="queue_completed" style="display: none"><b>Updates Complete</b></div>
+    </div>
+</main>
