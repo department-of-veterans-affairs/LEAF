@@ -42,20 +42,19 @@ div [id^="LeafFormGrid"] table {
     display: flex;
 }
 .card {
-    min-width: 325px;
+    min-width: 350px;
     width: 50%;
     border: 1px solid rgb(44, 44, 44);
     border-radius: 3px;
     padding: 0.75rem; 
 }
-
 #employeeSelector div[id$="_border"], #newEmployeeSelector div[id$="_border"] {
     height: 30px;
 }
 .card:first-child {
     margin-right: 10px;
 }
-@media only screen and (max-width: 550px) {
+@media only screen and (max-width: 600px) {
     #account_input_area {
         flex-direction: column;
     }
@@ -77,13 +76,63 @@ orgchart employee format questions to refer to the new account, and update group
 </p>
 <br/>
 
-<script src="<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js"></script>
+<main>
+    <div id="section1">
+        <div id="account_input_area">
+            <div class="card">
+                <h2>Old Account</h2>
+                <div id="employeeSelector"></div>
+            </div>
+            <div class="card">
+                <h2>New Account</h2>
+                <div id="newEmployeeSelector"></div>
+            </div>
+        </div>
+        <br style="clear: both" /><br />
+        <button class="buttonNorm" id="run">Preview Changes</button>
+        <div id="preview_no_results_found" style="display: none">No associated requests or groups were found for the old account selected</div>
+    </div>
+    <div id="section2" style="display: none">
+        <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>"</p>
+        <p>The new account you have selected is "<span id="newAccountName" style="font-weight: bold"></span>".</p>
+        <p>Please review the results below. &nbsp;Activate the button to update them to reflect the new account.</p>
+        <br />
+        <div style="display:flex; margin-bottom:3rem;">
+            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update These Requests</button>
+            <button class="buttonNorm" id="reset">Start Over</button>
+        </div>
+
+        <h3>Requests created by the old account</h3>
+        <div id="grid_initiator" class="grid_table"></div>
+        
+        <h3>Orgchart Employee fields containing the old account</h3>
+        <div id="grid_orgchart_employee" class="grid_table"></div>
+
+        <h3>Groups for Old Account</h3>
+        <div id="grid_groups_info" class="grid_table"></div>
+    </div>
+    <div id="section3" style="display: none">
+        <div id="initiators_updated" class="updates_output">
+            <p><b>Initiator Updates</b></p>
+        </div>
+        <div id="orgchart_employee_updated" class="updates_output">
+            <p><b>Orgchart Employee Field Updates</b></p>
+        </div>
+        <div id="groups_updated" class="updates_output">
+            <p><b>Group Updates</b></p>
+        </div>
+        <div id="queue_completed" style="display: none"><b>Updates Complete</b></div>
+    </div>
+</main>
+
+<script src="<!--{$orgchartPath}-->/js/employeeSelector.js"></script>
 <script src="../../libs/js/LEAF/intervalQueue.js"></script>
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 const APIroot = '<!--{$APIroot}-->';
+const orgchartPath = '<!--{$orgchartPath}-->';
 
 function resetEntryFields(empSel, empSelNew) {
     empSel.clearSearch();
@@ -110,11 +159,11 @@ function reassignInitiator(item) {
         fetch(`${APIroot}form/${recordID}/initiator`, {
             method: 'POST',
             body: formData
-        }).then(() => {
+        }).then((res) => {
             $('#section3 #initiators_updated').append(`Request # ${recordID} reassigned to ${newAccount}<br />`);
             resolve('updated')
         }).catch(err => {
-            console.log(err);
+            console.log('error assigning initiator', err);
             reject(err);
         });
     });
@@ -135,7 +184,7 @@ function updateOrgEmployeeData(item) {
             $('#section3 #orgchart_employee_updated').append(`Request # ${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})<br />`);
             resolve('updated')
         }).catch(err => {
-            console.log(err);
+            console.log('error updating form field', err);
             reject(err);
         });
     });
@@ -188,8 +237,9 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
                                 const isLocal = parseInt(blob[k]?.memberSettings?.locallyManaged) === 1;
+                                const isRegional = blob[k]?.memberSettings?.regionallyManaged === true;
                                 const username = blob[k]?.memberSettings.userName;
-                                $('#'+data.cellContainerID).html(`${username}${isLocal ? ' (local)' : ' (non-local)'}`);
+                                $('#'+data.cellContainerID).html(`${username}${isLocal ? ' (local)' : ''}${isRegional ? ' (nexus)' : ''}`);
                             }
                         }
                     ]);
@@ -199,7 +249,8 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                     enqueueTask(groupInfo, accountAndTaskInfo, queue);
                     resolve(groupInfo);
                 } else {
-                    $('#grid_initiator').append('No records found');
+                    $('#grid_groups_info').append('No groups found');
+                    resolve(groupInfo);
                 }
 
         }).catch(err => {
@@ -213,7 +264,9 @@ function addUserToGroup(item) {
     //NOTE: TODO: regional vs local?  active only?
     //are there groups that should be excluded?  eg group 1?
     return new Promise ((resolve, reject) => {
-        const { locallyManaged, userAccountGroupID, newAccount } = item;
+        const { locallyManaged, regionallyManaged, userAccountGroupID, newAccount, newEmpUID } = item;
+        const totalUpdates = +(parseInt(locallyManaged) === 1) + +(regionallyManaged === true);
+        let processedUpdates = 0;
 
         if (parseInt(locallyManaged) === 1) {
             let formData = new FormData();
@@ -224,14 +277,39 @@ function addUserToGroup(item) {
                 method: 'POST',
                 body: formData
             }).then((res) => {
-                $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID}<br />`);
-                resolve('updated')
+                console.log('portal add res', res);
+                //TODO: RM old account, then =>
+                processedUpdates += 1;
+                $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID} (local)<br />`);
+                if (processedUpdates === totalUpdates) {
+                    resolve('updated')
+                }
+                
             }).catch(err => {
                 console.log(err);
                 reject(err);
             });
-        } else {
-            console.log('not locally managed, add to nexus?');
+        }
+        if (regionallyManaged === true) {
+            let formData = new FormData();
+            formData.append('CSRFToken', CSRFToken);
+            formData.append('empUID', newEmpUID);
+
+            fetch(`${orgchartPath}/api/?a=group/${userAccountGroupID}/employee`, {
+                method: 'POST',
+                body: formData
+            }).then((res) => {
+                console.log('nexus add res', res);
+                //TODO: RM old account, then =>
+                processedUpdates += 1;
+                $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID} (nexus)<br />`);
+                if (processedUpdates === totalUpdates) {
+                    resolve('updated')
+                }
+            }).catch(err => {
+                console.log(err);
+                reject(err);
+            });            
         }
     });
 }
@@ -254,6 +332,7 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
 }
 
 function processTask(item) {
+    console.log('processing task for', item);
     switch(item.taskType) {
         case 'update_initiator':
             return reassignInitiator(item);
@@ -271,10 +350,11 @@ function processTask(item) {
 function findAssociatedRequests(empSel, empSelNew) {
     const oldEmpUID = empSel?.selection;
     const newEmpUID = empSelNew?.selection;
-
+    const newAccountIsEnabled = parseInt(empSelNew?.selectionData[newEmpUID]?.deleted) === 0;
+    
     const oldAccount = empSel?.selectionData[oldEmpUID]?.userName || '';
     const newAccount = empSelNew?.selectionData[newEmpUID]?.userName || '';
-	if(oldAccount === '' || newAccount === '' || oldAccount === newAccount) {
+	if(oldAccount === '' || newAccount === '' || oldAccount === newAccount || !newAccountIsEnabled) {
         alert('Invalid selections');
         return;
     }
@@ -429,14 +509,13 @@ function findAssociatedRequests(empSel, empSelNew) {
             });
         });
 
-    }).catch(err => console.log(err));
+    }).catch(err => console.log('process error', err));
 }
 
 $(function() {
-    const empSel = new nationalEmployeeSelector('employeeSelector');
+    const empSel = new employeeSelector('employeeSelector');
     empSel.apiPath = '<!--{$orgchartPath}-->/api/';
     empSel.rootPath = '<!--{$orgchartPath}-->/';
-    empSel.outputStyle = 'micro';
     empSel.setResultHandler(function() {
         if(this.numResults > 0) {
             for(let i in this.selectionData) {
@@ -446,10 +525,9 @@ $(function() {
     });
     empSel.initialize();
 
-    const empSelNew = new nationalEmployeeSelector('newEmployeeSelector');
+    const empSelNew = new employeeSelector('newEmployeeSelector');
     empSelNew.apiPath = '<!--{$orgchartPath}-->/api/';
     empSelNew.rootPath = '<!--{$orgchartPath}-->/';
-    empSelNew.outputStyle = 'micro';
     empSelNew.setResultHandler(function() {
         if(this.numResults > 0) {
             for(let i in this.selectionData) {
@@ -470,51 +548,3 @@ $(function() {
 });
 </script>
 
-<main>
-    <div id="section1">
-        <div id="account_input_area">
-            <div class="card">
-                <h2>Old Account</h2>
-                <div id="employeeSelector"></div>
-            </div>
-            <div class="card">
-                <h2>New Account</h2>
-                <div id="newEmployeeSelector"></div>
-            </div>
-        </div>
-        <br style="clear: both" /><br />
-        <button class="buttonNorm" id="run">Preview Changes</button>
-        <div id="preview_no_results_found" style="display: none">No associated requests or groups were found for the old account selected</div>
-    </div>
-    <div id="section2" style="display: none">
-        <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>"</p>
-        <p>The new account you have selected is "<span id="newAccountName" style="font-weight: bold"></span>".</p>
-        <p>Please review the results below. &nbsp;Activate the button to update them to reflect the new account.</p>
-        <br />
-        <div style="display:flex; margin-bottom:3rem;">
-            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update These Requests</button>
-            <button class="buttonNorm" id="reset">Start Over</button>
-        </div>
-
-        <h3>Requests created by the old account</h3>
-        <div id="grid_initiator" class="grid_table"></div>
-        
-        <h3>Orgchart Employee fields containing the old account</h3>
-        <div id="grid_orgchart_employee" class="grid_table"></div>
-
-        <h3>Groups for Old Account</h3>
-        <div id="grid_groups_info" class="grid_table"></div>
-    </div>
-    <div id="section3" style="display: none">
-        <div id="initiators_updated" class="updates_output">
-            <p><b>Initiator Updates</b></p>
-        </div>
-        <div id="orgchart_employee_updated" class="updates_output">
-            <p><b>Orgchart Employee Field Updates</b></p>
-        </div>
-        <div id="groups_updated" class="updates_output">
-            <p><b>Group Updates</b></p>
-        </div>
-        <div id="queue_completed" style="display: none"><b>Updates Complete</b></div>
-    </div>
-</main>
