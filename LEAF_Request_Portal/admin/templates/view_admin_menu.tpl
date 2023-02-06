@@ -132,10 +132,10 @@
             <span class="leaf-admin-btndesc">Apply bulk actions to requests</span>
         </a>
 
-        <a href="../report.php?a=LEAF_request_initiator_new_account" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+        <a href="./?a=mod_account_updater" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
             <i class="leaf-admin-btnicon fas fa-play text-orange-50 leaf-icn-narrow2" alt="Initiator New Account" title="Initiator New Account"></i>
-            <span class="leaf-admin-btntitle">Initiator New Account</span>
-            <span class="leaf-admin-btndesc">Replace account with request initiator</span>
+            <span class="leaf-admin-btntitle">New Account Updater</span>
+            <span class="leaf-admin-btndesc">Update records with new account</span>
         </a>
 
         <a href="../report.php?a=LEAF_sitemaps_template" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">

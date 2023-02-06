@@ -48,7 +48,7 @@ div [id^="LeafFormGrid"] table {
 
 
 
-<h2>New Account Updater</h2>
+<h2 style="margin: 0.5rem 0;">New Account Updater</h2>
 <p style="max-width: 850px;">
 This utility will restore access for people who have been asigned a new Active Directory account.
 It can be used to update the initiator of requests created under the old account, update the content of
@@ -59,7 +59,6 @@ orgchart employee format questions to refer to the new account, and update group
 <script src="<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js"></script>
 <script src="../../libs/js/LEAF/intervalQueue.js"></script>
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
-
 
 
 <script>
@@ -109,8 +108,8 @@ function updateOrgEmployeeData(item) {
     });
 }
 
-function searchGroupsOldAccount(accountInfo, queue) {
-    const { oldAccount } = accountInfo;
+function searchGroupsOldAccount(accountAndTaskInfo, queue) {
+    const { oldAccount } = accountAndTaskInfo;
     return new Promise ((resolve, reject) => {
         //all groups and members
         fetch(`${APIroot}group/members`)
@@ -160,8 +159,8 @@ function searchGroupsOldAccount(accountInfo, queue) {
                     ]);
                     formGrid.loadData(recordIDs);
 
-                    accountInfo.taskType = 'update_group_membership';
-                    enqueueTask(groupInfo, accountInfo, queue);
+                    accountAndTaskInfo.taskType = 'update_group_membership';
+                    enqueueTask(groupInfo, accountAndTaskInfo, queue);
                     resolve(groupInfo);
                 } else {
                     $('#grid_initiator').append('No records found');
@@ -199,11 +198,11 @@ function addUserToGroup(item) {
     });
 }
 
-function enqueueTask(res = {}, accountInfo = {}, queue = {}) {
+function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
     let count = 0;
     for(let recordID in res) {
         const item = {
-            ...accountInfo,
+            ...accountAndTaskInfo,
             recordID: /^group_/.test(recordID) ? 0 : recordID,
             indicatorID: res[recordID]?.indicatorID || 0,
             userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
@@ -242,7 +241,7 @@ function findAssociatedRequests(empSel, empSelNew) {
         return;
     }
 
-    let accountInfo = {
+    let accountAndTaskInfo = {
         oldAccount,
         newAccount,
         oldEmpUID,
@@ -305,8 +304,8 @@ function findAssociatedRequests(empSel, empSelNew) {
             ]);
             formGrid.loadData(recordIDs);
 
-            accountInfo.taskType = 'update_initiator';
-            enqueueTask(res, accountInfo, queue);
+            accountAndTaskInfo.taskType = 'update_initiator';
+            enqueueTask(res, accountAndTaskInfo, queue);
         } else {
             $('#grid_initiator').append('No records found');
         }
@@ -366,8 +365,8 @@ function findAssociatedRequests(empSel, empSelNew) {
             ]);
             formGrid.loadData(recordIDs);
 
-            accountInfo.taskType = 'update_orgchart_employee_field';
-            enqueueTask(res, accountInfo, queue);
+            accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
+            enqueueTask(res, accountAndTaskInfo, queue);
         } else {
             $('#grid_orgchart_employee').append('No records found');
         }
@@ -375,7 +374,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     calls.push(queryOrgchartEmployee.execute());
 
     /*  ******************************************************************************* */
-    calls.push(searchGroupsOldAccount(accountInfo, queue));
+    calls.push(searchGroupsOldAccount(accountAndTaskInfo, queue));
 
 
 
