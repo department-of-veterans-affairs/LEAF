@@ -58,7 +58,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID) 
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND deleted = 0;';

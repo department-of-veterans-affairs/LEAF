@@ -18,32 +18,35 @@ if (!class_exists('XSSHelpers'))
 
 class Email
 {
-    public $emailSender = '';
+    public string $emailSender = '';
 
-    public $emailBody = '';
+    public string $emailBody = '';
 
-    private $emailFrom = 'LEAF@localhost';
+    private string $emailFrom = 'LEAF@localhost';
 
-    private $emailRecipient = '';
+    private string $emailRecipient = '';
 
-    private $emailSubject = '';
+    private string $emailSubject = '';
 
-    private $emailCC = array();
+    private string $siteRoot = "";
 
-    private $emailBCC = array();
+    private array $emailCC = array();
 
-    private $position;
+    private array $emailBCC = array();
 
-    private $group;
+    public array $smartyVariables = array();
 
-    private $orgchartInitialized = false;
+    private object $position;
 
-    private $portal_db;
-    private $nexus_db;
+    private object $employee;
 
-    private $siteRoot = "";
+    private object $group;
 
-    public $smartyVariables = array();
+    private object $portal_db;
+
+    private object $nexus_db;
+
+    private bool $orgchartInitialized = false;
 
     const SEND_BACK = -1;
     const NOTIFY_NEXT = -2;
@@ -58,8 +61,7 @@ class Email
 
         $this->siteRoot = "https://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
         $apiEntry = strpos($this->siteRoot, '/api/');
-        if ($apiEntry !== false)
-        {
+        if ($apiEntry !== false) {
             $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
         }
     }
@@ -70,7 +72,7 @@ class Email
      * @param string $type the type of template
      * @return string The filepath of the template passed
      */
-    function getFilepath($tpl, $type = '')
+    function getFilepath(string $tpl, string $type = ''): string
     {
         if ($type === 'body') {
             if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
@@ -100,25 +102,25 @@ class Email
     /**
      * Removes all email addresses from object recipient variable
      */
-    public function clearRecipients()
+    public function clearRecipients(): void
     {
         $this->emailRecipient = '';
     }
 
     /**
      * Set email sender object variable
-     * @param $strAddress
+     * @param string|null $strAddress
      */
-    public function setSender($strAddress)
+    public function setSender(string|null $strAddress): void
     {
         $this->emailSender = $strAddress;
     }
 
     /**
      * Clean and Set subject of email object variable
-     * @param $strSubject
+     * @param string $strSubject
      */
-    public function setSubject($strSubject)
+    public function setSubject(string $strSubject): void
     {
         $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
         $this->emailSubject = $prefix . strip_tags($strSubject);
@@ -127,12 +129,13 @@ class Email
     /**
      * Add content into template variable then into template file
      * This result will then be added into the object variable as HTML output
-     * @param $objVar       - private variable in Email object
-     * @param $strContent   - content to add to template
-     * @param $tplVar       - variable within template
-     * @param $tplFile      = template file name
+     * @param string $objVar       - private variable in Email object
+     * @param string $strContent   - content to add to template
+     * @param string $tplVar       - variable within template
+     * @param string $tplFile      = template file name
      */
-    public function setContent($tplFile, $tplVar = '', $strContent = '') {
+    public function setContent(string $tplFile, string $tplVar = '', string $strContent = ''): string
+    {
         if($tplVar != '') {
             $strContent = str_replace("\r\n", '<br />', $strContent);
         }
@@ -152,10 +155,11 @@ class Email
 
     /**
      * Purpose: To check that email address is not already attached to this email send
-     * @param $address
+     * @param string|null $address
      * @return bool
      */
-    public function emailActiveNotAlreadyAdded($address) {
+    public function emailActiveNotAlreadyAdded(string|null $address): bool
+    {
 
         if ( ( strpos($this->emailRecipient, $address) === false  )
             && (!in_array($address, $this->emailCC) )
@@ -178,22 +182,19 @@ class Email
 
     /**
      * Purpose: Add Receipient to email
-     * @param $address
+     * @param string|null $address
+     * @param bool $requiredAddress
      * @return bool
      */
-    public function addRecipient($address, $requiredAddress = false)
+    public function addRecipient(string|null $address, bool $requiredAddress = false): bool
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
-        {
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0){
             return false;
         }
 
-        if ($this->emailRecipient == '')
-        {
+        if ($this->emailRecipient == ''){
             $this->emailRecipient = $address;
-        }
-        else
-        {
+        } else {
             if ( $this->emailActiveNotAlreadyAdded($address) || $requiredAddress ) {
                 $this->emailRecipient .= ", " . $address;
             }
@@ -205,17 +206,16 @@ class Email
 
     /**
      * Adds all users in a given Position to the receipient object variable list
-     * @param $positionID
+     * @param int $positionID
      */
-    public function addPositionRecipient($positionID)
+    public function addPositionRecipient(int $positionID): void
     {
         if ($this->orgchartInitialized == false)
         {
             $this->initOrgchart();
         }
         $employees = $this->position->getEmployees($positionID);
-        foreach ($employees as $emp)
-        {
+        foreach ($employees as $emp) {
             $res = $this->employee->getAllData($emp['empUID'], 6);
             $this->addRecipient($res[6]['data']);
         }
@@ -223,9 +223,9 @@ class Email
 
     /**
      * Adds all users in a given Group to the reeeipient object variable list
-     * @param $groupID
+     * @param int $groupID
      */
-    public function addGroupRecipient($groupID)
+    public function addGroupRecipient(int $groupID): void
     {
         $dir = new VAMC_Directory;
 
@@ -243,14 +243,15 @@ class Email
 
     /**
      * Scrubs email address and adds to object email CC array if valid
-     * @param $strEmailAddress
+     * @param string|null $strEmailAddress
+     * @param bool $requiredAddress
+     * @param bool $isBcc
      * @return bool
      */
 
-    public function addCcBcc($address, $requiredAddress = false, $isBcc = false)
+    public function addCcBcc(string|null $address, bool $requiredAddress = false, bool $isBcc = false): bool
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0)
-        {
+        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0) {
             return false;
         }
 
@@ -268,24 +269,21 @@ class Email
     /**
      * Assign email variables to email send and perform Send
      * Will throw exception if Send not completed and then return false
-     * @return false
+     * @return bool
      * @throws Exception
      */
-    public function sendMail()
+    public function sendMail(): bool
     {
         $currDir = dirname(__FILE__);
 
-        if (isset(Config::$emailCC) && count(Config::$emailCC) > 0)
-        {
-            foreach (Config::$emailCC as $recipient)
-            {
+        if (isset(Config::$emailCC) && count(Config::$emailCC) > 0) {
+            foreach (Config::$emailCC as $recipient) {
                 $this->addCcBcc($recipient);
             }
         }
-        if (isset(Config::$emailBCC) && count(Config::$emailBCC) > 0)
-        {
-            foreach (Config::$emailBCC as $recipient)
-            {
+
+        if (isset(Config::$emailBCC) && count(Config::$emailBCC) > 0) {
+            foreach (Config::$emailBCC as $recipient) {
                 $this->addCcBcc($recipient, false,true);
             }
         }
@@ -296,60 +294,65 @@ class Email
 
         $emailCache = serialize($email);
         $emailQueueName = sha1($emailCache . random_int(0, 99999999));
-        if (strlen(trim($emailCache)) == 0)
-        {
+        if (strlen(trim($emailCache)) == 0) {
             trigger_error('Mail error: ' . $this->emailSubject);
-
             return false;
         }
+
+        // if we have no recipients then we should not create the email.
+        if(strlen($email['recipient']) == 0) {
+            trigger_error('Mail error: No Recipients: ' . $this->emailSubject);
+            return false;
+        }
+
         file_put_contents($currDir . '/templates_c/mailer/' . $emailQueueName, $emailCache);
 
-        if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN')
-        {
+        if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN') {
             $shell = new COM('WScript.Shell');
             $shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
-        }
-        else
-        {
+        } else {
             exec("php {$currDir}/mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
+
+        return true;
+
     }
 
     /**
      * Gets current user's employeeID, positionID, groupID
      * and assigns them to email object variables
      */
-    private function initOrgchart()
+    private function initOrgchart(): void
     {
         // set up org chart assets
-        if (!class_exists('DB'))
-        {
+        if (!class_exists('DB')) {
             include 'db_mysql.php';
         }
-        if (!class_exists('Orgchart\Config'))
-        {
+
+        if (!class_exists('Orgchart\Config')) {
             include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
         }
-        if (!class_exists('Orgchart\Login'))
-        {
+
+        if (!class_exists('Orgchart\Login')) {
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
         }
-        if (!class_exists('Orgchart\Employee'))
-        {
+
+        if (!class_exists('Orgchart\Employee')) {
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
         }
-        if (!class_exists('Orgchart\Position'))
-        {
+
+        if (!class_exists('Orgchart\Position')) {
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
         }
-        if (!class_exists('Orgchart\Group'))
-        {
+
+        if (!class_exists('Orgchart\Group')) {
             include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
         }
+
         $config = new Orgchart\Config;
         $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $oc_login = new OrgChart\Login($oc_db, $oc_db);
@@ -364,15 +367,14 @@ class Email
      * Initialize portal db object 
      * @return void
      */
-    function initPortalDB()
+    function initPortalDB(): void
     {
         // set up org chart assets
-        if (!class_exists('DB'))
-        {
+        if (!class_exists('DB')) {
             include 'db_mysql.php';
         }
-        if (!class_exists('DB_Config'))
-        {
+
+        if (!class_exists('DB_Config')) {
             include 'db_config.php';
         }
 
@@ -384,15 +386,14 @@ class Email
      * Initialize Nexus db object
      * @return void
      */
-    function initNexusDB()
+    function initNexusDB(): void
     {
         // set up org chart assets
-        if (!class_exists('DB'))
-        {
+        if (!class_exists('DB')) {
             include 'db_mysql.php';
         }
-        if (!class_exists('DB_Config'))
-        {
+
+        if (!class_exists('DB_Config')) {
             include 'db_config.php';
         }
 
@@ -400,34 +401,33 @@ class Email
         $this->nexus_db = new DB($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
 
-    private function getHeaders()
+    /**
+     * Generates email headers
+     * @return string
+     */
+    private function getHeaders(): string
     {
         $header = 'MIME-Version: 1.0';
         $header .= "\r\nContent-type: text/html; charset=iso-8859-1";
-        if ($this->emailSender == '')
-        {
+        if ($this->emailSender == '') {
             $header .= "\r\nFrom: {$this->emailFrom}";
-        }
-        else
-        {
+        } else {
             $header .= "\r\nSender: {$this->emailFrom}";
             $header .= "\r\nFrom: {$this->emailSender}";
             $header .= "\r\nReply-To: {$this->emailSender}";
         }
-        if (count($this->emailCC) > 0)
-        {
+
+        if (count($this->emailCC) > 0) {
             $header .= "\r\nCc: ";
-            foreach ($this->emailCC as $cc)
-            {
+            foreach ($this->emailCC as $cc) {
                 $header .= "$cc, ";
             }
             $header = rtrim($header, ', ');
         }
-        if (count($this->emailBCC) > 0)
-        {
+
+        if (count($this->emailBCC) > 0) {
             $header .= "\r\nBcc: ";
-            foreach ($this->emailBCC as $bcc)
-            {
+            foreach ($this->emailBCC as $bcc) {
                 $header .= "$bcc, ";
             }
             $header = rtrim($header, ', ');
@@ -441,14 +441,14 @@ class Email
      * @param string $emailTemplateLabel email template name
      * @return int Email template ID number
      */
-    function getTemplateIDByLabel($emailTemplateLabel)
+    function getTemplateIDByLabel(string $emailTemplateLabel): int
     {
         $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
         $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ".
             "WHERE label = :emailTemplateLabel;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        return $res[0]['emailTemplateID'];
+        return (int)$res[0]['emailTemplateID'];
     }
 
     /**
@@ -456,7 +456,7 @@ class Email
      * @param int $emailTemplateID emailTemplateID from email_templates table
      * @return void
      */
-    function setTemplateByID($emailTemplateID)
+    function setTemplateByID(int $emailTemplateID): void
     {
         $vars = array(':emailTemplateID' => $emailTemplateID);
         $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body` FROM `email_templates` ".
@@ -474,7 +474,7 @@ class Email
      * @param string $emailTemplateLabel label from email_templates table
      * @return void
      */
-    function setTemplateByLabel($emailTemplateLabel)
+    function setTemplateByLabel(string $emailTemplateLabel): void
     {
         $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
         $strSQL = "SELECT `emailTo`,`emailCc`,`subject`, `body` FROM `email_templates` ".
@@ -490,10 +490,11 @@ class Email
     /**
      * Given email template location where email addresses are stored
      * Get the email addresses, line by line, and add them if valid to CC or BCC
-     * @param $tplLocation
+     * @param string $tplLocation
+     * @param bool $isCc
      * @param false $isBcc
      */
-    function setEmailToCcWithTemplate($tplLocation, $isCc = false)
+    function setEmailToCcWithTemplate(string $tplLocation, bool $isCc = false): void
     {
         // Determine if template currently has any email addresses saved
         $tplLocation = str_replace(array('email_to', 'email_cc'), array('emailTo', 'emailCC'), $tplLocation);
@@ -518,7 +519,7 @@ class Email
      * @param string $subjectTemplate the filename of the template for the subject
      * @return void
      */
-    function setSubjectWithTemplate($subjectTemplate)
+    function setSubjectWithTemplate(string $subjectTemplate): void
     {
         $htmlOutput = $this->setContent($this->getFilepath($subjectTemplate, 'subject'));
         $this->setSubject($htmlOutput);
@@ -527,10 +528,10 @@ class Email
     /**
      * Purpose (deprecated): set email body directly from passed in HTML
      * LEGACY: Included as scripts created by portal uses that implement sends using this feature
-     * @param $i
+     * @param string $i
      * @throws SmartyException
      */
-    public function setBody($i)
+    public function setBody(string $i): void
     {
         $i = str_replace("\r\n", '<br />', $i);
         $smarty = new Smarty;
@@ -548,7 +549,7 @@ class Email
      * @param string $bodyTemplate the filename of the template for the body
      * @return void
      */
-    function setBodyWithTemplate($bodyTemplate)
+    function setBodyWithTemplate(string $bodyTemplate): void
     {
         $htmlOutput = $this->setContent($this->getFilepath($bodyTemplate, 'body'));
         $this->emailBody = $this->setContent(
@@ -564,19 +565,20 @@ class Email
      * @param array $newVariables associative array where the keys are the variable names and the values are the variable values
      * @return void
      */
-    function addSmartyVariables($newVariables)
+    function addSmartyVariables(array $newVariables): void
     {
         $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
     }
 
     /**
      * Purpose: Add approvers to email from given record ID*
-     * @param $recordID
-     * @param $emailTemplateID
-     * @param $loggedInUser
+     * @param int $recordID
+     * @param int $emailTemplateID
+     * @param mixed $loggedInUser
      * @throws Exception
      */
-    function attachApproversAndEmail($recordID, $emailTemplateID, $loggedInUser) {
+    function attachApproversAndEmail(int $recordID, int $emailTemplateID, mixed $loggedInUser): void
+    {
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
@@ -602,8 +604,9 @@ class Email
                 "siteRoot" => $this->siteRoot
             ));
 
-            if ($emailTemplateID < 2)
+            if ($emailTemplateID < 2) {
                 $this->setTemplateByID($emailTemplateID);
+            }
 
             require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;

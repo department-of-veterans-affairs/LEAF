@@ -2103,6 +2103,22 @@ $(function() {
     jsPlumb.Defaults.Endpoint = "Blank";
 
     loadWorkflowList();
+
+    $.ajax({
+        type: 'GET',
+        url: '../api/system/settings',
+        success: res => {
+            const siteType = res?.siteType || '';
+            if (siteType.toLowerCase() === 'national_subordinate') {
+                let warnContent = `<div id="subordinate_site_warning"><h3>This is a Nationally Standardized Subordinate Site</h3>`;
+                warnContent += `<span>Do not make modifications! &nbsp;Synchronization problems will occur. &nbsp;`;
+                warnContent += `Please contact your process POC if modifications need to be made.</span></div>`;
+                $('#bodyarea').prepend(warnContent);
+            }
+        },
+        error: err => console.log(err),
+        cache: false
+    })
 });
 
 </script>

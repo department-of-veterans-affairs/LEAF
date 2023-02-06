@@ -2002,7 +2002,7 @@ function viewHistory(categoryId){
 /**
  * Purpose: Check for Secure Form Certifcation
  * @param searchResolved
- * @returns {*|jQuery}
+ * @returns { *|jQuery}
  */
 function fetchLEAFSRequests(searchResolved) {
     let deferred = $.Deferred();
@@ -2027,7 +2027,7 @@ function fetchLEAFSRequests(searchResolved) {
 
 /**
  * Purpose: Get all Indicators on Form
- * @returns {*|jQuery}
+ * @returns { *|jQuery}
  */
 function fetchIndicators() {
     let deferred = $.Deferred();
@@ -2052,6 +2052,13 @@ function fetchFormSecureInfo() {
         cache: false
     })
     .then(function(res) {
+        const siteType = res?.siteType || '';
+        if (siteType.toLowerCase() === 'national_subordinate') {
+            let warnContent = `<div id="subordinate_site_warning"><h3>This is a Nationally Standardized Subordinate Site</h3>`;
+            warnContent += `<span>Do not make modifications! &nbsp;Synchronization problems will occur. &nbsp;`;
+            warnContent += `Please contact your process POC if modifications need to be made.</span></div>`;
+            $('#bodyarea').prepend(warnContent);
+        }
         renderSecureFormsInfo(res)
     });
 }
