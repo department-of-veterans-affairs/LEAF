@@ -1,5 +1,4 @@
 <style>
-
 body {
     min-width: fit-content;
 }
@@ -70,8 +69,6 @@ div [id^="LeafFormGrid"] table {
 }
 </style>
 
-
-
 <h2>New Account Updater</h2>
 <p style="max-width: 850px;">
 This utility will restore access for people who have been asigned a new Active Directory account.
@@ -83,7 +80,6 @@ orgchart employee format questions to refer to the new account, and update group
 <script src="<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js"></script>
 <script src="../../libs/js/LEAF/intervalQueue.js"></script>
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
-
 
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
@@ -186,11 +182,14 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: 'Group Member Username',
+                            name: 'Current Group Member Username',
                             indicatorID: 'groupMember',
                             editable: false,
                             callback: function(data, blob) {
-                                $('#'+data.cellContainerID).html(blob[`group_${data.recordID}`]?.memberSettings.userName);
+                                const k = `group_${data.recordID}`;
+                                const isLocal = parseInt(blob[k]?.memberSettings?.locallyManaged) === 1;
+                                const username = blob[k]?.memberSettings.userName;
+                                $('#'+data.cellContainerID).html(`${username}${isLocal ? ' (local)' : ' (non-local)'}`);
                             }
                         }
                     ]);
@@ -211,9 +210,11 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
 }
 
 function addUserToGroup(item) {
-    //TODO: regional vs local?  active only?
+    //NOTE: TODO: regional vs local?  active only?
+    //are there groups that should be excluded?  eg group 1?
     return new Promise ((resolve, reject) => {
         const { locallyManaged, userAccountGroupID, newAccount } = item;
+
         if (parseInt(locallyManaged) === 1) {
             let formData = new FormData();
             formData.append('CSRFToken', CSRFToken);
@@ -229,6 +230,8 @@ function addUserToGroup(item) {
                 console.log(err);
                 reject(err);
             });
+        } else {
+            console.log('not locally managed, add to nexus?');
         }
     });
 }
@@ -330,7 +333,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                         });
                 }},
                 {
-                    name: 'Initiator Account',
+                    name: 'Current Initiator Account',
                     indicatorID: 'initiator',
                     editable: false,
                     callback: function(data, blob) {
@@ -390,7 +393,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     });
                 }},
                 {
-                    name: 'Orgchart Employee Entry',
+                    name: 'Question to Update',
                     request: 'request',
                     editable: false,
                     callback: function(data, blob) {
