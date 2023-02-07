@@ -4,6 +4,7 @@ body {
 }
 h2, h3 {
     margin: 0.5rem 0;
+    color: black;
 }
 button.buttonNorm {
     font-size: 1rem;
@@ -16,6 +17,11 @@ button.buttonNorm:focus, button.buttonNorm:active {
 #bodyarea {
     width: fit-content;
     padding: 1rem;
+}
+.sync_link {
+    text-decoration: none;
+    color: #049;
+    font-weight: bold;
 }
 .grid_table {
     margin-bottom: 4rem;
@@ -42,6 +48,7 @@ div [id^="LeafFormGrid"] table {
     display: flex;
 }
 .card {
+    margin: 1rem 0;
     min-width: 350px;
     width: 50%;
     border: 1px solid rgb(44, 44, 44);
@@ -67,12 +74,14 @@ div [id^="LeafFormGrid"] table {
     }
 }
 </style>
-
 <h2>New Account Updater</h2>
 <p style="max-width: 850px;">
 This utility will restore access for people who have been asigned a new Active Directory account.
 It can be used to update the initiator of requests created under the old account, update the content of
 orgchart employee format questions to refer to the new account, and update group memberships.
+</p>
+<p>
+    <b>Please <a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> prior to scanning accounts.</b>
 </p>
 <br/>
 
@@ -80,17 +89,15 @@ orgchart employee format questions to refer to the new account, and update group
     <div id="section1">
         <div id="account_input_area">
             <div class="card">
-                <h2>Old Account</h2>
+                <h2 style="margin-top: 0;">Old Account</h2>
                 <div id="employeeSelector"></div>
             </div>
             <div class="card">
-                <h2>New Account</h2>
+                <h2 style="margin-top: 0;">New Account</h2>
                 <div id="newEmployeeSelector"></div>
             </div>
         </div>
-        <br style="clear: both" /><br />
         <button class="buttonNorm" id="run">Preview Changes</button>
-        <div id="preview_no_results_found" style="display: none">No associated requests or groups were found for the old account selected</div>
     </div>
     <div id="section2" style="display: none">
         <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>"</p>
@@ -108,7 +115,10 @@ orgchart employee format questions to refer to the new account, and update group
         <h3>Orgchart Employee fields containing the old account</h3>
         <div id="grid_orgchart_employee" class="grid_table"></div>
 
-        <h3>Groups for Old Account</h3>
+        <h3>Groups for Old Account (check to confirm below)</h3>
+        <label for="confirm_group_updates" style="display:flex; align-items:center">Update Groups
+            <input type="checkbox" id="confirm_group_updates" style="margin-left: 4px;"/>
+        </label>
         <div id="grid_groups_info" class="grid_table"></div>
     </div>
     <div id="section3" style="display: none">
@@ -137,15 +147,17 @@ const orgchartPath = '<!--{$orgchartPath}-->';
 function resetEntryFields(empSel, empSelNew) {
     empSel.clearSearch();
     empSelNew.clearSearch();
-    $('#oldAccountName').html('');
-    $('#newAccountName').html('');
+    document.getElementById('reassign').removeEventListener('click', startQueueListener);
 
-    $('#grid_initiator').html('');
-    $('#grid_orgchart_employee').html('');
-    $('#grid_groups_info').html('');
+    document.getElementById('oldAccountName').innerText = '';
+    document.getElementById('newAccountName').innerText = '';
 
-    $('#section1').css('display', 'block');
-    $('#section2').css('display', 'none');
+    document.getElementById('grid_initiator').innerHTML = '';
+    document.getElementById('grid_orgchart_employee').innerHTML = '';
+    document.getElementById('grid_groups_info').innerHTML = '';
+
+    document.getElementById('section1').style.display = 'block';
+    document.getElementById('section2').style.display = 'none';
 }
     
 function reassignInitiator(item) {
@@ -263,15 +275,21 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
 
 function updateGroupAccount(item) {
     return new Promise ((resolve, reject) => {
+        const elConfirm = document.getElementById('confirm_group_updates');
+        if (elConfirm.checked !== true) {
+            resolve('updated');
+            return;
+        };
+
         const { locallyManaged, regionallyManaged, userAccountGroupID, oldAccount, newAccount, oldEmpUID, newEmpUID } = item;
         const totalUserGroupUpdates = +(parseInt(locallyManaged) === 1) + +(regionallyManaged === true);
         let processedGroupUpdates = 0;
         //PORTAL UPDATES
         if (parseInt(locallyManaged) === 1) {
-            //If new account is already added, just rm old
+            //If new account already exists and is active, just rm old
             if(item.newAccountExistsInGroup === true) {
                 removeFromGroup(item, 'portal').then(res => {
-                    $('#section3 #groups_updated').append(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (local)<br />`);
+                    $('#section3 #groups_updated').append(`<span class="group_update">New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (local)</span><br />`);
                     processedGroupUpdates += 1;
                     if (processedGroupUpdates === totalUserGroupUpdates) {
                         resolve('updated');
@@ -288,10 +306,10 @@ function updateGroupAccount(item) {
                     body: formData
                 }).then(res => {
                     removeFromGroup(item, 'portal').then(res => {
-                        $('#section3 #groups_updated').append(`Added ${newAccount} and removed ${oldAccount} from ${userAccountGroupID} (local)<br />`);
+                        $('#section3 #groups_updated').append(`<span class="group_update">Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (local)</span><br />`);
                         processedGroupUpdates += 1;
                         if (processedGroupUpdates === totalUserGroupUpdates) {
-                            resolve('updated')
+                            resolve('updated');
                         }
                     });
 
@@ -305,7 +323,7 @@ function updateGroupAccount(item) {
         if (regionallyManaged === true) {
             if(item.newAccountExistsInGroup === true) {
                 removeFromGroup(item, 'nexus').then(res => {
-                    $('#section3 #groups_updated').append(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (nexus)<br />`);
+                    $('#section3 #groups_updated').append(`<span class="group_update">New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (nexus)</span><br />`);
                     processedGroupUpdates += 1;
                     if (processedGroupUpdates === totalUserGroupUpdates) {
                         resolve('updated');
@@ -322,7 +340,7 @@ function updateGroupAccount(item) {
                     body: formData
                 }).then(res => {
                     removeFromGroup(item, 'nexus').then(res => {
-                        $('#section3 #groups_updated').append(`Added ${newAccount} and removed ${oldAccount} to ${userAccountGroupID} (nexus)<br />`);
+                        $('#section3 #groups_updated').append(`<span class="group_update">Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (nexus)</span><br />`);
                         processedGroupUpdates += 1;
                         if (processedGroupUpdates === totalUserGroupUpdates) {
                             resolve('updated')
@@ -340,6 +358,7 @@ function updateGroupAccount(item) {
 
 function removeFromGroup(taskItem, portalOrNexus = '') {
     return new Promise((resolve, reject) => {
+        //locally managed and regionally managed are not mutually exclusive, so check both individually
         //RM member portal
         if (portalOrNexus === 'portal') {
             const { userAccountGroupID, oldAccount } = taskItem;
@@ -372,6 +391,7 @@ function removeFromGroup(taskItem, portalOrNexus = '') {
             });
 
         } else {
+            //this should not happen, since this method is called explicity, but this will keep promise from hanging
             console.log('member removal was not processed because locality was not specified')
             resolve();
         }
@@ -384,8 +404,8 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
         const item = {
             ...accountAndTaskInfo,
             recordID: /^group_/.test(recordID) ? 0 : recordID,
-            indicatorID: res[recordID]?.indicatorID || 0,
             userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
+            indicatorID: res[recordID]?.indicatorID || 0,
             locallyManaged: res[recordID]?.memberSettings?.locallyManaged || null,
             regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged || null,
             newAccountExistsInGroup: res[recordID]?.memberSettings?.newAccountExistsInGroup || null,
@@ -400,10 +420,13 @@ function processTask(item) {
     switch(item.taskType) {
         case 'update_initiator':
             return reassignInitiator(item);
+            break;
         case 'update_orgchart_employee_field':
             return updateOrgEmployeeData(item);
+            break;
         case 'update_group_membership':
             return updateGroupAccount(item);
+            break;
         default:
             console.log('hit default', item);
             return 'default case';
@@ -431,10 +454,10 @@ function findAssociatedRequests(empSel, empSelNew) {
         taskType: ''
     }
 
-    $('#section1').css('display', 'none');
-    $('#section2').css('display', 'block');
-    $('#oldAccountName').html(oldAccount);
-    $('#newAccountName').html(newAccount);
+    document.getElementById('section1').style.display = 'none';
+    document.getElementById('section2').style.display = 'block';
+    document.getElementById('oldAccountName').innerText = oldAccount;
+    document.getElementById('newAccountName').innerText = newAccount;
 
     const queue = new intervalQueue();
     queue.setConcurrency(3);
@@ -562,13 +585,17 @@ function findAssociatedRequests(empSel, empSelNew) {
         queue.setWorker(item => { //queue items added in 'enqueueTask' function
             return processTask(item);
         });
-        $('#reassign').on('click', function() {
-            $('#section2').css('display', 'none');
-            $('#section3').css('display', 'block');
+        document.getElementById('reassign').addEventListener('click', startQueueListener = (event) => {
+            document.getElementById('section2').style.display = 'none';
+            document.getElementById('section3').style.display = 'block';
             return queue.start().then((res) => {
                 let elStatus = document.getElementById('queue_completed');
                 if (elStatus !== null) {
                     elStatus.style.display = 'block';
+                }
+                const numGroupUpdates = Array.from(document.querySelectorAll('span.group_update')).length;
+                if (numGroupUpdates > 0) {
+                    $('#section3').append('<a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates')
                 }
             });
         });
@@ -576,7 +603,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     }).catch(err => console.log('process error', err));
 }
 
-$(function() {
+window.addEventListener('DOMContentLoaded', (event) => {
     const empSel = new employeeSelector('employeeSelector');
     empSel.apiPath = '<!--{$orgchartPath}-->/api/';
     empSel.rootPath = '<!--{$orgchartPath}-->/';
@@ -601,14 +628,11 @@ $(function() {
     });
     empSelNew.initialize();
 
-    $('.employeeSelectorTable > thead > tr').prepend('<td style="color: red">Account Name</td>');
-
-    $('#run').on('click', function() {
+    document.getElementById('run').addEventListener('click', function() {
         findAssociatedRequests(empSel, empSelNew);
     });
-    $('#reset').on('click', function() {
+    document.getElementById('reset').addEventListener('click', function() {
         resetEntryFields(empSel, empSelNew);
     })
 });
 </script>
-
