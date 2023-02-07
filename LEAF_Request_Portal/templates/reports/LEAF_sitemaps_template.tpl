@@ -129,7 +129,7 @@
 	// brings up dialog to add a button
     function createGroup() {
         var dialog = createNewButtonDialog();
-        dialog.setTitle('Add New Card');
+        dialog.setTitle('Add Site Card');
         dialog.setContent('<div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
@@ -182,7 +182,7 @@
                 fontColor = value.fontColor;
             }
         });
-        dialog.setTitle('Edit Card');
+        dialog.setTitle('Edit Site Card');
         dialog.setContent('<div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
@@ -248,14 +248,14 @@
 <div class="leaf-center-content">
             
     <aside class="sidenav">
-        <h3 class="navhead"><!--{$city}-->  sitemap</h3>
+        <h3 class="navhead"><!--{$city}-->  Sitemap</h3>
         <ul class="usa-sidenav leaf-border-bottom">
         </ul>
         <div>
-            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Card"></i> Add card</button>
+            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Card"></i> Add Site Card</button>
         </div>
         <div>
-            <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View sitemap</a>
+            <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
         </div>
         
         <!--<div class="leaf-sidenav-bottomBtns">

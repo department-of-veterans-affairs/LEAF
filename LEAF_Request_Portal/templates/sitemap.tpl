@@ -9,8 +9,8 @@
 <div class="leaf-sitemap-flex-container">
 
 	<!--{foreach $sitemap->buttons as $site}-->
-		<div class="leaf-sitemap-card" style="background-color: <!--{$site->color}-->; color: <!--{$site->fontColor}-->;">
-			<h3><a href="<!--{$site->target}-->" target="_blank" style="color: <!--{$site->fontColor}-->;"><!--{$site->title}--></a></h3>
+		<div class="leaf-sitemap-card"  onclick="window.location.href='<!--{$site->target}-->'" style="background-color: <!--{$site->color}-->; color: <!--{$site->fontColor}-->;">
+			<h3><!--{$site->title}--></h3>
 			<p><!--{$site->description}--></p>
 		</div>
 	<!--{/foreach}-->
