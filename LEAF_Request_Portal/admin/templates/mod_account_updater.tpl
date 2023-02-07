@@ -182,7 +182,7 @@ function updateOrgEmployeeData(item) {
             body: formData
         }).then(() => {
             $('#section3 #orgchart_employee_updated').append(`Request # ${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})<br />`);
-            resolve('updated')
+            resolve('updated');
         }).catch(err => {
             console.log('error updating form field', err);
             reject(err);
@@ -191,17 +191,18 @@ function updateOrgEmployeeData(item) {
 }
 
 function searchGroupsOldAccount(accountAndTaskInfo, queue) {
-    const { oldAccount } = accountAndTaskInfo;
+    const { oldAccount, newAccount } = accountAndTaskInfo;
     return new Promise ((resolve, reject) => {
         //all groups and members
         fetch(`${APIroot}group/members`)
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.json()).then(data => {
                 let groupInfo = {};
                 //groups associated with old account
                 const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount));
                 selectedAccountGroups.forEach(g => {
-                    const memberSettings = g.members.find(m => m.userName === oldAccount);
+                    let memberSettings = g.members.find(m => m.userName === oldAccount);
+                    memberSettings.newAccountExistsInGroup = g.members.some(m => m.userName === newAccount && parseInt(m.isActive) === 1);
+                    //if old account is still active, still want to process to rm old
                     if (parseInt(memberSettings.active) === 1) {
                         groupInfo[`group_${g.groupID}`] = {
                             ...g,
@@ -260,56 +261,119 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
     });
 }
 
-function addUserToGroup(item) {
-    //NOTE: TODO: regional vs local?  active only?
-    //are there groups that should be excluded?  eg group 1?
+function updateGroupAccount(item) {
     return new Promise ((resolve, reject) => {
-        const { locallyManaged, regionallyManaged, userAccountGroupID, newAccount, newEmpUID } = item;
-        const totalUpdates = +(parseInt(locallyManaged) === 1) + +(regionallyManaged === true);
-        let processedUpdates = 0;
-
+        const { locallyManaged, regionallyManaged, userAccountGroupID, oldAccount, newAccount, oldEmpUID, newEmpUID } = item;
+        const totalUserGroupUpdates = +(parseInt(locallyManaged) === 1) + +(regionallyManaged === true);
+        let processedGroupUpdates = 0;
+        //PORTAL UPDATES
         if (parseInt(locallyManaged) === 1) {
-            let formData = new FormData();
-            formData.append('CSRFToken', CSRFToken);
-            formData.append('userID', newAccount);
+            //If new account is already added, just rm old
+            if(item.newAccountExistsInGroup === true) {
+                removeFromGroup(item, 'portal').then(res => {
+                    $('#section3 #groups_updated').append(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (local)<br />`);
+                    processedGroupUpdates += 1;
+                    if (processedGroupUpdates === totalUserGroupUpdates) {
+                        resolve('updated');
+                    }
+                });
 
-            fetch(`${APIroot}group/${userAccountGroupID}/members`, {
-                method: 'POST',
-                body: formData
-            }).then((res) => {
-                console.log('portal add res', res);
-                //TODO: RM old account, then =>
-                processedUpdates += 1;
-                $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID} (local)<br />`);
-                if (processedUpdates === totalUpdates) {
-                    resolve('updated')
-                }
-                
-            }).catch(err => {
-                console.log(err);
-                reject(err);
-            });
+            } else {
+                let formData = new FormData();
+                formData.append('CSRFToken', CSRFToken);
+                formData.append('userID', newAccount);
+
+                fetch(`${APIroot}group/${userAccountGroupID}/members`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => {
+                    removeFromGroup(item, 'portal').then(res => {
+                        $('#section3 #groups_updated').append(`Added ${newAccount} and removed ${oldAccount} from ${userAccountGroupID} (local)<br />`);
+                        processedGroupUpdates += 1;
+                        if (processedGroupUpdates === totalUserGroupUpdates) {
+                            resolve('updated')
+                        }
+                    });
+
+                }).catch(err => {
+                    console.log(`error adding local user ${newAccount} to group ${userAccountGroupID}`, err);
+                    reject(err);
+                });
+            }
         }
+        //NEXUS UPDATES
         if (regionallyManaged === true) {
+            if(item.newAccountExistsInGroup === true) {
+                removeFromGroup(item, 'nexus').then(res => {
+                    $('#section3 #groups_updated').append(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (nexus)<br />`);
+                    processedGroupUpdates += 1;
+                    if (processedGroupUpdates === totalUserGroupUpdates) {
+                        resolve('updated');
+                    }
+                });
+
+            } else {
+                let formData = new FormData();
+                formData.append('CSRFToken', CSRFToken);
+                formData.append('empUID', newEmpUID);
+
+                fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => {
+                    removeFromGroup(item, 'nexus').then(res => {
+                        $('#section3 #groups_updated').append(`Added ${newAccount} and removed ${oldAccount} to ${userAccountGroupID} (nexus)<br />`);
+                        processedGroupUpdates += 1;
+                        if (processedGroupUpdates === totalUserGroupUpdates) {
+                            resolve('updated')
+                        }
+                    });
+
+                }).catch(err => {
+                    console.log(err);
+                    reject(err);
+                });
+            }
+        }
+    });
+}
+
+function removeFromGroup(taskItem, portalOrNexus = '') {
+    return new Promise((resolve, reject) => {
+        //RM member portal
+        if (portalOrNexus === 'portal') {
+            const { userAccountGroupID, oldAccount } = taskItem;
             let formData = new FormData();
             formData.append('CSRFToken', CSRFToken);
-            formData.append('empUID', newEmpUID);
 
-            fetch(`${orgchartPath}/api/?a=group/${userAccountGroupID}/employee`, {
-                method: 'POST',
-                body: formData
-            }).then((res) => {
-                console.log('nexus add res', res);
-                //TODO: RM old account, then =>
-                processedUpdates += 1;
-                $('#section3 #groups_updated').append(`${newAccount} added to ${userAccountGroupID} (nexus)<br />`);
-                if (processedUpdates === totalUpdates) {
-                    resolve('updated')
-                }
-            }).catch(err => {
-                console.log(err);
-                reject(err);
-            });            
+            fetch(`${APIroot}group/${userAccountGroupID}/members/_${oldAccount}`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json()).then(data => {
+                    resolve(data);
+                }).catch(err => {
+                    console.log(`error removing account ${oldAccount} from portal group ${userAccountGroupID}`, err);
+                    reject(err);
+            });
+        //RM member nexus
+        } else if (portalOrNexus === 'nexus') {
+            const { userAccountGroupID, oldEmpUID } = taskItem;
+            let formData = new FormData();
+            formData.append('CSRFToken', CSRFToken);
+
+            fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee/${oldEmpUID}?` +
+                $.param({ CSRFToken:CSRFToken }), {
+                    method: 'DELETE',
+                }).then(res => res.json()).then(data => {
+                    resolve(data);
+                }).catch(err => {
+                    console.log(`error removing account ${oldAccount} from nexus group ${userAccountGroupID}`, err);
+                    reject(err);
+            });
+
+        } else {
+            console.log('member removal was not processed because locality was not specified')
+            resolve();
         }
     });
 }
@@ -324,6 +388,7 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
             userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
             locallyManaged: res[recordID]?.memberSettings?.locallyManaged || null,
             regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged || null,
+            newAccountExistsInGroup: res[recordID]?.memberSettings?.newAccountExistsInGroup || null,
         }
         queue.push(item);
         count += 1;
@@ -332,14 +397,13 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
 }
 
 function processTask(item) {
-    console.log('processing task for', item);
     switch(item.taskType) {
         case 'update_initiator':
             return reassignInitiator(item);
         case 'update_orgchart_employee_field':
             return updateOrgEmployeeData(item);
         case 'update_group_membership':
-            return addUserToGroup(item);
+            return updateGroupAccount(item);
         default:
             console.log('hit default', item);
             return 'default case';
