@@ -14,7 +14,6 @@ button.buttonNorm {
 button.buttonNorm:focus, button.buttonNorm:active {
     border: 1px solid black !important;
 }
-
 #bodyarea {
     width: fit-content;
 }
@@ -43,6 +42,9 @@ main {
     color: black;
     background-color: white;
     border-radius: 2px;
+}
+.employeeSelectorName > em {
+    color: #c00;
 }
 #section3 {
     padding: 0.5rem;
@@ -133,11 +135,21 @@ div [id^="LeafFormGrid"] table {
         <h3>Orgchart Employee fields containing the old account</h3>
         <div id="grid_orgchart_employee" class="grid_table"></div>
 
-        <h3>Groups for Old Account (check to confirm below)</h3>
-        <label for="confirm_group_updates" style="display:flex; align-items:center">Update Groups
-            <input type="checkbox" id="confirm_group_updates" style="margin-left: 4px;"/>
-        </label>
+        <div style="display:flex; align-items:center; justify-content: space-between">
+            <h3>Groups for Old Account</h3>
+            <label style="color:#c00;" for="confirm_group_updates">Check to confirm
+                <input type="checkbox" id="confirm_group_updates" style="margin-left: 4px;"/>
+            </label>
+        </div>
         <div id="grid_groups_info" class="grid_table"></div>
+
+        <div style="display:flex; align-items:center; justify-content: space-between"">
+            <h3>Positions for Old Account</h3>
+            <label style="color:#c00;" for="confirm_position_updates">Check to confirm
+                <input type="checkbox" id="confirm_position_updates" style="margin-left: 4px;"/>
+            </label>
+        </div>
+        <div id=grid_positions_info class="grid_table"></div>
     </div>
     <div id="section3" style="display: none">
         <div id="initiators_updated" class="updates_output">
@@ -235,11 +247,13 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
         fetch(`${APIroot}group/members/all`)
             .then(res => res.json()).then(data => {
                 let groupInfo = {};
-                //groups associated with old account
-                const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount));
+                //filter groups directly associated with old account ( position needs to be handled differently)
+                const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount &&
+                        (parseInt(m.locallyManaged) === 1 || m.regionallyManaged === true)));
+
                 selectedAccountGroups.forEach(g => {
                     let memberSettings = g.members.find(m => m.userName === oldAccount);
-                    //if new account exists and is active, include this info so that we don't add it again.  old will still be rmd 
+                    //store info about whether the new account has already been added (if so do not try adding again)
                     memberSettings.newAccountExistsInGroup = g.members.some(m => m.userName === newAccount && parseInt(m.isActive) === 1);
                     if (parseInt(memberSettings.active) === 1) {
                         groupInfo[`group_${g.groupID}`] = {
@@ -248,7 +262,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                         };
                     }
                 });
-                console.log(data, groupInfo)
+
                 if (Object.keys(groupInfo).length > 0) {
                     groupUpdatesFound = true; //global declared @ ~148
                     let recordIDs = '';
@@ -276,7 +290,6 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             editable: false,
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
-                                //TODO: services (both can be 0/false)
                                 const localText = parseInt(groupInfo[k].memberSettings.locallyManaged) === 1 ? ' (local)' : '';
                                 const regionalText = groupInfo[k].memberSettings.regionallyManaged === true ? ' (nexus)' : '';
                                 const username = groupInfo[k].memberSettings.userName;
@@ -294,6 +307,67 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                     const textEl = createTextElement('No groups found');
                     document.getElementById('grid_groups_info').appendChild(textEl);
                     resolve(groupInfo);
+                }
+
+        }).catch(err => {
+            console.log(err);
+            reject(err);
+        });
+    });
+}
+
+function searchPositionsOldAccount(accountAndTaskInfo, queue) {
+    const { oldAccount, newAccount } = accountAndTaskInfo;
+    return new Promise ((resolve, reject) => {
+        fetch(`${orgchartPath}/api/position/search?noLimit=1`)  //q=username:${oldAccount}&employeeSearch=1  only gets 1
+            .then(res => res.json())
+            .then(data => {
+                let positionInfo = {};
+                const userPositions = data.filter(p => p.employeeList.some(emp => emp.userName === oldAccount));
+
+                if (userPositions.length > 0) {
+                    groupUpdatesFound = true; //global declared @ ~148
+                    let recordIDs = '';
+                    userPositions.forEach(ele => {
+                        const newAccountExistsForPosition = ele.employeeList.some(emp => emp.userName === newAccount);
+                        recordIDs += ele.positionID + ',';
+                        positionInfo[`position_${ele.positionID}`] = { ...ele, newAccountExistsForPosition, };
+                    });
+
+                    const formGrid = new LeafFormGrid('grid_positions_info', {});
+
+                    formGrid.setRootURL('../');
+                    formGrid.enableToolbar();
+                    formGrid.hideIndex();
+                    formGrid.setDataBlob(positionInfo);
+                    formGrid.setHeaders([
+                        {
+                            name: 'Position Title',
+                            indicatorID: 'positionTitle',
+                            editable: false,
+                            callback: function(data, blob) {
+                                document.getElementById(data.cellContainerID).innerText = blob[`position_${data.recordID}`]?.positionTitle || '';
+                            }
+                        },
+                        {
+                            name: 'Current Username',
+                            indicatorID: 'userName',
+                            editable: false,
+                            callback: function(data, blob) {
+                                document.getElementById(data.cellContainerID).innerText = oldAccount;
+                            }
+                        }
+                    ]);
+                    formGrid.loadData(recordIDs);
+
+                    accountAndTaskInfo.taskType = 'update_user_position';
+                    enqueueTask(positionInfo, accountAndTaskInfo, queue);
+                    resolve(positionInfo);
+
+                } else {
+                    const textEl = createTextElement('No Positions found');
+                    document.getElementById('grid_positions_info').appendChild(textEl);
+                    resolve(positionInfo);
                 }
 
         }).catch(err => {
@@ -390,6 +464,18 @@ function updateGroupAccount(item) {
     });
 }
 
+function updatePositionAccount(item) {
+    return new Promise ((resolve, reject) => {
+        const elConfirm = document.getElementById('confirm_position_updates');
+        if (elConfirm.checked !== true) {
+            resolve('updated');
+            return;
+        };
+        console.log('task TODO position update', item);
+        resolve('updated');
+    });
+}
+
 function removeFromGroup(taskItem, portalOrNexus = '') {
     return new Promise((resolve, reject) => {
         //locally managed and regionally managed are not mutually exclusive, so check both individually
@@ -440,9 +526,10 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
             recordID: /^group_/.test(recordID) ? 0 : recordID,
             userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
             indicatorID: res[recordID]?.indicatorID || 0,
-            locallyManaged: res[recordID]?.memberSettings?.locallyManaged || null,
-            regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged || null,
-            newAccountExistsInGroup: res[recordID]?.memberSettings?.newAccountExistsInGroup || null,
+            locallyManaged: res[recordID]?.memberSettings?.locallyManaged,
+            regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged,
+            newAccountExistsInGroup: res[recordID]?.memberSettings?.newAccountExistsInGroup,
+            newAccountExistsForPosition: res[recordID]?.newAccountExistsForPosition
         }
         queue.push(item);
         count += 1;
@@ -460,6 +547,9 @@ function processTask(item) {
             break;
         case 'update_group_membership':
             return updateGroupAccount(item);
+            break;
+        case 'update_user_position':
+            return updatePositionAccount(item);
             break;
         default:
             console.log('hit default', item);
@@ -528,7 +618,6 @@ function findAssociatedRequests(empSel, empSelNew) {
                     name: 'Title',
                     indicatorID: 'title',
                     callback: function(data, blob) {
-                        console.log(data, blob)
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
                         containerEl.addEventListener('click', () => {
@@ -621,6 +710,8 @@ function findAssociatedRequests(empSel, empSelNew) {
     /*  ******************************************************************************* */
 
     calls.push(searchGroupsOldAccount(accountAndTaskInfo, queue));
+
+    calls.push(searchPositionsOldAccount(accountAndTaskInfo, queue));
 
     Promise.all(calls).then((res)=> {
         queue.setWorker(item => { //queue items added in 'enqueueTask' function
