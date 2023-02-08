@@ -134,10 +134,14 @@
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48" maxlength="2048"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
-            '<span><input type="color" name="btnColor" /></span>' +     
-            '<div class="leaf-marginTop-1rem"><div role="heading" id="font-color" class="leaf-bold">Font Color</div>' +
-            '<span><input type="color" name="btnFntColor" /></span>' +     
+            '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
+            '<label for="btnColor" class="leaf-bold" style="display: block;">Card Color</label>' +
+            '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
+            '</div>' +
+            '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
+            '<label for="btnFntColor" class="leaf-bold" style="display: block;">Font Color</label>' +
+            '<input type="color" name="btnFntColor" style="display: block;" value="#000000" />' +
+            '</div>' +
         '</div></div>');
 
         dialog.show();
@@ -187,16 +191,20 @@
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" id="button-color" class="leaf-bold">Card Color</div>' +
-        '<span><input type="color" name="btnColor" /></span>' +
-        '<div class="leaf-marginTop-1rem"><div role="heading" id="button-font-color" class="leaf-bold">Font Color</div>' +
-        '<span><input type="color" name="btnFntColor" /></span>' +
+        '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
+        '<label for="btnColor" class="leaf-bold" style="display: block;">Card Color</label>' +
+        '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
+        '</div>' +
+        '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
+        '<label for="btnFntColor" class="leaf-bold" style="display: block;">Font Color</label>' +
+        '<input type="color" name="btnFntColor" style="display: block;" value="#000000" />' +
+        '</div>' +
         '<div class="leaf-buttonBar leaf-clearBoth leaf-float-right">' +
         '<button class="usa-button usa-button--secondary" onClick="deleteButtonFromUI(\'' + buttonID + '\');" id="delete-button">Delete card</button>' +
         '</div>' +
         '</div></div>');
-        document.querySelector("#xhr input[name='btnColor']").value = color;
-        document.querySelector("#xhr input[name='btnFntColor']").value = fontColor;
+        document.querySelector("#xhr input[name='btnColor']").value = color ?? '#ffffff';
+        document.querySelector("#xhr input[name='btnFntColor']").value = fontColor ?? '#000000';
 
         // save handler
         dialog.setSaveHandler(function() {
