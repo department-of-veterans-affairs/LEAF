@@ -14,8 +14,11 @@ button.buttonNorm {
 button.buttonNorm:focus, button.buttonNorm:active {
     border: 1px solid black !important;
 }
+
 #bodyarea {
     width: fit-content;
+}
+main {
     padding: 1rem;
 }
 .sync_link {
@@ -89,18 +92,18 @@ div [id^="LeafFormGrid"] table {
 <!-- importing this here, there are otherwise override issues -->
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
-<h2>New Account Updater</h2>
-<p style="max-width: 850px;">
-This utility will restore access for people who have been asigned a new Active Directory account.
-It can be used to update the initiator of requests created under the old account, update the content of
-orgchart employee format questions to refer to the new account, and update group memberships.
-</p>
-<p>
-    <b>Please <a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> prior to scanning accounts.</b>
-</p>
-<br/>
-
 <main>
+    <h2>New Account Updater</h2>
+    <p style="max-width: 850px;">
+    This utility will restore access for people who have been asigned a new Active Directory account.
+    It can be used to update the initiator of requests created under the old account, update the content of
+    orgchart employee format questions to refer to the new account, and update group memberships.
+    </p>
+    <p>
+        <b>Please <a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> prior to scanning accounts.</b>
+    </p>
+    <br/>
+
     <div id="section1">
         <div id="account_input_area">
             <div class="card">
@@ -245,7 +248,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                         };
                     }
                 });
-
+                console.log(data, groupInfo)
                 if (Object.keys(groupInfo).length > 0) {
                     groupUpdatesFound = true; //global declared @ ~148
                     let recordIDs = '';
@@ -273,9 +276,10 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             editable: false,
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
-                                const localText = parseInt(blob[k]?.memberSettings?.locallyManaged) === 1 ? ' (local)' : '';
-                                const regionalText = blob[k]?.memberSettings?.regionallyManaged === true ? ' (nexus)' : '';
-                                const username = blob[k]?.memberSettings.userName;
+                                //TODO: services (both can be 0/false)
+                                const localText = parseInt(groupInfo[k].memberSettings.locallyManaged) === 1 ? ' (local)' : '';
+                                const regionalText = groupInfo[k].memberSettings.regionallyManaged === true ? ' (nexus)' : '';
+                                const username = groupInfo[k].memberSettings.userName;
                                 document.getElementById(data.cellContainerID).innerText = `${username}${localText}${regionalText}`;
                             }
                         }
@@ -524,8 +528,9 @@ function findAssociatedRequests(empSel, empSelNew) {
                     name: 'Title',
                     indicatorID: 'title',
                     callback: function(data, blob) {
+                        console.log(data, blob)
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = XSSHelpers.stripAllTags([data.recordID].title || '');
+                        containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
                         containerEl.addEventListener('click', () => {
                             window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
@@ -575,7 +580,7 @@ function findAssociatedRequests(empSel, empSelNew) {
             formGrid.setDataBlob(res);
             formGrid.setHeaders([
                 {
-                    name: 'UID',
+                    name: 'Request UID',
                     indicatorID: 'uid',
                     editable: false,
                     callback: function(data, blob) {
@@ -584,11 +589,11 @@ function findAssociatedRequests(empSel, empSelNew) {
                     }
                 },
                 {
-                    name: 'Title', 
+                    name: 'Request Title',
                     indicatorID: 'title', 
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = XSSHelpers.stripAllTags([data.recordID].title || '');
+                        containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
                         containerEl.addEventListener('click', () => {
                             window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });

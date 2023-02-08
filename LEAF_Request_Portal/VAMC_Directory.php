@@ -116,7 +116,7 @@ class VAMC_Directory
         return $data;
     }
 
-    public function lookupLogin($login, $onlyGetName = false, $getGroups = false, $searchDeleted = false)
+    public function lookupLogin($login, $onlyGetName = false, $getGroups = false, bool $searchDeleted = false)
     {
         $res = $this->Employee->lookupLogin($login, $searchDeleted);
         $data = array();
