@@ -233,6 +233,18 @@
         dialog.show();
         $('input:visible:first, select:visible:first').focus();
     }
+
+    function getIcons() {
+        const options = {
+            method: 'GET',
+            headers: {},
+        };
+        fetch('./api/iconPicker/list', options)
+            .then(response => response.json())
+            .then(body => {
+                resolve(body);
+            });
+    }    
     
 	// saves sitemap json into the custom report
     function save() { 
