@@ -27,7 +27,19 @@ button.buttonNorm:focus, button.buttonNorm:active {
     margin-bottom: 4rem;
 }
 .updates_output {
-    margin: 1rem 0;
+    margin-bottom: 1rem;
+}
+.updates_output > div {
+    line-height: 1.4;
+    border-bottom: 1px solid #bbe;
+}
+.employeeSelectorName > div {
+    font-weight: normal;
+    padding: 2px 4px;
+    margin-top: 4px;
+    color: black;
+    background-color: white;
+    border-radius: 2px;
 }
 #section3 {
     padding: 0.5rem;
@@ -49,7 +61,7 @@ div [id^="LeafFormGrid"] table {
 }
 .card {
     margin: 1rem 0;
-    min-width: 350px;
+    min-width: 400px;
     width: 50%;
     border: 1px solid rgb(44, 44, 44);
     border-radius: 3px;
@@ -74,6 +86,9 @@ div [id^="LeafFormGrid"] table {
     }
 }
 </style>
+<!-- importing this here, there are otherwise override issues -->
+<link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
+
 <h2>New Account Updater</h2>
 <p style="max-width: 850px;">
 This utility will restore access for people who have been asigned a new Active Directory account.
@@ -135,14 +150,20 @@ orgchart employee format questions to refer to the new account, and update group
     </div>
 </main>
 
-<script src="<!--{$orgchartPath}-->/js/employeeSelector.js"></script>
-<script src="../../libs/js/LEAF/intervalQueue.js"></script>
-<link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 const APIroot = '<!--{$APIroot}-->';
 const orgchartPath = '<!--{$orgchartPath}-->';
+
+let groupUpdatesFound = false;
+
+function createTextElement(textInput='', isBlockElement = true) {
+    const text = XSSHelpers.stripAllTags(textInput);
+    let el = document.createElement(isBlockElement ? 'div' : 'span');
+    el.innerText = text;
+    return el;
+}
 
 function resetEntryFields(empSel, empSelNew) {
     empSel.clearSearch();
@@ -172,7 +193,8 @@ function reassignInitiator(item) {
             method: 'POST',
             body: formData
         }).then((res) => {
-            $('#section3 #initiators_updated').append(`Request # ${recordID} reassigned to ${newAccount}<br />`);
+            const textEl = createTextElement(`Request #${recordID} reassigned to ${newAccount}`);
+            document.querySelector('#section3 #initiators_updated')?.appendChild(textEl);
             resolve('updated')
         }).catch(err => {
             console.log('error assigning initiator', err);
@@ -193,7 +215,8 @@ function updateOrgEmployeeData(item) {
             method: 'POST',
             body: formData
         }).then(() => {
-            $('#section3 #orgchart_employee_updated').append(`Request # ${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})<br />`);
+            const textEl = createTextElement(`Request # ${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})`);
+            document.querySelector('#section3 #orgchart_employee_updated')?.appendChild(textEl);
             resolve('updated');
         }).catch(err => {
             console.log('error updating form field', err);
@@ -206,15 +229,15 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
     const { oldAccount, newAccount } = accountAndTaskInfo;
     return new Promise ((resolve, reject) => {
         //all groups and members
-        fetch(`${APIroot}group/members`)
+        fetch(`${APIroot}group/members/all`)
             .then(res => res.json()).then(data => {
                 let groupInfo = {};
                 //groups associated with old account
                 const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount));
                 selectedAccountGroups.forEach(g => {
                     let memberSettings = g.members.find(m => m.userName === oldAccount);
+                    //if new account exists and is active, include this info so that we don't add it again.  old will still be rmd 
                     memberSettings.newAccountExistsInGroup = g.members.some(m => m.userName === newAccount && parseInt(m.isActive) === 1);
-                    //if old account is still active, still want to process to rm old
                     if (parseInt(memberSettings.active) === 1) {
                         groupInfo[`group_${g.groupID}`] = {
                             ...g,
@@ -224,6 +247,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                 });
 
                 if (Object.keys(groupInfo).length > 0) {
+                    groupUpdatesFound = true; //global declared @ ~148
                     let recordIDs = '';
                     for (let i in groupInfo) {
                         recordIDs += groupInfo[i].groupID + ',';
@@ -240,7 +264,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             indicatorID: 'groupName',
                             editable: false,
                             callback: function(data, blob) {
-                                $('#'+data.cellContainerID).html(blob[`group_${data.recordID}`]?.name);
+                                document.getElementById(data.cellContainerID).innerText = blob[`group_${data.recordID}`]?.name;
                             }
                         },
                         {
@@ -249,10 +273,10 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             editable: false,
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
-                                const isLocal = parseInt(blob[k]?.memberSettings?.locallyManaged) === 1;
-                                const isRegional = blob[k]?.memberSettings?.regionallyManaged === true;
+                                const localText = parseInt(blob[k]?.memberSettings?.locallyManaged) === 1 ? ' (local)' : '';
+                                const regionalText = blob[k]?.memberSettings?.regionallyManaged === true ? ' (nexus)' : '';
                                 const username = blob[k]?.memberSettings.userName;
-                                $('#'+data.cellContainerID).html(`${username}${isLocal ? ' (local)' : ''}${isRegional ? ' (nexus)' : ''}`);
+                                document.getElementById(data.cellContainerID).innerText = `${username}${localText}${regionalText}`;
                             }
                         }
                     ]);
@@ -261,8 +285,10 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                     accountAndTaskInfo.taskType = 'update_group_membership';
                     enqueueTask(groupInfo, accountAndTaskInfo, queue);
                     resolve(groupInfo);
+
                 } else {
-                    $('#grid_groups_info').append('No groups found');
+                    const textEl = createTextElement('No groups found');
+                    document.getElementById('grid_groups_info').appendChild(textEl);
                     resolve(groupInfo);
                 }
 
@@ -289,7 +315,8 @@ function updateGroupAccount(item) {
             //If new account already exists and is active, just rm old
             if(item.newAccountExistsInGroup === true) {
                 removeFromGroup(item, 'portal').then(res => {
-                    $('#section3 #groups_updated').append(`<span class="group_update">New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (local)</span><br />`);
+                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (local)`)
+                    document.querySelector('#section3 #groups_updated').appendChild(textEl);
                     processedGroupUpdates += 1;
                     if (processedGroupUpdates === totalUserGroupUpdates) {
                         resolve('updated');
@@ -306,7 +333,8 @@ function updateGroupAccount(item) {
                     body: formData
                 }).then(res => {
                     removeFromGroup(item, 'portal').then(res => {
-                        $('#section3 #groups_updated').append(`<span class="group_update">Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (local)</span><br />`);
+                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (local)`);
+                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
                         processedGroupUpdates += 1;
                         if (processedGroupUpdates === totalUserGroupUpdates) {
                             resolve('updated');
@@ -323,7 +351,8 @@ function updateGroupAccount(item) {
         if (regionallyManaged === true) {
             if(item.newAccountExistsInGroup === true) {
                 removeFromGroup(item, 'nexus').then(res => {
-                    $('#section3 #groups_updated').append(`<span class="group_update">New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (nexus)</span><br />`);
+                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (nexus)`);
+                    document.querySelector('#section3 #groups_updated').appendChild(textEl);
                     processedGroupUpdates += 1;
                     if (processedGroupUpdates === totalUserGroupUpdates) {
                         resolve('updated');
@@ -340,7 +369,8 @@ function updateGroupAccount(item) {
                     body: formData
                 }).then(res => {
                     removeFromGroup(item, 'nexus').then(res => {
-                        $('#section3 #groups_updated').append(`<span class="group_update">Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (nexus)</span><br />`);
+                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (nexus)`);
+                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
                         processedGroupUpdates += 1;
                         if (processedGroupUpdates === totalUserGroupUpdates) {
                             resolve('updated')
@@ -494,25 +524,28 @@ function findAssociatedRequests(empSel, empSelNew) {
                     name: 'Title',
                     indicatorID: 'title',
                     callback: function(data, blob) {
-                        $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                        $('#'+data.cellContainerID).on('click', function() {
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerText = XSSHelpers.stripAllTags([data.recordID].title || '');
+                        containerEl.addEventListener('click', () => {
                             window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
-                }},
+                    }
+                },
                 {
                     name: 'Current Initiator Account',
                     indicatorID: 'initiator',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#'+data.cellContainerID).html(blob[data.recordID].userID);
-                }}
+                        document.getElementById(data.cellContainerID).innerText = blob[data.recordID].userID;
+                    }
+                }
             ]);
             formGrid.loadData(recordIDs);
 
             accountAndTaskInfo.taskType = 'update_initiator';
             enqueueTask(res, accountAndTaskInfo, queue);
         } else {
-            $('#grid_initiator').append('No records found');
+            document.getElementById('grid_initiator').appendChild(createTextElement('No records found'));
         }
     });
     calls.push(queryInitiator.execute());
@@ -554,25 +587,28 @@ function findAssociatedRequests(empSel, empSelNew) {
                     name: 'Title', 
                     indicatorID: 'title', 
                     callback: function(data, blob) {
-                        $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                        $('#'+data.cellContainerID).on('click', function() {
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerText = XSSHelpers.stripAllTags([data.recordID].title || '');
+                        containerEl.addEventListener('click', () => {
                             window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
-                    });
-                }},
+                        });
+                    }
+                },
                 {
                     name: 'Question to Update',
                     request: 'request',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#'+data.cellContainerID).html(`indicator ${blob[data.recordID].indicatorID}`);
-                }}
+                        document.getElementById(data.cellContainerID).innerText = `indicator ${blob[data.recordID].indicatorID}`;
+                    }
+                }
             ]);
             formGrid.loadData(recordIDs);
 
             accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
             enqueueTask(res, accountAndTaskInfo, queue);
         } else {
-            $('#grid_orgchart_employee').append('No records found');
+            document.getElementById('grid_orgchart_employee').appendChild(createTextElement('No records found'));
         }
     });
     calls.push(queryOrgchartEmployee.execute());
@@ -593,8 +629,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 if (elStatus !== null) {
                     elStatus.style.display = 'block';
                 }
-                const numGroupUpdates = Array.from(document.querySelectorAll('span.group_update')).length;
-                if (numGroupUpdates > 0) {
+                if (groupUpdatesFound === true) {
                     $('#section3').append('<a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates')
                 }
             });
@@ -610,7 +645,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
     empSel.setResultHandler(function() {
         if(this.numResults > 0) {
             for(let i in this.selectionData) {
-                $(`#${this.prefixID}emp${i} > .employeeSelectorName`).append(`<br /><span style="font-weight: normal">${this.selectionData[i].userName}</span>`);
+                const textEl = createTextElement(this.selectionData[i].userName);
+                document.querySelector(`#${this.prefixID}emp${i} > .employeeSelectorName`).appendChild(textEl);
             }
         }
     });
@@ -622,7 +658,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
     empSelNew.setResultHandler(function() {
         if(this.numResults > 0) {
             for(let i in this.selectionData) {
-                $(`#${this.prefixID}emp${i} > .employeeSelectorName`).append(`<br /><span style="font-weight: normal">${this.selectionData[i].userName}</span>`);
+                const textEl = createTextElement(this.selectionData[i].userName);
+                document.querySelector(`#${this.prefixID}emp${i} > .employeeSelectorName`).appendChild(textEl);
             }
         }
     });

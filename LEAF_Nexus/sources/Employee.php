@@ -315,7 +315,7 @@ class Employee extends Data
         return $res;
     }
 
-    public function lookupLogin($login)
+    public function lookupLogin($login, $searchDeleted = false)
     {
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
@@ -324,7 +324,8 @@ class Employee extends Data
         }
 
         $sqlVars = array(':login' => $login);
-	    $strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
+        $accountStatus = $searchDeleted ? "" : " AND deleted = 0";
+	    $strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login".$accountStatus;
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         if (is_array($result) && isset($result[0]['empUID'])) {

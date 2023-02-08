@@ -481,8 +481,12 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array(
             '../js/formGrid.js',
-            '../js/formQuery.js'
+            '../js/formQuery.js',
+            '../'.Config::$orgchartPath.'/js/employeeSelector.js',
+            '../../libs/js/LEAF/XSSHelpers.js',
+            '../../libs/js/LEAF/intervalQueue.js'
         ));
+
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('APIroot', '../api/');

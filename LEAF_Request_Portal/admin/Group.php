@@ -198,7 +198,7 @@ class Group
      *
      * @return array|string
      */
-    public function getMembers($groupID): array|string
+    public function getMembers($groupID, bool $searchDeleted = false): array|string
 
     {
         if (!is_numeric($groupID))
@@ -215,7 +215,7 @@ class Group
                 $dir = new VAMC_Directory();
                 foreach ($res as $member)
                 {
-                    $dirRes = $dir->lookupLogin($member['userID'], false, true);
+                    $dirRes = $dir->lookupLogin($member['userID'], false, true, $searchDeleted);
 
                     if (isset($dirRes[0]))
                     {
@@ -451,7 +451,7 @@ class Group
     /**
      * @return array
      */
-    public function getGroupsAndMembers(): array
+    public function getGroupsAndMembers(bool $searchDeleted = false): array
     {
         $groups = $this->getGroups();
 
@@ -460,7 +460,7 @@ class Group
         {
             if ($group['groupID'] > 0)
             {
-                $group['members'] = $this->getMembers($group['groupID']);
+                $group['members'] = $this->getMembers($group['groupID'], $searchDeleted);
                 $list[] = $group;
             }
         }
