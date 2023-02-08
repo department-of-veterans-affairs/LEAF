@@ -175,22 +175,26 @@
 					{
 						"key": "service",
 						"value": "",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					},
 					{
 						"key": "title",
 						"value": "Test Title Local Request - MR",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					},
 					{
 						"key": "priority",
 						"value": "",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					},
 					{
 						"key": "numform_b7c34",
 						"value": "1",
-						"type": "text"
+						"type": "text",
+						"disabled": true
 					}
 				],
 				"body": {
