@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  newman:
+    image: pelentan/newman
+    container_name: newman
+    tty: true
+    build:
+      context: ../
+      dockerfile: docker/newman.dockerfile
+    volumes:
+      - ./scripts:/var/newman/scripts
+      - ./reports:/var/newman/reports
