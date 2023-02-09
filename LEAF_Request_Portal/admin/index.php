@@ -246,17 +246,24 @@ switch ($action) {
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                             '../../libs/js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
-                                            '../js/formQuery.js'
+                                            '../js/formQuery.js',
+                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/positionSelector.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
                                             '../../libs/js/codemirror/addon/display/fullscreen.css',
-                                            '../../libs/js/choicesjs/choices.min.css'
+                                            '../../libs/js/choicesjs/choices.min.css',
+                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/positionSelector.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 
