@@ -1,6 +1,7 @@
 <style>
 body {
     min-width: fit-content;
+
 }
 h2, h3 {
     margin: 0.5rem 0;
@@ -28,8 +29,15 @@ main {
 .grid_table {
     margin-bottom: 4rem;
 }
+table th:not([id^="Vheader"]) {
+    background-color: #252f3e;
+    color: white;
+    font-weight: normal;
+    font-size: 1rem;
+    padding: 0.25rem;
+}
 .updates_output {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 .updates_output > div {
     line-height: 1.4;
@@ -252,14 +260,14 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
         fetch(`${APIroot}group/members/all`)
             .then(res => res.json()).then(data => {
                 let groupInfo = {};
-                //filter groups directly associated with old account ( position needs to be handled differently)
+                //filter groups directly associated with old account (position handled differently)
                 const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount &&
                         (parseInt(m.locallyManaged) === 1 || m.regionallyManaged === true)));
 
                 selectedAccountGroups.forEach(g => {
                     let memberSettings = g.members.find(m => m.userName === oldAccount);
                     //store info about whether the new account has already been added (if so do not try adding again)
-                    memberSettings.newAccountExistsInGroup = g.members.some(m => m.userName === newAccount && parseInt(m.isActive) === 1);
+                    memberSettings.newAccountExistsInGroup = g.members.some(m => m.userName === newAccount && parseInt(m.active) === 1);
                     if (parseInt(memberSettings.active) === 1) {
                         groupInfo[`group_${g.groupID}`] = {
                             ...g,
@@ -343,7 +351,6 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                     });
 
                     const formGrid = new LeafFormGrid('grid_positions_info', {});
-
                     formGrid.setRootURL('../');
                     formGrid.enableToolbar();
                     formGrid.hideIndex();
@@ -401,10 +408,10 @@ function updateGroupAccount(item) {
         let processedGroupUpdates = 0;
         //PORTAL UPDATES
         if (parseInt(locallyManaged) === 1) {
-            //If new account already exists and is active, just rm old
+            //If new account already exists and is active, TODO: just rm old, replace new with old settings, or skip entirely?
             if(item.newAccountExistsInGroup === true) {
-                removeFromGroup(item, 'portal').then(res => {
-                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (local)`)
+                removeFromGroup(item, 'portal').then(() => {
+                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${item.groupName} (local)`)
                     document.querySelector('#section3 #groups_updated').appendChild(textEl);
                     processedGroupUpdates += 1;
                     if (processedGroupUpdates === totalUserGroupUpdates) {
@@ -420,10 +427,12 @@ function updateGroupAccount(item) {
                 fetch(`${APIroot}group/${userAccountGroupID}/members`, {
                     method: 'POST',
                     body: formData
-                }).then(res => {
-                    if (res.ok === true) {
-                        removeFromGroup(item, 'portal').then(res => {
-                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (local)`);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data === newAccount) {
+                        removeFromGroup(item, 'portal').then(() => {
+                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (local)`);
                             document.querySelector('#section3 #groups_updated').appendChild(textEl);
                             processedGroupUpdates += 1;
                             if (processedGroupUpdates === totalUserGroupUpdates) {
@@ -446,8 +455,8 @@ function updateGroupAccount(item) {
         //NEXUS UPDATES
         if (regionallyManaged === true) {
             if(item.newAccountExistsInGroup === true) {
-                removeFromGroup(item, 'nexus').then(res => {
-                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${userAccountGroupID} (nexus)`);
+                removeFromGroup(item, 'nexus').then(() => {
+                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${item.groupName} (nexus)`);
                     document.querySelector('#section3 #groups_updated').appendChild(textEl);
                     processedGroupUpdates += 1;
                     if (processedGroupUpdates === totalUserGroupUpdates) {
@@ -463,16 +472,19 @@ function updateGroupAccount(item) {
                 fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee`, {
                     method: 'POST',
                     body: formData
-                }).then(res => {
-                    if (res.ok === true) {
-                        removeFromGroup(item, 'nexus').then(res => {
-                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (nexus)`);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (parseInt(data) === parseInt(newEmpUID)) {
+                        removeFromGroup(item, 'nexus').then(() => {
+                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (nexus)`);
                             document.querySelector('#section3 #groups_updated').appendChild(textEl);
                             processedGroupUpdates += 1;
                             if (processedGroupUpdates === totalUserGroupUpdates) {
                                 resolve('updated')
                             }
                         });
+
                     } else {
                         const err = new Error(`error adding ${newAccount} to group`);
                         console.log(err);
@@ -501,7 +513,7 @@ function updatePositionAccount(item) {
         if (newAccountExistsForPosition === true) {
             removeFromPosition(item).then(() => {
                 const { oldAccount, positionTitle } = item;
-                const textEl = createTextElement(`New account already exists. Removed ${oldAccount} from position ${positionTitle}`);
+                const textEl = createTextElement(`New account already exists. Removed ${oldAccount} from position: ${positionTitle}`);
                 document.querySelector('#section3 #positions_updated').appendChild(textEl);
                 resolve('updated');
             });
@@ -515,12 +527,14 @@ function updatePositionAccount(item) {
             fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee`, {
                 method: 'POST',
                 body: formData
-            }).then(res => {
-                if (res.ok === true) {
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (parseInt(data) === parseInt(newEmpUID)) {
                     removeFromPosition(item).then(() => {
                         const { oldAccount, newAccount, positionTitle } = item;
                         const acting = parseInt(userAccountPositionIsActing) === 1 ? ' (Acting)' : '';
-                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} position ${positionTitle}${acting}`);
+                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to position: ${positionTitle}${acting}`);
                         document.querySelector('#section3 #positions_updated').appendChild(textEl);
                         resolve('updated');
                     })
@@ -541,38 +555,38 @@ function updatePositionAccount(item) {
 
 function removeFromGroup(taskItem, portalOrNexus = '') {
     return new Promise((resolve, reject) => {
-        //locally managed and regionally managed are not mutually exclusive, so check both individually
-        //RM member portal
+        //RM member portal (prune)
         if (portalOrNexus === 'portal') {
             const { userAccountGroupID, oldAccount } = taskItem;
             let formData = new FormData();
             formData.append('CSRFToken', CSRFToken);
 
-            fetch(`${APIroot}group/${userAccountGroupID}/members/_${oldAccount}`, {
+            fetch(`${APIroot}group/${userAccountGroupID}/members/_${oldAccount}/prune`, {
                     method: 'POST',
                     body: formData
-                }).then(res => res.json()).then(data => {
-                    resolve(data);
-                }).catch(err => {
+                })
+                .then(res => resolve(res))
+                .catch(err => {
                     console.log(`error removing account ${oldAccount} from portal group ${userAccountGroupID}`, err);
                     reject(err);
             });
+
         //RM member nexus
         } else if (portalOrNexus === 'nexus') {
-            const { userAccountGroupID, oldEmpUID } = taskItem;
+            const { userAccountGroupID, oldEmpUID, oldAccount } = taskItem;
 
             fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee/${oldEmpUID}?` +
                 $.param({ CSRFToken:CSRFToken }), {
                     method: 'DELETE',
-                }).then(res => res.json()).then(data => {
-                    resolve(data);
-                }).catch(err => {
+                })
+                .then(res => resolve(res))
+                .catch(err => {
                     console.log(`error removing account ${oldAccount} from nexus group ${userAccountGroupID}`, err);
                     reject(err);
             });
 
         } else {
-            //this should not happen, since this method is called explicity, but this will keep promise from hanging
+            //should not happen, since method is called explicity, but this will keep promise from hanging
             console.log('member removal was not processed because locality was not specified')
             resolve();
         }
@@ -582,14 +596,17 @@ function removeFromGroup(taskItem, portalOrNexus = '') {
 function removeFromPosition(item) {
     const { userAccountPositionID, oldEmpUID } = item;
     return new Promise((resolve, reject) => {
-        fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee/${oldEmpUID}?` + $.param({ CSRFToken:CSRFToken }), {
-            method: 'DELETE',
-        }).then(res => {
-            resolve('updated');
-        }).catch(err => {
-            console.log(err);
-            reject(err);
-        })
+        fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee/${oldEmpUID}?` +
+            $.param({ CSRFToken:CSRFToken }), {
+                method: 'DELETE',
+            })
+            .then(res => {
+                resolve('updated');
+            })
+            .catch(err => {
+                console.log(err);
+                reject(err);
+            })
     });
 }
 
@@ -604,6 +621,7 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
         const item = {
             ...accountAndTaskInfo,
             recordID: /^group_/.test(recordID) ? 0 : recordID,
+            groupName: res[recordID]?.name || 0,
             userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
             userAccountPositionID: /^position_/.test(recordID) ? res[recordID].positionID : 0,
             userAccountPositionIsActing: isActing,
@@ -778,7 +796,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 },
                 {
                     name: 'Question to Update',
-                    request: 'request',
+                    indicatorID: 'requestField',
                     editable: false,
                     callback: function(data, blob) {
                         document.getElementById(data.cellContainerID).innerText = `indicator ${blob[data.recordID].indicatorID}`;

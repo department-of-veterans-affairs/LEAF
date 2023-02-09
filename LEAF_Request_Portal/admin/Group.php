@@ -256,9 +256,9 @@ class Group
      * @param string $member
      * @param int $groupID
      *
-     * @return void
+     * @return string
      */
-    public function addMember($member, $groupID): void
+    public function addMember($member, $groupID): string
     {
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 
@@ -301,6 +301,7 @@ class Group
                                                     VALUES (:userID, :groupID, :backupID)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
             }
+            return $member;
         }
     }
 
