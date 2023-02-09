@@ -33,7 +33,7 @@ main {
 }
 .updates_output > div {
     line-height: 1.4;
-    border-bottom: 1px solid #bbe;
+    border-bottom: 1px solid #ccf;
 }
 .employeeSelectorName > div {
     font-weight: normal;
@@ -47,8 +47,9 @@ main {
     color: #c00;
 }
 #section3 {
-    padding: 0.5rem;
+    padding: 0.75rem;
     background-color: white;
+    border-radius: 2px;
 }
 #queue_completed {
     color: #085;
@@ -120,12 +121,12 @@ div [id^="LeafFormGrid"] table {
         <button class="buttonNorm" id="run">Preview Changes</button>
     </div>
     <div id="section2" style="display: none">
-        <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>"</p>
+        <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>".</p>
         <p>The new account you have selected is "<span id="newAccountName" style="font-weight: bold"></span>".</p>
         <p>Please review the results below. &nbsp;Activate the button to update them to reflect the new account.</p>
         <br />
         <div style="display:flex; margin-bottom:3rem;">
-            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update These Requests</button>
+            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update These Records</button>
             <button class="buttonNorm" id="reset">Start Over</button>
         </div>
 
@@ -161,6 +162,9 @@ div [id^="LeafFormGrid"] table {
         <div id="groups_updated" class="updates_output">
             <p><b>Group Updates</b></p>
         </div>
+        <div id="positions_updated" class="updates_output">
+            <p><b>Positions Updates</b></p>
+        </div>
         <div id="queue_completed" style="display: none"><b>Updates Complete</b></div>
     </div>
 </main>
@@ -185,12 +189,13 @@ function resetEntryFields(empSel, empSelNew) {
     empSelNew.clearSearch();
     document.getElementById('reassign').removeEventListener('click', startQueueListener);
 
-    document.getElementById('oldAccountName').innerText = '';
-    document.getElementById('newAccountName').innerText = '';
+    document.getElementById('oldAccountName').innerHTML = '';
+    document.getElementById('newAccountName').innerHTML = '';
 
     document.getElementById('grid_initiator').innerHTML = '';
     document.getElementById('grid_orgchart_employee').innerHTML = '';
     document.getElementById('grid_groups_info').innerHTML = '';
+    document.getElementById('grid_positions_info').innerHTML = '';
 
     document.getElementById('section1').style.display = 'block';
     document.getElementById('section2').style.display = 'none';
@@ -279,9 +284,12 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                         {
                             name: 'Group Name',
                             indicatorID: 'groupName',
-                            editable: false,
                             callback: function(data, blob) {
-                                document.getElementById(data.cellContainerID).innerText = blob[`group_${data.recordID}`]?.name;
+                                let containerEl = document.getElementById(data.cellContainerID);
+                                containerEl.innerText = blob[`group_${data.recordID}`]?.name;
+                                containerEl.addEventListener('click', () => {
+                                    window.open(`${orgchartPath}/?a=view_group&groupID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                                });
                             }
                         },
                         {
@@ -344,9 +352,12 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                         {
                             name: 'Position Title',
                             indicatorID: 'positionTitle',
-                            editable: false,
                             callback: function(data, blob) {
-                                document.getElementById(data.cellContainerID).innerText = blob[`position_${data.recordID}`]?.positionTitle || '';
+                                let containerEl = document.getElementById(data.cellContainerID);
+                                containerEl.innerText = blob[`position_${data.recordID}`]?.positionTitle || '';
+                                containerEl.addEventListener('click', () => {
+                                    window.open(`${orgchartPath}/?a=view_position&positionID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                                });
                             }
                         },
                         {
@@ -410,14 +421,21 @@ function updateGroupAccount(item) {
                     method: 'POST',
                     body: formData
                 }).then(res => {
-                    removeFromGroup(item, 'portal').then(res => {
-                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (local)`);
-                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
-                        processedGroupUpdates += 1;
-                        if (processedGroupUpdates === totalUserGroupUpdates) {
-                            resolve('updated');
-                        }
-                    });
+                    if (res.ok === true) {
+                        removeFromGroup(item, 'portal').then(res => {
+                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (local)`);
+                            document.querySelector('#section3 #groups_updated').appendChild(textEl);
+                            processedGroupUpdates += 1;
+                            if (processedGroupUpdates === totalUserGroupUpdates) {
+                                resolve('updated');
+                            }
+                        });
+
+                    } else {
+                        const err = new Error(`error adding ${newAccount} to group`);
+                        console.log(err);
+                        reject(err)
+                    }
 
                 }).catch(err => {
                     console.log(`error adding local user ${newAccount} to group ${userAccountGroupID}`, err);
@@ -446,14 +464,20 @@ function updateGroupAccount(item) {
                     method: 'POST',
                     body: formData
                 }).then(res => {
-                    removeFromGroup(item, 'nexus').then(res => {
-                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (nexus)`);
-                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
-                        processedGroupUpdates += 1;
-                        if (processedGroupUpdates === totalUserGroupUpdates) {
-                            resolve('updated')
-                        }
-                    });
+                    if (res.ok === true) {
+                        removeFromGroup(item, 'nexus').then(res => {
+                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${userAccountGroupID} (nexus)`);
+                            document.querySelector('#section3 #groups_updated').appendChild(textEl);
+                            processedGroupUpdates += 1;
+                            if (processedGroupUpdates === totalUserGroupUpdates) {
+                                resolve('updated')
+                            }
+                        });
+                    } else {
+                        const err = new Error(`error adding ${newAccount} to group`);
+                        console.log(err);
+                        reject(err)
+                    }
 
                 }).catch(err => {
                     console.log(err);
@@ -471,8 +495,47 @@ function updatePositionAccount(item) {
             resolve('updated');
             return;
         };
-        console.log('task TODO position update', item);
-        resolve('updated');
+
+        const { newAccountExistsForPosition, userAccountPositionID, userAccountPositionIsActing, newEmpUID, oldEmpUID } = item;
+
+        if (newAccountExistsForPosition === true) {
+            removeFromPosition(item).then(() => {
+                const { oldAccount, positionTitle } = item;
+                const textEl = createTextElement(`New account already exists. Removed ${oldAccount} from position ${positionTitle}`);
+                document.querySelector('#section3 #positions_updated').appendChild(textEl);
+                resolve('updated');
+            });
+
+        } else {
+            let formData = new FormData();
+            formData.append('CSRFToken', CSRFToken);
+            formData.append('empUID', newEmpUID);
+            formData.append('isActing', userAccountPositionIsActing);
+
+            fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee`, {
+                method: 'POST',
+                body: formData
+            }).then(res => {
+                if (res.ok === true) {
+                    removeFromPosition(item).then(() => {
+                        const { oldAccount, newAccount, positionTitle } = item;
+                        const acting = parseInt(userAccountPositionIsActing) === 1 ? ' (Acting)' : '';
+                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} position ${positionTitle}${acting}`);
+                        document.querySelector('#section3 #positions_updated').appendChild(textEl);
+                        resolve('updated');
+                    })
+
+                } else {
+                    const err = new Error(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`);
+                    console.log(res, err);
+                    reject(err);
+                }
+
+            }).catch(err => {
+                console.log(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`, err);
+                reject(err);
+            });
+        }
     });
 }
 
@@ -497,8 +560,6 @@ function removeFromGroup(taskItem, portalOrNexus = '') {
         //RM member nexus
         } else if (portalOrNexus === 'nexus') {
             const { userAccountGroupID, oldEmpUID } = taskItem;
-            let formData = new FormData();
-            formData.append('CSRFToken', CSRFToken);
 
             fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee/${oldEmpUID}?` +
                 $.param({ CSRFToken:CSRFToken }), {
@@ -518,14 +579,36 @@ function removeFromGroup(taskItem, portalOrNexus = '') {
     });
 }
 
+function removeFromPosition(item) {
+    const { userAccountPositionID, oldEmpUID } = item;
+    return new Promise((resolve, reject) => {
+        fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee/${oldEmpUID}?` + $.param({ CSRFToken:CSRFToken }), {
+            method: 'DELETE',
+        }).then(res => {
+            resolve('updated');
+        }).catch(err => {
+            console.log(err);
+            reject(err);
+        })
+    });
+}
+
 function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
     let count = 0;
     for(let recordID in res) {
+        let isActing = null;
+        if (accountAndTaskInfo.taskType === 'update_user_position') {
+            const { oldAccount } = accountAndTaskInfo;
+            isActing = res[recordID].employeeList.find(emp => emp.userName === oldAccount).isActing;
+        }
         const item = {
             ...accountAndTaskInfo,
             recordID: /^group_/.test(recordID) ? 0 : recordID,
             userAccountGroupID: /^group_/.test(recordID) ? res[recordID].groupID : 0,
+            userAccountPositionID: /^position_/.test(recordID) ? res[recordID].positionID : 0,
+            userAccountPositionIsActing: isActing,
             indicatorID: res[recordID]?.indicatorID || 0,
+            positionTitle: res[recordID]?.positionTitle || 0,
             locallyManaged: res[recordID]?.memberSettings?.locallyManaged,
             regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged,
             newAccountExistsInGroup: res[recordID]?.memberSettings?.newAccountExistsInGroup,
@@ -580,8 +663,8 @@ function findAssociatedRequests(empSel, empSelNew) {
 
     document.getElementById('section1').style.display = 'none';
     document.getElementById('section2').style.display = 'block';
-    document.getElementById('oldAccountName').innerText = oldAccount;
-    document.getElementById('newAccountName').innerText = newAccount;
+    document.getElementById('oldAccountName').innerHTML = `<a href="${orgchartPath}/?a=view_employee&empUID=${oldEmpUID}" target="_blank">${oldAccount}</a>`;
+    document.getElementById('newAccountName').innerHTML = `<a href="${orgchartPath}/?a=view_employee&empUID=${newEmpUID}" target="_blank">${newAccount}</a>`;
 
     const queue = new intervalQueue();
     queue.setConcurrency(3);
@@ -608,20 +691,22 @@ function findAssociatedRequests(empSel, empSelNew) {
                 {
                     name: 'UID',
                     indicatorID: 'uid',
-                    editable: false,
                     callback: function(data, blob) {
-                        const link = `<a href="../index.php?a=printview&recordID=${data.recordID}" target="_blank">${data.recordID}</a>`
-                        $('#'+data.cellContainerID).html(link);
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerHTML = data.recordID;
+                        containerEl.addEventListener('click', () => {
+                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                        });
                     }
                 },
                 {
                     name: 'Title',
-                    indicatorID: 'title',
+                    indicatorID: 'requestTitle',
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
                         containerEl.addEventListener('click', () => {
-                            window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
                     }
                 },
@@ -630,7 +715,8 @@ function findAssociatedRequests(empSel, empSelNew) {
                     indicatorID: 'initiator',
                     editable: false,
                     callback: function(data, blob) {
-                        document.getElementById(data.cellContainerID).innerText = blob[data.recordID].userID;
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerText = blob[data.recordID].userID;
                     }
                 }
             ]);
@@ -644,7 +730,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     });
     calls.push(queryInitiator.execute());
     
-    /* *********************************************************************************** */
+    /* ******************************* ORGCHART FIELDS *********************************** */
     
     const queryOrgchartEmployee = new LeafFormQuery();
     queryOrgchartEmployee.setRootURL('../');
@@ -671,20 +757,22 @@ function findAssociatedRequests(empSel, empSelNew) {
                 {
                     name: 'Request UID',
                     indicatorID: 'uid',
-                    editable: false,
                     callback: function(data, blob) {
-                        const link = `<a href="../index.php?a=printview&recordID=${data.recordID}" target="_blank">${data.recordID}</a>`
-                        $('#'+data.cellContainerID).html(link);
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerHTML = data.recordID;
+                        containerEl.addEventListener('click', () => {
+                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                        });
                     }
                 },
                 {
                     name: 'Request Title',
-                    indicatorID: 'title', 
+                    indicatorID: 'requestTitle',
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
                         containerEl.addEventListener('click', () => {
-                            window.open('../index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
                     }
                 },
@@ -707,14 +795,14 @@ function findAssociatedRequests(empSel, empSelNew) {
     });
     calls.push(queryOrgchartEmployee.execute());
 
-    /*  ******************************************************************************* */
+    /*  *************************** GROUPS AND POSITIONS ****************************** */
 
     calls.push(searchGroupsOldAccount(accountAndTaskInfo, queue));
 
     calls.push(searchPositionsOldAccount(accountAndTaskInfo, queue));
 
     Promise.all(calls).then((res)=> {
-        queue.setWorker(item => { //queue items added in 'enqueueTask' function
+        queue.setWorker(item => {
             return processTask(item);
         });
         document.getElementById('reassign').addEventListener('click', startQueueListener = (event) => {
@@ -726,7 +814,9 @@ function findAssociatedRequests(empSel, empSelNew) {
                     elStatus.style.display = 'block';
                 }
                 if (groupUpdatesFound === true) {
-                    $('#section3').append('<a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates')
+                    let elDiv = document.createElement('div');
+                    elDiv.innerHTML = '<h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates</h3>';
+                    document.getElementById('section3').appendChild(elDiv);
                 }
             });
         });
