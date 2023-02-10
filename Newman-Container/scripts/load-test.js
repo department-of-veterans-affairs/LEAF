@@ -1,5 +1,7 @@
 /**
-*    To execute, from Windows terminal -> node LoadTesting-Pre-Prod.js
+*    To execute, from Windows terminal -> get inside the container:
+*		-> docker exec -it newman bash      (Can be run from anywhere in the repo)
+*    then -> node load-tests.js
 *
 * @fileOverview A script to execute parallel collection runs using async.
 */
@@ -39,5 +41,3 @@ async.parallel(runs,
 });
 
  
-
-/*  To execute, from ~/workspace/performance-test   PROMPT> LoadTesting-PreProd.js   */
