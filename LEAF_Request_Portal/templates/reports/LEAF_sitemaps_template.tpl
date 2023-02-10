@@ -88,7 +88,6 @@
         const icon = button.icon ? '<img style="float: left; margin-right: 1rem;" src="' + button.icon + '">' : '';
         $('div#sortable').append('<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" onClick="editButtonDialog(\'' + button.id + '\');" style="cursor: pointer; background-color: ' + button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a tabindex="-1" href="javascript:void(0);" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' + icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
         $('#div_buttonID_' + button.id).on('keydown', function(event) {          
-            console.log(event.keyCode);
             if (event.keyCode === 13) {
                 event.preventDefault();
                 $('#div_buttonID_' + button.id).click();
@@ -159,7 +158,7 @@
 	// brings up dialog to add a button
     function createGroup() {
         var dialog = createNewButtonDialog();
-        dialog.setTitle('Add Site Card');
+        dialog.setTitle('Add Site');
         dialog.setContent('<div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
@@ -178,8 +177,14 @@
             '</div>' +
             '<div id="iconpicker" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
         '</div></div>');
+        $('#iconpicker').on('keydown', function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                event.target.parentElement.click();
+            }
+        });
         dialog.show();
-        getIcons(icon);
+        getIcons();
         $('input:visible:first, select:visible:first').focus();
     }
 
@@ -224,7 +229,7 @@
                 icon = value.icon;
             }
         });
-        dialog.setTitle('Edit Site Card');
+        dialog.setTitle('Edit Site');
         dialog.setContent('<div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
@@ -346,7 +351,7 @@
         <ul class="usa-sidenav leaf-border-bottom">
         </ul>
         <div>
-            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Card"></i> Add Site Card</button>
+            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Card"></i> Add Site</button>
         </div>
         <div>
             <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
