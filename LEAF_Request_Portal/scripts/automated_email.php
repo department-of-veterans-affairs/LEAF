@@ -8,13 +8,13 @@ include_once $currDir . '/../db_config.php';
 require_once $currDir . '/../Email.php';
 require_once $currDir . '/../VAMC_Directory.php';
 
-// this is here until we fully test
-ini_set('display_errors',1);
-error_reporting(E_ALL);
-
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
-$siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+
+
+$request_uri = str_replace(['/var/www/html/','/scripts'],'',$_SERVER['PWD']);
+
+$siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
 
 // this was what the random function I found used.
 $comment = '';
