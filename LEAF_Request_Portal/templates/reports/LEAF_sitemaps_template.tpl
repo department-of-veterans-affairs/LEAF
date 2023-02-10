@@ -157,7 +157,7 @@
         dialog.setContent('<div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48" maxlength="2048"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"></input></div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
             '<label for="btnColor" class="leaf-bold" style="display: block;">Card Color</label>' +
             '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
