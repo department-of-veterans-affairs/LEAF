@@ -1,9 +1,11 @@
 <style>
+html {
+    width: 100%;
+}
 body {
     min-width: fit-content;
-
 }
-h2, h3 {
+h2, h3, h4 {
     margin: 0.5rem 0;
     color: black;
 }
@@ -20,6 +22,7 @@ button.buttonNorm:focus, button.buttonNorm:active {
 }
 main {
     padding: 1rem;
+    min-height: 100vh;
 }
 .sync_link {
     text-decoration: none;
@@ -77,15 +80,13 @@ table.leaf_grid td {
     color: #c00;
 }
 #section3 {
+    margin: 1rem 0;
     padding: 0.75rem;
     background-color: white;
     border-radius: 2px;
 }
 #queue_completed {
     color: #085;
-}
-div [id^="LeafFormGrid"] {
-    max-width: 900px;
 }
 div [id^="LeafFormGrid"] table {
     background-color: white;
@@ -103,12 +104,13 @@ div [id^="LeafFormGrid"] table {
     border-radius: 3px;
     padding: 0.75rem; 
 }
+.card:first-child {
+    margin-right: 1rem;
+}
 #employeeSelector div[id$="_border"], #newEmployeeSelector div[id$="_border"] {
     height: 30px;
 }
-.card:first-child {
-    margin-right: 10px;
-}
+
 @media only screen and (max-width: 600px) {
     #account_input_area {
         flex-direction: column;
@@ -140,31 +142,29 @@ div [id^="LeafFormGrid"] table {
     <div id="section1">
         <div id="account_input_area">
             <div class="card">
-                <h2 style="margin-top: 0;">Old Account</h2>
+                <h3 style="margin-top: 0;">Old Account</h3>
                 <div id="employeeSelector"></div>
             </div>
             <div class="card">
-                <h2 style="margin-top: 0;">New Account</h2>
+                <h3 style="margin-top: 0;">New Account</h3>
                 <div id="newEmployeeSelector"></div>
             </div>
         </div>
         <button class="buttonNorm" id="run">Preview Changes</button>
     </div>
-    <div id="section2" style="display: none">
-        <p>The old account you have selected is "<span id="oldAccountName" style="font-weight: bold"></span>".</p>
-        <p>The new account you have selected is "<span id="newAccountName" style="font-weight: bold"></span>".</p>
-        <p>Please review the results below. &nbsp;Activate the button to update them to reflect the new account.</p>
+    <div id="section2" style="display: none; margin-top: 1rem;">
+        <h3>Review the results below and activate the button to update selections the new account.</h3>
         <br />
         <div style="display:flex; margin-bottom:3rem;">
-            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update These Records</button>
+            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update Records</button>
             <button class="buttonNorm" id="reset">Start Over</button>
         </div>
 
-        <h3>Requests created by the old account</h3>
+        <h4>Requests created by the old account</h4>
         <div id="grid_initiator" class="grid_table"></div>
         
         <div style="display:flex; align-items:center; justify-content: space-between">
-            <h3>Orgchart Employee fields containing the old account</h3>
+            <h4>Orgchart Employee fields containing the old account</h4>
             <label for="confirm_indicator_updates">Select All Requests
                 <input type="checkbox" id="confirm_indicator_updates" onclick="checkAll(event)"/>
             </label>
@@ -172,7 +172,7 @@ div [id^="LeafFormGrid"] table {
         <div id="grid_orgchart_employee" class="grid_table"></div>
 
         <div style="display:flex; align-items:center; justify-content: space-between">
-            <h3>Groups for Old Account</h3>
+            <h4>Groups for Old Account</h4>
             <label for="confirm_group_updates">Select All Groups
                 <input type="checkbox" id="confirm_group_updates" onclick="checkAll(event)"/>
             </label>
@@ -180,7 +180,7 @@ div [id^="LeafFormGrid"] table {
         <div id="grid_groups_info" class="grid_table"></div>
 
         <div style="display:flex; align-items:center; justify-content: space-between"">
-            <h3>Positions for Old Account</h3>
+            <h4>Positions for Old Account</h4>
             <label for="confirm_position_updates">Select All Positions
                 <input type="checkbox" id="confirm_position_updates" onclick="checkAll(event)" />
             </label>
@@ -214,6 +214,20 @@ const APIroot = '<!--{$APIroot}-->';
 const orgchartPath = '<!--{$orgchartPath}-->';
 
 let groupUpdatesFound = false;
+let listenerAdded = false;
+
+function startQueueListener (event, queue) {
+    document.getElementById('section2').style.display = 'none';
+    document.getElementById('section3').style.display = 'block';
+    return queue.start().then(res => {
+        document.getElementById('queue_completed').style.display = 'block';
+        if (groupUpdatesFound === true) {
+            let elDiv = document.createElement('div');
+            elDiv.innerHTML = '<h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates</h3>';
+            document.getElementById('section3').appendChild(elDiv);
+        }
+    });
+}
 
 function checkAll(event = {}) {
     const target = event?.currentTarget || null;
@@ -243,18 +257,14 @@ function createTextElement(textInput='', isBlockElement = true) {
 function resetEntryFields(empSel, empSelNew) {
     empSel.clearSearch();
     empSelNew.clearSearch();
-    document.getElementById('reassign').removeEventListener('click', startQueueListener);
-
-    document.getElementById('oldAccountName').innerHTML = '';
-    document.getElementById('newAccountName').innerHTML = '';
-
     document.getElementById('grid_initiator').innerHTML = '';
     document.getElementById('grid_orgchart_employee').innerHTML = '';
     document.getElementById('grid_groups_info').innerHTML = '';
     document.getElementById('grid_positions_info').innerHTML = '';
-
-    document.getElementById('section1').style.display = 'block';
     document.getElementById('section2').style.display = 'none';
+    const checkboxes = Array.from(document.querySelectorAll('label input[type="checkbox"]'));
+    checkboxes.forEach(cb => cb.checked = false);
+    //initiators_updated,orgchart_employee_updated,groups_updated,positions_updated,errors_updated
 }
     
 function reassignInitiator(item) {
@@ -766,6 +776,11 @@ function processTask(item) {
 }
 
 function findAssociatedRequests(empSel, empSelNew) {
+    groupUpdatesFound = false;
+    document.getElementById('reassign').style.display = 'none';
+    document.getElementById('run').disabled = true;
+    const checkboxes = Array.from(document.querySelectorAll('label input[type="checkbox"]'));
+    checkboxes.forEach(cb => cb.checked = false);
     const oldEmpUID = empSel?.selection;
     const newEmpUID = empSelNew?.selection;
     const newAccountIsEnabled = parseInt(empSelNew?.selectionData[newEmpUID]?.deleted) === 0;
@@ -784,18 +799,17 @@ function findAssociatedRequests(empSel, empSelNew) {
         newEmpUID,
         taskType: ''
     }
-    //TODO: display name etc here
-    document.getElementById('section1').style.display = 'none';
+
+    document.getElementById(`${empSel.prefixID}input`).value = `userName:${oldAccount}`;
+    document.getElementById(`${empSelNew.prefixID}input`).value = `userName:${newAccount}`;
+
     document.getElementById('section2').style.display = 'block';
-    document.getElementById('oldAccountName').innerHTML = `<a href="${orgchartPath}/?a=view_employee&empUID=${oldEmpUID}" target="_blank">${oldAccount}</a>`;
-    document.getElementById('newAccountName').innerHTML = `<a href="${orgchartPath}/?a=view_employee&empUID=${newEmpUID}" target="_blank">${newAccount}</a>`;
 
     const queue = new intervalQueue();
     queue.setConcurrency(3);
 
     let calls = [];
 
-    //TODO: initial search selections
     const queryInitiator = new LeafFormQuery();
     queryInitiator.setRootURL('../');
     queryInitiator.addTerm('userID', '=', oldAccount);
@@ -825,7 +839,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     }
                 },
                 {
-                    name: 'Title',
+                    name: 'Request Title',
                     indicatorID: 'requestTitle',
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
@@ -857,7 +871,6 @@ function findAssociatedRequests(empSel, empSelNew) {
     
     /* ******************************* ORGCHART FIELDS *********************************** */
     
-    //TODO: initial search selections
     const queryOrgchartEmployee = new LeafFormQuery();
     queryOrgchartEmployee.setRootURL('../');
     queryOrgchartEmployee.importQuery({
@@ -937,27 +950,20 @@ function findAssociatedRequests(empSel, empSelNew) {
 
     /*  *************************** GROUPS AND POSITIONS ****************************** */
 
-    //TODO: initial search selections
     calls.push(searchGroupsOldAccount(accountAndTaskInfo, queue));
-    //TODO: initial search selections
+
     calls.push(searchPositionsOldAccount(accountAndTaskInfo, queue));
 
     Promise.all(calls).then((res)=> {
+        document.getElementById('reassign').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('run').disabled = false;
+        }, 150);
         queue.setWorker(item => processTask(item));
-
-        document.getElementById('reassign').addEventListener('click', startQueueListener = (event) => {
-            document.getElementById('section2').style.display = 'none';
-            document.getElementById('section3').style.display = 'block';
-            return queue.start().then((res) => {
-                document.getElementById('queue_completed').style.display = 'block';
-                if (groupUpdatesFound === true) {
-                    let elDiv = document.createElement('div');
-                    elDiv.innerHTML = '<h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates</h3>';
-                    document.getElementById('section3').appendChild(elDiv);
-                }
-            });
-        });
-
+        if (!listenerAdded) {
+            document.getElementById('reassign').addEventListener('click', () => { startQueueListener(event, queue) });
+            listenerAdded = true;
+        }
     }).catch(err => console.log('process error', err));
 }
 
@@ -989,6 +995,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
     empSelNew.initialize();
 
     document.getElementById('run').addEventListener('click', function() {
+        document.getElementById('grid_initiator').innerHTML = '';
+        document.getElementById('grid_orgchart_employee').innerHTML = '';
+        document.getElementById('grid_groups_info').innerHTML = '';
+        document.getElementById('grid_positions_info').innerHTML = '';
         findAssociatedRequests(empSel, empSelNew);
     });
     document.getElementById('reset').addEventListener('click', function() {
