@@ -29,12 +29,34 @@ main {
 .grid_table {
     margin-bottom: 4rem;
 }
+label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Source Sans Pro Web", sans-serif;
+    font-size: 16px;
+}
+label input {
+    margin-left: 0.25rem;
+    cursor: pointer;
+}
 table th:not([id^="Vheader"]) {
     background-color: #252f3e;
     color: white;
     font-weight: normal;
     font-size: 1rem;
     padding: 0.25rem;
+}
+table.leaf_grid th, table.leaf_grid td {
+    min-width: fit-content;
+}
+table.leaf_grid {
+    table-layout: auto;
+}
+table.leaf_grid td {
+    white-space: normal;
+    vertical-align: middle;
+    word-break: keep-all;
 }
 .updates_output {
     margin-bottom: 1.5rem;
@@ -63,7 +85,7 @@ table th:not([id^="Vheader"]) {
     color: #085;
 }
 div [id^="LeafFormGrid"] {
-    max-width: 850px;
+    max-width: 900px;
 }
 div [id^="LeafFormGrid"] table {
     background-color: white;
@@ -110,9 +132,9 @@ div [id^="LeafFormGrid"] table {
     It can be used to update the initiator of requests created under the old account, update the content of
     orgchart employee format questions to refer to the new account, and update group memberships.
     </p>
-    <p>
+    <h3>
         <b>Please <a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> prior to scanning accounts.</b>
-    </p>
+    </h3>
     <br/>
 
     <div id="section1">
@@ -141,21 +163,26 @@ div [id^="LeafFormGrid"] table {
         <h3>Requests created by the old account</h3>
         <div id="grid_initiator" class="grid_table"></div>
         
-        <h3>Orgchart Employee fields containing the old account</h3>
+        <div style="display:flex; align-items:center; justify-content: space-between">
+            <h3>Orgchart Employee fields containing the old account</h3>
+            <label for="confirm_indicator_updates">Select All Requests
+                <input type="checkbox" id="confirm_indicator_updates" onclick="checkAll(event)"/>
+            </label>
+        </div>
         <div id="grid_orgchart_employee" class="grid_table"></div>
 
         <div style="display:flex; align-items:center; justify-content: space-between">
             <h3>Groups for Old Account</h3>
-            <label style="color:#c00;" for="confirm_group_updates">Check to confirm
-                <input type="checkbox" id="confirm_group_updates" style="margin-left: 4px;"/>
+            <label for="confirm_group_updates">Select All Groups
+                <input type="checkbox" id="confirm_group_updates" onclick="checkAll(event)"/>
             </label>
         </div>
         <div id="grid_groups_info" class="grid_table"></div>
 
         <div style="display:flex; align-items:center; justify-content: space-between"">
             <h3>Positions for Old Account</h3>
-            <label style="color:#c00;" for="confirm_position_updates">Check to confirm
-                <input type="checkbox" id="confirm_position_updates" style="margin-left: 4px;"/>
+            <label for="confirm_position_updates">Select All Positions
+                <input type="checkbox" id="confirm_position_updates" onclick="checkAll(event)" />
             </label>
         </div>
         <div id=grid_positions_info class="grid_table"></div>
@@ -173,6 +200,9 @@ div [id^="LeafFormGrid"] table {
         <div id="positions_updated" class="updates_output">
             <p><b>Positions Updates</b></p>
         </div>
+        <div id="errors_updated" class="updates_output">
+            <p><b>Processing Errors</b></p>
+        </div>
         <div id="queue_completed" style="display: none"><b>Updates Complete</b></div>
     </div>
 </main>
@@ -184,6 +214,24 @@ const APIroot = '<!--{$APIroot}-->';
 const orgchartPath = '<!--{$orgchartPath}-->';
 
 let groupUpdatesFound = false;
+
+function checkAll(event = {}) {
+    const target = event?.currentTarget || null;
+    const id = target?.id || '';
+    if (id !== '') {
+        const checkboxChecked = target.checked === true;
+        const checkboxes = Array.from(document.querySelectorAll(`input[id^="${id}"]`));
+        checkboxes.forEach(cb => cb.checked = checkboxChecked)
+    }
+}
+function checkOne(event = {}, type = '') {
+    const target = event?.currentTarget || null;
+    const id = target?.id || '';
+    if (id !== '' && type !== '' && target?.checked === false) {
+        const primary = document.getElementById(`confirm_${type}_updates`);
+        if (primary) primary.checked = false;
+    }
+}
 
 function createTextElement(textInput='', isBlockElement = true) {
     const text = XSSHelpers.stripAllTags(textInput);
@@ -235,6 +283,13 @@ function updateOrgEmployeeData(item) {
     return new Promise ((resolve, reject) => {
         const { recordID, indicatorID, newEmpUID, newAccount } = item;
 
+        const elConfirm = document.getElementById(`confirm_indicator_updates_${recordID}_${indicatorID}`);
+        if (elConfirm.checked !== true) {
+            console.log('skipping rec ind', recordID, indicatorID);
+            resolve('updated');
+            return;
+        };
+
         let formData = new FormData();
         formData.append('CSRFToken', CSRFToken);
         formData.append(`${indicatorID}`, newEmpUID);
@@ -243,7 +298,7 @@ function updateOrgEmployeeData(item) {
             method: 'POST',
             body: formData
         }).then(() => {
-            const textEl = createTextElement(`Request # ${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})`);
+            const textEl = createTextElement(`Request #${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})`);
             document.querySelector('#section3 #orgchart_employee_updated')?.appendChild(textEl);
             resolve('updated');
         }).catch(err => {
@@ -265,13 +320,15 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                         (parseInt(m.locallyManaged) === 1 || m.regionallyManaged === true)));
 
                 selectedAccountGroups.forEach(g => {
-                    let memberSettings = g.members.find(m => m.userName === oldAccount);
-                    //store info about whether the new account has already been added (if so do not try adding again)
-                    memberSettings.newAccountExistsInGroup = g.members.some(m => m.userName === newAccount && parseInt(m.active) === 1);
-                    if (parseInt(memberSettings.active) === 1) {
+                    let oldMemberSettings = g.members.find(m => m.userName === oldAccount);
+                    let newMemberSettings = g.members.find(m => m.userName === newAccount && parseInt(m.active) === 1) || null;
+
+                    if (parseInt(oldMemberSettings.active) === 1) {
                         groupInfo[`group_${g.groupID}`] = {
                             ...g,
-                            memberSettings
+                            oldMemberSettings,
+                            newMemberSettings,
+                            newAccountExistsInGroup: newMemberSettings !== null
                         };
                     }
                 });
@@ -301,15 +358,59 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: 'Current Group Member Username',
+                            name: 'Current Username',
                             indicatorID: 'groupMember',
                             editable: false,
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
-                                const localText = parseInt(groupInfo[k].memberSettings.locallyManaged) === 1 ? ' (local)' : '';
-                                const regionalText = groupInfo[k].memberSettings.regionallyManaged === true ? ' (nexus)' : '';
-                                const username = groupInfo[k].memberSettings.userName;
-                                document.getElementById(data.cellContainerID).innerText = `${username}${localText}${regionalText}`;
+                                const isLocal = parseInt(groupInfo[k].oldMemberSettings.locallyManaged) === 1;
+                                const isRegional = groupInfo[k].oldMemberSettings.regionallyManaged === true;
+
+                                const displayName = `${groupInfo[k].oldMemberSettings.lastName}, ${groupInfo[k].oldMemberSettings.firstName}`;
+                                const username = `${groupInfo[k].oldMemberSettings.userName}`;
+
+                                const localText =  isLocal ? ' (local)' : '';
+                                const regionalText =  isRegional ? ' (nexus)' : '';
+
+                                let htmlContent = `<div>${displayName}</div>`;
+                                htmlContent += `<div style="white-space: nowrap;">${username}${localText}${regionalText}</div>`;
+                                document.getElementById(data.cellContainerID).innerHTML = htmlContent;
+                            }
+                        },
+                        {
+                            name: 'New Account Status (if existing)',
+                            indicatorID: 'newAccountStatus',
+                            editable: false,
+                            callback: function(data, blob) {
+                                const k = `group_${data.recordID}`;
+                                let htmlContent = `Select to Assign`;
+                                if (blob[k].newAccountExistsInGroup === true) {
+                                    const isLocal = parseInt(blob[k].newMemberSettings.locallyManaged) === 1;
+                                    const isRegional = blob[k].newMemberSettings.regionallyManaged === true;
+
+                                    const displayName = `${blob[k].newMemberSettings.lastName}, ${blob[k].newMemberSettings.firstName}`;
+                                    const username = `${blob[k].newMemberSettings.userName}`;
+
+                                    const localText =  isLocal ? ' (local)' : '';
+                                    const regionalText =  isRegional ? ' (nexus)' : '';
+
+                                    htmlContent = `<div>${displayName}</div>`;
+                                    htmlContent += `<div style="white-space: nowrap;">${username}${localText}${regionalText}</div>`;
+                                }
+                                document.getElementById(data.cellContainerID).innerHTML = htmlContent;
+                            }
+                        },
+                        {
+                            name: 'Group Selections',
+                            indicatorID: 'addToGroupOptions',
+                            editable: false,
+                            callback: function(data, blob) {
+                                const containerEl = document.getElementById(data.cellContainerID);
+                                const k = `group_${data.recordID}`;
+                                const elInput = `<label for="confirm_group_updates_${k}">Select
+                                        <input type="checkbox" id="confirm_group_updates_${k}" onclick="checkOne(event, 'group')" />
+                                    </label>`
+                                containerEl.innerHTML = elInput;
                             }
                         }
                     ]);
@@ -349,7 +450,6 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                         recordIDs += ele.positionID + ',';
                         positionInfo[`position_${ele.positionID}`] = { ...ele, newAccountExistsForPosition, };
                     });
-
                     const formGrid = new LeafFormGrid('grid_positions_info', {});
                     formGrid.setRootURL('../');
                     formGrid.enableToolbar();
@@ -372,7 +472,38 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                             indicatorID: 'userName',
                             editable: false,
                             callback: function(data, blob) {
-                                document.getElementById(data.cellContainerID).innerText = oldAccount;
+                                const k = `position_${data.recordID}`;
+                                const empInfo = blob[k].employeeList.find(emp => emp.userName === oldAccount);
+                                const displayName = `${empInfo.lastName}, ${empInfo.firstName}`;
+                                const htmlContent = `<div>${displayName}${parseInt(empInfo.isActing) === 1 ? ' (Acting)' : ''}</div><div>${oldAccount}</div>`;
+                                document.getElementById(data.cellContainerID).innerHTML = htmlContent;
+                            }
+                        },
+                        {
+                            name: 'New Account Status (if existing)',
+                            indicatorID: 'newAccountStatus',
+                            editable: false,
+                            callback: function(data, blob) {
+                                const k = `position_${data.recordID}`;
+                                let htmlContent = `Select to Assign`;
+                                if (blob[k].newAccountExistsForPosition === true) {
+                                    const empInfo = blob[k].employeeList.find(emp => emp.userName === newAccount);
+                                    const displayName = `${empInfo.lastName}, ${empInfo.firstName}`;
+                                    htmlContent = `<div>${displayName}${parseInt(empInfo.isActing) === 1 ? ' (Acting)' : ''}</div><div>${newAccount}</div>`;
+                                }
+                                document.getElementById(data.cellContainerID).innerHTML = htmlContent;
+                            }
+                        },
+                        {
+                            name: 'Position Selections',
+                            indicatorID: 'addToPositionOptions',
+                            editable: false,
+                            callback: function(data, blob) {
+                                const k = `position_${data.recordID}`;
+                                const elInput = `<label for="confirm_position_updates_${k}">Select
+                                    <input type="checkbox" id="confirm_position_updates_${k}" onclick="checkOne(event, 'position')" />
+                                    </label>`
+                                document.getElementById(data.cellContainerID).innerHTML = elInput;
                             }
                         }
                     ]);
@@ -397,159 +528,134 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
 
 function updateGroupAccount(item) {
     return new Promise ((resolve, reject) => {
-        const elConfirm = document.getElementById('confirm_group_updates');
+        const { locallyManaged, regionallyManaged, userAccountGroupID,
+            oldAccount, newAccount, oldEmpUID, newEmpUID } = item;
+
+        const elConfirm = document.getElementById(`confirm_group_updates_group_${userAccountGroupID}`);
         if (elConfirm.checked !== true) {
             resolve('updated');
             return;
         };
 
-        const { locallyManaged, regionallyManaged, userAccountGroupID, oldAccount, newAccount, oldEmpUID, newEmpUID } = item;
         const totalUserGroupUpdates = +(parseInt(locallyManaged) === 1) + +(regionallyManaged === true);
         let processedGroupUpdates = 0;
         //PORTAL UPDATES
         if (parseInt(locallyManaged) === 1) {
-            //If new account already exists and is active, TODO: just rm old, replace new with old settings, or skip entirely?
-            if(item.newAccountExistsInGroup === true) {
-                removeFromGroup(item, 'portal').then(() => {
-                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${item.groupName} (local)`)
-                    document.querySelector('#section3 #groups_updated').appendChild(textEl);
-                    processedGroupUpdates += 1;
-                    if (processedGroupUpdates === totalUserGroupUpdates) {
-                        resolve('updated');
-                    }
-                });
+            let formData = new FormData();
+            formData.append('CSRFToken', CSRFToken);
+            formData.append('userID', newAccount);
 
-            } else {
-                let formData = new FormData();
-                formData.append('CSRFToken', CSRFToken);
-                formData.append('userID', newAccount);
+            fetch(`${APIroot}group/${userAccountGroupID}/members`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data === newAccount) {
+                    removeFromGroup(item, 'portal').then(() => {
+                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (local)`);
+                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
+                        processedGroupUpdates += 1;
+                        if (processedGroupUpdates === totalUserGroupUpdates) {
+                            resolve('updated');
+                        }
+                    });
 
-                fetch(`${APIroot}group/${userAccountGroupID}/members`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data === newAccount) {
-                        removeFromGroup(item, 'portal').then(() => {
-                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (local)`);
-                            document.querySelector('#section3 #groups_updated').appendChild(textEl);
-                            processedGroupUpdates += 1;
-                            if (processedGroupUpdates === totalUserGroupUpdates) {
-                                resolve('updated');
-                            }
-                        });
+                } else {
+                    const text = `Error adding ${newAccount} to ${item.groupName} (portal)`;
+                    const textEl = createTextElement(text);
+                    document.querySelector('#section3 #errors_updated').appendChild(textEl);
 
-                    } else {
-                        const err = new Error(`error adding ${newAccount} to group`);
-                        console.log(err);
-                        reject(err)
-                    }
+                    const err = new Error(text);
+                    reject(err)
+                }
 
-                }).catch(err => {
-                    console.log(`error adding local user ${newAccount} to group ${userAccountGroupID}`, err);
-                    reject(err);
-                });
-            }
+            }).catch(err => {
+                console.log(`error adding local user ${newAccount} to group ${userAccountGroupID}`, err);
+                reject(err);
+            });
         }
         //NEXUS UPDATES
         if (regionallyManaged === true) {
-            if(item.newAccountExistsInGroup === true) {
-                removeFromGroup(item, 'nexus').then(() => {
-                    const textEl = createTextElement(`New account already exists. Removed old account ${oldAccount} from ${item.groupName} (nexus)`);
-                    document.querySelector('#section3 #groups_updated').appendChild(textEl);
-                    processedGroupUpdates += 1;
-                    if (processedGroupUpdates === totalUserGroupUpdates) {
-                        resolve('updated');
-                    }
-                });
 
-            } else {
-                let formData = new FormData();
-                formData.append('CSRFToken', CSRFToken);
-                formData.append('empUID', newEmpUID);
-
-                fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (parseInt(data) === parseInt(newEmpUID)) {
-                        removeFromGroup(item, 'nexus').then(() => {
-                            const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (nexus)`);
-                            document.querySelector('#section3 #groups_updated').appendChild(textEl);
-                            processedGroupUpdates += 1;
-                            if (processedGroupUpdates === totalUserGroupUpdates) {
-                                resolve('updated')
-                            }
-                        });
-
-                    } else {
-                        const err = new Error(`error adding ${newAccount} to group`);
-                        console.log(err);
-                        reject(err)
-                    }
-
-                }).catch(err => {
-                    console.log(err);
-                    reject(err);
-                });
-            }
-        }
-    });
-}
-
-function updatePositionAccount(item) {
-    return new Promise ((resolve, reject) => {
-        const elConfirm = document.getElementById('confirm_position_updates');
-        if (elConfirm.checked !== true) {
-            resolve('updated');
-            return;
-        };
-
-        const { newAccountExistsForPosition, userAccountPositionID, userAccountPositionIsActing, newEmpUID, oldEmpUID } = item;
-
-        if (newAccountExistsForPosition === true) {
-            removeFromPosition(item).then(() => {
-                const { oldAccount, positionTitle } = item;
-                const textEl = createTextElement(`New account already exists. Removed ${oldAccount} from position: ${positionTitle}`);
-                document.querySelector('#section3 #positions_updated').appendChild(textEl);
-                resolve('updated');
-            });
-
-        } else {
             let formData = new FormData();
             formData.append('CSRFToken', CSRFToken);
             formData.append('empUID', newEmpUID);
-            formData.append('isActing', userAccountPositionIsActing);
 
-            fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee`, {
+            fetch(`${orgchartPath}/api/group/${userAccountGroupID}/employee`, {
                 method: 'POST',
                 body: formData
             })
             .then(res => res.json())
             .then(data => {
                 if (parseInt(data) === parseInt(newEmpUID)) {
-                    removeFromPosition(item).then(() => {
-                        const { oldAccount, newAccount, positionTitle } = item;
-                        const acting = parseInt(userAccountPositionIsActing) === 1 ? ' (Acting)' : '';
-                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to position: ${positionTitle}${acting}`);
-                        document.querySelector('#section3 #positions_updated').appendChild(textEl);
-                        resolve('updated');
-                    })
+                    removeFromGroup(item, 'nexus').then(() => {
+                        const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (nexus)`);
+                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
+                        processedGroupUpdates += 1;
+                        if (processedGroupUpdates === totalUserGroupUpdates) {
+                            resolve('updated')
+                        }
+                    });
 
                 } else {
-                    const err = new Error(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`);
-                    console.log(res, err);
-                    reject(err);
+                    const text = `Error adding ${newAccount} to ${item.groupName} (nexus)`;
+                    const textEl = createTextElement(text);
+                    document.querySelector('#section3 #errors_updated').appendChild(textEl);
+
+                    const err = new Error(text);
+                    reject(err)
                 }
 
             }).catch(err => {
-                console.log(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`, err);
+                console.log(err);
                 reject(err);
             });
         }
+    });
+}
+
+function updatePositionAccount(item) {
+    return new Promise ((resolve, reject) => {
+        const { newAccountExistsForPosition, userAccountPositionID, userAccountPositionIsActing,
+            newEmpUID, oldEmpUID } = item;
+
+        const elConfirm = document.getElementById(`confirm_position_updates_position_${userAccountPositionID}`);
+        if (elConfirm.checked !== true) {
+            resolve('updated');
+            return;
+        };
+
+        let formData = new FormData();
+        formData.append('CSRFToken', CSRFToken);
+        formData.append('empUID', newEmpUID);
+        formData.append('isActing', userAccountPositionIsActing);
+
+        fetch(`${orgchartPath}/api/position/${userAccountPositionID}/employee`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (parseInt(data) === parseInt(newEmpUID)) {
+                removeFromPosition(item).then(() => {
+                    const { oldAccount, newAccount, positionTitle } = item;
+                    const acting = parseInt(userAccountPositionIsActing) === 1 ? ' (Acting)' : '';
+                    const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to position: ${positionTitle}${acting}`);
+                    document.querySelector('#section3 #positions_updated').appendChild(textEl);
+                    resolve('updated');
+                })
+
+            } else {
+                const err = new Error(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`);
+                console.log(res, err);
+                reject(err);
+            }
+
+        }).catch(err => {
+            console.log(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`, err);
+            reject(err);
+        });
     });
 }
 
@@ -627,9 +733,9 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
             userAccountPositionIsActing: isActing,
             indicatorID: res[recordID]?.indicatorID || 0,
             positionTitle: res[recordID]?.positionTitle || 0,
-            locallyManaged: res[recordID]?.memberSettings?.locallyManaged,
-            regionallyManaged: res[recordID]?.memberSettings?.regionallyManaged,
-            newAccountExistsInGroup: res[recordID]?.memberSettings?.newAccountExistsInGroup,
+            locallyManaged: res[recordID]?.oldMemberSettings?.locallyManaged,
+            regionallyManaged: res[recordID]?.oldMemberSettings?.regionallyManaged,
+            newAccountExistsInGroup: res[recordID]?.newAccountExistsInGroup,
             newAccountExistsForPosition: res[recordID]?.newAccountExistsForPosition
         }
         queue.push(item);
@@ -678,7 +784,7 @@ function findAssociatedRequests(empSel, empSelNew) {
         newEmpUID,
         taskType: ''
     }
-
+    //TODO: display name etc here
     document.getElementById('section1').style.display = 'none';
     document.getElementById('section2').style.display = 'block';
     document.getElementById('oldAccountName').innerHTML = `<a href="${orgchartPath}/?a=view_employee&empUID=${oldEmpUID}" target="_blank">${oldAccount}</a>`;
@@ -689,6 +795,7 @@ function findAssociatedRequests(empSel, empSelNew) {
 
     let calls = [];
 
+    //TODO: initial search selections
     const queryInitiator = new LeafFormQuery();
     queryInitiator.setRootURL('../');
     queryInitiator.addTerm('userID', '=', oldAccount);
@@ -707,11 +814,11 @@ function findAssociatedRequests(empSel, empSelNew) {
             formGrid.setDataBlob(res);
             formGrid.setHeaders([
                 {
-                    name: 'UID',
+                    name: 'Request UID',
                     indicatorID: 'uid',
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerHTML = data.recordID;
+                        containerEl.innerText = data.recordID;
                         containerEl.addEventListener('click', () => {
                             window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
@@ -750,6 +857,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     
     /* ******************************* ORGCHART FIELDS *********************************** */
     
+    //TODO: initial search selections
     const queryOrgchartEmployee = new LeafFormQuery();
     queryOrgchartEmployee.setRootURL('../');
     queryOrgchartEmployee.importQuery({
@@ -777,7 +885,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     indicatorID: 'uid',
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerHTML = data.recordID;
+                        containerEl.innerText = data.recordID;
                         containerEl.addEventListener('click', () => {
                             window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
@@ -801,6 +909,20 @@ function findAssociatedRequests(empSel, empSelNew) {
                     callback: function(data, blob) {
                         document.getElementById(data.cellContainerID).innerText = `indicator ${blob[data.recordID].indicatorID}`;
                     }
+                },
+                {
+                    name: 'Indicator Selections',
+                    indicatorID: 'updateIndicatorOptions',
+                    editable: false,
+                    callback: function(data, blob) {
+                        const containerEl = document.getElementById(data.cellContainerID);
+                        const k = data.recordID;
+                        const indID = blob[k].indicatorID;
+                        const elInput = `<label for="confirm_indicator_updates_${k}_${indID}">Select
+                                <input type="checkbox" id="confirm_indicator_updates_${k}_${indID}" onclick="checkOne(event, 'indicator')" />
+                            </label>`
+                        containerEl.innerHTML = elInput;
+                    }
                 }
             ]);
             formGrid.loadData(recordIDs);
@@ -815,22 +937,19 @@ function findAssociatedRequests(empSel, empSelNew) {
 
     /*  *************************** GROUPS AND POSITIONS ****************************** */
 
+    //TODO: initial search selections
     calls.push(searchGroupsOldAccount(accountAndTaskInfo, queue));
-
+    //TODO: initial search selections
     calls.push(searchPositionsOldAccount(accountAndTaskInfo, queue));
 
     Promise.all(calls).then((res)=> {
-        queue.setWorker(item => {
-            return processTask(item);
-        });
+        queue.setWorker(item => processTask(item));
+
         document.getElementById('reassign').addEventListener('click', startQueueListener = (event) => {
             document.getElementById('section2').style.display = 'none';
             document.getElementById('section3').style.display = 'block';
             return queue.start().then((res) => {
-                let elStatus = document.getElementById('queue_completed');
-                if (elStatus !== null) {
-                    elStatus.style.display = 'block';
-                }
+                document.getElementById('queue_completed').style.display = 'block';
                 if (groupUpdatesFound === true) {
                     let elDiv = document.createElement('div');
                     elDiv.innerHTML = '<h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates</h3>';
