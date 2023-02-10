@@ -11,7 +11,7 @@ var path = require('path'), // ensures that the path is consistent, regardless o
      * @type {Object}
      */
     options = {
-        collection: path.join(__dirname, 'PP_Load_collection-2023-02-02.json')
+        collection: path.join(__dirname, 'PreProd-LOAD-TESTS.json')
     },   
     /**
      * A collection runner function that runs a collection for a pre-determined options object.
