@@ -49,10 +49,16 @@ class IconPicker
         {
             if (strpos($image, '.svg') > 0)
             {
-                $retImg = (object)[];
-                $retImg->src = "./?img={$image}&amp;w=32";
-                $retImg->alt = "{$image}";
-                $retImg->name = $this->extractIconName($image);
+                $retImg = array(
+                    'src' => "../libs/dynicons/?img={$image}&amp;w=32",
+                    'alt' => "{$image}",
+                    'name' => $this->extractIconName($image)
+                );
+
+                if (!isset($_GET['noSVG']) || $_GET['noSVG'] != 1) {
+                    $retImg['src'] = "../libs/dynicons/svg/{$image}";
+                }
+
                 array_push($retArr, $retImg);
             }
         }

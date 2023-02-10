@@ -9,7 +9,13 @@
 <div class="leaf-sitemap-flex-container">
 
 	<!--{foreach $sitemap->buttons as $site}-->
-		<div class="leaf-sitemap-card"  onclick="window.location.href='<!--{$site->target}-->'" style="background-color: <!--{$site->color}-->; color: <!--{$site->fontColor}-->;">
+		<div class="leaf-sitemap-card"  
+			onclick="window.location.href='<!--{$site->target}-->'" 
+			style="cursor:pointer; background-color: <!--{$site->color}-->; color: <!--{$site->fontColor}-->;"
+		>
+			<!--{if $site->icon !== ''}-->
+				<img style="float: left; margin-right: 1rem;" src="<!--{$site->icon}-->">
+			<!--{/if}-->
 			<h3 style="color: <!--{$site->fontColor}-->;"><!--{$site->title}--></h3>
 			<p><!--{$site->description}--></p>
 		</div>
