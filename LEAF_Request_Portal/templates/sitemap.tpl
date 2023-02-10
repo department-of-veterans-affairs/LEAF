@@ -12,6 +12,7 @@
 		<div class="leaf-sitemap-card"  
 			onclick="window.location.href='<!--{$site->target}-->'" 
 			style="cursor:pointer; background-color: <!--{$site->color}-->; color: <!--{$site->fontColor}-->;"
+			tabindex="0"
 		>
 			<!--{if $site->icon !== ''}-->
 				<img style="float: left; margin-right: 1rem;" src="<!--{$site->icon}-->">
@@ -22,3 +23,12 @@
 	<!--{/foreach}-->
 
 </div>
+
+<script>
+	$('.leaf-sitemap-card').on('keydown', function() {
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			event.target.click();
+		}
+	});
+</script>

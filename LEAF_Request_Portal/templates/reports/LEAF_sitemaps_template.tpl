@@ -86,7 +86,14 @@
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
         const icon = button.icon ? '<img style="float: left; margin-right: 1rem;" src="' + button.icon + '">' : '';
-        $('div#sortable').append('<div class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' + button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id + '\');" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' + icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
+        $('div#sortable').append('<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" onClick="editButtonDialog(\'' + button.id + '\');" style="cursor: pointer; background-color: ' + button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a tabindex="-1" href="javascript:void(0);" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' + icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
+        $('#div_buttonID_' + button.id).on('keydown', function(event) {          
+            console.log(event.keyCode);
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                $('#div_buttonID_' + button.id).click();
+            }
+        });
     }
 
     // get difference between click and drag for editing cards
@@ -112,7 +119,6 @@
             }
         }
     });
-
 
     //remove button from sortable list and sidenav
     function deleteButtonFromUI(buttonID){
@@ -235,13 +241,19 @@
         '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
         '<div id="picked-icon" class="icon-picked" style="display: inline-block;">' + (icon ? '<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') + '</div>' +
         '</div>' +
-        '<div id="iconpicker" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
+        '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
         '<div class="leaf-buttonBar leaf-clearBoth">' +
         '<button class="usa-button usa-button--secondary leaf-float-right" onClick="deleteButtonFromUI(\'' + buttonID + '\');" id="delete-button">Delete card</button>' +
         '</div>' +
         '</div></div>');
         document.querySelector("#xhr input[name='btnColor']").value = color ?? '#ffffff';
         document.querySelector("#xhr input[name='btnFntColor']").value = fontColor ?? '#000000';
+        $('#iconpicker').on('keydown', function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                event.target.parentElement.click();
+            }
+        });
         
         // save handler
         dialog.setSaveHandler(function() {
@@ -281,16 +293,19 @@
             success: function(results) {
                 for (result in results) {
                     icon = results[result];
+                    icon.id = icon.alt.replace('.svg', '');
                     $('#iconpicker').append(`
-                        <div value=${icon.src} onClick="selectIcon('${icon.src}');" style="cursor: pointer;">
-                            <div style="padding: 1rem; float: left;">
+                        <div id="${icon.id}_parent" value=${icon.src} onClick="selectIcon('${icon.src}');" style="cursor: pointer;">
+                            <div id="${icon.id}_child" style="padding: 1rem; float: left;" tabindex="0">
                                 <img class="icon" style="vertical-align: middle;" src="${icon.src}" alt="${icon.alt}" title="${icon.name}" />
                             </div>
                         </div>
                     `);
                 }
             },
-            cache: false
+            fail: function(err) {
+                console.log(err);
+            }
         });
     }
 
