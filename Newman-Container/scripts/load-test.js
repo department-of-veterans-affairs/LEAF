@@ -7,7 +7,7 @@
 */
 
 var path = require('path'), // ensures that the path is consistent, regardless of where the script is run from
-    async = require('async'), // https://npmjs.org/package/async
+    async = require('async'), // https://npmjs.org/package/async 
     newman = require('newman'), // change to require('newman'), if using outside this repository, otherwise  //newman = require('../'),
     /**
      * @type {Object}
@@ -32,7 +32,7 @@ async.parallel(runs,
     * @param {Array} results - An array of collection run summary objects.
     */
     function (err, results) {
-        err && console.error(err, results);
+        err && console.error(err);      // deleted param 'results'
         results.forEach(function (result) {
             var failures = result.run.failures;
             console.info(failures.length ? JSON.stringify(failures.failures, null, 2) :

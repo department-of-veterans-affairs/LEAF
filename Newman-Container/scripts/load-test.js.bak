@@ -1,12 +1,13 @@
 /**
-*    To execute, from Windows terminal -> get inside the container (docker exec -it newman bash)
+*    To execute, from Windows terminal -> get inside the container:
+*		-> docker exec -it newman bash      (Can be run from anywhere in the repo)
 *    then -> node load-tests.js
 *
 * @fileOverview A script to execute parallel collection runs using async.
 */
 
 var path = require('path'), // ensures that the path is consistent, regardless of where the script is run from
-    async = require('async'), // https://npmjs.org/package/async
+    async = require('async'), // https://npmjs.org/package/async 
     newman = require('newman'), // change to require('newman'), if using outside this repository, otherwise  //newman = require('../'),
     /**
      * @type {Object}
@@ -31,7 +32,7 @@ async.parallel(runs,
     * @param {Array} results - An array of collection run summary objects.
     */
     function (err, results) {
-        err && console.error(err, results);
+        err && console.error(err);      // deleted param results
         results.forEach(function (result) {
             var failures = result.run.failures;
             console.info(failures.length ? JSON.stringify(failures.failures, null, 2) :
@@ -40,5 +41,3 @@ async.parallel(runs,
 });
 
  
-
-/*  To execute, from ~/workspace/performance-test   PROMPT> LoadTesting-PreProd.js   */
