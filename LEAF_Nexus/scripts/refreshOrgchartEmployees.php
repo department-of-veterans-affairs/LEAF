@@ -120,7 +120,7 @@ function updateUserInfo($userName, $empUID)
                 ':userName' => $userName
             );
             $sql = "UPDATE employee
-                    SET userDisabled=:deleted
+                    SET deleted=:deleted
                     WHERE userName=:userName";
 
             $db->prepared_query($sql, $vars);
