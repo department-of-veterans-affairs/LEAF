@@ -37,9 +37,9 @@ class IconPickerController extends RESTfulResponse
      * Purpose: Return JSON data depending on endpoint string passed.
      * 
      * @param string $act
-     * @return string
+     * @return array
      */
-    public function get($act): string
+    public function get($act): array
     {
         $db = $this->db;
         $login = $this->login;
@@ -58,9 +58,9 @@ class IconPickerController extends RESTfulResponse
      * Purpose: Return JSON data depending on endpoint string passed.
      * 
      * @param string $act
-     * @return string
+     * @return array
      */
-    // public function post($act): string
+    // public function post($act): array
     // {
     //     $workflow = $this->iconPicker;
 

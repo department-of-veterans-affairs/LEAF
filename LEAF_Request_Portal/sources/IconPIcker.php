@@ -32,6 +32,8 @@ class IconPicker
 
     private $login; 
 
+    protected array $pickedIcons;
+
     /**
      * Construct IconPicker
      * 
@@ -40,6 +42,7 @@ class IconPicker
     public function __construct($db, $login)
     {
         $this->login = $login;
+        $this->pickedIcons = array();
     }
 
     /**
@@ -51,7 +54,6 @@ class IconPicker
     {
         $folder = '../../libs/dynicons/svg/';
         $images = scandir($folder);
-        $retArr = array();
 
         foreach ($images as $image)
         {
@@ -67,11 +69,11 @@ class IconPicker
                     $retImg['src'] = "../libs/dynicons/svg/{$image}";
                 }
 
-                array_push($retArr, $retImg);
+                array_push($this->pickedIcons, $retImg);
             }
         }
 
-        return $retArr;
+        return $this->pickedIcons;
     }
 
     /**
@@ -80,7 +82,7 @@ class IconPicker
      * @param string $name
      * @return string $formattedName
      */
-    private function extractIconName($name): string
+    private function extractIconName(string $name): string
     {
         if (empty($name)) {
             return '';
