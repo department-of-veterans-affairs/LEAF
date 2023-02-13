@@ -158,12 +158,11 @@ div [id^="LeafFormGrid"] table {
         </div>
     </div>
     <div id="section2" style="display: none; margin-top: 1rem;">
-
         <h4>Requests created by the old account</h4>
         <div id="grid_initiator" class="grid_table"></div>
         
         <div style="display:flex; align-items:center; justify-content: space-between">
-            <h4>Orgchart Employee fields containing the old account</h4>
+            <h4>Orgchart Employee dependency fields containing the old account</h4>
             <label for="confirm_indicator_updates">Select All Requests
                 <input type="checkbox" id="confirm_indicator_updates" onclick="checkAll(event)"/>
             </label>
@@ -322,6 +321,27 @@ function reassignInitiator(item) {
             const textEl = createTextElement(`Error assigning request #${recordID} to ${newAccount}`);
             elErrors.appendChild(textEl);
             reject(err);
+        });
+    });
+}
+
+function getWorkflowEmployeeDependencyIndicators() {
+    return new Promise ((resolve, reject) => {
+        fetch(`${APIroot}workflow/steps`)
+        .then(res => res.json())
+        .then(data => {
+            let list = [];
+            const regDigits = /^\d+$/;
+            data.forEach(step => {
+                if (regDigits.test(step.indicatorID_for_assigned_empUID)) {
+                    list.push(parseInt(step.indicatorID_for_assigned_empUID));
+                }
+            });
+            resolve(list);
+
+        }).catch(err => {
+            console.log(err);
+            reject(err)
         });
     });
 }
@@ -904,7 +924,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     });
     calls.push(queryInitiator.execute());
     
-    /* ******************************* ORGCHART FIELDS *********************************** */
+    /* ******************************* ORGCHART EMPLOYEE DEPENDENCIES *********************************** */
     
     const queryOrgchartEmployee = new LeafFormQuery();
     queryOrgchartEmployee.setRootURL('../');
@@ -917,69 +937,76 @@ function findAssociatedRequests(empSel, empSelNew) {
         "sort":{}
     });
     queryOrgchartEmployee.onSuccess(function(res) {
-        if (res instanceof Object && Object.keys(res).length > 0) {
-            let recordIDs = '';
+        let recordIDs = '';
+        getWorkflowEmployeeDependencyIndicators().then(dependencyIndIDs => {
             for (let i in res) {
-                recordIDs += res[i].recordID + ',';
-            }
-            const formGrid = new LeafFormGrid('grid_orgchart_employee', {});
-            formGrid.setRootURL('../');
-            formGrid.enableToolbar();
-            formGrid.hideIndex();
-            formGrid.setDataBlob(res);
-            formGrid.setHeaders([
-                {
-                    name: 'Request UID',
-                    indicatorID: 'uid',
-                    callback: function(data, blob) {
-                        let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = data.recordID;
-                        containerEl.addEventListener('click', () => {
-                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
-                        });
-                    }
-                },
-                {
-                    name: 'Request Title',
-                    indicatorID: 'requestTitle',
-                    callback: function(data, blob) {
-                        let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
-                        containerEl.addEventListener('click', () => {
-                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
-                        });
-                    }
-                },
-                {
-                    name: 'Question to Update',
-                    indicatorID: 'requestField',
-                    editable: false,
-                    callback: function(data, blob) {
-                        document.getElementById(data.cellContainerID).innerText = `indicator ${blob[data.recordID].indicatorID}`;
-                    }
-                },
-                {
-                    name: 'Indicator Selections',
-                    indicatorID: 'updateIndicatorOptions',
-                    editable: false,
-                    callback: function(data, blob) {
-                        const containerEl = document.getElementById(data.cellContainerID);
-                        const k = data.recordID;
-                        const indID = blob[k].indicatorID;
-                        const elInput = `<label for="confirm_indicator_updates_${k}_${indID}">Select
-                                <input type="checkbox" id="confirm_indicator_updates_${k}_${indID}" onclick="checkOne(event, 'indicator')" />
-                            </label>`
-                        containerEl.innerHTML = elInput;
-                    }
+                if(!dependencyIndIDs.includes(parseInt(res[i].indicatorID))) {
+                    delete res[i];
+                } else {
+                    recordIDs += res[i].recordID + ',';
                 }
-            ]);
-            formGrid.loadData(recordIDs);
+            }
+            if (Object.keys(res).length > 0) {
+                const formGrid = new LeafFormGrid('grid_orgchart_employee', {});
+                formGrid.setRootURL('../');
+                formGrid.enableToolbar();
+                formGrid.hideIndex();
+                formGrid.setDataBlob(res);
+                formGrid.setHeaders([
+                    {
+                        name: 'Request UID',
+                        indicatorID: 'uid',
+                        callback: function(data, blob) {
+                            let containerEl = document.getElementById(data.cellContainerID);
+                            containerEl.innerText = data.recordID;
+                            containerEl.addEventListener('click', () => {
+                                window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            });
+                        }
+                    },
+                    {
+                        name: 'Request Title',
+                        indicatorID: 'requestTitle',
+                        callback: function(data, blob) {
+                            let containerEl = document.getElementById(data.cellContainerID);
+                            containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
+                            containerEl.addEventListener('click', () => {
+                                window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            });
+                        }
+                    },
+                    {
+                        name: 'Question to Update',
+                        indicatorID: 'requestField',
+                        editable: false,
+                        callback: function(data, blob) {
+                            document.getElementById(data.cellContainerID).innerText = `indicator ${blob[data.recordID].indicatorID}`;
+                        }
+                    },
+                    {
+                        name: 'Indicator Selections',
+                        indicatorID: 'updateIndicatorOptions',
+                        editable: false,
+                        callback: function(data, blob) {
+                            const containerEl = document.getElementById(data.cellContainerID);
+                            const k = data.recordID;
+                            const indID = blob[k].indicatorID;
+                            const elInput = `<label for="confirm_indicator_updates_${k}_${indID}">Select
+                                    <input type="checkbox" id="confirm_indicator_updates_${k}_${indID}" onclick="checkOne(event, 'indicator')" />
+                                </label>`
+                            containerEl.innerHTML = elInput;
+                        }
+                    }
+                ]);
+                formGrid.loadData(recordIDs);
 
-            accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
-            enqueueTask(res, accountAndTaskInfo, queue);
-        } else {
-            elGridOrgchartEmp.appendChild(createTextElement('No records found'));
-        }
+                accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
+                enqueueTask(res, accountAndTaskInfo, queue);
+
+            } else {
+                elGridOrgchartEmp.appendChild(createTextElement('No records found'));
+            }
+        });
     });
     calls.push(queryOrgchartEmployee.execute());
 
