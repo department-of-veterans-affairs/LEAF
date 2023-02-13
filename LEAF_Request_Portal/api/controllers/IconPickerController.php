@@ -22,13 +22,24 @@ class IconPickerController extends RESTfulResponse
 
     private $login;
 
+    /**
+     * Construct
+     * 
+     * @param Db $db, Login $login
+     */
     public function __construct($db, $login)
     {
         $this->login = $login;
         $this->iconPicker = new IconPicker($db, $login);
     }
 
-    public function get($act)
+    /**
+     * Purpose: Return JSON data depending on endpoint string passed.
+     * 
+     * @param string $act
+     * @return string
+     */
+    public function get($act): string
     {
         $db = $this->db;
         $login = $this->login;
@@ -43,7 +54,13 @@ class IconPickerController extends RESTfulResponse
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
-    // public function post($act)
+    /**
+     * Purpose: Return JSON data depending on endpoint string passed.
+     * 
+     * @param string $act
+     * @return string
+     */
+    // public function post($act): string
     // {
     //     $workflow = $this->iconPicker;
 

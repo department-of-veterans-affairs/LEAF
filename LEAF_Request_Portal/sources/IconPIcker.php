@@ -32,14 +32,22 @@ class IconPicker
 
     private $login; 
 
-
+    /**
+     * Construct IconPicker
+     * 
+     * @param Db $db, Login $login
+     */
     public function __construct($db, $login)
     {
         $this->login = $login;
     }
 
-    // return array of icons with file address and corresponding name.
-    public function getAllIcons()
+    /**
+     * Purpose: Get all icons in svg directory and return object with relevant data for each image.
+     * 
+     * @return array $retArr
+     */
+    public function getAllIcons(): array
     {
         $folder = '../../libs/dynicons/svg/';
         $images = scandir($folder);
@@ -66,9 +74,18 @@ class IconPicker
         return $retArr;
     }
 
-    // map array of icon file names to have formatted names that the user can easily read.
-    private function extractIconName($name)
+    /**
+     * Purpose: Map array of icon files names to have formatted names that the user can easily read.
+     * 
+     * @param string $name
+     * @return string $formattedName
+     */
+    private function extractIconName($name): string
     {
+        if (empty($name)) {
+            return '';
+        }
+
         $formattedName = str_replace(".svg", "", $name);
         $formattedName = str_replace("-", " ", mb_convert_case($formattedName, MB_CASE_TITLE, "UTF-8"));
         $formattedName = str_replace("_", " - ", $formattedName);
