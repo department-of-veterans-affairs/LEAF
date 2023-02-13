@@ -162,9 +162,9 @@ div [id^="LeafFormGrid"] table {
         <div id="grid_initiator" class="grid_table"></div>
         
         <div style="display:flex; align-items:center; justify-content: space-between">
-            <h4>Orgchart Employee dependency fields containing the old account</h4>
+            <h4>Orgchart Employee fields containing the old account</h4>
             <label for="confirm_indicator_updates">Select All Requests
-                <input type="checkbox" id="confirm_indicator_updates" onclick="checkAll(event)"/>
+                <input type="checkbox" id="confirm_indicator_updates" onclick="checkAll(event)" checked />
             </label>
         </div>
         <div id="grid_orgchart_employee" class="grid_table"></div>
@@ -172,38 +172,38 @@ div [id^="LeafFormGrid"] table {
         <div style="display:flex; align-items:center; justify-content: space-between">
             <h4>Groups for Old Account</h4>
             <label for="confirm_group_updates">Select All Groups
-                <input type="checkbox" id="confirm_group_updates" onclick="checkAll(event)"/>
+                <input type="checkbox" id="confirm_group_updates" onclick="checkAll(event)"- checked />
             </label>
         </div>
         <div id="grid_groups_info" class="grid_table"></div>
 
-        <div style="display:flex; align-items:center; justify-content: space-between"">
+        <div style="display:flex; align-items:center; justify-content: space-between;">
             <h4>Positions for Old Account</h4>
             <label for="confirm_position_updates">Select All Positions
-                <input type="checkbox" id="confirm_position_updates" onclick="checkAll(event)" />
+                <input type="checkbox" id="confirm_position_updates" onclick="checkAll(event)" checked />
             </label>
         </div>
         <div id=grid_positions_info class="grid_table"></div>
     </div>
     <div id="section3" style="display: none">
         <p><b>Initiator Updates</b></p>
-        <div id='initiators_no_updates'>no updates</div>
+        <div id="initiators_no_updates" style="display: none;">no updates</div>
         <div id="initiators_updated" class="updates_output"></div>
 
         <p><b>Orgchart Employee Field Updates</b></p>
-        <div id='orgchart_no_updates'>no updates</div>
+        <div id='orgchart_no_updates' style="display: none;">no updates</div>
         <div id="orgchart_employee_updated" class="updates_output"></div>
 
         <p><b>Group Updates</b></p>
-        <div id='groups_no_updates'>no updates</div>
+        <div id="groups_no_updates" style="display: none;">no updates</div>
         <div id="groups_updated" class="updates_output"></div>
 
         <p><b>Positions Updates</b></p>
-        <div id='positions_no_updates'>no updates</div>
+        <div id="positions_no_updates" style="display: none;">no updates</div>
         <div id="positions_updated" class="updates_output"></div>
 
         <p><b>Processing Errors</b></p>
-        <div id='no_errors'>no errors</div>
+        <div id="no_errors" style="display: none;">no errors</div>
         <div id="errors_updated" class="updates_output"></div>
 
         <div id="queue_completed" style="display: none">
@@ -234,6 +234,11 @@ const elErrors = document.getElementById('errors_updated');
 function startQueueListener(event, queue) {
     document.getElementById('section2').style.display = 'none';
     document.getElementById('section3').style.display = 'block';
+    document.getElementById('initiators_no_updates').style.display = 'none';
+    document.getElementById('orgchart_no_updates').style.display = 'none';
+    document.getElementById('groups_no_updates').style.display = 'none';
+    document.getElementById('positions_no_updates').style.display = 'none';
+    document.getElementById('no_errors').style.display = 'none';
     return queue.start().then(res => {
         document.getElementById('initiators_no_updates').style.display = Array.from(elInitiatorsUpdated.children).length === 0 ? 'block' : 'none';
         document.getElementById('orgchart_no_updates').style.display = Array.from(elOrgchartEmpUpdated.children).length === 0 ? 'block' : 'none';
@@ -292,7 +297,7 @@ function resetEntryFields(empSel, empSelNew) {
     elErrors.innerHTML = '';
     
     const checkboxes = Array.from(document.querySelectorAll('label input[type="checkbox"]'));
-    checkboxes.forEach(cb => cb.checked = false);
+    checkboxes.forEach(cb => cb.checked = true);
 }
     
 function reassignInitiator(item) {
@@ -321,27 +326,6 @@ function reassignInitiator(item) {
             const textEl = createTextElement(`Error assigning request #${recordID} to ${newAccount}`);
             elErrors.appendChild(textEl);
             reject(err);
-        });
-    });
-}
-
-function getWorkflowEmployeeDependencyIndicators() {
-    return new Promise ((resolve, reject) => {
-        fetch(`${APIroot}workflow/steps`)
-        .then(res => res.json())
-        .then(data => {
-            let list = [];
-            const regDigits = /^\d+$/;
-            data.forEach(step => {
-                if (regDigits.test(step.indicatorID_for_assigned_empUID)) {
-                    list.push(parseInt(step.indicatorID_for_assigned_empUID));
-                }
-            });
-            resolve(list);
-
-        }).catch(err => {
-            console.log(err);
-            reject(err)
         });
     });
 }
@@ -451,29 +435,6 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: 'New Account Status (if existing)',
-                            indicatorID: 'newAccountStatus',
-                            editable: false,
-                            callback: function(data, blob) {
-                                const k = `group_${data.recordID}`;
-                                let htmlContent = `Select to Assign`;
-                                if (blob[k].newAccountExistsInGroup === true) {
-                                    const isLocal = parseInt(blob[k].newMemberSettings.locallyManaged) === 1;
-                                    const isRegional = blob[k].newMemberSettings.regionallyManaged === true;
-
-                                    const displayName = `${blob[k].newMemberSettings.lastName}, ${blob[k].newMemberSettings.firstName}`;
-                                    const username = `${blob[k].newMemberSettings.userName}`;
-
-                                    const localText =  isLocal ? ' (local)' : '';
-                                    const regionalText =  isRegional ? ' (nexus)' : '';
-
-                                    htmlContent = `<div>${displayName}</div>`;
-                                    htmlContent += `<div style="white-space: nowrap;">${username}${localText}${regionalText}</div>`;
-                                }
-                                document.getElementById(data.cellContainerID).innerHTML = htmlContent;
-                            }
-                        },
-                        {
                             name: 'Group Selections',
                             indicatorID: 'addToGroupOptions',
                             editable: false,
@@ -481,7 +442,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                                 const containerEl = document.getElementById(data.cellContainerID);
                                 const k = `group_${data.recordID}`;
                                 const elInput = `<label for="confirm_group_updates_${k}">Select
-                                        <input type="checkbox" id="confirm_group_updates_${k}" onclick="checkOne(event, 'group')" />
+                                        <input type="checkbox" id="confirm_group_updates_${k}" onclick="checkOne(event, 'group')" checked />
                                     </label>`
                                 containerEl.innerHTML = elInput;
                             }
@@ -509,7 +470,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
 function searchPositionsOldAccount(accountAndTaskInfo, queue) {
     const { oldAccount, newAccount } = accountAndTaskInfo;
     return new Promise ((resolve, reject) => {
-        fetch(`${orgchartPath}/api/position/search?noLimit=1`)  //q=username:${oldAccount}&employeeSearch=1  only gets 1
+        fetch(`${orgchartPath}/api/position/search?noLimit=1`)
             .then(res => res.json())
             .then(data => {
                 let positionInfo = {};
@@ -552,28 +513,13 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: 'New Account Status (if existing)',
-                            indicatorID: 'newAccountStatus',
-                            editable: false,
-                            callback: function(data, blob) {
-                                const k = `position_${data.recordID}`;
-                                let htmlContent = `Select to Assign`;
-                                if (blob[k].newAccountExistsForPosition === true) {
-                                    const empInfo = blob[k].employeeList.find(emp => emp.userName === newAccount);
-                                    const displayName = `${empInfo.lastName}, ${empInfo.firstName}`;
-                                    htmlContent = `<div>${displayName}${parseInt(empInfo.isActing) === 1 ? ' (Acting)' : ''}</div><div>${newAccount}</div>`;
-                                }
-                                document.getElementById(data.cellContainerID).innerHTML = htmlContent;
-                            }
-                        },
-                        {
                             name: 'Position Selections',
                             indicatorID: 'addToPositionOptions',
                             editable: false,
                             callback: function(data, blob) {
                                 const k = `position_${data.recordID}`;
                                 const elInput = `<label for="confirm_position_updates_${k}">Select
-                                    <input type="checkbox" id="confirm_position_updates_${k}" onclick="checkOne(event, 'position')" />
+                                    <input type="checkbox" id="confirm_position_updates_${k}" onclick="checkOne(event, 'position')" checked />
                                     </label>`
                                 document.getElementById(data.cellContainerID).innerHTML = elInput;
                             }
@@ -720,8 +666,9 @@ function updatePositionAccount(item) {
             }
 
         }).catch(err => {
-            console.log(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`, err);
-            reject(err);
+            const textEl = createTextElement(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`);
+            elErrors.appendChild(textEl);
+            reject('error');
         });
     });
 }
@@ -810,7 +757,6 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
         queue.push(item);
         count += 1;
     }
-    console.log(`queued ${count} task${count > 1 ? 's' : ''}`);
 }
 
 function processTask(item) {
@@ -868,7 +814,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     const queryInitiator = new LeafFormQuery();
     queryInitiator.setRootURL('../');
     queryInitiator.addTerm('userID', '=', oldAccount);
-    queryInitiator.onSuccess(function(res) {
+    queryInitiator.onSuccess(res => {
         if (res instanceof Object && Object.keys(res).length > 0) {
             let recordIDs = '';
             for (let i in res) {
@@ -898,7 +844,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     indicatorID: 'requestTitle',
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
+                        containerEl.innerText = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
                         containerEl.addEventListener('click', () => {
                             window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
@@ -924,7 +870,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     });
     calls.push(queryInitiator.execute());
     
-    /* ******************************* ORGCHART EMPLOYEE DEPENDENCIES *********************************** */
+    /* ******************************* ORGCHART EMPLOYEE FIELDS *********************************** */
     
     const queryOrgchartEmployee = new LeafFormQuery();
     queryOrgchartEmployee.setRootURL('../');
@@ -936,77 +882,63 @@ function findAssociatedRequests(empSel, empSelNew) {
         "joins":["service"],
         "sort":{}
     });
-    queryOrgchartEmployee.onSuccess(function(res) {
-        let recordIDs = '';
-        getWorkflowEmployeeDependencyIndicators().then(dependencyIndIDs => {
+    queryOrgchartEmployee.onSuccess(res => {
+        if (res instanceof Object && Object.keys(res).length > 0) {
+            let recordIDs = '';
             for (let i in res) {
-                if(!dependencyIndIDs.includes(parseInt(res[i].indicatorID))) {
-                    delete res[i];
-                } else {
-                    recordIDs += res[i].recordID + ',';
-                }
+                recordIDs += res[i].recordID + ',';
             }
-            if (Object.keys(res).length > 0) {
-                const formGrid = new LeafFormGrid('grid_orgchart_employee', {});
-                formGrid.setRootURL('../');
-                formGrid.enableToolbar();
-                formGrid.hideIndex();
-                formGrid.setDataBlob(res);
-                formGrid.setHeaders([
-                    {
-                        name: 'Request UID',
-                        indicatorID: 'uid',
-                        callback: function(data, blob) {
-                            let containerEl = document.getElementById(data.cellContainerID);
-                            containerEl.innerText = data.recordID;
-                            containerEl.addEventListener('click', () => {
-                                window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
-                            });
-                        }
-                    },
-                    {
-                        name: 'Request Title',
-                        indicatorID: 'requestTitle',
-                        callback: function(data, blob) {
-                            let containerEl = document.getElementById(data.cellContainerID);
-                            containerEl.innerText = XSSHelpers.stripAllTags(blob[data.recordID].title || '');
-                            containerEl.addEventListener('click', () => {
-                                window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
-                            });
-                        }
-                    },
-                    {
-                        name: 'Question to Update',
-                        indicatorID: 'requestField',
-                        editable: false,
-                        callback: function(data, blob) {
-                            document.getElementById(data.cellContainerID).innerText = `indicator ${blob[data.recordID].indicatorID}`;
-                        }
-                    },
-                    {
-                        name: 'Indicator Selections',
-                        indicatorID: 'updateIndicatorOptions',
-                        editable: false,
-                        callback: function(data, blob) {
-                            const containerEl = document.getElementById(data.cellContainerID);
-                            const k = data.recordID;
-                            const indID = blob[k].indicatorID;
-                            const elInput = `<label for="confirm_indicator_updates_${k}_${indID}">Select
-                                    <input type="checkbox" id="confirm_indicator_updates_${k}_${indID}" onclick="checkOne(event, 'indicator')" />
-                                </label>`
-                            containerEl.innerHTML = elInput;
-                        }
+            const formGrid = new LeafFormGrid('grid_orgchart_employee', {});
+            formGrid.setRootURL('../');
+            formGrid.enableToolbar();
+            formGrid.hideIndex();
+            formGrid.setDataBlob(res);
+            formGrid.setHeaders([
+                {
+                    name: 'Request UID',
+                    indicatorID: 'uid',
+                    callback: function(data, blob) {
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerText = data.recordID;
+                        containerEl.addEventListener('click', () => {
+                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                        });
                     }
-                ]);
-                formGrid.loadData(recordIDs);
+                },
+                {
+                    name: 'Request Title',
+                    indicatorID: 'requestTitle',
+                    callback: function(data, blob) {
+                        let containerEl = document.getElementById(data.cellContainerID);
+                        containerEl.innerText = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
+                        containerEl.addEventListener('click', () => {
+                            window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                        });
+                    }
+                },
+                {
+                    name: 'Indicator Selections',
+                    indicatorID: 'updateIndicatorOptions',
+                    editable: false,
+                    callback: function(data, blob) {
+                        const containerEl = document.getElementById(data.cellContainerID);
+                        const k = data.recordID;
+                        const indID = blob[k].indicatorID;
+                        const elInput = `<label for="confirm_indicator_updates_${k}_${indID}">Select
+                                <input type="checkbox" id="confirm_indicator_updates_${k}_${indID}" onclick="checkOne(event, 'indicator')" checked />
+                            </label>`
+                        containerEl.innerHTML = elInput;
+                    }
+                }
+            ]);
+            formGrid.loadData(recordIDs);
 
-                accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
-                enqueueTask(res, accountAndTaskInfo, queue);
+            accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
+            enqueueTask(res, accountAndTaskInfo, queue);
 
-            } else {
-                elGridOrgchartEmp.appendChild(createTextElement('No records found'));
-            }
-        });
+        } else {
+            elGridOrgchartEmp.appendChild(createTextElement('No records found'));
+        }
     });
     calls.push(queryOrgchartEmployee.execute());
 
