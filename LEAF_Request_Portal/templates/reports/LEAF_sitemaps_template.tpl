@@ -85,9 +85,9 @@
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
-        const icon = button.icon ? '<img style="float: left; margin-right: 1rem;" src="' + button.icon + '">' : '';
+        const icon = button.icon ? '<img style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' + button.icon + '">' : '';
         $('div#sortable').append('<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' + button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a tabindex="-1" href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id + '\');" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' + icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
-        $('#div_buttonID_' + button.id).on('keydown', function(event) {          
+        $('#div_buttonID_' + button.id).on('keydown', function(event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
                 $('#div_buttonID_' + button.id + ' a').click();
