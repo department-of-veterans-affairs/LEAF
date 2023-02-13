@@ -14,7 +14,7 @@ class IconPickerController extends RESTfulResponse
 {
     public $index = array();
 
-    private $API_VERSION = 1;    // Integer
+    private int $API_VERSION = 1;    // Integer
 
     private $iconPicker;
 
