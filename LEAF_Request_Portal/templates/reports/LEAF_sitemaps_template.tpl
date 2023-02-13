@@ -84,7 +84,7 @@
          
 	// insert button into sortable list and sidenav
     function addButtonToUI(button){
-        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Card">' + button.title + '</a></li>');
+        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Site">' + button.title + '</a></li>');
         const icon = button.icon ? '<img style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' + button.icon + '">' : '';
         $('div#sortable').append('<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' + button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a tabindex="-1" href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id + '\');" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' + icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
         $('#div_buttonID_' + button.id).on('keydown', function(event) {
@@ -160,11 +160,11 @@
         var dialog = createNewButtonDialog();
         dialog.setTitle('Add Site');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
             '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"></input></div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
-            '<label for="btnColor" class="leaf-bold" style="display: block;">Card Color</label>' +
+            '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
             '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
@@ -231,11 +231,11 @@
         });
         dialog.setTitle('Edit Site');
         dialog.setContent('<div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Card Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
         '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
-        '<label for="btnColor" class="leaf-bold" style="display: block;">Card Color</label>' +
+        '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
         '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
         '</div>' +
         '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
@@ -248,7 +248,7 @@
         '</div>' +
         '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
         '<div class="leaf-buttonBar leaf-clearBoth">' +
-        '<button class="usa-button usa-button--secondary leaf-float-right" onClick="deleteButtonFromUI(\'' + buttonID + '\');" id="delete-button">Delete card</button>' +
+        '<button class="usa-button usa-button--secondary leaf-float-right" onClick="deleteButtonFromUI(\'' + buttonID + '\');" id="delete-button">Delete Site</button>' +
         '</div>' +
         '</div></div>');
         document.querySelector("#xhr input[name='btnColor']").value = color ?? '#ffffff';
@@ -351,7 +351,7 @@
         <ul class="usa-sidenav leaf-border-bottom">
         </ul>
         <div>
-            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Card"></i> Add Site</button>
+            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Site"></i> Add Site</button>
         </div>
         <div>
             <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
