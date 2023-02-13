@@ -343,10 +343,16 @@ function updateOrgEmployeeData(item) {
         fetch(`${APIroot}form/${recordID}`, {
             method: 'POST',
             body: formData
-        }).then(() => {
-            const textEl = createTextElement(`Request #${recordID}, indicator ${indicatorID} updated to ${newAccount}(${newEmpUID})`);
-            elOrgchartEmpUpdated.appendChild(textEl);
-            resolve('updated');
+        }).then(res => res.json()).then(data => {
+            if (parseInt(data) === 1) {
+                const textEl = createTextElement(`Request #${recordID}, indicator ${indicatorID} updated to ${newAccount}(${newEmpUID})`);
+                elOrgchartEmpUpdated.appendChild(textEl);
+                resolve('updated');
+            } else {
+                const textEl = createTextElement(`Error updating request #${recordID}, indicator ${indicatorID} to ${newAccount}(${newEmpUID})`);
+                elErrors.appendChild(textEl);
+                reject('error');                
+            }
 
         }).catch(err => {
             const textEl = createTextElement(`Error updating request #${recordID}, indicator ${indicatorID} to ${newAccount}(${newEmpUID})`);
