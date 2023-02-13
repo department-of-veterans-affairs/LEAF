@@ -77,6 +77,10 @@ function updateUserInfo($userName, $empUID)
             SET deleted=:deleted
             WHERE userName=:userName";
 
+    $sql4 = "SELECT userName, deleted, lastUpdated
+             FROM employee
+             WHERE userName=:userName AND lastUpdated > 0";
+
     $res = $phonedb->prepared_query($sql, $vars);
 
     if (count($res) == 0) {
@@ -123,22 +127,8 @@ function updateUserInfo($userName, $empUID)
                     SET deleted=:deleted
                     WHERE userName=:userName";
 
-            $db->prepared_query($sql, $vars);
+            $db->prepared_query($sql4, $vars);
         }
-
-        // This will ensure that the user is enabled UserUpdated is 0
-        if ($res[0]['lastUpdated'] == 0) {
-            $vars = array(
-                ':deleted' => 0,
-                ':userName' => $userName
-            );
-            $sql2 = "UPDATE employee
-                     SET deleted=:deleted
-                     WHERE userName=:userName";
-
-            $db->prepared_query($sql2, $vars);
-        }
-    }
 }
 
 function updateLocalOrgchartBatch()
