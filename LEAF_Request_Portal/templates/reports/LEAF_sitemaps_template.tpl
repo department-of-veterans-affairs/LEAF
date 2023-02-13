@@ -233,7 +233,7 @@
         dialog.setContent('<div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
         '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48" maxlength="40"></input></div>' +
+        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48"></input></div>' +
         '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
         '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
         '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
