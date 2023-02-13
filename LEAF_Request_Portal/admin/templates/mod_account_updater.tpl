@@ -65,7 +65,7 @@ table.leaf_grid td {
     margin-bottom: 1.5rem;
 }
 .updates_output > div {
-    line-height: 1.4;
+    line-height: 1.5;
     border-bottom: 1px solid #ccf;
 }
 .employeeSelectorName > div {
@@ -84,9 +84,6 @@ table.leaf_grid td {
     padding: 0.75rem;
     background-color: white;
     border-radius: 2px;
-}
-#queue_completed {
-    color: #085;
 }
 div [id^="LeafFormGrid"] table {
     background-color: white;
@@ -124,7 +121,7 @@ div [id^="LeafFormGrid"] table {
     }
 }
 </style>
-<!-- importing this here, there are otherwise override issues -->
+<!-- importing this here, there are otherwise css override issues -->
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
 <main>
@@ -151,14 +148,16 @@ div [id^="LeafFormGrid"] table {
             </div>
         </div>
         <button class="buttonNorm" id="run">Preview Changes</button>
+        <div id="reassign_reset" style="display:none; margin-bottom:3rem;">
+            <h3>Review the results below and activate the button to update selections the new account.</h3>
+            <br />
+            <div style="display:flex;">
+                <button id="reassign" class="buttonNorm" style="margin-right: 1rem">Update Records</button>
+                <button id="reset" class="buttonNorm">Start Over</button>
+            </div>
+        </div>
     </div>
     <div id="section2" style="display: none; margin-top: 1rem;">
-        <h3>Review the results below and activate the button to update selections the new account.</h3>
-        <br />
-        <div style="display:flex; margin-bottom:3rem;">
-            <button class="buttonNorm" id="reassign" style="margin-right: 1rem">Update Records</button>
-            <button class="buttonNorm" id="reset">Start Over</button>
-        </div>
 
         <h4>Requests created by the old account</h4>
         <div id="grid_initiator" class="grid_table"></div>
@@ -188,22 +187,30 @@ div [id^="LeafFormGrid"] table {
         <div id=grid_positions_info class="grid_table"></div>
     </div>
     <div id="section3" style="display: none">
-        <div id="initiators_updated" class="updates_output">
-            <p><b>Initiator Updates</b></p>
+        <p><b>Initiator Updates</b></p>
+        <div id='initiators_no_updates'>no updates</div>
+        <div id="initiators_updated" class="updates_output"></div>
+
+        <p><b>Orgchart Employee Field Updates</b></p>
+        <div id='orgchart_no_updates'>no updates</div>
+        <div id="orgchart_employee_updated" class="updates_output"></div>
+
+        <p><b>Group Updates</b></p>
+        <div id='groups_no_updates'>no updates</div>
+        <div id="groups_updated" class="updates_output"></div>
+
+        <p><b>Positions Updates</b></p>
+        <div id='positions_no_updates'>no updates</div>
+        <div id="positions_updated" class="updates_output"></div>
+
+        <p><b>Processing Errors</b></p>
+        <div id='no_errors'>no errors</div>
+        <div id="errors_updated" class="updates_output"></div>
+
+        <div id="queue_completed" style="display: none">
+            <h3 style="color: #085;">Updates Complete</h3>
+            <h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement any group updates</h3>
         </div>
-        <div id="orgchart_employee_updated" class="updates_output">
-            <p><b>Orgchart Employee Field Updates</b></p>
-        </div>
-        <div id="groups_updated" class="updates_output">
-            <p><b>Group Updates</b></p>
-        </div>
-        <div id="positions_updated" class="updates_output">
-            <p><b>Positions Updates</b></p>
-        </div>
-        <div id="errors_updated" class="updates_output">
-            <p><b>Processing Errors</b></p>
-        </div>
-        <div id="queue_completed" style="display: none"><b>Updates Complete</b></div>
     </div>
 </main>
 
@@ -213,19 +220,28 @@ const CSRFToken = '<!--{$CSRFToken}-->';
 const APIroot = '<!--{$APIroot}-->';
 const orgchartPath = '<!--{$orgchartPath}-->';
 
-let groupUpdatesFound = false;
-let listenerAdded = false;
+const elGridInitiators = document.getElementById('grid_initiator');
+const elGridOrgchartEmp = document.getElementById('grid_orgchart_employee');
+const elGridGroups = document.getElementById('grid_groups_info');
+const elGridPositions = document.getElementById('grid_positions_info');
 
-function startQueueListener (event, queue) {
+const elInitiatorsUpdated = document.getElementById('initiators_updated');
+const elOrgchartEmpUpdated = document.getElementById('orgchart_employee_updated');
+const elGroupsUpdated = document.getElementById('groups_updated');
+const elPositionsUpdated = document.getElementById('positions_updated');
+const elErrors = document.getElementById('errors_updated');
+
+
+function startQueueListener(event, queue) {
     document.getElementById('section2').style.display = 'none';
     document.getElementById('section3').style.display = 'block';
     return queue.start().then(res => {
+        document.getElementById('initiators_no_updates').style.display = Array.from(elInitiatorsUpdated.children).length === 0 ? 'block' : 'none';
+        document.getElementById('orgchart_no_updates').style.display = Array.from(elOrgchartEmpUpdated.children).length === 0 ? 'block' : 'none';
+        document.getElementById('groups_no_updates').style.display = Array.from(elGroupsUpdated.children).length === 0 ? 'block' : 'none';
+        document.getElementById('positions_no_updates').style.display = Array.from(elPositionsUpdated.children).length === 0 ? 'block' : 'none';
+        document.getElementById('no_errors').style.display = Array.from(elErrors.children).length === 0 ? 'block' : 'none';
         document.getElementById('queue_completed').style.display = 'block';
-        if (groupUpdatesFound === true) {
-            let elDiv = document.createElement('div');
-            elDiv.innerHTML = '<h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement group updates</h3>';
-            document.getElementById('section3').appendChild(elDiv);
-        }
     });
 }
 
@@ -257,14 +273,27 @@ function createTextElement(textInput='', isBlockElement = true) {
 function resetEntryFields(empSel, empSelNew) {
     empSel.clearSearch();
     empSelNew.clearSearch();
-    document.getElementById('grid_initiator').innerHTML = '';
-    document.getElementById('grid_orgchart_employee').innerHTML = '';
-    document.getElementById('grid_groups_info').innerHTML = '';
-    document.getElementById('grid_positions_info').innerHTML = '';
+    document.getElementById('run').style.display = 'block';
+    
+    document.getElementById('reassign_reset').style.display = 'none';
+    let elReassign = document.getElementById('reassign');
+    elReassign.replaceWith(elReassign.cloneNode(true));
+    
     document.getElementById('section2').style.display = 'none';
+    elGridInitiators.innerHTML = '';
+    elGridOrgchartEmp.innerHTML = '';
+    elGridGroups.innerHTML = '';
+    elGridPositions.innerHTML = '';
+
+    document.getElementById('section3').style.display = 'none';
+    elInitiatorsUpdated.innerHTML = '';
+    elOrgchartEmpUpdated.innerHTML = '';
+    elGroupsUpdated.innerHTML = '';
+    elPositionsUpdated.innerHTML = '';
+    elErrors.innerHTML = '';
+    
     const checkboxes = Array.from(document.querySelectorAll('label input[type="checkbox"]'));
     checkboxes.forEach(cb => cb.checked = false);
-    //initiators_updated,orgchart_employee_updated,groups_updated,positions_updated,errors_updated
 }
     
 function reassignInitiator(item) {
@@ -280,10 +309,12 @@ function reassignInitiator(item) {
             body: formData
         }).then((res) => {
             const textEl = createTextElement(`Request #${recordID} reassigned to ${newAccount}`);
-            document.querySelector('#section3 #initiators_updated')?.appendChild(textEl);
-            resolve('updated')
+            elInitiatorsUpdated.appendChild(textEl);
+            resolve('updated');
+
         }).catch(err => {
-            console.log('error assigning initiator', err);
+            const textEl = createTextElement(`Error assigning request #${recordID} to ${newAccount}`);
+            elErrors.appendChild(textEl);
             reject(err);
         });
     });
@@ -295,7 +326,6 @@ function updateOrgEmployeeData(item) {
 
         const elConfirm = document.getElementById(`confirm_indicator_updates_${recordID}_${indicatorID}`);
         if (elConfirm.checked !== true) {
-            console.log('skipping rec ind', recordID, indicatorID);
             resolve('updated');
             return;
         };
@@ -308,11 +338,13 @@ function updateOrgEmployeeData(item) {
             method: 'POST',
             body: formData
         }).then(() => {
-            const textEl = createTextElement(`Request #${recordID}, indicator ${indicatorID} reassigned to ${newAccount}(${newEmpUID})`);
-            document.querySelector('#section3 #orgchart_employee_updated')?.appendChild(textEl);
+            const textEl = createTextElement(`Request #${recordID}, indicator ${indicatorID} updated to ${newAccount}(${newEmpUID})`);
+            elOrgchartEmpUpdated.appendChild(textEl);
             resolve('updated');
+
         }).catch(err => {
-            console.log('error updating form field', err);
+            const textEl = createTextElement(`Error updating request #${recordID}, indicator ${indicatorID} to ${newAccount}(${newEmpUID})`);
+            elErrors.appendChild(textEl);
             reject(err);
         });
     });
@@ -344,7 +376,6 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                 });
 
                 if (Object.keys(groupInfo).length > 0) {
-                    groupUpdatesFound = true; //global declared @ ~148
                     let recordIDs = '';
                     for (let i in groupInfo) {
                         recordIDs += groupInfo[i].groupID + ',';
@@ -432,12 +463,12 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
 
                 } else {
                     const textEl = createTextElement('No groups found');
-                    document.getElementById('grid_groups_info').appendChild(textEl);
+                    elGridGroups.appendChild(textEl);
                     resolve(groupInfo);
                 }
 
         }).catch(err => {
-            console.log(err);
+            console.log('error getting group list', err);
             reject(err);
         });
     });
@@ -453,7 +484,6 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                 const userPositions = data.filter(p => p.employeeList.some(emp => emp.userName === oldAccount));
 
                 if (userPositions.length > 0) {
-                    groupUpdatesFound = true; //global declared @ ~148
                     let recordIDs = '';
                     userPositions.forEach(ele => {
                         const newAccountExistsForPosition = ele.employeeList.some(emp => emp.userName === newAccount);
@@ -525,12 +555,12 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
 
                 } else {
                     const textEl = createTextElement('No Positions found');
-                    document.getElementById('grid_positions_info').appendChild(textEl);
+                    elGridPositions.appendChild(textEl);
                     resolve(positionInfo);
                 }
 
         }).catch(err => {
-            console.log(err);
+            console.log('error getting positions', err);
             reject(err);
         });
     });
@@ -564,7 +594,7 @@ function updateGroupAccount(item) {
                 if (data === newAccount) {
                     removeFromGroup(item, 'portal').then(() => {
                         const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (local)`);
-                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
+                        elGroupsUpdated.appendChild(textEl);
                         processedGroupUpdates += 1;
                         if (processedGroupUpdates === totalUserGroupUpdates) {
                             resolve('updated');
@@ -572,16 +602,14 @@ function updateGroupAccount(item) {
                     });
 
                 } else {
-                    const text = `Error adding ${newAccount} to ${item.groupName} (portal)`;
-                    const textEl = createTextElement(text);
-                    document.querySelector('#section3 #errors_updated').appendChild(textEl);
-
-                    const err = new Error(text);
-                    reject(err)
+                    const textEl = createTextElement(`Error adding ${newAccount} to ${item.groupName} (portal)`);
+                    elErrors.appendChild(textEl);
+                    reject('error')
                 }
 
             }).catch(err => {
-                console.log(`error adding local user ${newAccount} to group ${userAccountGroupID}`, err);
+                const textEl = createTextElement(`error adding local user ${newAccount} to group ${userAccountGroupID}`);
+                elErrors.appendChild(textEl);
                 reject(err);
             });
         }
@@ -601,7 +629,7 @@ function updateGroupAccount(item) {
                 if (parseInt(data) === parseInt(newEmpUID)) {
                     removeFromGroup(item, 'nexus').then(() => {
                         const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to ${item.groupName} (nexus)`);
-                        document.querySelector('#section3 #groups_updated').appendChild(textEl);
+                        elGroupsUpdated.appendChild(textEl);
                         processedGroupUpdates += 1;
                         if (processedGroupUpdates === totalUserGroupUpdates) {
                             resolve('updated')
@@ -609,12 +637,9 @@ function updateGroupAccount(item) {
                     });
 
                 } else {
-                    const text = `Error adding ${newAccount} to ${item.groupName} (nexus)`;
-                    const textEl = createTextElement(text);
-                    document.querySelector('#section3 #errors_updated').appendChild(textEl);
-
-                    const err = new Error(text);
-                    reject(err)
+                    const textEl = createTextElement(`Error adding ${newAccount} to ${item.groupName} (nexus)`);
+                    elErrors.appendChild(textEl);
+                    reject('error')
                 }
 
             }).catch(err => {
@@ -652,14 +677,14 @@ function updatePositionAccount(item) {
                     const { oldAccount, newAccount, positionTitle } = item;
                     const acting = parseInt(userAccountPositionIsActing) === 1 ? ' (Acting)' : '';
                     const textEl = createTextElement(`Removed ${oldAccount} and added ${newAccount} to position: ${positionTitle}${acting}`);
-                    document.querySelector('#section3 #positions_updated').appendChild(textEl);
+                    elPositionsUpdated.appendChild(textEl);
                     resolve('updated');
                 })
 
             } else {
-                const err = new Error(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`);
-                console.log(res, err);
-                reject(err);
+                const textEl = createTextElement(`error adding employee ${newEmpUID} to position ${userAccountPositionID}`);
+                elErrors.appendChild(textEl);
+                reject('error');
             }
 
         }).catch(err => {
@@ -683,7 +708,8 @@ function removeFromGroup(taskItem, portalOrNexus = '') {
                 })
                 .then(res => resolve(res))
                 .catch(err => {
-                    console.log(`error removing account ${oldAccount} from portal group ${userAccountGroupID}`, err);
+                    const textEl = createTextElement(`error removing account ${oldAccount} from portal group ${userAccountGroupID}`);
+                    elErrors.appendChild(textEl);
                     reject(err);
             });
 
@@ -697,7 +723,8 @@ function removeFromGroup(taskItem, portalOrNexus = '') {
                 })
                 .then(res => resolve(res))
                 .catch(err => {
-                    console.log(`error removing account ${oldAccount} from nexus group ${userAccountGroupID}`, err);
+                    const textEl = createTextElement(`error removing account ${oldAccount} from nexus group ${userAccountGroupID}`);
+                    elErrors.appendChild(textEl);
                     reject(err);
             });
 
@@ -776,11 +803,6 @@ function processTask(item) {
 }
 
 function findAssociatedRequests(empSel, empSelNew) {
-    groupUpdatesFound = false;
-    document.getElementById('reassign').style.display = 'none';
-    document.getElementById('run').disabled = true;
-    const checkboxes = Array.from(document.querySelectorAll('label input[type="checkbox"]'));
-    checkboxes.forEach(cb => cb.checked = false);
     const oldEmpUID = empSel?.selection;
     const newEmpUID = empSelNew?.selection;
     const newAccountIsEnabled = parseInt(empSelNew?.selectionData[newEmpUID]?.deleted) === 0;
@@ -803,6 +825,7 @@ function findAssociatedRequests(empSel, empSelNew) {
     document.getElementById(`${empSel.prefixID}input`).value = `userName:${oldAccount}`;
     document.getElementById(`${empSelNew.prefixID}input`).value = `userName:${newAccount}`;
 
+    document.getElementById('run').style.display = 'none';
     document.getElementById('section2').style.display = 'block';
 
     const queue = new intervalQueue();
@@ -864,7 +887,7 @@ function findAssociatedRequests(empSel, empSelNew) {
             accountAndTaskInfo.taskType = 'update_initiator';
             enqueueTask(res, accountAndTaskInfo, queue);
         } else {
-            document.getElementById('grid_initiator').appendChild(createTextElement('No records found'));
+            elGridInitiators.appendChild(createTextElement('No records found'));
         }
     });
     calls.push(queryInitiator.execute());
@@ -943,7 +966,7 @@ function findAssociatedRequests(empSel, empSelNew) {
             accountAndTaskInfo.taskType = 'update_orgchart_employee_field';
             enqueueTask(res, accountAndTaskInfo, queue);
         } else {
-            document.getElementById('grid_orgchart_employee').appendChild(createTextElement('No records found'));
+            elGridOrgchartEmp.appendChild(createTextElement('No records found'));
         }
     });
     calls.push(queryOrgchartEmployee.execute());
@@ -955,17 +978,12 @@ function findAssociatedRequests(empSel, empSelNew) {
     calls.push(searchPositionsOldAccount(accountAndTaskInfo, queue));
 
     Promise.all(calls).then((res)=> {
-        document.getElementById('reassign').style.display = 'block';
-        setTimeout(() => {
-            document.getElementById('run').disabled = false;
-        }, 150);
+        document.getElementById('reassign_reset').style.display = 'block';
         queue.setWorker(item => processTask(item));
-        if (!listenerAdded) {
-            document.getElementById('reassign').addEventListener('click', () => { startQueueListener(event, queue) });
-            listenerAdded = true;
-        }
+        document.getElementById('reassign').addEventListener('click', (event) => { startQueueListener(event, queue); });
     }).catch(err => console.log('process error', err));
 }
+
 
 window.addEventListener('DOMContentLoaded', (event) => {
     const empSel = new employeeSelector('employeeSelector');
@@ -995,10 +1013,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     empSelNew.initialize();
 
     document.getElementById('run').addEventListener('click', function() {
-        document.getElementById('grid_initiator').innerHTML = '';
-        document.getElementById('grid_orgchart_employee').innerHTML = '';
-        document.getElementById('grid_groups_info').innerHTML = '';
-        document.getElementById('grid_positions_info').innerHTML = '';
         findAssociatedRequests(empSel, empSelNew);
     });
     document.getElementById('reset').addEventListener('click', function() {
