@@ -19,6 +19,7 @@ button.buttonNorm:focus, button.buttonNorm:active {
 }
 #bodyarea {
     width: fit-content;
+    margin: auto;
 }
 main {
     padding: 1rem;
