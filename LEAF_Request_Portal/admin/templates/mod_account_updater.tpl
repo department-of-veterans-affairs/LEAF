@@ -307,10 +307,16 @@ function reassignInitiator(item) {
         fetch(`${APIroot}form/${recordID}/initiator`, {
             method: 'POST',
             body: formData
-        }).then((res) => {
-            const textEl = createTextElement(`Request #${recordID} reassigned to ${newAccount}`);
-            elInitiatorsUpdated.appendChild(textEl);
-            resolve('updated');
+        }).then(res => res.json()).then(data => {
+            if (data === newAccount) {
+                const textEl = createTextElement(`Request #${recordID} reassigned to ${newAccount}`);
+                elInitiatorsUpdated.appendChild(textEl);
+                resolve('updated');
+            } else {
+                const textEl = createTextElement(`Error assigning request #${recordID} to ${newAccount}`);
+                elErrors.appendChild(textEl);
+                reject('error');                
+            }
 
         }).catch(err => {
             const textEl = createTextElement(`Error assigning request #${recordID} to ${newAccount}`);
