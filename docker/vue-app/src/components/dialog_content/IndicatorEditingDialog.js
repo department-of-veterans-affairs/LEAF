@@ -254,6 +254,11 @@ export default {
                                 format: this.fullFormatForPost,
                                 CSRFToken: this.CSRFToken
                             },
+                            success: function(res) {
+                                if (res === 'size limit exceeded') {
+                                    alert(`The input format was not saved because it was too long.\nIf you require extended length, please submit a YourIT ticket.`);
+                                }
+                            },
                             error: err => console.log('ind format post err', err)
                         })
                     );
