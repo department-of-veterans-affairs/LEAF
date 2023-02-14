@@ -253,7 +253,7 @@ function addEmailReminderDialog(stepID){
     
     dialog.setValidator('reminder_days', function() {
         reminder_days = $('#reminder_days').val();
-        if ($('#edit_email_check').prop('checked') == true && (parseInt(reminder_days) === NaN || parseInt(reminder_days) < 1) || reminder_days == '') {
+        if ($('#edit_email_check').prop('checked') == true &&  parseInt(reminder_days) < 1 || reminder_days == '') {
             return false;
         } else {
             return true;
@@ -267,7 +267,7 @@ function addEmailReminderDialog(stepID){
     dialog.setValidator('reminder_days_additional', function() {
     
         reminder_days_additional = $('#reminder_days_additional').val();
-        if ($('#edit_email_check').prop('checked') == true && (parseInt(reminder_days_additional) === NaN || parseInt(reminder_days_additional) < 1) || reminder_days_additional == '') {
+        if ($('#edit_email_check').prop('checked') == true && parseInt(reminder_days_additional) < 1 || reminder_days_additional == '') {
             return false;
         } else {
             return true;
