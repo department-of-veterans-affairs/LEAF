@@ -48,8 +48,11 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
 
 /*
  *	Updates single employee information from national orgchart to local orgchart
-*/
-function updateUserInfo($userName, $empUID)
+ *
+ * @param string $userName
+ * @param int $empUID
+ */
+function updateUserInfo(string $userName, int $empUID)
 {
     global $db, $phonedb;
 
@@ -110,10 +113,7 @@ function updateUserInfo($userName, $empUID)
 
         // sets local employee_data table
         updateEmployeeData($res[0]['empUID'], $empUID);
-    }
 
-
-    if (count($res) > 0) {
         $currentTime = time();
         $oneWeekAdded = $res[0]['lastUpdated'] + 604800;
 
@@ -128,7 +128,7 @@ function updateUserInfo($userName, $empUID)
                     WHERE userName=:userName";
 
             $db->prepared_query($sql4, $vars);
-        }
+    }
 }
 
 function updateLocalOrgchartBatch()
