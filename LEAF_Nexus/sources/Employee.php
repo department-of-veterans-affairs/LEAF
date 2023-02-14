@@ -315,7 +315,7 @@ class Employee extends Data
         return $res;
     }
 
-    public function lookupLogin($login, bool $searchDeleted = false)
+    public function lookupLogin($login, bool $searchDeleted = false): array
     {
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))

@@ -116,7 +116,17 @@ class VAMC_Directory
         return $data;
     }
 
-    public function lookupLogin($login, $onlyGetName = false, $getGroups = false, bool $searchDeleted = false)
+    /**
+     * Purpose: Get employee and optional group information for enabled or all accounts
+     *
+     * @param string $login
+     * @param bool $onlyGetName
+     * @param bool $getGroups
+     * @param bool $searchDeleted
+     * @return array
+     *
+     */
+    public function lookupLogin(string $login = "", bool $onlyGetName = false, bool $getGroups = false, bool $searchDeleted = false): array
     {
         $res = $this->Employee->lookupLogin($login, $searchDeleted);
         $data = array();
