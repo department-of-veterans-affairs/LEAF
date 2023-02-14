@@ -223,7 +223,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 url: rootURL + 'ajaxScript.php?a=workflowStepModules&s=LEAF_digital_signature&stepID=' + step.stepID,
                 dataType: 'script',
                 success: function() {
-                    workflowStepModule[step.stepID].LEAF_digital_signature.init(step);
+                    workflowStepModule[step.stepID].LEAF_digital_signature.init(step, rootURL);
                 },
                 fail: function(err) {
                     console.log("Error: " + err);
@@ -245,7 +245,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         url: rootURL + 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
                         dataType: 'script',
                         success: function() {
-                            workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step);
+                            workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step, rootURL);
                             $(`#form_dep_container${step.dependencyID} .button`).attr('disabled', false);
                         },
                         fail: function(err) {
@@ -263,7 +263,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                 url: rootURL + step.jsSrcList[u],
                 dataType: 'script',
                 success: function() {
-                    workflowModule[step.dependencyID].init(currRecordID);
+                    workflowModule[step.dependencyID].init(currRecordID, rootURL);
                 },
                 fail: function(err) {
                     console.log("Error: " + err);
