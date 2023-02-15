@@ -124,10 +124,11 @@ function updateUserInfo(string $userName, int $empUID)
                 ':userName' => $userName
             );
             $sql = "UPDATE employee
-                    SET deleted=:deleted
-                    WHERE userName=:userName";
+                SET deleted=:deleted
+                WHERE userName=:userName";
 
             $db->prepared_query($sql4, $vars);
+        }
     }
 }
 
