@@ -331,7 +331,9 @@ class Employee extends Data
 
         $sqlVars = array(':login' => $login);
         $accountStatus = $searchDeleted ? "" : " AND deleted = 0";
-        $strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login".$accountStatus;
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName,
+            phoneticFirstName, phoneticLastName, domain, deleted, lastUpdated, new_empUUID
+            FROM {$this->tableName} WHERE userName = :login".$accountStatus;
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         if (is_array($result) && isset($result[0]['empUID'])) {
@@ -784,6 +786,15 @@ class Employee extends Data
                 $input = str_replace('username:', '', strtolower($input));
                 $searchResult = $this->lookupLogin($input);
 
+                break;
+            //explicit search for disabled accounts
+            case substr(strtolower($input), 0, 18) === 'username_disabled:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('username_disabled:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input, true);
                 break;
             // Format: ID number
             case (substr($input, 0, 1) == '#') && is_numeric(substr($input, 1)):

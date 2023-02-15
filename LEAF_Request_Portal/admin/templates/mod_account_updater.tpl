@@ -761,7 +761,7 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
 }
 
 function processTask(item) {
-    switch(item.taskType) {
+    switch(item.taskType.toLowerCase()) {
         case 'update_initiator':
             return reassignInitiator(item);
             break;
@@ -801,8 +801,8 @@ function findAssociatedRequests(empSel, empSelNew) {
         taskType: ''
     }
 
-    document.getElementById(`${empSel.prefixID}input`).value = `userName:${oldAccount}`;
-    document.getElementById(`${empSelNew.prefixID}input`).value = `userName:${newAccount}`;
+    document.getElementById(`${empSel.prefixID}input`).value = `username_disabled:${oldAccount}`;
+    document.getElementById(`${empSelNew.prefixID}input`).value = `username:${newAccount}`;
 
     document.getElementById('run').style.display = 'none';
     document.getElementById('section2').style.display = 'block';
