@@ -198,7 +198,7 @@ function renderSettings(res) {
             else { // Not certified
                 query.addTerm('stepID', '!=', 'resolved');
                 query.onSuccess(function(data) {
-                    if(data.length == 0) {
+                    if(Object.keys(data).length == 0) {
                         $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
                     }
                     else {
