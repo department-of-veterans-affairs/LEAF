@@ -315,6 +315,12 @@ class Employee extends Data
         return $res;
     }
 
+    /**
+     * Purpose: Get employee information for enabled or all accounts
+     *
+     * @param string $login
+     * @param bool $searchDeleted
+     */
     public function lookupLogin($login, bool $searchDeleted = false): array
     {
         $cacheHash = "lookupLogin{$login}";
