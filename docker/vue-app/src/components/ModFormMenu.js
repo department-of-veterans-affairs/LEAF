@@ -208,9 +208,11 @@ export default {
                 </li>
                 
                 <li>
-                    <button type="button" @click="selectNewCategory(null)" title="View All Forms">
-                        <h2>Form Editor</h2>
-                    </button>
+                    <router-link :to="{ name: 'browser' }">
+                        <button type="button" @click="selectNewCategory(null)" title="View All Forms">
+                            <h2>Form Editor</h2>
+                        </button>
+                    </router-link>
                     <span v-if="currCategoryID !== null" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li v-if="currCategoryID !== null">

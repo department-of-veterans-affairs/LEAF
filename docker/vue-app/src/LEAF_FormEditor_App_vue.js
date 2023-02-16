@@ -12,7 +12,8 @@ import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog
 import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditorDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
-import CategoryCard from "./components/CategoryCard.js";
+
+import FormBrowser from "./views/FormBrowser.js";
 import FormViewController from "./components/form_view/FormViewController.js";
 
 import RestoreFields from "./components/RestoreFields.js";
@@ -75,6 +76,10 @@ export default {
             currentCategoryIsSensitive: computed(() => this.currentCategoryIsSensitive),
             ajaxFormByCategoryID: computed(() => this.ajaxFormByCategoryID),
             appIsLoadingCategoryInfo: computed(() => this.appIsLoadingCategoryInfo),
+            appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
+            activeCategories: computed(() => this.activeCategories),
+            inactiveCategories: computed(() => this.inactiveCategories),
+            showCertificationStatus: computed(() => this.showCertificationStatus),
             ajaxSelectedCategoryStapled: computed(() => this.ajaxSelectedCategoryStapled),
             formsStapledCatIDs: computed(() => this.formsStapledCatIDs),
             ajaxWorkflowRecords: computed(() => this.ajaxWorkflowRecords),
@@ -127,7 +132,7 @@ export default {
         ConfirmDeleteDialog,
         ConditionsEditorDialog,
         ModFormMenu,
-        CategoryCard,
+        FormBrowser,
         FormViewController,
         RestoreFields
     },

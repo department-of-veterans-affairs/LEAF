@@ -21,7 +21,9 @@ body { /* fixes header not extending entire width */
     min-width: -moz-fit-content; /*firefox prior to nov 2021*/
     min-width: fit-content;
 } 
-
+[v-cloak] {
+    display: none;
+}
 /* general app-wide styles and resets */
 #vue-formeditor-app {
     padding: 2rem 1rem;

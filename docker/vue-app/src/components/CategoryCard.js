@@ -80,12 +80,12 @@ export default {
             return this.truncateText(msg, 43);
         }
     },
-    template:`<div tabindex="0" 
-        @click="selectNewCategory(catID)"
-        @keyup.enter="selectNewCategory(catID)"
-        :class="cardLibraryClasses" class="browser-category-card"
-        :id="catID" 
-        :title="catID + ': ' + categoryName + (staplesList ? '. Stapled with: ' + staplesList : '') + (isStapledToOtherForm ? '. This form is stapled to another' : '')">
+    template:`<router-link :to="{ name: 'category', params: { formID: categoriesRecord.categoryID } }">
+        <div @click="selectNewCategory(catID)"
+          @keyup.enter="selectNewCategory(catID)"
+          :class="cardLibraryClasses" class="browser-category-card"
+          :id="catID" 
+          :title="catID + ': ' + categoryName + (staplesList ? '. Stapled with: ' + staplesList : '') + (isStapledToOtherForm ? '. This form is stapled to another' : '')">
             <div class="formPreviewTitle" style="position: relative">{{categoryName}}
                 <img v-if="parseInt(categoriesRecord.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
                 title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px;"/>
@@ -100,5 +100,6 @@ export default {
                 ><span role="img" aria="">📑</span></div>
             </div>
             <div class="formPreviewWorkflow">{{ workflow }}</div>
-        </div>`
+        </div>
+    </router-link>`
 }

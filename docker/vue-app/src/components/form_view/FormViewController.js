@@ -7,7 +7,7 @@ import EditPropertiesPanel from './EditPropertiesPanel.js';
 export default {
     data()  {
         return {
-            formID: this.currentCategorySelection.categoryID,
+            formID: null,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
@@ -44,6 +44,12 @@ export default {
     ],
     mounted() {
         //console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID);
+    },
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.formID = to.params.formID;
+            console.log('TEST BRE', vm.formID);
+        })
     },
     provide() {
         return {
