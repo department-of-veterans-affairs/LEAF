@@ -13,8 +13,8 @@ export default {
         'categories',
         'currCategoryID',
         'currSubformID',
-        'currentCategoryIndicatorTotal',
         'internalForms',
+        'ajaxFormByCategoryID',
         'ajaxSelectedCategoryStapled',
         'formsStapledCatIDs',
         'restoringFields',
@@ -127,7 +127,7 @@ export default {
                         :title="(menuPinned ? 'close ' : 'pin ') + 'menu'"
                         id="form-editor-menu-toggle" 
                         @click="toggleMenu" @mouseenter="showMenu">
-                        <span>{{menuPinned ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
+                        <span role="img" aria="">{{menuPinned ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
                     </button>
                 
                     <template v-if="menuOpen">
@@ -135,31 +135,31 @@ export default {
                             @mouseenter="showMenu" @mouseleave="hideMenu">
                             <li>
                                 <button id="createFormButton" @click="openNewFormDialog">
-                                Create Form<span>📄</span>
+                                Create Form<span role="img" aria="">📄</span>
                                 </button>
                             </li>
                             <li>
                                 <a href="./?a=formLibrary">
-                                LEAF Library<span>📘</span>
+                                LEAF Library<span role="img" aria="">📘</span>
                                 </a>
                             </li>
                             <li>
                                 <button @click="openImportFormDialog">
-                                Import Form<span>📦</span>
+                                Import Form<span role="img" aria="">📦</span>
                                 </button>
                             </li>
                             <li>
                                 <button @click="showRestoreFields">
-                                Restore Fields<span>♻️</span>
+                                Restore Fields<span role="img" aria="">♻️</span>
                                 </button>
                             </li>
                         </ul>
                         <ul v-else id="form-editor-menu"
                             @mouseenter="showMenu" 
                             @mouseleave="hideMenu">
-                            <li v-if="currentCategoryIndicatorTotal !== 0">
+                            <li v-if="ajaxFormByCategoryID.length !== 0">
                                 <button @click="openNewFormDialog" title="add new internal use form">
-                                Add Internal-Use<span>➕</span>
+                                Add Internal-Use<span role="img" aria="">➕</span>
                                 </button>
                                 <ul v-if="internalForms.length > 0" id="internalForms">
                                     <li v-for="i in internalForms" :key="'internal_' + i.categoryID">
@@ -174,7 +174,7 @@ export default {
                                     <div>
                                         Edit Main Form Staples<br/>
                                         <span class="staple-sort-info">form sort value: {{categories[currCategoryID].sort}}</span>
-                                    </div><span>📌</span>
+                                    </div><span role="img" aria="">📌</span>
                                 </button>
                                 <ul v-if="ajaxSelectedCategoryStapled.length > 0" id="stapledForms">
                                     <li v-for="s in ajaxSelectedCategoryStapled" 
@@ -183,24 +183,24 @@ export default {
                                             <div>
                                                 {{shortFormNameStripped(s.categoryID, 20) || 'Untitled'}}<br/>
                                                 <span class="staple-sort-info">staple sort value: {{s.sort}}</span>
-                                            </div><span>📑</span>
+                                            </div><span role="img" aria="">📑</span>
                                         </button>
                                     </li>
                                 </ul>
                             </li>
                             <li>
                                 <button @click="openFormHistoryDialog" title="view form history">
-                                View History<span>🕗</span>
+                                View History<span role="img" aria="">🕗</span>
                                 </button>
                             </li>
                             <li>
                                 <button @click="exportForm" title="export form">
-                                Export Form<span>💾</span>
+                                Export Form<span role="img" aria="">💾</span>
                                 </button>
                             </li>
                             <li>
                                 <button @click="openConfirmDeleteFormDialog" title="delete this form">
-                                Delete this form<span>❌</span>
+                                Delete this form<span role="img" aria="">❌</span>
                                 </button>
                             </li>
                         </ul>
@@ -211,13 +211,13 @@ export default {
                     <button type="button" @click="selectNewCategory(null)" title="View All Forms">
                         <h2>Form Editor</h2>
                     </button>
-                    <span v-if="currCategoryID !== null" class="header-arrow">❯</span>
+                    <span v-if="currCategoryID !== null" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li v-if="currCategoryID !== null">
                     <button type="button" :id="'header_'+currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
                         <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
                     </button>
-                    <span v-if="currSubformID !== null" class="header-arrow">❯</span>
+                    <span v-if="currSubformID !== null" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li v-if="currSubformID !== null">
                     <button :id="'header_' + currSubformID" @click="selectSubform(currSubformID)" title="select internal form">

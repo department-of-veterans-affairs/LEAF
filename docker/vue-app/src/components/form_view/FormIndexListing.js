@@ -43,14 +43,6 @@ export default {
         }
     },
     computed: {
-        children() {
-            let eles = [];
-            for (let c in this.formNode.child) {
-                eles.push(this.formNode.child[c]);
-            }
-            eles = eles.sort((a, b)=> a.sort - b.sort);
-            return eles;
-        },
         headingNumber() {
             return this.depth === 0 ? this.index + 1 + '.' : '';
         },
@@ -111,7 +103,7 @@ export default {
                 @dragleave="onDragLeave">
 
                 <template v-if="formNode.child">
-                    <form-index-listing v-for="(child, i) in children"
+                    <form-index-listing v-for="(child, k, i) in formNode.child"
                         :id="'index_listing_' + child.indicatorID"
                         :depth="depth + 1"
                         :parentID="formNode.indicatorID"

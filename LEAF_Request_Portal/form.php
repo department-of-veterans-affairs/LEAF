@@ -3819,7 +3819,11 @@ class Form
 
             foreach ($res as $field)
             {
-                $idx = $field['indicatorID'];
+                if (isset($_GET['childkeys']) && strtolower($_GET['childkeys']) === 'nonnumeric') {
+                    $idx = "id".$field['indicatorID'];
+                } else {
+                    $idx = $field['indicatorID'];
+                }
 
                 // todo: cleanup required field
                 $required = isset($field['required']) && $field['required'] == 1 ? ' required="true" ' : '';

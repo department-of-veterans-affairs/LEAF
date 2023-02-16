@@ -94,10 +94,10 @@ export default {
             <div style="display: flex; justify-content: space-between;">
                 <div class="formPreviewStatus">{{ availability }}</div>
                 <div v-if="staples.length > 0"
-                    :title="'This form has stapled forms: ' + staplesList">x{{staples.length}}📌</div>
+                    :title="'This form has stapled forms: ' + staplesList">x{{staples.length}}<span role="img" aria="">📌</span></div>
                 <div v-if="isStapledToOtherForm"
                     title="This form is stapled to another form"
-                >📑</div>
+                ><span role="img" aria="">📑</span></div>
             </div>
             <div class="formPreviewWorkflow">{{ workflow }}</div>
         </div>`

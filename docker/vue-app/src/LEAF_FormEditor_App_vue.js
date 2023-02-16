@@ -51,7 +51,6 @@ export default {
             indicatorCountSwitch: true,    //toggled to trigger form view controller remount if an indicator is archived or deleted
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
-            currentCategoryIndicatorTotal: 0,
             formsStapledCatIDs: [],         //cat IDs of forms stapled to anything
             ajaxSelectedCategoryStapled: [],//forms stapled to the main form
             ajaxWorkflowRecords: [],        //array of all 'workflows' table records
@@ -74,7 +73,6 @@ export default {
             selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
             selectedFormNode: computed(() => this.selectedFormNode),
             currentCategoryIsSensitive: computed(() => this.currentCategoryIsSensitive),
-            currentCategoryIndicatorTotal: computed(() => this.currentCategoryIndicatorTotal),
             ajaxFormByCategoryID: computed(() => this.ajaxFormByCategoryID),
             appIsLoadingCategoryInfo: computed(() => this.appIsLoadingCategoryInfo),
             ajaxSelectedCategoryStapled: computed(() => this.ajaxSelectedCategoryStapled),
@@ -341,15 +339,17 @@ export default {
             if (newIndicator === true && this.currCategoryID === null) { //null if on form browser page
                 this.showCertificationStatus = true;
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
-                    if (unresolvedLeafSRequests.length === 0) { // if no new request, create one
-                        document.getElementById('secureStatus').innerText = 'Forms have been modified.';
-                        document.getElementById('secureBtn').innerText = 'Please Recertify Your Site';
-                        document.getElementById('secureBtn')?.setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
-                    } else {
-                        const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
-                        document.getElementById('secureStatus').innerText = 'Re-certification in progress.';
-                        document.getElementById('secureBtn').innerText = 'Check Certification Progress';
-                        document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
+                    if (this.currentCategoryID === null) {
+                        if (Object.keys(unresolvedLeafSRequests).length === 0) { // if no new request, create one
+                            document.getElementById('secureStatus').innerText = 'Forms have been modified.';
+                            document.getElementById('secureBtn').innerText = 'Please Recertify Your Site';
+                            document.getElementById('secureBtn')?.setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
+                        } else {
+                            const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
+                            document.getElementById('secureStatus').innerText = 'Re-certification in progress.';
+                            document.getElementById('secureBtn').innerText = 'Check Certification Progress';
+                            document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
+                        }
                     }
                 }).catch(err => console.log('an error has occurred', err));
             }
@@ -364,7 +364,7 @@ export default {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/_${catID}`,
+                    url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res)=> {
                         this.appIsLoadingCategoryInfo = false;
                         resolve(res)
@@ -476,7 +476,6 @@ export default {
             this.ajaxSelectedCategoryStapled = [];
             this.selectedFormNode = null;
             this.selectedNodeIndicatorID = null;
-            this.currentCategoryIndicatorTotal = 0;
 
             //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
             if (catID !== null) {
@@ -487,7 +486,9 @@ export default {
                 this.getFormByCategoryID(catID).then(res => {
                     this.ajaxFormByCategoryID = res;
                     this.ajaxFormByCategoryID.forEach(section => {
-                        this.currentCategoryIndicatorTotal = this.getIndicatorCountAndNodeSelection(section, this.currentCategoryIndicatorTotal);
+                        if (this.selectedFormNode === null) {
+                            this.getNodeSelection(section);
+                        }
                         this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
                     document.getElementById('header_' + catID)?.focus(); //focus the breadcrumb/button for the main form
@@ -655,17 +656,15 @@ export default {
             }
             return isSensitive;
         },
-        getIndicatorCountAndNodeSelection(node = {}, count = 0) {
-            count++;
+        getNodeSelection(node = {}) {
             if (node.indicatorID === this.selectedNodeIndicatorID) {
                 this.selectedFormNode = node;
             }
-            if (node.child) {
+            if (this.selectedFormNode === null && node.child) {
                 for (let c in node.child) {
-                    count = this.getIndicatorCountAndNodeSelection(node.child[c], count);
+                    this.getNodeSelection(node.child[c]);
                 }
             }
-            return count;
         },
         showRestoreFields() {
             this.restoringFields = true;

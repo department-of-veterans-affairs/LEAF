@@ -1,7 +1,7 @@
 import FormatPreview from "./FormatPreview";
 
 export default {
-    name: 'FormEditingDisplay',  //NOTE: this will replace previous 'print-subindicators' and associated templates
+    name: 'FormEditingDisplay',
     props: {
         depth: Number,
         formNode: Object,
@@ -16,26 +16,17 @@ export default {
         'openAdvancedOptionsDialog',
         'openIfThenDialog',
         'listItems',
-        'allListItemsAreAdded',
         'allowedConditionChildFormats',
         'showToolbars'
     ],
     mounted() {
-        //console.log('form editing area mounted');
+        //console.log('form editing area mounted', this.$props);
     },
     computed: {
-        children() {
-            let eles = [];
-            for (let c in this.formNode.child) {
-                eles.push(this.formNode.child[c]);
-            }
-            eles = eles.sort((a, b)=> a.sort - b.sort);
-            return eles;
-        },
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
             let item = this.listItems[ID];
-            return this.allListItemsAreAdded && (item.parentID === null || item.newParentID === null);
+            return (item?.parentID === null || item?.newParentID === null);
         },
         sensitiveImg() {
             return this.sensitive ? 
@@ -122,7 +113,7 @@ export default {
 
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
             <template v-if="formNode.child">
-                <form-editing-display v-for="child in children"
+                <form-editing-display v-for="child in formNode.child"
                     :depth="depth + 1"
                     :formNode="child"
                     :key="'FED_' + child.indicatorID">

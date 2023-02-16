@@ -29,9 +29,9 @@ export default {
         'APIroot',
         'CSRFToken',
         'appIsLoadingCategoryInfo',
-        'ajaxFormByCategoryID',
         'currCategoryID',       //always a main form
         'currSubformID',        //catID of the subform, if a subform, otherwise null
+        'ajaxFormByCategoryID',
         'internalForms',
         'ajaxSelectedCategoryStapled',
         'selectNewCategory',
@@ -40,7 +40,6 @@ export default {
         'selectedFormNode',
         'newQuestion',
         'currentCategorySelection',   //corresponds to currently selected form being viewed (form or subform)
-        'currentCategoryIndicatorTotal',
         'stripAndDecodeHTML',
     ],
     mounted() {
@@ -49,7 +48,6 @@ export default {
     provide() {
         return {
             listItems: computed(() => this.listItems),
-            allListItemsAreAdded: computed(() => this.allListItemsAreAdded),
             showToolbars: computed(() => this.showToolbars),
             orgchartPath: this.orgchartPath,
             addToListItemsObject: this.addToListItemsObject,
@@ -65,11 +63,8 @@ export default {
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID] || '';
-            return item !== '' && this.allListItemsAreAdded && item.parentID === null ? `${item.currSortIndex + 1} ` : '';
+            return (item !== '' && item.parentID === null) ? `${item.currSortIndex + 1} ` : '';
         }, 
-        allListItemsAreAdded() {
-            return this.currentCategoryIndicatorTotal > 0 && this.currentCategoryIndicatorTotal === Object.keys(this.listItems).length;
-        },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
         },
@@ -281,12 +276,7 @@ export default {
             if (event?.keyCode === 32) event.preventDefault();
             this.showToolbars=!this.showToolbars;
         },
-    }, /*
-    watch: {
-        allListItemsAreAdded(newVal, oldVal){
-            console.log('watch triggered, all List Items added (New/Old value): ', newVal, oldVal);
-        }
-    }, */
+    },
     template:`
     <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
         font-size: 24px; font-weight: bold; padding: 16px;">
@@ -346,7 +336,7 @@ export default {
         </div>
 
         <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-        <template v-if="ajaxFormByCategoryID.length > 0 && allListItemsAreAdded">
+        <template v-if="ajaxFormByCategoryID.length > 0">
             <!-- ENTIRE FORM EDIT / PREVIEW -->
             <div v-if="selectedFormNode === null" id="form_entry_and_preview">
                 <div class="form-section-header" style="display: flex; height: 28px;">
