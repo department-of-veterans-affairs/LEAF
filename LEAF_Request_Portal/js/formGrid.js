@@ -730,7 +730,7 @@ var LeafFormGrid = function(containerID, options) {
             var i = 0;
             var thisSite = document.createElement('a');
             var numColumns = headers.length - 1;
-            $('#' + prefixID + 'tbody>tr>td').each(function(idx, val) {
+            document.querySelectorAll('#' + prefixID + 'tbody>tr>td').forEach(function(val) {
                 var foundScripts = val.querySelectorAll('script');
 
                 for(var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
@@ -755,10 +755,10 @@ var LeafFormGrid = function(containerID, options) {
             });
 
             rows = '';
-            $(output).each(function(idx, thisRow)
+            output.forEach(function(thisRow)
             {
                 //escape double quotes
-                $(thisRow).each(function(idx, col) {
+                thisRow.forEach(function(col, idx) {
                     thisRow[idx] = col.replace(/\"/g, "\"\"");
                 });
                 //add to csv string
