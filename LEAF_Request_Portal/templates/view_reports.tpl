@@ -1396,7 +1396,6 @@ $(function() {
                 checkIfOneTypeSearchedAndUpdate(inQuery.terms);
 
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
-                selectedIndicators = t_inIndicators;
                 let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
                 if (queryColors !== null) {
                     gridColorData = queryColors;
