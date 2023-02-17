@@ -18,6 +18,7 @@ var LeafFormGrid = function(containerID, options) {
     var postProcessDataFunc = null;
     var preRenderFunc = null;
     var postRenderFunc = null;
+    let postSortRequestFunc = null;
     var rootURL = '';
     var isRenderingVirtualHeader = true;
     var isRenderingBody = false;
@@ -179,11 +180,11 @@ var LeafFormGrid = function(containerID, options) {
         $('#'+ prefixID +'header_UID').css('cursor', 'pointer');
         $('#'+ prefixID +'header_UID').on('click', null, null, function(data) {
                 if(headerToggle == 0) {
-                    sort('recordID', 'asc');
+                    sort('recordID', 'asc', postSortRequestFunc);
                     headerToggle = 1;
                 }
                 else {
-                    sort('recordID', 'desc');
+                    sort('recordID', 'desc', postSortRequestFunc);
                     headerToggle = 0;
                 }
                 renderBody(0, Infinity);
@@ -202,30 +203,30 @@ var LeafFormGrid = function(containerID, options) {
                 $('#'+ prefixID +'header_' + headers[i].indicatorID).css('cursor', 'pointer');
                 $('#'+ prefixID +'header_' + headers[i].indicatorID).on('click', null, headers[i].indicatorID, function(data) {
                     if(headerToggle == 0) {
-                        sort(data.data, 'asc');
+                        sort(data.data, 'asc', postSortRequestFunc);
                         headerToggle = 1;
                     }
                     else {
-                        sort(data.data, 'desc');
+                        sort(data.data, 'desc', postSortRequestFunc);
                         headerToggle = 0;
                     }
                     renderBody(0, Infinity);
                 });
-                        //using enter key to sort the the table heads for 508 compliance
-                        $('#'+ prefixID +'header_' + headers[i].indicatorID).on('keydown', null, headers[i].indicatorID, function(data) {
-                            if(data.keyCode == 13){
+                //using enter key to sort the the table heads for 508 compliance
+                $('#'+ prefixID +'header_' + headers[i].indicatorID).on('keydown', null, headers[i].indicatorID, function(data) {
+                    if(data.keyCode == 13){
 
-                            if(headerToggle == 0) {
-                                sort(data.data, 'asc');
-                                headerToggle = 1;
-                            }
-                            else {
-                                sort(data.data, 'desc');
-                                headerToggle = 0;
-                            }
-                            renderBody(0, Infinity);
-                        }
-                        });
+                    if(headerToggle == 0) {
+                        sort(data.data, 'asc', postSortRequestFunc);
+                        headerToggle = 1;
+                    }
+                    else {
+                        sort(data.data, 'desc', postSortRequestFunc);
+                        headerToggle = 0;
+                    }
+                    renderBody(0, Infinity);
+                }
+                });
 
             }
         }
@@ -282,9 +283,13 @@ var LeafFormGrid = function(containerID, options) {
     }
 
     /**
+     * Sort the current dataset based on rendered data in table cells
+     * @param key key to sort on
+     * @param order Sort order: asc/desc
+     * @param callback (optional)
      * @memberOf LeafFormGrid
      */
-    function sort(key, order) {
+    function sort(key, order, callback) {
         if(key != 'recordID' && currLimit != Infinity) {
             renderBody(0, Infinity);
         }
@@ -306,7 +311,6 @@ var LeafFormGrid = function(containerID, options) {
         var array = [];
         var isIndicatorID = $.isNumeric(key);
         var isDate = false;
-        var isNumeric = true;
         var idKey = 'id' + key;
         var tDate;
         for(let i in currentData) {
@@ -365,13 +369,6 @@ var LeafFormGrid = function(containerID, options) {
                 }
             }
 
-            if($.isNumeric(currentData[i].s1[idKey])
-              & isNumeric == true) {
-                currentData[i].s1[idKey] = parseFloat(currentData[i].s1[idKey]);
-            }
-            else {
-                isNumeric= false;
-            }
             array.push(currentData[i]);
         }
         if(isDate) {
@@ -380,18 +377,6 @@ var LeafFormGrid = function(containerID, options) {
                     return 1;
                 }
                 if(b.sDate[key] < a.sDate[key]) {
-                    return -1;
-                }
-                return 0;
-            });
-        }
-        else if($.isNumeric(key)
-             || isNumeric) {
-            array.sort(function(a, b) {
-                if(b.s1[idKey] > a.s1[idKey]) {
-                    return 1;
-                }
-                if(b.s1[idKey] < a.s1[idKey]) {
                     return -1;
                 }
                 return 0;
@@ -417,13 +402,17 @@ var LeafFormGrid = function(containerID, options) {
                 if(b[key] == undefined) {
                     b[key] = '';
                 }
-                return collator.compare(a[key], b[key]);
+                return -collator.compare(a[key], b[key]);
             });
         }
         if(order == 'asc') {
             array.reverse();
         }
         currentData = array;
+
+        if(callback != undefined && typeof callback === 'function') {
+            callback(key, order);
+        }
     }
 
     /**
@@ -819,6 +808,15 @@ var LeafFormGrid = function(containerID, options) {
 
     /**
      * @memberOf LeafFormGrid
+     * Set callback function to run after the user requests a sort.
+     * The function takes two parameters: key, sort direction (asc/desc)
+     */
+    function setPostSortRequestFunc(func) {
+        postSortRequestFunc = func;
+    }
+
+    /**
+     * @memberOf LeafFormGrid
      * Return data row from loadData() using the array's index
      */
     function getDataByIndex(index) {
@@ -857,6 +855,7 @@ var LeafFormGrid = function(containerID, options) {
         setPostProcessDataFunc: setPostProcessDataFunc,
         setPreRenderFunc: setPreRenderFunc,
         setPostRenderFunc: setPostRenderFunc,
+        setPostSortRequestFunc: setPostSortRequestFunc,
         setDefaultLimit: function(limit) { defaultLimit = limit },
         getDefaultLimit: function() { return defaultLimit; },
         getDataByIndex: getDataByIndex,
