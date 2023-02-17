@@ -162,28 +162,13 @@ div [id^="LeafFormGrid"] table {
         <h4>Requests created by the old account</h4>
         <div id="grid_initiator" class="grid_table"></div>
         
-        <div style="display:flex; align-items:center; justify-content: space-between">
-            <h4>Orgchart Employee fields containing the old account</h4>
-            <label for="confirm_indicator_updates">Select All Requests
-                <input type="checkbox" id="confirm_indicator_updates" onclick="checkAll(event)" checked />
-            </label>
-        </div>
+        <h4>Orgchart Employee fields containing the old account</h4>
         <div id="grid_orgchart_employee" class="grid_table"></div>
 
-        <div style="display:flex; align-items:center; justify-content: space-between">
-            <h4>Groups for Old Account</h4>
-            <label for="confirm_group_updates">Select All Groups
-                <input type="checkbox" id="confirm_group_updates" onclick="checkAll(event)"- checked />
-            </label>
-        </div>
+        <h4>Groups for Old Account</h4>
         <div id="grid_groups_info" class="grid_table"></div>
 
-        <div style="display:flex; align-items:center; justify-content: space-between;">
-            <h4>Positions for Old Account</h4>
-            <label for="confirm_position_updates">Select All Positions
-                <input type="checkbox" id="confirm_position_updates" onclick="checkAll(event)" checked />
-            </label>
-        </div>
+        <h4>Positions for Old Account</h4>
         <div id=grid_positions_info class="grid_table"></div>
     </div>
     <div id="section3" style="display: none">
@@ -252,19 +237,23 @@ function startQueueListener(event, queue) {
 
 function checkAll(event = {}) {
     const target = event?.currentTarget || null;
-    const id = target?.id || '';
-    if (id !== '') {
+    const selectionString = target?.classList?.value || '';
+    if (selectionString !== '') {
         const checkboxChecked = target.checked === true;
-        const checkboxes = Array.from(document.querySelectorAll(`input[id^="${id}"]`));
-        checkboxes.forEach(cb => cb.checked = checkboxChecked)
+        const checkboxes = Array.from(document.querySelectorAll(`td input[id^="${selectionString}"]`));
+        const headerCheckboxes = Array.from(document.querySelectorAll(`th input.${selectionString}`));
+        checkboxes.forEach(cb => cb.checked = checkboxChecked);
+        headerCheckboxes.forEach(cb => cb.checked = checkboxChecked);
     }
 }
 function checkOne(event = {}, type = '') {
     const target = event?.currentTarget || null;
     const id = target?.id || '';
-    if (id !== '' && type !== '' && target?.checked === false) {
-        const primary = document.getElementById(`confirm_${type}_updates`);
-        if (primary) primary.checked = false;
+    const headerCheckboxes = Array.from(document.querySelectorAll(`th input.confirm_${type}_updates`));
+    const checkboxes = Array.from(document.querySelectorAll(`td input[id^="confirm_${type}_updates"]`));
+    const allChecked = checkboxes.every(cb => cb.checked === true);
+    if (id !== '' && type !== '') {
+        headerCheckboxes.forEach(cb => cb.checked = allChecked);
     }
 }
 
@@ -296,9 +285,6 @@ function resetEntryFields(empSel, empSelNew) {
     elGroupsUpdated.innerHTML = '';
     elPositionsUpdated.innerHTML = '';
     elErrors.innerHTML = '';
-    
-    const checkboxes = Array.from(document.querySelectorAll('label input[type="checkbox"]'));
-    checkboxes.forEach(cb => cb.checked = true);
 }
     
 function reassignInitiator(item) {
@@ -407,6 +393,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                         {
                             name: 'Group Name',
                             indicatorID: 'groupName',
+                            sortable: false,
                             callback: function(data, blob) {
                                 let containerEl = document.getElementById(data.cellContainerID);
                                 containerEl.innerText = blob[`group_${data.recordID}`]?.name;
@@ -419,6 +406,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             name: 'Current Username',
                             indicatorID: 'groupMember',
                             editable: false,
+                            sortable: false,
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
                                 const isLocal = parseInt(groupInfo[k].oldMemberSettings.locallyManaged) === 1;
@@ -435,10 +423,13 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                                 document.getElementById(data.cellContainerID).innerHTML = htmlContent;
                             }
                         },
-                        {
-                            name: 'Group Selections',
+                        {   //the input selector can't be an id because the same value will be given to the Vheader
+                            name: `<label for="confirm_group_updates">Select All Groups
+                                <input type="checkbox" class="confirm_group_updates" onclick="checkAll(event)" checked />
+                            </label>`,
                             indicatorID: 'addToGroupOptions',
                             editable: false,
+                            sortable: false,
                             callback: function(data, blob) {
                                 const containerEl = document.getElementById(data.cellContainerID);
                                 const k = `group_${data.recordID}`;
@@ -493,6 +484,7 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                         {
                             name: 'Position Title',
                             indicatorID: 'positionTitle',
+                            sortable: false,
                             callback: function(data, blob) {
                                 let containerEl = document.getElementById(data.cellContainerID);
                                 containerEl.innerText = blob[`position_${data.recordID}`]?.positionTitle || '';
@@ -505,6 +497,7 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                             name: 'Current Username',
                             indicatorID: 'userName',
                             editable: false,
+                            sortable: false,
                             callback: function(data, blob) {
                                 const k = `position_${data.recordID}`;
                                 const empInfo = blob[k].employeeList.find(emp => emp.userName === oldAccount);
@@ -514,9 +507,13 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: 'Position Selections',
+                            name: `<label for="confirm_position_updates">Select All Positions
+                                <input type="checkbox" class="confirm_position_updates" onclick="checkAll(event)" checked />
+                            </label>`,
+                            sortable: false,
                             indicatorID: 'addToPositionOptions',
                             editable: false,
+                            sortable: false,
                             callback: function(data, blob) {
                                 const k = `position_${data.recordID}`;
                                 const elInput = `<label for="confirm_position_updates_${k}">Select
@@ -832,6 +829,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 {
                     name: 'Request UID',
                     indicatorID: 'uid',
+                    sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = data.recordID;
@@ -843,6 +841,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 {
                     name: 'Request Title',
                     indicatorID: 'requestTitle',
+                    sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
@@ -855,6 +854,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                     name: 'Current Initiator Account',
                     indicatorID: 'initiator',
                     editable: false,
+                    sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = blob[data.recordID].userID;
@@ -898,6 +898,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 {
                     name: 'Request UID',
                     indicatorID: 'uid',
+                    sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = data.recordID;
@@ -909,6 +910,7 @@ function findAssociatedRequests(empSel, empSelNew) {
                 {
                     name: 'Request Title',
                     indicatorID: 'requestTitle',
+                    sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
                         containerEl.innerText = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
@@ -918,9 +920,13 @@ function findAssociatedRequests(empSel, empSelNew) {
                     }
                 },
                 {
-                    name: 'Indicator Selections',
+                    name: `<label for="confirm_indicator_updates">Select All Requests
+                        <input type="checkbox" class="confirm_indicator_updates" onclick="checkAll(event)" checked />
+                    </label>`,
+                    sortable: false,
                     indicatorID: 'updateIndicatorOptions',
                     editable: false,
+                    sortable: false,
                     callback: function(data, blob) {
                         const containerEl = document.getElementById(data.cellContainerID);
                         const k = data.recordID;
