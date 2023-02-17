@@ -22,7 +22,7 @@
         </a>
         <!--{/if}-->
 
-    <h3 role="heading" aria-level="1" tabindex="0">Request Portal Admin</h3>
+    <h3 role="heading" aria-level="1" tabindex="0">Site Configuration</h3>
         
         <!--{if $siteType != 'national_subordinate'}-->
         <a href="?a=workflow" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
