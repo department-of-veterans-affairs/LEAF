@@ -402,7 +402,7 @@ var LeafFormGrid = function(containerID, options) {
                 if(b[key] == undefined) {
                     b[key] = '';
                 }
-                return -collator.compare(a[key], b[key]);
+                return collator.compare(b[key], a[key]);
             });
         }
         if(order == 'asc') {
