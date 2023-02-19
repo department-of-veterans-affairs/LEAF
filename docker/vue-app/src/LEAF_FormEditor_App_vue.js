@@ -49,8 +49,7 @@ export default {
             indicatorCountSwitch: true,    //toggled to trigger form view controller remount if an indicator is archived or deleted
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
-            formsStapledCatIDs: [],         //cat IDs of forms stapled to anything
-            ajaxSelectedCategoryStapled: [],//forms stapled to the main form
+            stapledFormsCatIDs: [],         //cat IDs of forms stapled to anything
             ajaxWorkflowRecords: [],        //array of all 'workflows' table records
             ajaxIndicatorByID: {},          //'indicators' table record for a specific indicatorID
             orgSelectorClassesAdded: { group: false, position: false, employee: false },
@@ -76,8 +75,8 @@ export default {
             activeCategories: computed(() => this.activeCategories),
             inactiveCategories: computed(() => this.inactiveCategories),
             showCertificationStatus: computed(() => this.showCertificationStatus),
-            ajaxSelectedCategoryStapled: computed(() => this.ajaxSelectedCategoryStapled),
-            formsStapledCatIDs: computed(() => this.formsStapledCatIDs),
+            selectedCategoryStapledForms: computed(() => this.selectedCategoryStapledForms),
+            stapledFormsCatIDs: computed(() => this.stapledFormsCatIDs),
             ajaxWorkflowRecords: computed(() => this.ajaxWorkflowRecords),
             showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
@@ -90,14 +89,12 @@ export default {
             APIroot: this.APIroot,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
-            getStapledFormsByCurrentCategory: this.getStapledFormsByCurrentCategory,
-            setCurrCategoryStaples: this.setCurrCategoryStaples,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
             selectNewFormNode: this.selectNewFormNode,
             updateCategoriesProperty: this.updateCategoriesProperty,
-            updateFormsStapledCatIDs: this.updateFormsStapledCatIDs,
+            updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
             closeFormDialog: this.closeFormDialog,
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
@@ -129,7 +126,8 @@ export default {
     },
     beforeMount() {
         this.getCategoryListAll().then(() => {
-            if(this.$route.name === 'category') {
+            if(this.$route.name === 'category' && this.$route.query.formID) {
+                console.log('category route and formID query found, getting from query')
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
@@ -137,6 +135,7 @@ export default {
         this.getWorkflowRecords();
     },
     mounted() {
+        console.log('mounted app')
         this.getSiteSettings().then(res => {
             this.siteSettings = res;
             if(res.siteType === 'national_subordinate') {
@@ -148,8 +147,8 @@ export default {
         }).catch(err => console.log('error getting site settings', err));
     },
     watch: {
-        "$route.query.formID"() {
-            if(this.$route.name === 'category') {
+        "$route.query.formID"(newVal = '', oldVal = '') {
+            if(this.$route.name === 'category' && this.$route.query.formID && oldVal !== '') {
                 this.getFormFromQueryParam();
             }
         }
@@ -194,6 +193,15 @@ export default {
                 }
             }
             return internalForms;
+        },
+        selectedCategoryStapledForms() {
+            let staples = [];
+            if (Object.keys(this.currentCategorySelection).length > 0) {
+                this.currentCategorySelection.stapledFormIDs.forEach(id => {
+                    staples.push({...this.categories[id]});
+                });
+            }
+            return staples;
         }
     },
     methods: {
@@ -233,10 +241,12 @@ export default {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}formStack/categoryList/all`,
+                    url: `${this.APIroot}formStack/categoryList/allWithStaples`,
                     success: (res)=> {
+                        console.log('updated categories');
                         for(let i in res) {
                             this.categories[res[i].categoryID] = res[i];
+                            res[i].stapledFormIDs.forEach(id => this.updateStapledFormsInfo(id));
                         }
                         this.appIsLoadingCategoryList = false;
                         resolve(res);
@@ -248,7 +258,7 @@ export default {
         getFormFromQueryParam() {
             const formReg = /^form_[0-9a-f]{5}$/;
             const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
-            console.log('GOT FORM ID ', formID)
+            console.log('got form id from query param', formID)
             if (formID === null || this.categories[formID] === undefined) {
                 this.selectNewCategory(null);
                 console.log('form does not exist');
@@ -387,33 +397,18 @@ export default {
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '') {
+            console.log('getting form', catID)
             this.appIsLoadingForm = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res)=> {
+                        console.log('form received');
                         this.appIsLoadingForm = false;
                         resolve(res)
                     },
                     error: (err)=> reject(err)
-                });
-            });
-        },
-        /**
-         * 
-         * @param {string} catID 
-         * @returns {array} of objects with information about forms stapled to CatID
-         */
-        getStapledFormsByCurrentCategory(catID = '') {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}formEditor/_${catID}/stapled`,
-                    success: (res) => {
-                        resolve(res);
-                    },
-                    error: (err) => reject(err)
                 });
             });
         },
@@ -433,13 +428,6 @@ export default {
             });
         },
         /**
-         * sets app data for staples associated with the currently selected form
-         * @param {array} stapledForms 
-         */
-        setCurrCategoryStaples(stapledForms = []) {
-            this.ajaxSelectedCategoryStapled = stapledForms;
-        },
-        /**
          * updates app categories object property value
          * @param {string} catID 
          * @param {string} keyName 
@@ -450,19 +438,24 @@ export default {
             this.currentCategorySelection = this.categories[catID];
         },
         /**
-         * updates app formsStapledCatIDs to track which forms have staples for card info
+         * updates app stapledFormsCatIDs to track which forms have staples for card info
          * @param {string} stapledCatID 
          * @param {string} removeCatID 
          */
-        updateFormsStapledCatIDs(stapledCatID = '', removeCatID = false) {
+        updateStapledFormsInfo(stapledCatID = '', removeCatID = false, updateSelectedForm = false) {
             if(removeCatID === true) {
-                if(this.formsStapledCatIDs.includes(stapledCatID)) {
-                    const index = this.formsStapledCatIDs.indexOf(stapledCatID);
-                    this.formsStapledCatIDs = [...this.formsStapledCatIDs.slice(0, index), ...this.formsStapledCatIDs.slice(index + 1)];
+                if(this.stapledFormsCatIDs.includes(stapledCatID)) {
+                    this.stapledFormsCatIDs = this.stapledFormsCatIDs.filter(id => id !== stapledCatID);
+                    if (Object.keys(this.currentCategorySelection).length > 0) {
+                        this.currentCategorySelection.stapledFormIDs = this.currentCategorySelection.stapledFormIDs.filter(id => id !== stapledCatID);
+                    }
                 }
             } else {
-                if(!this.formsStapledCatIDs.includes(stapledCatID)) {
-                    this.formsStapledCatIDs = [...this.formsStapledCatIDs, stapledCatID];
+                if(!this.stapledFormsCatIDs.includes(stapledCatID)) {
+                    this.stapledFormsCatIDs = [...this.stapledFormsCatIDs, stapledCatID];
+                    if (Object.keys(this.currentCategorySelection).length > 0) {
+                        this.currentCategorySelection.stapledFormIDs = [...this.currentCategorySelection.stapledFormIDs, stapledCatID];
+                    }
                 } 
             }
         },
@@ -490,13 +483,13 @@ export default {
             }
             this.currentCategorySelection = {};
             this.ajaxFormByCategoryID = [];
-            this.ajaxSelectedCategoryStapled = [];
             this.selectedFormNode = null;
             this.selectedNodeIndicatorID = null;
 
             //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
             if (catID !== null) {
-                this.currentCategorySelection = { ...this.categories[catID]};
+                const form = { ...this.categories[catID] };
+                this.currentCategorySelection = form;
                 this.selectedNodeIndicatorID = subnodeIndID;
                 this.currentCategoryIsSensitive = false;
 
@@ -511,10 +504,6 @@ export default {
                     this.$router.replace({ name: "category", query: { formID: catID } });
                     document.getElementById('header_' + catID)?.focus(); //focus the breadcrumb/button for the main form
                 }).catch(err => console.log('error getting form info: ', err));
-
-                this.getStapledFormsByCurrentCategory(this.currCategoryID)
-                    .then(res => this.ajaxSelectedCategoryStapled = res)
-                    .catch(err => console.log('an error has occurred', err));
 
             } else {  //card browser.
                 this.categories = {};

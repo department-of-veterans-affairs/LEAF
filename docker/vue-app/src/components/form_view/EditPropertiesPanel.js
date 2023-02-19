@@ -121,7 +121,7 @@ export default {
                                 alert('The workflow could not be set because this form is stapled to another form');
                             } else {
                                 this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
-                                this.updateCategoriesProperty(this.formID, 'description', this.workflowDescription);
+                                this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
                             }
                         },
                         error: err => console.log('workflow post err', err)

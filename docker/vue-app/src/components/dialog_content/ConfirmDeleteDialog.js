@@ -10,7 +10,7 @@ export default {
         'currCategoryID',
         'currSubformID',
         'currentCategorySelection',
-        'ajaxSelectedCategoryStapled',
+        'selectedCategoryStapledForms',
         'selectNewCategory',
         'closeFormDialog'
     ],
@@ -28,7 +28,7 @@ export default {
     },
     methods:{
         onSave() {
-            if(this.ajaxSelectedCategoryStapled.length === 0) {
+            if(this.selectedCategoryStapledForms.length === 0) {
                 
                 $.ajax({
                     type: 'DELETE',
@@ -54,6 +54,6 @@ export default {
         <div>Are you sure you want to delete this form?</div>
         <div style="margin: 1em 0;"><b>{{formName}}</b></div>
         <div style="min-width:300px; max-width: 500px; min-height: 50px; margin-bottom: 1rem;">{{formDescription}}</div>
-        <div v-if="ajaxSelectedCategoryStapled.length > 0">⚠️ This form still has stapled forms attached</div>
+        <div v-if="selectedCategoryStapledForms.length > 0">⚠️ This form still has stapled forms attached</div>
     </div>`
 }

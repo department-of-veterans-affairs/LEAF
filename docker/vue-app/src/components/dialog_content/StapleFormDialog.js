@@ -3,7 +3,6 @@ export default {
         return {
             catIDtoStaple: '',
             formID: this.currCategoryID  //staples are added to the main form.
-
         }
     },
     inject: [
@@ -14,11 +13,9 @@ export default {
         'categories',
         'currCategoryID',
         'currSubformID',
-        'ajaxSelectedCategoryStapled',
-        'getStapledFormsByCurrentCategory',
-        'setCurrCategoryStaples',
+        'selectedCategoryStapledForms',
         'closeFormDialog',
-        'updateFormsStapledCatIDs'
+        'updateStapledFormsInfo'
     ],
     mounted() {
         if(this.mergeableForms.length > 0) {
@@ -33,8 +30,8 @@ export default {
                 const WF_ID = parseInt(this.categories[c].workflowID);
                 const catID = this.categories[c].categoryID;
                 const parID = this.categories[c].parentID;
-                const isNotAlreadyMerged = this.ajaxSelectedCategoryStapled.every(form => form.stapledCategoryID !== catID)
-                if (WF_ID === 0 && catID !== this.formID && parID === '' && isNotAlreadyMerged) {
+                const isNotAlreadyMerged = this.selectedCategoryStapledForms.every(form => form.categoryID !== catID)
+                if (WF_ID === 0 && parID === '' && catID !== this.formID && isNotAlreadyMerged) {
                     mergeable.push({...this.categories[c]});
                 }
             }
@@ -47,15 +44,13 @@ export default {
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
-                    this.getStapledFormsByCurrentCategory(this.formID)
-                        .then(res => this.setCurrCategoryStaples(res))
-                        .catch(err => console.log('an error has occurred', err));
-                    this.updateFormsStapledCatIDs(stapledCatID, true);
+                    this.updateStapledFormsInfo(stapledCatID, true);
                 },
                 error: err => console.log(err)
             });
         },
         onSave() {
+            console.log('clicked add for form', this.formID, this.catIDtoStaple)
             if(this.catIDtoStaple !== '') {
                 $.ajax({
                     type: 'POST',
@@ -68,11 +63,8 @@ export default {
                         if(res !== 1) {
                             alert(res);
                         } else {
-                            this.getStapledFormsByCurrentCategory(this.formID).then(res => {
-                                this.setCurrCategoryStaples(res);
-                                this.updateFormsStapledCatIDs(this.catIDtoStaple);
-                                this.catIDtoStaple = '';
-                            }).catch(err => console.log('an error has occurred', err));
+                            this.updateStapledFormsInfo(this.catIDtoStaple);
+                            this.catIDtoStaple = '';
                         }
                     },
                     error: err => console.log(err),
@@ -86,7 +78,7 @@ export default {
         <p>The order of the forms will be determined by the forms' assigned sort values.</p>
         <div id="mergedForms" style="margin-top: 1rem;">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
-                <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_list_' + s.categoryID">
+                <li v-for="s in selectedCategoryStapledForms" :key="'staple_list_' + s.categoryID">
                     {{truncateText(stripAndDecodeHTML(s.categoryName)) || 'Untitled'}}
                     <button 
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 

@@ -34,7 +34,7 @@ export default {
         'currSubformID',        //catID of the subform, if a subform, otherwise null
         'ajaxFormByCategoryID',
         'internalForms',
-        'ajaxSelectedCategoryStapled',
+        'selectedCategoryStapledForms',
         'selectNewCategory',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
@@ -310,7 +310,7 @@ export default {
                             title="Apply form structure updates">Apply sorting changes</button>
                     </div>
                     <div v-if="currSubformID === null && internalForms.length > 0"><em>x{{internalForms.length}} internal form(s)</em></div>
-                    <div v-if="currSubformID === null && ajaxSelectedCategoryStapled.length > 0"><em>x{{ajaxSelectedCategoryStapled.length}} stapled form(s)</em></div>
+                    <div v-if="currSubformID === null && selectedCategoryStapledForms.length > 0"><em>x{{selectedCategoryStapledForms.length}} stapled form(s)</em></div>
                     <div style="margin: 1em 0">
                         <button v-if="selectedFormNode !== null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
                             @click="selectNewFormNode($event, null)" 

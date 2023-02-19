@@ -1,7 +1,7 @@
 export default {
     data() {
         return {
-            staples: []
+            staples: this.categoriesRecord.stapledFormIDs
         }
     },
     props: {
@@ -9,23 +9,10 @@ export default {
     },
     inject: [
         'selectNewCategory',
-        'getStapledFormsByCurrentCategory',
         'truncateText',
         'stripAndDecodeHTML',
-        'formsStapledCatIDs',
-        'updateFormsStapledCatIDs'
+        'stapledFormsCatIDs',
     ],
-    mounted() {
-        /**
-         * get stapled forms associated with this card's catID and update staples (array)
-         */
-        this.getStapledFormsByCurrentCategory(this.catID).then(res => {
-            this.staples = res;
-            for (let s in res) {
-                this.updateFormsStapledCatIDs(res[s].stapledCategoryID);
-            }
-        }).catch(err => console.log('an error has occurred', err));
-    },
     computed: {
         workflowID() {
             return parseInt(this.categoriesRecord.workflowID);
@@ -48,7 +35,7 @@ export default {
             return list.join(', ');
         },
         isStapledToOtherForm() {
-            return this.formsStapledCatIDs.includes(this.categoriesRecord.categoryID);
+            return this.stapledFormsCatIDs.includes(this.categoriesRecord.categoryID);
         },
         /**
          * NOTE: uses LEAF XSSHelpers.js
@@ -75,7 +62,7 @@ export default {
             if (this.workflowID === 0) {
                 msg = 'No Workflow';
             } else {
-                msg = this.categoriesRecord.description !== null ? 'Workflow: ' + this.categoriesRecord.description : '';
+                msg = this.categoriesRecord.workflowDescription !== null ? 'Workflow: ' + this.categoriesRecord.workflowDescription : '';
             }
             return this.truncateText(msg, 43);
         }

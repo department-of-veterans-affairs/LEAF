@@ -15,8 +15,8 @@ export default {
         'currSubformID',
         'internalForms',
         'ajaxFormByCategoryID',
-        'ajaxSelectedCategoryStapled',
-        'formsStapledCatIDs',
+        'selectedCategoryStapledForms',
+        'stapledFormsCatIDs',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
@@ -169,15 +169,15 @@ export default {
                                     </li>
                                 </ul>
                             </li>
-                            <li v-if="!formsStapledCatIDs.includes(currCategoryID)">
+                            <li v-if="!stapledFormsCatIDs.includes(currCategoryID)">
                                 <button @click="openStapleFormsDialog" title="staple another form">
                                     <div>
                                         Edit Main Form Staples<br/>
                                         <span class="staple-sort-info">form sort value: {{categories[currCategoryID].sort}}</span>
                                     </div><span role="img" aria="">📌</span>
                                 </button>
-                                <ul v-if="ajaxSelectedCategoryStapled.length > 0" id="stapledForms">
-                                    <li v-for="s in ajaxSelectedCategoryStapled" 
+                                <ul v-if="selectedCategoryStapledForms.length > 0" id="stapledForms">
+                                    <li v-for="s in selectedCategoryStapledForms" 
                                         :key="'staple_' + s.stapledCategoryID">
                                         <button @click="selectMainForm(s.categoryID)">
                                             <div>

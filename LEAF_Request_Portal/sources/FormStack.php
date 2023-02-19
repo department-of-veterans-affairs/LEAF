@@ -46,6 +46,26 @@ class FormStack
         return $res;
     }
 
+    public function getAllCategoriesWithStaples() {
+        $strSQL = "SELECT categories.categoryID, parentID, categoryName, categoryDescription, categories.workflowID,
+            sort, needToKnow, formLibraryID, visible, categories.disabled, categories.type,
+            workflows.description AS workflowDescription FROM categories
+            LEFT JOIN workflows ON categories.workflowID=workflows.workflowID
+            WHERE categories.workflowID >= 0 AND categories.disabled = 0";
+
+        $res = $this->db->prepared_query($strSQL, null);
+
+        foreach($res as $ind => $val) {
+            $vars = array(':categoryID' => $val['categoryID']);
+            $strStaples = "SELECT stapledCategoryID FROM category_staples
+                WHERE categoryID=:categoryID";
+            $resStaples = $this->db->prepared_query($strStaples, $vars) ?? [];
+
+            $res[$ind]['stapledFormIDs'] = array_column($resStaples,'stapledCategoryID');
+        }
+        return $res;
+    }
+
     public function deleteForm($categoryID)
     {
         if (!$this->login->checkGroup(1))
