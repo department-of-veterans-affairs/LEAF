@@ -80,8 +80,7 @@ export default {
             return this.truncateText(msg, 43);
         }
     },
-    template:`<router-link :to="{ name: 'category', params: { formID: categoriesRecord.categoryID } }">
-        <div @click="selectNewCategory(catID)"
+    template:`<div tabindex="0" @click="selectNewCategory(catID)"
           @keyup.enter="selectNewCategory(catID)"
           :class="cardLibraryClasses" class="browser-category-card"
           :id="catID" 
@@ -100,6 +99,5 @@ export default {
                 ><span role="img" aria="">📑</span></div>
             </div>
             <div class="formPreviewWorkflow">{{ workflow }}</div>
-        </div>
-    </router-link>`
+        </div>`
 }

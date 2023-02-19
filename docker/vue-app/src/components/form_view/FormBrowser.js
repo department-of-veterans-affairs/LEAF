@@ -1,4 +1,4 @@
-import CategoryCard from "../components/CategoryCard";
+import CategoryCard from "@/components/CategoryCard";
 
 export default {
     data() {

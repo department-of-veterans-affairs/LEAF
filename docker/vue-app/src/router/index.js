@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import FormBrowser from "../views/FormBrowser";
 import FormViewController from "../components/form_view/FormViewController";
 import RestoreFields from "../components/RestoreFields";
 
@@ -12,11 +11,10 @@ const RestoreFields = () => import('../components/RestoreFields');
 const routes = [
     {
         path: '/',
-        name: 'browser',
-        component: FormBrowser
+        redirect: { name: 'category' }
     },
     {
-        path: '/forms/:formID',
+        path: '/forms',
         name: 'category',
         component: FormViewController
     },

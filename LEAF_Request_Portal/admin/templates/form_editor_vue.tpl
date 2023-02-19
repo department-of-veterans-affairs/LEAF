@@ -1,5 +1,5 @@
 <div id="vue-formeditor-app">
-    <div v-cloak v-if="siteSettings?.siteType === 'national_subordinate'" id="subordinate_site_warning">
+    <div style="display:none" id="subordinate_site_warning">
         <h3>This is a Nationally Standardized Subordinate Site</h3>
         <span>Do not make modifications! &nbsp;Synchronization problems will occur. &nbsp;Please contact your process POC if modifications need to be made.</span>
     </div>

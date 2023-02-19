@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 
+import FormBrowser from './FormBrowser.js';
 import FormEditingDisplay from './FormEditingDisplay.js';
 import FormIndexListing from './FormIndexListing.js';
 import EditPropertiesPanel from './EditPropertiesPanel.js';
@@ -7,7 +8,6 @@ import EditPropertiesPanel from './EditPropertiesPanel.js';
 export default {
     data()  {
         return {
-            formID: null,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
@@ -23,7 +23,8 @@ export default {
     components: {
         FormEditingDisplay,
         FormIndexListing,
-        EditPropertiesPanel
+        EditPropertiesPanel,
+        FormBrowser
     },
     inject: [
         'APIroot',
@@ -43,12 +44,11 @@ export default {
         'stripAndDecodeHTML',
     ],
     mounted() {
-        //console.log('MOUNTED VIEW CONTROLLER', this.currentCategorySelection.categoryID);
+        //console.log('MOUNTED VIEW CONTROLLER');
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.formID = to.params.formID;
-            console.log('TEST BRE', vm.formID);
+            console.log('entered main/forms route', vm.$data);
         })
     },
     provide() {
@@ -66,6 +66,9 @@ export default {
         }
     },
     computed: {
+        formID() {
+            return this.currentCategorySelection?.categoryID || null;
+        },
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
             let item = this.listItems[ID] || '';
@@ -283,105 +286,109 @@ export default {
             this.showToolbars=!this.showToolbars;
         },
     },
-    template:`
-    <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
-        font-size: 24px; font-weight: bold; padding: 16px;">
-        Loading... 
-        <img src="../images/largespinner.gif" alt="loading..." />
-    </div>
+    template:`<div id="formEditor_content">
+    <FormBrowser v-if="formID===null"></FormBrowser>
 
     <template v-else>
-    <!-- TOP INFO PANEL -->
-    <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
-
-    <div id="form_index_and_editing">
-
-        <!-- NOTE: FORM INDEX DISPLAY -->
-        <div id="form_index_display">
-            <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
-                <h3 style="margin: 0;">Form Index</h3>
-                <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
-                    class="btn-general"
-                    title="Apply form structure updates">Apply sorting changes</button>
-            </div>
-            <div v-if="currSubformID === null && internalForms.length > 0"><em>x{{internalForms.length}} internal form(s)</em></div>
-            <div v-if="currSubformID === null && ajaxSelectedCategoryStapled.length > 0"><em>x{{ajaxSelectedCategoryStapled.length}} stapled form(s)</em></div>
-            <div style="margin: 1em 0">
-                <button v-if="selectedFormNode !== null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
-                    @click="selectNewFormNode($event, null)" 
-                    id="show_entire_form" 
-                    title="Show entire form">Show entire form
-                </button>
-                <button class="btn-general" style="width: 100%" 
-                    @click="newQuestion(null)"
-                    id="add_new_form_section"
-                    title="Add new form section">
-                    + Add Section
-                </button>
-            </div>
-            <ul v-if="ajaxFormByCategoryID.length > 0"
-                id="base_drop_area"
-                class="form-index-listing-ul"
-                data-effect-allowed="move"
-                @drop.stop="onDrop"
-                @dragover.prevent
-                @dragenter.prevent="onDragEnter"
-                @dragleave="onDragLeave">
-
-                <form-index-listing v-for="(formSection, i) in ajaxFormByCategoryID"
-                    :id="'index_listing_'+formSection.indicatorID"
-                    :depth=0
-                    :formNode="formSection"
-                    :index=i
-                    :parentID=null
-                    :key="'index_list_item_' + formSection.indicatorID"
-                    draggable="true"
-                    @dragstart.stop="startDrag">
-                </form-index-listing>
-            </ul>
+        <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
+            font-size: 24px; font-weight: bold; padding: 16px;">
+            Loading... 
+            <img src="../images/largespinner.gif" alt="loading..." />
         </div>
 
-        <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-        <template v-if="ajaxFormByCategoryID.length > 0">
-            <!-- ENTIRE FORM EDIT / PREVIEW -->
-            <div v-if="selectedFormNode === null" id="form_entry_and_preview">
-                <div class="form-section-header" style="display: flex; height: 28px;">
-                    <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
-                    <button id="indicator_toolbar_toggle" class="btn-general"
-                        @click.stop="toggleToolbars($event)">
-                        {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
-                    </button>
-                </div>
-                <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
-                    <div class="printformblock">
-                        <form-editing-display 
-                            :depth="0"
+        <template v-else>
+            <!-- TOP INFO PANEL -->
+            <edit-properties-panel :key="currentCategorySelection.categoryID"></edit-properties-panel>
+
+            <div id="form_index_and_editing">
+                <!-- NOTE: FORM INDEX DISPLAY -->
+                <div id="form_index_display">
+                    <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
+                        <h3 style="margin: 0;">Form Index</h3>
+                        <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
+                            class="btn-general"
+                            title="Apply form structure updates">Apply sorting changes</button>
+                    </div>
+                    <div v-if="currSubformID === null && internalForms.length > 0"><em>x{{internalForms.length}} internal form(s)</em></div>
+                    <div v-if="currSubformID === null && ajaxSelectedCategoryStapled.length > 0"><em>x{{ajaxSelectedCategoryStapled.length}} stapled form(s)</em></div>
+                    <div style="margin: 1em 0">
+                        <button v-if="selectedFormNode !== null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
+                            @click="selectNewFormNode($event, null)" 
+                            id="show_entire_form" 
+                            title="Show entire form">Show entire form
+                        </button>
+                        <button class="btn-general" style="width: 100%" 
+                            @click="newQuestion(null)"
+                            id="add_new_form_section"
+                            title="Add new form section">
+                            + Add Section
+                        </button>
+                    </div>
+                    <ul v-if="ajaxFormByCategoryID.length > 0"
+                        id="base_drop_area"
+                        class="form-index-listing-ul"
+                        data-effect-allowed="move"
+                        @drop.stop="onDrop"
+                        @dragover.prevent
+                        @dragenter.prevent="onDragEnter"
+                        @dragleave="onDragLeave">
+
+                        <form-index-listing v-for="(formSection, i) in ajaxFormByCategoryID"
+                            :id="'index_listing_'+formSection.indicatorID"
+                            :depth=0
                             :formNode="formSection"
-                            :index="i"
-                            :key="'FED_' + formSection.indicatorID">
-                        </form-editing-display>
+                            :index=i
+                            :parentID=null
+                            :key="'index_list_item_' + formSection.indicatorID"
+                            draggable="true"
+                            @dragstart.stop="startDrag">
+                        </form-index-listing>
+                    </ul>
+                </div>
+
+                <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
+                <template v-if="ajaxFormByCategoryID.length > 0">
+                    <!-- ENTIRE FORM EDIT / PREVIEW -->
+                    <div v-if="selectedFormNode === null" id="form_entry_and_preview">
+                        <div class="form-section-header" style="display: flex; height: 28px;">
+                            <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
+                            <button id="indicator_toolbar_toggle" class="btn-general"
+                                @click.stop="toggleToolbars($event)">
+                                {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                            </button>
+                        </div>
+                        <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
+                            <div class="printformblock">
+                                <form-editing-display 
+                                    :depth="0"
+                                    :formNode="formSection"
+                                    :index="i"
+                                    :key="'FED_' + formSection.indicatorID">
+                                </form-editing-display>
+                            </div>
+                        </template>
+                    </div>
+                    <!-- SUBSECTION EDIT / PREVIEW -->
+                    <div v-else id="form_entry_and_preview">
+                        <div class="form-section-header" style="display: flex;">
+                            <h3 style="margin: 0;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
+                            <button id="indicator_toolbar_toggle" class="btn-general"
+                                @click.stop="toggleToolbars($event)">
+                                {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                            </button>
+                        </div>
+                        <div class="printformblock">
+                            <form-editing-display 
+                                :depth="0"
+                                :formNode="selectedFormNode"
+                                :index="-1"
+                                :key="'FED_' + selectedFormNode.indicatorID">
+                            </form-editing-display>
+                        </div>
                     </div>
                 </template>
             </div>
-            <!-- SUBSECTION EDIT / PREVIEW -->
-            <div v-else id="form_entry_and_preview">
-                <div class="form-section-header" style="display: flex;">
-                    <h3 style="margin: 0;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                    <button id="indicator_toolbar_toggle" class="btn-general"
-                        @click.stop="toggleToolbars($event)">
-                        {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
-                    </button>
-                </div>
-                <div class="printformblock">
-                    <form-editing-display 
-                        :depth="0"
-                        :formNode="selectedFormNode"
-                        :index="-1"
-                        :key="'FED_' + selectedFormNode.indicatorID">
-                    </form-editing-display>
-                </div>
-            </div>
         </template>
-    </div>
-    </template>`
+    </template>
+</div>`
 }

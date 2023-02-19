@@ -13,7 +13,6 @@ import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditor
 
 import ModFormMenu from "./components/ModFormMenu.js";
 
-import FormBrowser from "./views/FormBrowser.js";
 import FormViewController from "./components/form_view/FormViewController.js";
 
 import RestoreFields from "./components/RestoreFields.js";
@@ -132,24 +131,27 @@ export default {
         ConfirmDeleteDialog,
         ConditionsEditorDialog,
         ModFormMenu,
-        FormBrowser,
         FormViewController,
         RestoreFields
     },
     beforeMount() {
-        this.getCategoryListAll().then(res => {
-            this.setCategories(res);
-            this.appIsLoadingCategoryList = false;
+        this.getCategoryListAll().then(() => {
+            const formID = this.$route.query.formID || null;
+            if (formID !== null) {
+                const isSubform = this.categories[formID].parentID !== ''
+                this.selectNewCategory(formID, isSubform, null);
+            }
         }).catch(err => console.log('error getting category list', err));
 
-        this.getWorkflowRecords().then(res => {
-            this.ajaxWorkflowRecords = res;
-        }).catch(err => console.log('error getting workflow records', err));
+        this.getWorkflowRecords();
     },
     mounted() {
         this.getSiteSettings().then(res => {
             this.siteSettings = res;
-            if (res.leafSecure >=1) {
+            if(res.siteType === 'national_subordinate') {
+                document.getElementById('subordinate_site_warning').setAttribute('display: block');
+            }
+            if (res.leafSecure >= 1) {
                 this.getSecureFormsInfo();
             }
         }).catch(err => console.log('error getting site settings', err));
@@ -234,7 +236,13 @@ export default {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}formStack/categoryList/all`,
-                    success: (res)=> resolve(res),
+                    success: (res)=> {
+                        for(let i in res) {
+                            this.categories[res[i].categoryID] = res[i];
+                        }
+                        this.appIsLoadingCategoryList = false;
+                        resolve(res);
+                    },
                     error: (err)=> reject(err)
                 });
             });
@@ -248,7 +256,10 @@ export default {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}workflow`,
-                    success: (res) => resolve(res),
+                    success: (res) => {
+                        this.ajaxWorkflowRecords = res;
+                        resolve(res)
+                    },
                     error: (err) => reject(err)
                 });
             });
@@ -411,15 +422,6 @@ export default {
             });
         },
         /**
-         * builds the categories object from the array resolved by getCategoryListAll, for local data use
-         * @param {array} obj 
-         */
-        setCategories(obj = []) {
-            for(let i in obj) {
-                this.categories[obj[i].categoryID] = obj[i];
-            }
-        },
-        /**
          * sets app data for staples associated with the currently selected form
          * @param {array} stapledForms 
          */
@@ -496,6 +498,7 @@ export default {
                         }
                         this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
+                    this.$router.replace({ name: "category", query: { formID: catID } });
                     document.getElementById('header_' + catID)?.focus(); //focus the breadcrumb/button for the main form
                 }).catch(err => console.log('error getting form info: ', err));
 
@@ -504,18 +507,10 @@ export default {
                     .catch(err => console.log('an error has occurred', err));
 
             } else {  //nav to form card browser.
-                this.appIsLoadingCategoryList = true;
                 this.categories = {};
-
-                this.getCategoryListAll().then(res => {
-                    this.setCategories(res);
-                    this.getSecureFormsInfo();
-                    this.appIsLoadingCategoryList = false;
-                }).catch(err => console.log('error getting category list', err));
-
-                this.getWorkflowRecords().then(res => {
-                    this.ajaxWorkflowRecords = res;
-                }).catch(err => console.log('error getting workflow records', err));
+                this.getCategoryListAll();
+                this.getSecureFormsInfo();
+                this.getWorkflowRecords();
             }
         },
         /**
