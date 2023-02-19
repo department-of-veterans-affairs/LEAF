@@ -17,8 +17,6 @@ export default {
         'ajaxFormByCategoryID',
         'ajaxSelectedCategoryStapled',
         'formsStapledCatIDs',
-        'restoringFields',
-        'showRestoreFields',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
@@ -149,9 +147,11 @@ export default {
                                 </button>
                             </li>
                             <li>
-                                <button @click="showRestoreFields">
+                                <router-link :to="{ name: 'restore' }" class="router-link">
+                                <button>
                                 Restore Fields<span role="img" aria="">♻️</span>
                                 </button>
+                                </router-link>
                             </li>
                         </ul>
                         <ul v-else id="form-editor-menu"
@@ -208,9 +208,11 @@ export default {
                 </li>
                 
                 <li>
+                    <router-link :to="{ name: 'category' }" class="router-link">
                     <button type="button" @click="selectNewCategory(null)" title="View All Forms">
                         <h2>Form Editor</h2>
                     </button>
+                    </router-link>
                     <span v-if="currCategoryID !== null" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li v-if="currCategoryID !== null">

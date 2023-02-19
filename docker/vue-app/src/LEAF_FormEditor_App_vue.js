@@ -13,9 +13,7 @@ import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditor
 
 import ModFormMenu from "./components/ModFormMenu.js";
 
-import FormViewController from "./components/form_view/FormViewController.js";
 
-import RestoreFields from "./components/RestoreFields.js";
 import './LEAF_FormEditor.scss';
 import './LEAF_IfThen.scss';
 
@@ -39,7 +37,7 @@ export default {
             isEditingModal: false,
 
             appIsLoadingCategoryList: true,
-            appIsLoadingCategoryInfo: false,
+            appIsLoadingForm: false,
             currCategoryID: null,          //null or string
             currSubformID: null,           //null or string
             currIndicatorID: null,         //null or number
@@ -56,7 +54,6 @@ export default {
             ajaxWorkflowRecords: [],        //array of all 'workflows' table records
             ajaxIndicatorByID: {},          //'indicators' table record for a specific indicatorID
             orgSelectorClassesAdded: { group: false, position: false, employee: false },
-            restoringFields: false        //TODO: router? there are a few pages that could be views here, page_views: [restoringFields: false, leafLibrary: false etc]
         }
     },
     provide() {
@@ -74,7 +71,7 @@ export default {
             selectedFormNode: computed(() => this.selectedFormNode),
             currentCategoryIsSensitive: computed(() => this.currentCategoryIsSensitive),
             ajaxFormByCategoryID: computed(() => this.ajaxFormByCategoryID),
-            appIsLoadingCategoryInfo: computed(() => this.appIsLoadingCategoryInfo),
+            appIsLoadingForm: computed(() => this.appIsLoadingForm),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
             activeCategories: computed(() => this.activeCategories),
             inactiveCategories: computed(() => this.inactiveCategories),
@@ -87,7 +84,6 @@ export default {
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),
             formSaveFunction: computed(() => this.formSaveFunction),
-            restoringFields: computed(() => this.restoringFields),
             orgSelectorClassesAdded: computed(() => this.orgSelectorClassesAdded),
             internalForms: computed(() => this.internalForms),
             //static values
@@ -115,7 +111,6 @@ export default {
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
             stripAndDecodeHTML: this.stripAndDecodeHTML,
-            showRestoreFields: this.showRestoreFields,
             toggleIndicatorCountSwitch: this.toggleIndicatorCountSwitch
         }
     },
@@ -131,15 +126,11 @@ export default {
         ConfirmDeleteDialog,
         ConditionsEditorDialog,
         ModFormMenu,
-        FormViewController,
-        RestoreFields
     },
     beforeMount() {
         this.getCategoryListAll().then(() => {
-            const formID = this.$route.query.formID || null;
-            if (formID !== null) {
-                const isSubform = this.categories[formID].parentID !== ''
-                this.selectNewCategory(formID, isSubform, null);
+            if(this.$route.name === 'category') {
+                this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
 
@@ -149,12 +140,19 @@ export default {
         this.getSiteSettings().then(res => {
             this.siteSettings = res;
             if(res.siteType === 'national_subordinate') {
-                document.getElementById('subordinate_site_warning').setAttribute('display: block');
+                document.getElementById('subordinate_site_warning').style.display = 'block';
             }
             if (res.leafSecure >= 1) {
                 this.getSecureFormsInfo();
             }
         }).catch(err => console.log('error getting site settings', err));
+    },
+    watch: {
+        "$route.query.formID"() {
+            if(this.$route.name === 'category') {
+                this.getFormFromQueryParam();
+            }
+        }
     },
     computed: {
         /**
@@ -247,6 +245,19 @@ export default {
                 });
             });
         },
+        getFormFromQueryParam() {
+            const formReg = /^form_[0-9a-f]{5}$/;
+            const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
+            console.log('GOT FORM ID ', formID)
+            if (formID === null || this.categories[formID] === undefined) {
+                this.selectNewCategory(null);
+                console.log('form does not exist');
+                //TODO: form not found status message
+            } else {
+                const isSubform = this.categories[formID].parentID !== '';
+                this.selectNewCategory(formID, isSubform, null);
+            }
+        },
         /**
          * 
          * @returns {array} of objects with all fields from the workflows table
@@ -258,7 +269,7 @@ export default {
                     url: `${this.APIroot}workflow`,
                     success: (res) => {
                         this.ajaxWorkflowRecords = res;
-                        resolve(res)
+                        resolve(res);
                     },
                     error: (err) => reject(err)
                 });
@@ -376,13 +387,13 @@ export default {
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '') {
-            this.appIsLoadingCategoryInfo = true;
+            this.appIsLoadingForm = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res)=> {
-                        this.appIsLoadingCategoryInfo = false;
+                        this.appIsLoadingForm = false;
                         resolve(res)
                     },
                     error: (err)=> reject(err)
@@ -470,12 +481,11 @@ export default {
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
          */
         selectNewCategory(catID = '', isSubform = false, subnodeIndID = null) {
-            this.restoringFields = false;  //nav from Restore Fields subview
-
             if(!isSubform) {
                 this.currCategoryID = catID;
                 this.currSubformID = null;
             } else {
+                this.currCategoryID = this.categories[catID].parentID;
                 this.currSubformID = catID;
             }
             this.currentCategorySelection = {};
@@ -506,7 +516,7 @@ export default {
                     .then(res => this.ajaxSelectedCategoryStapled = res)
                     .catch(err => console.log('an error has occurred', err));
 
-            } else {  //nav to form card browser.
+            } else {  //card browser.
                 this.categories = {};
                 this.getCategoryListAll();
                 this.getSecureFormsInfo();
@@ -525,6 +535,8 @@ export default {
             this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
         },
+
+        /** DIALOG MODAL RELATED */
         setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;
         },
@@ -536,16 +548,13 @@ export default {
             this.dialogFormContent = component;
         },
         /**
-         * reset title, content and button text values of the modal
+         * close dialog and reset title, content and button text values
          */
-        clearCustomDialog() {
+        closeFormDialog() {
+            this.showFormDialog = false;
             this.setCustomDialogTitle('');
             this.setFormDialogComponent('');
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
-        },
-        closeFormDialog() {
-            this.showFormDialog = false;
-            this.clearCustomDialog();
         },
         openConfirmDeleteFormDialog() {
             this.setCustomDialogTitle('<h2>Delete this form</h2>');
@@ -665,9 +674,6 @@ export default {
                     this.getNodeSelection(node.child[c]);
                 }
             }
-        },
-        showRestoreFields() {
-            this.restoringFields = true;
         }
     }
 }

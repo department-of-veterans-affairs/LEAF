@@ -29,7 +29,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'appIsLoadingCategoryInfo',
+        'appIsLoadingForm',
         'currCategoryID',       //always a main form
         'currSubformID',        //catID of the subform, if a subform, otherwise null
         'ajaxFormByCategoryID',
@@ -48,7 +48,7 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            console.log('entered main/forms route', vm.$data);
+            console.log('entered main/forms route');
         })
     },
     provide() {
@@ -290,7 +290,7 @@ export default {
     <FormBrowser v-if="formID===null"></FormBrowser>
 
     <template v-else>
-        <div v-if="appIsLoadingCategoryInfo" style="border: 2px solid black; text-align: center; 
+        <div v-if="appIsLoadingForm" style="border: 2px solid black; text-align: center; 
             font-size: 24px; font-weight: bold; padding: 16px;">
             Loading... 
             <img src="../images/largespinner.gif" alt="loading..." />
