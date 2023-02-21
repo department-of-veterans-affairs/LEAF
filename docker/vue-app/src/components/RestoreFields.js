@@ -43,7 +43,7 @@ export default {
             });
         },
     },
-    template: `<div style="margin: 0 1em;">
+    template: `<div>
             <h3 style="margin: 0;">List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will be not display in the Report Builder</div>
             <div>

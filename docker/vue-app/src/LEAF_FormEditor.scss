@@ -9,6 +9,7 @@ $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
 $lt_cyan: #E0F4FA;
+$BG_menu: #dfedff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 
 @mixin flexcenter {
@@ -84,144 +85,127 @@ label {
 }
 
 a.router-link {
-    width: 100%;
-    height: 100%;
+    @include flexcenter;
     text-decoration: none;
     color: inherit;
+    border-radius: 3px;
+    &:hover, &:focus, &:active {
+        outline: 2px solid #20a0f0 !important;
+    }
 }
-
-
 
 #form-editor-header {
-    position: relative;
+    /*height: auto;*/
     display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    height: 50px;
-
-    h2 {
-        margin: 0;
-        font-size: 22px;
-        color: black;
-        @include flexcenter;
-    }
-    button {
-        background-color: transparent;
-        border: 0;
-    }
-    button#form-editor-menu-toggle {
-        height: 32px;
-        margin-right: 0.2rem;
-        color: white;
-        font-weight: normal;
-        background-color: black;
-        border: 2px solid #000;
-
-        &:hover, &:focus, &:active {
-            border: 2px solid #000 !important;
-        }
-
-        > span {
-            margin-right: 4px;
-            font-size: 1.2rem;
-            font-weight: normal;
-            display: inline-block;
-            width: 10px;
-            color: $USWDS_Cyan;
-        }
-    }
-
-    span.header-arrow {
-        position: absolute;
-        color: $BG-DarkNavy;
-        font-size: 1.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        right: -1.5rem; 
-        font-weight: bold;
-    }
+    margin-bottom: 0.5rem;
 
     nav {
-        @include flexcenter;
-        > ul {
+        /*height:100%;*/
+
+        h2 {
             @include flexcenter;
+            margin: 0;
+            font-size: 22px;
+            color: black;
+        }
+
+        ul {
+            height: 44px;
+            border-radius: 3px;
+
+            li {
+                @include flexcenter;
+                width: 200px;
+                height: 100%;
+                padding: 2px;
+                font-weight: bolder;
+                text-decoration: none;
+
+                button, a {
+                    @include flexcenter;
+                    position: relative;
+                    background-color: inherit;
+                    text-decoration: inherit;
+                    color: inherit;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    height: 40px;
+                    border: 0;
+                }
+
+                span[role="img"] {
+                    margin-left: 0.5rem;
+                }
+                span.header-arrow {
+                    margin-left: 1rem;
+                }
+
+            }
+        }
+        ul#form-editor-menu {
+            @include flexcenter;
+            color: $charcoal;
+            background-color: $BG_menu; /* #e8f2ff; */
+            border: 1px solid black;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 1rem;
+
             > li {
                 position: relative;
-                &:not(:first-child) {
-                    margin-right: 2.25rem;
-                }
-            }
-        }
-        ul {
-            position: relative;
-            margin: 0;
-            padding: 0;
-        }
-    }
-    ul#internalForms {
-        background-color: lighten(#e8f2ff, 8%);
-    }
-    ul#stapledForms {
-        color: white;
-        font-weight: 400;
-        background-color: desaturate(darken(#e8f2ff, 70%), 15%);
-    }
-    ul#form-editor-menu {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: calc(100% + 0.5rem);
-        z-index: 1;
-        width: 200px;
-        color: $charcoal;
-        background-color: #e8f2ff;
-        border: 1px solid black;
-        border-bottom: 0;
-        border-radius: 3px;
-        box-shadow: 1px 1px 4px 1px rgba(0,0,30,0.3);
 
-        li {
-            display: flex;
-            flex-direction: column;
-
-            a:not(.router-link), button {
-                @include flexcenter;
-                justify-content: space-between;
-                width: 100%;
-                height: 100%;
-                min-height: 42px;
-                text-decoration: none;
-                color: inherit;
-                padding: 0.2em 0.2em 0.2em 0.4em;
-                border: 0;
-                border-radius: 0;
-                font-weight: bold;
-                text-align: left;
-                border-bottom: 1px solid black;
-        
-                &.selected, &:hover, &:focus, &:active {
-                    z-index: 1;
-                    background-color:  $base_navy;
-                    border: 0 !important;
-                    border-bottom: 1px solid black !important;
-                    outline: 2px solid #20a0f0 !important;
-                    color: white;
-                }
-                span.staple-sort-info {
-                    font-size: 90%;
-                    font-weight: 400;
+                &:not(:last-child):after {
+                    content: '';
+                    position: absolute;
+                    right: 0;
+                    display: block;
+                    height: 50%;
+                    width: 1px;
+                    background-color: black;
+                };
+                button, a {
+                    width: 100%;
                 }
             }
 
-            ul {
-                display: flex;
+            ul#internalForms, ul#stapledForms {
+                position: absolute;
+                height: auto;
+                opacity: 1;
+                overflow: hidden;
                 flex-direction: column;
+                top: 100%;
+                background-color: lighten($BG_menu, 3%);
+                box-shadow: 1px 1px 4px 1px rgba(0,0,30,0.3);
+                transition: all 0.15s;
+                li {
+                    height: 40px;
+                    &:first-child {
+                        border-top: 1px solid black;
+                    }
+                }
+                button, a {
+                    height: 38px;
+                }
             }
         }
+
+        ul#form-breadcrumb-menu {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: transparent;
+            color: black;
+
+            li {
+                width: fit-content;
+                position: relative;
+                margin-right: 1rem;
+            }
+        }
+
     }
 }
-
-
 
 
 /* base dialog modal styling */
@@ -883,7 +867,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     color: black;
 }
 .choices__list.choices__list--dropdown.is-active .is-highlighted {
-    background-color: #E8F2FF;
+    background-color: $BG_menu;
     box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
 }
 .choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
@@ -906,44 +890,43 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     
         > div {
             flex-direction: column;
-
-            #form-editor-menu {
-                width: 100%;
-                margin: 0;
-
-                a {
-                    border-radius: 0;
-                }
-            }
         }
+        
         #form-editor-header {
-            height: auto;
-            padding: 0;
+
             nav {
                 width: 100%;
-                justify-content: flex-start;
-                > ul {
-                    flex-direction: column;
-                    width: 100%;
 
-                    > li {
-                        align-self: flex-start;
-                        &:first-child {
-                            margin-left: auto;
+                ul#form-editor-menu {
+                    flex-direction: column;
+                    height: fit-content;
+                    border-radius: 0;
+                    border-right: 0;
+                    border-left: 0;
+
+                    li {
+                        width: 100%;
+                        padding: 2px 0;
+                        flex-direction: column;
+                        &:not(:last-child) {
+                            border-bottom: 1px solid black;
                         }
-                        button {
-                            margin: 0.5rem 0;
-                        }
-                        #form-editor-menu {
-                            right: 0;
-                            button { 
-                                margin: 0;
-                            }
+                        ul {
+                            position: relative;
+                            width: 100%;
+                            box-shadow: none;
                         }
                     }
                 }
+                button, a {
+                    min-height: 40px;
+                }
+                ul#form-breadcrumb-menu {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
             }
-        }
+        } 
 
         #secure_forms_info {
             display: flex;

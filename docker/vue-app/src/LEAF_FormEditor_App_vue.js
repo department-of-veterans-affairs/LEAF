@@ -192,7 +192,7 @@ export default {
          */
         internalForms() {
             let internalForms = [];
-            for(let c in this.categories){
+            for(let c in this.categories) {
                 if (this.categories[c].parentID === this.currCategoryID) {
                     const internal = {...this.categories[c]};
                     internalForms.push(internal);

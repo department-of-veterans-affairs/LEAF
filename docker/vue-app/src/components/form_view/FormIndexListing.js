@@ -47,7 +47,7 @@ export default {
             return this.depth === 0 ? this.index + 1 + '.' : '';
         },
         hasConditions() {
-            return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '');
+            return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '' && this.formNode.conditions !== 'null');
         },
         //NOTE: Uses globally available XSSHelpers.js (LEAF class)
         indexDisplay() {
