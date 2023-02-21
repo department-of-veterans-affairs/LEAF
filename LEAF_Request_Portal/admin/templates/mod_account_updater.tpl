@@ -844,7 +844,9 @@ function findAssociatedRequests(empSel, empSelNew) {
                     sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
+                        let title = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
+                        title = title.length < 60 ? title : title.slice(0, 60) + '...';
+                        containerEl.innerText = title;
                         containerEl.addEventListener('click', () => {
                             window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
@@ -913,7 +915,9 @@ function findAssociatedRequests(empSel, empSelNew) {
                     sortable: false,
                     callback: function(data, blob) {
                         let containerEl = document.getElementById(data.cellContainerID);
-                        containerEl.innerText = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
+                        let title = XSSHelpers.decodeHTMLEntities(XSSHelpers.stripAllTags(blob[data.recordID].title || '[ blank ]'));
+                        title = title.length < 60 ? title : title.slice(0, 60) + '...';
+                        containerEl.innerText = title;
                         containerEl.addEventListener('click', () => {
                             window.open(`../index.php?a=printview&recordID=${data.recordID}`, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
                         });
