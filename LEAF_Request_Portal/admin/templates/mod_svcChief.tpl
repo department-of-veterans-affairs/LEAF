@@ -6,7 +6,7 @@
 
 <div class="leaf-center-content">
 
-    
+
     <!-- LEFT SIDE NAV -->
     <!--{assign var=left_nav_content value="
         <aside class='sidenav'>
@@ -18,9 +18,9 @@
         </aside>
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
-    
+
     <main class="main-content">
-        
+
         <h2>Service Chiefs</h2>
 
         <div>
@@ -36,7 +36,7 @@
         <aside class='sidenav-right'></aside>
     "}-->
     <!--{include file="partial_layouts/right_side_nav.tpl" contentRight="$right_nav_content"}-->
-    
+
 </div>
 
 
@@ -47,14 +47,20 @@
 <script type="text/javascript">
 /* <![CDATA[ */
 
+/**
+ * Sync current list of services to that in the Nexus.
+ */
 function syncServices() {
     dialog_simple.setTitle('Importing from Nexus...');
     dialog_simple.show();
     $.ajax({
         type: 'GET',
-        url: "../scripts/updateServicesFromOrgChart.php",
+        url: "../scripts/sync_services.php",
         success: function(response) {
             dialog_simple.setContent(response);
+        },
+        fail: function(error) {
+            console.log(error);
         },
         cache: false
     });
@@ -63,6 +69,9 @@ function syncServices() {
     });
 }
 
+/**
+ * Create new service. [DEPRECATED]
+ */
 function createGroup() {
 	/*
 	dialog.clear();
@@ -103,14 +112,18 @@ function createGroup() {
 
     dialog_simple.setTitle('Create new service');
     dialog_simple.setContent('Changes to services must be made through Links->Nexus at the moment.');
-    
+
     dialog_simple.show();
 }
 
-function getMembers(groupID) {
+/**
+ * Get members for given service.
+ * @param {int} groupID - ID for group
+ */
+function getMembers(groupID = -1) {
     $.ajax({
         type: 'GET',
-        url: '../api/?a=system/updateService/' + groupID,
+        url: '../api/system/updateService/' + groupID,
         success: function() {
             $.ajax({
                 url: "../api/service/" + groupID + "/members",
@@ -120,6 +133,9 @@ function getMembers(groupID) {
                     populateMembers(groupID, response);
                     $('#members' + groupID).fadeIn();
                 },
+                fail: function(error) {
+                    console.log(error);
+                },
                 cache: false
             });
         },
@@ -127,7 +143,15 @@ function getMembers(groupID) {
     });
 }
 
-function populateMembers(groupID, members) {
+/**
+ * Populate the members of a given service.
+ * @param {int} groupID - ID of given group
+ * @param {array} members - list object of all members in group
+ */
+function populateMembers(groupID = -1, members = []) {
+    if (groupID < 0 || members.length === 0) {
+        return;
+    }
     $('#members' + groupID).html('');
     let memberCt = -1;
     for (let i in members) {
@@ -146,117 +170,199 @@ function populateMembers(groupID, members) {
     }
 }
 
-function addUser(groupID, userID) {
+/**
+ * Add user to portal
+ * @param {int} groupID - ID of group
+ * @param {int} userID - ID of user being added
+ */
+function addUser(groupID = -1, userID = -1) {
+    if (groupID < 0 || userID < 0) {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: "../api/service/" + groupID + "/members",
+            data: {'userID': userID,
+                'CSRFToken': '<!--{$CSRFToken}-->'},
+            cache: false
+        });
+    }
+}
+
+/**
+ * Remove user from portal.
+ * @param {int} groupID - ID of group
+ * @param {int} userID - ID of user being removed
+ */
+function removeUser(groupID = -1, userID = -1) {
+    if (groupID < 0 || userID < 0) {
+        return;
+    } else {
+        $.ajax({
+            type: 'DELETE',
+            url: "../api/service/" + groupID + "/members/_" + userID + '?' +
+                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+            cache: false
+        });
+    }
+}
+
+/**
+ * Import user from orgchart.
+ * @param {int} serviceID - ID of service
+ * @param {string} selectedUserName - Username being imported
+ */ 
+function importUser(serviceID = 0, selectedUserName = '') {
+    if (serviceID === 0) {
+        console.log('Invalid serviceID');
+    }
+    if (selectedUserName === '') {
+        console.log('Invalid username');
+    }
     $.ajax({
         type: 'POST',
-        url: "../api/service/" + groupID + "/members",
-        data: {'userID': userID,
-               'CSRFToken': '<!--{$CSRFToken}-->'},
+        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+        success: function(res) {
+            if(!isNaN(res)) {
+                addUser(serviceID, selectedUserName); // add identified user into portal.
+            }
+            else {
+                alert(res);
+            }
+        },
+        fail: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
 
-function removeUser(groupID, userID) {
-    $.ajax({
-        type: 'DELETE',
-        url: "../api/service/" + groupID + "/members/_" + userID + '&CSRFToken=<!--{$CSRFToken}-->',
-        cache: false
-    });
+/**
+ * Delete given service.
+ * @param {int} serviceID - ID of the service
+ */
+function deleteService(serviceID = 0) {
+    if (serviceID === 0) {
+        return;
+    } else {
+        $.ajax({
+            type: 'DELETE',
+            url: "../api/service/" + serviceID + '?' +
+                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+            success: function(response) {
+                location.reload();
+            },
+            fail: function(error) {
+                console.log(error);
+            },
+            cache: false
+        });
+    }
 }
 
-function initiateWidget(serviceID, serviceName) {
-    $('#' + serviceID).on('click', function(serviceID) {
-        return function() {
-            $.ajax({
-                type: 'GET',
-                url: '../api/service/' + serviceID + '/members',
-                success: function(res) {
-                    dialog.clear();
-                    let button_deleteGroup = '<div><button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
-                    if(serviceID > 0) {
-                        button_deleteGroup = '';
-                    }
-                    dialog.setContent(
-                        '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div></div>' +
-                        '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
-                    $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
-                    let counter = 0;
-                    for(let i in res) {
-                        // Check for active members to list
-                        if (res[i].active == 1) {
-                            if (res[i].backupID == null) {
-                                let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
-                                $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                                // Check for Backups
-                                for (let j in res) {
-                                    if (res[i].userName == res[j].backupID) {
-                                        $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
-                                    }
+/**
+ * Build the modal for when the user selects a service.
+ * @param {int} serviceID - ID of service
+ * @param {string} serviceName - Name of the service
+ */ 
+function initiateModal(serviceID = 0, serviceName = '') {
+    if (serviceID === 0 || serviceName === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'GET',
+            url: '../api/service/' + serviceID + '/members',
+            success: function(res) {
+                dialog.clear();
+                let button_deleteGroup = '<button id="deleteGroup_'+serviceID+'" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button>';
+                if(serviceID > 0) {
+                    button_deleteGroup = '';
+                }
+                dialog.setContent(
+                    '<div class="leaf-float-right"><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div>' +
+                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
+                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
+                let counter = 0;
+                for(let i in res) {
+                    // Check for active members to list
+                    if (res[i].active == 1) {
+                        if (res[i].backupID == null) {
+                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
+                            $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
+                            // Check for Backups
+                            for (let j in res) {
+                                if (res[i].userName == res[j].backupID) {
+                                    $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
                                 }
-                                $('#removeMember_' + counter).on('click', function (userID) {
-                                    return function () {
-                                        removeUser(serviceID, userID);
-                                        dialog.hide();
-                                    };
-                                }(res[i].userName));
-                                counter++;
                             }
+                            $('#removeMember_' + counter).on('click', function (userID) {
+                                return function () {
+                                    removeUser(serviceID, userID);
+                                    dialog.hide();
+                                };
+                            }(res[i].userName));
+                            counter++;
                         }
                     }
+                }
 
-                    $('#deleteGroup_' + serviceID).on('click', function() {
-                        dialog_confirm.setContent('Are you sure you want to delete this service?');
-                        dialog_confirm.setSaveHandler(function() {
-                            $.ajax({
-                                type: 'DELETE',
-                                url: "../api/service/" + serviceID + '&CSRFToken=<!--{$CSRFToken}-->',
-                                success: function(response) {
-                                    location.reload();
-                                },
-                                cache: false
-                            });
-                        });
-                        dialog_confirm.show();
+                $('#deleteGroup_' + serviceID).on('click', function() {
+                    dialog_confirm.setContent('Are you sure you want to delete this service?');
+                    dialog_confirm.setSaveHandler(function() {
+                        deleteService(serviceID);
                     });
-                    
-                    empSel = new nationalEmployeeSelector('employeeSelector');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                    empSel.rootPath = '<!--{$orgchartPath}-->/';
-                    empSel.outputStyle = 'micro';
-                    empSel.initialize();
-                    // Update on any action
-                    dialog.setCancelHandler(function() {
-                        getMembers(serviceID);
-                    });
-                    dialog.setSaveHandler(function() {
-                        if(empSel.selection != '') {
-                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
-                            $.ajax({
-                                type: 'POST',
-                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                success: function(res) {
-                                    if(!isNaN(res)) {
-                                        addUser(serviceID, selectedUserName);
-                                    }
-                                    else {
-                                        alert(res);
-                                    }
-                                },
-                                cache: false
-                            });
-                        }
-                        dialog.hide();
-                    });
+                    dialog_confirm.show();
+                });
 
-                    dialog.show();
-                },
-                cache: false
-            });
-        };
-    }(serviceID));
+                empSel = new nationalEmployeeSelector('employeeSelector');
+                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                empSel.rootPath = '<!--{$orgchartPath}-->/';
+                empSel.outputStyle = 'micro';
+                empSel.initialize();
+                // Update on any action
+                dialog.setCancelHandler(function() {
+                    getMembers(serviceID);
+                });
+                dialog.setSaveHandler(function() {
+                    if(empSel.selection != '') {
+                        let selectedUserName = empSel.selectionData[empSel.selection].userName;
+                        importUser(serviceID, selectedUserName);
+                    }
+                    dialog.hide();
+                });
+
+                dialog.show();
+            },
+            fail: function(error) {
+                console.log(error);
+            },
+            cache: false
+        });
+    }
 }
 
+/**
+ * Initiate widgets for each service 
+ * @param {int} serviceID - ID for service being represented
+ * @param {string} serviceName - name of service being represented
+ * @return function
+ */
+function initiateWidget(serviceID = 0, serviceName = '') {
+    if (serviceID === 0 || serviceName === '') {
+        return;
+    } else {
+        $('#' + serviceID).on('click keydown', function(e) {
+            if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
+                initiateModal(serviceID, serviceName);
+            }
+        });
+    }
+}
+
+/**
+ * Get list of present services in portal.
+ */
 function getGroupList() {
 	$.when(
 	    $.ajax({
@@ -277,7 +383,7 @@ function getGroupList() {
 	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
 	    for(let i in services) {
-	    	$('#group_' + services[i].groupID).append('<div id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
+	    	$('#group_' + services[i].groupID).append('<div tabindex="0" id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
                     + '</div>');
@@ -287,7 +393,14 @@ function getGroupList() {
 	});
 }
 
-function viewHistory(groupID){
+/**
+ * View history of given group by ID.
+ * @param {int} groupID - ID of given group
+ */
+function viewHistory(groupID = -1){
+    if (groupID < 0) {
+        return;
+    }
     dialog_simple.setContent('');
     dialog_simple.setTitle('Service chief history');
 	dialog_simple.show();
@@ -301,12 +414,18 @@ function viewHistory(groupID){
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
         },
+        fail: function(error) {
+            console.log(error);
+        },
         cache: false
     });
 }
 
-// convert to title case
-function toTitleCase(str) {
+/** 
+ * Convert to title case.
+ * @param {string} str - string to be converted
+ */
+function toTitleCase(str = '') {
     return (str == "" || str == null) ? "" : str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 

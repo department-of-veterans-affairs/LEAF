@@ -73,7 +73,7 @@ function loadInboxData(depID, csrfToken) {
 
     $.ajax({
         type: 'GET',
-        url: 'api/?a=inbox/dependency/_' + depID,
+        url: 'api/inbox/dependency/_' + depID,
         success: function(res) {
             inboxDataLoaded[depID] = 1;
             processInboxData(depID, res, csrfToken);

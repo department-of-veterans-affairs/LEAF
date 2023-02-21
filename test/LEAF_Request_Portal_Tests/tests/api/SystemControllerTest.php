@@ -9,7 +9,7 @@ use LEAFTest\LEAFClient;
 ini_set("display_errors", '1');
 
 /**
- * Tests LEAF_Request_Portal/api/?a=system API
+ * Tests LEAF_Request_Portal/api/system API
  */
 final class SystemControllerTest extends DatabaseTest
 {

@@ -290,84 +290,89 @@ class System
         return "groupID: {$groupID} updated";
     }
 
-    public function importGroup($groupID)
+    /**
+     * @param int $groupID
+     *
+     * @return string
+     */
+    public function importGroup($groupID): string
     {
         if (!is_numeric($groupID)) {
-            return 'Invalid Group';
-        }
-        if ($groupID == 1) {
-            return 'Cannot update admin group';
-        }
+            $return_value = 'Invalid Group';
+        } else if ($groupID == 1) {
+            $return_value = 'Cannot update admin group';
+        } else {
+                // clear out old data first
+            $vars = array(':groupID' => $groupID);
+            //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
+            $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        // clear out old data first
-        $vars = array(':groupID' => $groupID);
-        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
-        $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
+            include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
 
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Group.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Position.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Tag.php';
+            $config = new Config();
+            $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+            $group = new Orgchart\Group($db_phonebook, $this->login);
+            $position = new Orgchart\Position($db_phonebook, $this->login);
+            $employee = new Orgchart\Employee($db_phonebook, $this->login);
+            $tag = new Orgchart\Tag($db_phonebook, $this->login);
 
-        $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $group = new Orgchart\Group($db_phonebook, $this->login);
-        $position = new Orgchart\Position($db_phonebook, $this->login);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
-        $tag = new Orgchart\Tag($db_phonebook, $this->login);
+            // find quadrad/ELT tag name
+            $upperLevelTag = $tag->getParent('service');
+            $isQuadrad = false;
+            if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
+                $isQuadrad = true;
+            }
 
-        // find quadrad/ELT tag name
-        $upperLevelTag = $tag->getParent('service');
-        $isQuadrad = false;
-        if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
-            $isQuadrad = true;
-        }
-
-        $resGroup = $group->getGroup($groupID)[0];
-        $vars = array(':groupID' => $groupID,
-            ':parentGroupID' => ($isQuadrad == true ? -1 : null),
-            ':name' => $resGroup['groupTitle'],
-            ':groupDescription' => '',);
+            $resGroup = $group->getGroup($groupID)[0];
+            $vars = array(':groupID' => $groupID,
+                ':parentGroupID' => ($isQuadrad == true ? -1 : null),
+                ':name' => $resGroup['groupTitle'],
+                ':groupDescription' => '',);
 
         $this->db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name, groupDescription)
                     					VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
 
-        // build list of member employees
-        $resEmp = array();
-        $positions = $group->listGroupPositions($groupID);
-        $resEmp = $group->listGroupEmployees($groupID);
-        foreach ($positions as $tposition) {
-            $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
-        }
+            // build list of member employees
+            $resEmp = array();
+            $positions = $group->listGroupPositions($groupID);
+            $resEmp = $group->listGroupEmployees($groupID);
+            foreach ($positions as $tposition) {
+                $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
+            }
 
-        foreach ($resEmp as $emp) {
-            if ($emp['userName'] != '') {
-                $vars = array(':userID' => $emp['userName'],
-                    ':groupID' => $groupID,);
+            foreach ($resEmp as $emp) {
+                if ($emp['userName'] != '') {
+                    $vars = array(':userID' => $emp['userName'],
+                        ':groupID' => $groupID,);
 
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                    VALUES (:userID, :groupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
+                                                        VALUES (:userID, :groupID)
+                                                        ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
-                // include the backups of employees
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-                if ($res[0]['active'] == 1) {
-                    $backups = $employee->getBackups($emp['empUID']);
-                    foreach ($backups as $backup) {
-                        $vars = array(':userID' => $backup['userName'],
-                            ':groupID' => $groupID,
-                            ':backupID' => $emp['userName'],);
+                    // include the backups of employees
+                    $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
+                    if ($res[0]['active'] == 1) {
+                        $backups = $employee->getBackups($emp['empUID']);
+                        foreach ($backups as $backup) {
+                            $vars = array(':userID' => $backup['userName'],
+                                ':groupID' => $groupID,
+                                ':backupID' => $emp['userName'],);
 
-                        // Add backupID check for updates
-                        $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                            // Add backupID check for updates
+                            $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                        VALUES (:userID, :groupID, :backupID)
+                                                        ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
+                        }
                     }
                 }
             }
+            $return_value = "groupID: {$groupID} imported";
         }
 
-        return "groupID: {$groupID} imported";
+        return $return_value;
     }
 
     public function getServices()
@@ -429,83 +434,6 @@ class System
 
         $this->db->prepared_query('INSERT INTO actions (actionType, actionText, actionTextPasttense, actionIcon, actionAlignment, sort, fillDependency)
 										VALUES (:actionType, :actionText, :actionTextPasttense, :actionIcon, :actionAlignment, :sort, :fillDependency)', $vars);
-    }
-
-    public function getTemplateList()
-    {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = scandir('../templates/');
-        $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
-                $out[] = $item;
-            }
-        }
-
-        return $out;
-    }
-
-    public function getTemplate($template, $getStandard = false)
-    {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getTemplateList();
-
-        $data = array();
-        if (array_search($template, $list) !== false)
-        {
-            if (file_exists("../templates/custom_override/{$template}")
-                  && !$getStandard)
-            {
-                $data['modified'] = 1;
-                $data['file'] = file_get_contents("../templates/custom_override/{$template}");
-            }
-            else
-            {
-                $data['modified'] = 0;
-                $data['file'] = file_get_contents("../templates/{$template}");
-            }
-        }
-
-        return $data;
-    }
-
-    public function setTemplate($template)
-    {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getTemplateList();
-
-        if (array_search($template, $list) !== false)
-        {
-            file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
-        }
-    }
-
-    public function removeCustomTemplate($template)
-    {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getTemplateList();
-
-        if (array_search($template, $list) !== false)
-        {
-            if (file_exists("../templates/custom_override/{$template}"))
-            {
-                return unlink("../templates/custom_override/{$template}");
-            }
-        }
     }
 
     public function setHeading()
@@ -620,134 +548,6 @@ class System
         return 1;
     }
 
-    public function getReportTemplateList()
-    {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = scandir('../templates/reports/');
-        $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
-                $out[] = $item;
-            }
-        }
-
-        return $out;
-    }
-
-    public function newReportTemplate($in)
-    {
-        $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
-        if ($template != $in
-            || $template == 'example'
-            || $template == ''
-            || preg_match('/^LEAF_/i', $template) === 1)
-        {
-            return 'Invalid or reserved name.';
-        }
-        $template .= '.tpl';
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getReportTemplateList();
-
-        if (array_search($template, $list) === false)
-        {
-            file_put_contents("../templates/reports/{$template}", '');
-        }
-        else
-        {
-            return 'File already exists';
-        }
-
-        return 'CreateOK';
-    }
-
-    public function getReportTemplate($in)
-    {
-        $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
-        if ($template != $in)
-        {
-            return 0;
-        }
-        $template .= '.tpl';
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getReportTemplateList();
-
-        $data = array();
-        if (array_search($template, $list) !== false)
-        {
-            if (file_exists("../templates/reports/{$template}"))
-            {
-                $data['file'] = file_get_contents("../templates/reports/{$template}");
-            }
-        }
-
-        return $data;
-    }
-
-    private function isReservedFilename($file)
-    {
-        if($file == 'example'
-            || substr($file, 0, 5) == 'LEAF_'
-        ) {
-            return true;
-        }
-        return false;
-    }
-
-    public function setReportTemplate($in)
-    {
-        $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
-        if ($template != $in
-            || $this->isReservedFilename($template))
-        {
-            return 'Reserved filenames: LEAF_*, example';
-        }
-        $template .= '.tpl';
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getReportTemplateList();
-
-        if (array_search($template, $list) !== false)
-        {
-            file_put_contents("../templates/reports/{$template}", $_POST['file']);
-        }
-    }
-
-    public function removeReportTemplate($in)
-    {
-        $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
-        if ($template != $in
-            || $this->isReservedFilename($template))
-        {
-            return 0;
-        }
-        $template .= '.tpl';
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
-        }
-        $list = $this->getReportTemplateList();
-
-        if (array_search($template, $list) !== false)
-        {
-            if (file_exists("../templates/reports/{$template}"))
-            {
-                return unlink("../templates/reports/{$template}");
-            }
-        }
-    }
 
     public function getFileList()
     {
@@ -857,7 +657,7 @@ class System
     /**
      * Set primary admin.
      *
-     * @return array array with response array
+     * @return string json is string
      */
     public function setPrimaryAdmin()
     {
@@ -917,4 +717,415 @@ class System
         return $this->dataActionLogger->getHistory($filterById, null, \LoggableTypes::PRIMARY_ADMIN);
     }
 
+    /**
+     *
+     * @param \Group $org_group
+     * @param \Service $org_service
+     * @param \OrgChart\Group $nexus_group
+     * @param \OrgChart\Employee $nexus_employee
+     * @param \OrgChart\Tag $nexus_tag
+     * @param \OrgChart\Position $nexus_position
+     *
+     * @return string
+     *
+     * Created at: 10/3/2022, 6:59:30 AM (America/New_York)
+     */
+    public function syncSystem(\Group $org_group, \Service $org_service, \OrgChart\Group $nexus_group, \OrgChart\Employee $nexus_employee, \OrgChart\Tag $nexus_tag, \OrgChart\Position $nexus_position): string
+    {
+        // this is needed to clean up some databases where a user is currently not
+        // locally managed and they are also not active
+        $org_group->cleanDb();
+
+        $nexus_services = array();
+        $nexus_chiefs = array();
+        $nexus_groups = array();
+        $nexus_users = array();
+        $counter = 0;
+        $group_counter = 0;
+        $chief_counter = 0;
+
+        // update services and service chiefs
+        $services = $nexus_group->listGroupsByTag('service');
+
+        foreach ($services as $service) {
+            $leader = $nexus_position->findRootPositionByGroupTag($nexus_group->getGroupLeader($service['groupID']), $nexus_tag->getParent('service'));
+
+            $nexus_services[$counter]['serviceID'] = $service['groupID'];
+            $nexus_services[$counter]['service'] = $service['groupTitle'];
+            $nexus_services[$counter]['abbreviatedService'] = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
+            $nexus_services[$counter]['groupID'] = is_array($leader) && isset($leader[0]['groupID']) ? $leader[0]['groupID'] : null;
+
+            $leaderGroupID = $nexus_group->getGroupLeader($service['groupID']);
+            $serviceEmployee = $nexus_position->getEmployees($leaderGroupID);
+
+            foreach($serviceEmployee as $employee){
+                $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
+                $nexus_chiefs[$chief_counter]['userID'] = $employee['userName'];
+                $nexus_chiefs[$chief_counter]['backupID'] = null;
+
+                $chief_counter++;
+
+                if (count($employee['backups']) > 0) {
+                    foreach ($employee['backups'] as $backup) {
+                        $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
+                        $nexus_chiefs[$chief_counter]['userID'] = $backup['userName'];
+                        $nexus_chiefs[$chief_counter]['backupID'] = $employee['userName'];
+
+                        $chief_counter++;
+                    }
+                }
+            }
+
+            if ($service['groupID'] == $nexus_services[$counter]['groupID']) {
+                $chiefs = $org_service->getChiefs($service['groupID']);
+
+                foreach ($chiefs as $chief) {
+                    $nexus_users[$group_counter]['userID'] = $chief['userID'];
+                    $nexus_users[$group_counter]['groupID'] = $nexus_services[$counter]['groupID'];
+                    $nexus_users[$group_counter]['backupID'] = $chief['backupID'];
+                }
+
+                $group_counter++;
+            }
+
+            $counter++;
+        }
+
+        $portal_services = $org_service->getAllQuadrads();
+        $portal_chiefs = $org_service->getAllChiefs();
+
+        $this->processServices($portal_services, $portal_chiefs, $nexus_services, $nexus_chiefs, $org_service);
+
+        // update groups and users
+        $groups = $nexus_group->listGroupsByTag($nexus_tag->getParent('service'));
+        $counter = 0;
+
+        foreach ($groups as $group) {
+            $nexus_groups[$counter]['groupID'] = $group['groupID'];
+            $nexus_groups[$counter]['parentGroupID'] = -1;
+            $nexus_groups[$counter]['name'] = $group['groupTitle'];
+
+            $leaderGroupID = $nexus_group->getGroupLeader($group['groupID']);
+
+            $employees = array_merge($nexus_position->getEmployees($leaderGroupID), $nexus_group->listGroupEmployees($group['groupID']));
+
+            foreach ($employees as $employee) {
+                if ($employee['userName'] != '') {
+                    $nexus_users[$group_counter]['userID'] = $employee['userName'];
+                    $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                    $nexus_users[$group_counter]['backupID'] = null;
+
+                    $group_counter++;
+
+                    if (isset($employee['backups'])) {
+                        foreach ($employee['backups'] as $backup) {
+                            if ($backup['userName'] != '') {
+                                $nexus_users[$group_counter]['userID'] = $backup['userName'];
+                                $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                                $nexus_users[$group_counter]['backupID'] = $employee['userName'];
+                                $group_counter++;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            $counter++;
+        }
+
+        // update Nexus with portal groups
+        $portal_groups = $org_group->getAllGroups();
+
+        $this->updateNexusWithPortalGroups($portal_groups, $nexus_group);
+
+        $groups = $this->getOrgchartImportTags($nexus_group);
+
+        foreach ($groups as $group) {
+            $nexus_groups[$counter]['groupID'] = $group['groupID'];
+            $nexus_groups[$counter]['parentGroupID'] = null;
+            $nexus_groups[$counter]['name'] = $group['groupTitle'];
+
+            $positions = $nexus_group->listGroupPositions($group['groupID']);
+            $employees = $nexus_group->listGroupEmployees($group['groupID']);
+
+            foreach ($positions as $position) {
+                $employees = array_merge($employees, $nexus_position->getEmployees($position['positionID']));
+            }
+
+            foreach ($employees as $employee) {
+                if (!empty($employee['userName'])) {
+                    $nexus_users[$group_counter]['userID'] = $employee['userName'];
+                    $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                    $nexus_users[$group_counter]['backupID'] = null;
+
+                    $group_counter++;
+
+                    $backups = $nexus_employee->getBackups($employee['empUID']);
+
+                    foreach ($backups as $backup) {
+                        if (isset($backup['userName']) && !empty($backup['userName'])) {
+                            $nexus_users[$group_counter]['userID'] = $backup['userName'];
+                            $nexus_users[$group_counter]['groupID'] = $group['groupID'];
+                            $nexus_users[$group_counter]['backupID'] = $employee['userName'];
+                            $group_counter++;
+                        }
+                    }
+                }
+            }
+
+            $counter++;
+        }
+
+        $portal_users = $org_group->getAllUsers();
+
+        $this->processGroups($portal_groups, $portal_users, $nexus_groups, $nexus_users, $org_group);
+
+        return 'Syncing has finished. You are set to go.';
+    }
+
+    /**
+     * [Description for processServices]
+     *
+     * @param array $portal_services
+     * @param array $portal_chiefs
+     * @param array $nexus_services
+     * @param array $nexus_chiefs
+     * @param \Service $org_service
+     *
+     * @return void
+     *
+     * Created at: 9/14/2022, 4:12:49 PM (America/New_York)
+     */
+    private function processServices(array $portal_services, array $portal_chiefs, array $nexus_services, array $nexus_chiefs, \Service $org_service): void
+    {
+        // find service records to delete on portal side
+        foreach($portal_services as $service) {
+            if ($this->searchArray($nexus_services, $service)) {
+                // service exists do nothing
+            } else {
+                // service does not exist remove from portal db
+                //echo 'The service \'' . $service['service'] . '\' has been removed.<br/>';
+                $org_service->removeSyncService($service['serviceID']);
+            }
+        }
+
+        // add service records that do not exist yet
+        foreach($nexus_services as $service) {
+            if ($this->searchArray($portal_services, $service)) {
+                // service exists do nothing
+            } else {
+                // service does not exist add it to the portal db
+                //echo 'The service \'' . $service['service'] . '\' was added.<br/>';
+                if(is_numeric($service['serviceID']) && !empty($service['service']) && (is_numeric($service['groupID']) || is_null($service['groupID']))) {
+                    $org_service->importService($service['serviceID'], $service['service'], $service['abbreviatedService'], $service['groupID']);
+                }
+            }
+        }
+
+        // find chiefs that need to be removed from portal
+        foreach($portal_chiefs as $chief) {
+            if ($this->searchArray($nexus_chiefs, $chief, false, 3)) {
+                // chief exists do nothing
+            } else {
+                // chief does not exist at nexus check for locallyManaged and active
+                // remove if locallyManaged and inactive
+                // remove if not locallyManaged
+                if ($chief['locallyManaged'] && $chief['active']) {
+                    // this chief is locally managed and is active leave it here, do nothing
+                } else {
+                    //echo 'The Service Chief with an userID of \'' . $chief['serviceID'] . '-' . $chief['userID'] . '\' was removed.<br/>';
+                    $org_service->removeChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
+                }
+            }
+        }
+
+        // add chief records that do not exist yet
+        foreach ($nexus_chiefs as $chief) {
+            if ($this->searchArray($portal_chiefs, $chief, false, 3)) {
+                // chief exists do nothing
+            } else {
+                // chief does not exist add them now
+                //echo 'The Service Chief with userID of \'' . $chief['userID']. '\' was added.<br/>';
+                $org_service->importChief($chief['serviceID'], $chief['userID'], $chief['backupID']);
+            }
+        }
+    }
+
+    /**
+     * [Description for processGroups]
+     *
+     * @param array $portal_groups
+     * @param array $portal_users
+     * @param array $nexus_groups
+     * @param array $nexus_users
+     * @param \Group $org_group
+     *
+     * @return void
+     *
+     * Created at: 10/3/2022, 7:02:32 AM (America/New_York)
+     */
+    private function processGroups(array $portal_groups, array $portal_users, array $nexus_groups, array $nexus_users, \Group $org_group): void
+    {
+        // find group records to delete on portal side
+        foreach($portal_groups as $group) {
+            if ($this->searchArray($nexus_groups, $group, false)) {
+                // group exists do nothing
+            } else {
+                // group does not exist remove from portal db
+                //echo 'The group \'' . $group['name'] . '\' has been removed<br/>';
+                // groups should never be deleted if on the portal side. No matter what Nexus says
+                // $org_group->removeSyncGroup($group['groupID']);
+            }
+        }
+
+        // add group records that do not exist yet
+        foreach($nexus_groups as $group) {
+            if ($this->searchArray($portal_groups, $group, false)) {
+                // group exists do nothing
+            } else {
+                // group does not exist add it to the portal db
+                //echo 'The group \'' . $group['name'] . '\' has been added<br/>';
+                $org_group->syncImportGroup($group);
+            }
+        }
+
+        // find users that need to be removed from portal
+        foreach($portal_users as $user) {
+            if ($this->searchArray($nexus_users, $user, false, 3)) {
+                // user exists do nothing
+                //echo 'User \'' . $user['groupID'] . '-' .$user['userID'] . '\' remained.<br/>';
+            } else {
+                // user does not exist check for locallyManaged and active
+                // remove if locallyManaged and inactive
+                // remove if not locallyManaged
+                if ($user['locallyManaged'] && $user['active']) {
+                    // user is locally managed and active level them alone.
+                } else if (!$user['locallyManaged'] || ($user['locallyManaged']) && !$user['active']) {
+                    // check one more thing, is this user a backup to a locally managed user
+                    if ($user['backupID'] != '' && $this->imABackup($portal_users, $user)) {
+                        // I'm a backup, do nothing
+                    } else {
+                        //echo 'User with userID of \'' . $user['userID'] . '\' and a groupID of ' . $user['groupID'] . ' has been removed.<br/>';
+                        $org_group->removeUser($user['userID'], $user['groupID'], $user['backupID']);
+                    }
+
+                } else {
+                    // this user is locally managed and is active leave it here, do nothing
+                }
+            }
+        }
+
+        // add user records that do not exist yet
+        foreach ($nexus_users as $user) {
+            if ($this->searchArray($portal_users, $user, false, 3)) {
+                // user exists do nothing
+            } else {
+                // user does not exist add them now
+                //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
+                //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
+                $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
+            }
+        }
+    }
+
+    /**
+     * getOrgchartImportTags retrieves
+     *
+     * @param OrgChart\Group $group
+     *
+     * @return array
+     *
+     * Created at: 9/14/2022, 7:35:53 AM (America/New_York)
+     */
+    private function getOrgchartImportTags(OrgChart\Group $group): array
+    {
+        $groups = array();
+        $tags = Config::$orgchartImportTags;
+        $tags[] = 'Pentad';
+
+        foreach ($tags as $tag)
+        {
+            $groups = array_merge($groups, $group->listGroupsByTag($tag));
+        }
+
+        return $groups;
+    }
+
+    /**
+     * Search multidimensional arrays for matches
+     *
+     * @param array $search
+     * @param array $criteria
+     * @param bool $whole_array - matching a whole array or just partial
+     * @param int $index - the number of associative array columns to match.
+     *      must be the first ones listed.
+     *
+     * @return bool
+     *
+     * Created at: 9/13/2022, 7:56:52 AM (America/New_York)
+     */
+    private function searchArray($search, $criteria, $whole_array = true, $index = 3): bool
+    {
+        $exists = false;
+
+        if ($whole_array) {
+            foreach($search as $value) {
+                if ($value == $criteria) {
+                    $exists = true;
+                    break;
+                }
+            }
+        } else {
+            foreach($search as $value) {
+                $keys = array_keys($value);
+
+                for($x = 0; $x < $index; $x++) {
+                    if ($value[$keys[$x]] == $criteria[$keys[$x]]) {
+                        // so far so good, check the next
+                    } else {
+                        // we don't have a match continue the search with the next array
+                        break;
+                    }
+
+                    if (($x + 1) == $index) {
+                        $exists = true;
+
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        return $exists;
+    }
+
+    public function imABackup(array $portal_users, array $user): bool
+    {
+        $backup = false;
+
+        foreach ($portal_users as $portal) {
+            if ($portal['groupID'] == $user['groupID'] and $portal['userID'] == $user['backupID']) {
+                $backup = true;
+                break;
+            }
+        }
+
+        return $backup;
+    }
+
+    private function updateNexusWithPortalGroups(array $portal_groups, \OrgChart\Group $nexus_group): void
+    {
+        $nexus_groups = $nexus_group->listGroupsByTag(Config::$orgchartImportTags[0]);
+
+        foreach ($portal_groups as $group) {
+            if ($this->searchArray($nexus_groups, $group, false, 1)) {
+                // this group is already tagged.
+            } else {
+                // not tagged, add it now.
+                $nexus_group->addGroupTag(Config::$orgchartImportTags[0], $group['groupID']);
+            }
+        }
+
+    }
 }

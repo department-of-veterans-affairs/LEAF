@@ -12,7 +12,7 @@
     <!--{if $form}-->
     <div class="printformblock">
     <!--{foreach from=$form item=indicator}-->
-                <!--{if $indicator.conditions != ''}-->
+                <!--{if $indicator.conditions != '' && $indicator.conditions !== 'null'}-->
                 <script type="text/javascript">
                     formPrintConditions["id<!--{$indicator.indicatorID}-->"] = {
                         conditions:<!--{$indicator.conditions|strip_tags}-->,
@@ -41,7 +41,7 @@
             <!--{if $indicator.isWritable == 0}-->
                 <img src="../libs/dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" tabindex="0" role="button" />
             <!--{else}-->
-                <button type="button" style="width: 16px; height: 16px; padding: 0; border: 0; background-image: url('../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16'); cursor: pointer;" alt="Edit <!--{$indicator.name|strip_tags}--> field" title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field" onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"></button>
+                <button type="button" style="width: 16px; height: 16px; padding: 0; border: 0; background-image: url('../libs/dynicons/?img=accessories-text-editor.svg&amp;w=16'); cursor: pointer;" alt="Edit <!--{$indicator.name|strip_tags}--> field" title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field" onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button"></button>
             <!--{/if}-->
             </div>
             <!--{if $indicator.isWritable == 0}-->

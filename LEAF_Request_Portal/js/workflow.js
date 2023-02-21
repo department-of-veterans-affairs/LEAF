@@ -48,7 +48,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         // Check if CSRFToken has Changed (Timeout Fix)
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/getCSRFToken',
+            url: rootURL + 'api/formWorkflow/getCSRFToken',
             async: false,
             success: function(res) {
                 data.CSRFToken = res;
@@ -61,7 +61,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         $("#workflowbox_dep" + data['dependencyID']).html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="'+ rootURL +'images/largespinner.gif" alt="loading..." /></div>');
         $.ajax({
             type: 'POST',
-            url: rootURL + 'api/?a=formWorkflow/' + currRecordID + '/apply',
+            url: rootURL + 'api/formWorkflow/' + currRecordID + '/apply',
             data: data,
             success: function(response) {
                 if (response !== "Invalid Token.") {
@@ -92,6 +92,28 @@ var LeafWorkflow = function(containerID, CSRFToken) {
                         }, 1000);
                     });
                 }
+
+                var new_note;
+
+                new_note = '<div class="comment_block"> <span class="comments_time"> ' + response.comment.date + '</span> <span class="comments_name">' + response.comment.responder + ' ' + response.comment.user_name + '</span> <div class="comments_message">' + response.comment.comment + '</div> </div>';
+
+                if (response.comment.comment != '') {
+                    $( new_note ).insertAfter( "#notes" );
+                }
+
+                if ($("#comments").css("display") == 'none') {
+                    $("#comments").css("display", 'block');
+                }
+
+                if (response.comment.nextStep == 0) {
+                    $("#notes").css("display", 'none');
+                    if (!$(".comment_block")[0]) {
+                        $('#comments').css({'display': "none"});
+                    }
+                } else {
+                    $("#notes").css("display", 'block');
+                }
+
                 antiDblClick = 0;
             },
             error: function(response) {
@@ -212,12 +234,19 @@ var LeafWorkflow = function(containerID, CSRFToken) {
             for(var x in step.stepModules) {
                 if(modulesLoaded[step.stepModules[x].moduleName + '_' + step.stepID] == undefined) {
                     modulesLoaded[step.stepModules[x].moduleName + '_' + step.stepID] = 1;
+                    $(`#form_dep_extension${step.dependencyID}`).html(`<div style="padding: 8px 24px 8px">
+                        <div style="background-color: white; border: 1px solid black; padding: 16px">
+                            <h2>Loading...</h2>
+                        </div>
+                        </div>`);
+                    $(`#form_dep_container${step.dependencyID} .button`).attr('disabled', true);
                     $.ajax({
                         type: 'GET',
                         url: rootURL + 'ajaxScript.php?a=workflowStepModules&s='+ step.stepModules[x].moduleName +'&stepID=' + step.stepID,
                         dataType: 'script',
                         success: function() {
                             workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step);
+                            $(`#form_dep_container${step.dependencyID} .button`).attr('disabled', false);
                         },
                         fail: function(err) {
                             console.log("Error: " + err);
@@ -259,9 +288,17 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         if(step.dependencyID == -1) {
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/?a=form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
+                url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_empUID,
                 success: function(res) {
-                    $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] +'</span>');
+                    let name = '';
+
+                    if (res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID] == null) {
+                        name = "Warning: User not selected for currennt action (Contact Administrator)";
+                    } else {
+                        name = "Pending action from " + res[currRecordID]['s1']['id' + step.indicatorID_for_assigned_empUID];
+                    }
+
+                    $('#workflowbox_dep'+ step.dependencyID).append('<span>'+ name +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
                 fail: function(err) {
@@ -272,9 +309,17 @@ var LeafWorkflow = function(containerID, CSRFToken) {
         else if(step.dependencyID == -3) { // dependencyID -3 : special case for group designated by the requestor
             $.ajax({
                 type: 'GET',
-                url: rootURL + 'api/?a=form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
+                url: rootURL + 'api/form/customData/_' + currRecordID + '/_' + step.indicatorID_for_assigned_groupID,
                 success: function(res) {
-                    $('#workflowbox_dep'+ step.dependencyID).append('<span>Pending action from '+ step.description +'</span>');
+                    let name = '';
+
+                    if (step.description == null) {
+                        name = "Warning: Group not selected for current action (Contact Administrator)";
+                    } else {
+                        name = "Pending action from " + step.description;
+                    }
+
+                    $('#workflowbox_dep'+ step.dependencyID).append('<span>'+ name +'</span>');
                     $('#workflowbox_dep'+ step.dependencyID +' span').css({'font-size': '150%', 'font-weight': 'bold', 'color': step.stepFontColor});
                 },
                 fail: function(err) {
@@ -294,7 +339,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
     function getLastAction(recordID, res) {
         $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/' + recordID + '/lastActionSummary',
+            url: rootURL + 'api/formWorkflow/' + recordID + '/lastActionSummary',
             dataType: 'json',
             success: function(lastActionSummary) {
                 response = lastActionSummary.lastAction;
@@ -356,7 +401,7 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
                     $('#workflowbox_lastAction').append('<span style="font-size: 150%; font-weight: bold", color: '+response.stepFontColor+'>'+ text +'</span>');
                 }
-                
+
                 // check signatures
                 if(lastActionSummary.signatures.length > 0) {
                     $('#workflowcontent').append('<div id="workflowSignatureContainer" style="margin-top: 8px"></div>');
@@ -394,12 +439,12 @@ var LeafWorkflow = function(containerID, CSRFToken) {
 
         var masquerade = '';
         if(window.location.href.indexOf('masquerade=nonAdmin') != -1) {
-            masquerade = '&masquerade=nonAdmin';
+            masquerade = '?masquerade=nonAdmin';
         }
 
-        $.ajax({
+        return $.ajax({
             type: 'GET',
-            url: rootURL + 'api/?a=formWorkflow/'+ recordID +'/currentStep' + masquerade,
+            url: rootURL + 'api/formWorkflow/'+ recordID +'/currentStep' + masquerade,
             dataType: 'json',
             success: function(res) {
                 for(var i in res) {

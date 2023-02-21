@@ -8,7 +8,7 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 include '../globals.php';
 include '../Login.php';
@@ -16,6 +16,7 @@ include '../db_mysql.php';
 include '../db_config.php';
 require 'RESTfulResponse.php';
 require '../sources/Exception.php';
+require '../../libs/logger/dataActionLogger.php';
 require 'ControllerMap.php';
 
 $db_config = new DB_Config();
@@ -28,7 +29,7 @@ unset($db_config);
 $login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
-$action = isset($_GET['a']) ? $_GET['a'] : '';
+$action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
 $key = null;
 if ($keyIndex === false)
@@ -41,15 +42,20 @@ else
 }
 
 // exclude some controllers from login requirement
-if ($key != 'classicphonebook'
-    && $key != 'telemetry')
-{
-    $login->loginUser();
+switch($key) {
+    case 'classicphonebook':
+    case 'telemetry':
+    case 'userActivity':
+        break;
+    default:
+        $login->loginUser();
+        break;
 }
 
 // Used for the 15min session timeout period UX
 if ($key != 'userActivity') {
     $_SESSION['lastAction'] = time();
+    $_SESSION['expireTime'] = null;
 }
 
 $controllerMap = new ControllerMap();
@@ -176,6 +182,27 @@ $controllerMap->register('userActivity', function() use ($db, $login, $action) {
     require 'controllers/UserActivity.php';
     $SignatureController = new UserActivity($db, $login);
     $SignatureController->handler($action);
+});
+
+$controllerMap->register('note', function() use ($db, $login, $action) {
+    require 'controllers/NotesController.php';
+
+    $dataActionLogger = new DataActionLogger($db, $login);
+
+    $NotesController = new NotesController($db, $login, $dataActionLogger);
+    $NotesController->handler($action);
+});
+
+$controllerMap->register('templateEditor', function () use ($db, $login, $action) {
+    require 'controllers/TemplateEditorController.php';
+    $TemplateEditorController = new TemplateEditorController($db, $login);
+    $TemplateEditorController->handler($action);
+});
+
+$controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
+    require 'controllers/TemplateReportsController.php';
+    $TemplateReportsController = new TemplateReportsController($db, $login);
+    $TemplateReportsController->handler($action);
 });
 
 $controllerMap->runControl($key);

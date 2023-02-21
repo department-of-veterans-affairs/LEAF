@@ -9,7 +9,7 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 if (false)
 {
@@ -98,6 +98,7 @@ function hasDevConsoleAccess($login, $db_phonebook)
 }
 
 // HQ logo
+$main->assign('status', '');
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 { // issue with dijit tabcontainer and ie6
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
@@ -109,6 +110,13 @@ $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />')
 
 $t_login->assign('name', $login->getName());
 
+$qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
+$main->assign('qrcodeURL', urlencode($qrcodeURL));
+
+$main->assign('emergency', '');
+$main->assign('hideFooter', false);
+$main->assign('useUI', false);
+$main->assign('useLiteUI', false);
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
 
@@ -185,6 +193,41 @@ switch ($action) {
         $tabText = 'Workflow Editor';
 
         break;
+    case 'form_vue':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array('../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            '../../libs/js/filesaver/FileSaver.min.js',
+                                            '../../libs/js/codemirror/lib/codemirror.js',
+                                            '../../libs/js/codemirror/mode/xml/xml.js',
+                                            '../../libs/js/codemirror/mode/javascript/javascript.js',
+                                            '../../libs/js/codemirror/mode/css/css.js',
+                                            '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            '../../libs/js/codemirror/addon/display/fullscreen.js',
+                                            '../../libs/js/LEAF/XSSHelpers.js',
+                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                            '../../libs/js/choicesjs/choices.min.js',
+                                            '../js/formQuery.js'
+        ));
+        $main->assign('stylesheets', array('../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            '../../libs/js/codemirror/lib/codemirror.css',
+                                            '../../libs/js/codemirror/addon/display/fullscreen.css',
+                                            '../../libs/js/choicesjs/choices.min.css'
+        ));
+
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('APIroot', '../api/');
+        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
+
+        $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
+
+        $tabText = 'Form Editor Testing';        
+        break;
     case 'form':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -201,17 +244,26 @@ switch ($action) {
                                             '../../libs/js/codemirror/addon/display/fullscreen.js',
                                             '../../libs/js/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                            '../../libs/js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
-                                            '../js/formQuery.js'
+                                            '../js/formQuery.js',
+                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/positionSelector.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
                                             '../../libs/js/codemirror/addon/display/fullscreen.css',
+                                            '../../libs/js/choicesjs/choices.min.css',
+                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/positionSelector.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 
@@ -426,6 +478,19 @@ switch ($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_disabled_fields.tpl')));
 
         $tabText = 'Recover disabled fields';
+
+        break;
+    case 'access_matrix':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+
+        $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
+
+        $tabText = 'Access Matrix';
 
         break;
     case 'import_data':

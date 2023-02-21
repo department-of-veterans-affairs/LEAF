@@ -9,7 +9,7 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 include 'db_mysql.php';
 include 'db_config.php';

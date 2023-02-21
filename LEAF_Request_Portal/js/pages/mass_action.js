@@ -195,7 +195,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0)
 
     $.ajax({
         type: 'GET',
-        url: './api/?a=form/query',
+        url: './api/form/query',
         data: {q: JSON.stringify(queryObj),
             CSRFToken: massActionToken},
         cache: false
@@ -269,17 +269,17 @@ function executeMassAction()
         let recordID = $(item).val();
         switch(actionValue) {
             case 'submit':
-                ajaxPath = './api/?a=form/'+recordID+'/submit';
+                ajaxPath = './api/form/'+recordID+'/submit';
                 break;
             case 'cancel':
-                ajaxPath = './api/?a=form/'+recordID+'/cancel';
+                ajaxPath = './api/form/'+recordID+'/cancel';
                 break;
             case 'restore':
                 ajaxPath = './ajaxIndex.php?a=restore';
                 ajaxData['restore'] = recordID;
                 break;
             case 'email':
-                ajaxPath = './api/?a=form/'+recordID+'/reminder/'+reminderDaysSince;
+                ajaxPath = './api/form/'+recordID+'/reminder/'+reminderDaysSince;
                 break;
         }
 

@@ -9,13 +9,14 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 include 'globals.php';
 include '../libs/smarty/Smarty.class.php';
 include 'Login.php';
 include 'db_mysql.php';
 include 'db_config.php';
+include '../libs/logger/dataActionLogger.php';
 
 // Include XSSHelpers
 if (!class_exists('XSSHelpers'))
@@ -37,6 +38,8 @@ function customTemplate($tpl)
 
 $login = new Login($db_phonebook, $db);
 
+$dataActionLogger = new DataActionLogger($db, $login);
+
 $login->loginUser();
 if ($login)
 {
@@ -49,6 +52,8 @@ if (isset($settings['timeZone']))
 {
     date_default_timezone_set($settings['timeZone']);
 }
+$main = new Smarty;
+$main->assign('emergency', '');
 
 switch ($action) {
     case 'newform':
@@ -454,7 +459,6 @@ switch ($action) {
                 $t_login = new Smarty;
                 $t_login->assign('name', $login->getName());
 
-                $main = new Smarty;
                 if ($recordInfo['priority'] == -10)
                 {
                     $main->assign('emergency', '<span style="position: absolute; right: 0px; top: -28px; padding: 2px; border: 1px solid black; background-color: white; color: red; font-weight: bold; font-size: 20px">EMERGENCY</span> ');

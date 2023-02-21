@@ -570,11 +570,18 @@ function flagActionDeterminingResolution() {
 }
     
 let chart_workload_timescale_numRequests;
+let chart_workload_timescale;
 
 /**
  * Purpose: Init Pie/Graph Charts
+ * return true on success, false on failure
  */
 function setupChart() {
+    if(parsedData.length == 0) {
+        alert('No data matches the selected set. Please expand the time range.');
+        return false;
+    }
+    
     flagActionDeterminingResolution();
     facts = crossfilter(parsedData);
 
@@ -608,17 +615,17 @@ function setupChart() {
     // setup chart
     chart_workload_timescale_numRequests = dc.barChart("#chart_workload_timescale_numRequests");
     chart_workload_timescale = dc.barChart("#chart_workload_timescale");
-    chart_pie_steps = dc.pieChart("#chart_pie_steps");
-    chart_row_steps = dc.rowChart("#chart_row_steps");
-    chart_pie_steps_total = dc.pieChart("#chart_pie_steps_total");
-    chart_row_steps_total = dc.rowChart("#chart_row_steps_total");
-    chart_form_type = dc.rowChart("#chart_form_type");
-    chart_facilities = dc.rowChart("#chart_facilities");
-    chart_workload_type = dc.rowChart("#chart_workload_type");
-    chart_workload_facilities_numRequests = dc.rowChart("#chart_workload_facilities_numRequests");
-    chart_table_requests = dc.dataTable("#chart_table_requests");
-    chart_count_avgCompletionTime = dc.numberDisplay("#chart_count_avgCompletionTime");
-    chart_countResolvedRequests = dc.numberDisplay("#chart_countResolvedRequests");
+    let chart_pie_steps = dc.pieChart("#chart_pie_steps");
+    let chart_row_steps = dc.rowChart("#chart_row_steps");
+    let chart_pie_steps_total = dc.pieChart("#chart_pie_steps_total");
+    let chart_row_steps_total = dc.rowChart("#chart_row_steps_total");
+    let chart_form_type = dc.rowChart("#chart_form_type");
+    let chart_facilities = dc.rowChart("#chart_facilities");
+    let chart_workload_type = dc.rowChart("#chart_workload_type");
+    let chart_workload_facilities_numRequests = dc.rowChart("#chart_workload_facilities_numRequests");
+    let chart_table_requests = dc.dataTable("#chart_table_requests");
+    let chart_count_avgCompletionTime = dc.numberDisplay("#chart_count_avgCompletionTime");
+    let chart_countResolvedRequests = dc.numberDisplay("#chart_countResolvedRequests");
 
     let dimSite = facts.dimension(function(d) { return d.site; });
     let dimService = facts.dimension(function(d) { return d.service; });
@@ -820,8 +827,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -839,7 +846,6 @@ function setupChart() {
         .formatNumber(d3.format(',.0f'));
 
 //  let minDate = new Date(today.getFullYear(), today.getMonth() - 4);
-
     let minDate = new Date(dimRequestsTime.bottom(1)[0].timestamp);
     minDate.setDate(minDate.getDate() - 1);
     let lastMonth = new Date(today).setMonth(today.getMonth() - 1);
@@ -853,8 +859,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -987,8 +993,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -998,8 +1004,8 @@ function setupChart() {
         .title(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1009,8 +1015,8 @@ function setupChart() {
         .ordering(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1034,8 +1040,8 @@ function setupChart() {
         .valueAccessor(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1045,8 +1051,8 @@ function setupChart() {
         .title(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1056,8 +1062,8 @@ function setupChart() {
         .ordering(function(d) {
             let totalTime = 0;
             let count = 0;
-            for(let i in d.value.records) {
-                if(!isNaN(d.value.records[i])) {
+            for(let i in d?.value?.records) {
+                if(!isNaN(d?.value?.records[i])) {
                     totalTime += d.value.records[i];
                     count++;
                 }
@@ -1118,6 +1124,8 @@ function setupChart() {
         .size(Infinity)
         .beginSlice(0)
         .endSlice(10);
+    
+    return true;
 }
 
 /**
@@ -1180,11 +1188,12 @@ function start() {
         queue.onComplete(function() {
             $('#progressContainer').slideUp();
             $('#chartBody').fadeIn();
-            setupChart();
-            dc.renderAll();
-            renderGrid();
-            
-            saveCache();
+            if(setupChart()) {
+                dc.renderAll();
+                renderGrid();
+
+                saveCache();
+            }
         });
         
         for(var i in data) {

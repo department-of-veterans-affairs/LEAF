@@ -19,16 +19,32 @@ class UserActivity extends RESTfulResponse
 
     public function get($act)
     {
-        $form = $this->form;
-
         $this->index['GET'] = new ControllerMap();
-        $cm = $this->index['GET'];
         $this->index['GET']->register('userActivity/version', function () {
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('userActivity', function ($args) use ($form) {
+        $this->index['GET']->register('userActivity', function () {
             return $_SESSION['lastAction'];
+        });
+
+        $this->index['GET']->register('userActivity/warn/[digit]', function ($args) {
+            $_SESSION['expireTime'] = (int)$args[0];
+            return true;
+        });
+
+        $this->index['GET']->register('userActivity/status/[digit]', function ($args) {
+            $reportedTime = (int)$args[0];
+            if(isset($_SESSION['lastAction']) && $reportedTime > $_SESSION['lastAction']) {
+                $_SESSION['lastAction'] = $reportedTime;
+                $_SESSION['expireTime'] = null;
+            }
+
+            $status = [
+                'lastAction' => $_SESSION['lastAction'],
+                'sessExpireTime' => $_SESSION['expireTime'],
+            ];
+            return $status;
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

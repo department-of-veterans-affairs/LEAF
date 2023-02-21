@@ -9,7 +9,7 @@
 
 */
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR);
 
 if (false)
 {
@@ -253,6 +253,11 @@ switch ($action) {
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
+        // validate this is a proper timezone and not some funny business.
+        if (!in_array($tz, DateTimeZone::listIdentifiers())) {
+            $tz = null;
+        }
+     
         if ($groupID != 0)
         {
             require 'sources/Group.php';

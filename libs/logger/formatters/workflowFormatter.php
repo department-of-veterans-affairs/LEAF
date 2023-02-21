@@ -5,6 +5,13 @@ require_once 'dataActions.php';
 require_once 'formatOptions.php';
 
 class WorkflowFormatter {
+    /** Templates for determining what data to grab based on the workflow action.
+     * Action data is retrieved from the data_log_items table.
+     * Each action consists of three rows, each serving as an attribute of the action.
+     * The attributes differ based on the type of action.
+     * The attributes are described in the variables property of each template.
+     */
+    
     
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_STEP => [
@@ -36,9 +43,10 @@ class WorkflowFormatter {
             "message"=>"Workflow <strong>%s</strong> Step <strong>%s</strong> <strong>%s</strong> action has been added",
             "variables"=>"workflowID,stepID,actionType"
         ],
+        // This is labelled differently in the data_log_items table than the add route_events event. (action instead of actionType)
         DataActions::DELETE.'-'.LoggableTypes::ROUTE_EVENTS => [
-            "message"=>"Workflow Step <strong>%s</strong> <strong>%s</strong> action has been deleted",
-            "variables"=>"stepID,actionType"
+            "message"=>"Workflow <strong>%s</strong> Step <strong>%s</strong> <strong>%s</strong> action has been deleted",
+            "variables"=>"workflowID,stepID,action"
         ],
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_ROUTE => [
             "message"=>"Added <strong>%s</strong> action between steps <strong>%s</strong> and <strong>%s</strong>",

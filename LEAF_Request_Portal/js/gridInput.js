@@ -1,7 +1,27 @@
 var gridInput = function(gridParameters, indicatorID, series, recordID) {
-    function makeDropdown(options, selected){
-        var dropdownElement = '<select role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">';
-        for(var i = 0; i < options.length; i++){
+    function decodeCellHTMLEntities(values, showScriptTags=false) {
+        let gridInfo = { ...values };
+        if (gridInfo?.cells) {
+            let cells = gridInfo.cells.slice();
+            cells.forEach((arrRowVals, ci) => {
+                arrRowVals = arrRowVals.map((v) => {
+                    v = v.replaceAll('<', '&lt;');  //handle old data values
+                    v = v.replaceAll('>', '&gt;');
+                    let elDiv = document.createElement('div');
+                    elDiv.innerHTML = v;
+                    let text = elDiv.innerText;
+                    if (showScriptTags !== true) text = text.replaceAll(/(<script[\s\S]*?>)|(<\/script[\s\S]*?>)/ig, '');
+                    return text;
+                });
+                cells[ci] = arrRowVals.slice();
+            });
+            gridInfo.cells = cells;
+        }
+        return gridInfo;
+    }
+    function makeDropdown(options, selected, headerName=''){
+        let dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
+        for(let i = 0; i < options.length; i++){
             if(selected === options[i]){
                 dropdownElement += '<option value="' + options[i] + '" selected="selected">' + options[i] + '</option>';
             } else {
@@ -26,6 +46,7 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         }
     }
     function printTableInput(values){
+        values = decodeCellHTMLEntities(values, true);
         var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_input > tbody';
         var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_input > thead';
         var rows = values.cells !== undefined && values.cells.length > 0 ? values.cells.length : 0;
@@ -57,16 +78,16 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
             for(var j = 0; j < columns; j++){
                 switch (gridParameters[j].type) {
                     case 'dropdown':
-                        element = makeDropdown(gridParameters[j].options, null);
+                        element = makeDropdown(gridParameters[j].options, null, gridParameters[j].name);
                         break;
                     case 'textarea':
-                        element = '<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea>';
+                        element = `<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;" aria-label="${gridParameters[j].name}"></textarea>`;
                         break;
                     case 'text':
-                        element = '<input value=""></input>';
+                        element = `<input value="" aria-label="${gridParameters[j].name}"/>`;
                         break;
                     case 'date':
-                        element = '<input data-type="grid-date" value=""></input>';
+                        element = `<input data-type="grid-date" value="" aria-label="${gridParameters[j].name}" />`;
                         break;
                     default:
                         break;
@@ -127,16 +148,16 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         for(var i = 0; i < gridParameters.length; i++){
             switch (gridParameters[i].type) {
                 case 'dropdown':
-                    $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '">' + makeDropdown(gridParameters[i].options, null) + '</td>');
+                    $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '">' + makeDropdown(gridParameters[i].options, null, gridParameters[i].name) + '</td>');
                     break;
                 case 'textarea':
-                    $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
+                    $(gridBodyElement + ' > tr:last').append('<td><textarea aria-label="' + gridParameters[i].name + '" style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>');
                     break;
                 case 'text':
-                    $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><input value=""></input></td>');
+                    $(gridBodyElement + ' > tr:last').append('<td><input aria-label="' + gridParameters[i].name + '" value="" /></td>');
                     break;
                 case 'date':
-                    $(gridBodyElement + ' > tr:last').append('<td aria-label="' + gridParameters[i].name + '"><input data-type="grid-date" value=""></input></td>');
+                    $(gridBodyElement + ' > tr:last').append('<td><input aria-label="' + gridParameters[i].name + '" data-type="grid-date" value="" /></td>');
                     $('input[data-type="grid-date"]').datepicker();
                     break;
                 default:
@@ -248,6 +269,7 @@ var gridInput = function(gridParameters, indicatorID, series, recordID) {
         $('#tableStatus').attr('aria-label', 'Moved up to row ' + (parseInt($(row).index()) + 1) + ' of ' + $(event.target).closest('tbody').children().length);
     }
     function printTableOutput(values) {
+        values = decodeCellHTMLEntities(values);
         var gridBodyElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > tbody';
         var gridHeadElement = '#grid_' + indicatorID + '_' + series + '_' + recordID + '_output > thead';
         var rows = values.cells === undefined ? 0 : values.cells.length;

@@ -9,7 +9,7 @@ use LEAFTest\LEAFClient;
 
 
 /**
- * Tests LEAF_Request_Portal/api/?a=system API
+ * Tests LEAF_Request_Portal/api/system API
  */
 /*
  * As a work of the United States government, this project is in the public domain within the United States.

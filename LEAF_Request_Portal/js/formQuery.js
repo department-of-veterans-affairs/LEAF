@@ -1,12 +1,11 @@
 /**
  * Form Query Helper
- * @deprecated for functionality
- * @TODO Replaced by libs/js/LEAF/formQuery.js
  */
 
 var LeafFormQuery = function() {
 	var query = {};
 	var successCallback = null;
+    var progressCallback = null;
 	var rootURL = '';
     var useJSONP = false;
     var extraParams = '';
@@ -224,8 +223,71 @@ var LeafFormQuery = function() {
     }
 
     /**
+     * onProgress assigns a callback to be called on every getBulkData() iteration
+     * @param funct - funct(int Progress). Progress is the number of records that have been processed
+     * @memberOf LeafFormQuery
+     */
+    function onProgress(funct) {
+        progressCallback = funct;
+    }
+
+    /**
+     * Execute search query in chunks
+     * @param limitOffset Used in subsequent recursive calls to track current offset
+     * @returns Promise resolving to query response
+     * @memberOf LeafFormQuery
+     */
+    let results = {};
+    let batchSize = 500;
+    function getBulkData(limitOffset) {
+        if(limitOffset == undefined) {
+            limitOffset = 0;
+        }
+        if(limitOffset == 0) {
+            results = {};
+        }
+        limitOffset = parseInt(limitOffset);
+
+        query.limit = batchSize;
+        query.limitOffset = limitOffset;
+
+        let el = document.createElement('div');
+        el.innerHTML = JSON.stringify(query);
+        let queryUrl = el.innerText;
+
+        let dataType = 'json';
+        let urlParamJSONP = '';
+        if(useJSONP) {
+            dataType = 'jsonp';
+            urlParamJSONP = '&format=jsonp';
+        }
+
+        return $.ajax({
+            type: 'GET',
+            url: rootURL + 'api/form/query?q=' + queryUrl + extraParams + urlParamJSONP,
+            dataType: dataType
+        }).then(function(res, resStatus, resJqXHR) {
+            results = Object.assign(results, res);
+
+            if(Object.keys(res).length == batchSize
+                || resJqXHR.getResponseHeader('leaf-query') == 'continue') {
+                let newOffset = limitOffset + batchSize;
+                if(typeof progressCallback == 'function') {
+                    progressCallback(newOffset);
+                }
+                return getBulkData(newOffset);
+            }
+            else {
+                if(typeof successCallback == 'function') {
+                    successCallback(results, resStatus, resJqXHR);
+                }
+                return results;
+            }
+        });
+    }
+
+    /**
      * Execute search query
-     * @param callback - Success callback
      * @returns $.ajax() object
      * @memberOf LeafFormQuery
      */
@@ -233,7 +295,11 @@ var LeafFormQuery = function() {
     	if(query.getData != undefined && query.getData.length == 0) {
     		delete query.getData;
     	}
-    	
+
+        if(query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 9999) {
+            return getBulkData();
+        }
+
         let el = document.createElement('div');
         el.innerHTML = JSON.stringify(query);
         let queryUrl = el.innerText;
@@ -241,19 +307,17 @@ var LeafFormQuery = function() {
     	if(useJSONP == false) {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/?a=form/query&q=' + queryUrl + extraParams,
+        		url: rootURL + 'api/form/query?q=' + queryUrl + extraParams,
         		dataType: 'json',
-        		success: successCallback,
-        		cache: false
+        		success: successCallback
         	});
     	}
     	else {
         	return $.ajax({
         		type: 'GET',
-        		url: rootURL + 'api/?a=form/query&q=' + queryUrl + '&format=jsonp' + extraParams,
+        		url: rootURL + 'api/form/query?q=' + queryUrl + '&format=jsonp' + extraParams,
         		dataType: 'jsonp',
-        		success: successCallback,
-        		cache: false
+        		success: successCallback
         	});
     	}
     }
@@ -277,6 +341,7 @@ var LeafFormQuery = function() {
 		join: join,
 		sort: sort,
 		onSuccess: onSuccess,
+        onProgress: onProgress,
 		execute: execute
 	}
 };

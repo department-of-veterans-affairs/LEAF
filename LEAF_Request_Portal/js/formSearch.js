@@ -118,7 +118,7 @@ var LeafFormSearch = function(containerID) {
 		renderUI();
 
 		intervalID = setInterval(function(){inputLoop();}, 200);
-		if(!(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
+		if(!(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) && window.location.search !== '') {
 			focus();
 		}
 		if(getLastSearch() == null) {
@@ -478,7 +478,7 @@ var LeafFormSearch = function(containerID) {
                     </select>');
 				$.ajax({
 					type: 'GET',
-					url: './api/?a=system/services',
+					url: './api/system/services',
 					dataType: 'json',
 					success: function(res) {
 						var services = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="services" style="width: 250px">';
@@ -519,7 +519,7 @@ var LeafFormSearch = function(containerID) {
 	            	</select>');
 				$.ajax({
 					type: 'GET',
-					url: './api/?a=workflow/categoriesUnabridged',
+					url: './api/workflow/categoriesUnabridged',
 					dataType: 'json',
 					success: function(res) {
 						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="categories" style="width: 250px">';
@@ -545,7 +545,7 @@ var LeafFormSearch = function(containerID) {
 				$('#' + prefixID + 'widgetCondition_' + widgetID).html('<input type="hidden" id="'+prefixID+'widgetCod_'+widgetID+'" value="=" /> =');
 				$.ajax({
 					type: 'GET',
-					url: './api/?a=workflow/dependencies',
+					url: './api/workflow/dependencies',
 					dataType: 'json',
 					success: function(res) {
 						var dependencies = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" aria-label="dependencies" style="width: 250px">';
@@ -578,13 +578,14 @@ var LeafFormSearch = function(containerID) {
 	            	</select>');
 				$.ajax({
 					type: 'GET',
-					url: './api/?a=workflow/steps',
+					url: './api/workflow/steps',
 					dataType: 'json',
 					success: function(res) {
 						var categories = '<select id="'+prefixID+'widgetMat_'+widgetID+'" class="chosen" aria-label="stepID" style="width: 250px">';
 						categories += '<option value="submitted">Submitted</option>';
 						categories += '<option value="deleted">Cancelled</option>';
 						categories += '<option value="resolved">Resolved</option>';
+                        categories += '<option value="actionable">Actionable by me</option>';
 						for(var i in res) {
 							categories += '<option value="'+ res[i].stepID +'">'+ res[i].description + ': ' + res[i].stepTitle +'</option>';
 						}
@@ -601,7 +602,7 @@ var LeafFormSearch = function(containerID) {
 			case 'data':
 				$.ajax({
 					type: 'GET',
-					url: './api/?a=form/indicator/list',
+					url: './api/form/indicator/list',
 					dataType: 'json',
 					success: function(res) {
 						var indicators = '<select id="'+prefixID+'widgetIndicator_'+widgetID+'" class="chosen" aria-label="data" style="width: 250px">';

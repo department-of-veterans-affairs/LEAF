@@ -2,7 +2,7 @@
 
     <!-- Menu tooggle on smaller screens  -->
     <li id="toggleMenu" role="button" aria-haspopup="true">
-        <a href="javascript:void(0);"><span aria-hidden="true" class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
+        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i></a>
     </li>
 
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
@@ -47,7 +47,7 @@
             <li><a href="../report.php?a=LEAF_Timeline_Explorer">Timeline Explorer<i class="leaf-nav-icon-space"></i></a></li>
 
             <!--{if $siteType == 'national_primary'}-->
-                <li><a href="javascript:void(0)">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
+                <li><a href="../report.php?a=LEAF_National_Distribution">Site Distribution<i class="leaf-nav-icon-space"></i></a></li>
             <!--{/if}-->
 
             <li class="lev3">
@@ -56,7 +56,7 @@
                 <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
                 <li><a href="../report.php?a=LEAF_request_initiator_new_account">Initiator New Account</a></li>
-                <li><a href="../report.php?a=LEAF_input_table_report">Grid Splitter</a></li>
+                <li><a href="../report.php?a=LEAF_table_input_report">Grid Splitter</a></li>
                 </ul>
             </li>
 
@@ -78,7 +78,7 @@
     </li>
 
     <li class="leaf-width-4rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
+        <a href="javascript:void(0);" title="user account menu"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
         <ul class="leaf-usernavmenu">
             <li><a href="javascript:void(0);">User:<br/><span class="leaf-user-menu-name">{$name}</span></a></li>
             <li><a href="javascript:void(0);">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></a></li>
@@ -111,15 +111,15 @@ $('#toggleMenu').on('click', function() {
 })
 
 // Add plus mark to li that have a sub menu
-$('li.lev2:has("ul") > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
-$('li.lev3:has("ul") > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
+$('li.lev2:has(ul) > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
+$('li.lev3:has(ul) > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
 
 
 // sub menu
 // ------------------------
 
 // When interacting with a li that has a sub menu
-$('li:has("ul")').on('mouseover keyup click mouseleave', function(e) {
+$('li:has(ul)').on('mouseover keyup click mouseleave', function(e) {
 
     //console.log("test")
 

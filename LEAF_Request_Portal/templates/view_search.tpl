@@ -4,62 +4,25 @@
 var CSRFToken = '<!--{$CSRFToken}-->';
 
 
-$(function() {
-    var query = new LeafFormQuery();
-    var queryLimit = 50;
-    var leafSearch = new LeafFormSearch('searchContainer');
-    leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
-
-    var extendedQueryState = 0; // 0 = not run, 1 = need to process, 2 = processed
-    var foundOwnRequest = false;
-    var firstResult = {};
-    query.onSuccess(function(res) {
-        // on the first run: if there are no results that are owned by the user,
-        // append requests owned by the user
-        if(extendedQueryState == 0) {
-            firstResult = res;
-            for(var i in res) {
-                if(res[i].userID == '<!--{$userID}-->') {
-                    foundOwnRequest = true;
-                    break;
-                }
+function renderResult(leafSearch, res) {
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    let grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
+    grid.hideIndex();
+    grid.setDataBlob(res);
+    grid.setHeaders([
+        {name: 'Date', indicatorID: 'date', editable: false, callback: function(data, blob) {
+            let date = new Date(blob[data.recordID].date * 1000);
+            let now = new Date();
+            let year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
+            let formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = formattedDate;
+            if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
+                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
             }
-        }
-
-        if(extendedQueryState == 0
-            && foundOwnRequest == false
-            && leafSearch.getSearchInput() == '') {
-            extendedQueryState = 1;
-            query.addTerm('userID', '=', '<!--{$userID}-->');
-            query.execute();
-            return false;
-        }
-
-        if(extendedQueryState == 1) {
-            extendedQueryState = 2;
-            for(var i in firstResult) {
-                res[i] = firstResult[i];
-            }
-        }
-
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-        var grid = new LeafFormGrid(leafSearch.getResultContainerID(), {readOnly: true});
-        grid.hideIndex();
-        grid.setDataBlob(res);
-        grid.setHeaders([
-         {name: 'Date', indicatorID: 'date', editable: false, callback: function(data, blob) {
-             var date = new Date(blob[data.recordID].date * 1000);
-             var now = new Date();
-             var year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-             var formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-             $('#'+data.cellContainerID).html(formattedDate);
-             if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
-                 $('#'+data.cellContainerID).css('background-color', '#feffd1');
-             }
-         }},
-         {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-            var types = '';
-            for(var i in blob[data.recordID].categoryNames) {
+        }},
+        {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
+            let types = '';
+            for(let i in blob[data.recordID].categoryNames) {
                 if(blob[data.recordID].categoryNames[i] != '') {
                     types += blob[data.recordID].categoryNames[i] + ' | ';
                 }
@@ -73,115 +36,174 @@ $(function() {
                 priorityStyle = ' style="background-color: red; color: black"';
             }
 
-            $('#'+data.cellContainerID).html('<span class="browsecounter"><a '+priorityStyle+' href="'
-                    + 'index.php?a=printview&recordID='+data.recordID + '" tabindex="-1">' + data.recordID
-                    + '</a></span><a href="' + 'index.php?a=printview&recordID='+data.recordID
-                    + '">' + blob[data.recordID].title + '</a><br />'
-                    + '<span class="browsetypes">' + types + '</span>' + priority);
-            $('#'+data.cellContainerID).on('click', function() {
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = 
+                `<span class="browsecounter">
+                    <a ${priorityStyle} href="index.php?a=printview&recordID=${data.recordID}" tabindex="-1">${data.recordID}</a>
+                 </span>
+                 <a href="index.php?a=printview&recordID=${data.recordID}">${blob[data.recordID].title}</a><br />
+                 <span class="browsetypes">${types}</span>${priority}`;
+            document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
                 window.location = 'index.php?a=printview&recordID='+data.recordID;
             });
-         }},
-         {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
-             $('#'+data.cellContainerID).html(blob[data.recordID].service);
-             if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                 $('#'+data.cellContainerID).css('background-color', '#feffd1');
-             }
-         }},
-         {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
-             var waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
-             var status = '';
-             if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
-                 status = '<span style="color: #e00000">Not Submitted</span>';
-             }
-             else if(blob[data.recordID].stepID == null) {
-                 var lastStatus = blob[data.recordID].lastStatus;
-                 if(lastStatus == '') {
-                     lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
-                 }
-                 status = '<span style="font-weight: bold">' + lastStatus + '</span>';
-             }
-             else {
-                 status = waitText + blob[data.recordID].stepTitle;
-             }
-
-             if(blob[data.recordID].deleted > 0) {
-                 status += ', Cancelled';
-             }
-
-             $('#'+data.cellContainerID).html(status);
-             if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                 $('#'+data.cellContainerID).css('background-color', '#feffd1');
-             }
-         }}
-         ]);
-        grid.setPostProcessDataFunc(function(data) {
-            var data2 = [];
-            for(var i in data) {
-                <!--{if !$is_admin}-->
-                if(data[i].submitted == '0'
-                    && data[i].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                    data2.push(data[i]);
-                }
-                else if(data[i].submitted != '0') {
-                    data2.push(data[i]);
-                }
-                <!--{else}-->
-                data2.push(data[i]);
-                <!--{/if}-->
+        }},
+        {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
+            if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
+                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
             }
-            return data2;
-        });
+        }},
+        {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
+            let waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+            let status = '';
+            if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
+                if(blob[data.recordID].lastStatus == null) {
+                    status = '<span style="color: #e00000">Not Submitted</span>';
+                }
+                else {
+                    status = '<span style="color: #e00000">Pending Re-submission</span>';
+                }
+            }
+            else if(blob[data.recordID].stepID == null) {
+                let lastStatus = blob[data.recordID].lastStatus;
+                if(lastStatus == '') {
+                    lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
+                }
+                status = '<span style="font-weight: bold">' + lastStatus + '</span>';
+            }
+            else {
+                status = waitText + blob[data.recordID].stepTitle;
+            }
 
-        var tGridData = [];
-        for(var i in res) {
-            tGridData.push(res[i]);
+            if(blob[data.recordID].deleted > 0) {
+                status += ', Cancelled';
+            }
+
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
+            if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
+                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
+            }
+        }}
+    ]);
+    grid.setPostProcessDataFunc(function(data) {
+        let data2 = [];
+        for(let i in data) {
+            <!--{if !$is_admin}-->
+            if(data[i].submitted == '0'
+                && data[i].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
+                data2.push(data[i]);
+            }
+            else if(data[i].submitted != '0') {
+                data2.push(data[i]);
+            }
+            <!--{else}-->
+            data2.push(data[i]);
+            <!--{/if}-->
         }
-        grid.setData(tGridData);
-        grid.sort('recordID', 'desc');
-        grid.renderBody();
-        grid.announceResults();
+        return data2;
+    });
 
-        $('#header_date').css('width', '60px');
-        $('#header_service').css('width', '150px');
-        $('#header_currentStatus').css('width', '100px');
+    let tGridData = [];
+    for(let i in res) {
+        tGridData.push(res[i]);
+    }
+    grid.setData(tGridData);
+    grid.sort('recordID', 'desc');
+    grid.renderBody();
+    grid.announceResults();
 
-        // UI for "show more results". After 150 results, "show all results"
-        if(queryLimit % 50 == 0) {
-            $('#searchContainer_getMoreResults').css('display', 'inline');
+}
+
+function main() {
+    let query = new LeafFormQuery();
+    let leafSearch = new LeafFormSearch('searchContainer');
+    leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
+
+    let extendedQueryState = 0; // 0 = not run, 1 = completed extra query for records created by current user
+    let loadAllResults = false;
+    let foundOwnRequest = false;
+    let resultSet = {}; // current results
+    let offset = 0; // current database offset index
+    let batchSize = 50;
+    let abortSearch = false;
+    let scrollY = 0; // track scroll position for more seamless UX when loading more records
+
+    // On the first visit, if no results are owned by the user, append their results
+    query.onSuccess(function(res, resStatus, resJqXHR) {
+        resultSet = Object.assign(resultSet, res);
+
+        // find records owned by user
+        if(extendedQueryState == 0) {
+            for(let i in res) {
+                if(res[i].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
+                    foundOwnRequest = true;
+                    break;
+                }
+            }
+        }
+
+        // append user's records if none were found earlier
+        if(extendedQueryState == 0
+            && foundOwnRequest == false
+            && leafSearch.getSearchInput() == '') {
+            extendedQueryState = 1;
+            query.addTerm('userID', '=', "<!--{$userID|unescape|escape:'quotes'}-->");
+            query.execute();
+            return false;
+        }
+
+        // incrementally load records
+        if((Object.keys(res).length == batchSize || resJqXHR.getResponseHeader('leaf-query') == 'continue')
+            && loadAllResults
+            && !abortSearch) {
+
+            document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p><button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button></p>`;
+            document.querySelector('#btn_abortSearch').addEventListener('click', function() {
+                abortSearch = true;
+            });
+            offset += batchSize;
+            query.setLimit(offset, batchSize);
+            query.execute();
+            return;
+        }
+
+        renderResult(leafSearch, resultSet);
+        window.scrollTo(0, scrollY);
+
+        // UI for "show more results" button
+        if(!loadAllResults) {
+            document.querySelector('#searchContainer_getMoreResults').style.display = 'inline';
         }
         else {
-            $('#searchContainer_getMoreResults').css('display', 'none');
-        }
-        if(queryLimit > 100) {
-            $('#searchContainer_getMoreResults').html('Show ALL records');
+            document.querySelector('#searchContainer_getMoreResults').style.display = 'none';
         }
     });
     leafSearch.setSearchFunc(function(txt) {
+        // prep new search
         query.clearTerms();
+        resultSet = {};
+        offset = 0;
+        loadAllResults = false;
+        scrollY = 0;
+        abortSearch = false;
 
-        var isJSON = true;
-        var advSearch = {};
+        let isJSON = true;
+        let advSearch = {};
         try {
-            advSearch = $.parseJSON(txt);
+            advSearch = JSON.parse(txt);
         }
         catch(err) {
             isJSON = false;
         }
 
         txt = txt.trim();
-        if(txt == '' || txt == '*') {
-            query.setLimit(queryLimit);
-        }
-
         if(txt == '') {
             query.addTerm('title', 'LIKE', '*');
         }
-        else if($.isNumeric(txt)) {
+        else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
             query.addTerm('recordID', '=', txt);
         }
         else if(isJSON) {
-            for(var i in advSearch) {
+            for(let i in advSearch) {
                 if(advSearch[i].id != 'data'
                     && advSearch[i].id != 'dependencyID') {
                     query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
@@ -189,20 +211,15 @@ $(function() {
                 else {
                     query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
                 }
-
-                if(advSearch[i].id == 'title'
-                        && advSearch[i].match == '**') {
-                    query.setLimit(queryLimit);
-                }
             }
         }
         else {
             query.addTerm('title', 'LIKE', '*' + txt + '*');
         }
 
-        // check if the user wants to search for deleted requests
-        var hasDeleteQuery = false;
-        for(var i in query.getQuery().terms) {
+        // check if the user wants to search for cancelled requests
+        let hasDeleteQuery = false;
+        for(let i in query.getQuery().terms) {
             if(query.getQuery().terms[i].id == 'stepID'
                 && query.getQuery().terms[i].operator == '='
                 && query.getQuery().terms[i].match == 'deleted') {
@@ -210,10 +227,13 @@ $(function() {
                 break;
             }
         }
+
+        // hide cancelled requests by default
         if(!hasDeleteQuery) {
             query.addTerm('deleted', '=', 0);
         }
 
+        query.setLimit(batchSize);
         query.join('service');
         query.join('status');
         query.join('categoryName');
@@ -221,25 +241,25 @@ $(function() {
         return query.execute();
     });
     leafSearch.init();
+    document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = '<h3>Searching for records...</h3>';
 
-    $('#searchContainer_getMoreResults').on('click', function() {
+    document.querySelector('#searchContainer_getMoreResults').addEventListener('click', function() {
+        loadAllResults = true;
+        scrollY = window.scrollY;
         if(leafSearch.getSearchInput() == '') {
-            var tQuery = query.getQuery();
-            for(var i in tQuery.terms) {
+            let tQuery = query.getQuery();
+            for(let i in tQuery.terms) {
                 if(tQuery.terms[i].id == 'userID') {
                     tQuery.terms.splice(i, 1);
                 }
             }
             query.setQuery(tQuery);
         }
-        if(queryLimit <= 100) {
-            queryLimit += 50;
-            query.setLimit(queryLimit);
-        }
-        else {
-            query.setLimit();
-        }
+        offset += batchSize;
+        query.setLimit(offset, batchSize);
         query.execute()
     });
-});
+}
+
+document.addEventListener('DOMContentLoaded', main);
 </script>

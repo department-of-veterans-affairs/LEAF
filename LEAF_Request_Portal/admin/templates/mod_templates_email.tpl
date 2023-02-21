@@ -136,7 +136,7 @@
                 <button class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_compareStop" style="display: none" onclick="loadContent();">
                     Stop Comparing
                 </button>
-                
+
                 <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate" id="btn_compare" onclick="compare();">
                     Compare to Original
                 </button>
@@ -230,14 +230,18 @@ function restore() {
 	dialog.setSaveHandler(function() {
 		$.ajax({
 	        type: 'DELETE',
-	        url: '../api/emailTemplates/_' + currentFile + '&subjectFileName=' + currentSubjectFile + '&emailToFileName='+currentEmailToFile+'&emailCcFileName='+currentEmailCcFile+'&CSRFToken=<!--{$CSRFToken}-->',
+	        url: '../api/emailTemplates/_' + currentFile + '?' +
+                $.param({'subjectFileName': currentSubjectFile,
+                         'emailToFileName': currentEmailToFile,
+                         'emailCcFileName': currentEmailCcFile,
+                         'CSRFToken': '<!--{$CSRFToken}-->'}),
 	        success: function() {
 	            loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
 	        }
 	    });
 		dialog.hide();
 	});
-	
+
 	dialog.show();
 }
 
@@ -333,7 +337,7 @@ function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
     $('#codeCompare').empty();
     $('#subjectCompare').empty();
     $('#btn_compareStop').css('display', 'none');
-    
+
     initEditor();
     $('#codeContainer').css('display', 'none');
     $('#controls').css('visibility', 'visible');
@@ -511,7 +515,7 @@ $(function() {
     $('.CodeMirror').each(function(i, el) {
         el.CodeMirror.refresh();
     });
-
+    $('#xhrDialog').css('display', 'none');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
 });
 </script>
