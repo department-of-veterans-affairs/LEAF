@@ -11,7 +11,7 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
-            allowedConditionChildFormats: ['dropdown', 'text', 'multiselect'],
+            allowedConditionChildFormats: ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'],
             showToolbars: true
         }
     },
@@ -32,7 +32,7 @@ export default {
         'appIsLoadingForm',
         'currCategoryID',       //always a main form
         'currSubformID',        //catID of the subform, if a subform, otherwise null
-        'ajaxFormByCategoryID',
+        'selectedFormTree',
         'internalForms',
         'selectedCategoryStapledForms',
         'selectNewCategory',
@@ -324,7 +324,7 @@ export default {
                             + Add Section
                         </button>
                     </div>
-                    <ul v-if="ajaxFormByCategoryID.length > 0"
+                    <ul v-if="selectedFormTree.length > 0"
                         id="base_drop_area"
                         class="form-index-listing-ul"
                         data-effect-allowed="move"
@@ -333,7 +333,7 @@ export default {
                         @dragenter.prevent="onDragEnter"
                         @dragleave="onDragLeave">
 
-                        <form-index-listing v-for="(formSection, i) in ajaxFormByCategoryID"
+                        <form-index-listing v-for="(formSection, i) in selectedFormTree"
                             :id="'index_listing_'+formSection.indicatorID"
                             :depth=0
                             :formNode="formSection"
@@ -347,7 +347,7 @@ export default {
                 </div>
 
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-                <template v-if="ajaxFormByCategoryID.length > 0">
+                <template v-if="selectedFormTree.length > 0">
                     <!-- ENTIRE FORM EDIT / PREVIEW -->
                     <div v-if="selectedFormNode === null" id="form_entry_and_preview">
                         <div class="form-section-header" style="display: flex; height: 28px;">
@@ -357,7 +357,7 @@ export default {
                                 {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
                             </button>
                         </div>
-                        <template v-for="(formSection, i) in ajaxFormByCategoryID" :key="'editing_display_' + formSection.indicatorID">
+                        <template v-for="(formSection, i) in selectedFormTree" :key="'editing_display_' + formSection.indicatorID">
                             <div class="printformblock">
                                 <form-editing-display 
                                     :depth="0"

@@ -43,15 +43,14 @@ export default {
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
-            currentCategorySelection: {},  //current record from categories object (main or internal forms)
-            ajaxFormByCategoryID: [],      //form tree with information about indicators for each node
+            selectedFormTree: [],          //form tree with information about indicators for each node
             selectedFormNode: null,
             indicatorCountSwitch: true,    //toggled to trigger form view controller remount if an indicator is archived or deleted
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             stapledFormsCatIDs: [],         //cat IDs of forms stapled to anything
-            ajaxWorkflowRecords: [],        //array of all 'workflows' table records
-            ajaxIndicatorByID: {},          //'indicators' table record for a specific indicatorID
+            workflowRecords: [],            //array of all 'workflows' table records
+            indicatorRecord: {},          //'indicators' table record for a specific indicatorID
             orgSelectorClassesAdded: { group: false, position: false, employee: false },
         }
     },
@@ -63,13 +62,13 @@ export default {
             currIndicatorID: computed(() => this.currIndicatorID),
             newIndicatorParentID: computed(() => this.newIndicatorParentID),
             isEditingModal: computed(() => this.isEditingModal),
-            ajaxIndicatorByID: computed(() => this.ajaxIndicatorByID),
+            indicatorRecord: computed(() => this.indicatorRecord),
             categories: computed(() => this.categories),
             currentCategorySelection: computed(() => this.currentCategorySelection),
             selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
             selectedFormNode: computed(() => this.selectedFormNode),
             currentCategoryIsSensitive: computed(() => this.currentCategoryIsSensitive),
-            ajaxFormByCategoryID: computed(() => this.ajaxFormByCategoryID),
+            selectedFormTree: computed(() => this.selectedFormTree),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
             activeCategories: computed(() => this.activeCategories),
@@ -77,7 +76,7 @@ export default {
             showCertificationStatus: computed(() => this.showCertificationStatus),
             selectedCategoryStapledForms: computed(() => this.selectedCategoryStapledForms),
             stapledFormsCatIDs: computed(() => this.stapledFormsCatIDs),
-            ajaxWorkflowRecords: computed(() => this.ajaxWorkflowRecords),
+            workflowRecords: computed(() => this.workflowRecords),
             showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
             dialogFormContent: computed(() => this.dialogFormContent),
@@ -154,6 +153,13 @@ export default {
         }
     },
     computed: {
+        /**
+         * @returns {Object} current record from categories object (main or internal forms)
+         */
+        currentCategorySelection() {
+            const formID = this.currSubformID || this.currCategoryID;
+            return formID !== null ? this.categories[formID] : {};
+        },
         /**
          * 
          * @returns {array} of categories object records
@@ -246,7 +252,11 @@ export default {
                         console.log('updated categories');
                         for(let i in res) {
                             this.categories[res[i].categoryID] = res[i];
-                            res[i].stapledFormIDs.forEach(id => this.updateStapledFormsInfo(id));
+                            res[i].stapledFormIDs.forEach(id => {
+                                if (!this.stapledFormsCatIDs.includes(id)) {
+                                    this.stapledFormsCatIDs.push(id);
+                                }
+                            });
                         }
                         this.appIsLoadingCategoryList = false;
                         resolve(res);
@@ -256,7 +266,7 @@ export default {
             });
         },
         getFormFromQueryParam() {
-            const formReg = /^form_[0-9a-f]{5}$/;
+            const formReg = /^form_[0-9a-f]{5}$/i;
             const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
             console.log('got form id from query param', formID)
             if (formID === null || this.categories[formID] === undefined) {
@@ -278,7 +288,7 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}workflow`,
                     success: (res) => {
-                        this.ajaxWorkflowRecords = res;
+                        this.workflowRecords = res;
                         resolve(res);
                     },
                     error: (err) => reject(err)
@@ -435,28 +445,21 @@ export default {
          */
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             this.categories[catID][keyName] = keyValue;
-            this.currentCategorySelection = this.categories[catID];
         },
         /**
-         * updates app stapledFormsCatIDs to track which forms have staples for card info
-         * @param {string} stapledCatID 
-         * @param {string} removeCatID 
+         * updates app stapledFormsCatIDs to track which forms have staples, and stapledFormIds of categories object
+         * @param {string} stapledCatID id of the form being merged/unmerged
+         * @param {string} removeStaple indicates whether staple is being added or removed
          */
-        updateStapledFormsInfo(stapledCatID = '', removeCatID = false, updateSelectedForm = false) {
-            if(removeCatID === true) {
-                if(this.stapledFormsCatIDs.includes(stapledCatID)) {
-                    this.stapledFormsCatIDs = this.stapledFormsCatIDs.filter(id => id !== stapledCatID);
-                    if (Object.keys(this.currentCategorySelection).length > 0) {
-                        this.currentCategorySelection.stapledFormIDs = this.currentCategorySelection.stapledFormIDs.filter(id => id !== stapledCatID);
-                    }
-                }
+        updateStapledFormsInfo(stapledCatID = '', removeStaple = false) {
+            const formID = this.currentCategorySelection.categoryID;
+            console.log('updating stapled info for form', formID, 'removing?', removeStaple)
+            if(removeStaple === true) {
+                this.stapledFormsCatIDs = this.stapledFormsCatIDs.filter(id => id !== stapledCatID);
+                this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
             } else {
-                if(!this.stapledFormsCatIDs.includes(stapledCatID)) {
-                    this.stapledFormsCatIDs = [...this.stapledFormsCatIDs, stapledCatID];
-                    if (Object.keys(this.currentCategorySelection).length > 0) {
-                        this.currentCategorySelection.stapledFormIDs = [...this.currentCategorySelection.stapledFormIDs, stapledCatID];
-                    }
-                } 
+                this.stapledFormsCatIDs = Array.from(new Set([...this.stapledFormsCatIDs, stapledCatID]));
+                this.categories[formID].stapledFormIDs  = [...this.currentCategorySelection.stapledFormIDs, stapledCatID];
             }
         },
         /**
@@ -481,21 +484,18 @@ export default {
                 this.currCategoryID = this.categories[catID].parentID;
                 this.currSubformID = catID;
             }
-            this.currentCategorySelection = {};
-            this.ajaxFormByCategoryID = [];
+            this.selectedFormTree = [];
             this.selectedFormNode = null;
             this.selectedNodeIndicatorID = null;
 
             //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
             if (catID !== null) {
-                const form = { ...this.categories[catID] };
-                this.currentCategorySelection = form;
                 this.selectedNodeIndicatorID = subnodeIndID;
                 this.currentCategoryIsSensitive = false;
 
                 this.getFormByCategoryID(catID).then(res => {
-                    this.ajaxFormByCategoryID = res;
-                    this.ajaxFormByCategoryID.forEach(section => {
+                    this.selectedFormTree = res;
+                    this.selectedFormTree.forEach(section => {
                         if (this.selectedFormNode === null) {
                             this.getNodeSelection(section);
                         }
@@ -564,8 +564,9 @@ export default {
             this.showFormDialog = true;
         },
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
+            const name = this.truncateText(XSSHelpers.stripAllTags(indicatorName));
             this.currIndicatorID = indicatorID;
-            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #c00;">${indicatorName} (${indicatorID})</span></h2>`);
+            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #c00;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');
             this.showFormDialog = true;
         },
@@ -591,10 +592,10 @@ export default {
          * @param {number} indicatorID 
          */
         openAdvancedOptionsDialog(indicatorID = 0) {
-            this.ajaxIndicatorByID = {};
+            this.indicatorRecord = {};
             this.currIndicatorID = indicatorID;
             this.getIndicatorByID(indicatorID).then(res => {
-                this.ajaxIndicatorByID = res;
+                this.indicatorRecord = res;
                 this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicatorID}</h2>`);
                 this.setFormDialogComponent('advanced-options-dialog');
                 this.showFormDialog = true;   
@@ -631,12 +632,12 @@ export default {
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
-            this.ajaxIndicatorByID = {};
+            this.indicatorRecord = {};
             this.currIndicatorID = indicatorID;
             this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
                 this.isEditingModal = true;
-                this.ajaxIndicatorByID = res;
+                this.indicatorRecord = res;
                 this.openIndicatorEditingDialog(indicatorID);
             }).catch(err => console.log('error getting indicator information', err));
         },

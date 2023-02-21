@@ -50,7 +50,6 @@ export default {
             });
         },
         onSave() {
-            console.log('clicked add for form', this.formID, this.catIDtoStaple)
             if(this.catIDtoStaple !== '') {
                 $.ajax({
                     type: 'POST',

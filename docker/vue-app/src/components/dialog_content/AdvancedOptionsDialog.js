@@ -7,8 +7,8 @@ export default {
             formID: this.currSubformID || this.currCategoryID,
             codeEditorHtml: {},
             codeEditorHtmlPrint: {},
-            html: this.ajaxIndicatorByID[this.currIndicatorID].html === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].html,
-            htmlPrint: this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint
+            html: this.indicatorRecord[this.currIndicatorID].html === null ? '' : this.indicatorRecord[this.currIndicatorID].html,
+            htmlPrint: this.indicatorRecord[this.currIndicatorID].htmlPrint === null ? '' : this.indicatorRecord[this.currIndicatorID].htmlPrint
         }
     },
     inject: [
@@ -18,7 +18,7 @@ export default {
         'currCategoryID',
         'currSubformID',
         'currIndicatorID',
-        'ajaxIndicatorByID',
+        'indicatorRecord',
         'selectNewCategory',
         'hasDevConsoleAccess',
         'selectedNodeIndicatorID'

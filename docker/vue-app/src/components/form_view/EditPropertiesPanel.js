@@ -16,7 +16,7 @@ export default {
         'CSRFToken',
         'currCategoryID',
         'currSubformID',
-        'ajaxWorkflowRecords',
+        'workflowRecords',
         'currentCategorySelection',
         'currentCategoryIsSensitive',
         'updateCategoriesProperty',
@@ -29,7 +29,7 @@ export default {
         workflowDescription() {
             let returnValue = '';
             if (this.workflowID !== 0) {
-                const currWorkflow = this.ajaxWorkflowRecords.find(rec => parseInt(rec.workflowID) === this.workflowID);
+                const currWorkflow = this.workflowRecords.find(rec => parseInt(rec.workflowID) === this.workflowID);
                 returnValue = currWorkflow?.description || '';
             }
             return returnValue;
@@ -229,7 +229,7 @@ export default {
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
-                    <template v-if="ajaxWorkflowRecords.length > 0">
+                    <template v-if="workflowRecords.length > 0">
                         <label for="workflowID" style="margin-bottom: 0.5rem;">Workflow
                         <select id="workflowID" name="select-workflow" 
                             title="select workflow"
@@ -237,7 +237,7 @@ export default {
                             style="width:300px;"
                             :style="{color: workflowID === 0 ? '#cb0000' : 'black'}">
                             <option value="0" :selected="workflowID === 0">No Workflow.  Users cannot submit requests</option>
-                            <template v-for="r in ajaxWorkflowRecords" :key="'workflow_' + r.workflowID">
+                            <template v-for="r in workflowRecords" :key="'workflow_' + r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
                                     :selected="workflowID === parseInt(r.workflowID)">

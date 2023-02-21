@@ -14,7 +14,7 @@ export default {
         'currCategoryID',
         'currSubformID',
         'internalForms',
-        'ajaxFormByCategoryID',
+        'selectedFormTree',
         'selectedCategoryStapledForms',
         'stapledFormsCatIDs',
         'openNewFormDialog',
@@ -157,7 +157,7 @@ export default {
                         <ul v-else id="form-editor-menu"
                             @mouseenter="showMenu" 
                             @mouseleave="hideMenu">
-                            <li v-if="ajaxFormByCategoryID.length !== 0">
+                            <li v-if="selectedFormTree.length !== 0">
                                 <button @click="openNewFormDialog" title="add new internal use form">
                                 Add Internal-Use<span role="img" aria="">➕</span>
                                 </button>

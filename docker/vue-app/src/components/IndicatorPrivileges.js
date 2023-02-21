@@ -10,7 +10,6 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'ajaxIndicatorByID',
         'currIndicatorID',
     ],
     mounted() {

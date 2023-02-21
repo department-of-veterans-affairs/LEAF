@@ -54,27 +54,27 @@ export default {
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
-            name: this.ajaxIndicatorByID[this.currIndicatorID]?.name || '',
-            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
-            format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property here is just the format name
-            description: this.ajaxIndicatorByID[this.currIndicatorID]?.description || '',
-            defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
-            required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required) === 1 || false,
-            is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive) === 1 || false,
-            parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? 
-                    parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
+            name: this.indicatorRecord[this.currIndicatorID]?.name || '',
+            options: this.indicatorRecord[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
+            format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //format property here is just the format name
+            description: this.indicatorRecord[this.currIndicatorID]?.description || '',
+            defaultValue: this.indicatorRecord[this.currIndicatorID]?.default || '',
+            required: parseInt(this.indicatorRecord[this.currIndicatorID]?.required) === 1 || false,
+            is_sensitive: parseInt(this.indicatorRecord[this.currIndicatorID]?.is_sensitive) === 1 || false,
+            parentID: this.indicatorRecord[this.currIndicatorID]?.parentID ? 
+                    parseInt(this.indicatorRecord[this.currIndicatorID].parentID) : this.newIndicatorParentID,
             //sort can be 0, need to compare specifically against undefined
-            sort: this.ajaxIndicatorByID[this.currIndicatorID]?.sort !== undefined ? parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort) : null,
+            sort: this.indicatorRecord[this.currIndicatorID]?.sort !== undefined ? parseInt(this.indicatorRecord[this.currIndicatorID].sort) : null,
             //checkboxes input
-            singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
-                this.ajaxIndicatorByID[this.currIndicatorID].options : '',
+            singleOptionValue: this.indicatorRecord[this.currIndicatorID]?.format === 'checkbox' ? 
+                this.indicatorRecord[this.currIndicatorID].options : '',
             //multi answer format inputs
-            multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.ajaxIndicatorByID[this.currIndicatorID]?.format) ? 
-                this.ajaxIndicatorByID[this.currIndicatorID].options?.join('\n') : '',
+            multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.indicatorRecord[this.currIndicatorID]?.format) ? 
+                this.indicatorRecord[this.currIndicatorID].options?.join('\n') : '',
             //used for grid formats
             gridBodyElement: 'div#container_indicatorGrid > div',
-            gridJSON: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'grid' ? 
-               JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : [],
+            gridJSON: this.indicatorRecord[this.currIndicatorID]?.format === 'grid' ? 
+               JSON.parse(this.indicatorRecord[this.currIndicatorID]?.options[0]) : [],
 
             archived: false,
             deleted: false
@@ -88,8 +88,8 @@ export default {
         'currCategoryID',
         'currSubformID',
         'currIndicatorID',
-        'ajaxIndicatorByID',
-        'ajaxFormByCategoryID',
+        'indicatorRecord',
+        'selectedFormTree',
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'updateCategoriesProperty',
@@ -159,7 +159,7 @@ export default {
         newQuestionSortValue(){
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
             const sortVal = (this.parentID === null) ?
-                this.ajaxFormByCategoryID.length :                                 //new form sections/pages
+                this.selectedFormTree.length :                                 //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
             return sortVal;
         }
@@ -201,18 +201,18 @@ export default {
             
             let indicatorEditingUpdates = [];
             if (this.isEditingModal) { /*  CALLS FOR EDITTING AN EXISTING QUESTION */
-                const nameChanged = this.name !== this.ajaxIndicatorByID[this.currIndicatorID].name;
-                const descriptionChanged = this.description !== this.ajaxIndicatorByID[this.currIndicatorID].description;
+                const nameChanged = this.name !== this.indicatorRecord[this.currIndicatorID].name;
+                const descriptionChanged = this.description !== this.indicatorRecord[this.currIndicatorID].description;
 
-                const options = this.ajaxIndicatorByID[this.currIndicatorID]?.options ? 
-                                '\n' + this.ajaxIndicatorByID[this.currIndicatorID]?.options?.join('\n') : '';
-                const fullFormatChanged = this.fullFormatForPost !== this.ajaxIndicatorByID[this.currIndicatorID].format + options;
+                const options = this.indicatorRecord[this.currIndicatorID]?.options ? 
+                                '\n' + this.indicatorRecord[this.currIndicatorID]?.options?.join('\n') : '';
+                const fullFormatChanged = this.fullFormatForPost !== this.indicatorRecord[this.currIndicatorID].format + options;
 
-                const defaultChanged = this.defaultValue !== this.ajaxIndicatorByID[this.currIndicatorID].default;
-                const requiredChanged = +this.required !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].required);
-                const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
-                //const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
-                const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
+                const defaultChanged = this.defaultValue !== this.indicatorRecord[this.currIndicatorID].default;
+                const requiredChanged = +this.required !== parseInt(this.indicatorRecord[this.currIndicatorID].required);
+                const sensitiveChanged = +this.is_sensitive !== parseInt(this.indicatorRecord[this.currIndicatorID].is_sensitive);
+                //const sortChanged = this.sort !== parseInt(this.indicatorRecord[this.currIndicatorID].sort);
+                const parentIDChanged = this.parentID !== this.indicatorRecord[this.currIndicatorID].parentID;
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
                 //keeping for now for potential debugging

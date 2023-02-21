@@ -21,7 +21,8 @@ export default {
             showRemoveConditionModal: false,
             showConditionEditor: false,
             editingCondition: '',
-            enabledParentFormats: ['dropdown', 'multiselect']
+            enabledParentFormats: ['dropdown', 'multiselect', 'radio', 'checkboxes'],
+            multiOptionFormats: ['multiselect', 'checkboxes']
         }
     },
     inject: [
@@ -168,9 +169,9 @@ export default {
          * @param {Object} target (DOM element)
          */
         updateSelectedParentValue(target = {}) {
-            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
+            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim().toLowerCase();
             let value = '';
-            if (parFormat.toLowerCase() === 'multiselect') {
+            if (this.multiOptionFormats.includes(parFormat)) {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -185,9 +186,9 @@ export default {
          * @param {Object} target (DOM element)
          */
         updateSelectedChildValue(target = {}) {
-            const childFormat = this.childIndicator.format.split('\n')[0].trim();
+            const childFormat = this.childIndicator.format.split('\n')[0].trim().toLowerCase();
             let value = '';
-            if (childFormat === 'multiselect') {
+            if (this.multiOptionFormats.includes(childFormat)) {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -209,9 +210,9 @@ export default {
 
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
                 this.selectableParents = this.indicators.filter(i => {
+                    const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
-                            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                            (i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect') === 0);  //dropdowns, multiselect parent only
+                        parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) && this.enabledParentFormats.includes(parFormat);
                 });
             }
             $.ajax({
@@ -401,7 +402,7 @@ export default {
             const parFormat = condition.parentFormat;
             switch(op){
                 case '==':
-                    return parFormat === 'multiselect' ? 'includes' : 'is';
+                    return this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
                 case '!=':
                     return 'is not';
                 case '>':
@@ -440,7 +441,7 @@ export default {
             const parentFormat = this.conditions.parentFormat.toLowerCase();
             const outcome = this.conditions.selectedOutcome.toLowerCase();
            
-            if(parentFormat === 'multiselect' && elSelectParent !== null && !elSelectParent.choicesjs) {
+            if(this.multiOptionFormats.includes(parentFormat) && elSelectParent !== null && !elSelectParent.choicesjs) {
                 let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
 
@@ -459,7 +460,7 @@ export default {
                 elSelectParent.choicesjs = choices;
             }
 
-            if(outcome === 'pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && elExistingChoicesChild === null) {
+            if(outcome === 'pre-fill' && this.multiOptionFormats.includes(childFormat) && elSelectChild !== null && elExistingChoicesChild === null) {
                 let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
                 
@@ -666,8 +667,8 @@ export default {
                             <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase() === 'pre-fill'">Pre-fill this Question</option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill'" class="input-info">Enter a pre-fill value</span>
-                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text -->
-                    <select v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && childFormat === 'dropdown'"
+                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
+                    <select v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
                         name="child-prefill-value-selector"
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)">
@@ -679,7 +680,7 @@ export default {
                             {{ val }} 
                         </option>
                     </select>
-                    <select v-else-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && conditions.childFormat === 'multiselect'"
+                    <select v-else-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && (conditions.childFormat === 'multiselect' || childFormat === 'checkboxes')"
                         placeholder="select some options"
                         multiple="true"
                         id="child_prefill_entry"
@@ -724,8 +725,8 @@ export default {
                         </select>
                     </div>
                     <div>    
-                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
-                        <select v-if="parentFormat === 'dropdown'"
+                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect, radio, checkboxes) -->
+                        <select v-if="parentFormat === 'dropdown' || parentFormat==='radio'"
                             id="parent_compValue_entry"
                             @change="updateSelectedParentValue($event.target)">
                             <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>    
@@ -734,7 +735,7 @@ export default {
                                 :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
                             </option>
                         </select>
-                        <select v-else-if="parentFormat === 'multiselect'"
+                        <select v-else-if="parentFormat === 'multiselect' || parentFormat==='checkboxes'"
                             id="parent_compValue_entry"
                             placeholder="select some options" multiple="true"
                             style="display: none;"
