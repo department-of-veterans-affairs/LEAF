@@ -67,9 +67,10 @@
         </a>
 
         <!--{if $siteType == 'national_primary'}-->
-        <a href="../report.php?a=LEAF_National_Distribution" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
+        <!-- <a href="../report.php?a=LEAF_National_Distribution" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue"> -->
+        <a href="#" onclick="alert('Temporarily disabled to resolve an issue. Please check back after 2/23/2023'); " role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
             <i class="leaf-admin-btnicon fas fa-sitemap text-blue-cool-50" alt="Site Distribution" title="Site Distribution"></i>
-            <span class="leaf-admin-btntitle">Site Distribution</span>
+            <span class="leaf-admin-btntitle" style="color: red">Site Distribution</span>
             <span class="leaf-admin-btndesc">Deploy changes to subordinate sites</span>
         </a>
         <!--{/if}-->
