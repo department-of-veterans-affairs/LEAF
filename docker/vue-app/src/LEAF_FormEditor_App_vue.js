@@ -73,8 +73,9 @@ export default {
             selectedFormTree: computed(() => this.selectedFormTree),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
-            activeCategories: computed(() => this.activeCategories),
-            inactiveCategories: computed(() => this.inactiveCategories),
+            activeForms: computed(() => this.activeForms),
+            inactiveForms: computed(() => this.inactiveForms),
+            supplementalForms: computed(() => this.supplementalForms),
             showCertificationStatus: computed(() => this.showCertificationStatus),
             selectedCategoryStapledForms: computed(() => this.selectedCategoryStapledForms),
             stapledFormsCatIDs: computed(() => this.stapledFormsCatIDs),
@@ -165,26 +166,32 @@ export default {
             return formID !== null ? this.categories[formID] : {};
         },
         /**
-         * 
-         * @returns {array} of categories object records
+         * not a stapled or internal form, has workflow and is visible
+         * @returns {array} of categories records
          */
-        activeCategories() {
+        activeForms() {
             let active = [];
             for (let c in this.categories) {
-                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) !== 0) {
-                    active.push({...this.categories[c]});
+                if (!this.stapledFormsCatIDs.includes(this.categories[c].categoryID) && 
+                    this.categories[c].parentID === '' && 
+                    parseInt(this.categories[c].workflowID) !== 0 && 
+                    parseInt(this.categories[c].visible) === 1) {
+                        active.push({...this.categories[c]});
                 }
             }
             return active;
         },
         /**
-         * 
-         * @returns {array} of categories object records
+         * not a stapled or internal form, has WF but is hidden
+         * @returns {array} of categories records
          */
-        inactiveCategories() {
+        inactiveForms() {
             let inactive = [];
             for (let c in this.categories) {
-                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) === 0) {
+                if (!this.stapledFormsCatIDs.includes(this.categories[c].categoryID) && 
+                    this.categories[c].parentID === '' && 
+                    parseInt(this.categories[c].workflowID) !== 0 && 
+                    parseInt(this.categories[c].visible) === 0) {
                     inactive.push({...this.categories[c]});
                 }
             }
@@ -198,11 +205,25 @@ export default {
             let internalForms = [];
             for(let c in this.categories) {
                 if (this.categories[c].parentID === this.currCategoryID) {
-                    const internal = {...this.categories[c]};
-                    internalForms.push(internal);
+                    internalForms.push({...this.categories[c]});
                 }
             }
             return internalForms;
+        },
+        /**
+         * forms that are staples or have no workflows
+         * @returns {array} of internal forms associated with the main form
+         */
+        supplementalForms() {
+            let supplementalForms = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === '' &&
+                    (this.stapledFormsCatIDs.includes(this.categories[c].categoryID) ||
+                    (parseInt(this.categories[c].workflowID) === 0 && parseInt(this.categories[c].visible) === 1))) {
+                    supplementalForms.push({...this.categories[c]});
+                }
+            }
+            return supplementalForms;
         },
         selectedCategoryStapledForms() {
             let staples = [];
@@ -253,7 +274,7 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}formStack/categoryList/allWithStaples`,
                     success: (res)=> {
-                        console.log('updated categories');
+                        console.log('got categories');
                         for(let i in res) {
                             this.categories[res[i].categoryID] = res[i];
                             res[i].stapledFormIDs.forEach(id => {
@@ -262,6 +283,7 @@ export default {
                                 }
                             });
                         }
+                        console.log('updated categories and staples ID list', res);
                         this.appIsLoadingCategoryList = false;
                         resolve(res);
                     },

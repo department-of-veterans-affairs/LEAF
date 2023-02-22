@@ -51,7 +51,8 @@ class FormStack
             sort, needToKnow, formLibraryID, visible, categories.disabled, categories.type,
             workflows.description AS workflowDescription FROM categories
             LEFT JOIN workflows ON categories.workflowID=workflows.workflowID
-            WHERE categories.workflowID >= 0 AND categories.disabled = 0";
+            WHERE categories.workflowID >= 0 AND categories.disabled = 0
+            ORDER BY sort, categoryName ASC";
 
         $res = $this->db->prepared_query($strSQL, null);
 

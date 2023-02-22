@@ -10,7 +10,6 @@ $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
 $lt_cyan: #E0F4FA;
-$BG_menu: #d8edff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 
 @mixin flexcenter {
@@ -94,8 +93,6 @@ a.router-link {
     border-radius: 3px;
 }
 
-
-
 nav#form-editor-nav {
     width: 100%;
 
@@ -138,8 +135,8 @@ nav#form-editor-nav {
         @include flexcenter;
         justify-content: flex-start;
         color: $charcoal;
-        background-color: $BG_menu;
-        border-bottom: 1px solid black;
+        background-color: $lt_cyan;
+        border-bottom: 1px solid $charcoal;
         position: relative;
         z-index: 10;
         margin-bottom: 1rem;
@@ -165,7 +162,7 @@ nav#form-editor-nav {
                 overflow: hidden;
                 flex-direction: column;
                 top: 100%;
-                background-color: lighten($BG_menu, 6%);
+                background-color: lighten($lt_cyan, 8%);
                 border-radius: 2px;
                 box-shadow: 1px 1px 4px 1px rgba(0,0,30,0.3);
                 transition: all 0.3s;
@@ -173,7 +170,7 @@ nav#form-editor-nav {
                     height: 32px;
                     
                     &:not(:first-child) {
-                        border-top: 1px solid $BG_menu;
+                        border-top: 1px solid $lt_cyan;
                     }
                 }
                 button, a {
@@ -192,7 +189,7 @@ nav#form-editor-nav {
             }
         }
         .manage {
-            background-color: $BG_menu;
+            background-color: $lt_cyan;
             span {
                 margin-left: auto;
                 color: transparent;
@@ -310,6 +307,35 @@ nav#form-editor-nav {
     }
 }
 
+#form_browser_tables table {
+    width: 100%;
+    background-color: white;
+    border-collapse: collapse;
+    border: 1px solid $charcoal;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+
+    td,th {
+        padding: 0.5rem;
+        border: 1px solid $charcoal;
+    }
+    th {
+        background-color: $charcoal;
+        color: white;
+    }
+    tr:not(.header-row) {
+        cursor: pointer;
+        border-bottom: 1px solid $charcoal;
+        &:hover, &:focus, &:active {
+            background-color: $lt_cyan;
+        }
+    }
+    .need-to-know-enabled {
+        @include flexcenter;
+        color: #c00;
+        font-size: 12px;
+    }
+}
 
 #indicator-editing-dialog-content {
     > div {
@@ -382,7 +408,6 @@ nav#form-editor-nav {
 }
 
 
-
 #edit-properties-panel {
     padding: 0;
     position: relative;
@@ -453,62 +478,12 @@ nav#form-editor-nav {
 }
 
 
-
-
 /* Form History modal */
 #history-slice td {
     font-size: 14px !important;
 }
 #history-page-buttons button#next, #history-slice button#prev {
     width: 135px;
-}
-
-
-
-/* form browser cards */
-.browser-category-card {
-    position: relative;
-    margin: 0 1rem 1rem 0;
-    width: 350px;
-    height: 180px;
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    cursor: pointer;
-    transition: box-shadow 0.3s ease;
-    border-radius: 4px;
-    color: black;
-    overflow: hidden;
-    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-
-    &:hover, &:focus, &:active {
-        box-shadow: 0 4px 6px 3px rgba(0,0,20,0.25); 
-    }
-    > div {
-        padding: 0.2rem 0.4rem;
-    }
-    .formPreviewTitle {
-        font-weight: bold;
-        padding: 0.4rem;
-    }
-    .formPreviewDescription {
-        height: 100%;
-        font-size: 14px;
-        line-height: 1.3;
-    }
-    .formPreviewStatus {
-        margin-top: auto;
-        font-size: 80%;
-        color: #cb0000;
-    }
-    .formPreviewWorkflow {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        color: white;
-        background-color: $BG-DarkNavy;
-    }
-    
 }
 
 div#form_content_view {
@@ -885,7 +860,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     color: black;
 }
 .choices__list.choices__list--dropdown.is-active .is-highlighted {
-    background-color: $BG_menu;
+    background-color: $lt_cyan;
     box-shadow: 0px 0px 1px 1px #00a5bb60 inset;
 }
 .choices__list[aria-expanded] .choices__item--selectable.is-highlighted::after {
@@ -957,10 +932,6 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
             flex-wrap: wrap;
             justify-content: space-between;
         }
-        #forms, #forms_inactive {
-            justify-content: center;
-        }
-
         div#form_content_view {
             margin: 0;
         }

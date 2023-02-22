@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import FormViewController from "../components/form_view/FormViewController";
-import RestoreFields from "../components/RestoreFields";
+import FormEditorView from "@/views/FormEditorView";
+import RestoreFieldsView from "@/views/RestoreFieldsView";
 
 /* if chunking.  would require ref updates
 const FormBrowser = () => import('../views/FormBrowser');
-const FormViewController = () => import('../components/form_view/FormViewController');
-const RestoreFields = () => import('../components/RestoreFields');
+const FormEditorView = () => import('../components/form_view/FormEditorView');
+const RestoreFieldsView = () => import('../components/RestoreFieldsView');
 */
 
 const routes = [
@@ -16,12 +16,12 @@ const routes = [
     {
         path: '/forms',
         name: 'category',
-        component: FormViewController
+        component: FormEditorView
     },
     {
         path: '/restore',
         name: 'restore',
-        component: RestoreFields
+        component: RestoreFieldsView
     },
 ];
 
