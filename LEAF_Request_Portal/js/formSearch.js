@@ -188,6 +188,7 @@ var LeafFormSearch = function(containerID) {
 							$('#' + prefixID + 'widgetIndicator_' + widgetID).val(indicatorID);
 							$('#' + prefixID + 'widgetIndicator_' + widgetID).trigger('chosen:updated');
 							$('#' + prefixID + 'widgetCod_' + widgetID).val(operator);
+                            $('#' + prefixID + 'widgetCod_' + widgetID).trigger('change');
 							$('#' + prefixID + 'widgetCod_' + widgetID).trigger('chosen:updated');
 							$('#' + prefixID + 'widgetMat_' + widgetID).val(match.replace(/\*/g, ''));
 							$('#' + prefixID + 'widgetMat_' + widgetID).trigger('chosen:updated');
@@ -458,6 +459,25 @@ var LeafFormSearch = function(containerID) {
 	}
 
 	/**
+     * Render the query match condition's input type for dropdown and radio fields
+     * @param widgetID
+     * @param options <select> html section matching the widgetID
+	 * @memberOf LeafFormSearch
+	 */
+    function renderSingleSelectInputType(widgetID, options) {
+        switch($('#' + prefixID + 'widgetCod_' + widgetID).val()) {
+            case 'LIKE':
+            case 'NOT LIKE':
+                $('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
+                break;
+            default:
+                $('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
+                chosenOptions();
+                break;
+        }
+    }
+
+	/**
 	 * @memberOf LeafFormSearch
 	 */
 	function renderWidget(widgetID, callback) {
@@ -706,6 +726,8 @@ var LeafFormSearch = function(containerID) {
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\
                                                     <option value="=">IS</option>\
                                                     <option value="!=">IS NOT</option>\
+													<option value="LIKE">CONTAINS</option>\
+													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 								            		<option value=">">></option>\
 								            		<option value=">=">>=</option>\
 								            		<option value="<"><</option>\
@@ -719,8 +741,12 @@ var LeafFormSearch = function(containerID) {
 												options += '<option value="'+ currOption +'">'+ currOption +'</option>';
 											}
 											options += '</select>';
-											$('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
-											chosenOptions();
+
+                                            renderSingleSelectInputType(widgetID, options);
+
+                                            $(`#${prefixID}widgetCod_${widgetID}`).on('change', function() {
+                                                renderSingleSelectInputType(widgetID, options);
+                                            });
 											break;
 										default:
 											$('#' + prefixID + 'widgetCondition_' + widgetID).html('<select id="'+prefixID+'widgetCod_'+widgetID+'" class="chosen" aria-label="condition" style="width: 120px">\

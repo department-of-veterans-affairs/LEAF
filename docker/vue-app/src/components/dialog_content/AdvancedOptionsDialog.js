@@ -13,6 +13,7 @@ export default {
     },
     inject: [
         'APIroot',
+        'libsPath',
         'CSRFToken',
         'closeFormDialog',
         'currCategoryID',
@@ -171,7 +172,7 @@ export default {
                 <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     html (for pages where the user can edit data): 
                     <button id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
-                        <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="" />
+                        <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_html"></span>
                     </button>
                 </div>
@@ -179,7 +180,7 @@ export default {
                 <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     htmlPrint (for pages where the user can only read data): 
                     <button id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
-                        <img id="saveIndicator" src="../../libs/dynicons/?img=media-floppy.svg&w=16" alt="" />
+                        <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_htmlPrint"></span>
                     </button>
                 </div>
