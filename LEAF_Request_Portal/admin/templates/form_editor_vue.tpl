@@ -1,10 +1,12 @@
 <div id="vue-formeditor-app">
+    <mod-form-menu></mod-form-menu>
     <div style="display:none" id="subordinate_site_warning">
         <h3>This is a Nationally Standardized Subordinate Site</h3>
         <span>Do not make modifications! &nbsp;Synchronization problems will occur. &nbsp;Please contact your process POC if modifications need to be made.</span>
     </div>
-    <mod-form-menu></mod-form-menu>
-    <router-view></router-view>
+    <main>
+        <router-view></router-view>
+    </main>
     <!-- DIALOGS -->
     <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>  
         <template #dialog-content-slot>

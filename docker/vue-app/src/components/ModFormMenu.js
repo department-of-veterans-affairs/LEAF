@@ -2,7 +2,10 @@ export default {
     data() {
         return {
             internalMenuOpen: false,
-            staplesMenuOpen: false
+            internalMenuPinned: false,
+            staplesMenuOpen: false,
+            staplesMenuPinned: false,
+            buttonHeight: 32
         }
     },
     inject: [
@@ -104,9 +107,26 @@ export default {
             const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
             return this.truncateText(name, len).trim();
         },
+        toggleInternalMenu() {
+            this.internalMenuPinned = !this.internalMenuPinned;
+            this.internalMenuOpen = this.internalMenuPinned;
+        },
+        hoverInternalMenu() {
+            if (!this.internalMenuPinned) {
+                this.internalMenuOpen = !this.internalMenuOpen;
+            }
+        },
+        toggleStaplesMenu() {
+            this.staplesMenuPinned = !this.staplesMenuPinned;
+            this.staplesMenuOpen = this.staplesMenuPinned;
+        },
+        hoverStaplesMenu() {
+            if (!this.staplesMenuPinned) {
+                this.staplesMenuOpen = !this.staplesMenuOpen;
+            }
+        }
     },
-    template: `<header id="form-editor-header">
-        <nav>
+    template: `<nav id="form-editor-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
             <ul v-if="currCategoryID === null" id="form-editor-menu">
                 <li v-if="$route.name === 'restore'">
@@ -115,15 +135,15 @@ export default {
                     </router-link>                
                 </li>
                 <li>
-                    <button id="createFormButton" @click="openNewFormDialog">
+                    <button type="button" id="createFormButton" @click="openNewFormDialog">
                         Create Form<span role="img" aria="">📄</span>
                     </button>
                 </li>
                 <li>
-                    <a href="./?a=formLibrary">LEAF Library<span role="img" aria="">📘</span></a>
+                    <a href="./?a=formLibrary" class="router-link">LEAF Library<span role="img" aria="">📘</span></a>
                 </li>
                 <li>
-                    <button @click="openImportFormDialog">
+                    <button type="button" @click="openImportFormDialog">
                         Import Form<span role="img" aria="">📦</span>
                     </button>
                 </li>
@@ -135,41 +155,61 @@ export default {
             </ul>
             <!-- FORM EDITING MENU -->
             <ul v-else id="form-editor-menu">
-                <li v-if="selectedFormTree.length !== 0" @keyup.tab.stop="internalMenuOpen=true"
-                    @mouseover="internalMenuOpen=true" @mouseleave="internalMenuOpen=false">
-
-                    <button @click="openNewFormDialog" title="add new internal use form">
-                        Add Internal-Use<span role="img" aria="">➕</span>
+                <li v-if="selectedFormTree.length !== 0">
+                    <button type="button" id="toggle-internal" @click.stop="toggleInternalMenu"
+                        @mouseover="hoverInternalMenu" title="View Internal Use Options and Forms">
+                        Internal Use<span role="img" aria="">📄</span>
                     </button>
-                    <ul v-if="internalForms.length > 0" id="internalForms"
-                        :style="{'height': internalMenuOpen ? 40 * internalForms.length + 'px' : 0,
+                    
+                    <ul id="internalForms" @mouseleave="hoverInternalMenu"
+                        :style="{'height': internalMenuOpen ? buttonHeight * internalForms.length + buttonHeight + 'px' : 0,
                                  'opacity': internalMenuOpen ? 1 : 0}">
-                        <li v-for="i in internalForms" :key="'internal_' + i.categoryID">
-                            <button :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                                {{shortFormNameStripped(i.categoryID, 22)}}
+                        <li v-show="internalMenuOpen">
+                            <button type="button" @click="openNewFormDialog" title="New Internal-Use Form" class="manage">
+                                Add New Internal-Use
+                                <span role="img" aria="">➕</span>
+                            </button>
+                        </li>
+                        <li v-show="internalMenuOpen" v-for="i in internalForms" :key="'internal_' + i.categoryID">
+                            <button type="button" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
+                                {{shortFormNameStripped(i.categoryID, 28)}}
                             </button>
                         </li>
                     </ul>
                 </li>
-                <li v-if="!stapledFormsCatIDs.includes(currCategoryID)" @keyup.tab.stop="staplesMenuOpen=true; internalMenuOpen=false"
-                    @mouseover="staplesMenuOpen=true" @mouseleave="staplesMenuOpen=false">
+                <template v-if="selectedFormTree.length !== 0">
+                    <li v-if="!stapledFormsCatIDs.includes(currCategoryID)">
+                        <button type="button" id="toggle-staples" @click.stop="toggleStaplesMenu"
+                            @mouseover="hoverStaplesMenu" title="View Staple Options and Forms">
+                            Stapled Forms<span role="img" aria="">📌</span>
+                        </button>
 
-                    <button @click="openStapleFormsDialog" title="staple another form">
-                        Edit Stapled Forms<span role="img" aria="">📌</span>
-                    </button>
-                    <ul v-show="selectedCategoryStapledForms.length > 0" id="stapledForms"
-                        :style="{'height': staplesMenuOpen ? 40 * selectedCategoryStapledForms.length + 'px' : 0,
-                                 'opacity': staplesMenuOpen ? 1 : 0}">
-                        <li v-for="s in selectedCategoryStapledForms" 
-                            :key="'staple_' + s.stapledCategoryID">
-                            <button @click="selectMainForm(s.categoryID)">
-                                {{shortFormNameStripped(s.categoryID, 22) || 'Untitled'}}
-                            </button>
-                        </li>
-                    </ul>
-                </li>
+                        <ul id="stapledForms" @mouseleave="hoverStaplesMenu"
+                            :style="{'height': staplesMenuOpen ? buttonHeight * selectedCategoryStapledForms.length + buttonHeight + 'px' : 0,
+                                    'opacity': staplesMenuOpen ? 1 : 0}">
+
+                            <li v-show="staplesMenuOpen">
+                                <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms" class="manage">
+                                    Manage Stapled Forms
+                                    <span role="img" aria="">➕</span>
+                                </button>
+                            </li>
+                            <li v-show="staplesMenuOpen" v-for="s in selectedCategoryStapledForms" 
+                                :key="'staple_' + s.stapledCategoryID">
+                                <button type="button" @click="selectMainForm(s.categoryID)">
+                                    {{shortFormNameStripped(s.categoryID, 28) || 'Untitled'}}
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
+                    <li v-else>
+                        <button type="button">
+                            This form is merged
+                        </button>
+                    </li>
+                </template>
                 <li>
-                    <button @click="openFormHistoryDialog" title="view form history">
+                    <button type="button" @click="openFormHistoryDialog" title="view form history">
                         View History<span role="img" aria="">🕗</span>
                     </button>
                 </li>
@@ -210,6 +250,5 @@ export default {
                     </button>
                 </li>
             </ul>
-        </nav>
-    </header>`
+        </nav>`
 };
