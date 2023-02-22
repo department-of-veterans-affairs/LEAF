@@ -126,19 +126,25 @@ class FormEditor
 
     public function setFormat($indicatorID, $format)
     {
-        $vars = array(':indicatorID' => $indicatorID,
-                      ':format' => trim($format), );
+        if(strlen($format) > 65535) {
+            $result = 'size limit exceeded';
 
-        $result = $this->db->prepared_query('UPDATE indicators
-                    SET format=:format
-                    WHERE indicatorID=:indicatorID', $vars);
+        } else {
+            $vars = array(
+                ':indicatorID' => $indicatorID,
+                ':format' => trim($format),
+            );
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY,\LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "format", $format)
-        ]);  
+            $result = $this->db->prepared_query('UPDATE indicators
+                        SET format=:format
+                        WHERE indicatorID=:indicatorID', $vars);
 
+            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
+                new LogItem("indicators", "indicatorID", $indicatorID),
+                new LogItem("indicators", "categoryID", $this->getCategoryID($indicatorID)),
+                new LogItem("indicators", "format", $format)
+            ]);
+        }
         return $result;
     }
 

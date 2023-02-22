@@ -20,7 +20,8 @@ import './LEAF_IfThen.scss';
 export default {
     data() {
         return {
-            APIroot: '../api/',
+            APIroot: APIroot,
+            libsPath: libsPath,
             CSRFToken: CSRFToken,
             siteSettings: {},
             showCertificationStatus: false,
@@ -86,6 +87,7 @@ export default {
             internalForms: computed(() => this.internalForms),
             //static values
             APIroot: this.APIroot,
+            libsPath: this.libsPath,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
@@ -388,15 +390,16 @@ export default {
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
                     if (this.currentCategoryID === null) {
                         if (Object.keys(unresolvedLeafSRequests).length === 0) { // if no new request, create one
-                            document.getElementById('secureStatus').innerText = 'Forms have been modified.';
-                            document.getElementById('secureBtn').innerText = 'Please Recertify Your Site';
+                            document.getElementById('secureStatus')?.setAttribute('innerText', 'Forms have been modified.');
+                            document.getElementById('secureBtn')?.setAttribute('innerText', 'Please Recertify Your Site');
                             document.getElementById('secureBtn')?.setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
                         } else {
                             const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
-                            document.getElementById('secureStatus').innerText = 'Re-certification in progress.';
-                            document.getElementById('secureBtn').innerText = 'Check Certification Progress';
+                            document.getElementById('secureStatus')?.setAttribute('innerText', 'Re-certification in progress.');
+                            document.getElementById('secureBtn')?.setAttribute('innerText', 'Check Certification Progress');
                             document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
                         }
+
                     }
                 }).catch(err => console.log('an error has occurred', err));
             }

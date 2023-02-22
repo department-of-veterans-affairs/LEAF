@@ -12,6 +12,7 @@ var LeafForm = function(containerID) {
     var dialog;
     var recordID = 0;
     var postModifyCallback;
+    let rootURL = '';
 
     $('#' + containerID).html('<div id="'+prefixID+'xhrDialog" style="display: none; background-color: white; border-style: none solid solid; border-width: 0 1px 1px; border-color: #e0e0e0; padding: 4px">\
             <form id="'+prefixID+'record" enctype="multipart/form-data" action="javascript:void(0);">\
@@ -499,7 +500,7 @@ var LeafForm = function(containerID) {
 
         $.ajax({
             type: 'POST',
-            url: 'ajaxIndex.php?a=domodify',
+            url: rootURL + 'ajaxIndex.php?a=domodify',
             data: data,
             dataType: 'text',
             success: function(res) {
@@ -528,7 +529,7 @@ var LeafForm = function(containerID) {
         formConditions = new Object();
         $.ajax({
             type: 'GET',
-            url: "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
+            url: rootURL + "ajaxIndex.php?a=getindicator&recordID=" + recordID + "&indicatorID=" + indicatorID + "&series=" + series,
             dataType: 'text',
             success: function(response) {
                 dialog.setTitle('Editing #' + recordID);
@@ -576,12 +577,13 @@ var LeafForm = function(containerID) {
         dialog: function() { return dialog; },
         getHtmlFormID: function() { return htmlFormID; },
         serializeData: function() { return $('#' + htmlFormID).serialize(); },
+		setRootURL: function(url) { rootURL = url; },
 
         setRecordID: setRecordID,
         setPostModifyCallback: setPostModifyCallback,
         doModify: doModify,
         getForm: getForm,
         initCustom: initCustom,
-        setHtmlFormID: setHtmlFormID
+        setHtmlFormID: setHtmlFormID,
     }
 };

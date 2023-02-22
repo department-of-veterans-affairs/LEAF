@@ -197,29 +197,29 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-
+        $libsPath = '../../libs/';
+        
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            '../../libs/js/filesaver/FileSaver.min.js',
-                                            '../../libs/js/codemirror/lib/codemirror.js',
-                                            '../../libs/js/codemirror/mode/xml/xml.js',
-                                            '../../libs/js/codemirror/mode/javascript/javascript.js',
-                                            '../../libs/js/codemirror/mode/css/css.js',
-                                            '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                            '../../libs/js/codemirror/addon/display/fullscreen.js',
-                                            '../../libs/js/LEAF/XSSHelpers.js',
-                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
-                                            '../../libs/js/choicesjs/choices.min.js',
+        $main->assign('javascripts', array($libsPath.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            $libsPath.'js/codemirror/lib/codemirror.js',
+                                            $libsPath.'js/codemirror/mode/xml/xml.js',
+                                            $libsPath.'js/codemirror/mode/javascript/javascript.js',
+                                            $libsPath.'js/codemirror/mode/css/css.js',
+                                            $libsPath.'js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            $libsPath.'js/codemirror/addon/display/fullscreen.js',
+                                            $libsPath.'js/LEAF/XSSHelpers.js',
+                                            $libsPath.'js/choicesjs/choices.min.js',
                                             '../js/formQuery.js'
         ));
-        $main->assign('stylesheets', array('../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-                                            '../../libs/js/codemirror/lib/codemirror.css',
-                                            '../../libs/js/codemirror/addon/display/fullscreen.css',
-                                            '../../libs/js/choicesjs/choices.min.css'
+        $main->assign('stylesheets', array($libsPath.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            $libsPath.'js/codemirror/lib/codemirror.css',
+                                            $libsPath.'js/codemirror/addon/display/fullscreen.css',
+                                            $libsPath.'js/choicesjs/choices.min.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('libsPath', $libsPath);
         $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));

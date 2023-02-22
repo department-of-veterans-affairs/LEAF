@@ -12,6 +12,7 @@ export default {
         column: Number
     },
     inject: [
+        'libsPath',
         'gridJSON',
         'updateGridJSON'
     ],
@@ -117,17 +118,17 @@ export default {
     template:`<div :id="id" class="cell">
         <img v-if="column !== 1" role="button" tabindex="0"
             @click="moveLeft" @keypress.space.enter.prevent="moveLeft"
-            src="../../libs/dynicons/?img=go-previous.svg&w=16" 
-            title="Move column left" alt="Move column left" style="cursor: pointer" />
+            :src="libsPath + 'dynicons/svg/go-previous.svg'" style="width: 16px; cursor: pointer"
+            title="Move column left" alt="Move column left"  />
         <img v-if="column !== gridJSON.length" role="button" tabindex="0" 
             @click="moveRight"  @keypress.space.enter.prevent="moveRight" 
-            src="../../libs/dynicons/?img=go-next.svg&w=16" 
-            title="Move column right" alt="Move column right" style="cursor: pointer" /><br />
+            :src="libsPath + 'dynicons/svg/go-next.svg'" style="width: 16px; cursor: pointer"
+            title="Move column right" alt="Move column right" /><br />
         <span class="columnNumber">
             <span>Column #{{column}}:</span>
             <img v-if="gridJSON.length !== 1" role="button" tabindex="0"
             @click="deleteColumn" @keypress.space.enter.prevent="deleteColumn"
-            src="../../libs/dynicons/?img=process-stop.svg&w=16" 
+            :src="libsPath + 'dynicons/svg/process-stop.svg'" style="width: 16px; cursor: pointer"
             title="Delete column" alt="Delete column" />
         </span>
         <label :for="'gridcell_title_' + id">Title:</label>
