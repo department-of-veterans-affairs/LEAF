@@ -95,7 +95,7 @@ abstract class RESTfulResponse
 
                 if ($_SERVER['REQUEST_METHOD'] === 'GET')
                 {
-                    $etag = md5($jsonOut);
+                    $etag = '"' . md5($jsonOut) . '"';
                     header_remove('Pragma');
                     header_remove('Cache-Control');
                     header_remove('Expires');
