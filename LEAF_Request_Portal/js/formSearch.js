@@ -269,7 +269,7 @@ var LeafFormSearch = function(containerID) {
 			if(txt != "" && txt != q) {
 				q = txt;
 
-				if(currRequest != null) {
+				if(currRequest != null && currRequest.abort != undefined && typeof currRequest.abort == 'function') {
 					currRequest.abort();
 				}
 
