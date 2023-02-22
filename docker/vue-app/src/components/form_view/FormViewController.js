@@ -15,11 +15,6 @@ export default {
             showToolbars: true
         }
     },
-    props: {
-        orgchartPath: {
-            type: String
-        }
-    },
     components: {
         FormEditingDisplay,
         FormIndexListing,
@@ -55,7 +50,6 @@ export default {
         return {
             listItems: computed(() => this.listItems),
             showToolbars: computed(() => this.showToolbars),
-            orgchartPath: this.orgchartPath,
             addToListItemsObject: this.addToListItemsObject,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,

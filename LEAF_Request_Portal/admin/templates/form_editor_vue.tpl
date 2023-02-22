@@ -21,6 +21,7 @@
     const CSRFToken = '<!--{$CSRFToken}-->';
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
+    const orgchartPath = '<!--{$orgchartPath}-->';
     
     let postRenderFormBrowser;
 

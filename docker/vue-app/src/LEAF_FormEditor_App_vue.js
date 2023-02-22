@@ -22,6 +22,7 @@ export default {
         return {
             APIroot: APIroot,
             libsPath: libsPath,
+            orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
             siteSettings: {},
             showCertificationStatus: false,
@@ -88,6 +89,7 @@ export default {
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            orgchartPath: this.orgchartPath,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
