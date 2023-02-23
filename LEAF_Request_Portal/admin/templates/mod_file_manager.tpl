@@ -69,7 +69,10 @@ function deleteFile(file) {
             success: function() {
                 showFiles();
                 dialog_confirm.hide();
-            }
+            },
+            error: function(err) {
+                console.log('an error occurred during file deletion', err)
+            },
         });
     });
     dialog_confirm.show();
