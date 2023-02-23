@@ -344,6 +344,8 @@ switch ($action) {
            break;
     case 'bookmarks':
         $view = new Portal\View($db, $login);
+        $bookmarks = $view->buildViewBookmarks($login->getUserID());
+        error_log(print_r($bookmarks, true));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -352,7 +354,7 @@ switch ($action) {
         $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('empMembership', $login->getMembership());
 
-        $t_form->assign('bookmarks', $view->buildViewBookmarks($login->getUserID()));
+        $t_form->assign('bookmarks', $bookmarks);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_form->fetch('view_bookmarks.tpl'));
 

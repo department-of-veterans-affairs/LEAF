@@ -4,552 +4,597 @@
  */
 
 /*
-    Group
-    Date Created: April 29, 2010
+    Inbox
+    Date Created: June 1, 2011
 
-    Handler for user groups for the resource management web app
 */
 
 namespace Portal;
 
-class Group
+class Inbox
 {
-    /**
-     * @var \Leaf\Db
-     */
+    public $form;
+
     private $db;
 
-    /**
-     * @var Login
-     */
     private $login;
 
-    /**
-     * @var \Leaf\DataActionLogger
-     */
-    private $dataActionLogger;
+    private $cache = array();
 
-    /**
-     * @param \Leaf\Db $db
-     * @param Login $login
-     * @param \Leaf\DataActionLogger $dataActionLogger
-     */
-    public function __construct(\Leaf\Db $db, Login $login)
+    private $dir;
+
+    public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->form = new Form($db, $login);
     }
 
     /**
-     * Logging the imported group
-     * @param string $groupName
-     *
-     * @return void
+     * Retrieve the current user's inbox
+     * @param int Optional dependencyID to filter inbox based on the dependencyID
+     * @return array database result
      */
-    public function importGroup($groupName): void
+    public function getInbox($dependencyID = 0)
     {
-        // Log group imports
-        $this->dataActionLogger->logAction(\Leaf\DataActions::IMPORT, \Leaf\LoggableTypes::PORTAL_GROUP, [
-            new \Leaf\LogItem("users", "groupID", $groupName, $groupName)
-        ]);
-    }
-
-    /**
-     * Logging the add group
-     * @param string $groupName
-     *
-     * @return void
-     */
-    public function addGroup($groupName): void
-    {
-        // Log group creates
-        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PORTAL_GROUP, [
-            new \Leaf\LogItem("groups", "name", $groupName, $groupName)
-        ]);
-    }
-
-    /**
-     * [Description for syncImportGroup]
-     *
-     * @param array $group
-     *
-     * @return array
-     *
-     * Created at: 9/15/2022, 8:37:30 AM (America/New_York)
-     */
-    public function syncImportGroup(array $group): array
-    {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::IMPORT, \Leaf\LoggableTypes::PORTAL_GROUP, [
-            new \Leaf\LogItem("users", "groupID", $group['name'], $group['name'])
-        ]);
-
-        $sql_vars = array(':groupID' => $group['groupID'],
-                    ':parentGroupID' => $group['parentGroupID'],
-                    ':name' => $group['name'],);
-
-        $return_value = $this->db->prepared_query('INSERT INTO groups (groupID, parentGroupID, name)
-                                                    VALUES (:groupID, :parentGroupID, :name)
-                                                    ON DUPLICATE KEY UPDATE name=:name', $sql_vars);
-
-        return (array) $return_value;
-    }
-
-    /**
-     * @param int $groupID
-     *
-     * @return bool|string
-     */
-    public function removeGroup($groupID): bool|string
-    {
-        if ($groupID != 1)
+        $vars = array();
+        $tmpQuery = '';
+        if ($dependencyID != 0 && is_numeric($dependencyID))
         {
-            $sql_vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $sql_vars);
-
-            if (isset($res[0]) && $res[0]['parentGroupID'] == null)
-            {
-                // Log group deletes
-                $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PORTAL_GROUP, [
-                    new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-                ]);
-
-                $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
-                $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $sql_vars);
-
-                $return_value = true;
-            } else {
-                $return_value = false;
-            }
-        } else {
-            $return_value = 'Cannot remove group.';
+            $tmpQuery = " AND dependencyID = :dependencyID";
+            $vars = array("dependencyID" => $dependencyID);
         }
 
-        return $return_value;
-    }
+        $out = array();
+        $res = $this->db->prepared_query("SELECT * FROM records_workflow_state
+        									  LEFT JOIN records USING (recordID)
+        									  LEFT JOIN workflow_steps USING (stepID)
+        									  LEFT JOIN step_dependencies USING (stepID)
+        									  LEFT JOIN dependency_privs USING (dependencyID)
+        									  LEFT JOIN dependencies USING (dependencyID)
+        									  LEFT JOIN services USING (serviceID)
+        									  LEFT JOIN records_dependencies USING (recordID, dependencyID)
+        									  WHERE filled = 0 and deleted = 0{$tmpQuery}", $vars);
 
-    /**
-     * [Description for removeUser]
-     *
-     * @param string $userID
-     * @param int $groupID
-     * @param string $backupID
-     *
-     * @return array
-     *
-     * Created at: 9/15/2022, 8:51:59 AM (America/New_York)
-     */
-    public function removeUser(string $userID, int $groupID, string|null $backupID): array
-    {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-            ]);
+        // build temporary list for request types
+        $res2 = $this->db->prepared_query('SELECT recordID, categoryName FROM records
+        							LEFT JOIN category_count USING (recordID)
+        							LEFT JOIN categories USING (categoryID)
+        							WHERE deleted = 0
+        								AND disabled = 0
+        								AND workflowID != 0', array());
 
-        if ($backupID == null) {
-            $sql_vars = array(':userID' => $userID,
-                            ':groupID' => $groupID,);
-
-            $result = $this->db->prepared_query('DELETE FROM users
-                                WHERE userID=:userID
-                                AND groupID=:groupID
-                                AND backupID IS NULL',
-                                $sql_vars);
-        } else {
-            $sql_vars = array(':userID' => $userID,
-                            ':groupID' => $groupID,
-                            ':backupID' => $backupID, );
-
-            $result = $this->db->prepared_query('DELETE FROM users
-                                WHERE userID=:userID
-                                AND groupID=:groupID
-                                AND backupID=:backupID',
-                                $sql_vars);
+        $formCategories = array();
+        foreach ($res2 as $category)
+        {
+            $formCategories[$category['recordID']][] = $category['categoryName'];
         }
 
-        return (array) $result;
-    }
-
-    /**
-     *
-     * @return void
-     *
-     * Created at: 12/8/2022, 10:45:57 AM (America/New_York)
-     */
-    public function cleanDb(): void
-    {
-        $sql_vars = array(':locallyManaged' => 0,
-                          ':active' => 0);
-
-        $sql = 'DELETE
-                FROM users
-                WHERE locallyManaged = :locallyManaged
-                AND active = :active';
-
-        $this->db->prepared_query($sql, $sql_vars);
-    }
-
-    /**
-     * return array of userIDs
-     * @param int $groupID
-     *
-     * @return array|string
-     */
-    public function getMembers($groupID): array|string
-
-    {
-        if (!is_numeric($groupID))
+        // build inbox data
+        $personDesignatedRecords = array(); // array[indicatorID][] = recordID
+        $groupDesignatedRecords = array(); // array[indicatorID][] = recordID
+        $numRes = count($res);
+        if ($numRes > 0)
         {
-            $return_value = "invalid group ID";
-        } else {
-            $sql_vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
-
-            $members = array();
-            if (count($res) > 0)
+            // bundle requests that use dynamically assigned approvers
+            for ($i = 0; $i < $numRes; $i++)
             {
-                $dir = new VAMC_Directory();
-                foreach ($res as $member)
+                if (!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']]))
                 {
-                    $dirRes = $dir->lookupLogin($member['userID'], false, true);
-
-                    if (isset($dirRes[0]))
+                    // dependencyID -1 is for a person designated by the requestor
+                    if ($res[$i]['dependencyID'] == -1)
                     {
-                        $dirRes[0]['regionallyManaged'] = false;
-                        foreach ($dirRes[0]['groups'] as $group)
-                        {
-                            if ($groupID == $group['groupID']){
-                                $dirRes[0]['regionallyManaged'] = true;
-                            }
-                        }
-                        if($groupID == 1)
-                        {
-                            $dirRes[0]['primary_admin'] = $member['primary_admin'];
-                        }
-                        if($member['locallyManaged'] == 1) {
-                            $dirRes[0]['backupID'] = null;
-                        } else {
-                            $dirRes[0]['backupID'] = $member['backupID'];
-                        }
-                        $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
-                        $dirRes[0]['active'] = $member['active'];
+                        $personDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']][] = $res[$i]['recordID'];
+                    }
 
-                        $members[] = $dirRes[0];
+                    // dependencyID -3 is for a group designated by the requestor
+                    if ($res[$i]['dependencyID'] == -3)
+                    {
+                        $groupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']][] = $res[$i]['recordID'];
                     }
                 }
             }
 
-            $col = array_column( $members, "lastName" );
-            array_multisort( $col, SORT_ASC, $members );
-
-            $return_value = $members;
-        }
-
-        return $return_value;
-    }
-
-    /**
-     * @param string $member
-     * @param int $groupID
-     *
-     * @return void
-     */
-    public function addMember($member, $groupID): void
-    {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
-        if (is_numeric($groupID)) {
-            $sql_vars = array(':userID' => $member,
-                ':groupID' => $groupID,);
-
-            // Update on duplicate keys
-            $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
-                                                    VALUES (:userID, :groupID, null, 1, 1)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $sql_vars);
-
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-            ]);
-
-            // include the backups of employees
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $emp[0]['userName'],);
-
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
-
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 1) {
-                    $sql_vars[':backupID'] = null;
-                } else {
-                    $sql_vars[':backupID'] = $emp[0]['userName'];
-                }
-                // Add backupID check for updates
-                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
-            }
-        }
-    }
-
-    /**
-     * [Description for importUser]
-     *
-     * @param string $userID
-     * @param int $groupID
-     * @param string $backupID
-     *
-     * @return array
-     *
-     * Created at: 9/15/2022, 9:30:20 AM (America/New_York)
-     */
-    public function importUser(string $userID, int $groupID, string|null $backupID): array
-    {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-            new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
-            new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-        ]);
-
-        $sql_vars = array(':userID' => $userID,
-                        ':groupID' => $groupID,
-                        ':backupID' => $backupID,);
-
-        $result = $this->db->prepared_query('INSERT INTO users (groupID, userID, backupID)
-                                                    VALUES (:groupID, :userID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
-
-        return (array) $result;
-    }
-
-    /**
-     * @param string $member
-     * @param int $groupID
-     *
-     * @return void
-     */
-    public function deactivateMember($member, $groupID): void
-    {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
-        if (is_numeric($groupID) && $member != '')
-        {
-            $sql_vars = array(':userID' => $member,
-                          ':groupID' => $groupID, );
-
-            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-            ]);
-
-            $this->db->prepared_query('UPDATE users SET active = 0, locallyManaged = 1 WHERE userID=:userID AND groupID=:groupID', $sql_vars);
-
-            // include the backups of employee
-
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $member,);
-
-                $res = $this->db->prepared_query('SELECT locallyManaged FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 0) {
-                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param string $member
-     * @param int $groupID
-     *
-     * @return void
-     */
-    public function removeMember($member, $groupID): void
-    {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
-        if (is_numeric($groupID) && $member != '')
-        {
-            $sql_vars = array(':userID' => $member,
-                          ':groupID' => $groupID, );
-
-            $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-            ]);
-
-            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
-
-            // include the backups of employee
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $member,);
-
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 0) {
-                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-                }
-            }
-        }
-    }
-
-    /**
-     * exclude: 0 (no group), 24, (everyone), 16 (service chief)
-     *
-     * @return array
-     */
-    public function getGroups(): array
-    {
-        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID != 0 ORDER BY name ASC', array());
-
-        return $res;
-    }
-
-    /**
-     * Purpose - Get list of groups for API display
-     *
-     * @return array
-     *
-     * Created at: 10/3/2022, 6:54:39 AM (America/New_York)
-     */
-    public function getGroupsList(): array
-    {
-        $res = $this->db->query('SELECT groupID, name FROM `groups` WHERE groupID > 1 AND parentGroupID IS NULL ORDER BY name');
-
-        return (array) $res;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGroupsAndMembers(): array
-    {
-        $groups = $this->getGroups();
-
-        $list = array();
-        foreach ($groups as $group)
-        {
-            if ($group['groupID'] > 0)
+            // pull data for requestor designated approvers
+            $resPersonDesignatedRecords = array(); // array[indicatorID] of DB results
+            $resGroupDesignatedRecords = array(); // array[indicatorID] of DB results
+            foreach ($personDesignatedRecords as $indicatorID => $recordIDList)
             {
-                $group['members'] = $this->getMembers($group['groupID']);
-                $list[] = $group;
+              foreach ($recordIDList as $key => $recordID)
+              {
+                  //casting as an int to prevent sql injection
+                  $recordIDList[$key] = (int)$recordID;
+
+              }
+                $recordIDs = implode(',', $recordIDList);
+                $vars = array(':indicatorID' => $indicatorID);
+                $resPersonDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
+                                                                    LEFT JOIN indicators USING (indicatorID)
+                                                                    WHERE recordID IN ({$recordIDs})
+                                                                        AND data.data REGEXP '^[0-9]+$'
+                                                                        AND indicatorID=:indicatorID
+                                                                        AND series=1", $vars);
+            }
+            foreach ($groupDesignatedRecords as $indicatorID => $recordIDList)
+            {
+                $recordIDs = implode(',', $recordIDList);
+                $vars = array(':indicatorID' => $indicatorID);
+                $resGroupDesignatedRecords[$indicatorID] = $this->db->prepared_query("SELECT * FROM data
+                                                                    LEFT JOIN indicators USING (indicatorID)
+                                                                    WHERE recordID IN ({$recordIDs})
+                                                                        AND indicatorID=:indicatorID
+                                                                        AND series=1", $vars);
+            }
+
+            // apply access rules
+            for ($i = 0; $i < $numRes; $i++)
+            {
+                if (!isset($out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']]))
+                {
+                    // populate request type
+                    if (is_array($formCategories[$res[$i]['recordID']]))
+                    {
+                        foreach ($formCategories[$res[$i]['recordID']] as $categoryName)
+                        {
+                            $res[$i]['categoryNames'] = isset($res[$i]['categoryNames']) ? $res[$i]['categoryNames'] . $categoryName . ' | ' : $categoryName . ' | ';
+                        }
+                        $res[$i]['categoryNames'] = trim($res[$i]['categoryNames'], ' | ');
+                    }
+
+                    // Initialize to no access to everything by default, unless the user is an admin
+                    $res[$i]['hasAccess'] = $this->login->checkGroup(1);
+
+                    // check permissions
+                    $res2 = null;
+                    if (isset($this->cache["dependency_privs_{$res[$i]['dependencyID']}"]))
+                    {
+                        $res2 = $this->cache["dependency_privs_{$res[$i]['dependencyID']}"];
+                    }
+                    else
+                    {
+                        $vars = array(':dependencyID' => $res[$i]['dependencyID']);
+                        $res2 = $this->db->prepared_query('SELECT * FROM dependency_privs
+                    									WHERE dependencyID=:dependencyID', $vars);
+                        $this->cache["dependency_privs_{$res[$i]['dependencyID']}"] = $res2;
+                    }
+
+                    // dependencyID 1 is for a special service chief group
+                    if ($res[$i]['dependencyID'] == 1)
+                    {
+                        if ($this->login->checkService($res[$i]['serviceID']))
+                        {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                    }
+
+                    // dependencyID 8 is for a special quadrad group
+                    if ($res[$i]['dependencyID'] == 8)
+                    {
+                        if (!isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']]))
+                        {
+                            $quadGroupIDs = $this->login->getQuadradGroupID();
+                            $vars3 = array(':serviceID' => $res[$i]['serviceID']);
+
+                            $res3 = $this->db->prepared_query("SELECT * FROM services
+                            									WHERE groupID IN ({$quadGroupIDs})
+                            										AND serviceID=:serviceID", $vars3);
+
+                            $this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']] = $res3;
+                        }
+
+                        if (isset($this->cache['getInbox_quadradCheck' . $res[$i]['serviceID']][0]))
+                        {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                    }
+
+                    // dependencyID -1 is for a person designated by the requestor
+                    if ($res[$i]['dependencyID'] == -1)
+                    {
+                        $resEmpUID = null;
+                        foreach ($resPersonDesignatedRecords[$res[$i]['indicatorID_for_assigned_empUID']] as $record)
+                        {
+                            if ($res[$i]['recordID'] == $record['recordID'])
+                            {
+                                $resEmpUID = $record;
+
+                                break;
+                            }
+                        }
+                        $empUID = $resEmpUID['data'];
+                        $res[$i]['dependencyID'] = '-1_' . $empUID;
+
+                        //check if the person designated has any backups
+                        $backupIds = null;
+                        if (!isset($this->cache['getInbox_currUserIsABackup']))
+                        {
+                            // see if the current user is a backup for anyone
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars4 = array(':empId' => $this->login->getEmpUID());
+                            $isBackup = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE backupEmpUID =:empId', $vars4);
+                            if(count($isBackup) > 0) {
+                                $this->cache['getInbox_currUserIsABackup'] = true;
+                            }
+                            else {
+                                $this->cache['getInbox_currUserIsABackup'] = false;
+                            }
+                        }
+
+                        $backupIds = [];
+                        if (isset($this->cache["getInbox_employeeBackups_{$empUID}"]))
+                        {
+                            $backupIds = $this->cache["getInbox_employeeBackups_{$empUID}"];
+                        }
+                        else if($this->cache['getInbox_currUserIsABackup'])
+                        {
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars4 = array(':empId' => $empUID);
+                            $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                            $this->cache["getInbox_employeeBackups_{$empUID}"] = $backupIds;
+                        }
+
+                        if ($empUID == $this->login->getEmpUID())
+                        {
+                            $res[$i]['hasAccess'] = true;
+                        }
+                        else
+                        {
+                            //check and provide access to backups
+                            foreach ($backupIds as $row)
+                            {
+                                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                                {
+                                    $res[$i]['hasAccess'] = true;
+                                }
+                            }
+                        }
+
+                        if ($res[$i]['hasAccess'])
+                        {
+                            // populate relevant info
+                            if (!isset($this->dir))
+                            {
+                                $this->dir = new VAMC_Directory;
+                            }
+                            $user = $this->dir->lookupEmpUID($empUID);
+
+                            $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
+                            $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                        }
+                    }
+
+                    // dependencyID -2 is for requestor followup
+                    if ($res[$i]['dependencyID'] == -2)
+                    {
+                        if ($res[$i]['userID'] == $this->login->getUserID())
+                        {
+                            $res[$i]['hasAccess'] = true;
+                            $out[$res[$i]['dependencyID']]['approverName'] = $this->login->getName();
+                        }
+
+                        if(!$res[$i]['hasAccess'])
+                        {
+                            $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
+                            $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
+
+                            if($res[$i]['hasAccess']){
+
+                                if (!isset($this->dir))
+                                {
+                                    $this->dir = new VAMC_Directory;
+                                }
+
+                                $user = $this->dir->lookupEmpUID($empUID);
+
+                                $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
+
+                                $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
+                            }
+                        }
+                    }
+
+                    // dependencyID -3 is for a group designated by the requestor
+                    if ($res[$i]['dependencyID'] == -3)
+                    {
+                        $resGroupID = null;
+                        foreach ($resGroupDesignatedRecords[$res[$i]['indicatorID_for_assigned_groupID']] as $record)
+                        {
+                            if ($res[$i]['recordID'] == $record['recordID'])
+                            {
+                                $resGroupID = $record;
+
+                                break;
+                            }
+                        }
+
+                        $groupID = $resGroupID['data'];
+                        $res[$i]['dependencyID'] = '-3_' . $groupID;
+
+                        if ($this->login->checkGroup($groupID))
+                        {
+                            $res[$i]['hasAccess'] = true;
+                        }
+
+                        if ($res[$i]['hasAccess'])
+                        {
+                            // populate relevant info
+                            $resDepGroup = null;
+                            if (isset($this->cache["getInbox_resDepGroup_{$groupID}"]))
+                            {
+                                $resDepGroup = $this->cache["getInbox_resDepGroup_{$groupID}"];
+                            }
+                            else
+                            {
+                                $vars = array(':groupID' => $groupID);
+                                $resDepGroup = $this->db->prepared_query('SELECT name FROM `groups` WHERE groupID=:groupID', $vars);
+                                $this->cache["getInbox_resDepGroup_{$groupID}"] = $resDepGroup;
+                            }
+                            $approverName = '';
+                            if (isset($resDepGroup[0]['name']))
+                            {
+                                $approverName = $resDepGroup[0]['name'];
+                            }
+                            else
+                            {
+                                $approverName = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['name'];
+                            }
+                            $out[$res[$i]['dependencyID']]['approverName'] = $approverName;
+                        }
+                    }
+
+                    foreach ($res2 as $group)
+                    {
+                        if ($this->login->checkGroup($group['groupID']))
+                        {
+                            $res[$i]['hasAccess'] = true;
+
+                            break;
+                        }
+                    }
+
+                    if ($res[$i]['hasAccess'] == true && $res[$i]['blockingStepID'] == 0)
+                    {
+                        $out[$res[$i]['dependencyID']]['records'][$res[$i]['recordID']] = $res[$i];
+                        $out[$res[$i]['dependencyID']]['dependencyID'] = $res[$i]['dependencyID'];
+                        $out[$res[$i]['dependencyID']]['dependencyDesc'] = $res[$i]['description'];
+                        $out[$res[$i]['dependencyID']]['count'] = count($out[$res[$i]['dependencyID']]['records']);
+
+                        /*
+                         if($field['workflowID'] != 0) {
+                         $index[$idx]['categories'] = $field['categoryName'];
+                         }*/
+
+                        // darken header color
+                        if (isset($this->cache[$res[$i]['stepBgColor']]))
+                        {
+                            $out[$res[$i]['dependencyID']]['dependencyBgColor'] = $this->cache[$res[$i]['stepBgColor']];
+                        }
+                        else
+                        {
+                            $tmp = ltrim($res[$i]['stepBgColor'], '#');
+                            $tmpR = dechex(round(hexdec(substr($tmp, 0, 2)) * 0.9));
+                            $tmpG = dechex(round(hexdec(substr($tmp, 2, 2)) * 0.9));
+                            $tmpB = dechex(round(hexdec(substr($tmp, 4, 2)) * 0.9));
+
+                            $out[$res[$i]['dependencyID']]['dependencyBgColor'] = "#{$tmpR}{$tmpG}{$tmpB}";
+                            $this->cache[$res[$i]['stepBgColor']] = $out[$res[$i]['dependencyID']]['dependencyBgColor'];
+                        }
+                    }
+                    if(substr($res[$i]['dependencyID'], 0, 3) == "-1_" && isset($out[$res[$i]['dependencyID']]['records']) && count($out[$res[$i]['dependencyID']]['records']) > 1000)
+                    {
+                        $out['errors'][] = ['code' => '1', 'message' => 'dependencyID: -1 has over 1000 results'];
+                        break;
+                    }
+                }
             }
         }
 
-        return $list;
+        return $out;
     }
 
     /**
-     * Returns formatted group name.
-     *
-     * @param int $groupId
-     *
-     * @return string
-     *
-     * Created at: 10/3/2022, 6:55:31 AM (America/New_York)
-     */
-    public function getGroupName(int $groupId): string
-    {
-        $sql_vars = array(":groupID" => $groupId);
-        $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $sql_vars);
-
-        if(!empty($res)){
-            $return_value = $res[0]["name"];
-        } else {
-            $return_value = "";
-        }
-
-        return $return_value;
-    }
-
-    /**
-     * Returns formatted Employee name.
-     * @param string $employeeID - The id to create the display name of.
-     *
+     * Gets empuID for given username
+     * @param string $userName Username
      * @return string
      */
-    private function getEmployeeDisplay($employeeID): string
+    public function getEmpUIDByUserName($userName)
     {
-        $dir = new VAMC_Directory();
-        $dirRes = $dir->lookupLogin($employeeID);
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userName' => $userName);
+        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
+        return $response[0]["empUID"];
+    }
 
-        if (isset($dirRes[0])) {
-            $empData = $dirRes[0];
-            $empDisplay =$empData["firstName"]." ".$empData["lastName"];
+    /**
+     * Checks if logged in user serves as a backup for given empUID
+     * @param string $empUID empUID to check
+     * @return boolean
+     */
+    public function checkIfBackup($empUID)
+    {
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':empId' => $empUID);
+        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
 
-            return $empDisplay;
+        if ($empUID != $this->login->getEmpUID())
+        {
+            foreach ($backupIds as $row)
+            {
+                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        return '';
-
+        return true;
     }
 
     /**
-     * Returns Portal Group logs.
-     *
-     * @param int|null $filterById
-     *
-     * @return array
-     *
-     * Created at: 12/5/2022, 10:45:23 AM (America/New_York)
+     * Find out if there are any items in the current user's inbox
+     * TODO: improve performance of this
+     * @return int approximate number of items in inbox
      */
-    public function getHistory(?int $filterById): array
+    public function getInboxStatus()
     {
-        return $this->dataActionLogger->getHistory($filterById, "groupID", \Leaf\LoggableTypes::PORTAL_GROUP);
+        $vars = array(':userID' => $this->login->getUserID());
+        $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
+        									  LEFT JOIN step_dependencies USING (stepID)
+        									  LEFT JOIN dependency_privs USING (dependencyID)
+        									  LEFT JOIN users USING (groupID)
+        									  LEFT JOIN records_dependencies USING (recordID, dependencyID)
+        									  WHERE userID=:userID
+        										AND filled=0', $vars);
+
+        // if the initial search is empty, check for special cases (service chief, quadrad)
+        if ($res[0]['COUNT(*)'] == 0)
+        {
+            $count = 0;
+            $vars2 = array();
+            $res2 = $this->db->prepared_query('SELECT * FROM records_workflow_state
+            									LEFT JOIN records USING (recordID)
+            									LEFT JOIN step_dependencies USING (stepID)
+                                                LEFT JOIN workflow_steps USING (stepID)
+            									LEFT JOIN records_dependencies USING (recordID, dependencyID)
+            									WHERE (dependencyID = 1
+                                                         OR dependencyID = 8
+                                                         OR dependencyID = -1
+                                                         OR dependencyID = -2
+                                                         OR dependencyID = -3)
+            										AND filled = 0', $vars2);
+
+            foreach ($res2 as $record)
+            {
+                switch ($record['dependencyID']) {
+                    case 1: // dependencyID 1 is for a special service chief group
+                        if ($this->login->checkService($record['serviceID']))
+                        {
+                            return 1;
+                        }
+
+                        break;
+                    case 8: // dependencyID 8 is for a special quadrad group
+                        $hash = md5($this->login->getQuadradGroupID() . $record['serviceID']);
+                        if (!isset($this->cache["getInboxStatus_{$hash}"]))
+                        {
+                            $quadGroupIDs = $this->login->getQuadradGroupID();
+                            $vars3 = array(':serviceID' => $record['serviceID']);
+                            $res3 = $this->db->prepared_query("SELECT * FROM services
+                            									WHERE groupID IN ({$quadGroupIDs})
+                            										AND serviceID=:serviceID", $vars3);
+                            if (isset($res3[0]))
+                            {
+                                return 1;
+                            }
+                            $this->cache["getInboxStatus_{$hash}"] = 0;
+                        }
+
+                        break;
+                    case -1: // dependencyID -1 is for a person designated by the requestor
+                        $resEmpUID = $this->form->getIndicator($record['indicatorID_for_assigned_empUID'], 1, $record['recordID']);
+                        $empUID = $resEmpUID[$record['indicatorID_for_assigned_empUID']]['value'];
+
+                        //check if the requester has any backups
+                        $nexusDB = $this->login->getNexusDB();
+                        $vars4 = array(':empId' => $empUID);
+                        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+
+                        if ($empUID == $this->login->getEmpUID())
+                        {
+                            return 1;
+                        }
+                            //check and provide access to backups
+                            foreach ($backupIds as $row)
+                            {
+                                if ($row['backupEmpUID'] == $this->login->getEmpUID())
+                                {
+                                    return 1;
+                                }
+                            }
+
+                        break;
+                    case -2: // dependencyID -2 is for requestor followup
+                        if ($record['userID'] == $this->login->getUserID())
+                        {
+                            return 1;
+                        }
+
+                        break;
+                    case -3: // dependencyID -3 is for a group designated by the requestor
+                        $resGroupID = $this->form->getIndicator($record['indicatorID_for_assigned_groupID'], 1, $record['recordID']);
+                        $groupID = $resGroupID[$record['indicatorID_for_assigned_groupID']]['value'];
+
+                        if ($this->login->checkGroup($groupID))
+                        {
+                            return 1;
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return $res[0]['COUNT(*)'];
     }
 
     /**
-     * Returns all history ids for all groups
-     *
-     * @return array all history ids for all groups
+     * Retrieve the number of items in the current user's inbox
+     * @return int number
      */
-    public function getAllHistoryIDs(): array
+    public function getInboxCount()
     {
-        // this method doesn't expect any arguments
-        //return $this->dataActionLogger->getAllHistoryIDs("groupID", \Leaf\LoggableTypes::PORTAL_GROUP);
-        return $this->dataActionLogger->getAllHistoryIDs();
-    }
+        $vars = array(':userID' => $this->login->getUserID());
+        $res = $this->db->prepared_query('SELECT COUNT(*) FROM records_workflow_state
+        									  LEFT JOIN step_dependencies USING (stepID)
+        									  LEFT JOIN dependency_privs USING (dependencyID)
+        									  LEFT JOIN users USING (groupID)
+        									  WHERE userID=:userID', $vars);
 
-    /**
-     * retrieve all the groups
-     *
-     * @return array|false
-     *
-     * Created at: 9/12/2022, 10:22:25 AM (America/New_York)
-     */
-    public function getAllGroups(): array|bool
-    {
-        return $this->db->prepared_query('SELECT * FROM groups WHERE groupID > 1 ORDER BY groupID', array());
-    }
+        // if the initial search is empty, check for special cases (service chief, quadrad)
+        if ($res[0]['COUNT(*)'] == 0)
+        {
+            $count = 0;
+            $vars2 = array();
+            $res2 = $this->db->prepared_query('SELECT * FROM records_workflow_state
+            									LEFT JOIN records USING (recordID)
+            									LEFT JOIN step_dependencies USING (stepID)
+            									WHERE dependencyID = 1
+            										OR dependencyID = 8', $vars2);
 
-    /**
-     * retrieve all the users
-     *
-     * @return array|bool
-     *
-     * Created at: 9/12/2022, 10:21:54 AM (America/New_York)
-     */
-    public function getAllUsers(): array|bool
-    {
-        return $this->db->prepared_query('SELECT * FROM users WHERE groupID > 1 ORDER BY userID', array());
+            foreach ($res2 as $record)
+            {
+                switch ($record['dependencyID']) {
+                    case 1:
+                        if ($this->login->checkService($record['serviceID']))
+                        {
+                            $count++;
+                        }
+
+                        break;
+                    case 8:
+                        $vars3 = array(':quadGroupIDs' => $this->login->getQuadradGroupID(),
+                                       ':serviceID' => $record['serviceID'], );
+                        $res3 = $this->db->prepared_query('SELECT * FROM services
+                        									WHERE groupID IN (:quadGroupIDs)
+                        										AND serviceID=:serviceID', $vars2);
+                        if (isset($res3[0]))
+                        {
+                            $count++;
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return $count;
+        }
+
+        return $res[0]['COUNT(*)'];
     }
 }

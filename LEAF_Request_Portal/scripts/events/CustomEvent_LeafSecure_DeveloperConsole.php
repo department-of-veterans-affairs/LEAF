@@ -8,6 +8,8 @@
     Template for events triggered by RMC workflow actions
 */
 
+namespace Portal;
+
 class CustomEvent_LeafSecure_DeveloperConsole
 {
     private $db;        // Object, Database connection

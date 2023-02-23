@@ -8,6 +8,8 @@
     Template for events triggered by RMC workflow actions
 */
 
+namespace Portal;
+
 class CustomEvent_[YOUR EVENT ID]
 {
     private $db;        // Object, Database connection

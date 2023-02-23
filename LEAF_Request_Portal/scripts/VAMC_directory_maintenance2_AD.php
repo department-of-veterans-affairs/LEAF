@@ -13,6 +13,7 @@
 */
 
 namespace Portal;
+
 class VAMC_Directory_maintenance_AD
 {
     /**
