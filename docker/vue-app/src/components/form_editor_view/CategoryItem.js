@@ -1,18 +1,16 @@
 export default {
     name: 'category-item',
-    data() {
-        return {
-            staples: this.categoriesRecord.stapledFormIDs
-        }
-    },
     props: {
         categoriesRecord: Object,
         availability: String
     },
     inject: [
+        'APIroot',
+        'CSRFToken',
         'libsPath',
         'categories',
         'selectNewCategory',
+        'updateCategoriesProperty',
         'stripAndDecodeHTML',
         'stapledFormsCatIDs',
     ],
@@ -25,6 +23,12 @@ export default {
         },
         catID() {
             return this.categoriesRecord.categoryID;
+        },
+        stapledForms() {
+            let stapledForms = [];
+            this.categoriesRecord.stapledFormIDs.forEach(id => stapledForms.push({...this.categories[id]}));
+            stapledForms = stapledForms.sort((eleA, eleB) => eleA.sort - eleB.sort );
+            return stapledForms;
         },
         isStapledToOtherForm() {
             return this.stapledFormsCatIDs.includes(this.categoriesRecord.categoryID);
@@ -55,10 +59,28 @@ export default {
             return msg;
         }
     },
-    template:`<tr height="40" tabindex="0"
-        @click="selectNewCategory(catID)" @keyup.enter="selectNewCategory(catID)" 
-        :id="catID" :title="catID + ': ' + categoryName">
-            <td>{{ categoryName }}</td>
+    methods: {
+        updateSort(event = {}, categoryID = '') {
+            const sortValue = parseInt(event.currentTarget.value);
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formSort`,
+                data: {
+                    sort: sortValue,
+                    categoryID: categoryID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: () => {
+                    this.updateCategoriesProperty(categoryID, 'sort', sortValue);
+                },
+                error: err => console.log('sort post err', err)
+            })
+        }
+    },
+    template:`<tr height="40" :id="catID" :title="catID + ': ' + categoryName">
+            <td tabindex="0" class="form-name" @click="selectNewCategory(catID)" @keyup.enter="selectNewCategory(catID)" >
+                {{ categoryName }}
+            </td>
             <td class="formPreviewDescription">{{ formDescription }}</td>
             <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
             <td v-if="availability==='supplemental'">
@@ -72,19 +94,29 @@ export default {
                     <em>&nbsp;Need to Know enabled</em>
                 </div>
             </td>
+            <td>
+                <input type="text" :value="categoriesRecord.sort"
+                 style="width: 100%;" @change="updateSort($event, catID)" />
+            </td>
         </tr>
-        <template v-if="staples.length > 0">
-            <tr height="40" v-for="staple_id in staples" :key="catID + '_stapled_with_' + staple_id"
-                tabindex="0" style="padding-left:1rem; font-size: 85%;"
-                @click="selectNewCategory(staple_id)" @keyup.enter="selectNewCategory(staple_id)">
-                <td><span role="img" aria="">📌 </span>{{ categories[staple_id].categoryName }}</td>
-                <td>{{ categories[staple_id].categoryDescription }}</td>
+        <template v-if="stapledForms.length > 0">
+            <tr height="36" v-for="form in stapledForms" 
+                :key="catID + '_stapled_with_' + form.categoryID" class="sub-row">
+                <td tabindex="0" class="form-name"
+                    @click="selectNewCategory(form.categoryID)" @keyup.enter="selectNewCategory(form.categoryID)">
+                    <span role="img" aria="">📌&nbsp;</span>{{ categories[form.categoryID].categoryName }}
+                </td>
+                <td>{{ categories[form.categoryID].categoryDescription }}</td>
                 <td></td>
                 <td>
-                    <div v-if="parseInt(categories[staple_id].needToKnow) === 1" class="need-to-know-enabled">
+                    <div v-if="parseInt(categories[form.categoryID].needToKnow) === 1" class="need-to-know-enabled">
                         <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;"/>
                         <em>&nbsp;Need to Know enabled</em>
                     </div>
+                </td>
+                <td>
+                    <input type="text" :value="categories[form.categoryID].sort"
+                        style="width: 100%" @change="updateSort($event, form.categoryID)" />
                 </td>
             </tr>
         </template>`

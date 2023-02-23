@@ -57,12 +57,16 @@ class FormStack
         $res = $this->db->prepared_query($strSQL, null);
 
         foreach($res as $ind => $val) {
-            $vars = array(':categoryID' => $val['categoryID']);
-            $strStaples = "SELECT stapledCategoryID FROM category_staples
-                WHERE categoryID=:categoryID";
-            $resStaples = $this->db->prepared_query($strStaples, $vars) ?? [];
+            $res[$ind]['stapledFormIDs'] = [];
+            //internal forms have a parentID.  They cannot have staples by normal means so don't query.
+            if (empty($val['parendID'])) {
+                $vars = array(':categoryID' => $val['categoryID']);
+                $strStaples = "SELECT stapledCategoryID FROM category_staples
+                    WHERE categoryID=:categoryID";
+                $resStaples = $this->db->prepared_query($strStaples, $vars) ?? [];
 
-            $res[$ind]['stapledFormIDs'] = array_column($resStaples,'stapledCategoryID');
+                $res[$ind]['stapledFormIDs'] = array_column($resStaples,'stapledCategoryID');
+            }
         }
         return $res;
     }

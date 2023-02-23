@@ -1,4 +1,4 @@
-import CategoryItem from "@/components/CategoryItem";
+import CategoryItem from "@/components/form_editor_view/CategoryItem";
 
 export default {
     data() {
@@ -33,6 +33,7 @@ export default {
                     <th style="width:300px">Description</th>
                     <th style="width:250px">Workflow#:(Name)</th>
                     <th style="width:150px">Need to Know</th>
+                    <th style="width:75px">Sort</th>
                 </tr>
                 <category-item v-for="c in activeForms" 
                     :categories-record="c" 
@@ -48,6 +49,7 @@ export default {
                     <th style="width:300px">Description</th>
                     <th style="width:250px">Workflow#:(Name)</th>
                     <th style="width:150px">Need to Know</th>
+                    <th style="width:75px">Sort</th>
                 </tr>
                 <category-item v-for="c in inactiveForms" 
                     :categories-record="c" 
@@ -63,6 +65,7 @@ export default {
                     <th style="width:300px">Description</th>
                     <th style="width:250px">Staple Status</th>
                     <th style="width:150px">Need to Know</th>
+                    <th style="width:75px">Sort</th>
                 </tr>
                 <category-item v-for="c in supplementalForms" 
                     :categories-record="c" 

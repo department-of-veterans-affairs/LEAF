@@ -179,6 +179,7 @@ export default {
                         active.push({...this.categories[c]});
                 }
             }
+            active = active.sort((eleA, eleB) => eleA.sort - eleB.sort);
             return active;
         },
         /**
@@ -195,6 +196,7 @@ export default {
                     inactive.push({...this.categories[c]});
                 }
             }
+            inactive = inactive.sort((eleA, eleB) => eleA.sort - eleB.sort);
             return inactive;
         },
         /**
@@ -223,6 +225,7 @@ export default {
                     supplementalForms.push({...this.categories[c]});
                 }
             }
+            supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
             return supplementalForms;
         },
         selectedCategoryStapledForms() {
@@ -232,6 +235,7 @@ export default {
                     staples.push({...this.categories[id]});
                 });
             }
+            staples = staples.sort((eleA, eleB) => eleA.sort - eleB.sort );
             return staples;
         }
     },
@@ -283,7 +287,7 @@ export default {
                                 }
                             });
                         }
-                        console.log('updated categories and staples ID list', res);
+                        console.log('updated categories and staples ID list');
                         this.appIsLoadingCategoryList = false;
                         resolve(res);
                     },
@@ -412,7 +416,7 @@ export default {
             if (newIndicator === true && this.currCategoryID === null) { //null if on form browser page
                 this.showCertificationStatus = true;
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
-                    if (this.currentCategoryID === null) {
+                    if (this.currCategoryID === null) {
                         if (Object.keys(unresolvedLeafSRequests).length === 0) { // if no new request, create one
                             document.getElementById('secureStatus')?.setAttribute('innerText', 'Forms have been modified.');
                             document.getElementById('secureBtn')?.setAttribute('innerText', 'Please Recertify Your Site');

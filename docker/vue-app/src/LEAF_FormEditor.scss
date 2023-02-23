@@ -9,7 +9,7 @@ $BG_Pearl: #f3f3f5;
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
-$lt_cyan: #E0F4FA;
+$lt_cyan: #e8f2ff; /* #E0F4FA */
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 
 @mixin flexcenter {
@@ -29,7 +29,7 @@ body { /* fixes header not extending entire width */
 #vue-formeditor-app {
     min-height: 100vh;
     main {
-        margin: 1rem;
+        margin: 0;
     }
 }
 #vue-formeditor-app * {
@@ -199,7 +199,7 @@ nav#form-editor-nav {
     }
 
     ul#form-breadcrumb-menu {
-        margin: 1rem;
+        margin: 1rem 1rem 0 1rem;
         display: flex;
         justify-content: flex-start;
         align-items: center;
@@ -213,9 +213,15 @@ nav#form-editor-nav {
             button, a {
                 padding: 0.25rem;
                 border-radius: 3px;
+                text-decoration: underline;
+                outline: none !important;
                 &:hover, &:focus, &:active {
-                    outline: none !important;
                     border: 2px solid $LEAF_CSS_outline !important;
+                }
+                &:disabled {
+                    border: 2px solid transparent !important;
+                    text-decoration: none;
+                    cursor: default;
                 }
             }
         }
@@ -307,33 +313,47 @@ nav#form-editor-nav {
     }
 }
 
-#form_browser_tables table {
-    width: 100%;
-    background-color: white;
-    border-collapse: collapse;
-    border: 1px solid $charcoal;
-    border-radius: 2px;
-    margin-bottom: 2rem;
-
-    td,th {
-        padding: 0.5rem;
+#form_browser_tables {
+    h3 {
+        color: black;
+    }
+    table {
+        width: 100%;
+        background-color: white;
+        border-collapse: collapse;
         border: 1px solid $charcoal;
-    }
-    th {
-        background-color: $charcoal;
-        color: white;
-    }
-    tr:not(.header-row) {
-        cursor: pointer;
-        border-bottom: 1px solid $charcoal;
-        &:hover, &:focus, &:active {
-            background-color: $lt_cyan;
+        border-radius: 2px;
+        margin-bottom: 2rem;
+
+        td,th {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid $charcoal;
         }
-    }
-    .need-to-know-enabled {
-        @include flexcenter;
-        color: #c00;
-        font-size: 12px;
+        td.form-name {
+            cursor: pointer;
+            &:hover, &:focus, &:active {
+                background-color: $lt_cyan;
+            }
+        }
+        th {
+            background-color: $charcoal;
+            color: white;
+            border: 1px solid black;
+        }
+        tr:not(.header-row) {
+            color: black;
+            border-bottom: 1px solid $charcoal;
+        }
+        tr.sub-row { 
+            color: #222;
+            padding-left:1rem;
+            font-size: 85%;
+        }
+        .need-to-know-enabled {
+            @include flexcenter;
+            color: #c00;
+            font-size: 12px;
+        }
     }
 }
 
