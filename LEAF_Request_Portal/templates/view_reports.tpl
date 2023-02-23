@@ -14,7 +14,7 @@
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
     </div>
 </div>
 
@@ -478,7 +478,7 @@ function loadSearchPrereqs() {
                 if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
-                buffer += '<div tabindex="0" class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
+                buffer += '<div tabindex="0" class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(let j in groupList[i]) {
                     const indID = groupList[i][j];
                     const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
@@ -682,8 +682,8 @@ function editLabels() {
     for(let i in resSelectList) {
         if(resIndicatorList[resSelectList[i]] != undefined) {
             buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-            buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-            buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
+            buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="dynicons/?img=go-down_red.svg&w=16" /></button> ';
+            buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="dynicons/?img=go-up.svg&w=16" /></button>';
             buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 26px;" /></td></tr>';
         }
     }
@@ -770,7 +770,7 @@ function openShareDialog() {
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
                             + '<br /><textarea id="reportLink" style="width: 95%; height: 100px">'+ pwd + reportLink +'</textarea>'
-                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
+                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
                             + '<br /><br /><p>Access rules are automatically applied based on the form and workflow configuration.</p>');
     dialog_message.show();
     $('#reportLink').on('click', function() {
@@ -1048,7 +1048,7 @@ $(function() {
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
     $('#' + leafSearch.getPrefixID() + 'advancedOptions>legend').css('display', 'none');
-    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="../libs/dynicons/?img=go-next.svg&w=32" alt="next step" />');
+    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="dynicons/?img=go-next.svg&w=32" alt="next step" />');
 
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
 
@@ -1269,13 +1269,13 @@ $(function() {
 
         // create save link once
         if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 

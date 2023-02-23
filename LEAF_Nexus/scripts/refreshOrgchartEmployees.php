@@ -15,19 +15,15 @@ define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
 
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
-include_once $currDir . '/../globals.php';
-include_once $currDir . '/../sources/Login.php';
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-$config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-$phonedb = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-$login = new Orgchart\Login($phonedb, $db);
-$login->loginUser();
+$phonedb = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+
+$oc_login->loginUser();
 
 // prevent updating if orgchart is the same
-if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
+if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
 
@@ -52,7 +48,7 @@ if (strtolower($config->dbName) == strtolower(DIRECTORY_DB)) {
  *	Updates single employee information from national orgchart to local orgchart
 */
 function updateUserInfo($userName, $empUID){
-	global $db, $phonedb;
+	global $oc_db, $phonedb;
 
 	$vars = array(':userName' => htmlspecialchars_decode($userName, ENT_QUOTES)); //for users with apostrophe in name
 
@@ -84,7 +80,7 @@ function updateUserInfo($userName, $empUID){
 	        ':userName' => $userName,
             ':deleted' => time()
         );
-	    $db->prepared_query($sql3, $vars);
+	    $oc_db->prepared_query($sql3, $vars);
     }
 
 	if (count($res) > 0) {
@@ -101,7 +97,7 @@ function updateUserInfo($userName, $empUID){
 		);
 
 		// sets local employee table
-		$db->prepared_query($sql2, $vars);
+		$oc_db->prepared_query($sql2, $vars);
 
 		// sets local employee_data table
 		updateEmployeeData($res[0]['empUID'], $empUID);
@@ -110,11 +106,11 @@ function updateUserInfo($userName, $empUID){
 
 function updateLocalOrgchartBatch()
 {
-    global $db, $phonedb;
+    global $oc_db, $phonedb;
 
     // replace the separate function for getting employee
     $localEmployeeSql = "SELECT userName FROM employee";
-    $localEmployees = $db->query($localEmployeeSql);
+    $localEmployees = $oc_db->query($localEmployeeSql);
 
     if (count($localEmployees) == 0) {
         return;
@@ -141,7 +137,7 @@ function updateLocalOrgchartBatch()
 function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
 
-    global $db, $phonedb;
+    global $oc_db, $phonedb;
 
     if (empty($localEmployeeUsernames)) {
         return FALSE;
@@ -162,16 +158,16 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     		WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
 
     $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql,$localEmployeeUsernames);
-	
+
     // get local empuids
     $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
-    $localEmpUIDs = $db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
+    $localEmpUIDs = $oc_db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
 
     $localEmpArray = [];
     foreach ($localEmpUIDs as $localUsername) {
         $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
     }
-	
+
     //if for some reason there is no data, we need to stop right there.
     if(empty($orgEmployeeRes)){
         return FALSE;
@@ -193,22 +189,22 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         ];
 
     }
-	
+
     $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
     $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (".implode(",",array_fill(1, count($localDeletedEmployees), '?')).")";
 
     if (!empty($localDeletedEmployees)) {
-        $db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
+        $oc_db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
     }
 
-    $db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
+    $oc_db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
 
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
 
-    $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp 
-    				FROM employee_data 
-				LEFT JOIN employee USING (empUID) 
+    $orgEmployeeDataSql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp
+    				FROM employee_data
+				LEFT JOIN employee USING (empUID)
 				WHERE empUID IN ('".implode("','", $nationalEmpUIDs)."') AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
     $orgEmployeeDataVars = [
@@ -224,7 +220,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach($orgEmployeeDataRes as $orgEmployeeData){
-	    
+
         $localEmployeeDataArray[] = [
                  'empUID' => $localEmpArray[$orgEmployeeData['userName']],
                  'indicatorID' => $orgEmployeeData['indicatorID'],
@@ -234,7 +230,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
              ];
     }
 
-    $db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+    $oc_db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
 
 
 }
@@ -246,7 +242,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 */
 function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
-    global $db, $phonedb;
+    global $oc_db, $phonedb;
 
     $sql = "SELECT empUID, indicatorID, data, author, timestamp FROM employee_data WHERE empUID=:nationalEmpUID AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
 
@@ -276,7 +272,7 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
                 ':timestamp' => time()
             );
 
-            $db->prepared_query($sql2, $vars);
+            $oc_db->prepared_query($sql2, $vars);
         }
     }
 }

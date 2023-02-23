@@ -1,165 +1,575 @@
-<div id="maincontent">
-
-<a href="../?a=browse_group" tabindex="-1">
-    <span class="menuButton" style="background-color: #cb9ed7" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=preferences-desktop-theme.svg&amp;w=96" style="position: relative" alt="Group Search" title="Group Search" />
-        <span class="menuText">Groups</span><br />
-        <span class="menuDesc">View groups such as services, sub-sections, etc.</span>
-    </span>
-</a>
-
-<a href="?a=admin_refresh_directory" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=system-software-update.svg&amp;w=96" style="position: relative" alt="Directory Update" title="Directory Update" />
-        <span class="menuText">Refresh Directory</span><br />
-        <span class="menuDesc">Update account list from Active Directory</span>
-    </span>
-</a>
-
-<a href="?a=setup_medical_center" tabindex="-1">
-    <span class="menuButton" style="background-color: #c6ffbe" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=preferences-system.svg&amp;w=96" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText">Setup Wizard</span><br />
-        <span class="menuDesc">Initial setup for VA Medical Centers</span>
-    </span>
-</a>
-
-<a href="?a=mod_templates_reports" tabindex="-1">
-    <span class="menuButton" style="background-color: black" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuText" style="color: white">Report Programmer</span><br />
-        <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
-    </span>
-</a>
+<div id="menu" style="float: left; width: 200px; margin: 4px">
+    <div onclick="setupAdmins();"><input id="menu_admins" class="buttonNorm step" style="width: 200px;"  type="button" value="1. System Administrators" /></div>
+    <div onclick="setupPreferences();"><input id="menu_preferences" class="buttonNorm step" style="width: 200px;" type="button" value="2. Site Preferences" /></div>
+    <div onclick="setupDirector();"><input id="menu_director" class="buttonNorm step" style="width: 200px;" type="button" value="3. Site Director" /></div>
+    <div  onclick="setupLeadership();"><input id="menu_leadership" class="buttonNorm step" style="width: 200px;" type="button" value="4. Executive Leadership Team" /></div>
+    <div  onclick="setupServices();"><input id="menu_services" class="buttonNorm step" style="width: 200px;" type="button" value="5. Services" /></div>
+</div>
+<div id="setupContainer" style="float: left; margin: 8px; width: 800px; height: 600px">
 
 </div>
-
-<!-- Other tools -->
-<br style="clear: both" />
-<br />
-
-<div id="btn_programmerMode" class="buttonNorm" tabindex="0">Other Tools</div>
-
-<div id="programmerMode" style="display: none">
-<hr />
-Programmer Options:<br />
-
-<a href="../?a=browse_search" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
-        <img class="menuIconSmall" src="../../libs/dynicons/?img=system-search.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
-        <span class="menuTextSmall" style="color: white">Search</span><br />
-        <span class="menuDescSmall" style="color: white">All-in-one search</span>
-    </span>
-</a>
-
-<a href="#" onclick="newEmployee()" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
-        <img class="menuIconSmall" src="../../libs/dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
-        <span class="menuTextSmall" style="color: white">Import Employee</span><br />
-        <span class="menuDescSmall" style="color: white">Old tool to import employees into the database</span>
-    </span>
-</a>
-
-<a href="?a=import_employees_from_spreadsheet" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
-        <img class="menuIconSmall" src="../../libs/dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuTextSmall" style="color: white">Spreadsheet Import</span><br />
-        <span class="menuDescSmall" style="color: white">Batch add employees from spreadsheet</span>
-    </span>
-</a>
-
-<a href="?a=mod_system" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
-        <img class="menuIconSmall" src="../../libs/dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
-        <span class="menuTextSmall" style="color: white">Change Site Name</span><br />
-        <span class="menuDescSmall" style="color: white">Edit site name and other parameters</span>
-    </span>
-</a>
-
-
-
-<a href="?a=admin_update_database" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
-        <img class="menuIcon" src="../../libs/dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
-        <span class="menuText">Update Database</span><br />
-        <span class="menuDesc">Updates the system database, if available</span>
-    </span>
-</a>
-
-
-</div>
-
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_plainDialogLarge.tpl"}-->
 
-<script type="text/javascript">
-/* <![CDATA[ */
+<script>
+var CSRFToken = '<!--{$CSRFToken}-->';
 
-function newEmployee() {
-    dialog.setContent('<fieldset><legend>Employee:</legend><div id="empSelector_container"></div><br />Hint: If there are too many results, use their E-mail address as a search term.</fieldset>');
-    dialog.show(); // need to show early because of ie6
+function setupAdmins() {
+    $('.step').removeClass('buttonNormSelected');
+    $('#menu_admins').addClass('buttonNormSelected');
 
-    var empSel = new nationalEmployeeSelector('empSelector_container');
-    empSel.rootPath = '../';
-    empSel.apiPath = '../api/';
-    empSel.initialize();
-//    empSel.setDomain('<!--{$userDomain}-->');
-
-    dialog.setSaveHandler(function() {
-        dialog.indicateBusy();
-        if(empSel.selection == '') {
-        	dialog.indicateIdle();
-        	alert('You need to select an employee to add.');
-        	return false;
-        }
-        $.ajax({
-        	type: 'POST',
-            url: '../api/employee/import/_' + empSel.selectionData[empSel.selection].userName,
-            dataType: 'json',
-            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-            success: function(response) {
-            	if(parseFloat(response) > 0) {
-            	    window.location = '../?a=view_employee&empUID=' + response;
-            	}
-            	else {
-            		alert(response);
-            		dialog.hide();
-            	}
-            },
-            cache: false
-        });
-    });
+    $('#setupContainer').html('<iframe style="border: 0px; width: 100%; height: 100%" src="../?a=view_group&groupID=1&iframe=1"></iframe>');
 }
 
-<!--{include file="../../templates/site_elements/genericJS_toolbarAlignment.tpl"}-->
+function setupPreferences() {
+	$('.step').removeClass('buttonNormSelected');
+	$('#menu_preferences').addClass('buttonNormSelected');
 
-var dialog;
-$(function() {
+	$('#setupContainer').html('<iframe style="border: 0px; width: 100%; height: 100%" src="./?a=mod_system&iframe=1"></iframe>');
+}
 
-    $('#btn_programmerMode').on('click', function() {
-        $('#btn_programmerMode').css('display', 'none');
-        $('#programmerMode').css('display', 'block');
-    });
+function setupDirector() {
+	$('.step').removeClass('buttonNormSelected');
+    $('#menu_director').addClass('buttonNormSelected');
 
-    $('#btn_programmerMode').keypress(function(e) {
-        if (e.keyCode === 13) {
-            $('#btn_programmerMode').css('display', 'none');
-            $('#programmerMode').css('display', 'block');
-        }
+    $('#setupContainer').html('<fieldset><legend style="color: black; font-size: 14px">Position</legend><div id="director" class="groupBlock">\
+            <h2 id="groupTitle">Medical Center Director</h2>\
+            <div id="members"></div>\
+            </div>\
+            <div style="float: left">Ensure your facility\'s director is listed here.<br />\
+              <ol>\
+                <li>Click "Add Director" (A pop-up window will open)</li>\
+                <li>Click "Add Employee", and select your facility\'s director</li>\
+                <li>Close the pop-up window that opened in step 1</li>\
+              </ol></div>\
+            </fieldset>\
+            <fieldset><legend style="color: black; font-size: 14px">Service</legend><div id="service"></div></fieldset>');
+
+    $('#director').on('click', function() {
+    	dialog_large.setTitle('Site Director');
+    	dialog_large.setContent('<iframe id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_position&positionID=1&iframe=1"></iframe>');
+
+        dialog_large.setCancelHandler(function() {
+        	setupDirector();
+        });
+
+    	dialog_large.show();
     });
 
     $.ajax({
-        url: '../scripts/syncSVNrevision.php',
-        dataType: 'text',
-        success: function(response) {
+        type: 'GET',
+        url: '../api/position/1/employees',
+        success: function(res) {
+            if(res.length > 0) {
+            	var buffer = '';
+            	for(var i in res) {
+            		buffer += res[i].lastName + ', ' + res[i].firstName + '<br />';
+            	}
+            	$('#members').html(buffer);
+            }
+            else {
+            	$('#members').html('<div class="buttonNorm">Add Director</div>');
+            }
         },
         cache: false
     });
 
+    $.ajax({
+    	type: 'GET',
+    	url: '../api/position/1/service',
+    	success: function(res) {
+    		if(res[0] != null) {
+    			$('#service').html('<span style="font-size: 140%">' + res[0].groupTitle + '</span>');
+    		}
+    		else {
+    			$('#service').html('The "Office of the Director" service does not exist.<br /><br /><span class="buttonNorm" onclick="createDirectorGroup();">Click here to Create the Service</span>');
+    		}
+    	},
+    	cache: false
+    });
+}
+
+function createDirectorGroup() {
+    dialog.setTitle('Create Group for Leadership Team');
+    dialog.setContent('<table>\
+                <tr>\
+                    <td>Name of Service: </td>\
+                    <td><input id="serviceName" type="text" value="Office of the Director" /></td>\
+                </tr>\
+            </table>');
+
+    function tagNomenclature(groupID) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/tag/_service/parent',
+            success: function(leadershipName) {
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/group/' + groupID + '/tag',
+                    data: {CSRFToken: CSRFToken,
+                        tag: leadershipName}
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/group/' + groupID + '/tag',
+                    data: {CSRFToken: CSRFToken,
+                        tag: 'service'}
+                });
+            },
+            cache: false
+        });
+    }
+
+    dialog.setSaveHandler(function() {
+        if($('#serviceName').val() == '') {
+            alert('All fields must be filled out.');
+        }
+        else {
+            // create group
+            $.ajax({
+                type: 'POST',
+                url: '../api/group',
+                data: {CSRFToken: CSRFToken,
+                    title: $('#serviceName').val()},
+                success: function(groupID) {
+                    if(isNaN(groupID)) {
+                        alert(groupID);
+                    }
+                    else {
+                        tagNomenclature(groupID); // tag group
+
+                        $.ajax({ // add position to the group
+                            type: 'POST',
+                            url: '../api/group/' + groupID + '/position',
+                            data: {CSRFToken: CSRFToken,
+                                positionID: 1},
+                            success: function() {
+                            	dialog.hide();
+                            	setupDirector();
+                            }
+                        })
+                    }
+                }
+            });
+        }
+    });
+
+    dialog.show();
+}
+
+function createGroup() {
+	dialog.setTitle('Create Group for Leadership Team');
+	dialog.setContent('<table>\
+		        <tr>\
+			        <td>Name of Service: </td>\
+			        <td><input id="serviceName" type="text" /> eg: "Office of the Chief of Staff"</td>\
+			    </tr>\
+			    <tr>\
+                    <td>Position Title: </td>\
+                    <td><input id="positionTitle" type="text" /> eg: "Chief of Staff"</td>\
+                </tr>\
+                <tr>\
+                    <td>Employee: </td>\
+                    <td><div id="employee"></div>\
+                        <br /><input id="isActing" type="checkbox"> Acting for vacant position\
+                    </td>\
+                </tr>\
+			</table>');
+
+	function tagNomenclature(groupID) {
+	    $.ajax({
+	        type: 'GET',
+	        url: '../api/tag/_service/parent',
+	        success: function(leadershipName) {
+	        	$.ajax({
+	                type: 'POST',
+	                url: '../api/group/' + groupID + '/tag',
+	                data: {CSRFToken: CSRFToken,
+	                	tag: leadershipName}
+	            });
+	        	$.ajax({
+                    type: 'POST',
+                    url: '../api/group/' + groupID + '/tag',
+                    data: {CSRFToken: CSRFToken,
+                        tag: 'service'}
+                });
+	        },
+	        cache: false
+	    });
+	}
+
+	dialog.setSaveHandler(function() {
+		if($('#serviceName').val() == ''
+			|| $('#positionTitle').val() == ''
+			|| empSel.selection == '') {
+			alert('All fields must be filled out.');
+		}
+		else {
+			// create group
+			$.ajax({
+				type: 'POST',
+				url: '../api/group',
+				data: {CSRFToken: CSRFToken,
+					title: $('#serviceName').val()},
+				success: function(groupID) {
+					if(isNaN(groupID)) {
+						alert(groupID);
+					}
+					else {
+						tagNomenclature(groupID); // tag group
+
+						// create position
+			            $.ajax({
+			                type: 'POST',
+			                url: '../api/position',
+			                data: {CSRFToken: CSRFToken,
+			                    title: $('#positionTitle').val(),
+			                    parentID: 1}, // director (id# 1) is the supervisor
+			                success: function(positionID) {
+			                    if(isNaN(positionID)) {
+			                        alert(positionID);
+			                    }
+			                    else {
+			                    	$.when(
+			                    			$.ajax({ // add position to the group
+		                                        type: 'POST',
+		                                        url: '../api/group/' + groupID + '/position',
+		                                        data: {CSRFToken: CSRFToken,
+		                                            positionID: positionID}
+		                                    }),
+		                                    $.ajax({ // import employee if necessary
+		                                        type: 'POST',
+		                                        url: '../api/employee/import/_' + empSel.selectionData[empSel.selection].userName,
+		                                        dataType: 'json',
+		                                        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+		                                        success: function(empUID) {
+		                                            if(!isNaN(empUID)) {
+		                                                $.ajax({ // add employee to the position
+		                                                    type: 'POST',
+		                                                    url: '../api/position/' + positionID + '/employee',
+		                                                    data: {CSRFToken: CSRFToken,
+		                                                        isActing: $('#isActing').prop('checked') ? 1 : 0,
+		                                                        empUID: empUID}
+		                                                })
+		                                            }
+		                                            else {
+		                                                alert(response);
+		                                                dialog.hide();
+		                                            }
+		                                        },
+		                                        cache: false
+		                                    })
+		                                    ).then(function() {
+		                                    	dialog.hide();
+		                                    	setupLeadership();
+		                                    });
+			                    }
+			                }
+			            });
+					}
+				}
+			});
+		}
+	});
+
+	var empSel = new nationalEmployeeSelector('employee');
+	empSel.apiPath = '../api/';
+	empSel.rootPath = '../';
+	empSel.initialize();
+
+	dialog.show();
+}
+
+function setupLeadership() {
+	$('.step').removeClass('buttonNormSelected');
+    $('#menu_leadership').addClass('buttonNormSelected');
+
+	$('#setupContainer').html('<div id="leaderHeader"><div class="buttonNorm" onclick="createGroup();" style="float: right; width: 150px; font-size: 120%"><img src="../dynicons/?img=list-add.svg&w=32" alt="Create Group" /> Create <span id="leadershipNomenclature" style="font-size: 14px">Group</span></div><br style="clear: both" /></div>\
+			<div id="leaders"></div>');
+
+	var leadershipNomenclature = '';
+
+    function loadEmployeeNames(positionID, groupID) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/position/' + positionID + '/employees',
+            success: function(resEmployees) {
+                for(var i in resEmployees) {
+                	if(resEmployees[i].lastName != null) {
+                		$('#members' + groupID).append(resEmployees[i].lastName + ', ' + resEmployees[i].firstName + '<br />');
+                	}
+                }
+            },
+            cache: false
+        });
+    }
+
+    function loadPositions(groupID) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/group/' + groupID + '/positions',
+            success: function(resPositions) {
+                for(var j in resPositions) {
+                    loadEmployeeNames(resPositions[j].positionID, groupID);
+                }
+            },
+            cache: false
+        });
+    }
+
+	$.ajax({
+		type: 'GET',
+		url: '../api/tag/_service/parent',
+		success: function(leadershipName) {
+			leadershipNomenclature = leadershipName;
+			$('#leadershipNomenclature').html(leadershipName);
+		    $.ajax({
+		        type: 'GET',
+		        url: '../api/group/tag/_' + leadershipName,
+		        success: function(res) {
+		        	var buffer = '';
+		            for(var i in res) {
+		                buffer += '<div id="group_'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+                                <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].groupTitle +'</h2>\
+                                <div id="members'+ res[i].groupID +'"></div>\
+                                </div>';
+		            }
+		            $('#leaders').html(buffer);
+
+		            for(var i in res) {
+		            	$('#group_' + res[i].groupID).on('click', function(groupID) {
+		            		return function() {
+		            	        dialog_large.setTitle('Leadership Team');
+		            	        dialog_large.setContent('<iframe id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_group&groupID=' + groupID + '&iframe=1"></iframe>');
+
+		            	        dialog_large.setCancelHandler(function() {
+		            	        	setupLeadership();
+		            	        });
+
+		            	        dialog_large.show();
+		            		};
+		            	}(res[i].groupID));
+		            	loadPositions(res[i].groupID);
+                    }
+		        },
+		        cache: false
+		    });
+		},
+		cache: false
+	});
+}
+
+function createService(parentGroupID) {
+    dialog.setTitle('Create Service');
+    dialog.setContent('<table>\
+                <tr>\
+                    <td>Name of Service: </td>\
+                    <td><input id="serviceName" type="text" /> eg: "Fiscal Service"</td>\
+                </tr>\
+                <tr>\
+                    <td>Position Title: </td>\
+                    <td><input id="positionTitle" type="text" /> eg: "Chief, Fiscal Service"</td>\
+                </tr>\
+                <tr>\
+                    <td>Employee: </td>\
+                    <td><div id="employee"></div>\
+                        <br /><input id="isActing" type="checkbox"> Acting for vacant position</div>\
+                    </td>\
+                </tr>\
+            </table>');
+
+    function tagNomenclature(groupID) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/group/' + groupID + '/tag',
+            data: {CSRFToken: CSRFToken,
+                tag: 'service'}
+        });
+    }
+
+    dialog.setSaveHandler(function() {
+        if($('#serviceName').val() == ''
+            || $('#positionTitle').val() == ''
+            || empSel.selection == '') {
+            alert('All fields must be filled out.');
+        }
+        else {
+            // create group
+            $.ajax({
+                type: 'POST',
+                url: '../api/group',
+                data: {CSRFToken: CSRFToken,
+                    title: $('#serviceName').val()},
+                success: function(groupID) {
+                    if(isNaN(groupID)) {
+                        alert(groupID);
+                    }
+                    else {
+                        tagNomenclature(groupID); // tag group
+
+                        // get the executive leader first
+                        $.ajax({
+                            type: 'GET',
+                            url: '../api/group/' + parentGroupID + '/leader',
+                            success: function(leaderID) {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '../api/position',
+                                    data: {CSRFToken: CSRFToken,
+                                        title: $('#positionTitle').val(),
+                                        parentID: leaderID},
+                                    success: function(positionID) {
+                                        if(isNaN(positionID)) {
+                                            alert(positionID);
+                                        }
+                                        else {
+                                            $.when(
+                                                    $.ajax({ // add position to the group
+                                                        type: 'POST',
+                                                        url: '../api/group/' + groupID + '/position',
+                                                        data: {CSRFToken: CSRFToken,
+                                                            positionID: positionID}
+                                                    }),
+                                                    $.ajax({ // import employee if necessary
+                                                        type: 'POST',
+                                                        url: '../api/employee/import/_' + empSel.selectionData[empSel.selection].userName,
+                                                        dataType: 'json',
+                                                        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                                        success: function(empUID) {
+                                                            if(!isNaN(empUID)) {
+                                                                $.ajax({ // add employee to the position
+                                                                    type: 'POST',
+                                                                    url: '../api/position/' + positionID + '/employee',
+                                                                    data: {CSRFToken: CSRFToken,
+                                                                        isActing: $('#isActing').prop('checked') ? 1 : 0,
+                                                                        empUID: empUID}
+                                                                })
+                                                            }
+                                                            else {
+                                                                alert(response);
+                                                                dialog.hide();
+                                                            }
+                                                        },
+                                                        cache: false
+                                                    })
+                                                    ).then(function() {
+                                                        dialog.hide();
+                                                        // write service on the page instead of reloading the whole page
+                                                        $.ajax({
+                                                        	type: 'GET',
+                                                        	url: '../api/group/' + groupID,
+                                                        	success: function(resGroup) {
+                                                        		$('#group_' + parentGroupID).append('<li><a href="../?a=view_group&groupID='+ groupID +'">'+ resGroup.title +'</a></li>');
+                                                        	}
+                                                        });
+                                                    });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    var empSel = new nationalEmployeeSelector('employee');
+    empSel.apiPath = '../api/';
+    empSel.rootPath = '../';
+    empSel.initialize();
+
+    dialog.show();
+}
+
+function setupServices() {
+    $('.step').removeClass('buttonNormSelected');
+    $('#menu_services').addClass('buttonNormSelected');
+
+    $('#setupContainer').html('<div id="leaders"></div>');
+
+    var leadershipNomenclature = '';
+    function mapServiceToGroup(serviceData) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/group/' + serviceData.groupID + '/leader',
+            success: function(leaderID) {
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/position/' + leaderID + '/search/parentTag/_' + leadershipNomenclature,
+                    success: function(res2) {
+                        $('#group_' + res2[0].groupID).append('<li><a href="../?a=view_group&groupID='+ serviceData.groupID +'">'+ serviceData.groupTitle +'</a></li>');
+                    },
+                    cache: false
+                });
+            },
+            cache: false
+        });
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: '../api/tag/_service/parent',
+        success: function(leadershipName) {
+            $.ajax({
+                type: 'GET',
+                url: '../api/group/tag/_' + leadershipName,
+                success: function(res) {
+                	leadershipNomenclature = leadershipName;
+                    var buffer = '<ul style="font-size: 140%">';
+                    for(var i in res) {
+                        buffer += '<li>'+ res[i].groupTitle +'<ul id="group_'+ res[i].groupID +'">\
+                            <li style="padding: 8px"><span class="buttonNorm" onclick="createService('+ res[i].groupID +');">Add Service</span></li>\
+                        </ul></li><br />';
+                    }
+                    buffer += '</ul>';
+                    $('#leaders').html(buffer);
+
+                    $.ajax({
+                        type: 'GET',
+                        url: '../api/group/tag/_service',
+                        success: function(services) {
+                            var buffer = '';
+                            for(var i in services) {
+                            	mapServiceToGroup(services[i]);
+                            }
+                        },
+                        cache: false
+                    });
+                },
+                cache: false
+            });
+        },
+        cache: false
+    });
+}
+
+var dialog, dialog_confirm, dialog_large;
+$(function() {
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
-    confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+    dialog_large = new dialogController('plainDialogLarge', 'plainLarge', 'loadIndicatorplainLarge', 'button_saveplainLarge', 'button_cancelchangeplainLarge');
+
+	var hash = window.location.hash.substr(1);
+	switch(hash.toLowerCase()) {
+   	    case 'director':
+            setupDirector();
+            break;
+	    case 'leadership':
+		    setupLeadership();
+		    break;
+	    case 'services':
+            setupServices();
+            break;
+	    default:
+		    setupAdmins();
+		    break;
+	}
+
+	$('#setupContainer').css('width', $(document).width() - 200 - 40);
+    $('#plainDialogLarge').dialog({minWidth: ($(window).width() * .8) + 30});
 });
 
-/* ]]> */
 </script>

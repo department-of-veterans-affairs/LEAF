@@ -51,7 +51,7 @@
             if (icon.indexOf('/') != -1) {
                 icon = '<img src="' + icon + '" alt="icon for ' + name + '" style="vertical-align: middle" />';
             } else {
-                icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name + '" style="vertical-align: middle" />';
+                icon = '<img src="dynicons/?img=' + icon + '&w=76" alt="icon for ' + name + '" style="vertical-align: middle" />';
             }
         }
         return icon;

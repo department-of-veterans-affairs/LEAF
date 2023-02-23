@@ -1,7 +1,9 @@
 <?php
 
-class LogItem{
+namespace Leaf;
 
+class LogItem
+{
     public $tableName;
     public $column;
     public $value;

@@ -9,15 +9,7 @@
 
 */
 
-
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../globals.php';
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
+namespace Portal;
 
 class Workflow
 {
@@ -31,6 +23,8 @@ class Workflow
 
     private $eventFolder = './scripts/events/';
 
+    private $dataActionLogger;
+
     public function __construct($db, $login, $workflowID = 0)
     {
         $this->db = $db;
@@ -41,7 +35,7 @@ class Workflow
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
     public function setWorkflowID($workflowID)
@@ -104,9 +98,9 @@ class Workflow
         $res = $this->db->prepared_query('DELETE FROM workflow_steps
                                             WHERE stepID = :stepID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "stepID", $stepID),
-            new LogItem("workflow_steps", "workflowID", $workflowID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::WORKFLOW_STEP, [
+            new \Leaf\LogItem("workflow_steps", "stepID", $stepID),
+            new \Leaf\LogItem("workflow_steps", "workflowID", $workflowID)
         ]);
 
         return 1;
@@ -115,10 +109,10 @@ class Workflow
     public function getStep(int $stepID): array
     {
         $workflowStepsVars = array(':stepID' => $stepID);
-        $workflowStepsSQL = 'SELECT 
+        $workflowStepsSQL = 'SELECT
             workflowID,stepID,stepTitle,stepBgColor,stepFontColor,stepBorder,jsSrc,posX,posY,
-            indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID,requiresDigitalSignature,stepData 
-            FROM workflow_steps 
+            indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID,requiresDigitalSignature,stepData
+            FROM workflow_steps
             WHERE stepID=:stepID;';
         $workflowStepsRes = $this->db->prepared_query($workflowStepsSQL, $workflowStepsVars);
 
@@ -249,7 +243,7 @@ class Workflow
         $res = $this->db->prepared_query('SELECT * FROM step_dependencies
                                             LEFT JOIN dependencies USING (dependencyID)
                                             LEFT JOIN dependency_privs USING (dependencyID)
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
         									LEFT JOIN workflow_steps USING (stepID)
                                             WHERE stepID = :stepID', $vars);
 
@@ -317,10 +311,10 @@ class Workflow
     											AND stepID=:stepID
                                                 AND actionType=:action', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ROUTE_EVENTS, [
-            new LogItem("route_events", "workflowID", $this->workflowID),
-            new LogItem("route_events", "stepID", $stepID),
-            new LogItem("route_events", "action", $action)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::ROUTE_EVENTS, [
+            new \Leaf\LogItem("route_events", "workflowID", $this->workflowID),
+            new \Leaf\LogItem("route_events", "stepID", $stepID),
+            new \Leaf\LogItem("route_events", "action", $action)
         ]);
 
         // clear out routes
@@ -334,11 +328,11 @@ class Workflow
     											AND nextStepID=:nextStepID
                                                 AND actionType=:action', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW_ROUTE, [
-            new LogItem("workflow_routes", "workflowID", $this->workflowID),
-            new LogItem("workflow_routes", "stepID", $stepID),
-            new LogItem("workflow_routes", "nextStepID", $nextStepID),
-            new LogItem("workflow_routes", "actionType", $action)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::WORKFLOW_ROUTE, [
+            new \Leaf\LogItem("workflow_routes", "workflowID", $this->workflowID),
+            new \Leaf\LogItem("workflow_routes", "stepID", $stepID),
+            new \Leaf\LogItem("workflow_routes", "nextStepID", $nextStepID),
+            new \Leaf\LogItem("workflow_routes", "actionType", $action)
         ]);
 
         return true;
@@ -366,12 +360,12 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO workflow_routes (workflowID, stepID, nextStepID, actionType, displayConditional)
     										VALUES (:workflowID, :stepID, :nextStepID, :action, :displayConditional)', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW_ROUTE, [
-            new LogItem("workflow_routes", "workflowID", $this->workflowID),
-            new LogItem("workflow_routes", "stepID", $stepID),
-            new LogItem("workflow_routes", "nextStepID", $nextStepID),
-            new LogItem("workflow_routes", "actionType", $action),
-            new LogItem("workflow_routes", "displayConditional", "")
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::WORKFLOW_ROUTE, [
+            new \Leaf\LogItem("workflow_routes", "workflowID", $this->workflowID),
+            new \Leaf\LogItem("workflow_routes", "stepID", $stepID),
+            new \Leaf\LogItem("workflow_routes", "nextStepID", $nextStepID),
+            new \Leaf\LogItem("workflow_routes", "actionType", $action),
+            new \Leaf\LogItem("workflow_routes", "displayConditional", "")
         ]);
 
         return true;
@@ -489,9 +483,9 @@ class Workflow
             rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
         }
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EVENTS, [
-            new LogItem("events", "eventDescription",  $_POST['description']),
-            new LogItem("events", "eventID",  $name)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::EVENTS, [
+            new \Leaf\LogItem("events", "eventDescription",  $_POST['description']),
+            new \Leaf\LogItem("events", "eventID",  $name)
         ]);
 
         return 1;
@@ -523,9 +517,9 @@ class Workflow
         $res = $this->db->prepared_query('UPDATE workflows SET initialStepID=:stepID
                                             WHERE workflowID=:workflowID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW, [
-            new LogItem("workflows", "initialStepID",  $stepID),
-            new LogItem("workflows", "workflowID",  $this->workflowID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW, [
+            new \Leaf\LogItem("workflows", "initialStepID",  $stepID),
+            new \Leaf\LogItem("workflows", "workflowID",  $this->workflowID)
         ]);
 
         if ($stepID != 0)
@@ -540,7 +534,7 @@ class Workflow
      * @param string $stepTitle
      * @param string $bgColor
      * @param string $fontColor
-     * @return int The newly created stepID
+     * @return int|string The newly created stepID
      */
     public function createStep($stepTitle, $bgColor, $fontColor)
     {
@@ -563,11 +557,11 @@ class Workflow
 
         $stepId = $this->db->getLastInsertID();
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "stepID",  $stepId),
-            new LogItem("workflow_steps", "stepTitle",  $stepTitle),
-            new LogItem("workflow_steps", "jsSrc",  "", "empty"),
-            new LogItem("workflow_steps", "workflowID",  $this->workflowID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::WORKFLOW_STEP, [
+            new \Leaf\LogItem("workflow_steps", "stepID",  $stepId),
+            new \Leaf\LogItem("workflow_steps", "stepTitle",  $stepTitle),
+            new \Leaf\LogItem("workflow_steps", "jsSrc",  "", "empty"),
+            new \Leaf\LogItem("workflow_steps", "workflowID",  $this->workflowID)
         ]);
 
 
@@ -578,7 +572,7 @@ class Workflow
      * @param string $stepTitle
      * @param string $bgColor
      * @param string $fontColor
-     * @return int The newly created stepID
+     * @return int|string The newly created stepID
      */
     public function updateStep($stepID, $stepTitle, $bgColor = '', $fontColor = '')
     {
@@ -599,11 +593,11 @@ class Workflow
     										SET stepTitle=:stepTitle
     										WHERE stepID=:stepID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflows", "stepID", $stepID),
-            new LogItem("workflows", "stepTitle",  $stepTitle),
-            new LogItem("workflows", "jsSrc",  "", "empty"),
-            new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_STEP, [
+            new \Leaf\LogItem("workflows", "stepID", $stepID),
+            new \Leaf\LogItem("workflows", "stepTitle",  $stepTitle),
+            new \Leaf\LogItem("workflows", "jsSrc",  "", "empty"),
+            new \Leaf\LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
         ]);
 
         return 1;
@@ -612,7 +606,7 @@ class Workflow
     public function saveStepData(int $stepID, array $data) : bool{
 
         $validSaveStep = TRUE;
-        
+
         // everything that seems to modify this stuff is run through here.
         if (!$this->login->checkGroup(1))
         {
@@ -648,7 +642,7 @@ class Workflow
      * @param int $stepID
      * @param int $indicatorID
      *
-     * @return int
+     * @return int|string
      */
     public function setStepInlineIndicator($stepID, $indicatorID) {
         $indicatorID = (int)$indicatorID;
@@ -694,7 +688,7 @@ class Workflow
      * @param int $stepID 				the step id to require a signature for
      * @param int $requiresSignature 	whether a signature is required
      *
-     * @return int if the query was successful
+     * @return int|string if the query was successful
      */
     public function requireDigitalSignature($stepID, $requireSignature) {
         if(!$this->login->checkGroup(1)) {
@@ -736,9 +730,9 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO step_dependencies (stepID, dependencyID)
                                             VALUES (:stepID, :dependencyID)', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::STEP_DEPENDENCY, [
-            new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::STEP_DEPENDENCY, [
+            new \Leaf\LogItem("step_dependencies", "stepID",  $stepID),
+            new \Leaf\LogItem("step_dependencies", "dependencyID",  $dependencyID)
         ]);
 
         // populate records_dependencies so we can filter on items immediately
@@ -780,9 +774,9 @@ class Workflow
     									AND filled=0
                                         AND records_dependencies.time IS NULL', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::STEP_DEPENDENCY, [
-            new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::STEP_DEPENDENCY, [
+            new \Leaf\LogItem("step_dependencies", "stepID",  $stepID),
+            new \Leaf\LogItem("step_dependencies", "dependencyID",  $dependencyID)
         ]);
 
         return true;
@@ -802,9 +796,9 @@ class Workflow
     										SET description=:description
     										WHERE dependencyID=:dependencyID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::DEPENDENCY, [
-            new LogItem("dependencies", "description",  $description),
-            new LogItem("dependencies", "dependencyID",  $dependencyID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::DEPENDENCY, [
+            new \Leaf\LogItem("dependencies", "description",  $description),
+            new \Leaf\LogItem("dependencies", "dependencyID",  $dependencyID)
         ]);
 
         return 1;
@@ -824,9 +818,9 @@ class Workflow
 
         $insertedID = $this->db->getLastInsertID();
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::DEPENDENCY, [
-            new LogItem("dependencies", "description",  $description),
-            new LogItem("dependencies", "dependencyID",  $insertedID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::DEPENDENCY, [
+            new \Leaf\LogItem("dependencies", "description",  $description),
+            new \Leaf\LogItem("dependencies", "dependencyID",  $insertedID)
         ]);
 
         return $insertedID;
@@ -845,9 +839,9 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO dependency_privs (dependencyID, groupID)
                                             VALUES (:dependencyID, :groupID)', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::DEPENDENCY_PRIVS, [
-            new LogItem("dependency_privs", "groupID",  $groupID),
-            new LogItem("dependency_privs", "dependencyID",  $dependencyID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::DEPENDENCY_PRIVS, [
+            new \Leaf\LogItem("dependency_privs", "groupID",  $groupID),
+            new \Leaf\LogItem("dependency_privs", "dependencyID",  $dependencyID)
         ]);
 
         return true;
@@ -867,9 +861,9 @@ class Workflow
     										WHERE dependencyID=:dependencyID
     											AND groupID=:groupID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::DEPENDENCY_PRIVS, [
-            new LogItem("dependency_privs", "groupID",  $groupID),
-            new LogItem("dependency_privs", "dependencyID",  $dependencyID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::DEPENDENCY_PRIVS, [
+            new \Leaf\LogItem("dependency_privs", "groupID",  $groupID),
+            new \Leaf\LogItem("dependency_privs", "dependencyID",  $dependencyID)
         ]);
 
         return true;
@@ -925,9 +919,9 @@ class Workflow
 
         $this->db->prepared_query($strSQL, $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EVENTS, [
-            new LogItem("events", "eventDescription",  $desc),
-            new LogItem("events", "eventID",  $name)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EVENTS, [
+            new \Leaf\LogItem("events", "eventDescription",  $desc),
+            new \Leaf\LogItem("events", "eventID",  $name)
         ]);
 
         return true;
@@ -980,8 +974,8 @@ class Workflow
 
         $this->db->prepared_query($strSQL, $vars); // Delete Email Event
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EVENTS, [
-            new LogItem("events", "eventID",  $event)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EVENTS, [
+            new \Leaf\LogItem("events", "eventID",  $event)
         ]);
 
         return 1;
@@ -1006,11 +1000,11 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO route_events (workflowID, stepID, actionType, eventID)
     										VALUES (:workflowID, :stepID, :actionType, :eventID)', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::ROUTE_EVENTS, [
-            new LogItem("route_events", "workflowID",  $this->workflowID),
-            new LogItem("route_events", "actionType",  $actionType),
-            new LogItem("route_events", "eventID",  $eventID),
-            new LogItem("route_events", "stepID",  $stepID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::ROUTE_EVENTS, [
+            new \Leaf\LogItem("route_events", "workflowID",  $this->workflowID),
+            new \Leaf\LogItem("route_events", "actionType",  $actionType),
+            new \Leaf\LogItem("route_events", "eventID",  $eventID),
+            new \Leaf\LogItem("route_events", "stepID",  $stepID)
         ]);
 
         return true;
@@ -1038,11 +1032,11 @@ class Workflow
     											AND actionType=:actionType
     											AND eventID=:eventID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ROUTE_EVENTS, [
-            new LogItem("route_events", "workflowID",  $this->workflowID),
-            new LogItem("route_events", "actionType",  $actionType),
-            new LogItem("route_events", "eventID",  $eventID),
-            new LogItem("route_events", "stepID",  $stepID)
+       $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::ROUTE_EVENTS, [
+            new \Leaf\LogItem("route_events", "workflowID",  $this->workflowID),
+            new \Leaf\LogItem("route_events", "actionType",  $actionType),
+            new \Leaf\LogItem("route_events", "eventID",  $eventID),
+            new \Leaf\LogItem("route_events", "stepID",  $stepID)
         ]);
 
         return true;
@@ -1079,8 +1073,8 @@ class Workflow
         $res = $this->db->prepared_query('DELETE FROM workflows
     										WHERE workflowID = :workflowID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::WORKFLOW, [
-            new LogItem("workflows", "workflowID",  $this->workflowID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::WORKFLOW, [
+            new \Leaf\LogItem("workflows", "workflowID",  $this->workflowID)
         ]);
 
         return true;
@@ -1100,8 +1094,8 @@ class Workflow
 
         $workflowID = $this->db->getLastInsertID();
 
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::WORKFLOW, [
-            new LogItem("workflows", "workflowID",  $workflowID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::WORKFLOW, [
+            new \Leaf\LogItem("workflows", "workflowID",  $workflowID)
         ]);
 
         return $workflowID;
@@ -1125,10 +1119,10 @@ class Workflow
                                             SET indicatorID_for_assigned_empUID=:indicatorID
                                             WHERE stepID=:stepID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "stepID",  $stepID),
-            new LogItem("workflow_steps", "indicatorID_for_assigned_empUID",  $indicatorID),
-            new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_STEP, [
+            new \Leaf\LogItem("workflow_steps", "stepID",  $stepID),
+            new \Leaf\LogItem("workflow_steps", "indicatorID_for_assigned_empUID",  $indicatorID),
+            new \Leaf\LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
         ]);
 
         $vars = array(':indicatorID' => $indicatorID);
@@ -1136,9 +1130,9 @@ class Workflow
     										SET required=1
                                             WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "required",  1, "True"),
-            new LogItem("indicators", "indicatorID",  $indicatorID)
+       $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::INDICATOR, [
+            new \Leaf\LogItem("indicators", "required",  1, "True"),
+            new \Leaf\LogItem("indicators", "indicatorID",  $indicatorID)
         ]);
 
         return true;
@@ -1162,10 +1156,10 @@ class Workflow
                                             SET indicatorID_for_assigned_groupID=:indicatorID
         									WHERE stepID=:stepID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "indicatorID_for_assigned_groupID",  $indicatorID),
-            new LogItem("workflow_steps", "stepID",  $stepID),
-            new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_STEP, [
+            new \Leaf\LogItem("workflow_steps", "indicatorID_for_assigned_groupID",  $indicatorID),
+            new \Leaf\LogItem("workflow_steps", "stepID",  $stepID),
+            new \Leaf\LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID))
         ]);
 
         $vars = array(':indicatorID' => $indicatorID);
@@ -1173,9 +1167,9 @@ class Workflow
     										SET required=1
     										WHERE indicatorID=:indicatorID', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "required",  1, "True"),
-            new LogItem("indicators", "indicatorID",  $indicatorID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::INDICATOR, [
+            new \Leaf\LogItem("indicators", "required",  1, "True"),
+            new \Leaf\LogItem("indicators", "indicatorID",  $indicatorID)
         ]);
 
         return true;
@@ -1376,13 +1370,13 @@ class Workflow
 
         $this->db->prepared_query('UPDATE actions SET actionText=:actionText, actionTextPasttense=:actionTextPasttense, actionIcon=:actionIcon, actionAlignment=:actionAlignment, sort=:sort, fillDependency=:fillDependency WHERE actionType=:actionType AND NOT (deleted = 1)', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::ACTIONS, [
-            new LogItem("actions", "actionText",  strip_tags($_POST['actionText'])),
-            new LogItem("actions", "actionIcon",  $_POST['actionIcon']),
-            new LogItem("actions", "actionAlignment",  $alignment),
-            new LogItem("actions", "sort",  0),
-            new LogItem("actions", "fillDependency",  $_POST['fillDependency']),
-            new LogItem("actions", "actionTextPasttense",   strip_tags($_POST['actionTextPasttense']))
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::ACTIONS, [
+            new \Leaf\LogItem("actions", "actionText",  strip_tags($_POST['actionText'])),
+            new \Leaf\LogItem("actions", "actionIcon",  $_POST['actionIcon']),
+            new \Leaf\LogItem("actions", "actionAlignment",  $alignment),
+            new \Leaf\LogItem("actions", "sort",  0),
+            new \Leaf\LogItem("actions", "fillDependency",  $_POST['fillDependency']),
+            new \Leaf\LogItem("actions", "actionTextPasttense",   strip_tags($_POST['actionTextPasttense']))
         ]);
 
         return 1;
@@ -1406,9 +1400,9 @@ class Workflow
 
         $this->db->prepared_query('UPDATE actions SET deleted=:deleted WHERE actionType=:actionType', $vars);
 
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::ACTIONS, [
-            new LogItem("actions", "actionType",  strip_tags($actionType)),
-            new LogItem("actions", "deleted",  1, true)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::ACTIONS, [
+            new \Leaf\LogItem("actions", "actionType",  strip_tags($actionType)),
+            new \Leaf\LogItem("actions", "deleted",  1, true)
         ]);
 
         return 1;
@@ -1432,7 +1426,7 @@ class Workflow
 
     public function getHistory($filterById)
     {
-        return $this->dataActionLogger->getHistory($filterById, "workflowID", \LoggableTypes::WORKFLOW);
+        return $this->dataActionLogger->getHistory($filterById, "workflowID", \Leaf\LoggableTypes::WORKFLOW);
     }
 
     public function setEmailReminderData($stepID, $actionType, $frequency, $recipientGroupID, $emailTemplate, $startDateIndicatorID)

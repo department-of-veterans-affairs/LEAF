@@ -11,34 +11,11 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
-
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
-include '../form.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new DB_Config();
-$config = new Config();
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -60,17 +37,17 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-function hasDevConsoleAccess($login, $db_phonebook)
+function hasDevConsoleAccess($login, $oc_db)
 {
     // automatically allow coaches
-    $db_national = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+    $db_national = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
     $vars = array(':userID' => $login->getUserID());
     $res = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userID', $vars);
     if(count($res) == 0) {
@@ -86,7 +63,7 @@ function hasDevConsoleAccess($login, $db_phonebook)
     }
 
     $vars = array(':empUID' => $login->getEmpUID());
-    $res = $db_phonebook->prepared_query('SELECT data FROM employee_data
+    $res = $oc_db->prepared_query('SELECT data FROM employee_data
                                             WHERE empUID=:empUID
                                                 AND indicatorID=27
                                                 AND data="Yes"
@@ -112,6 +89,7 @@ $t_login->assign('name', $login->getName());
 
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
+$main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
 
 $main->assign('emergency', '');
 $main->assign('hideFooter', false);
@@ -126,22 +104,22 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+        $main->assign('javascripts', array('../' . Portal\Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
+                                           '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
         ));
 
         $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
 
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
-        $t_form->assign('orgchartImportTag', Config::$orgchartImportTags[0]);
+        $t_form->assign('orgchartImportTag', Portal\Config::$orgchartImportTags[0]);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
-                                           '../' . Config::$orgchartPath . '/css/employeeSelector.css',
-                                           '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
+                                           '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_groups.tpl')));
 
@@ -155,14 +133,14 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../' . Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
+        $main->assign('javascripts', array('../' . Portal\Config::$orgchartPath . '/js/nationalEmployeeSelector.js',
         ));
 
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
-                '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
         ));
         $main->assign('body', $t_form->fetch(customTemplate('mod_svcChief.tpl')));
 
@@ -177,15 +155,15 @@ switch ($action) {
         $main->assign('useUI', true);
 
         $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
-                                           '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                           '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
                                            '../../libs/js/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
-                                           '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                           '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
         ));
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
-        $t_form->assign('orgchartImportTags', Config::$orgchartImportTags);
+        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartImportTags', Portal\Config::$orgchartImportTags);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -198,7 +176,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $libsPath = '../../libs/';
-        
+
         $main->assign('useUI', true);
         $main->assign('javascripts', array($libsPath.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
                                             $libsPath.'js/codemirror/lib/codemirror.js',
@@ -219,14 +197,14 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        $t_form->assign('libsPath', $libsPath);
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        // libs path??
+        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 
-        $tabText = 'Form Editor Testing';        
+        $tabText = 'Form Editor Testing';
         break;
     case 'form':
         $t_form = new Smarty;
@@ -247,33 +225,33 @@ switch ($action) {
                                             '../../libs/js/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js',
-                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js',
-                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
-                                            '../' . Config::$orgchartPath . '/js/positionSelector.js'
+                                            '../' . Portal\Config::$orgchartPath . '/js/employeeSelector.js',
+                                            '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
+                                            '../' . Portal\Config::$orgchartPath . '/js/positionSelector.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
                                             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             '../../libs/js/codemirror/lib/codemirror.css',
                                             '../../libs/js/codemirror/addon/display/fullscreen.css',
                                             '../../libs/js/choicesjs/choices.min.css',
-                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css',
-                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
-                                            '../' . Config::$orgchartPath . '/css/positionSelector.css'
+                                            '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
+                                            '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
+                                            '../' . Portal\Config::$orgchartPath . '/css/positionSelector.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
         if (isset($_GET['form']))
         {
-            $vars = array(':categoryID' => XSSHelpers::xscrub($_GET['form']));
+            $vars = array(':categoryID' => Leaf\XSSHelpers::xscrub($_GET['form']));
             $res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
             if (count($res) > 0)
             {
-                $t_form->assign('form', XSSHelpers::xscrub($res[0]['categoryID']));
+                $t_form->assign('form', Leaf\XSSHelpers::xscrub($res[0]['categoryID']));
             }
         }
 
@@ -285,7 +263,7 @@ switch ($action) {
     case 'mod_templates':
     case 'mod_templates_reports':
     case 'mod_templates_email':
-            if(!hasDevConsoleAccess($login, $db_phonebook)) {
+            if(!hasDevConsoleAccess($login, $oc_db)) {
                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
             }
 
@@ -413,11 +391,9 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        if (!class_exists('CommonConfig'))
-        {
-            require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
-        }
-        $commonConfig = new CommonConfig();
+
+        $commonConfig = new Leaf\CommonConfig();
+
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         if ($login->checkGroup(1))
@@ -438,7 +414,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-//   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+//   		$t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
@@ -458,7 +434,7 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            //   		$t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+            //   		$t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('importTags', $config::$orgchartImportTags);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
@@ -500,7 +476,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
 
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
@@ -527,9 +503,9 @@ switch ($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+            $t_form->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 
             $main->assign('javascripts', array('../../libs/js/jquery/jquery.min.js',
                                            '../../libs/js/jquery/jquery-ui.custom.min.js',
@@ -552,20 +528,20 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
-$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
-$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
+$t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
+$t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

@@ -4,32 +4,14 @@
  */
 
 error_reporting(E_ERROR);
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include 'Login.php';
-include 'db_mysql.php';
-include 'db_config.php';
-include 'form.php';
-include 'sources/Note.php';
 
-// Include XSSHelpers
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new DB_Config();
-$config = new Config();
+require_once 'globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Login($db_phonebook, $db);
-
 $login->loginUser();
+
 if (!$login->isLogin() || !$login->isInDB()) {
     $login->logout(); // destroy current session tokens
     header("Location: session_expire.php");
@@ -43,14 +25,13 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
 
-function customTemplate($tpl)
-{
+function customTemplate($tpl) {
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$t_login->assign('name', XSSHelpers::xscrub($login->getName()));
+$t_login->assign('name', Leaf\XSSHelpers::xscrub($login->getName()));
 $t_menu->assign('menu_links', customTemplate('menu_links.tpl'));
 $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $t_menu->assign('is_admin', $login->checkGroup(1));
@@ -58,6 +39,7 @@ $t_menu->assign('hide_main_control', false);
 
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
+$main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
 
 $main->assign('emergency', '');
 $main->assign('status', '');
@@ -66,20 +48,20 @@ $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+
+if (isset($settings['timeZone'])) {
+    date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
 }
 
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
-        $form = new Form($db, $login);
-        include './sources/FormStack.php';
-        $stack = new FormStack($db, $login);
 
-        $t_menu->assign('action', XSSHelpers::xscrub($action));
+        $form = new Portal\Form($db, $login);
+        $stack = new Portal\FormStack($db, $login);
+
+        $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
 
         $currEmployee = $form->employee->lookupLogin($_SESSION['userID']);
@@ -88,27 +70,27 @@ switch ($action) {
         $categoryArray = $stack->getCategories();
         foreach ($categoryArray as $key => $cat)
         {
-            $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat);
+            $categoryArray[$key] = array_map('Leaf\XSSHelpers::xscrub', $cat);
         }
 
         $servicesArray = $form->getServices2();
         foreach ($servicesArray as $key => $service)
         {
-            $servicesArray[$key]['service'] = XSSHelpers::xscrub($servicesArray[$key]['service']);
+            $servicesArray[$key]['service'] = Leaf\XSSHelpers::xscrub($servicesArray[$key]['service']);
         }
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('categories', $categoryArray);
-        $t_form->assign('recorder', XSSHelpers::sanitizeHTML($login->getName()));
+        $t_form->assign('recorder', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
         $t_form->assign('services', $servicesArray);
-        $t_form->assign('city', XSSHelpers::sanitizeHTML($config->city));
-        $t_form->assign('phone', XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
-        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('city', Leaf\XSSHelpers::sanitizeHTML($config->city));
+        $t_form->assign('phone', Leaf\XSSHelpers::sanitizeHTML($currEmployeeData[5]['data']));
+        $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
-        $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
+        $t_form->assign('CSRFToken', Leaf\XSSHelpers::xscrub($_SESSION['CSRFToken']));
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 
@@ -122,13 +104,13 @@ switch ($action) {
         $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         // prevent view if form is submitted
         // defines who can edit the form
         if ($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1))
         {
             $t_menu->assign('recordID', $recordIDToView);
-            $t_menu->assign('action', XSSHelpers::xscrub($action));
+            $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
             $o_login = $t_login->fetch('login.tpl');
 
             // $thisRecord = $form->getRecord($_GET['recordID']);
@@ -137,10 +119,10 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToView);
-            $t_form->assign('lastStatus', XSSHelpers::sanitizeHTMl($form->getLastStatus($recordIDToView)));
+            $t_form->assign('lastStatus', Leaf\XSSHelpers::sanitizeHTMl($form->getLastStatus($recordIDToView)));
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('isIframe', (int)$_GET['iframe'] == 1 ? 1 : 0);
-            $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+            $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
             $t_form->assign('empUID', (int)$login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
 
@@ -164,7 +146,7 @@ switch ($action) {
         }
         $o_login = $t_login->fetch('login.tpl');
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : Leaf\XSSHelpers::sanitizeHTML($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToView;
 
         break;
@@ -191,9 +173,9 @@ switch ($action) {
 
         $recordIDToPrint = (int)$_GET['recordID'];
 
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_menu->assign('recordID', $recordIDToPrint);
-        $t_menu->assign('action', XSSHelpers::xscrub($action));
+        $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
 
         $recordInfo = $form->getRecordInfo($recordIDToPrint);
@@ -205,22 +187,22 @@ switch ($action) {
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
         $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
         $t_form->assign('accessLogs', $form->log);
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
-        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
-        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
-        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
+        $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', Leaf\XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
-        $t_form->assign('submitted', XSSHelpers::sanitizeHTML($recordInfo['submitted']));
+        $t_form->assign('submitted', Leaf\XSSHelpers::sanitizeHTML($recordInfo['submitted']));
         $t_form->assign('stepID', (int)$recordInfo['stepID']);
-        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
+        $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
-        $t_form->assign('date', XSSHelpers::sanitizeHTML($recordInfo['date']));
+        $t_form->assign('date', Leaf\XSSHelpers::sanitizeHTML($recordInfo['date']));
         $t_form->assign('deleted', (int)$recordInfo['deleted']);
-        $t_form->assign('bookmarked', XSSHelpers::sanitizeHTML($recordInfo['bookmarked']));
+        $t_form->assign('bookmarked', Leaf\XSSHelpers::sanitizeHTML($recordInfo['bookmarked']));
         $t_form->assign('categories', $recordInfo['categories']);
         $t_form->assign('comments', $comments);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -231,16 +213,16 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        require_once 'FormWorkflow.php';
-        $formWorkflow = new FormWorkflow($db, $login, $recordIDToPrint);
+        $formWorkflow = new Portal\FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
+        $t_form->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
 
         switch ($action) {
             default:
                 $childForms = $form->getChildForms($recordIDToPrint);
                 $t_form->assign('childforms', $childForms);
 
-                $childCatID = XSSHelpers::xscrub($_GET['childCategoryID']);
+                $childCatID = Leaf\XSSHelpers::xscrub($_GET['childCategoryID']);
                 if ($childCatID != '')
                 {
                     $match = 0;
@@ -263,7 +245,7 @@ switch ($action) {
                 break;
         }
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : Leaf\XSSHelpers::sanitizeHTML($settings['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToPrint;
 
         break;
@@ -276,8 +258,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        require_once 'Inbox.php';
-        $inbox = new Inbox($db, $login);
+        $inbox = new Portal\Inbox($db, $login);
 
         $inboxItems = $inbox->getInbox();
 
@@ -313,25 +294,25 @@ switch ($action) {
 
         break;
     case 'status':
-        $form = new Form($db, $login);
-        include_once 'View.php';
-        $view = new View($db, $login);
+        $form = new Portal\Form($db, $login);
+        $view = new Portal\View($db, $login);
+
         $recordIDForStatus = (int)$_GET['recordID'];
 
         $t_menu->assign('recordID', $recordIDForStatus);
-        $t_menu->assign('action', XSSHelpers::xscrub($action));
+        $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo($recordIDForStatus);
-        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
-        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
+        $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', Leaf\XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', (int)$recordInfo['submitted']);
-        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
-        $t_form->assign('date', XSSHelpers::sanitizeHTML($recordInfo['date']));
+        $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTML($recordInfo['service']));
+        $t_form->assign('date', Leaf\XSSHelpers::sanitizeHTML($recordInfo['date']));
         $t_form->assign('recordID', $recordIDForStatus);
         $t_form->assign('agenda', $view->buildViewStatus($recordIDForStatus));
         $t_form->assign('dependencies', $form->getDependencyStatus($recordIDForStatus));
@@ -342,7 +323,7 @@ switch ($action) {
     case 'cancelled_request':
         $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="../libs/dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
 
         break;
@@ -362,8 +343,7 @@ switch ($action) {
 
            break;
     case 'bookmarks':
-        include_once 'View.php';
-        $view = new View($db, $login);
+        $view = new Portal\View($db, $login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -380,7 +360,7 @@ switch ($action) {
 
         break;
     case 'tag_cloud':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $tags = $form->getUniqueTags();
         $count = 0;
         $tempTags = array();
@@ -402,14 +382,14 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
         $tagMembers = $form->getTagMembers($_GET['tag']);
 
-        $t_form->assign('tag', XSSHelpers::xscrub(strip_tags($_GET['tag'])));
+        $t_form->assign('tag', Leaf\XSSHelpers::xscrub(strip_tags($_GET['tag'])));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $main->assign('body', $t_form->fetch('tag_show_members.tpl'));
@@ -423,7 +403,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -439,7 +419,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
@@ -449,7 +429,7 @@ switch ($action) {
         break;
 
     case 'sitemap':
-        $form = new Form($db, $login);
+        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -486,12 +466,12 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('query', XSSHelpers::xscrub($_GET['query']));
-        $t_form->assign('indicators', XSSHelpers::xscrub($_GET['indicators']));
-        $t_form->assign('colors', XSSHelpers::xscrub($_GET['colors']));
-        $t_form->assign('title', XSSHelpers::sanitizeHTML($_GET['title']));
+        $t_form->assign('query', Leaf\XSSHelpers::xscrub($_GET['query']));
+        $t_form->assign('indicators', Leaf\XSSHelpers::xscrub($_GET['indicators']));
+        $t_form->assign('colors', Leaf\XSSHelpers::xscrub($_GET['colors']));
+        $t_form->assign('title', Leaf\XSSHelpers::sanitizeHTML($_GET['title']));
         $t_form->assign('version', (int)$_GET['v']);
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('powerQueryURL', $powerQueryURL);
@@ -510,18 +490,17 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-        $main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
+        $main->assign('title', $settings['heading'] == '' ? $config->title : Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
+        $main->assign('city', $settings['subHeading'] == '' ? $config->city : Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
         $main->assign('logout', true);
-        $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
-        $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
+        $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
+        $main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
         $main->display(customTemplate('main.tpl'));
         exit();
-
-        break;
     default:
+
         $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
         $main->assign('useLiteUI', true);
 
@@ -531,26 +510,25 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('is_quadrad', (int)$login->isQuadrad() || (int)$login->checkGroup(1));
         $t_form->assign('is_admin', (int)$login->checkGroup(1));
-        $t_form->assign('orgchartPath', Config::$orgchartPath);
+        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
-        require_once 'Inbox.php';
-        $inbox = new Inbox($db, $login);
+        $inbox = new Portal\Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
+
         $t_form->assign('inbox_status', 1);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
-        if ($action != 'menu' && $action != '' && $action != 'dosubmit')
-        {
+        if ($action != 'menu' && $action != '' && $action != 'dosubmit') {
             $main->assign('status', 'The page you are looking for does not exist or may have been moved. Please update your bookmarks.');
         }
 
@@ -559,25 +537,22 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
-$t_menu->assign('action', XSSHelpers::xscrub($action));
-$t_menu->assign('orgchartPath', Config::$orgchartPath);
+$t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
+$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
-$main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
+$main->assign('tabText', Leaf\XSSHelpers::sanitizeHTML($tabText));
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
-$main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
+$main->assign('title', $settings['heading'] == '' ? $config->title : Leaf\XSSHelpers::sanitizeHTML($settings['heading']));
+$main->assign('city', $settings['subHeading'] == '' ? $config->city : Leaf\XSSHelpers::sanitizeHTML($settings['subHeading']));
+$main->assign('revision', Leaf\XSSHelpers::sanitizeHTML($settings['version']));
 
-if (!isset($_GET['iframe']))
-{
+if (!isset($_GET['iframe'])) {
     $main->display(customTemplate('main.tpl'));
-}
-else
-{
+} else {
     $main->display(customTemplate('main_iframe.tpl'));
 }

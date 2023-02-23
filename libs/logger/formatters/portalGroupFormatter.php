@@ -1,10 +1,9 @@
 <?php
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
+namespace Leaf;
 
-class PortalGroupFormatter{
-    
+class PortalGroupFormatter
+{
     const TEMPLATES = [
         DataActions::IMPORT.'-'.LoggableTypes::PORTAL_GROUP => [
             "message"=>"<strong>%s</strong> group was imported",
@@ -27,5 +26,4 @@ class PortalGroupFormatter{
             "variables" => "userID,groupID"
         ]
     ];
-
 }

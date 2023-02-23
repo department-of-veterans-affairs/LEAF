@@ -222,7 +222,7 @@ $('li > ul > li:last-child > a').on('keydown', function(e) {
             {
                 $('#primary-admin').html('Not Set');
             }
-                
+
         }
     });
 </script>

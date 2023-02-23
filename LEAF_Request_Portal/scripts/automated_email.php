@@ -1,12 +1,7 @@
 <?php
 
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
-
-require_once $currDir . '/../Email.php';
-require_once $currDir . '/../VAMC_Directory.php';
+require_once 'globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 // this is here until we fully test
 ini_set('display_errors',1);
@@ -19,8 +14,6 @@ $siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/
 // this was what the random function I found used.
 $comment = '';
 
-$db_config = new DB_Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
 $getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
 FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
 $getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
@@ -55,10 +48,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$daysagotimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        LEFT JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID)
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND deleted = 0;';
@@ -76,7 +69,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     foreach ($getRecordRes as $record) {
 
         // send the email
-        $email = new Email();
+        $email = new Portal\Email();
 
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
@@ -94,7 +87,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         ));
 
         // need to get the emails sending to make sure this actually works!
-        $email->attachApproversAndEmail($record['recordID'],\Email::AUTOMATED_EMAIL_REMINDER,$record['userID']);
+        $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$record['userID']);
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working
         $updateRecordsWorkflowStateVars = [
