@@ -585,35 +585,34 @@ div#form_content_view {
                 height: 0;
                 background-color: transparent;
                 border-radius: 2px;
-                border: 8px solid transparent;
+                border: 7px solid transparent;
                 margin-left: auto;
 
                 &.up {
-                    margin-bottom: 0.4em;
-                    border-bottom: 14px solid $BG-DarkNavy;
+                    margin-bottom: 5px;
+                    border-bottom: 12px solid $BG-DarkNavy;
                     &:hover, &:focus, &:active {
                         outline: none !important;
-                        border-bottom: 14px solid $USWDS_Cyan;
+                        border-bottom: 12px solid $USWDS_Cyan;
                     }
                 }
                 &.down {
-                    border-top: 14px solid $BG-DarkNavy;
+                    border-top: 12px solid $BG-DarkNavy;
                     &:hover, &:focus, &:active {
                         outline: none !important;
-                        border-top: 14px solid $USWDS_Cyan;
+                        border-top: 12px solid $USWDS_Cyan;
                     }
                 }
             }
         }
 
         .sub-menu-chevron {
-            height: 100%;
-            align-self: center;
-            font-size: 1.4em; 
+            padding: 2px;
+            font-size: 1.2em;
+            align-self: center; 
             font-weight: bold;
-            border-radius: 3px;
+            border-radius: 2px;
             cursor: pointer; 
-            transform: scaleX(0.6);
         }
     }
 
@@ -655,7 +654,8 @@ div#form_content_view {
         margin-bottom: 0.75rem;
 
         #indicator_toolbar_toggle {
-            width: 120px;
+            width: 140px;
+            font-size: 85%;
         }
     }
 
@@ -902,9 +902,6 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     }
     #vue-formeditor-app {
         min-width: 350px;
-        main {
-            margin: 1rem 0;
-        }
     
         > div {
             flex-direction: column;

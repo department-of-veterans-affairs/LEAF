@@ -7,8 +7,6 @@ export default {
     data() {
         return {
             initialFocusElID: 'name',
-            showShortLabel: false,
-            shortLabelTrigger: 50,
             showAdditionalOptions: false,
             showDetailedFormatInfo: false,
             formID: this.currSubformID || this.currCategoryID,
@@ -53,7 +51,7 @@ export default {
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
-
+            newIndicatorID: null,
             name: this.indicatorRecord[this.currIndicatorID]?.name || '',
             options: this.indicatorRecord[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
             format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //format property here is just the format name
@@ -95,7 +93,6 @@ export default {
         'updateCategoriesProperty',
         'newIndicatorParentID',
         'truncateText',
-        'toggleIndicatorCountSwitch'
     ],
     provide() {
         return {
@@ -125,6 +122,12 @@ export default {
         }
     },
     computed:{
+        shortLabelTriggered() {
+            return this.name.trim().split(' ').length > 3;
+        },
+        formatBtnText() {
+            return this.showDetailedFormatInfo ? "Hide Details" : "What's this?";
+        },
         isMultiOptionQuestion() {
             return this.multianswerFormats.includes(this.format);
         },
@@ -165,7 +168,7 @@ export default {
         }
     },
     methods: {
-        toggleSelection(event, dataPropertyName = 'showShortLabel') {
+        toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
                 this[dataPropertyName] = !this[dataPropertyName];
             }
@@ -328,6 +331,9 @@ export default {
                                 disabled: 1,
                                 CSRFToken: this.CSRFToken
                             },
+                            success: (res) => {
+                                console.log('archive', this.currIndicatorID, res);
+                            },
                             error: err => console.log('ind disabled (archive) post err', err)
                         })
                     );
@@ -340,6 +346,9 @@ export default {
                             data: {
                                 disabled: 2,
                                 CSRFToken: this.CSRFToken
+                            },
+                            success: (res) => {
+                                console.log('delete', this.currIndicatorID, res);
                             },
                             error: err => console.log('ind disabled (deletion) post err', err)
                         })
@@ -406,22 +415,25 @@ export default {
                             sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
-                        success: () => {},
+                        success: (res) => {
+                            this.newIndicatorID = parseInt(res);
+                        },
                         error: err => console.log('error posting new question', err)
                     })
                 );
             }
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
-                
                 if (res.length > 0) {
-                    const subnodeIndID = (this.archived === true || this.deleted === true) && 
-                            this.currIndicatorID === this.selectedNodeIndicatorID ? null: this.selectedNodeIndicatorID
-                        
-                    if (this.archived === true || this.deleted === true) {
-                        this.toggleIndicatorCountSwitch();
+                    //if a new section was created
+                    if (this.newIndicatorID !== null && this.parentID === null) {
+                        this.selectNewCategory(this.formID, this.currSubformID !== null, this.newIndicatorID);
+                    //other edits
+                    } else {
+                        const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
+                            (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
+                        this.selectNewCategory(this.formID, this.currSubformID !== null, nodeID);
                     }
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
                 }
                 this.closeFormDialog();
             }).catch(err => console.log('an error has occurred', err));
@@ -531,16 +543,9 @@ export default {
                     @click="advNameEditorClick">
                     Advanced Formatting
                 </button>
-                <button v-show="name.length <= shortLabelTrigger && description === ''" 
-                    class="btn-general" 
-                    style="margin-left: auto; width:135px"
-                    title="access short label field"
-                    @click="toggleSelection($event, 'showShortLabel')">
-                    {{showShortLabel ? 'Hide' : 'Use'}} Short Label
-                </button>
             </div>
         </div>
-        <div v-show="description !== '' || name.length > shortLabelTrigger || showShortLabel === true">
+        <div v-show="description !== '' || shortLabelTriggered">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label for="description">What would you call this field in a spreadsheet?</label>
                 <div>{{shortlabelCharsRemaining}}</div>
@@ -559,7 +564,7 @@ export default {
                     <button id="editing-format-assist" class="btn-general"
                         @click="toggleSelection($event, 'showDetailedFormatInfo')"
                         title="select for assistance with format choices" style=" align-self:stretch; margin-left: 3px;">
-                        {{ showDetailedFormatInfo ? 'Hide' : 'Show'}} Details
+                        {{ formatBtnText }}
                     </button>
                 </div>
                 <div v-show="showDetailedFormatInfo" id="formatDetails" style="max-width:500px; font-size: 0.9rem; margin-bottom: 1rem;">

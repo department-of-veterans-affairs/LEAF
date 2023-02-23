@@ -90,7 +90,10 @@ export default {
                 saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
             }).catch(err => console.log('an error has occurred', err));
         },
-        selectMainForm(catID = this.currCategoryID) {
+        selectMainForm(catID = this.currCategoryID, setPrimary = false) {
+            if (setPrimary === true) {
+                this.$route.query.primary=this.currCategoryID;
+            }
             this.selectNewCategory(catID, false);
         },
         selectSubform(subformID = ''){
@@ -196,7 +199,7 @@ export default {
                             </li>
                             <li v-show="staplesMenuOpen" v-for="s in selectedCategoryStapledForms" 
                                 :key="'staple_' + s.stapledCategoryID">
-                                <button type="button" @click="selectMainForm(s.categoryID)">
+                                <button type="button" @click="selectMainForm(s.categoryID, true)">
                                     {{shortFormNameStripped(s.categoryID, 28) || 'Untitled'}}
                                 </button>
                             </li>

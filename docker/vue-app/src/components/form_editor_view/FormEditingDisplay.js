@@ -18,7 +18,8 @@ export default {
         'openIfThenDialog',
         'listItems',
         'allowedConditionChildFormats',
-        'showToolbars'
+        'showToolbars',
+        'toggleToolbars'
     ],
     mounted() {
         //console.log('form editing area mounted', this.$props);
@@ -103,7 +104,7 @@ export default {
                 </div>
 
                 <!-- NAME -->
-                <div v-html="indicatorName" 
+                <div v-html="indicatorName" @click="toggleToolbars"
                     class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                 
                 <!-- FORMAT PREVIEW -->

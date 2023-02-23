@@ -39,24 +39,27 @@ export default {
         'stripAndDecodeHTML',
     ],
     mounted() {
-        //console.log('MOUNTED VIEW CONTROLLER');
+        console.log('MOUNTED FORM EDITOR VIEW');
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
             console.log('entered main/forms route');
+
         })
     },
     provide() {
         return {
             listItems: computed(() => this.listItems),
             showToolbars: computed(() => this.showToolbars),
+            clearListItem: this.clearListItem,
             addToListItemsObject: this.addToListItemsObject,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListing: this.moveListing
+            moveListing: this.moveListing,
+            toggleToolbars: this.toggleToolbars
         }
     },
     computed: {
@@ -174,6 +177,10 @@ export default {
             }).catch(err => console.log('an error has occurred', err));
 
         },
+        clearListItem(indID) {
+            delete this.listItems[indID];
+            console.log(this.listItems);
+        },
         /**
          * adds initial sort and parentID values to app listItems object
          * @param {Object} formNode from the Form Index listing
@@ -275,9 +282,15 @@ export default {
             }
         },
         toggleToolbars(event = {}) {
+            //for debug use
+            //console.log(this.listItems, this.parentIDsToUpdate, this.sortValuesToUpdate)
             event?.stopPropagation();
             if (event?.keyCode === 32) event.preventDefault();
-            this.showToolbars=!this.showToolbars;
+            if (event.currentTarget.classList.contains('indicator-name-preview')) {
+                this.showToolbars = true;
+            } else {
+                this.showToolbars = !this.showToolbars;
+            }
         },
     },
     template:`<div id="formEditor_content">
@@ -303,8 +316,6 @@ export default {
                             class="btn-general"
                             title="Apply form structure updates">Apply sorting changes</button>
                     </div>
-                    <div v-if="currSubformID === null && internalForms.length > 0"><em>x{{internalForms.length}} internal form(s)</em></div>
-                    <div v-if="currSubformID === null && selectedCategoryStapledForms.length > 0"><em>x{{selectedCategoryStapledForms.length}} stapled form(s)</em></div>
                     <div style="margin: 1em 0">
                         <button v-if="selectedFormNode !== null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
                             @click="selectNewFormNode($event, null)" 
@@ -350,7 +361,7 @@ export default {
                             <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
                             <button id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">
-                                {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                                {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
                             </button>
                         </div>
                         <template v-for="(formSection, i) in selectedFormTree" :key="'editing_display_' + formSection.indicatorID">
@@ -370,7 +381,7 @@ export default {
                             <h3 style="margin: 0;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
                             <button id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">
-                                {{showToolbars ? 'Hide' : 'Show'}}&nbsp;toolbars
+                                {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
                             </button>
                         </div>
                         <div class="printformblock">

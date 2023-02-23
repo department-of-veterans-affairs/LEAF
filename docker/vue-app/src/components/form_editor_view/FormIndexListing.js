@@ -2,7 +2,7 @@ export default {
     name: 'FormIndexListing',
     data() {
         return {
-            subMenuOpen: true
+            subMenuOpen: false
         }
     },
     props: {
@@ -13,6 +13,7 @@ export default {
     },
     inject: [
         'truncateText',
+        'clearListItem',
         'addToListItemsObject',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
@@ -23,12 +24,16 @@ export default {
         'moveListing'
     ],
     mounted() {
-        //console.log('Form Index list item mounted')
+        console.log('Form Index list item mounted, adding', this.formNode.indicatorID);
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
         this.addToListItemsObject(this.formNode, this.parentID, this.index);
         if(this.selectedNodeIndicatorID !== null) {
             document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`).classList.add('index-selected');
         }
+    },
+    beforeUnmount() {
+        console.log('unmounting index list item, rm', this.formNode.indicatorID)
+        this.clearListItem(this.formNode.indicatorID);
     },
     methods: {
         indexHover(event = {}) {
@@ -40,6 +45,7 @@ export default {
         toggleSubMenu(event = {}) {
             if(event?.keyCode === 32) event.preventDefault();
             this.subMenuOpen = !this.subMenuOpen;
+            event.currentTarget.closest('li')?.focus();
         }
     },
     computed: {
@@ -89,13 +95,14 @@ export default {
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron"
                     @click.stop="toggleSubMenu($event)"
                     @keydown.stop.enter.space="toggleSubMenu($event)">
-                    {{subMenuOpen ? '︽' : '︾'}}
+                    <span v-show="subMenuOpen" role="img" aria="">▾</span>
+                    <span v-show="!subMenuOpen" role="img" aria="">▸</span>
                 </div>
             </div>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             
-            <ul v-show="subMenuOpen" class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
+            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop"
                 @dragover.prevent
@@ -103,7 +110,7 @@ export default {
                 @dragleave="onDragLeave">
 
                 <template v-if="formNode.child">
-                    <form-index-listing v-for="(child, k, i) in formNode.child"
+                    <form-index-listing v-show="subMenuOpen" v-for="(child, k, i) in formNode.child"
                         :id="'index_listing_' + child.indicatorID"
                         :depth="depth + 1"
                         :parentID="formNode.indicatorID"

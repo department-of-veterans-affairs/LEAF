@@ -47,7 +47,6 @@ export default {
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
             selectedFormTree: [],          //form tree with information about indicators for each node
             selectedFormNode: null,
-            indicatorCountSwitch: true,    //toggled to trigger form view controller remount if an indicator is archived or deleted
             selectedNodeIndicatorID: null,
             currentCategoryIsSensitive: false,
             stapledFormsCatIDs: [],         //cat IDs of forms stapled to anything
@@ -112,7 +111,6 @@ export default {
             addOrgSelector: this.addOrgSelector,
             truncateText: this.truncateText,
             stripAndDecodeHTML: this.stripAndDecodeHTML,
-            toggleIndicatorCountSwitch: this.toggleIndicatorCountSwitch
         }
     },
     components: {
@@ -253,12 +251,6 @@ export default {
          */
         addOrgSelector(selectorType = '') {
             this.orgSelectorClassesAdded[selectorType] = true;
-        },
-        /**
-         * used to force rerender of the form view controller component
-         */
-        toggleIndicatorCountSwitch() {
-            this.indicatorCountSwitch = !this.indicatorCountSwitch;
         },
         /**
          * 
@@ -525,8 +517,13 @@ export default {
                         }
                         this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
-                    this.$router.replace({ name: "category", query: { formID: catID } });
-                    document.getElementById('header_' + catID)?.focus(); //focus the breadcrumb/button for the main form
+                    const primary = this.$route.query?.primary || null;
+                    if (primary === null) {
+                        this.$router.replace({ name: "category", query: { formID: catID } });
+                    } else {
+                        this.$router.replace({ name: "category", query: { formID: catID, primary: primary } });
+                    }
+
                 }).catch(err => console.log('error getting form info: ', err));
 
             } else {  //card browser.
