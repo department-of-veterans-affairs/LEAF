@@ -5,7 +5,6 @@ export default {
             categoryDescription: this.stripAndDecodeHTML(this.currentCategorySelection?.categoryDescription) || '',
             workflowID: parseInt(this.currentCategorySelection?.workflowID) || 0,
             needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
-            sort: parseInt(this.currentCategorySelection?.sort) || 0,
             visible: parseInt(this.currentCategorySelection?.visible) || 0,
             type: this.currentCategorySelection?.type || '',
             formID: this.currSubformID || this.currCategoryID
@@ -45,11 +44,10 @@ export default {
             const descriptionChanged  = this.stripAndDecodeHTML(this.categoryDescription) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
             const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
             const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
-            const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
             const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
             const typeChanged = this.type !== this.currentCategorySelection.type;
             const changes = [
-                nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, sortChanged, visibleChanged, typeChanged
+                nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, visibleChanged, typeChanged
             ];
             //console.log('form panel changes', changes)  //keep for potential debugging
             return changes.some(c => c === true);
@@ -68,7 +66,6 @@ export default {
             const descriptionChanged  = this.stripAndDecodeHTML(this.categoryDescription) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
             const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
             const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
-            const sortChanged = this.sort !== parseInt(this.currentCategorySelection.sort);
             const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
             const typeChanged = this.type !== this.currentCategorySelection.type;
 
@@ -142,23 +139,6 @@ export default {
                             this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
                         },
                         error: err => console.log('ntk post err', err)
-                    })
-                );
-            }
-            if(sortChanged){
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formSort`,
-                        data: {
-                            sort: this.sort,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: () => {
-                            this.updateCategoriesProperty(this.formID, 'sort', this.sort);
-                        },
-                        error: err => console.log('sort post err', err)
                     })
                 );
             }
@@ -265,10 +245,6 @@ export default {
                                 <option value="1" :selected="visible === 1">Available</option>
                                 <option value="0" :selected="visible === 0">Hidden</option>
                             </select>
-                        </label>
-
-                        <label for="categorySort" title="-128 to 127">Sort
-                            <input id="categorySort" type="number" v-model.number="sort" min="-128" max="127" style="width:60px;"/>
                         </label>
 
                         <label for="formType">Form Type

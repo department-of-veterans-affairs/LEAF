@@ -166,15 +166,13 @@ export default {
             return formID !== null ? this.categories[formID] : {};
         },
         /**
-         * not a stapled or internal form, has workflow and is visible
-         * @returns {array} of categories records
+         * @returns {array} of non-internal forms that have workflows and are available
          */
         activeForms() {
             let active = [];
             for (let c in this.categories) {
-                if (!this.stapledFormsCatIDs.includes(this.categories[c].categoryID) && 
-                    this.categories[c].parentID === '' && 
-                    parseInt(this.categories[c].workflowID) !== 0 && 
+                if (this.categories[c].parentID === '' &&
+                    parseInt(this.categories[c].workflowID) !== 0 &&
                     parseInt(this.categories[c].visible) === 1) {
                         active.push({...this.categories[c]});
                 }
@@ -183,15 +181,13 @@ export default {
             return active;
         },
         /**
-         * not a stapled or internal form, has WF but is hidden
-         * @returns {array} of categories records
+         * @returns {array} of non-internal forms that have workflows and are hidden
          */
         inactiveForms() {
             let inactive = [];
             for (let c in this.categories) {
-                if (!this.stapledFormsCatIDs.includes(this.categories[c].categoryID) && 
-                    this.categories[c].parentID === '' && 
-                    parseInt(this.categories[c].workflowID) !== 0 && 
+                if (this.categories[c].parentID === '' &&
+                    parseInt(this.categories[c].workflowID) !== 0 &&
                     parseInt(this.categories[c].visible) === 0) {
                     inactive.push({...this.categories[c]});
                 }
@@ -213,15 +209,12 @@ export default {
             return internalForms;
         },
         /**
-         * forms that are staples or have no workflows
-         * @returns {array} of internal forms associated with the main form
+         * @returns {array} of non-internal forms that have no workflows
          */
         supplementalForms() {
             let supplementalForms = [];
             for(let c in this.categories) {
-                if (this.categories[c].parentID === '' &&
-                    (this.stapledFormsCatIDs.includes(this.categories[c].categoryID) ||
-                    (parseInt(this.categories[c].workflowID) === 0 && parseInt(this.categories[c].visible) === 1))) {
+                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) === 0 ) {
                     supplementalForms.push({...this.categories[c]});
                 }
             }

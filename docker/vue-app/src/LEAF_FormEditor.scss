@@ -345,9 +345,12 @@ nav#form-editor-nav {
             border-bottom: 1px solid $charcoal;
         }
         tr.sub-row { 
-            color: #222;
-            padding-left:1rem;
+            color: #282828;
+            background-color: #fbfbff;
             font-size: 85%;
+            .form-name {
+                padding-left: 0.75rem;
+            }
         }
         .need-to-know-enabled {
             @include flexcenter;

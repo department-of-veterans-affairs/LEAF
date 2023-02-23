@@ -61,7 +61,17 @@ export default {
     },
     methods: {
         updateSort(event = {}, categoryID = '') {
-            const sortValue = parseInt(event.currentTarget.value);
+            let sortValue = parseInt(event.currentTarget.value);
+            if(isNaN(sortValue)) return;
+
+            if (sortValue < -128) {
+                sortValue = -128;
+                event.currentTarget.value = -128;
+            }
+            if (sortValue > 127) {
+                sortValue = 127;
+                event.currentTarget.value = 127;
+            }
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formSort`,
@@ -91,11 +101,11 @@ export default {
             <td>
                 <div v-if="parseInt(categoriesRecord.needToKnow) === 1" class="need-to-know-enabled">
                     <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;"/>
-                    <em>&nbsp;Need to Know enabled</em>
+                    &nbsp;<em>Need to Know enabled</em>
                 </div>
             </td>
             <td>
-                <input type="text" :value="categoriesRecord.sort"
+                <input type="number" :value="categoriesRecord.sort" min="-128" max="127"
                  style="width: 100%;" @change="updateSort($event, catID)" />
             </td>
         </tr>
@@ -111,11 +121,11 @@ export default {
                 <td>
                     <div v-if="parseInt(categories[form.categoryID].needToKnow) === 1" class="need-to-know-enabled">
                         <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;"/>
-                        <em>&nbsp;Need to Know enabled</em>
+                        &nbsp;<em>Need to Know enabled</em>
                     </div>
                 </td>
                 <td>
-                    <input type="text" :value="categories[form.categoryID].sort"
+                    <input type="number" :value="categories[form.categoryID].sort" min="-128" max="127"
                         style="width: 100%" @change="updateSort($event, form.categoryID)" />
                 </td>
             </tr>
