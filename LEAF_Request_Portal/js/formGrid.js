@@ -983,7 +983,7 @@ var LeafFormGrid = function (containerID, options) {
     $("#" + containerID).html(
       '<br/><button type="button" id="' +
         prefixID +
-        'getExcel" class="buttonNorm"><img src="../libs/dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
+        'getExcel" class="buttonNorm"><img src="dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
     );
 
     $("#" + prefixID + "getExcel").on("click", function () {

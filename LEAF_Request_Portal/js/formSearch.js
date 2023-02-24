@@ -28,7 +28,7 @@ var LeafFormSearch = function (containerID) {
         prefixID +
         'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
         rootURL +
-        '../libs/dynicons/?img=search.svg&w=16">\
+        'dynicons/?img=search.svg&w=16">\
 			    <img id="' +
         prefixID +
         'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
@@ -49,7 +49,7 @@ var LeafFormSearch = function (containerID) {
         prefixID +
         'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url(' +
         rootURL +
-        '../libs/dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
+        'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="' +
         prefixID +
@@ -662,7 +662,7 @@ var LeafFormSearch = function (containerID) {
             '" style="width: 200px" />'
         );
         if (!jQuery.ui) {
-          $.getScript("../libs/js/jquery/jquery-ui.custom.min.js", function () {
+          $.getScript("js/jquery/jquery-ui.custom.min.js", function () {
             $("#" + prefixID + "widgetMat_" + widgetID).datepicker();
           });
         } else {
@@ -967,7 +967,7 @@ var LeafFormSearch = function (containerID) {
                         );
                         if (!jQuery.ui) {
                           $.getScript(
-                            "../libs/js/jquery/jquery-ui.custom.min.js",
+                            "js/jquery/jquery-ui.custom.min.js",
                             function () {
                               $(
                                 "#" + prefixID + "widgetMat_" + widgetID
@@ -1189,7 +1189,7 @@ var LeafFormSearch = function (containerID) {
       widgetCounter +
       '"><button id="widgetRemoveButton"><img src="' +
       rootURL +
-      '../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
+      'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
 						<td style="text-align: center"><strong id="' +
       prefixID +
       "widgetGate_" +
