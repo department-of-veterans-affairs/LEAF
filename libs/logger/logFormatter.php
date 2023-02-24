@@ -66,11 +66,19 @@ class LogFormatter{
             $output_message = FALSE;
         }
 
-        return $output_message;
+        $output = array(
+            "message" => $output_message
+        );
+
+        if (array_key_exists("targetUID", $result)) {
+            $output["targetUID"] = $result["targetUID"];
+            $output["displayName"] = $result["displayName"];
+        }
+
+        return $output;
     }
 
     private static function findValue($changeDetails, $columnName, $loggableColumns, $message){
-
         $result = ["message"=> $message, "values"=> array()];
 
         foreach($changeDetails as $key=> $detail){
@@ -85,9 +93,13 @@ class LogFormatter{
             if($detail["column"] == $columnName) {
                 $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
                 array_push($result["values"], $value);
+
+                if ($columnName == "userID") {
+                    $result["targetUID"] = $detail["value"];
+                    $result["displayName"] = $detail["displayValue"];
+                }
             }
         }
-
         return $result;
     }
 }

@@ -505,9 +505,28 @@ class Group
         $dirRes = $dir->lookupLogin($employeeID);
 
         $empData = $dirRes[0];
-        $empDisplay =$empData["firstName"]." ".$empData["lastName"];
+        $empDisplay = $empData["firstName"]." ".$empData["lastName"];
 
         return $empDisplay;
+    }
+
+    /**
+     * Returns Employee user ID.
+     * @param string $employeeID - The id to create the display name of.
+     *
+     * @return int
+     */
+    public function getEmployeeUserID($employeeID): int
+    {
+        require_once '../VAMC_Directory.php';
+
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+
+        $empData = $dirRes[0];
+        $empUserID = $empData["empUID"];
+
+        return $empUserID;
     }
 
     /**

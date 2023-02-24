@@ -60,11 +60,15 @@ class DataActionLogger{
         if($logResults != null){
             for($i = 0; $i<count($logResults); $i++){
                 $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
-                $logResults[$i]["history"] = \LogFormatter::getFormattedString($logResults[$i], $logType);
+                $logHistory = \LogFormatter::getFormattedString($logResults[$i], $logType);
+                $logResults[$i]["history"] = $logHistory["message"];
+                if (array_key_exists("targetUID", $logHistory)) {
+                    $logResults[$i]["targetUID"] = $logHistory["targetUID"];
+                    $logResults[$i]["displayName"] = $logHistory["displayName"];
+                }
             }
         }
         return $logResults;
-
     }
 
     /**
@@ -115,6 +119,7 @@ class DataActionLogger{
             " SELECT
                     dal.ID,
                     dal.userDisplay as userName,
+                    dal.userID,
                     dal.action,
                     dal.timestamp
                 from data_action_log dal

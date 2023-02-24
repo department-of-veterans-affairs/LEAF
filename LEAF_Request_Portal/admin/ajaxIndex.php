@@ -265,6 +265,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
+        $t_form->assign('orgchartPath', Config::$orgchartPath);
+
         $type = null;
         switch ($typeName) {
             case 'service':
@@ -316,7 +318,8 @@ switch ($action) {
 
         for($i = 0; $i<count($resHistory); $i++){
             $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
-            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');
+            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('F j, Y. g:i A');
+            $resHistory[$i]["targetEmpUID"] = $type->getEmployeeUserID($resHistory[$i]["targetUID"]);
         }
 
         if($gethistoryslice)

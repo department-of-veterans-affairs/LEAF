@@ -8,7 +8,7 @@ class FormFormatter{
 
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::FORM => [
-            "message"=> "Form %s has been created",
+            "message"=> "added <strong>new form:</strong> %s",
             "variables" => "categoryName"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::FORM => [

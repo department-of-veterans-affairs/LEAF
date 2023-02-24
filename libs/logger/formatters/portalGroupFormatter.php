@@ -7,24 +7,24 @@ class PortalGroupFormatter{
     
     const TEMPLATES = [
         DataActions::IMPORT.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"<strong>%s</strong> group was imported",
+            "message"=>"imported <strong>group: </strong>%s",
             "variables"=>"groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"<strong>%s</strong> group was created",
+            "message"=>"added <strong>new group:</strong> %s",
             "variables"=>"name"
         ],
         DataActions::DELETE.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"<strong>%s</strong> group was deleted",
+            "message"=>"deleted <strong>group:</strong> %s",
             "variables"=>"groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::EMPLOYEE => [
-            "message" => "<strong>%s</strong> was added to the group <strong>%s</strong>",
-            "variables" => "userID,groupID"
+            "message" => "added <strong>new user:</strong> %s",
+            "variables" => "userID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::EMPLOYEE => [
-            "message" => "<strong>%s</strong> was removed from the group <strong>%s</strong>",
-            "variables" => "userID,groupID"
+            "message" => "removed <strong>user:</strong> %s",
+            "variables" => "userID"
         ]
     ];
 
