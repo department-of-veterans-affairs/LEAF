@@ -481,6 +481,7 @@ var LeafFormGrid = function(containerID, options) {
             || startIdx == 0) {
             startIdx = 0;
             $('#' + prefixID + 'tbody').empty();
+            renderHistory = {};
             fullRender = true;
         }
 
