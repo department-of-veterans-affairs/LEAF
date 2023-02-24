@@ -50,7 +50,7 @@ if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
  */
 function updateUserInfo(string $userName, int $empUID)
 {
-    global $db, $phonedb;
+    global $db, $phonedb, $oc_db;
 
     $vars = array(':userName' => htmlspecialchars_decode($userName, ENT_QUOTES)); //for users with apostrophe in name
 

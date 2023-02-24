@@ -28,7 +28,7 @@ var LeafFormSearch = function (containerID) {
         prefixID +
         'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
         rootURL +
-        'dynicons/?img=search.svg&w=16">\
+        '../libs/dynicons/?img=search.svg&w=16">\
 			    <img id="' +
         prefixID +
         'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
@@ -49,7 +49,7 @@ var LeafFormSearch = function (containerID) {
         prefixID +
         'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url(' +
         rootURL +
-        'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
+        '../libs/dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
 		        <div style="width: 550px">Find items where...</div>\
 		        <table id="' +
         prefixID +
@@ -110,408 +110,22 @@ var LeafFormSearch = function (containerID) {
       }
     });
 
-		$('#' + prefixID + 'advancedSearchButton').on('click', function() {
-			searchOrigWidth = $('#' + prefixID + 'searchtxt').width();
-			$('#' + prefixID + 'advancedSearchButton').fadeOut();
-			$('#' + prefixID + 'searchtxt').animate({'width': '0px'}, 400, 'swing', function() {
-				$('#' + prefixID + 'searchtxt').css('display', 'none');
-				$('#' + prefixID + 'advancedOptions').slideDown(function() {
-					$('#' + prefixID + 'advancedOptionsClose').fadeIn();
-				});
-				$('#' + prefixID + 'advancedOptions').css('display', 'inline');
-				chosenOptions();
-				renderPreviousAdvancedSearch();
-				$('#' + prefixID + 'widgetMat_0').focus();
-			});
-		});
-
-		$('#' + prefixID + 'advancedSearchApply').on('click', function() {
-			showBusy();
-			generateSearchQuery();
-		});
-		$('#' + prefixID + 'addTerm').on('click', function() {
-			newSearchWidget('AND');
-			chosenOptions();
-		});
-		$('#' + prefixID + 'orTerm').on('click', function() {
-			newSearchWidget('OR');
-			chosenOptions();
-		});
-
-		$('#' + prefixID+ 'searchtxt').on('keydown', function(e) {
-			showBusy();
-			timer = 0;
-			if(e.keyCode == 13) { // enter key
-				search($('#' + prefixID+ 'searchtxt').val());
-			}
-		});
-
-		newSearchWidget();
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function init() {
-		renderUI();
-
-		intervalID = setInterval(function(){inputLoop();}, 200);
-		if(!(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) && window.location.search !== '') {
-			focus();
-		}
-		if(getLastSearch() == null) {
-			search('*');
-		}
-		else {
-			var lastSearch = getLastSearch();
-
-			var isJSON = true;
-			var advSearch = {};
-			try {
-				advSearch = JSON.parse(lastSearch);
-			}
-			catch(err) {
-				isJSON = false;
-			}
-
-			if(lastSearch.substr(0, 1) != '[') {
-				isJSON = false;
-			}
-
-			if(isJSON) {
-				$('#' + prefixID + 'advancedSearchButton').click();
-				search(lastSearch);
-			}
-			else {
-				if(lastSearch == '') {
-					search('*');
-				}
-				$('#' + prefixID+ 'searchtxt').val(lastSearch);
-			}
-		}
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 * prevQuery - optional JSON object
-	 */
-	function renderPreviousAdvancedSearch(prevQuery) {
-		var isJSON = true;
-		var advSearch = {};
-		try {
-			if(prevQuery != undefined) {
-				advSearch = prevQuery;
-			}
-			else {
-				advSearch = JSON.parse(getLastSearch());
-			}
-		}
-		catch(err) {
-			isJSON = false;
-		}
-		if(isJSON && advSearch != null && widgetCounter <= advSearch.length) {
-			for(var i = 1; i < advSearch.length; i++) {
-				newSearchWidget(advSearch[i].gate);
-				firstChild();
-			}
-			for(var i = 0; i < advSearch.length; i++) {
-				$('#' + prefixID + 'widgetTerm_' + i).val(advSearch[i].id);
-				$('#' + prefixID + 'widgetTerm_' + i).trigger('chosen:updated');
-				if(advSearch[i].indicatorID != undefined
-					|| advSearch[i].id == 'serviceID'
-					|| advSearch[i].id == 'categoryID'
-					|| advSearch[i].id == 'stepID') {
-					renderWidget(i, function(widgetID, indicatorID, operator, match, gate) {
-						return function() {
-							$('#' + prefixID + 'widgetIndicator_' + widgetID).val(indicatorID);
-							$('#' + prefixID + 'widgetIndicator_' + widgetID).trigger('chosen:updated');
-							$('#' + prefixID + 'widgetCod_' + widgetID).val(operator);
-                            $('#' + prefixID + 'widgetCod_' + widgetID).trigger('change');
-							$('#' + prefixID + 'widgetCod_' + widgetID).trigger('chosen:updated');
-							$('#' + prefixID + 'widgetMat_' + widgetID).val(match.replace(/\*/g, ''));
-							$('#' + prefixID + 'widgetMat_' + widgetID).trigger('chosen:updated');
-						};
-					}(i, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate));
-				}
-				else {
-					renderWidget(i);
-				}
-				$('#' + prefixID + 'widgetCod_' + i).val(advSearch[i].operator);
-				if(typeof advSearch[i].match == 'string') {
-					$('#' + prefixID + 'widgetMat_' + i).val(advSearch[i].match.replace(/\*/g, ''));
-
-				}
-
-			}
-		}
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 * From: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-	 */
-	function getLocalStorageHash() {
-		var hash = 0, i, chr, len;
-		if (document.URL.length == 0) return hash;
-		for (i = 0, len = document.URL.length; i < len; i++) {
-			chr   = document.URL.charCodeAt(i);
-			hash  = ((hash << 5) - hash) + chr;
-			hash |= 0; // Convert to 32bit integer
-		}
-		return hash;
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function setOrgchartPath(path) {
-		orgchartPath = path;
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function getLastSearch() {
-		return localStorage.getItem(localStorageNamespace + '.search');
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function setSearchFunc(func) {
-		searchFunc = func;
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function search(txt) {
-		if(txt != '*') {
-			localStorage.setItem(localStorageNamespace + '.search', txt);
-		}
-		return searchFunc(txt);
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function inputLoop() {
-		if($('#' + prefixID + 'searchtxt') == null) {
-			clearInterval(intervalID);
-			return false;
-		}
-		timer += (timer > 5000) ? 0 : 200;
-		if(timer > 400) {
-			var txt = $('#' + prefixID + 'searchtxt').val();
-
-			if(txt != "" && txt != q) {
-				q = txt;
-
-				if(currRequest != null && currRequest.abort != undefined && typeof currRequest.abort == 'function') {
-					currRequest.abort();
-				}
-
-				currRequest = search(txt);
-			}
-			else if(txt == "") {
-				if(txt != q) {
-					search('');
-				}
-				q = txt;
-				$('#' + this.prefixID + '_result').html('');
-				numResults = 0;
-				showNotBusy();
-			}
-			else {
-				showNotBusy();
-			}
-		}
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function focus() {
-		$('#' + prefixID + 'searchtxt').focus();
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function showBusy() {
-		$('#' + prefixID + 'searchIcon').css("display", "none");
-		$('#' + prefixID + 'searchIconBusy').css("display", "inline");
-		$('.status').text('Loading');
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function showNotBusy() {
-		$('#' + prefixID + 'searchIcon').css("display", "inline");
-		$('#' + prefixID + 'searchIconBusy').css("display", "none");
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function createEmployeeSelectorWidget(widgetID, type) {
-		if(type == undefined) {
-			type = 'userName';
-		}
-		if(typeof employeeSelector == 'undefined') {
-			$('head').append('<link type="text/css" rel="stylesheet" href="'+ orgchartPath +'/css/employeeSelector.css" />');
-			$.ajax({
-				type: 'GET',
-				url: orgchartPath + "/js/employeeSelector.js",
-				dataType: 'script',
-				success: function() {
-					let empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
-					empSel.apiPath = orgchartPath + '/api/';
-					empSel.rootPath = orgchartPath + '/';
-					empSel.outputStyle = 'micro';
-
-					empSel.setSelectHandler(function() {
-						if(empSel.selectionData[empSel.selection] != undefined) {
-							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-							//uses id.  report builder/search will not take userName:<username>
-							$("#"+ empSel.prefixID+"input").val('#' + empSel.selection)
-						}
-					});
-					empSel.setResultHandler(function() {
-						if(empSel.selectionData[empSel.selection] != undefined) {
-							selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-							$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-						}
-					});
-					empSel.initialize();
-				}
-			});
-		}
-		else {
-			let empSel = new employeeSelector(prefixID + 'widgetEmp_' + widgetID);
-			empSel.apiPath = orgchartPath + '/api/';
-			empSel.rootPath = orgchartPath + '/';
-			empSel.outputStyle = 'micro';
-
-			empSel.setSelectHandler(function() {
-				if(empSel.selectionData[empSel.selection] != undefined) {
-					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-					$("#"+ empSel.prefixID+"input").val('#' + empSel.selection);
-				}
-			});
-			empSel.setResultHandler(function() {
-				if(empSel.selectionData[empSel.selection] != undefined) {
-					selection = type == 'empUID' ? empSel.selection : empSel.selectionData[empSel.selection].userName;
-					$('#' + prefixID + 'widgetMat_' + widgetID).val(selection);
-				}
-			});
-			empSel.initialize();
-		}
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function createPositionSelectorWidget(widgetID) {
-		if(typeof positionSelector == 'undefined') {
-			$('head').append('<link type="text/css" rel="stylesheet" href="'+ orgchartPath +'/css/positionSelector.css" />');
-			$.ajax({
-				type: 'GET',
-				url: orgchartPath + "/js/positionSelector.js",
-				dataType: 'script',
-				success: function() {
-					let posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
-					posSel.apiPath = orgchartPath + '/api/';
-					posSel.rootPath = orgchartPath + '/';
-
-					posSel.setSelectHandler(function() {
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-						$("#"+ posSel.prefixID+"input").val('#'+posSel.selection);
-					});
-					posSel.setResultHandler(function() {
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-					});
-					posSel.initialize();
-				}
-			});
-		}
-		else {
-			let posSel = new positionSelector(prefixID + 'widgetPos_' + widgetID);
-			posSel.apiPath = orgchartPath + '/api/';
-			posSel.rootPath = orgchartPath + '/';
-
-			posSel.setSelectHandler(function() {
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-				$("#"+ posSel.prefixID+"input").val('#'+posSel.selection);
-			});
-			posSel.setResultHandler(function() {
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(posSel.selection);
-			});
-			posSel.initialize();
-		}
-	}
-
-	/**
-	 * @memberOf LeafFormSearch
-	 */
-	function createGroupSelectorWidget(widgetID) {
-		if(typeof groupSelector == 'undefined') {
-			$('head').append('<link type="text/css" rel="stylesheet" href="'+ orgchartPath +'/css/groupSelector.css" />');
-			$.ajax({
-				type: 'GET',
-				url: orgchartPath + "/js/groupSelector.js",
-				dataType: 'script',
-				success: function() {
-					let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
-					grpSel.apiPath = orgchartPath + '/api/';
-					grpSel.rootPath = orgchartPath + '/';
-
-					grpSel.setSelectHandler(function() {
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-						$("#"+ grpSel.prefixID+"input").val('group#'+grpSel.selection);
-					});
-					grpSel.setResultHandler(function() {
-						$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-					});
-					grpSel.initialize();
-				}
-			});
-		}
-		else {
-			let grpSel = new groupSelector(prefixID + 'widgetGrp_' + widgetID);
-			grpSel.apiPath = orgchartPath + '/api/';
-			grpSel.rootPath = orgchartPath + '/';
-
-			grpSel.setSelectHandler(function() {
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-				$("#"+ grpSel.prefixID+"input").val('group#'+grpSel.selection);
-			});
-			grpSel.setResultHandler(function() {
-				$('#' + prefixID + 'widgetMat_' + widgetID).val(grpSel.selection);
-			});
-			grpSel.initialize();
-		}
-	}
-
-	/**
-     * Render the query match condition's input type for dropdown and radio fields
-     * @param widgetID
-     * @param options <select> html section matching the widgetID
-	 * @memberOf LeafFormSearch
-	 */
-    function renderSingleSelectInputType(widgetID, options) {
-        switch($('#' + prefixID + 'widgetCod_' + widgetID).val()) {
-            case 'LIKE':
-            case 'NOT LIKE':
-                $('#' + prefixID + 'widgetMatch_' + widgetID).html('<input type="text" aria-label="text" id="'+prefixID+'widgetMat_'+widgetID+'" style="width: 200px" />');
-                break;
-            default:
-                $('#' + prefixID + 'widgetMatch_' + widgetID).html(options);
-                chosenOptions();
-                break;
+    $("#" + prefixID + "advancedSearchButton").on("click", function () {
+      searchOrigWidth = $("#" + prefixID + "searchtxt").width();
+      $("#" + prefixID + "advancedSearchButton").fadeOut();
+      $("#" + prefixID + "searchtxt").animate(
+        { width: "0px" },
+        400,
+        "swing",
+        function () {
+          $("#" + prefixID + "searchtxt").css("display", "none");
+          $("#" + prefixID + "advancedOptions").slideDown(function () {
+            $("#" + prefixID + "advancedOptionsClose").fadeIn();
+          });
+          $("#" + prefixID + "advancedOptions").css("display", "inline");
+          chosenOptions();
+          renderPreviousAdvancedSearch();
+          $("#" + prefixID + "widgetMat_0").focus();
         }
       );
     });
@@ -724,7 +338,11 @@ var LeafFormSearch = function (containerID) {
       if (txt != "" && txt != q) {
         q = txt;
 
-        if (currRequest != null) {
+        if (
+          currRequest != null &&
+          currRequest.abort != undefined &&
+          typeof currRequest.abort == "function"
+        ) {
           currRequest.abort();
         }
 
@@ -1571,7 +1189,7 @@ var LeafFormSearch = function (containerID) {
       widgetCounter +
       '"><button id="widgetRemoveButton"><img src="' +
       rootURL +
-      'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
+      '../libs/dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
 						<td style="text-align: center"><strong id="' +
       prefixID +
       "widgetGate_" +
