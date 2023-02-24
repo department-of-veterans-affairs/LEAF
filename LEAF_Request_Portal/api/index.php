@@ -83,6 +83,12 @@ if ($login->checkGroup(1))
         $siteController = new Portal\SiteController($p_db, $login);
         $siteController->handler($action);
     });
+
+    $controllerMap->register('iconPicker', function () use ($db, $login, $action) {
+        require 'controllers/IconPickerController.php';
+        $iconPickerController = new IconPickerController($db, $login);
+        $iconPickerController->handler($action);
+    });
 }
 
 $controllerMap->register('form', function () use ($p_db, $login, $action) {
