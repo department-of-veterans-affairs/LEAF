@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
 --
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
-('dbversion', '2023012400'),
+('dbversion', '2023022300'),
 ('heading', ''),
 ('leafSecure', '0'),
 ('national_linkedPrimary', ''),
@@ -950,7 +950,7 @@ CREATE TABLE IF NOT EXISTS `indicator_mask` (
 
 CREATE TABLE IF NOT EXISTS `notes` (
   `noteID` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(5) UNSIGNED NOT NULL,
+  `recordID` mediumint(8) UNSIGNED NOT NULL,
   `note` text NOT NULL,
   `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL,
