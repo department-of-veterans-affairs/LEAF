@@ -150,7 +150,7 @@ div [id^="LeafFormGrid"] table {
         </div>
         <button class="buttonNorm" id="run">Preview Changes</button>
         <div id="reassign_reset" style="display:none; margin-bottom:3rem;">
-            <h3>Review the results below and activate the button to update selections the new account.</h3>
+            <h3>Review the results below and activate the button to update selections with the new account.</h3>
             <br />
             <div style="display:flex;">
                 <button id="reassign" class="buttonNorm" style="margin-right: 1rem">Update Records</button>
