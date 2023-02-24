@@ -1,8 +1,6 @@
 export default {
     data() {
         return {
-            internalMenuOpen: false,
-            internalMenuPinned: false,
             staplesMenuOpen: false,
             staplesMenuPinned: false,
             buttonHeight: 32
@@ -16,9 +14,8 @@ export default {
         'categories',
         'currCategoryID',
         'currSubformID',
-        'internalForms',
+        'internalFormRecords',
         'selectedFormTree',
-        'selectedCategoryStapledForms',
         'stapledFormsCatIDs',
         'openNewFormDialog',
         'openImportFormDialog',
@@ -26,6 +23,11 @@ export default {
         'openStapleFormsDialog',
         'openConfirmDeleteFormDialog',
     ],
+    computed: {
+        currentStapleIDs() {
+            return this.categories[this.currCategoryID].stapledFormIDs;
+        },
+    },
     methods: {
         /**
          * resolve main form, internal form, and workflow info, then export
@@ -50,7 +52,7 @@ export default {
                     error: err => console.log(err)
                 })
             );
-            this.internalForms.forEach(f => {
+            this.internalFormRecords.forEach(f => {
                 const subID = f.categoryID;
                 exportCalls.push(
                     $.ajax({
@@ -92,12 +94,9 @@ export default {
         },
         selectMainForm(catID = this.currCategoryID, setPrimary = false) {
             if (setPrimary === true) {
-                this.$route.query.primary=this.currCategoryID;
+                this.$route.query.primary = this.currCategoryID;
             }
             this.selectNewCategory(catID, false);
-        },
-        selectSubform(subformID = ''){
-            this.selectNewCategory(subformID, true);
         },
         /**
          * //NOTE: uses XSSHelpers.js
@@ -109,15 +108,6 @@ export default {
             const form = this.categories[catID] || '';
             const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
             return this.truncateText(name, len).trim();
-        },
-        toggleInternalMenu() {
-            this.internalMenuPinned = !this.internalMenuPinned;
-            this.internalMenuOpen = this.internalMenuPinned;
-        },
-        hoverInternalMenu() {
-            if (!this.internalMenuPinned) {
-                this.internalMenuOpen = !this.internalMenuOpen;
-            }
         },
         toggleStaplesMenu() {
             this.staplesMenuPinned = !this.staplesMenuPinned;
@@ -158,29 +148,13 @@ export default {
             </ul>
             <!-- FORM EDITING MENU -->
             <ul v-else id="form-editor-menu">
-                <li v-if="selectedFormTree.length !== 0">
-                    <button type="button" id="toggle-internal" @click.stop="toggleInternalMenu"
-                        @mouseover="hoverInternalMenu" title="View Internal Use Options and Forms">
-                        Internal Use<span role="img" aria="">📄</span>
-                    </button>
-                    
-                    <ul id="internalForms" @mouseleave="hoverInternalMenu"
-                        :style="{'height': internalMenuOpen ? buttonHeight * internalForms.length + buttonHeight + 'px' : 0,
-                                 'opacity': internalMenuOpen ? 1 : 0}">
-                        <li v-show="internalMenuOpen">
-                            <button type="button" @click="openNewFormDialog" title="New Internal-Use Form" class="manage">
-                                Add New Internal-Use
-                                <span role="img" aria="">➕</span>
-                            </button>
-                        </li>
-                        <li v-show="internalMenuOpen" v-for="i in internalForms" :key="'internal_' + i.categoryID">
-                            <button type="button" :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                                {{shortFormNameStripped(i.categoryID, 28)}}
-                            </button>
-                        </li>
-                    </ul>
-                </li>
                 <template v-if="selectedFormTree.length !== 0">
+                    <li>
+                        <button type="button" @click="openNewFormDialog" title="New Internal-Use Form">
+                            Add New Internal-Use
+                            <span role="img" aria="">➕</span>
+                        </button>
+                    </li>
                     <li v-if="!stapledFormsCatIDs.includes(currCategoryID)">
                         <button type="button" id="toggle-staples" @click.stop="toggleStaplesMenu"
                             @mouseover="hoverStaplesMenu" title="View Staple Options and Forms">
@@ -188,7 +162,7 @@ export default {
                         </button>
 
                         <ul id="stapledForms" @mouseleave="hoverStaplesMenu"
-                            :style="{'height': staplesMenuOpen ? buttonHeight * selectedCategoryStapledForms.length + buttonHeight + 'px' : 0,
+                            :style="{'height': staplesMenuOpen ? buttonHeight * currentStapleIDs.length + buttonHeight + 'px' : 0,
                                     'opacity': staplesMenuOpen ? 1 : 0}">
 
                             <li v-show="staplesMenuOpen">
@@ -197,10 +171,10 @@ export default {
                                     <span role="img" aria="">➕</span>
                                 </button>
                             </li>
-                            <li v-show="staplesMenuOpen" v-for="s in selectedCategoryStapledForms" 
-                                :key="'staple_' + s.stapledCategoryID">
-                                <button type="button" @click="selectMainForm(s.categoryID, true)">
-                                    {{shortFormNameStripped(s.categoryID, 28) || 'Untitled'}}
+                            <li v-show="staplesMenuOpen" v-for="id in currentStapleIDs" 
+                                :key="'staple_' + id">
+                                <button type="button" @click="selectMainForm(id, true)">
+                                    {{shortFormNameStripped(id, 28) || 'Untitled'}}
                                 </button>
                             </li>
                         </ul>
@@ -227,6 +201,7 @@ export default {
                     </button>
                 </li>
             </ul>
+
             <!-- FORM EDITING BREADCRUMBS -->
             <ul v-if="currCategoryID !== null" id="form-breadcrumb-menu">
                 <li>

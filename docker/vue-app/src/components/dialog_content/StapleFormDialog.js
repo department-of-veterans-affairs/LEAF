@@ -12,8 +12,6 @@ export default {
         'stripAndDecodeHTML',
         'categories',
         'currCategoryID',
-        'currSubformID',
-        'selectedCategoryStapledForms',
         'closeFormDialog',
         'updateStapledFormsInfo'
     ],
@@ -24,13 +22,16 @@ export default {
         }
     },
     computed: {
+        currentStapleIDs() {
+            return this.categories[this.currCategoryID].stapledFormIDs;
+        },
         mergeableForms() {
             let mergeable = [];
             for (let c in this.categories) {
                 const WF_ID = parseInt(this.categories[c].workflowID);
                 const catID = this.categories[c].categoryID;
                 const parID = this.categories[c].parentID;
-                const isNotAlreadyMerged = this.selectedCategoryStapledForms.every(form => form.categoryID !== catID)
+                const isNotAlreadyMerged = this.currentStapleIDs.every(id => id !== catID)
                 if (WF_ID === 0 && parID === '' && catID !== this.formID && isNotAlreadyMerged) {
                     mergeable.push({...this.categories[c]});
                 }
@@ -77,11 +78,11 @@ export default {
         <p>The order of the forms will be determined by the forms' assigned sort values.</p>
         <div id="mergedForms" style="margin-top: 1rem;">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
-                <li v-for="s in selectedCategoryStapledForms" :key="'staple_list_' + s.categoryID">
-                    {{truncateText(stripAndDecodeHTML(s.categoryName)) || 'Untitled'}}
+                <li v-for="id in currentStapleIDs" :key="'staple_list_' + id">
+                    {{truncateText(stripAndDecodeHTML(categories[id]?.categoryName || 'Untitled')) }}
                     <button 
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                        @click="unmergeForm(s.categoryID)" :title="'remove ' + s.categoryName || 'Untitled'">
+                        @click="unmergeForm(id)" :title="'remove ' + categories[id]?.categoryName || 'Untitled'">
                         <b>[ Remove ]</b>
                     </button>
                 </li>

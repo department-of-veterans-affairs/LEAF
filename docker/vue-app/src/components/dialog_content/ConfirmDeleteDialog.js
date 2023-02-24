@@ -10,7 +10,6 @@ export default {
         'currCategoryID',
         'currSubformID',
         'currentCategorySelection',
-        'selectedCategoryStapledForms',
         'selectNewCategory',
         'closeFormDialog'
     ],
@@ -24,11 +23,14 @@ export default {
         },
         formDescription() {
             return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
-        }
+        },
+        currentStapleIDs() {
+            return this.currentCategorySelection.stapledFormIDs;
+        },
     },
     methods:{
         onSave() {
-            if(this.selectedCategoryStapledForms.length === 0) {
+            if(this.currentStapleIDs.length === 0) {
                 
                 $.ajax({
                     type: 'DELETE',
@@ -54,6 +56,6 @@ export default {
         <div>Are you sure you want to delete this form?</div>
         <div style="margin: 1em 0;"><b>{{formName}}</b></div>
         <div style="min-width:300px; max-width: 500px; min-height: 50px; margin-bottom: 1rem;">{{formDescription}}</div>
-        <div v-if="selectedCategoryStapledForms.length > 0">⚠️ This form still has stapled forms attached</div>
+        <div v-if="currentStapleIDs.length > 0">⚠️ This form still has stapled forms attached</div>
     </div>`
 }

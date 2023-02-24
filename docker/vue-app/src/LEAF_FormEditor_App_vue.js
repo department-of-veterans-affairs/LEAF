@@ -85,7 +85,7 @@ export default {
             dialogButtonText: computed(() => this.dialogButtonText),
             formSaveFunction: computed(() => this.formSaveFunction),
             orgSelectorClassesAdded: computed(() => this.orgSelectorClassesAdded),
-            internalForms: computed(() => this.internalForms),
+            internalFormRecords: computed(() => this.internalFormRecords),
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
@@ -194,19 +194,6 @@ export default {
             return inactive;
         },
         /**
-         * 
-         * @returns {array} of internal forms associated with the main form
-         */
-        internalForms() {
-            let internalForms = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === this.currCategoryID) {
-                    internalForms.push({...this.categories[c]});
-                }
-            }
-            return internalForms;
-        },
-        /**
          * @returns {array} of non-internal forms that have no workflows
          */
         supplementalForms() {
@@ -218,6 +205,19 @@ export default {
             }
             supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
             return supplementalForms;
+        },
+        /**
+         * 
+         * @returns {array} categories records that are internal forms of the main form
+         */
+        internalFormRecords() {
+            let internalFormRecords = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === this.currCategoryID) {
+                    internalFormRecords.push({...this.categories[c]});
+                }
+            }
+            return internalFormRecords;
         },
         selectedCategoryStapledForms() {
             let staples = [];

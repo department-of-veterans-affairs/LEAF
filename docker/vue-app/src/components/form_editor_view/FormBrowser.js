@@ -17,7 +17,7 @@ export default {
         CategoryItem,
     },
     template:
-    `<div v-if="appIsLoadingCategoryList === false" id="formEditor_content" style="padding-top: 1rem;">
+    `<template v-if="appIsLoadingCategoryList === false">
         <!-- secure form section -->
         <div v-if="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #cb0000; margin-bottom:1em;">
             <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span>
@@ -74,5 +74,5 @@ export default {
                 </category-item>
             </table>
         </div>
-    </div>`
+    </template>`
 }

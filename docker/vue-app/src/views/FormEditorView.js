@@ -28,8 +28,8 @@ export default {
         'appIsLoadingForm',
         'currSubformID',        //catID of the subform, if a subform, otherwise null
         'selectedFormTree',
-        'internalForms',
-        'selectedCategoryStapledForms',
+        'categories',
+        'internalFormRecords',
         'selectNewCategory',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
@@ -37,6 +37,7 @@ export default {
         'newQuestion',
         'currentCategorySelection',   //corresponds to currently selected form being viewed (form or subform)
         'stripAndDecodeHTML',
+        'truncateText'
     ],
     mounted() {
         console.log('MOUNTED FORM EDITOR VIEW');
@@ -92,7 +93,7 @@ export default {
                 }
             }
             return indsToUpdate;
-        }
+        },
     },
     methods: {
         /**
@@ -179,7 +180,6 @@ export default {
         },
         clearListItem(indID) {
             delete this.listItems[indID];
-            console.log(this.listItems);
         },
         /**
          * adds initial sort and parentID values to app listItems object
@@ -292,6 +292,22 @@ export default {
                 this.showToolbars = !this.showToolbars;
             }
         },
+        //TODO: NOTE:
+        /**
+         * //NOTE: uses XSSHelpers.js
+         * @param {string} categoryID 
+         * @param {number} len 
+         * @returns 
+         */
+        shortFormNameStripped(catID = '', len = 21) {
+            const form = this.categories[catID] || '';
+            const name = this.stripAndDecodeHTML(form?.categoryName || '') || 'Untitled';
+            return this.truncateText(name, len).trim();
+        },
+        selectSubform(subformID = '') {
+            console.log(subformID)
+            this.selectNewCategory(subformID, true);
+        },
     },
     template:`<div id="formEditor_content">
     <FormBrowser v-if="formID===null"></FormBrowser>
@@ -311,7 +327,7 @@ export default {
                 <!-- NOTE: FORM INDEX DISPLAY -->
                 <div id="form_index_display">
                     <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
-                        <h3 style="margin: 0;">Form Index</h3>
+                        <h3 style="margin: 0;">Primary Form</h3>
                         <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
                             class="btn-general"
                             title="Apply form structure updates">Apply sorting changes</button>
@@ -351,6 +367,17 @@ export default {
                             + Add Section
                         </button>
                     </div>
+                    <!-- TODO: NOTE: -->
+                    <hr />
+                    Internal Forms
+                    <ul id="internalFormRecords">
+                        <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
+                            <button type="button" :id="i.categoryID" title="select internal form"
+                                @click="selectSubform(i.categoryID)">
+                                {{shortFormNameStripped(i.categoryID, 28)}}
+                            </button>
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->

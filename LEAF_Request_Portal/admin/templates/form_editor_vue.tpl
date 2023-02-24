@@ -6,9 +6,9 @@
             <span><b>Do not make modifications!</b> &nbsp;Synchronization problems will occur. &nbsp;Please contact your process POC if modifications need to be made.</span>
         </div>
 
-        <div style="margin: 0.25rem 1rem 1rem 1rem;">
+        <section style="margin: 0.25rem 1rem 1rem 1rem;">
             <router-view></router-view>
-        </div>
+        </section>
     </main>
     <!-- DIALOGS -->
     <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>  
