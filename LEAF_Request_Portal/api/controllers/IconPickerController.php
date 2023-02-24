@@ -3,16 +3,15 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/IconPicker.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
+namespace Portal;
 
 class IconPickerController extends RESTfulResponse
 {
     public $index = array();
+
+    protected $icon_path;
+
+    protected $dynicon_index;
 
     private int $API_VERSION = 1;    // Integer
 
@@ -24,39 +23,43 @@ class IconPickerController extends RESTfulResponse
 
     /**
      * Construct
-     * 
-     * @param Db $db, Login $login
+     *
+     * @param \Leaf\Db $db, Login $login
      */
-    public function __construct($db, $login)
+    public function __construct($db, $login, $icon_path, $dynicon_index)
     {
         $this->login = $login;
+        $this->icon_path = $icon_path;
+        $this->dynicon_index = $dynicon_index;
         $this->iconPicker = new IconPicker($db, $login);
     }
 
     /**
      * Purpose: Return JSON data depending on endpoint string passed.
-     * 
-     * @param string $act
-     * @return array
+     *
+     * @param array $act
+     *
      */
-    public function get($act): array
+    public function get($act)
     {
         $db = $this->db;
         $login = $this->login;
         $iconPicker = $this->iconPicker;
+        $icon = $this->icon_path;
+        $dynicon = $this->dynicon_index;
 
         $this->index['GET'] = new ControllerMap();
-        
-        $this->index['GET']->register('iconPicker/list', function () use ($iconPicker) {
-            return $iconPicker->getAllIcons();
+
+        $this->index['GET']->register('iconPicker/list', function () use ($iconPicker, $icon, $dynicon) {
+            return $iconPicker->getAllIcons($icon, $dynicon);
         });
-        
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
     /**
      * Purpose: Return JSON data depending on endpoint string passed.
-     * 
+     *
      * @param string $act
      * @return array
      */

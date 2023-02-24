@@ -84,9 +84,10 @@ if ($login->checkGroup(1))
         $siteController->handler($action);
     });
 
-    $controllerMap->register('iconPicker', function () use ($db, $login, $action) {
-        require 'controllers/IconPickerController.php';
-        $iconPickerController = new IconPickerController($db, $login);
+    $icons_path = LIB_PATH . '/dynicons/svg/';
+    $dynicon_index = PORTAL_PATH . '/dynicons//';
+    $controllerMap->register('iconPicker', function () use ($p_db, $login, $action, $icons_path, $dynicon_index) {
+        $iconPickerController = new Portal\IconPickerController($p_db, $login, $icons_path, $dynicon_index);
         $iconPickerController->handler($action);
     });
 }

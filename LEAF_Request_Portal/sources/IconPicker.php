@@ -9,35 +9,19 @@
 
 */
 
-$currDir = dirname(__FILE__);
+namespace Portal;
 
-include_once $currDir . '/../globals.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-if (!class_exists('CommonConfig'))
-{
-    require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
-}
-
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
-
-class IconPicker 
+class IconPicker
 {
 
-    private $login; 
+    private $login;
 
     protected array $pickedIcons;
 
     /**
      * Construct IconPicker
-     * 
-     * @param Db $db, Login $login
+     *
+     * @param \Leaf\Db $db, Login $login
      */
     public function __construct($db, $login)
     {
@@ -47,12 +31,17 @@ class IconPicker
 
     /**
      * Purpose: Get all icons in svg directory and return object with relevant data for each image.
-     * 
-     * @return array $retArr
+     *
+     * @param mixed $folder
+     * @param mixed $dynicon_index
+     *
+     * @return array
+     *
+     * Created at: 2/24/2023, 11:39:42 AM (America/New_York)
      */
-    public function getAllIcons(): array
+    public function getAllIcons($folder, $dynicon_index): array
     {
-        $folder = '../../libs/dynicons/svg/';
+        //$folder = '../../libs/dynicons/svg/';
         $images = scandir($folder);
 
         foreach ($images as $image)
@@ -60,13 +49,14 @@ class IconPicker
             if (strpos($image, '.svg') > 0)
             {
                 $retImg = array(
-                    'src' => "../libs/dynicons/?img={$image}&amp;w=32",
+                    //'src' => "../libs/dynicons/?img={$image}&amp;w=32",
+                    'src' => $dynicon_index . "/?img={$image}&amp;w=32",
                     'alt' => "{$image}",
                     'name' => $this->extractIconName($image)
                 );
 
                 if (!isset($_GET['noSVG']) || $_GET['noSVG'] != 1) {
-                    $retImg['src'] = "../libs/dynicons/svg/{$image}";
+                    $retImg['src'] = "{$folder}{$image}";
                 }
 
                 array_push($this->pickedIcons, $retImg);
@@ -78,7 +68,7 @@ class IconPicker
 
     /**
      * Purpose: Map array of icon files names to have formatted names that the user can easily read.
-     * 
+     *
      * @param string $name
      * @return string $formattedName
      */
