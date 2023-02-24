@@ -42,33 +42,6 @@ INSERT INTO `categories` (`categoryID`, `parentID`, `dataTable`, `categoryName`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `data_action_log`
---
-
-CREATE TABLE IF NOT EXISTS `data_action_log` (
-  `empUID` varchar(36) DEFAULT NULL,
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `action` varchar(45) DEFAULT NULL,
-  `userID` int(11) DEFAULT NULL,
-  `timestamp` DATETIME DEFAULT NULL,
-  `userDisplay` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`)
-);
-
---
--- Table structure for table `data_log_items`
---
-
-CREATE TABLE IF NOT EXISTS `data_log_items` (
-  `data_action_log_fk` int(11) NOT NULL,
-  `tableName` varchar(75) NOT NULL,
-  `column` varchar(75) NOT NULL,
-  `value` TEXT NOT NULL,
-  `displayValue` varchar(256),
-  PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`)
-);
-
---
 -- Table structure for table `employee`
 --
 
@@ -116,52 +89,36 @@ INSERT INTO `employee` (`empUID`, `userName`, `lastName`, `firstName`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `employee_data`
+-- Table structure for table `data_action_log`
 --
 
-CREATE TABLE IF NOT EXISTS `employee_data` (
-  `empUID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `data` text NOT NULL,
-  `author` varchar(30) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`empUID`,`indicatorID`),
-  INDEX `indicatorID` (`indicatorID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `employee_data`
---
-
-INSERT INTO `employee_data` (`empUID`, `indicatorID`, `data`, `author`) VALUES
-(1, 6, 'Michael.Gao@va.gov', 'system'),
-(2, 6, 'Panaghis.Nerantzinis@va.gov', 'system'),
-(3, 6, 'jamie.holcomb@va.gov', 'system'),
-(4, 6, 'Shane.Ottinger@va.gov', 'system'),
-(5, 6, 'Sulgeiry.Gardner@va.gov', 'system'),
-(6, 6, 'Carrie.Hanscom@va.gov', 'system'),
-(7, 6, 'Raphael.Fretter@va.gov', 'system'),
-(8, 6, 'Michael.Shaffer1@va.gov', 'system'),
-(9, 6, 'Juan.Rodriguez-Sanchez@va.gov', 'system'),
-(10, 6, 'susan.schavee@va.gov', 'system'),
-(11, 6, 'Amanda.TurnerSumner@va.gov', 'system'),
-(12, 6, 'Max.Richard@va.gov', 'system');
+CREATE TABLE IF NOT EXISTS `data_action_log` (
+  `empUID` varchar(36) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `action` varchar(45) DEFAULT NULL,
+  `userID` int(11) DEFAULT NULL,
+  `timestamp` DATETIME DEFAULT NULL,
+  `userDisplay` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`)
+);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `employee_data_history`
+-- Table structure for table `data_log_items`
 --
 
-CREATE TABLE IF NOT EXISTS `employee_data_history` (
-  `empUID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` tinyint(3) NOT NULL,
-  `data` text NOT NULL,
-  `author` varchar(30) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  INDEX `empUID` (`empUID`,`indicatorID`),
-  INDEX `timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `data_log_items` (
+  `data_action_log_fk` int(11) NOT NULL,
+  `tableName` varchar(75) NOT NULL,
+  `column` varchar(75) NOT NULL,
+  `value` TEXT NOT NULL,
+  `displayValue` varchar(256),
+  PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`),
+  CONSTRAINT `data_log_item_data_action_log`
+    FOREIGN KEY (`data_action_log_fk`)
+    REFERENCES `data_action_log` (`id`)
+);
 
 -- --------------------------------------------------------
 
@@ -176,7 +133,10 @@ CREATE TABLE IF NOT EXISTS `employee_privileges` (
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `empUID` (`empUID`,`categoryID`,`UID`)
+  UNIQUE KEY `empUID` (`empUID`,`categoryID`,`UID`),
+  CONSTRAINT `employee_privileges_emp`
+    FOREIGN KEY (`empUID`)
+    REFERENCES `employee` (`empUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -186,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `employee_privileges` (
 --
 
 CREATE TABLE IF NOT EXISTS `groups` (
-  `groupID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `groupID` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `parentID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `groupTitle` varchar(250) NOT NULL,
   `groupAbbreviation` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
@@ -217,49 +177,20 @@ INSERT INTO `groups` (`groupID`, `parentID`, `groupTitle`, `groupAbbreviation`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `group_data`
---
-
-CREATE TABLE IF NOT EXISTS `group_data` (
-  `groupID` smallint(5) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `data` text NOT NULL,
-  `author` varchar(30) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`groupID`,`indicatorID`),
-  INDEX `indicatorID` (`indicatorID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `group_data_history`
---
-
-CREATE TABLE IF NOT EXISTS `group_data_history` (
-  `groupID` smallint(5) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `data` text NOT NULL,
-  `author` varchar(30) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  INDEX `timestamp` (`timestamp`),
-  INDEX `groupID` (`groupID`,`indicatorID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `group_privileges`
 --
 
 CREATE TABLE IF NOT EXISTS `group_privileges` (
-  `groupID` smallint(5) unsigned NOT NULL,
+  `groupID` smallint(6) unsigned NOT NULL,
   `categoryID` enum('employee','position','group') NOT NULL,
   `UID` mediumint(8) unsigned NOT NULL,
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `groupID` (`groupID`,`categoryID`,`UID`)
+  UNIQUE KEY `groupID` (`groupID`,`categoryID`,`UID`),
+  CONSTRAINT `group_privileges_group`
+    FOREIGN KEY (`groupID`)
+    REFERENCES `groups` (`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -269,10 +200,13 @@ CREATE TABLE IF NOT EXISTS `group_privileges` (
 --
 
 CREATE TABLE IF NOT EXISTS `group_tags` (
-  `groupID` smallint(6) NOT NULL,
+  `groupID` smallint(6) unsigned NOT NULL,
   `tag` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   UNIQUE KEY `groupID` (`groupID`,`tag`),
-  INDEX `tag` (`tag`)
+  INDEX `tag` (`tag`),
+  CONSTRAINT `group_tag_group`
+    FOREIGN KEY (`groupID`)
+    REFERENCES `groups` (`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -340,6 +274,90 @@ INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `defau
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `group_data_history`
+--
+
+CREATE TABLE IF NOT EXISTS `group_data_history` (
+  `groupID` smallint(6) unsigned NOT NULL,
+  `indicatorID` smallint(5) NOT NULL,
+  `data` text NOT NULL,
+  `author` varchar(30) NOT NULL,
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  INDEX `timestamp` (`timestamp`),
+  INDEX `groupID` (`groupID`,`indicatorID`),
+  CONSTRAINT `group_data_history_group`
+    FOREIGN KEY (`groupID`)
+    REFERENCES `groups` (`groupID`),
+  CONSTRAINT `group_data_history_indicator`
+    FOREIGN KEY (`indicatorID`)
+    REFERENCES `indicators` (`indicatorID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_data`
+--
+
+CREATE TABLE IF NOT EXISTS `employee_data` (
+  `empUID` mediumint(8) unsigned NOT NULL,
+  `indicatorID` smallint(5) NOT NULL,
+  `data` text NOT NULL,
+  `author` varchar(30) NOT NULL,
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`empUID`,`indicatorID`),
+  INDEX `indicatorID` (`indicatorID`),
+  CONSTRAINT `employee_data_emp`
+    FOREIGN KEY (`empUID`)
+    REFERENCES `employee` (`empUID`),
+  CONSTRAINT `employee_data_indicator`
+    FOREIGN KEY (`indicatorID`)
+    REFERENCES `indicators` (`indicatorID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `employee_data`
+--
+
+INSERT INTO `employee_data` (`empUID`, `indicatorID`, `data`, `author`) VALUES
+(1, 6, 'Michael.Gao@va.gov', 'system'),
+(2, 6, 'Panaghis.Nerantzinis@va.gov', 'system'),
+(3, 6, 'jamie.holcomb@va.gov', 'system'),
+(4, 6, 'Shane.Ottinger@va.gov', 'system'),
+(5, 6, 'Sulgeiry.Gardner@va.gov', 'system'),
+(6, 6, 'Carrie.Hanscom@va.gov', 'system'),
+(7, 6, 'Raphael.Fretter@va.gov', 'system'),
+(8, 6, 'Michael.Shaffer1@va.gov', 'system'),
+(9, 6, 'Juan.Rodriguez-Sanchez@va.gov', 'system'),
+(10, 6, 'susan.schavee@va.gov', 'system'),
+(11, 6, 'Amanda.TurnerSumner@va.gov', 'system'),
+(12, 6, 'Max.Richard@va.gov', 'system');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_data_history`
+--
+
+CREATE TABLE IF NOT EXISTS `employee_data_history` (
+  `empUID` mediumint(8) unsigned NOT NULL,
+  `indicatorID` smallint(5) NOT NULL,
+  `data` text NOT NULL,
+  `author` varchar(30) NOT NULL,
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  INDEX `empUID` (`empUID`,`indicatorID`),
+  INDEX `timestamp` (`timestamp`),
+  CONSTRAINT `employee_data_history_emp`
+    FOREIGN KEY (`empUID`)
+    REFERENCES `employee` (`empUID`),
+  CONSTRAINT `employee_data_history_indicator`
+    FOREIGN KEY (`indicatorID`)
+    REFERENCES `indicators` (`indicatorID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `indicator_privileges`
 --
 
@@ -350,7 +368,10 @@ CREATE TABLE IF NOT EXISTS `indicator_privileges` (
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `indicatorID` (`indicatorID`,`categoryID`,`UID`)
+  UNIQUE KEY `indicatorID` (`indicatorID`,`categoryID`,`UID`),
+  CONSTRAINT `indicator_privileges_indicator`
+    FOREIGN KEY (`indicatorID`)
+    REFERENCES `indicators` (`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -418,7 +439,7 @@ INSERT INTO `indicator_privileges` (`indicatorID`, `categoryID`, `UID`, `read`, 
 --
 
 CREATE TABLE IF NOT EXISTS `positions` (
-  `positionID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `positionID` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `parentID` smallint(6) unsigned NOT NULL DEFAULT '0',
   `positionTitle` varchar(100) NOT NULL,
   `phoneticPositionTitle` varchar(100) NOT NULL DEFAULT '',
@@ -444,13 +465,19 @@ INSERT INTO `positions` (`positionID`, `parentID`, `positionTitle`, `phoneticPos
 --
 
 CREATE TABLE IF NOT EXISTS `position_data` (
-  `positionID` smallint(5) unsigned NOT NULL,
+  `positionID` smallint(6) unsigned NOT NULL,
   `indicatorID` smallint(5) NOT NULL,
   `data` text NOT NULL,
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`positionID`,`indicatorID`),
-  INDEX `indicatorID` (`indicatorID`)
+  INDEX `indicatorID` (`indicatorID`),
+  CONSTRAINT `position_data_position`
+    FOREIGN KEY (`positionID`)
+    REFERENCES `positions` (`positionID`),
+  CONSTRAINT `position_data_indicator`
+    FOREIGN KEY (`indicatorID`)
+    REFERENCES `indicators` (`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -467,13 +494,19 @@ INSERT INTO `position_data` (`positionID`, `indicatorID`, `data`, `author`, `tim
 --
 
 CREATE TABLE IF NOT EXISTS `position_data_history` (
-  `positionID` smallint(5) unsigned NOT NULL,
+  `positionID` smallint(6) unsigned NOT NULL,
   `indicatorID` smallint(5) NOT NULL,
   `data` text NOT NULL,
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   INDEX `timestamp` (`timestamp`),
-  INDEX `positionID` (`positionID`,`indicatorID`)
+  INDEX `positionID` (`positionID`,`indicatorID`),
+  CONSTRAINT `position_data_history_position`
+    FOREIGN KEY (`positionID`)
+    REFERENCES `positions` (`positionID`),
+  CONSTRAINT `position_data_history_indicator`
+    FOREIGN KEY (`indicatorID`)
+    REFERENCES `indicators` (`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -483,13 +516,16 @@ CREATE TABLE IF NOT EXISTS `position_data_history` (
 --
 
 CREATE TABLE IF NOT EXISTS `position_privileges` (
-  `positionID` smallint(5) unsigned NOT NULL,
+  `positionID` smallint(6) unsigned NOT NULL,
   `categoryID` enum('employee','position','group') NOT NULL,
   `UID` mediumint(8) unsigned NOT NULL,
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `positionID` (`positionID`,`categoryID`,`UID`)
+  UNIQUE KEY `positionID` (`positionID`,`categoryID`,`UID`),
+  CONSTRAINT `position_privileges_position`
+    FOREIGN KEY (`positionID`)
+    REFERENCES `positions` (`positionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -499,10 +535,13 @@ CREATE TABLE IF NOT EXISTS `position_privileges` (
 --
 
 CREATE TABLE IF NOT EXISTS `position_tags` (
-  `positionID` smallint(6) NOT NULL,
+  `positionID` smallint(6) unsigned NOT NULL,
   `tag` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   UNIQUE KEY `positionID` (`positionID`,`tag`),
-  INDEX `tag` (`tag`)
+  INDEX `tag` (`tag`),
+  CONSTRAINT `position_tag_position`
+    FOREIGN KEY (`positionID`)
+    REFERENCES `positions` (`positionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -516,7 +555,10 @@ CREATE TABLE IF NOT EXISTS `relation_employee_backup` (
   `backupEmpUID` mediumint(8) unsigned NOT NULL,
   `approved` tinyint(4) NOT NULL DEFAULT '0',
   `approverUserName` varchar(30) DEFAULT NULL,
-  UNIQUE KEY `empUID` (`empUID`,`backupEmpUID`)
+  UNIQUE KEY `empUID` (`empUID`,`backupEmpUID`),
+  CONSTRAINT `relation_employee_backup_emp`
+    FOREIGN KEY (`empUID`)
+    REFERENCES `employee` (`empUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -530,7 +572,13 @@ CREATE TABLE IF NOT EXISTS `relation_group_employee` (
   `empUID` mediumint(8) unsigned NOT NULL,
   UNIQUE KEY `groupID_2` (`groupID`,`empUID`),
   INDEX `groupID` (`groupID`),
-  INDEX `empUID` (`empUID`)
+  INDEX `empUID` (`empUID`),
+  CONSTRAINT `relation_group_employee_group`
+    FOREIGN KEY (`groupID`)
+    REFERENCES `groups` (`groupID`),
+  CONSTRAINT `relation_group_employee_emp`
+    FOREIGN KEY (`empUID`)
+    REFERENCES `employee` (`empUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -562,7 +610,13 @@ CREATE TABLE IF NOT EXISTS `relation_group_position` (
   `positionID` smallint(6) unsigned NOT NULL,
   UNIQUE KEY `groupID_2` (`groupID`,`positionID`),
   INDEX `groupID` (`groupID`),
-  INDEX `positionID` (`positionID`)
+  INDEX `positionID` (`positionID`),
+  CONSTRAINT `relation_group_position_group`
+    FOREIGN KEY (`groupID`)
+    REFERENCES `groups` (`groupID`),
+  CONSTRAINT `relation_group_position_position`
+    FOREIGN KEY (`positionID`)
+    REFERENCES `positions` (`positionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -577,7 +631,13 @@ CREATE TABLE IF NOT EXISTS `relation_position_employee` (
   `isActing` TINYINT NOT NULL DEFAULT 0,
   UNIQUE KEY `positionID_2` (`positionID`,`empUID`),
   INDEX `positionID` (`positionID`),
-  INDEX `empUID` (`empUID`)
+  INDEX `empUID` (`empUID`),
+  CONSTRAINT `relation_position_employee_position`
+    FOREIGN KEY (`positionID`)
+    REFERENCES `positions` (`positionID`),
+  CONSTRAINT `relation_position_employee_emp`
+    FOREIGN KEY (`empUID`)
+    REFERENCES `employee` (`empUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
