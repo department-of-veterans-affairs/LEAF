@@ -31,6 +31,9 @@ body { /* fixes header not extending entire width */
     main {
         margin: 0;
     }
+    section {
+        margin: 0.25rem 1rem 1rem 1rem;
+    }
 }
 #vue-formeditor-app * {
     box-sizing: border-box;
@@ -246,7 +249,7 @@ nav#form-editor-nav {
     border-radius: 4px;
     background-color: white;
     box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
-    overflow: hidden;
+    overflow: visible;
 
     * {
         box-sizing: border-box;
@@ -906,6 +909,9 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
             flex-direction: column;
         }
 
+        section {
+            margin: 0;
+        }
         nav#form-editor-nav {
             width: 100%;
 

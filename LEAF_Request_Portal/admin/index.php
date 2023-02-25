@@ -201,6 +201,7 @@ switch ($action) {
         
         $main->assign('useUI', true);
         $main->assign('javascripts', array($libsPath.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            $libsPath.'js/filesaver/FileSaver.min.js',
                                             $libsPath.'js/codemirror/lib/codemirror.js',
                                             $libsPath.'js/codemirror/mode/xml/xml.js',
                                             $libsPath.'js/codemirror/mode/javascript/javascript.js',

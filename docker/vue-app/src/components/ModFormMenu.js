@@ -89,7 +89,7 @@ export default {
                 outPacket.packet = packet;
 
                 let outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
-                saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
+                saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt'); //FileSaver.js method
             }).catch(err => console.log('an error has occurred', err));
         },
         /**

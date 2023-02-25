@@ -6,7 +6,7 @@
             <span><b>Do not make modifications!</b> &nbsp;Synchronization problems will occur. &nbsp;Please contact your process POC if modifications need to be made.</span>
         </div>
 
-        <section style="margin: 0.25rem 1rem 1rem 1rem;">
+        <section>
             <router-view></router-view>
         </section>
     </main>

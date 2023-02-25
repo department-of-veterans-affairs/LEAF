@@ -108,7 +108,7 @@ export default {
             </td>
             <td>
                 <input type="number" :value="categoriesRecord.sort" min="-128" max="127"
-                 style="width: 100%;" @change="updateSort($event, catID)" />
+                 style="width: 100%; min-width:50px;" @change="updateSort($event, catID)" />
             </td>
         </tr>
         <template v-if="stapledForms.length > 0">
@@ -129,7 +129,7 @@ export default {
                 </td>
                 <td>
                     <input type="number" :value="categories[form.categoryID].sort" min="-128" max="127"
-                        style="width: 100%" @change="updateSort($event, form.categoryID)" />
+                        style="width: 100%; min-width:50px;" @change="updateSort($event, form.categoryID)" />
                 </td>
             </tr>
         </template>`
