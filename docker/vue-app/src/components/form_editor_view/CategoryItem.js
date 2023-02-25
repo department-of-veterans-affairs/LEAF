@@ -87,9 +87,11 @@ export default {
             })
         }
     },
-    template:`<tr height="40" :id="catID" :title="catID + ': ' + categoryName">
-            <td tabindex="0" class="form-name" @click="selectNewCategory(catID)" @keyup.enter="selectNewCategory(catID)" >
+    template:`<tr :id="catID" :title="catID + ': ' + categoryName">
+            <td height="40" tabindex="0" class="form-name">
+                <router-link :to="{ name: 'category', query: { formID: catID }}">
                 {{ categoryName }}
+                </router-link>
             </td>
             <td class="formPreviewDescription">{{ formDescription }}</td>
             <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
@@ -110,11 +112,12 @@ export default {
             </td>
         </tr>
         <template v-if="stapledForms.length > 0">
-            <tr height="36" v-for="form in stapledForms" 
+            <tr v-for="form in stapledForms" 
                 :key="catID + '_stapled_with_' + form.categoryID" class="sub-row">
-                <td tabindex="0" class="form-name"
-                    @click="selectNewCategory(form.categoryID)" @keyup.enter="selectNewCategory(form.categoryID)">
-                    <span role="img" aria="">📌&nbsp;</span>{{ categories[form.categoryID].categoryName }}
+                <td height="36" tabindex="0" class="form-name">
+                    <router-link :to="{ name: 'category', query: { formID: form.categoryID }}">
+                        <span role="img" aria="">📌&nbsp;</span>{{ categories[form.categoryID].categoryName }}
+                    </router-link>
                 </td>
                 <td>{{ categories[form.categoryID].categoryDescription }}</td>
                 <td></td>

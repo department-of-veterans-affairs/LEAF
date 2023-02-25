@@ -155,7 +155,7 @@ nav#form-editor-nav {
                 width: 1px;
                 background-color: black;
             }; 
-            ul#internalForms, ul#stapledForms {
+            ul#stapledForms {
                 position: absolute;
                 height: auto;
                 opacity: 1;
@@ -186,14 +186,6 @@ nav#form-editor-nav {
                 outline: none !important;
                 background-color: $base_navy;
                 color: white;
-            }
-        }
-        .manage {
-            background-color: $lt_cyan;
-            span {
-                margin-left: auto;
-                color: transparent;
-                text-shadow: 0 0 #000;
             }
         }
     }
@@ -328,6 +320,13 @@ nav#form-editor-nav {
         td,th {
             padding: 0.25rem 0.5rem;
             border: 1px solid $charcoal;
+            
+            a {
+                display: flex;
+                height: 100%;
+                align-items: center;
+                color: inherit;
+            }
         }
         td.form-name {
             cursor: pointer;
@@ -345,8 +344,8 @@ nav#form-editor-nav {
             border-bottom: 1px solid $charcoal;
         }
         tr.sub-row { 
-            color: #282828;
-            background-color: #fbfbff;
+            color: #333;
+            background-color: #f6f6ff;
             font-size: 85%;
             .form-name {
                 padding-left: 0.75rem;
@@ -543,7 +542,7 @@ div#form_content_view {
         font-weight: normal;
         color: black;
     }
-    ul {
+    ul.form-index-listing-ul {
         margin: 0;
         padding: 0 0 4px 0; /* btm padding needed for drop zones */
         padding-left: 1em;
@@ -922,7 +921,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
                         content: '';
                         background-color: transparent;
                     }
-                    ul#internalForms, ul#stapledForms {
+                    ul#stapledForms {
                         position: relative;
                         width: 100%;
                         box-shadow: none;

@@ -76,7 +76,7 @@ export default {
             inactiveForms: computed(() => this.inactiveForms),
             supplementalForms: computed(() => this.supplementalForms),
             showCertificationStatus: computed(() => this.showCertificationStatus),
-            selectedCategoryStapledForms: computed(() => this.selectedCategoryStapledForms),
+            selectedCategoryWithStapledForms: computed(() => this.selectedCategoryWithStapledForms),
             stapledFormsCatIDs: computed(() => this.stapledFormsCatIDs),
             workflowRecords: computed(() => this.workflowRecords),
             showFormDialog: computed(() => this.showFormDialog),
@@ -150,7 +150,9 @@ export default {
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
-            if(this.$route.name === 'category' && this.$route.query.formID && oldVal !== '') {
+            console.log('watching route formID n/o', newVal, oldVal)
+            if(this.$route.name === 'category') {
+                console.log('calling getFormFromQuery')
                 this.getFormFromQueryParam();
             }
         }
@@ -160,8 +162,8 @@ export default {
          * @returns {Object} current record from categories object (main or internal forms)
          */
         currentCategorySelection() {
-            const formID = this.currSubformID || this.currCategoryID;
-            return formID !== null ? this.categories[formID] : {};
+            const queryID = this.$route.query.formID;
+            return this.categories[queryID] || {};
         },
         /**
          * @returns {array} of non-internal forms that have workflows and are available
@@ -219,16 +221,21 @@ export default {
             }
             return internalFormRecords;
         },
-        selectedCategoryStapledForms() {
+        selectedCategoryWithStapledForms() {
+            let currStapleIDs = this.currentCategorySelection?.stapledFormIDs || [];
             let staples = [];
-            if (Object.keys(this.currentCategorySelection).length > 0) {
-                this.currentCategorySelection.stapledFormIDs.forEach(id => {
-                    staples.push({...this.categories[id]});
-                });
-            }
-            staples = staples.sort((eleA, eleB) => eleA.sort - eleB.sort );
-            return staples;
-        }
+            currStapleIDs.forEach(id => {
+                staples.push({...this.categories[id], formType: 'staple'});
+            });
+            
+            let formType = this.currentCategorySelection.parentID !== '' ?
+                        'internal' : 
+                        this.stapledFormsCatIDs.includes(this.currentCategorySelection?.categoryID || '') ?
+                        'staple' : 'main';
+            let allRecords = [...staples, {...this.currentCategorySelection, formType,}];
+            allRecords = allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
+            return allRecords;
+        },
     },
     methods: {
         truncateText(str='', maxlength = 40, overflow = '...') {
@@ -289,8 +296,7 @@ export default {
                 console.log('form does not exist');
                 //TODO: form not found status message
             } else {
-                const isSubform = this.categories[formID].parentID !== '';
-                this.selectNewCategory(formID, isSubform, null);
+                this.selectNewCategory(formID, this.selectedNodeIndicatorID);
             }
         },
         /**
@@ -492,14 +498,11 @@ export default {
          * @param {boolean} isSubform whether it is a main or a subform
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
          */
-        selectNewCategory(catID = '', isSubform = false, subnodeIndID = null) {
-            if(!isSubform) {
-                this.currCategoryID = catID;
-                this.currSubformID = null;
-            } else {
-                this.currCategoryID = this.categories[catID].parentID;
-                this.currSubformID = catID;
-            }
+        selectNewCategory(catID = '', subnodeIndID = null) {
+            const isSubform = catID !== null && this.categories[catID].parentID !== '';
+            this.currCategoryID = isSubform ? this.categories[catID].parentID : catID;
+            this.currSubformID = isSubform ? catID : null;
+
             this.selectedFormTree = [];
             this.selectedFormNode = null;
             this.selectedNodeIndicatorID = null;
@@ -517,17 +520,21 @@ export default {
                         }
                         this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
                     });
+                    /*
                     const primary = this.$route.query?.primary || null;
+                    console.log('select new cat route', this.$route)
                     if (primary === null) {
                         this.$router.replace({ name: "category", query: { formID: catID } });
                     } else {
                         this.$router.replace({ name: "category", query: { formID: catID, primary: primary } });
-                    }
+                    }*/
 
                 }).catch(err => console.log('error getting form info: ', err));
 
             } else {  //card browser.
                 this.categories = {};
+                this.selectedFormNode = null;
+                this.workflowRecords = [];
                 this.getCategoryListAll();
                 this.getSecureFormsInfo();
                 this.getWorkflowRecords();

@@ -23,7 +23,7 @@ export default {
     },
     computed: {
         currentStapleIDs() {
-            return this.categories[this.currCategoryID].stapledFormIDs;
+            return this.categories[this.currCategoryID]?.stapledFormIDs || [];
         },
         mergeableForms() {
             let mergeable = [];

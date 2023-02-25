@@ -25,7 +25,7 @@ export default {
     ],
     computed: {
         currentStapleIDs() {
-            return this.categories[this.currCategoryID].stapledFormIDs;
+            return this.categories[this.currCategoryID]?.stapledFormIDs || [];
         },
     },
     methods: {
@@ -92,12 +92,6 @@ export default {
                 saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
             }).catch(err => console.log('an error has occurred', err));
         },
-        selectMainForm(catID = this.currCategoryID, setPrimary = false) {
-            if (setPrimary === true) {
-                this.$route.query.primary = this.currCategoryID;
-            }
-            this.selectNewCategory(catID, false);
-        },
         /**
          * //NOTE: uses XSSHelpers.js
          * @param {string} categoryID 
@@ -109,15 +103,6 @@ export default {
             const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
             return this.truncateText(name, len).trim();
         },
-        toggleStaplesMenu() {
-            this.staplesMenuPinned = !this.staplesMenuPinned;
-            this.staplesMenuOpen = this.staplesMenuPinned;
-        },
-        hoverStaplesMenu() {
-            if (!this.staplesMenuPinned) {
-                this.staplesMenuOpen = !this.staplesMenuOpen;
-            }
-        }
     },
     template: `<nav id="form-editor-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
@@ -156,33 +141,12 @@ export default {
                         </button>
                     </li>
                     <li v-if="!stapledFormsCatIDs.includes(currCategoryID)">
-                        <button type="button" id="toggle-staples" @click.stop="toggleStaplesMenu"
-                            @mouseover="hoverStaplesMenu" title="View Staple Options and Forms">
-                            Stapled Forms<span role="img" aria="">📌</span>
+                        <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
+                            Manage Stapled Forms <span role="img" aria="">📌</span>
                         </button>
-
-                        <ul id="stapledForms" @mouseleave="hoverStaplesMenu"
-                            :style="{'height': staplesMenuOpen ? buttonHeight * currentStapleIDs.length + buttonHeight + 'px' : 0,
-                                    'opacity': staplesMenuOpen ? 1 : 0}">
-
-                            <li v-show="staplesMenuOpen">
-                                <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms" class="manage">
-                                    Manage Stapled Forms
-                                    <span role="img" aria="">➕</span>
-                                </button>
-                            </li>
-                            <li v-show="staplesMenuOpen" v-for="id in currentStapleIDs" 
-                                :key="'staple_' + id">
-                                <button type="button" @click="selectMainForm(id, true)">
-                                    {{shortFormNameStripped(id, 28) || 'Untitled'}}
-                                </button>
-                            </li>
-                        </ul>
                     </li>
                     <li v-else>
-                        <button type="button">
-                            This form is merged
-                        </button>
+                        <button type="button">This form is merged</button>
                     </li>
                 </template>
                 <li>
@@ -205,25 +169,25 @@ export default {
             <!-- FORM EDITING BREADCRUMBS -->
             <ul v-if="currCategoryID !== null" id="form-breadcrumb-menu">
                 <li>
-                    <router-link :to="{ name: 'category' }" class="router-link" @click="selectNewCategory(null)">
+                    <router-link :to="{ name: 'category', query: { formID: ''}}">
                         <h2>Form Editor</h2>
                     </router-link>
                     <span v-if="currCategoryID !== null" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li>
-                    <button type="button" :id="'header_'+currCategoryID" 
-                        @click="selectMainForm(currCategoryID)" 
-                        title="primary form"
-                        :disabled="$route.query.formID === currCategoryID">
+                    <router-link v-if="$route.query.formID !== currCategoryID" 
+                        :to="{ name: 'category', query: { formID: currCategoryID }}"
+                        class="router-link" title="to primary form">
+                        <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
+                    </router-link>
+                    <button v-else type="button" :title="'viewing form ' + currCategoryID" disabled>
                         <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
                     </button>
                     <span v-if="currSubformID !== null" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li v-if="currSubformID !== null">
                     <button type="button" :id="'header_' + currSubformID" 
-                        @click="selectSubform(currSubformID)" 
-                        title="select internal form"
-                        :disabled="$route.query.formID === currSubformID">
+                        :title="'viewing internal form ' + currSubformID" disabled>
                         <h2>{{shortFormNameStripped(currSubformID, 50)}}</h2>
                     </button>
                 </li>

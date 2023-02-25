@@ -25,7 +25,7 @@ export default {
             return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
         },
         currentStapleIDs() {
-            return this.currentCategorySelection.stapledFormIDs;
+            return this.currentCategorySelection?.stapledFormIDs || [];
         },
     },
     methods:{

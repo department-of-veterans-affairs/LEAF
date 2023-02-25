@@ -427,12 +427,12 @@ export default {
                 if (res.length > 0) {
                     //if a new section was created
                     if (this.newIndicatorID !== null && this.parentID === null) {
-                        this.selectNewCategory(this.formID, this.currSubformID !== null, this.newIndicatorID);
+                        this.selectNewCategory(this.formID, this.newIndicatorID);
                     //other edits
                     } else {
                         const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
                             (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
-                        this.selectNewCategory(this.formID, this.currSubformID !== null, nodeID);
+                        this.selectNewCategory(this.formID, nodeID);
                     }
                 }
                 this.closeFormDialog();

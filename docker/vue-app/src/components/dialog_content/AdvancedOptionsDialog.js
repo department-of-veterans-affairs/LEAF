@@ -81,7 +81,7 @@ export default {
                     this.html = htmlValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_html').innerHTML = ', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
                 },
                 error: (err) => console.log(err)
             });
@@ -99,7 +99,7 @@ export default {
                     this.htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_htmlPrint').innerHTML =', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
                 },
                 error: (err) => console.log(err)
             });
@@ -142,7 +142,7 @@ export default {
             Promise.all(advancedOptionsUpdates).then((res)=> {
                 this.closeFormDialog();
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
                 }
             }).catch(err => console.log('an error has occurred', err));
         }

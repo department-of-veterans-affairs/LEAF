@@ -52,8 +52,9 @@ export default {
                     temp.visible = 1;
                     temp.sort = 0;
                     temp.type = '';
+                    temp.stapledFormIDs = [];
                     this.addNewCategory(newCatID, temp);
-                    this.selectNewCategory(newCatID, this.isSubform);
+                    this.selectNewCategory(newCatID);
                     this.closeFormDialog();
                 },
                 error: err => {

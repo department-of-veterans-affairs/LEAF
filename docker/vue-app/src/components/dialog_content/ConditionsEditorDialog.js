@@ -288,7 +288,7 @@ export default {
                                 /* refetch works, but just updating the obj would be faster
                                 //TODO: update conditions of this ind on the form view formnode to update the UI
                                 const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
-                                this.selectNewCategory(this.vueData.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                                this.selectNewCategory(this.vueData.formID, this.selectedNodeIndicatorID);
                                 this.closeFormDialog();
                             } else { console.log('error adding condition', res) }                          
                         },
@@ -347,7 +347,7 @@ export default {
                                 /*
                                 //TODO: update conditions of this ind on the form view formnode to update the UI
                                 const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
-                                this.selectNewCategory(this.vueData.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                                this.selectNewCategory(this.vueData.formID, this.selectedNodeIndicatorID);
 
                             } else { console.log('error removing condition', res) }
                         },
