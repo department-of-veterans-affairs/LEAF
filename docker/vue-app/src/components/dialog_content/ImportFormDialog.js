@@ -1,4 +1,5 @@
 export default {
+    name: 'import-form-dialog',
     data() {
         return {
             initialFocusElID: 'formPacket',

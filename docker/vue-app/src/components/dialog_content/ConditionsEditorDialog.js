@@ -1,4 +1,5 @@
 export default {
+    name: 'conditions-editor-dialog',
     data() {
         return {
             vueData: { 

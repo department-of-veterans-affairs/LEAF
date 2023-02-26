@@ -1,4 +1,5 @@
 export default {
+    name: 'advanced-options-dialog',
     data() {
         return {
             initialFocusElID: '#advanced legend',

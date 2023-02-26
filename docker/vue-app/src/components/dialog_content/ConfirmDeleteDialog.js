@@ -1,4 +1,5 @@
 export default {
+    name: 'confirm-delete-dialog',
     data() {
         return {
             formID: this.currSubformID || this.currCategoryID,

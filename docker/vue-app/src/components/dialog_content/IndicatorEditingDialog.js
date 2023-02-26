@@ -4,6 +4,7 @@ import GridCell from "../GridCell";
 import IndicatorPrivileges from "../IndicatorPrivileges";
 
 export default {
+    name: 'indicator-editing-dialog',
     data() {
         return {
             initialFocusElID: 'name',

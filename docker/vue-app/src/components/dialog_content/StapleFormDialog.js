@@ -1,4 +1,5 @@
 export default {
+    name: 'staple-form-dialog',
     data() {
         return {
             catIDtoStaple: '',

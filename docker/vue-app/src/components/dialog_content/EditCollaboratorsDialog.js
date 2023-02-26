@@ -1,4 +1,5 @@
 export default {
+    name: 'edit-collaborators-dialog',
     data() {
         return {
             //subformID will be null if the selected form is not a subform.  currCategoryID will always be a main form.

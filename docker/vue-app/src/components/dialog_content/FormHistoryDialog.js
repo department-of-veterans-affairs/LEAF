@@ -1,4 +1,5 @@
 export default {
+    name: 'form-history-dialog',
     data() {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',

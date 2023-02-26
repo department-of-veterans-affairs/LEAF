@@ -1,4 +1,5 @@
 export default {
+    name: 'new-form-dialog',
     data() {
         return {
             categoryName: '',
