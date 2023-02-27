@@ -472,6 +472,28 @@ class Service
     }
 
     /**
+     * Returns Employee user ID.
+     * @param string $employeeID - The id to create the display name of.
+     *
+     * @return int
+     */
+    public function getEmployeeUserID($employeeID): int
+    {
+        require_once '../VAMC_Directory.php';
+
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+        if (is_array($dirRes && isset($dirRes[0]))) {
+            $empData = $dirRes[0];
+            $empUserID = $empData["empUID"];
+        } else {
+            $empUserID = -1;
+        }
+
+        return $empUserID;
+    }
+
+    /**
      * Gets display name for Service.
      * @param int $serviceID 	the id of the service to find display name for.
      * @return string

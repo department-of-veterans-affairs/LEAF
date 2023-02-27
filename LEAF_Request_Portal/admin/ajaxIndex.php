@@ -319,7 +319,9 @@ switch ($action) {
         for($i = 0; $i<count($resHistory); $i++){
             $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
             $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('F j, Y. g:i A');
-            $resHistory[$i]["targetEmpUID"] = $type->getEmployeeUserID($resHistory[$i]["targetUID"]);
+            if (array_key_exists("targetUID", $resHistory[$i])) {
+                $resHistory[$i]["targetEmpUID"] = $type->getEmployeeUserID($resHistory[$i]["targetUID"]);
+            }
         }
 
         if($gethistoryslice)

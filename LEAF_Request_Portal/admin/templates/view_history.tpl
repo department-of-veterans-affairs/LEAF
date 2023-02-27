@@ -53,7 +53,7 @@
                                         <!--{$log.userName|sanitize}-->
                                     </a>
                                     &nbsp;
-                                    <!--{if isset($log.targetEmpUID)}-->
+                                    <!--{if isset($log.targetEmpUID) && $log.targetEmpUID > 0}-->
                                         <!--{$log.history|sanitize|replace:$log.displayName:('<a style="color: #005ea2;" href="../'|cat:$orgchartPath|cat:'/?a=view_employee&empUID='|cat:$log.targetEmpUID|cat:'" target="_blank">'|cat:$log.displayName|cat:'</a>')}-->
                                     <!--{else}-->
                                         <!--{$log.history|sanitize}-->
