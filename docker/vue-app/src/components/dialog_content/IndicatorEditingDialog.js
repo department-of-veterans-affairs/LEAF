@@ -10,7 +10,7 @@ export default {
             initialFocusElID: 'name',
             showAdditionalOptions: false,
             showDetailedFormatInfo: false,
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.subformID || this.mainFormID,
             formats: {
                 text: "Single line text",
                 textarea: "Multi-line text",
@@ -87,8 +87,8 @@ export default {
         'appIsLoadingIndicator',
         'isEditingModal',
         'closeFormDialog',
-        'currCategoryID',
-        'currSubformID',
+        'mainFormID',
+        'subformID',
         'currIndicatorID',
         'indicatorRecord',
         'selectedFormTree',
@@ -190,7 +190,7 @@ export default {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}/form/_${this.currCategoryID}/flat`,
+                    url: `${this.APIroot}/form/_${this.mainFormID}/flat`,
                     success: (res)=> {
                         for (let i in res) {
                             res[i]['1'].name = XSSHelpers.stripAllTags(res[i]['1'].name);

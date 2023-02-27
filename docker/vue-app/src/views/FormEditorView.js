@@ -26,7 +26,6 @@ export default {
         'APIroot',
         'CSRFToken',
         'appIsLoadingForm',
-        'currSubformID',        //catID of the subform, if a subform, otherwise null
         'selectedFormTree',
         'categories',
         'internalFormRecords',

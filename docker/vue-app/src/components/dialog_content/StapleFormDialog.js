@@ -3,7 +3,7 @@ export default {
     data() {
         return {
             catIDtoStaple: '',
-            formID: this.currCategoryID  //staples are added to the main form.
+            formID: this.mainFormID  //staples are added to the main form.
         }
     },
     inject: [
@@ -12,7 +12,7 @@ export default {
         'truncateText',
         'stripAndDecodeHTML',
         'categories',
-        'currCategoryID',
+        'mainFormID',
         'closeFormDialog',
         'updateStapledFormsInfo'
     ],
@@ -24,7 +24,7 @@ export default {
     },
     computed: {
         currentStapleIDs() {
-            return this.categories[this.currCategoryID]?.stapledFormIDs || [];
+            return this.categories[this.mainFormID]?.stapledFormIDs || [];
         },
         mergeableForms() {
             let mergeable = [];

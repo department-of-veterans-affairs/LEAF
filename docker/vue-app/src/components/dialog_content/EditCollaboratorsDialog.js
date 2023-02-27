@@ -2,8 +2,8 @@ export default {
     name: 'edit-collaborators-dialog',
     data() {
         return {
-            //subformID will be null if the selected form is not a subform.  currCategoryID will always be a main form.
-            formID: this.currSubformID || this.currCategoryID,
+            //subformID will be empty if the selected form is not a subform.
+            formID: this.subformID || this.mainFormID,
             group: '',
             allGroups: [],
             collaborators: []
@@ -13,8 +13,8 @@ export default {
         'APIroot',
         'CSRFToken',
         'categories',
-        'currCategoryID',
-        'currSubformID',
+        'mainFormID',
+        'subformID',
         'closeFormDialog'
     ],
     mounted() {

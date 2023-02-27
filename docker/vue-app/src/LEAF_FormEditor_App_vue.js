@@ -41,8 +41,7 @@ export default {
             appIsLoadingCategoryList: false,
             appIsLoadingForm: false,
             appIsLoadingIndicator: false,
-            currCategoryID: '',            //string
-            currSubformID: null,           //null or string
+            subformID: '',             //string
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
@@ -58,8 +57,8 @@ export default {
     provide() {
         return {
             CSRFToken: computed(() => this.CSRFToken),
-            currCategoryID: computed(() => this.currCategoryID),
-            currSubformID: computed(() => this.currSubformID),
+            mainFormID: computed(() => this.mainFormID),
+            subformID: computed(() => this.subformID),
             currIndicatorID: computed(() => this.currIndicatorID),
             newIndicatorParentID: computed(() => this.newIndicatorParentID),
             isEditingModal: computed(() => this.isEditingModal),
@@ -164,6 +163,14 @@ export default {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
+        mainFormID() {
+            return this.currentCategorySelection?.parentID ?
+                this.currentCategorySelection.parentID : this.currentCategorySelection.categoryID || '';
+        },/*
+        subFormID() {
+            return this.currentCategorySelection?.parentID ?
+                this.currentCategorySelection.categoryID : '';
+        },*/
         /**
          * @returns {array} of non-internal forms that have workflows and are available
          */
@@ -214,7 +221,7 @@ export default {
         internalFormRecords() {
             let internalFormRecords = [];
             for(let c in this.categories) {
-                if (this.categories[c].parentID === this.currCategoryID) {
+                if (this.categories[c].parentID === this.mainFormID) {
                     internalFormRecords.push({...this.categories[c]});
                 }
             }
@@ -424,10 +431,10 @@ export default {
                     break;
                 }
             }
-            if (newIndicator === true && this.currCategoryID === '') { //null if on form browser page
+            if (newIndicator === true && this.mainFormID === '') { //empty if on form browser page
                 this.showCertificationStatus = true;
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
-                    if (this.currCategoryID === '') {
+                    if (this.mainFormID === '') {
                         if (Object.keys(unresolvedLeafSRequests).length === 0) { // if no new request, create one
                             document.getElementById('secureStatus')?.setAttribute('innerText', 'Forms have been modified.');
                             document.getElementById('secureBtn')?.setAttribute('innerText', 'Please Recertify Your Site');
@@ -521,8 +528,8 @@ export default {
         selectNewCategory(catID = '', subnodeIndID = null) {
             console.log('called selectNewCat with', catID)
             const isSubform = catID !== '' && this.categories[catID].parentID !== '';
-            this.currCategoryID = isSubform ? this.categories[catID].parentID : catID;
-            this.currSubformID = isSubform ? catID : null;
+           // this.mainFormID = isSubform ? this.categories[catID].parentID : catID;
+            //this.subformID = isSubform ? catID : '';
 
             this.selectedFormTree = [];
             this.selectedFormNode = null;
@@ -643,7 +650,7 @@ export default {
             }).catch(err => console.log('error getting indicator information', err));
         },
         openNewFormDialog() {
-            const titleHTML = this.currCategoryID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
+            const titleHTML = this.mainFormID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
             this.setCustomDialogTitle(titleHTML);
             this.setFormDialogComponent('new-form-dialog');
             this.showFormDialog = true; 

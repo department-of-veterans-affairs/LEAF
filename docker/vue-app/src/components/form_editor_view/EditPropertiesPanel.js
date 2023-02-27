@@ -7,14 +7,15 @@ export default {
             needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
             visible: parseInt(this.currentCategorySelection?.visible) || 0,
             type: this.currentCategorySelection?.type || '',
-            formID: this.currSubformID || this.currCategoryID
+            formID: this.subformID || this.mainFormID,
+            formParentID: this.currentCategorySelection?.parentID || '',
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'currCategoryID',
-        'currSubformID',
+        'mainFormID',
+        'subformID',
         'workflowRecords',
         'currentCategorySelection',
         'currentCategoryIsSensitive',
@@ -178,14 +179,13 @@ export default {
             }
             Promise.all(editPropertyUpdates)
                 .then(()=> {
-                    //console.log('promise all:', editPropertyUpdates);
                     this.closeFormDialog();
                 }).catch(err => console.log('an error has occurred', err));
         }
     },
     template: `<div id="edit-properties-panel">
-        <span class="form-id">ID: {{currCategoryID}}
-            <span v-if="currSubformID !== null">(subform {{currSubformID}})</span>
+        <span class="form-id">{{formID}}
+            <span v-if="formParentID">(internal for {{formParentID}})</span>
         </span>
         <div id="edit-properties-description">
             <label for="categoryName">Form name

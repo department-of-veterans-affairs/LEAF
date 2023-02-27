@@ -9,7 +9,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'currCategoryID', //NOTE: currCatID is null on the card browser page (Create Form), but has the main form value if user clicks Add Internal Use
+        'mainFormID', //NOTE: currCatID is null on the card browser page (Create Form), but has the main form value if user clicks Add Internal Use
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'
@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         isSubform() {
-            return this.currCategoryID !== '';
+            return this.mainFormID !== '';
         },
         nameCharsRemaining(){
             return Math.max(50 - this.categoryName.length, 0);
@@ -36,7 +36,7 @@ export default {
                 data: {
                     name: this.categoryName,
                     description: this.categoryDescription,
-                    parentID: this.currCategoryID || '',
+                    parentID: this.mainFormID || '',
                     CSRFToken: this.CSRFToken
                 },
                 success: (res)=> {
@@ -46,7 +46,7 @@ export default {
                     temp.categoryID = newCatID;
                     temp.categoryName = this.categoryName;
                     temp.categoryDescription = this.categoryDescription;
-                    temp.parentID = this.currCategoryID || '';
+                    temp.parentID = this.mainFormID || '';
                     //default values
                     temp.workflowID = 0;
                     temp.needToKnow = 0;

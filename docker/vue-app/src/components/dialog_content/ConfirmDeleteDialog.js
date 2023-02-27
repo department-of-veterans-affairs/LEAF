@@ -2,14 +2,14 @@ export default {
     name: 'confirm-delete-dialog',
     data() {
         return {
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.subformID || this.mainFormID,
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'currCategoryID',
-        'currSubformID',
+        'mainFormID',
+        'subformID',
         'currentCategorySelection',
         'selectNewCategory',
         'closeFormDialog'

@@ -12,8 +12,8 @@ export default {
         'stripAndDecodeHTML',
         'selectNewCategory',
         'categories',
-        'currCategoryID',
-        'currSubformID',
+        'mainFormID',
+        'subformID',
         'internalFormRecords',
         'selectedFormTree',
         'allStapledFormCatIDs',
@@ -25,7 +25,7 @@ export default {
     ],
     computed: {
         currentStapleIDs() {
-            return this.categories[this.currCategoryID]?.stapledFormIDs || [];
+            return this.categories[this.mainFormID]?.stapledFormIDs || [];
         },
     },
     methods: {
@@ -33,7 +33,7 @@ export default {
          * resolve main form, internal form, and workflow info, then export
          */
         exportForm() {
-            const catID = this.currCategoryID;
+            const catID = this.mainFormID;
 
             let packet = {};
             packet.form = {};
@@ -106,7 +106,7 @@ export default {
     },
     template: `<nav id="form-editor-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
-            <ul v-if="currCategoryID === ''" id="form-editor-menu">
+            <ul v-if="mainFormID === ''" id="form-editor-menu">
                 <li v-if="$route.name === 'restore'">
                     <router-link :to="{ name: 'category' }" class="router-link" @click="selectNewCategory()">
                         Form Browser
@@ -140,7 +140,7 @@ export default {
                             <span role="img" aria="">➕</span>
                         </button>
                     </li>
-                    <li v-if="!allStapledFormCatIDs.includes(currCategoryID)">
+                    <li v-if="!allStapledFormCatIDs.includes(mainFormID)">
                         <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
                             Manage Stapled Forms <span role="img" aria="">📌</span>
                         </button>
@@ -167,28 +167,28 @@ export default {
             </ul>
 
             <!-- FORM EDITING BREADCRUMBS -->
-            <ul v-if="currCategoryID !== ''" id="form-breadcrumb-menu">
+            <ul v-if="mainFormID !== ''" id="form-breadcrumb-menu">
                 <li>
                     <router-link :to="{ name: 'category', query: { formID: ''}}">
                         <h2>Form Editor</h2>
                     </router-link>
-                    <span v-if="currCategoryID !== ''" class="header-arrow" role="img" aria="">❯</span>
+                    <span v-if="mainFormID !== ''" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li>
-                    <router-link v-if="$route.query.formID !== currCategoryID" 
-                        :to="{ name: 'category', query: { formID: currCategoryID }}"
+                    <router-link v-if="$route.query.formID !== mainFormID" 
+                        :to="{ name: 'category', query: { formID: mainFormID }}"
                         class="router-link" title="to primary form">
-                        <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
+                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
                     </router-link>
-                    <button v-else type="button" :title="'viewing form ' + currCategoryID" disabled>
-                        <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
+                    <button v-else type="button" :title="'viewing form ' + mainFormID" disabled>
+                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
                     </button>
-                    <span v-if="currSubformID !== null" class="header-arrow" role="img" aria="">❯</span>
+                    <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>
                 </li>
-                <li v-if="currSubformID !== null">
-                    <button type="button" :id="'header_' + currSubformID" 
-                        :title="'viewing internal form ' + currSubformID" disabled>
-                        <h2>{{shortFormNameStripped(currSubformID, 50)}}</h2>
+                <li v-if="subformID !== ''">
+                    <button type="button" :id="'header_' + subformID" 
+                        :title="'viewing internal form ' + subformID" disabled>
+                        <h2>{{shortFormNameStripped(subformID, 50)}}</h2>
                     </button>
                 </li>
             </ul>

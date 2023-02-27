@@ -3,7 +3,7 @@ export default {
     data() {
         return {
             vueData: { 
-                formID: this.currSubformID || this.currCategoryID,
+                formID: this.subformID || this.mainFormID,
                 indicatorID: this.currIndicatorID
             },
             //indicatorOrg: {},  NOTE: keep
@@ -30,8 +30,8 @@ export default {
         'APIroot',
         'CSRFToken',
         'currIndicatorID',
-        'currCategoryID',
-        'currSubformID',
+        'mainFormID',
+        'subformID',
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'closeFormDialog',

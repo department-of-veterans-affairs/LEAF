@@ -4,14 +4,14 @@ export default {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
             page: 1,
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.subformID || this.mainFormID,
             ajaxRes: ''
             
         }
     },
     inject: [
-        'currSubformID',
-        'currCategoryID'
+        'subformID',
+        'mainFormID'
     ],
     mounted() {
         document.getElementById(this.divSaveCancelID).style.display = 'none';
