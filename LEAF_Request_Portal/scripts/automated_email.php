@@ -68,6 +68,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     $getRecordResInitial = $db->prepared_query($getRecordSql, $getRecordVar);
 
+    foreach($getRecordResInitial as $getRecordResInitialKey=>$getRecordResInitialValue){
+        $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $daysago;
+    }
+
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(!empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
         
@@ -94,6 +98,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     $getRecordResAfter = $db->prepared_query($getRecordSql, $getRecordVar);
 
+    foreach($getRecordResAfter as $getRecordResAfterKey=>$getRecordResAfterValue){
+        $getRecordResAfter[$getRecordResAfterKey]['daysSince'] = $addldaysago;
+    }
+
     $getRecordRes = array_merge($getRecordResInitial,$getRecordResAfter);
     // make sure we have records to work with
     if (empty($getRecordRes)) {
@@ -112,7 +120,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
         // add in variables for the smarty template
         $email->addSmartyVariables(array(
-            "daysSince" => $daysago,
+            "daysSince" => $record['daysSince'],
             "truncatedTitle" => $title,
             "fullTitle" => $record['title'],
             "recordID" => $record['recordID'],
