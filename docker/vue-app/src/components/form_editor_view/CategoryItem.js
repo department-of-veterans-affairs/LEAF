@@ -9,10 +9,9 @@ export default {
         'CSRFToken',
         'libsPath',
         'categories',
-        'selectNewCategory',
         'updateCategoriesProperty',
         'stripAndDecodeHTML',
-        'stapledFormsCatIDs',
+        'allStapledFormCatIDs',
     ],
     computed: {
         workflowID() {
@@ -31,7 +30,7 @@ export default {
             return stapledForms;
         },
         isStapledToOtherForm() {
-            return this.stapledFormsCatIDs.includes(this.categoriesRecord.categoryID);
+            return this.allStapledFormCatIDs.includes(this.categoriesRecord.categoryID);
         },
         /**
          * NOTE: uses LEAF XSSHelpers.js
@@ -96,7 +95,7 @@ export default {
             <td class="formPreviewDescription">{{ formDescription }}</td>
             <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
             <td v-if="availability==='supplemental'">
-                <div v-if="stapledFormsCatIDs.includes(catID)" style="display: flex; justify-content: center;">
+                <div v-if="allStapledFormCatIDs.includes(catID)" style="display: flex; justify-content: center;">
                     <span role="img" aria="">📑</span>&nbsp;Stapled
                 </div>
             </td>

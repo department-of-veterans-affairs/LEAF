@@ -41,7 +41,7 @@ export default {
                             alert(res);
                         } else {
                             this.closeFormDialog();
-                            this.selectNewCategory(null);
+                            this.selectNewCategory();
                         }
                     },
                     error: err => console.log('an error has occurred', err)

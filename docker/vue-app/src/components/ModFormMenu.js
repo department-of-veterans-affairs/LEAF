@@ -16,7 +16,7 @@ export default {
         'currSubformID',
         'internalFormRecords',
         'selectedFormTree',
-        'stapledFormsCatIDs',
+        'allStapledFormCatIDs',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
@@ -106,9 +106,9 @@ export default {
     },
     template: `<nav id="form-editor-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
-            <ul v-if="currCategoryID === null" id="form-editor-menu">
+            <ul v-if="currCategoryID === ''" id="form-editor-menu">
                 <li v-if="$route.name === 'restore'">
-                    <router-link :to="{ name: 'category' }" class="router-link" @click="selectNewCategory(null)">
+                    <router-link :to="{ name: 'category' }" class="router-link" @click="selectNewCategory()">
                         Form Browser
                     </router-link>                
                 </li>
@@ -140,7 +140,7 @@ export default {
                             <span role="img" aria="">➕</span>
                         </button>
                     </li>
-                    <li v-if="!stapledFormsCatIDs.includes(currCategoryID)">
+                    <li v-if="!allStapledFormCatIDs.includes(currCategoryID)">
                         <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
                             Manage Stapled Forms <span role="img" aria="">📌</span>
                         </button>
@@ -167,12 +167,12 @@ export default {
             </ul>
 
             <!-- FORM EDITING BREADCRUMBS -->
-            <ul v-if="currCategoryID !== null" id="form-breadcrumb-menu">
+            <ul v-if="currCategoryID !== ''" id="form-breadcrumb-menu">
                 <li>
                     <router-link :to="{ name: 'category', query: { formID: ''}}">
                         <h2>Form Editor</h2>
                     </router-link>
-                    <span v-if="currCategoryID !== null" class="header-arrow" role="img" aria="">❯</span>
+                    <span v-if="currCategoryID !== ''" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li>
                     <router-link v-if="$route.query.formID !== currCategoryID" 

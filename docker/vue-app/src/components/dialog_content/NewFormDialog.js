@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         isSubform() {
-            return this.currCategoryID !== null;
+            return this.currCategoryID !== '';
         },
         nameCharsRemaining(){
             return Math.max(50 - this.categoryName.length, 0);

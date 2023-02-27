@@ -35,7 +35,7 @@ export default {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.selectNewCategory(null);
+                        this.selectNewCategory();
                     },
                     error: err => console.log('form import error', err),
                 })

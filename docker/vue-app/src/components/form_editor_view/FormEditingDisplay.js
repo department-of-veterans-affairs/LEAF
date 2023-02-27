@@ -79,7 +79,7 @@ export default {
                     <div>
                         <button type="button" @click="editQuestion(parseInt(formNode.indicatorID))"
                             class="btn-general" :title="'edit indicator ' + formNode.indicatorID">Edit</button>
-                        <span style="margin-left: 0.5rem; white-space:nowrap">
+                        <span style="margin-left: 0.5rem; white-space:nowrap; font-weight: normal; color:#404042;">
                             {{formNode?.format}}{{conditionalQuestion ? ', has conditions' : ''}}</span>
                         <span v-if="sensitive" v-html="sensitiveImg" style="margin-left: 0.4rem;"></span>
                     </div>
@@ -106,7 +106,7 @@ export default {
                 </div>
 
                 <!-- NAME -->
-                <div v-html="indicatorName" @click="toggleToolbars"
+                <div v-html="indicatorName" @click="toggleToolbars($event)"
                     class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                 
                 <!-- FORMAT PREVIEW -->

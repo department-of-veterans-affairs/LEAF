@@ -294,7 +294,15 @@ export default {
             event?.stopPropagation();
             if (event?.keyCode === 32) event.preventDefault();
             if (event.currentTarget.classList.contains('indicator-name-preview')) {
-                this.showToolbars = true;
+                if (!this.showToolbars) {
+                    const id = event.currentTarget.id;
+                    const initialTop = event.currentTarget.getBoundingClientRect().top;
+                    this.showToolbars = true;
+                    setTimeout(() => {
+                        const finalTop = document.getElementById(id).getBoundingClientRect().top;
+                        window.scrollBy(0, finalTop - initialTop);
+                    });
+                }
             } else {
                 this.showToolbars = !this.showToolbars;
             }
@@ -310,14 +318,6 @@ export default {
             const name = this.stripAndDecodeHTML(form?.categoryName || '') || 'Untitled';
             return this.truncateText(name, len).trim();
         },
-        /*
-        selectForm(catID = '', setPrimary = false) {
-            if (setPrimary === true) {
-                this.$route.query.primary = this.currCategoryID;
-            }
-            console.log('route index', this.currCategoryID, this.$route)
-            this.selectNewCategory(catID);
-        }, */
     },
     template:`<div id="formEditor_content">
     <FormBrowser v-if="formID===null"></FormBrowser>
