@@ -178,7 +178,7 @@ INSERT INTO `events` (`eventID`, `eventDescription`, `eventType`, `eventData`) V
 
 CREATE TABLE IF NOT EXISTS `groups` (
   `groupID` mediumint(9) NOT NULL AUTO_INCREMENT,
-  `parentGroupID` tinyint(4) DEFAULT NULL,
+  `parentGroupID` mediumint(9) DEFAULT NULL,
   `name` varchar(250) NOT NULL,
   `groupDescription` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`groupID`)

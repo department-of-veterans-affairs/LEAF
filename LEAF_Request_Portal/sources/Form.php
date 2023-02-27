@@ -477,7 +477,14 @@ class Form
         $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
         $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
         $form[$idx]['sort'] = $data[0]['sort'];
-        $form[$idx]['has_code'] = trim($data[0]['html']) != '' || trim($data[0]['htmlPrint']) != '';
+
+        if (!empty($data[0]['html'])) {
+            $form[$idx]['has_code'] = trim($data[0]['html']);
+        } elseif (!empty($data[0]['htmlPrint'])) {
+            $form[$idx]['has_code'] = trim($data[0]['htmlPrint']);
+        } else {
+            $form[$idx]['has_code'] = '';
+        }
 
         // handle file upload
         if (isset($data[0]['data'])
@@ -490,7 +497,7 @@ class Form
 
         // special handling for org chart data types
         if ($data[0]['format'] == 'orgchart_employee'
-            && isset($data[0]['data']))
+            && !empty($data[0]['data']))
         {
             $empRes = $this->employee->lookupEmpUID($data[0]['data']);
             $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
