@@ -200,12 +200,12 @@ export default {
         </div>
         <div id="edit-properties-other-properties">
             <div style="display:flex; justify-content: space-between;">
-                <button id="editFormPermissions" class="btn-general"
+                <button type="button" id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
                     @click="openEditCollaboratorsDialog">
                     Edit Special Write Access
                 </button>
-                <button v-if="changesPending" class="btn-general" title="Apply form property updates" @click="onSave">Apply updates</button>
+                <button v-if="changesPending" type="button" class="btn-general" title="Apply form property updates" @click="onSave">Apply updates</button>
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">

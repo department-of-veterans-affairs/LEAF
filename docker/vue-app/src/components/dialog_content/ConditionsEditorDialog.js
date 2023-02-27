@@ -580,7 +580,7 @@ export default {
                         <div v-if="conditionTypes.show.length > 0">
                             <p style="margin-bottom: 0.5rem;"><b>This field will be hidden except:</b></p>
                             <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
-                                <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -592,7 +592,7 @@ export default {
                                     </span>
                                     <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                                 </button>
-                                <button style="width: 1.75em;"
+                                <button type="button" style="width: 1.75em;"
                                 class="btn_remove_condition"
                                 @click="removeCondition({confirmDelete: false, condition: c})">X
                                 </button>
@@ -602,7 +602,7 @@ export default {
                         <div v-if="conditionTypes.hide.length > 0">
                             <p style="margin-bottom: 0.5rem;"><b>This field will be shown except:</b></p>
                             <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
-                                <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -614,7 +614,7 @@ export default {
                                     </span>
                                     <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                                 </button>
-                                <button style="width: 1.75em;"
+                                <button  type="button" style="width: 1.75em;"
                                 class="btn_remove_condition"
                                 @click="removeCondition({confirmDelete: false, condition: c})">X
                                 </button>
@@ -624,7 +624,7 @@ export default {
                         <div v-if="conditionTypes.prefill.length > 0">
                             <p style="margin-bottom: 0.5rem;"><b>This field will be pre-filled:</b></p>
                             <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
-                                <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -636,22 +636,22 @@ export default {
                                     </span>
                                     <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                                 </button>
-                                <button style="width: 1.75em;"
+                                <button type="button" style="width: 1.75em;"
                                     class="btn_remove_condition"
                                     @click="removeCondition({confirmDelete: false, condition: c})">X
                                 </button>
                             </li>
                         </div>
                     </ul>
-                    <button v-if="!showRemoveConditionModal" @click="newCondition" class="btnNewCondition">+ New Condition</button>
+                    <button v-if="!showRemoveConditionModal" type="button" @click="newCondition" class="btnNewCondition">+ New Condition</button>
                     <div v-if="showRemoveConditionModal">
                         <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                         <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                             <li style="width: 30%;">
-                                <button class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: conditions })">Delete</button>
+                                <button type="button" class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: conditions })">Delete</button>
                             </li>
                             <li style="width: 30%;">
-                                <button id="btn_cancel" @click="showRemoveConditionModal=false">Cancel</button>
+                                <button type="button" id="btn_cancel" @click="showRemoveConditionModal=false">Cancel</button>
                             </li>
                         </ul>
                     </div>

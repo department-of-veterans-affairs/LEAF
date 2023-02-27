@@ -155,12 +155,12 @@ export default {
                     </button>
                 </li>
                 <li>
-                    <button @click="exportForm" title="export form">
+                    <button type="button" @click="exportForm" title="export form">
                         Export Form<span role="img" aria="">💾</span>
                     </button>
                 </li>
                 <li>
-                    <button @click="openConfirmDeleteFormDialog" title="delete this form">
+                    <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
                         Delete this form<span role="img" aria="">❌</span>
                     </button>
                 </li>

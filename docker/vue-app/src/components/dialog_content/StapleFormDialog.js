@@ -81,7 +81,7 @@ export default {
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
                 <li v-for="id in currentStapleIDs" :key="'staple_list_' + id">
                     {{truncateText(stripAndDecodeHTML(categories[id]?.categoryName || 'Untitled')) }}
-                    <button 
+                    <button type="button"
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                         @click="unmergeForm(id)" :title="'remove ' + categories[id]?.categoryName || 'Untitled'">
                         <b>[ Remove ]</b>

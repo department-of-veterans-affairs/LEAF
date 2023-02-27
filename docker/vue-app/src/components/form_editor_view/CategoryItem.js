@@ -88,7 +88,7 @@ export default {
         }
     },
     template:`<tr :id="catID" :title="catID + ': ' + categoryName">
-            <td height="40" tabindex="0" class="form-name">
+            <td height="40" class="form-name">
                 <router-link :to="{ name: 'category', query: { formID: catID }}">
                 {{ categoryName }}
                 </router-link>
@@ -107,14 +107,15 @@ export default {
                 </div>
             </td>
             <td>
-                <input type="number" :value="categoriesRecord.sort" min="-128" max="127"
-                 style="width: 100%; min-width:50px;" @change="updateSort($event, catID)" />
+                <input type="number" @change="updateSort($event, catID)"
+                    :aria-labelledby="availability + '_sort'"
+                    :value="categoriesRecord.sort" min="-128" max="127"
+                    style="width: 100%; min-width:50px;" />
             </td>
         </tr>
         <template v-if="stapledForms.length > 0">
-            <tr v-for="form in stapledForms" 
-                :key="catID + '_stapled_with_' + form.categoryID" class="sub-row">
-                <td height="36" tabindex="0" class="form-name">
+            <tr v-for="form in stapledForms" :key="catID + '_stapled_with_' + form.categoryID" class="sub-row">
+                <td height="36" class="form-name">
                     <router-link :to="{ name: 'category', query: { formID: form.categoryID }}">
                         <span role="img" aria="">📌&nbsp;</span>{{ categories[form.categoryID].categoryName }}
                     </router-link>
@@ -128,8 +129,10 @@ export default {
                     </div>
                 </td>
                 <td>
-                    <input type="number" :value="categories[form.categoryID].sort" min="-128" max="127"
-                        style="width: 100%; min-width:50px;" @change="updateSort($event, form.categoryID)" />
+                    <input type="number" @change="updateSort($event, form.categoryID)"
+                        :aria-labelledby="availability + '_sort'"
+                        :value="categories[form.categoryID].sort" min="-128" max="127"
+                        style="width: 100%; min-width:50px;" />
                 </td>
             </tr>
         </template>`

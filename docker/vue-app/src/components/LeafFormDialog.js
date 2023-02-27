@@ -93,12 +93,12 @@ export default {
                         </main>
                     </div>
                     <div id="leaf-vue-dialog-cancel-save">
-                        <button style="width: 90px;"
+                        <button type="button" style="width: 90px;"
                             id="button_save" class="btn-confirm" :title="dialogButtonText.confirm"
                             @click="formSaveFunction">
                             {{dialogButtonText.confirm}}
                         </button>
-                        <button style="width: 90px;"
+                        <button type="button" style="width: 90px;"
                             id="button_cancelchange" class="btn-general" :title="dialogButtonText.cancel"
                             @click="closeFormDialog">
                             {{dialogButtonText.cancel}}

@@ -107,7 +107,7 @@ export default {
                         <ul>
                             <li v-for="g in groupsWithPrivileges" :key="g.name + g.id">
                                 {{g.name}}
-                                <button @click="removeIndicatorPrivilege(parseInt(g.id))"
+                                <button type="button" @click="removeIndicatorPrivilege(parseInt(g.id))"
                                     style="margin-left: 3px; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                                     :title="'remove ' + g.name">
                                     <b>[ Remove ]</b>
@@ -122,7 +122,7 @@ export default {
                     <select id="selectIndicatorPrivileges" v-model="group" style="width:260px;">
                         <option :value="0">Select a Group</option>
                         <option v-for="g in availableGroups" :value="g" :key="'avail_' + g.groupID">{{g.name}} (id{{g.groupID}})</option>
-                    </select><button class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
+                    </select><button type="button" class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
                 </div>
             </fieldset>`
 }

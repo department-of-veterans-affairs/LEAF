@@ -339,12 +339,12 @@ export default {
                     <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
                         <h3 style="margin: 0;">Primary Form</h3>
                         <p id="updateStatus" style="display:none">TEST</p>
-                        <button v-if="sortOrParentChanged" @click="applySortAndParentID_Updates" 
+                        <button v-if="sortOrParentChanged" type="button" @click="applySortAndParentID_Updates" 
                             class="btn-general"
                             title="Apply form structure updates">Apply sorting changes</button>
                     </div>
                     <div style="margin: 1em 0">
-                        <button v-if="selectedFormNode !== null" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
+                        <button v-if="selectedFormNode !== null" type="button" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
                             @click="selectNewFormNode($event, null)" 
                             id="show_entire_form" 
                             title="Show entire form">Show entire form
@@ -383,7 +383,7 @@ export default {
                     </template>
                     </ul>
                     <div style="margin: 1em 0 0 0">
-                        <button class="btn-general" style="width: 100%" 
+                        <button type="button" class="btn-general" style="width: 100%" 
                             @click="newQuestion(null)"
                             id="add_new_form_section"
                             title="Add new form section">
@@ -411,7 +411,7 @@ export default {
                     <div v-if="selectedFormNode === null" id="form_entry_and_preview">
                         <div class="form-section-header" style="display: flex; height: 28px;">
                             <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
-                            <button id="indicator_toolbar_toggle" class="btn-general"
+                            <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">
                                 {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
                             </button>
@@ -431,7 +431,7 @@ export default {
                     <div v-else id="form_entry_and_preview">
                         <div class="form-section-header" style="display: flex;">
                             <h3 style="margin: 0;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                            <button id="indicator_toolbar_toggle" class="btn-general"
+                            <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">
                                 {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
                             </button>

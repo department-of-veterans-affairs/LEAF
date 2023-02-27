@@ -172,7 +172,7 @@ export default {
                 </table><br />
                 <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     html (for pages where the user can edit data): 
-                    <button id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
+                    <button type="button" id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
                         <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_html"></span>
                     </button>
@@ -180,7 +180,7 @@ export default {
                 <textarea id="html">{{html}}</textarea><br />
                 <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     htmlPrint (for pages where the user can only read data): 
-                    <button id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
+                    <button  type="button" id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
                         <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_htmlPrint"></span>
                     </button>

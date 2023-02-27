@@ -325,17 +325,20 @@ nav#form-editor-nav {
             border: 1px solid $charcoal;
             
             a {
+                padding: 0.25rem 0.5rem;
                 display: flex;
                 height: 100%;
                 align-items: center;
                 color: inherit;
+                border: 2px solid transparent;
+                &:hover, &:focus, &:active {
+                    background-color: $lt_cyan;
+                    border: 2px solid $LEAF_CSS_outline !important;
+                }
             }
         }
         td.form-name {
-            cursor: pointer;
-            &:hover, &:focus, &:active {
-                background-color: $lt_cyan;
-            }
+            padding: 0;
         }
         th {
             background-color: $charcoal;

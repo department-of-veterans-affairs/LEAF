@@ -559,12 +559,12 @@ export default {
             <label for="name">Field Name</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <div style="display:flex; justify-content: space-between;">
-                <button class="btn-general" id="rawNameEditor"
+                <button type="button" class="btn-general" id="rawNameEditor"
                     title="use basic text editor"
                     @click="rawNameEditorClick" style="display: none; width:135px">
                     Show formatted code
                 </button>
-                <button class="btn-general" id="advNameEditor"
+                <button type="button" class="btn-general" id="advNameEditor"
                     title="use advanced text editor" style="width:135px"
                     @click="advNameEditorClick">
                     Advanced Formatting
@@ -587,7 +587,7 @@ export default {
                         <option v-for="kv in Object.entries(formats)" 
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
-                    <button id="editing-format-assist" class="btn-general"
+                    <button type="button" id="editing-format-assist" class="btn-general"
                         @click="toggleSelection($event, 'showDetailedFormatInfo')"
                         title="select for assistance with format choices" style=" align-self:stretch; margin-left: 3px;">
                         {{ formatBtnText }}
@@ -612,7 +612,7 @@ export default {
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
                 <div style="display:flex; align-items: center;">
-                    <button class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
                         @click="appAddCell">
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
@@ -664,7 +664,7 @@ export default {
                     </label>
                 </template>
             </div>
-            <button v-if="isEditingModal" 
+            <button v-if="isEditingModal" type="button"
                 class="btn-general" 
                 title="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
