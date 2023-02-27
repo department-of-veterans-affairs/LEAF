@@ -122,8 +122,8 @@ class Dynicon
             $rawWidth = trim($xml->attributes()->width);
             $rawHeight = trim($xml->attributes()->height);
 
-            $xmlWidth = is_numeric($rawWidth) ? $rawWidth : substr($rawWidth, 0, strpos($rawWidth, 'px'));
-            $xmlHeight = is_numeric($rawHeight) ? $rawHeight : substr($rawHeight, 0, strpos($rawHeight, 'px'));
+            $xmlWidth = is_numeric($rawWidth) ? $rawWidth : substr($rawWidth, 0, strpos($rawWidth, 'mm'));
+            $xmlHeight = is_numeric($rawHeight) ? $rawHeight : substr($rawHeight, 0, strpos($rawHeight, 'mm'));
             $ratio = $this->width / $xmlWidth;
             $newHeight = $ratio * $xmlHeight;
 
