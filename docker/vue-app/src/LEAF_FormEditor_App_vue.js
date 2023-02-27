@@ -52,7 +52,6 @@ export default {
             stapledFormsCatIDs: [],         //cat IDs of forms stapled to anything
             workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
-            orgSelectorClassesAdded: { group: false, position: false, employee: false },
         }
     },
     provide() {
@@ -84,12 +83,10 @@ export default {
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),
             formSaveFunction: computed(() => this.formSaveFunction),
-            orgSelectorClassesAdded: computed(() => this.orgSelectorClassesAdded),
             internalFormRecords: computed(() => this.internalFormRecords),
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
-            orgchartPath: this.orgchartPath,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
@@ -108,7 +105,7 @@ export default {
             openStapleFormsDialog: this.openStapleFormsDialog,
             openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
             openIfThenDialog: this.openIfThenDialog,
-            addOrgSelector: this.addOrgSelector,
+            initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
             stripAndDecodeHTML: this.stripAndDecodeHTML,
         }
@@ -252,12 +249,35 @@ export default {
             const text = XSSHelpers.stripAllTags(elDiv.innerText);
             return text;
         },
-        /**
-         * used to track whether js code and styles for orgchart formats have been downloaded from the nexus
-         * @param {string} selectorType group, employee, position
-         */
-        addOrgSelector(selectorType = '') {
-            this.orgSelectorClassesAdded[selectorType] = true;
+        initializeOrgSelector(selType = 'employee', indicatorID = 0, selectorIDPrefix = '', initialValue = '') {
+            const prefix = selType === 'group' ? 'group#' : '#';
+
+            let orgSelector = {};
+            if (selType === 'group') {
+                orgSelector = new groupSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+            } else if (selType === 'position') {
+                orgSelector = new positionSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+            } else {
+                orgSelector = new employeeSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+            }
+            orgSelector.apiPath = `${this.orgchartPath}/api/`;
+            orgSelector.rootPath = `${this.orgchartPath}/`;
+            orgSelector.basePath = `${this.orgchartPath}/`;
+
+            orgSelector.setSelectHandler(() => {
+                document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`).value = `${prefix}` + orgSelector.selection;
+                const elDefault = document.getElementById(`modal_orgSel_data${indicatorID}`);
+                if(elDefault !== null) {
+                    elDefault.value = orgSelector.selection;
+                    elDefault.dispatchEvent(new Event('change'));
+                }
+            });
+            orgSelector.initialize();
+
+            const el = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+            if (initialValue && el) {
+                document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`).value = `${prefix}` + initialValue;
+            }
         },
         /**
          * 

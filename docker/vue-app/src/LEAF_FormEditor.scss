@@ -362,6 +362,17 @@ nav#form-editor-nav {
     }
 }
 
+div[class$="SelectorBorder"] {
+    display: flex;
+    div {
+        @include flexcenter;
+    }
+    input {
+        width: 100%;
+        border: 1px solid #bbb;
+    }
+}
+
 #indicator-editing-dialog-content {
     > div {
         margin-bottom: 2rem;

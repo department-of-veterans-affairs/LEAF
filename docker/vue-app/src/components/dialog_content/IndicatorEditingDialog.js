@@ -52,6 +52,7 @@ export default {
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
+            orgSelectorFormats: ['orgchart_employee', 'orgchart_group', 'orgchart_position'],
             newIndicatorID: null,
             name: this.indicatorRecord[this.currIndicatorID]?.name || '',
             options: this.indicatorRecord[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
@@ -82,6 +83,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'initializeOrgSelector',
         'isEditingModal',
         'closeFormDialog',
         'currCategoryID',
@@ -116,10 +118,16 @@ export default {
             this.sort = this.newQuestionSortValue;
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
-            $('#advNameEditor').click();
+            document.getElementById('advNameEditor').click();
             document.querySelector('.trumbowyg-editor').focus();
         } else {
             document.getElementById(this.initialFocusElID).focus();
+        }
+        if (this.orgSelectorFormats.includes(this.format)){
+            const selType = this.format.slice(this.format.indexOf('_') + 1);
+            this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue);
+
+            document.getElementById(`modal_orgSel_data${this.currIndicatorID}`)?.addEventListener('change', this.updateDefaultValue);
         }
     },
     computed:{
@@ -169,6 +177,9 @@ export default {
         }
     },
     methods: {
+        updateDefaultValue(event) {
+            this.defaultValue = event.currentTarget.value;
+        },
         toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
                 this[dataPropertyName] = !this[dataPropertyName];
@@ -220,8 +231,8 @@ export default {
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
                 //keeping for now for potential debugging
-                //console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
-                //console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
+                console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
+                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
                     indicatorEditingUpdates.push(
@@ -529,6 +540,20 @@ export default {
             $('#name').trumbowyg('destroy');
         }
     },
+    watch: {
+        format(newVal, oldVal) {
+            this.defaultValue = '';
+            if (this.orgSelectorFormats.includes(newVal)) {
+                const selType = newVal.slice(newVal.indexOf('_') + 1);
+
+                setTimeout(() => {
+                    this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '');
+                    let el = document.getElementById(`modal_orgSel_data${this.currIndicatorID}`);
+                    el.addEventListener('change', this.updateDefaultValue);
+                },10);
+            }
+        }
+    },
     template: `<div id="indicator-editing-dialog-content">
         <div>
             <label for="name">Field Name</label>
@@ -599,7 +624,11 @@ export default {
             </div>
             <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
-                <textarea id="defaultValue" v-model="defaultValue"></textarea> 
+                <template v-if="orgSelectorFormats.includes(format)">
+                    <input :id="'modal_orgSel_data' + currIndicatorID" v-model="defaultValue" style="display: none; "/>
+                    <div :id="'modal_orgSel_' + currIndicatorID" style="min-height:30px" aria-labelledby="defaultValue"></div>
+                </template>
+                <textarea v-show="!orgSelectorFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
         </div>
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">

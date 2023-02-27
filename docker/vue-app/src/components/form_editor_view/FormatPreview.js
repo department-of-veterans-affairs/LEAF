@@ -3,10 +3,8 @@ export default {
         indicator: Object
     },
     inject: [
-        'orgchartPath',
         'libsPath',
-        'addOrgSelector',
-        'orgSelectorClassesAdded'     //JS classes for orgchart formats
+        'initializeOrgSelector',
     ],
     computed: {
         truncatedOptions() {
@@ -17,9 +15,6 @@ export default {
         },
         inputElID() {
             return `input_preview_${this.indicator.indicatorID}`;
-        },
-        selectorInputPrefix() {
-            return this.baseFormat === 'orgchart_group' ? 'group#' : '#';
         },
         selType() {
             return this.baseFormat.slice(this.baseFormat.indexOf('_') + 1);
@@ -98,23 +93,7 @@ export default {
             case 'orgchart_group':
             case 'orgchart_position':
             case 'orgchart_employee':
-                if(this.orgSelectorClassesAdded[this.selType] === false) {
-                    $('head').append(`<link type="text/css" rel="stylesheet" href="${this.orgchartPath}/css/${this.selType}Selector.css" />`);
-
-                    $.ajax({
-                        type: 'GET',
-                        url: `${this.orgchartPath}/js/${this.selType}Selector.js`,
-                        dataType: 'script',
-                        success: ()=> {
-                            this.addOrgSelector(this.selType);
-                            this.createOrgSelector();
-                        },
-                        error: err => console.log('an error has occurred', err)
-                    });
-
-                } else {
-                    this.createOrgSelector(); 
-                }
+                this.initializeOrgSelector(this.selType, this.indicator.indicatorID); 
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
@@ -135,25 +114,6 @@ export default {
                 btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
             });
             $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
-        },
-        createOrgSelector() {
-            let orgSelector = {};
-            if (this.selType === 'group') {
-                orgSelector = new groupSelector(`orgSel_${this.indicator.indicatorID}`);
-            } else if (this.selType === 'position') {
-                orgSelector = new positionSelector(`orgSel_${this.indicator.indicatorID}`);
-            } else {
-                orgSelector = new employeeSelector(`orgSel_${this.indicator.indicatorID}`);
-            }
-            orgSelector.apiPath = `${this.orgchartPath}/api/`;
-            orgSelector.rootPath = `${this.orgchartPath}/`;
-            orgSelector.basePath = `${this.orgchartPath}/`;
-            orgSelector.setSelectHandler(()=> {
-                $(`#sel_prev_${this.indicator.indicatorID}`).val(orgSelector.selection);
-                $(`#orgSel_${this.indicator.indicatorID} input.${this.selType}SelectorInput`).val(`${this.selectorInputPrefix}` + orgSelector.selection);
-            });
-            if(orgSelector.enableEmployeeSearch !== undefined) orgSelector.enableEmployeeSearch();
-            orgSelector.initialize();
         }
     },
     template: `<div class="format-preview">
@@ -221,7 +181,6 @@ export default {
         
         <template v-if="baseFormat === 'orgchart_group' || baseFormat === 'orgchart_position' || baseFormat === 'orgchart_employee'">
             <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
-            <input :id="'sel_prev_' + indicator.indicatorID" style="display: none;">
         </template>
 
         <template v-if="baseFormat === 'grid'">
@@ -231,17 +190,17 @@ export default {
 
                     <thead :id="'gridTableHead_' + indicator.indicatorID">
                         <tr>
-                            <td v-for="o in gridOptions">{{ o.name }}</td>
+                            <td v-for="o in gridOptions" :key="'grid_head_' + o.name">{{ o.name }}</td>
                         </tr>
                     </thead>
                     <tbody :id="'gridTableBody_' + indicator.indicatorID">
                         <tr>
-                            <td v-for="o in gridOptions" style="min-width: 150px;">
+                            <td v-for="o in gridOptions" style="min-width: 150px;" :key="'grid_body_' + o.name">
                                 <input v-if="o.type === 'text'" style="width: 100%;" :aria-label="o.name" />
                                 <textarea v-if="o.type === 'textarea'" rows="3" style="resize:none; width: 100%;" :aria-label="o.name"></textarea>
                                 <input type="date" v-if="o.type === 'date'" style="width: 100%;" :aria-label="o.name" />
                                 <select v-if="o.type === 'dropdown'" style="width: 100%;" :aria-label="o.name">
-                                    <option v-for="option in o.options">{{option}}</option>
+                                    <option v-for="option in o.options" :key="'grid_drop_' + option">{{option}}</option>
                                 </select>
                             </td>
                         </tr>

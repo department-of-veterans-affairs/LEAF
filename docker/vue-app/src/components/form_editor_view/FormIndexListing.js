@@ -27,8 +27,8 @@ export default {
         //console.log('Form Index list item mounted, adding', this.formNode.indicatorID);
         //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
         this.addToListItemsObject(this.formNode, this.parentID, this.index);
-        if(this.selectedNodeIndicatorID !== null) {
-            console.log('selected node ind ID', this.selectedNodeIndicatorID)
+        if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
+            console.log('added class', this.formNode.indicatorID);
             let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
             if (el) el.classList.add('index-selected');
         }

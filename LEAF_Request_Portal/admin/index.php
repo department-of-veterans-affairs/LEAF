@@ -210,12 +210,18 @@ switch ($action) {
                                             $libsPath.'js/codemirror/addon/display/fullscreen.js',
                                             $libsPath.'js/LEAF/XSSHelpers.js',
                                             $libsPath.'js/choicesjs/choices.min.js',
-                                            '../js/formQuery.js'
+                                            '../js/formQuery.js',
+                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
+                                            '../' . Config::$orgchartPath . '/js/positionSelector.js'
         ));
         $main->assign('stylesheets', array($libsPath.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             $libsPath.'js/codemirror/lib/codemirror.css',
                                             $libsPath.'js/codemirror/addon/display/fullscreen.css',
-                                            $libsPath.'js/choicesjs/choices.min.css'
+                                            $libsPath.'js/choicesjs/choices.min.css',
+                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
+                                            '../' . Config::$orgchartPath . '/css/positionSelector.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
