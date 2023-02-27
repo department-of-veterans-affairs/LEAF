@@ -522,9 +522,12 @@ class Group
 
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
-
-        $empData = $dirRes[0];
-        $empUserID = $empData["empUID"];
+        if (is_array($dirRes) && isset($dirRes[0])) {
+            $empData = $dirRes[0];
+            $empUserID = $empData["empUID"];
+        } else {
+            $empUserID = -1;
+        }
 
         return $empUserID;
     }

@@ -461,7 +461,7 @@ class Service
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
-        if (is_array($dirRes && isset($dirRes[0]))) {
+        if (is_array($dirRes) && isset($dirRes[0])) {
             $empData = $dirRes[0];
             $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
         } else {
@@ -483,7 +483,7 @@ class Service
 
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
-        if (is_array($dirRes && isset($dirRes[0]))) {
+        if (is_array($dirRes) && isset($dirRes[0])) {
             $empData = $dirRes[0];
             $empUserID = $empData["empUID"];
         } else {
