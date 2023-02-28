@@ -28,13 +28,14 @@ export default {
         'appIsLoadingForm',
         'selectedFormTree',
         'categories',
+        'mainFormID',
         'internalFormRecords',
         'selectNewCategory',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'selectedFormNode',
         'newQuestion',
-        'currentCategorySelection',   //corresponds to currently selected form being viewed (form or subform)
+        'currentCategorySelection',
         'selectedCategoryWithStapledForms',
         'stripAndDecodeHTML',
         'truncateText'
@@ -45,7 +46,8 @@ export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
             console.log('entered main/forms route');
-
+            console.log(vm.$route.query.formID);
+            //load catagories etc.  if the q is not empty, then get the specific form
         })
     },
     provide() {
@@ -65,7 +67,7 @@ export default {
     },
     computed: {
         formID() {
-            return this.currentCategorySelection?.categoryID || null;
+            return this.currentCategorySelection?.categoryID || '';
         },
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
@@ -218,7 +220,7 @@ export default {
             }
         },
         onDrop(event = {}) {
-            if(event?.dataTransfer) {
+            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 event.preventDefault();
                 const draggedElID = event.dataTransfer.getData('text');
                 const parentEl = event.currentTarget; //drop event is on the parent ul
@@ -283,7 +285,7 @@ export default {
          * @param {Object} event adds the drop zone hilite if target is ul
          */
         onDragEnter(event = {}) {
-            if(event?.target?.classList.contains('form-index-listing-ul')){
+            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')){
                 event.target.classList.add('entered-drop-zone');
             }
         },
@@ -319,7 +321,7 @@ export default {
         },
     },
     template:`<div id="formEditor_content">
-    <FormBrowser v-if="formID===null"></FormBrowser>
+    <FormBrowser v-if="formID===''"></FormBrowser>
 
     <template v-else>
         <div v-if="appIsLoadingForm" style="border: 2px solid black; text-align: center; 
@@ -330,7 +332,7 @@ export default {
 
         <template v-else>
             <!-- TOP INFO PANEL -->
-            <edit-properties-panel :key="formID"></edit-properties-panel>
+            <edit-properties-panel :key="'panel_' + formID"></edit-properties-panel>
 
             <div id="form_index_and_editing">
                 <!-- FORM INDEX -->
@@ -351,35 +353,35 @@ export default {
                     </div>
 
                     <ul>
-                    <template v-for="form in selectedCategoryWithStapledForms" :key="'primary_form_item_' + form.categoryID">
-                        <li v-if="currentCategorySelection.categoryID === form.categoryID">
-                            <ul id="base_drop_area"
-                                class="form-index-listing-ul"
-                                data-effect-allowed="move"
-                                @drop.stop="onDrop"
-                                @dragover.prevent
-                                @dragenter.prevent="onDragEnter"
-                                @dragleave="onDragLeave">
+                        <template v-for="form in selectedCategoryWithStapledForms" :key="'primary_form_item_' + form.categoryID">
+                            <li v-if="formID === form.categoryID">
+                                <ul id="base_drop_area"
+                                    class="form-index-listing-ul"
+                                    data-effect-allowed="move"
+                                    @drop.stop="onDrop"
+                                    @dragover.prevent
+                                    @dragenter.prevent="onDragEnter"
+                                    @dragleave="onDragLeave">
 
-                                <form-index-listing v-for="(formSection, i) in selectedFormTree"
-                                    :id="'index_listing_'+formSection.indicatorID"
-                                    :depth=0
-                                    :formNode="formSection"
-                                    :index=i
-                                    :parentID=null
-                                    :key="'index_list_item_' + formSection.indicatorID"
-                                    draggable="true"
-                                    @dragstart.stop="startDrag">
-                                </form-index-listing>
-                            </ul>
-                        </li>
+                                    <form-index-listing v-for="(formSection, i) in selectedFormTree"
+                                        :id="'index_listing_'+formSection.indicatorID"
+                                        :depth=0
+                                        :formNode="formSection"
+                                        :index=i
+                                        :parentID=null
+                                        :key="'index_list_item_' + formSection.indicatorID"
+                                        draggable="true"
+                                        @dragstart.stop="startDrag">
+                                    </form-index-listing>
+                                </ul>
+                            </li>
 
-                        <li v-else>
-                            <router-link :to="{ name: 'category', query: { formID: form.categoryID, main: formID }}" class="router-link">
-                                {{shortFormNameStripped(form.categoryID, 28)}}
-                            </router-link>
-                        </li>
-                    </template>
+                            <li v-else class="stapled-form-link" draggable="false">
+                                <router-link :to="{ name: 'category', query: { formID: form.categoryID, main: formID }}" class="router-link">
+                                    {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;<span><em>(stapled)</em></span>
+                                </router-link>
+                            </li>
+                        </template>
                     </ul>
                     <div style="margin: 1em 0 0 0">
                         <button type="button" class="btn-general" style="width: 100%" 
@@ -389,19 +391,21 @@ export default {
                             + Add Section
                         </button>
                     </div>
-                    <!-- TODO: NOTE: -->
-                    <template v-if="internalFormRecords.length > 0">
-                        <hr style="border: 1px solid #d0d0d4; margin: 1rem auto 0.5rem; width: 80%;" />
-                        <b>Internal Forms</b>
-                        <ul id="internalFormRecords">
+                    <!-- INTERNAL FORMS SECTION -->
+                    <div v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + mainFormID">
+                        <div><b>Internal Forms</b></div>
+                        <ul>
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                                <router-link :id="i.categoryID" title="select internal form"
+                                <button v-if="formID === i.categoryID" disabled>
+                                    {{shortFormNameStripped(i.categoryID, 28)}}<em>&nbsp;(selected)</em>
+                                </button>
+                                <router-link v-else :id="i.categoryID" :title="'select internal form ' + i.categoryID"
                                     :to="{ name: 'category', query: { formID: i.categoryID }}" class="router-link">
                                     {{shortFormNameStripped(i.categoryID, 28)}}
                                 </router-link>
                             </li>
                         </ul>
-                    </template>
+                    </div>
                 </div>
 
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->

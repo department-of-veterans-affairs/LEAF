@@ -9,7 +9,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'mainFormID', //NOTE: currCatID is null on the card browser page (Create Form), but has the main form value if user clicks Add Internal Use
+        'mainFormID',
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'
@@ -18,9 +18,6 @@ export default {
         document.getElementById('name').focus();
     },
     computed: {
-        isSubform() {
-            return this.mainFormID !== '';
-        },
         nameCharsRemaining(){
             return Math.max(50 - this.categoryName.length, 0);
         },

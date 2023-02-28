@@ -41,7 +41,6 @@ export default {
             appIsLoadingCategoryList: false,
             appIsLoadingForm: false,
             appIsLoadingIndicator: false,
-            subformID: '',             //string
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
@@ -163,14 +162,20 @@ export default {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
+        /**
+         * @returns {String} current main Form ID
+         */
         mainFormID() {
             return this.currentCategorySelection?.parentID ?
                 this.currentCategorySelection.parentID : this.currentCategorySelection.categoryID || '';
-        },/*
-        subFormID() {
+        },
+        /**
+         * @returns {String} current internal Form ID
+         */
+        subformID() {
             return this.currentCategorySelection?.parentID ?
-                this.currentCategorySelection.categoryID : '';
-        },*/
+                this.currentCategorySelection.categoryID || '' : '';
+        },
         /**
          * @returns {array} of non-internal forms that have workflows and are available
          */
@@ -526,10 +531,7 @@ export default {
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
          */
         selectNewCategory(catID = '', subnodeIndID = null) {
-            console.log('called selectNewCat with', catID)
-            const isSubform = catID !== '' && this.categories[catID].parentID !== '';
-           // this.mainFormID = isSubform ? this.categories[catID].parentID : catID;
-            //this.subformID = isSubform ? catID : '';
+            console.log('called selectNewCat with', catID);
 
             this.selectedFormTree = [];
             this.selectedFormNode = null;
