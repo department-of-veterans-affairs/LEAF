@@ -4,9 +4,12 @@ $currDir = dirname(__FILE__);
 
 include_once $currDir . '/../db_mysql.php';
 include_once $currDir . '/../db_config.php';
+include_once $currDir . '/../Login.php';
 
 require_once $currDir . '/../Email.php';
 require_once $currDir . '/../VAMC_Directory.php';
+
+
 
 // this is here until we fully test
 ini_set('display_errors',1);
@@ -28,6 +31,10 @@ $comment = '';
 
 $db_config = new DB_Config();
 $db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+
+$login = new Login($db, $db);
+
+
 $getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
 FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
 $getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
@@ -131,7 +138,9 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         ));
 
         // need to get the emails sending to make sure this actually works!
-        $email->attachApproversAndEmail($record['recordID'],\Email::AUTOMATED_EMAIL_REMINDER,$record['userID']);
+        // need to get login for this user, as it stands it will default to "SYSTEM" which is not what we want here. $login
+        $login->loginUser($record['userID']);
+        $email->attachApproversAndEmail($record['recordID'],\Email::AUTOMATED_EMAIL_REMINDER,$login);
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working
         $updateRecordsWorkflowStateVars = [
