@@ -673,10 +673,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `type` varchar(50) NOT NULL DEFAULT '',
   `lastModified` int(10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`categoryID`),
-  INDEX `parentID` (`parentID`),
-  CONSTRAINT `category_workflow`
-    FOREIGN KEY (`workflowID`)
-    REFERENCES `workflows` (`workflowID`)
+  INDEX `parentID` (`parentID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

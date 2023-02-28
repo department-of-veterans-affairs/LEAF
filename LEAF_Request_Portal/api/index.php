@@ -85,7 +85,7 @@ if ($login->checkGroup(1))
     });
 
     $icons_path = LIB_PATH . '/dynicons/svg/';
-    $dynicon_index = PORTAL_PATH . '/dynicons//';
+    $dynicon_index = ABSOLUTE_PORT_PATH . '/dynicons//';
     $controllerMap->register('iconPicker', function () use ($p_db, $login, $action, $icons_path, $dynicon_index) {
         $iconPickerController = new Portal\IconPickerController($p_db, $login, $icons_path, $dynicon_index);
         $iconPickerController->handler($action);
