@@ -210,12 +210,10 @@ class Login
                 header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
-            // else set it to the user id provided by the script, the system below can probably be removed, just need to see if there is any other way to do this.
+            // else lets login via user id since this is a cli process that needs specific user (think forms/groups/emails)
             else{
                 $_SESSION['userID'] = $userID;
             }
-
-            $_SESSION['userID'] = 'SYSTEM';
 
         }
 
