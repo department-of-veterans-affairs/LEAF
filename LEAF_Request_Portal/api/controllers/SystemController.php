@@ -152,8 +152,8 @@ class SystemController extends RESTfulResponse
         $this->index['DELETE']->register('system', function ($args) {
         });
 
-        $this->index['DELETE']->register('system/files/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeFile($args[0]);
+        $this->index['DELETE']->register('system/files/delete', function ($args) use ($db, $login, $system) {
+            return $system->removeFile($_GET['file']);
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);
