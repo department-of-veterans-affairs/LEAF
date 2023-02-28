@@ -17,11 +17,12 @@ export default {
         'mainFormID',
         'subformID',
         'workflowRecords',
+        'allStapledFormCatIDs',
         'currentCategorySelection',
         'currentCategoryIsSensitive',
         'updateCategoriesProperty',
         'openEditCollaboratorsDialog',
-        'closeFormDialog',
+        'showLastUpdate',
         'truncateText',
         'stripAndDecodeHTML',
 	],
@@ -34,24 +35,14 @@ export default {
             }
             return returnValue;
         },
-        isSubForm(){
+        isSubForm() {
             return this.currentCategorySelection.parentID !== '';
+        },
+        isStaple() {
+            return this.allStapledFormCatIDs.includes(this.formID);
         },
         isNeedToKnow(){
             return parseInt(this.needToKnow) === 1;
-        },
-        changesPending() {
-            const nameChanged = this.stripAndDecodeHTML(this.categoryName) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryName);
-            const descriptionChanged  = this.stripAndDecodeHTML(this.categoryDescription) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
-            const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
-            const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
-            const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
-            const typeChanged = this.type !== this.currentCategorySelection.type;
-            const changes = [
-                nameChanged, descriptionChanged, workflowChanged, needToKnowChanged, visibleChanged, typeChanged
-            ];
-            //console.log('form panel changes', changes)  //keep for potential debugging
-            return changes.some(c => c === true);
         },
         formNameCharsRemaining() {
             return 50 - this.categoryName.length;
@@ -61,127 +52,107 @@ export default {
         }
     },
     methods: {
-        onSave(){
-            let  editPropertyUpdates = [];
-            const nameChanged = this.stripAndDecodeHTML(this.categoryName) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryName);
-            const descriptionChanged  = this.stripAndDecodeHTML(this.categoryDescription) !== this.stripAndDecodeHTML(this.currentCategorySelection.categoryDescription);
-            const workflowChanged  = this.workflowID !== parseInt(this.currentCategorySelection.workflowID);
-            const needToKnowChanged = this.needToKnow !== parseInt(this.currentCategorySelection.needToKnow);
-            const visibleChanged = this.visible !== parseInt(this.currentCategorySelection.visible);
-            const typeChanged = this.type !== this.currentCategorySelection.type;
-
-            if(nameChanged) {
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formName`,
-                        data: {
-                            name: this.categoryName,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: () => {  //NOTE:  except for WF, these give back an empty array
-                            this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
-                        },
-                        error: err =>  console.log('name post err', err)
-                    })
-                );
-            }
-            if(descriptionChanged) {
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formDescription`,
-                        data: {
-                            description: this.categoryDescription,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: () => {
-                            this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
-                        },
-                        error: err => console.log('form description post err', err)
-                    })
-                );
-            }
-            if(workflowChanged) {
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formWorkflow`,
-                        data: {
-                            workflowID: this.workflowID,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: (res) => {
-                            if (res === false) { //1 on success
-                                alert('The workflow could not be set because this form is stapled to another form');
-                            } else {
-                                this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
-                                this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
-                            }
-                        },
-                        error: err => console.log('workflow post err', err)
-                    })
-                );
-            }
-            if(needToKnowChanged){
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formNeedToKnow`,
-                        data: {
-                            needToKnow: this.needToKnow,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: () => {
-                            this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
-                        },
-                        error: err => console.log('ntk post err', err)
-                    })
-                );
-            }
-            if(visibleChanged){
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formVisible`,
-                        data: {
-                            visible: this.visible,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: () => {
-                            this.updateCategoriesProperty(this.formID, 'visible', this.visible);
-                        },
-                        error: err => console.log('visibility post err', err)
-                    })
-                );
-            }
-            if(typeChanged){
-                editPropertyUpdates.push(
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/formType`,
-                        data: {
-                            type: this.type,
-                            categoryID: this.formID,
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: () => {
-                            this.updateCategoriesProperty(this.formID, 'type', this.type);
-                        },
-                        error: err => console.log('type post err', err)
-                    })
-                );
-            }
-            Promise.all(editPropertyUpdates)
-                .then(()=> {
-                    this.closeFormDialog();
-                }).catch(err => console.log('an error has occurred', err));
-        }
+        updateName() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formName`,
+                data: {
+                    name: this.categoryName,
+                    categoryID: this.formID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: () => {  //NOTE:  except for WF, these give back an empty array
+                    this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
+                    this.showLastUpdate('form_properties_last_update', `Form name updated`);
+                },
+                error: err =>  console.log('name post err', err)
+            })
+        },
+        updateDescription() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formDescription`,
+                data: {
+                    description: this.categoryDescription,
+                    categoryID: this.formID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: () => {
+                    this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
+                    this.showLastUpdate('form_properties_last_update', `Form description updated`);
+                },
+                error: err => console.log('form description post err', err)
+            })
+        },
+        updateWorkflow() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formWorkflow`,
+                data: {
+                    workflowID: this.workflowID,
+                    categoryID: this.formID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: (res) => {
+                    if (res === false) { //1 on success
+                        alert('The workflow could not be set because this form is stapled to another form');
+                    } else {
+                        this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
+                        this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
+                        this.showLastUpdate('form_properties_last_update', `Form workflow set to #${this.workflowID}`);
+                    }
+                },
+                error: err => console.log('workflow post err', err)
+            })
+        },
+        updateAvailability() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formVisible`,
+                data: {
+                    visible: this.visible,
+                    categoryID: this.formID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: () => {
+                    this.updateCategoriesProperty(this.formID, 'visible', this.visible);
+                    this.showLastUpdate('form_properties_last_update', `Availability set to ${this.visible ? 'available' : 'hidden'}`);
+                },
+                error: err => console.log('visibility post err', err)
+            })
+        },
+        updateNeedToKnow() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formNeedToKnow`,
+                data: {
+                    needToKnow: this.needToKnow,
+                    categoryID: this.formID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: () => {
+                    this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
+                    this.showLastUpdate('form_properties_last_update', `Need to Know set to ${this.needToKnow ? 'on' : 'off'}`);
+                },
+                error: err => console.log('ntk post err', err)
+            })
+        },
+        updateType() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}formEditor/formType`,
+                data: {
+                    type: this.type,
+                    categoryID: this.formID,
+                    CSRFToken: this.CSRFToken
+                },
+                success: () => {
+                    this.updateCategoriesProperty(this.formID, 'type', this.type);
+                    this.showLastUpdate('form_properties_last_update', `Form type set to ${this.type ? 'parallel' : 'standard'}`);
+                },
+                error: err => console.log('type post err', err)
+            })
+        },
     },
     template: `<div id="edit-properties-panel">
         <span class="form-id">{{formID}}
@@ -191,12 +162,12 @@ export default {
             <label for="categoryName">Form name
                 <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formNameCharsRemaining}})</span>
             </label>
-            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" style="margin-bottom: 1rem;"/>
+            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" style="margin-bottom: 1rem;" @change="updateName"/>
             
             <label for="categoryDescription">Form description
                 <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formDescrCharsRemaining}})</span>
             </label>
-            <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3"></textarea>
+            <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3" @change="updateDescription"></textarea>
         </div>
         <div id="edit-properties-other-properties">
             <div style="display:flex; justify-content: space-between;">
@@ -205,18 +176,21 @@ export default {
                     @click="openEditCollaboratorsDialog">
                     Edit Special Write Access
                 </button>
-                <button v-if="changesPending" type="button" class="btn-general" title="Apply form property updates" @click="onSave">Apply updates</button>
+                <div id="form_properties_last_update"></div>
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
                     <template v-if="workflowRecords.length > 0">
                         <label for="workflowID" style="margin-bottom: 0.5rem;">Workflow
-                        <select id="workflowID" name="select-workflow" 
+                        <select id="workflowID" name="select-workflow" @change="updateWorkflow"
                             title="select workflow"
                             v-model.number="workflowID"
                             style="width:300px;"
-                            :style="{color: workflowID === 0 ? '#cb0000' : 'black'}">
-                            <option value="0" :selected="workflowID === 0">No Workflow.  Users cannot submit requests</option>
+                            :style="{color: workflowID === 0 ? '#cb0000' : 'black'}"
+                            :disabled="isStaple">
+                            <option value="0" :selected="workflowID === 0">
+                                              No Workflow.  Users cannot submit requests
+                            </option>
                             <template v-for="r in workflowRecords" :key="'workflow_' + r.workflowID">
                                 <option v-if="parseInt(r.workflowID) > 0"
                                     :value="r.workflowID"
@@ -233,7 +207,7 @@ export default {
                     </div>
                     <label v-else for="needToKnow" style="margin-bottom: 0.5rem;"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
-                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#cb0000' : 'black'}">
+                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#cb0000' : 'black'}" @change="updateNeedToKnow">
                             <option value="0" :selected="!isNeedToKnow">Off</option>
                             <option value="1" style="color: #cb0000;" :selected="isNeedToKnow">On</option>
                         </select>
@@ -241,17 +215,18 @@ export default {
 
                     <div style="display: flex; flex-wrap: wrap; row-gap: 0.5rem;">
                         <label for="availability" title="When hidden, users will not be able to select this form as an option">Availability
-                            <select id="availability" title="Select Availability" v-model.number="visible">
+                            <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">
                                 <option value="1" :selected="visible === 1">Available</option>
                                 <option value="0" :selected="visible === 0">Hidden</option>
                             </select>
                         </label>
 
                         <label for="formType">Form Type
-                        <select id="formType" title="Change type of form" v-model="type" >
-                            <option value="" :selected="type === ''">Standard</option>
-                            <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
-                        </select></label>
+                            <select id="formType" title="Change type of form" v-model="type" @change="updateType">
+                                <option value="" :selected="type === ''">Standard</option>
+                                <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
             </template>

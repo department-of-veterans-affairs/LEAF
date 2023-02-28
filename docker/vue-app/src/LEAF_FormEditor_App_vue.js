@@ -96,6 +96,7 @@ export default {
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
+            removeCategory: this.removeCategory,
             closeFormDialog: this.closeFormDialog,
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
             openNewFormDialog: this.openNewFormDialog,
@@ -108,6 +109,7 @@ export default {
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
             stripAndDecodeHTML: this.stripAndDecodeHTML,
+            showLastUpdate: this.showLastUpdate,
         }
     },
     components: {
@@ -147,7 +149,6 @@ export default {
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
-            console.log('watching route formID n/o', newVal, oldVal)
             if(this.$route.name === 'category') {
                 console.log('calling getFormFromQuery')
                 this.getFormFromQueryParam();
@@ -233,19 +234,25 @@ export default {
             return internalFormRecords;
         },
         selectedCategoryWithStapledForms() {
+            let allRecords = [];
+
+            const queryMainID = this.$route.query.main || null;
+            if( queryMainID && this.categories[queryMainID]) {
+                allRecords.push({...this.categories[queryMainID], formContextType: 'main form'});
+            }
+
             let currStapleIDs = this.currentCategorySelection?.stapledFormIDs || [];
-            let staples = [];
             currStapleIDs.forEach(id => {
-                staples.push({...this.categories[id], formType: 'staple'});
+                allRecords.push({...this.categories[id], formContextType: 'staple'});
             });
-            
-            let formType = this.currentCategorySelection.parentID !== '' ?
+ 
+            let focusedFormType = this.currentCategorySelection.parentID !== '' ?
                         'internal' : 
                         this.allStapledFormCatIDs.includes(this.currentCategorySelection?.categoryID || '') ?
-                        'staple' : 'main';
-            let allRecords = [...staples, {...this.currentCategorySelection, formType,}];
-            allRecords = allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return allRecords;
+                        'staple' : 'main form';
+            allRecords.push({...this.currentCategorySelection, formContextType: focusedFormType,});
+
+            return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
         },
     },
     methods: {
@@ -261,6 +268,13 @@ export default {
             const elDiv = document.createElement('div');
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
+        },
+        showLastUpdate(elementID = '', text = '') {
+            const el = document.getElementById(elementID);
+            if(el) {
+                el.innerText = text;
+                el.style.opacity = 1;
+            }
         },
         initializeOrgSelector(selType = 'employee', indicatorID = 0, selectorIDPrefix = '', initialValue = '') {
             const prefix = selType === 'group' ? 'group#' : '#';
@@ -327,7 +341,6 @@ export default {
                 console.log('no form selected or form does not exist');
                 //TODO: form not found status message
             } else {
-                console.log('looking up', formID)
                 this.selectNewCategory(formID, this.selectedNodeIndicatorID);
             }
         },
@@ -526,13 +539,17 @@ export default {
             this.categories[catID] = record;
         },
         /**
-         * 
+         * removed an entry from the app's categories object when a form is deleted
+         * @param {string} catID 
+         */
+        removeCategory(catID = '') {
+            delete this.categories[catID];
+        },
+        /**
          * @param {string} catID of the form to select
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
          */
         selectNewCategory(catID = '', subnodeIndID = null) {
-            console.log('called selectNewCat with', catID);
-
             this.selectedFormTree = [];
             this.selectedFormNode = null;
             this.selectedNodeIndicatorID = null;

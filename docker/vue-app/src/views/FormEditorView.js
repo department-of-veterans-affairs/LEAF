@@ -66,8 +66,13 @@ export default {
         }
     },
     computed: {
-        formID() {
+        focussedFormID() {
             return this.currentCategorySelection?.categoryID || '';
+        },
+        mainQuery() {
+            const formReg = /^form_[0-9a-f]{5}$/i;
+            const main = formReg.test(this.$route.query?.main || '') ? this.$route.query.main : '';
+            return main;
         },
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
@@ -181,7 +186,7 @@ export default {
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.focussedFormID, this.selectedNodeIndicatorID);
                 }
             }).catch(err => console.log('an error has occurred', err));
 
@@ -321,7 +326,7 @@ export default {
         },
     },
     template:`<div id="formEditor_content">
-    <FormBrowser v-if="formID===''"></FormBrowser>
+    <FormBrowser v-if="focussedFormID===''"></FormBrowser>
 
     <template v-else>
         <div v-if="appIsLoadingForm" style="border: 2px solid black; text-align: center; 
@@ -332,14 +337,13 @@ export default {
 
         <template v-else>
             <!-- TOP INFO PANEL -->
-            <edit-properties-panel :key="'panel_' + formID"></edit-properties-panel>
+            <edit-properties-panel :key="'panel_' + focussedFormID"></edit-properties-panel>
 
             <div id="form_index_and_editing">
                 <!-- FORM INDEX -->
                 <div id="form_index_display">
                     <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
-                        <h3 style="margin: 0;">Primary Form</h3>
-                        <p id="updateStatus" style="display:none">TEST</p>
+                        <h3 style="margin: 0;">Form Index</h3>
                         <button v-if="sortOrParentChanged" type="button" @click="applySortAndParentID_Updates" 
                             class="btn-general"
                             title="Apply form structure updates">Apply sorting changes</button>
@@ -354,8 +358,8 @@ export default {
 
                     <ul>
                         <template v-for="form in selectedCategoryWithStapledForms" :key="'primary_form_item_' + form.categoryID">
-                            <li v-if="formID === form.categoryID">
-                                <ul id="base_drop_area"
+                            <li v-if="focussedFormID === form.categoryID">
+                                <ul v-if="selectedFormTree.length > 0" id="base_drop_area"
                                     class="form-index-listing-ul"
                                     data-effect-allowed="move"
                                     @drop.stop="onDrop"
@@ -377,8 +381,9 @@ export default {
                             </li>
 
                             <li v-else class="stapled-form-link" draggable="false">
-                                <router-link :to="{ name: 'category', query: { formID: form.categoryID, main: formID }}" class="router-link">
-                                    {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;<span><em>(stapled)</em></span>
+                                <router-link :title="'select form ' + form.categoryID" :to="{ name: 'category', 
+                                    query: { formID: form.categoryID, main: form.formContextType === 'staple' ? focussedFormID : ''}}" class="router-link">
+                                    {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;<span><em>({{form.formContextType}})</em></span>
                                 </router-link>
                             </li>
                         </template>
@@ -396,11 +401,12 @@ export default {
                         <div><b>Internal Forms</b></div>
                         <ul>
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                                <button v-if="formID === i.categoryID" disabled>
+                                <button v-if="focussedFormID === i.categoryID" disabled>
                                     {{shortFormNameStripped(i.categoryID, 28)}}<em>&nbsp;(selected)</em>
                                 </button>
                                 <router-link v-else :id="i.categoryID" :title="'select internal form ' + i.categoryID"
-                                    :to="{ name: 'category', query: { formID: i.categoryID }}" class="router-link">
+                                    :to="{ name: 'category',
+                                    query: { formID: i.categoryID, main: mainQuery }}" class="router-link">
                                     {{shortFormNameStripped(i.categoryID, 28)}}
                                 </router-link>
                             </li>

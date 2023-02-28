@@ -12,6 +12,7 @@ export default {
         'subformID',
         'currentCategorySelection',
         'selectNewCategory',
+        'removeCategory',
         'closeFormDialog'
     ],
     computed: {
@@ -41,7 +42,13 @@ export default {
                             alert(res);
                         } else {
                             this.closeFormDialog();
-                            this.selectNewCategory();
+                            //if a subform is deleted, re-focus the main form, otherwise go to browser
+                            if (this.subformID !== '') {
+                                this.$router.push({name: 'category', query: { formID: this.mainFormID }});
+                                this.removeCategory(this.formID);
+                            } else {
+                                this.selectNewCategory();
+                            }
                         }
                     },
                     error: err => console.log('an error has occurred', err)

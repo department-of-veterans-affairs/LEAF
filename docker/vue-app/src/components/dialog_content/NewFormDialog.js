@@ -52,7 +52,7 @@ export default {
                     temp.type = '';
                     temp.stapledFormIDs = [];
                     this.addNewCategory(newCatID, temp);
-                    this.selectNewCategory(newCatID);
+                    this.$router.push({name: 'category', query: { formID: newCatID }});
                     this.closeFormDialog();
                 },
                 error: err => {
