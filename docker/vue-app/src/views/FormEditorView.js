@@ -418,7 +418,7 @@ export default {
                 <template v-if="selectedFormTree.length > 0">
                     <!-- ENTIRE FORM EDIT / PREVIEW -->
                     <div v-if="selectedFormNode === null" id="form_entry_and_preview">
-                        <div class="form-section-header" style="display: flex; height: 28px;">
+                        <div class="form-section-header" style="display: flex; height: 32px;">
                             <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
                             <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">

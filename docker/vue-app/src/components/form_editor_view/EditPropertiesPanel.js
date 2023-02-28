@@ -9,6 +9,7 @@ export default {
             type: this.currentCategorySelection?.type || '',
             formID: this.subformID || this.mainFormID,
             formParentID: this.currentCategorySelection?.parentID || '',
+            lastUpdated: ''
         }
     },
     inject: [
@@ -22,6 +23,7 @@ export default {
         'currentCategoryIsSensitive',
         'updateCategoriesProperty',
         'openEditCollaboratorsDialog',
+        'openFormHistoryDialog',
         'showLastUpdate',
         'truncateText',
         'stripAndDecodeHTML',
@@ -63,7 +65,8 @@ export default {
                 },
                 success: () => {  //NOTE:  except for WF, these give back an empty array
                     this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
-                    this.showLastUpdate('form_properties_last_update', `Form name updated`);
+                    this.lastUpdated = new Date().toDateString();
+                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err =>  console.log('name post err', err)
             })
@@ -79,7 +82,8 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
-                    this.showLastUpdate('form_properties_last_update', `Form description updated`);
+                    this.lastUpdated = new Date().toDateString();
+                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('form description post err', err)
             })
@@ -99,7 +103,8 @@ export default {
                     } else {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
                         this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
-                        this.showLastUpdate('form_properties_last_update', `Form workflow set to #${this.workflowID}`);
+                        this.lastUpdated = new Date().toDateString();
+                        this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                     }
                 },
                 error: err => console.log('workflow post err', err)
@@ -116,7 +121,8 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'visible', this.visible);
-                    this.showLastUpdate('form_properties_last_update', `Availability set to ${this.visible ? 'available' : 'hidden'}`);
+                    this.lastUpdated = new Date().toDateString();
+                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('visibility post err', err)
             })
@@ -132,7 +138,8 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
-                    this.showLastUpdate('form_properties_last_update', `Need to Know set to ${this.needToKnow ? 'on' : 'off'}`);
+                    this.lastUpdated = new Date().toDateString();
+                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('ntk post err', err)
             })
@@ -148,7 +155,8 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'type', this.type);
-                    this.showLastUpdate('form_properties_last_update', `Form type set to ${this.type ? 'parallel' : 'standard'}`);
+                    this.lastUpdated = new Date().toDateString();
+                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('type post err', err)
             })
@@ -176,7 +184,9 @@ export default {
                     @click="openEditCollaboratorsDialog">
                     Edit Special Write Access
                 </button>
-                <div id="form_properties_last_update"></div>
+                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog"
+                    :style="{display: lastUpdated==='' ? 'none' : 'flex'}">
+                </button>
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
