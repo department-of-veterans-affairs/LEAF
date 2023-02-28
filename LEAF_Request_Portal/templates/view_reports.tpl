@@ -681,10 +681,16 @@ function editLabels() {
 
     for(let i in resSelectList) {
         if(resIndicatorList[resSelectList[i]] != undefined) {
-            buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-            buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-            buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
-            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 26px;" /></td></tr>';
+            buffer += `<tr id="sortID_${resSelectList[i]}">
+                <td>
+                    <input type="color" id="colorPicker${resSelectList[i]}" value="#d1dfff" style="height: 26px;" />
+                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"></input>
+                </td>
+                <td>
+                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button>
+                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>
+                </td>
+                </tr>`;
         }
     }
     buffer += '</table>';
@@ -763,9 +769,8 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-    var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
-
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    var reportLink = document.URL.substr(document.URL.lastIndexOf('?') - 1);
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
@@ -793,7 +798,7 @@ function openShareDialog() {
 }
 
 function showJSONendpoint() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
@@ -977,6 +982,7 @@ var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
 let gridColorData = {}; //object updated with id: color
 let tempColorData = {}; //object updated with id: color
+let sortPreference = {}; // store current sorting preference
 let isOneFormType = false;
 
 /**
@@ -1020,11 +1026,26 @@ var version = 3;
     * v3 - uses getData() from formQuery.js
 */
 
-function buildURLComponents(baseURL){
+/**
+ * Generates a url based on the current report preferences
+ * @param baseURL URL of this script, without parameters
+ * @param update (optional) bool - update an existing URL
+ */
+function buildURLComponents(baseURL, update){
     url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+
+    if(update != undefined) {
+        let urlParams = new URLSearchParams(window.location.search);
+        url = baseURL + '&v='+ version + '&query=' + urlParams.get('query') + '&indicators=' + urlParams.get('indicators');
+    }
+
     if (Object.keys(gridColorData).length !== 0){
         urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
         url += '&colors=' + encodeURIComponent(urlColorData);
+    }
+    if(Object.keys(sortPreference).length != 0) {
+        let urlSortPreference = LZString.compressToBase64(JSON.stringify(sortPreference));
+        url += '&sort=' + encodeURIComponent(urlSortPreference);
     }
     if($('#reportTitle').val() != '') {
         url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
@@ -1103,6 +1124,11 @@ $(function() {
     var selectedIndicators = [];
     grid = new LeafFormGrid('results');
     grid.enableToolbar();
+    grid.setPostSortRequestFunc((key, order) => {
+        sortPreference = {key: key, order: order};
+        let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
+        buildURLComponents(baseURL, true);
+    });
     var extendedToolbar = false;
     $('#generateReport').off();
     $('#generateReport').on('click', function() {
@@ -1198,7 +1224,13 @@ $(function() {
 
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
-                grid.sort('recordID', 'desc');
+                let sortKey = 'recordID';
+                let sortDirection = 'desc';
+                if(sortPreference.key != undefined && sortPreference.order != undefined) {
+                    sortKey = sortPreference.key;
+                    sortDirection = sortPreference.order;
+                }
+                grid.sort(sortKey, sortDirection);
                 grid.renderBody();
             }
             else {
@@ -1315,7 +1347,7 @@ $(function() {
             buildURLComponents(baseURL);
 
             $('#reportTitle').on('keyup', function() {
-                buildURLComponents(baseURL);
+                buildURLComponents(baseURL, true);
             });
         }
         else {
@@ -1368,6 +1400,12 @@ $(function() {
                 if (queryColors !== null) {
                     gridColorData = queryColors;
                     updateHeaderColors(gridColorData);
+                }
+
+                let urlParams = new URLSearchParams(window.location.search);
+                urlSortParam = urlParams.get('sort');
+                if(urlSortParam != null) {
+                    sortPreference = JSON.parse(LZString.decompressFromBase64(urlSortParam));
                 }
             }
             else {
