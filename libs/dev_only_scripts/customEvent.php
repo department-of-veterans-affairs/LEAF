@@ -3,7 +3,7 @@
 $dir = '/var/www/html';
 $items = scandir('/var/www/html');
 
-$myfile = fopen("CustomEvent.html", "a") or die("Unable to open file!");
+//$myfile = fopen("CustomEvent.html", "a") or die("Unable to open file!");
 $numPortals = 0;
 $files = 0;
 //echo '<ul>';
@@ -29,9 +29,9 @@ foreach ($items as $visn) {
                     $files++;
                     cleanFile($visn . '/scripts/events' . '/' . $event, str_replace('.php', '', $event));
                     $txt = $visn . '/scripts/events' . '/' . $event . '<br />';
-                    fwrite($myfile, $txt);
+                    //fwrite($myfile, $txt);
                     $txt = getLineWithString($visn . '/scripts/events' . '/' . $event);
-                    fwrite($myfile, $txt);
+                    //fwrite($myfile, $txt);
                 }
             }
         } else {
@@ -59,9 +59,9 @@ foreach ($items as $visn) {
                                 $files++;
                                 cleanFile($visn . '/' . $section . '/scripts/events' . '/' . $event, str_replace('.php', '', $event));
                                 $txt = $visn . '/' . $section . '/scripts/events' . '/' . $event . '<br />';
-                                fwrite($myfile, $txt);
+                                //fwrite($myfile, $txt);
                                 $txt = getLineWithString($visn . '/' . $section . '/scripts/events' . '/' . $event);
-                                fwrite($myfile, $txt);
+                                //fwrite($myfile, $txt);
                             }
                         }
                     } else {
@@ -90,9 +90,77 @@ foreach ($items as $visn) {
 
                                             cleanFile($visn . '/' . $section . '/' . $portal . '/scripts/events' . '/' . $event, str_replace('.php', '', $event));
                                             $txt = $visn . '/' . $section . '/' . $portal . '/scripts/events' . '/' . $event . '<br />';
-                                            fwrite($myfile, $txt);
+                                            //fwrite($myfile, $txt);
                                             $txt = getLineWithString($visn . '/' . $section . '/' . $portal . '/scripts/events' . '/' . $event);
-                                            fwrite($myfile, $txt);
+                                            //fwrite($myfile, $txt);
+                                        }
+                                    }
+                                } else {
+                                    $fourth = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal);
+
+                                    foreach($fourth as $four) {
+                                        if ($four != '.' && $four != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four)) {
+                                            if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/scripts/events')) {
+                                                $events = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/scripts/events');
+
+                                                $k = 0;
+                                                foreach ($events as $event) {
+                                                    if (
+                                                        $event != '.'
+                                                        && $event != '..'
+                                                        && $event != 'CustomEvent_LeafSecure_Certified.php'
+                                                        && $event != 'CustomEvent_LeafSecure_DeveloperConsole.php'
+                                                        && $event != 'TEMPLATE_CustomEvent_YOUR_ID.php'
+                                                        && strpos($event, 'CustomEvent') !== false
+                                                    ) {
+                                                        if ($k == 0) {
+                                                            $numPortals++;
+                                                            $k++;
+                                                        }
+                                                        $files++;
+
+                                                        cleanFile($visn . '/' . $section . '/' . $portal . '/' . $four . '/scripts/events' . '/' . $event, str_replace('.php', '', $event));
+                                                        $txt = $visn . '/' . $section . '/' . $portal . '/' . $four . '/scripts/events' . '/' . $event . '<br />';
+                                                        //fwrite($myfile, $txt);
+                                                        $txt = getLineWithString($visn . '/' . $section . '/' . $portal . '/' . $four . '/scripts/events' . '/' . $event);
+                                                        //fwrite($myfile, $txt);
+                                                    }
+                                                }
+                                            } else {
+                                                $fifth = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal);
+
+                                                foreach($fifth as $five) {
+                                                    if ($five != '.' && $five != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five)) {
+                                                        if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/scripts/events')) {
+                                                            $events = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/scripts/events');
+
+                                                            $k = 0;
+                                                            foreach ($events as $event) {
+                                                                if (
+                                                                    $event != '.'
+                                                                    && $event != '..'
+                                                                    && $event != 'CustomEvent_LeafSecure_Certified.php'
+                                                                    && $event != 'CustomEvent_LeafSecure_DeveloperConsole.php'
+                                                                    && $event != 'TEMPLATE_CustomEvent_YOUR_ID.php'
+                                                                    && strpos($event, 'CustomEvent') !== false
+                                                                ) {
+                                                                    if ($k == 0) {
+                                                                        $numPortals++;
+                                                                        $k++;
+                                                                    }
+                                                                    $files++;
+
+                                                                    cleanFile($visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/scripts/events' . '/' . $event, str_replace('.php', '', $event));
+                                                                    $txt = $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/scripts/events' . '/' . $event . '<br />';
+                                                                    //fwrite($myfile, $txt);
+                                                                    $txt = getLineWithString($visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/scripts/events' . '/' . $event);
+                                                                    //fwrite($myfile, $txt);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -106,8 +174,8 @@ foreach ($items as $visn) {
 }
 
 $text = 'There are ' . $numPortals . ' Portals with a total of ' . $files . ' custom files.';
-fwrite($myfile, $text);
-fclose($myfile);
+//fwrite($myfile, $text);
+//fclose($myfile);
 
 function cleanFile($fileName, $className) {
     $dir = '/var/www/html/';

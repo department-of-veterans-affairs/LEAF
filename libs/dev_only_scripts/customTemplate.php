@@ -3,7 +3,7 @@
 $dir = '/var/www/html';
 $items = scandir('/var/www/html');
 
-$myfile = fopen("CustomTemplate.html", "a") or die("Unable to open file!");
+//$myfile = fopen("CustomTemplate.html", "a") or die("Unable to open file!");
 $numPortals = 0;
 $files = 0;
 //echo '<ul>';
@@ -28,9 +28,9 @@ foreach ($items as $visn) {
                         $files++;
                         cleanFile($visn . '/templates/custom_override' . '/' . $event);
                         $txt = '1. ' . $dir . '/' . $visn . '/templates/custom_override' . '/' . $event . '<br />';
-                        fwrite($myfile, $txt);
+                        //fwrite($myfile, $txt);
                         $txt = getLineWithString($dir . '/' . $visn . '/templates/custom_override' . '/' . $event);
-                        fwrite($myfile, $txt);
+                        //fwrite($myfile, $txt);
                     }
 
                 }
@@ -58,9 +58,9 @@ foreach ($items as $visn) {
                                     $files++;
                                     cleanFile($visn . '/' . $section . '/templates/custom_override' . '/' . $event);
                                     $txt = '2. ' . $dir . '/' . $visn . '/' . $section . '/templates/custom_override' . '/' . $event . '<br />';
-                                    fwrite($myfile, $txt);
+                                    //fwrite($myfile, $txt);
                                     $txt = getLineWithString($dir . '/' . $visn . '/' . $section . '/templates/custom_override' . '/' . $event);
-                                    fwrite($myfile, $txt);
+                                    //fwrite($myfile, $txt);
                                 }
                             }
                         }
@@ -87,9 +87,73 @@ foreach ($items as $visn) {
                                                 $files++;
                                                 cleanFile($visn . '/' . $section . '/' . $portal . '/templates/custom_override' . '/' . $event);
                                                 $txt = '2. ' . $dir . '/' . $visn . '/' . $section . '/' . $portal . '/templates/custom_override' . '/' . $event . '<br />';
-                                                fwrite($myfile, $txt);
+                                                //fwrite($myfile, $txt);
                                                 $txt = getLineWithString($dir . '/' . $visn . '/' . $section . '/' . $portal . '/templates/custom_override' . '/' . $event);
-                                                fwrite($myfile, $txt);
+                                                //fwrite($myfile, $txt);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    $fourth = scandir($dir . '/' . $visn . '/' . $section);
+
+                                    foreach($fourth as $four) {
+                                        if ($four != '.' && $four != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four)) {
+                                            if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/templates/custom_override')) {
+                                                $events = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/templates/custom_override');
+
+                                                $k = 0;
+                                                foreach ($events as $event) {
+                                                    if (
+                                                        $event != '.'
+                                                        && $event != '..'
+                                                    ) {
+                                                        if ($k == 0) {
+                                                            $numPortals++;
+                                                            $k++;
+                                                        }
+                                                        //echo $dir . '/' . $visn . '/' . $section . '/' . $portal . '/templates/custom_override' . '/' . $event . '<br />';
+                                                        if (is_file($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/templates/custom_override' . '/' . $event) && substr($event, -4) == '.tpl') {
+                                                            $files++;
+                                                            cleanFile($visn . '/' . $section . '/' . $portal . '/' . $four . '/templates/custom_override' . '/' . $event);
+                                                            $txt = '2. ' . $dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/templates/custom_override' . '/' . $event . '<br />';
+                                                            //fwrite($myfile, $txt);
+                                                            $txt = getLineWithString($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/templates/custom_override' . '/' . $event);
+                                                            //fwrite($myfile, $txt);
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                $fifth = scandir($dir . '/' . $visn . '/' . $section);
+
+                                                foreach($fifth as $five) {
+                                                    if ($five != '.' && $five != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five)) {
+                                                        if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates/custom_override')) {
+                                                            $events = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates/custom_override');
+
+                                                            $k = 0;
+                                                            foreach ($events as $event) {
+                                                                if (
+                                                                    $event != '.'
+                                                                    && $event != '..'
+                                                                ) {
+                                                                    if ($k == 0) {
+                                                                        $numPortals++;
+                                                                        $k++;
+                                                                    }
+                                                                    //echo $dir . '/' . $visn . '/' . $section . '/' . $portal . '/templates/custom_override' . '/' . $event . '<br />';
+                                                                    if (is_file($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates/custom_override' . '/' . $event) && substr($event, -4) == '.tpl') {
+                                                                        $files++;
+                                                                        cleanFile($visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates/custom_override' . '/' . $event);
+                                                                        $txt = '2. ' . $dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates/custom_override' . '/' . $event . '<br />';
+                                                                        //fwrite($myfile, $txt);
+                                                                        $txt = getLineWithString($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates/custom_override' . '/' . $event);
+                                                                        //fwrite($myfile, $txt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -104,8 +168,8 @@ foreach ($items as $visn) {
 }
 
 $text = 'There are ' . $numPortals . ' Portals with a total of ' . $files . ' custom files.';
-fwrite($myfile, $text);
-fclose($myfile);
+//fwrite($myfile, $text);
+//fclose($myfile);
 
 function cleanFile($fileName) {
     //echo $fileName . '<br />';

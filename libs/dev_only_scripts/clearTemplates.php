@@ -3,7 +3,7 @@
 $dir = '/var/www/html';
 $items = scandir('/var/www/html');
 
-$myfile = fopen("CustomTemplate.html", "a") or die("Unable to open file!");
+//$myfile = fopen("CustomTemplate.html", "a") or die("Unable to open file!");
 $numPortals = 0;
 $files = 0;
 //echo '<ul>';
@@ -26,6 +26,28 @@ foreach ($items as $visn) {
                             if ($portal != '.' && $portal != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal)) {
                                 if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/templates_c')) {
                                     exec("rm {$dir}/{$visn}/{$section}/{$portal}/templates_c/*.tpl.php");
+                                }
+                            } else {
+                                $fourth = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal);
+
+                                foreach($fourth as $four) {
+                                    if ($four != '.' && $four != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four)) {
+                                        if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/templates_c')) {
+                                            exec("rm {$dir}/{$visn}/{$section}/{$portal}/{$four}/templates_c/*.tpl.php");
+                                        }
+                                    } else {
+                                        $fifth = scandir($dir . '/' . $visn . '/' . $section . '/' . $portal);
+
+                                        foreach($fifth as $five) {
+                                            if ($five != '.' && $five != '..' && is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five)) {
+                                                if (is_dir($dir . '/' . $visn . '/' . $section . '/' . $portal . '/' . $four . '/' . $five . '/templates_c')) {
+                                                    exec("rm {$dir}/{$visn}/{$section}/{$portal}/{$four}/{$five}/templates_c/*.tpl.php");
+                                                }
+                                            } else {
+
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
