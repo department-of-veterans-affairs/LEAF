@@ -13,6 +13,8 @@ class IconPickerController extends RESTfulResponse
 
     protected $dynicon_index;
 
+    protected $domain;
+
     private int $API_VERSION = 1;    // Integer
 
     private $iconPicker;
@@ -26,11 +28,12 @@ class IconPickerController extends RESTfulResponse
      *
      * @param \Leaf\Db $db, Login $login
      */
-    public function __construct($db, $login, $icon_path, $dynicon_index)
+    public function __construct($db, $login, $icon_path, $dynicon_index, $domain)
     {
         $this->login = $login;
         $this->icon_path = $icon_path;
         $this->dynicon_index = $dynicon_index;
+        $this->domain = $domain;
         $this->iconPicker = new IconPicker($db, $login);
     }
 
@@ -47,11 +50,12 @@ class IconPickerController extends RESTfulResponse
         $iconPicker = $this->iconPicker;
         $icon = $this->icon_path;
         $dynicon = $this->dynicon_index;
+        $domain = $this->domain;
 
         $this->index['GET'] = new ControllerMap();
 
-        $this->index['GET']->register('iconPicker/list', function () use ($iconPicker, $icon, $dynicon) {
-            return $iconPicker->getAllIcons($icon, $dynicon);
+        $this->index['GET']->register('iconPicker/list', function () use ($iconPicker, $icon, $dynicon, $domain) {
+            return $iconPicker->getAllIcons($icon, $dynicon, $domain);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);

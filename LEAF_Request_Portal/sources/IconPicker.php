@@ -39,9 +39,8 @@ class IconPicker
      *
      * Created at: 2/24/2023, 11:39:42 AM (America/New_York)
      */
-    public function getAllIcons($folder, $dynicon_index): array
+    public function getAllIcons($folder, $dynicon_index, $domain): array
     {
-        //$folder = '../../libs/dynicons/svg/';
         $images = scandir($folder);
 
         foreach ($images as $image)
@@ -49,14 +48,13 @@ class IconPicker
             if (strpos($image, '.svg') > 0)
             {
                 $retImg = array(
-                    //'src' => "../libs/dynicons/?img={$image}&amp;w=32",
                     'src' => $dynicon_index . "/?img={$image}&amp;w=32",
                     'alt' => "{$image}",
                     'name' => $this->extractIconName($image)
                 );
 
                 if (!isset($_GET['noSVG']) || $_GET['noSVG'] != 1) {
-                    $retImg['src'] = "{$folder}{$image}";
+                    $retImg['src'] = "{$domain}{$image}";
                 }
 
                 array_push($this->pickedIcons, $retImg);
