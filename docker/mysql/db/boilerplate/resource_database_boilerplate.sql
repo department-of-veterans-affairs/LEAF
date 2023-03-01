@@ -252,6 +252,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('adPath', ''),
 ('emailBCC', ''),
 ('emailCC', ''),
+('sitemap_json', '{"buttons":[]}'),
 ('emailPrefix', 'Resources: ');
 
 -- --------------------------------------------------------
