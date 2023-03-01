@@ -64,6 +64,10 @@ class Email
         }
     }
 
+    /**
+     * This allows us to set the site root outside of the email class, since this could be called from command line instead of through a browser request.
+     * @param string $siteRoot
+     */
     public function setSiteRoot(string $siteRoot = '') : void{
         $this->siteRoot = $siteRoot;
     }
