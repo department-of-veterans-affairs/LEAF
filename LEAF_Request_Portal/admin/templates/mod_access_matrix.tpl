@@ -19,7 +19,7 @@ button.buttonNorm {
 
 <div id="access_matrix_container" class="leaf-width-100pct">
     <h2>Access Matrix</h2>
-    <div id="access_matrix"><img src="../images/indicator.gif" style="vertical-align: middle" /> Loading... </div>
+    <div id="access_matrix"><img src="../images/indicator.gif" style="vertical-align: middle" /> Loading... <span id="loadingStatus"></span></div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -62,21 +62,36 @@ async function getGroupMembers() {
 
 async function getActiveDependencies(workflows, dependencies) {
     let activeDependencies = {};
+    let activeSteps = {};
     let queue = new intervalQueue();
     for(let i in workflows) {
         queue.push(workflows[i]);
     }
     queue.setWorker(item => {
-        return fetch(`../api/workflow/${item.workflowID}/map/summary`)
+        return fetch(`../api/workflow/${item.workflowID}`)
             .then(res => res.json())
             .then(data => {
                 for(let i in data) {
-                    if(i > 0) {
-                        for(let j in data[i].dependencies) {
-                            activeDependencies[j] = 1;
-                        }
-                    }
+                    activeSteps[data[i].stepID] = 1;
                 }
+
+                document.querySelector('#loadingStatus').innerHTML = `Checking workflows: ${queue.getLoaded()}/${Object.keys(workflows).length}`;
+            });
+    });
+
+    await queue.start();
+
+    queue = new intervalQueue();
+    queue.setQueue(Object.keys(activeSteps));
+    queue.setWorker(stepID => {
+        return fetch(`../api/workflow/step/${stepID}/dependencies`)
+            .then(res => res.json())
+            .then(data => {
+                for(let i in data) {
+                    activeDependencies[data[i].dependencyID] = 1;
+                }
+
+                document.querySelector('#loadingStatus').innerHTML = `Checking requirements: ${queue.getLoaded()}/${Object.keys(activeSteps).length}`;
             });
     });
     return queue.start().then(() => {
@@ -227,9 +242,10 @@ async function main() {
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
+    document.querySelector('#loadingStatus').innerHTML = `Checking workflows.`;
     let [workflows, dependencyGroups, tGroupMembers] = await Promise.all([
         getActiveWorkflows(),
-        getDependenciesAndGroups(),
+        getDependenciesAndGroups(), // Identify dependencies that have assignable groups
         getGroupMembers()
     ]);
     groupMembers = tGroupMembers;
