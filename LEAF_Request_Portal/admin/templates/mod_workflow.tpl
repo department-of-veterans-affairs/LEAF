@@ -1563,7 +1563,7 @@ function showStepInfo(stepID) {
                             if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup === 'true') {
                               let dayCount = stepParse.AutomatedEmailReminders?.DaysSelected;
                               let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                                output += `Email reminders will go out every ${dayCount} ${dayText}<hr>`
+                                output += `Email reminders will be sent after ${dayCount} ${dayText} of inactivity<hr>`
                             }
                         }
                     }
@@ -1788,7 +1788,7 @@ function loadWorkflow(workflowID) {
                     if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
                         let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
                         let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                        emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will go out every ${dayCount} ${dayText}" />`
+                        emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
                     }
                 }
 
