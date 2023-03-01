@@ -24,4 +24,5 @@ class EmailTemplateFormatter{
         ]
     ];
 
+    const TABLE = "email_templates";
 }

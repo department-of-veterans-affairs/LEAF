@@ -11,5 +11,6 @@ class TemplateReportsFormatter{
             "variables" => "body"
         ]
     ];
-
+    
+    const TABLE = "";
 }

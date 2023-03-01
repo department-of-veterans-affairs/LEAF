@@ -16,4 +16,5 @@ class PrimaryAdminFormatter{
         ]
     ];
 
+    const TABLE = "users";
 }

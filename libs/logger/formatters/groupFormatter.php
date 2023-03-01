@@ -48,4 +48,6 @@ class GroupFormatter {
         ]
     ];
 
+    const TABLE = "groups";
+
 }

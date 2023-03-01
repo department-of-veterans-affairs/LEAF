@@ -17,14 +17,17 @@ class FormFormatter{
             "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type"
         ],
         DataActions::ADD.'-'.LoggableTypes::INDICATOR => [
-            "message" => "added <strong>new Indicator:</strong> %s",
+            "message" => "added <strong>new question:</strong> %s",
             "variables"=> "name"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::INDICATOR => [
-            "message" => "Indicator %s",
-            "variables"=> "indicatorID,".FormatOptions::READ_COLUMN_NAMES,
+            "message" => "<strong>question</strong>: %s",
+            "variables"=> "indicatorID,".FormatOptions::READ_COLUMN_NAMES.",".FormatOptions::DISPLAY,
+            "key"=>"indicatorID",
+            "displayColumns"=>"description,name",
             "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint"
         ]
     ];
 
+    const TABLE = 'categories';
 }

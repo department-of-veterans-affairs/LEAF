@@ -14,4 +14,6 @@ class ServiceChiefFormatter {
             "variables"=>"userID"
         ],
     ];
+
+    const TABLE = "service_chiefs";
 }

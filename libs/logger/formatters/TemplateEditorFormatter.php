@@ -12,4 +12,5 @@ class TemplateEditorFormatter{
         ]
     ];
 
+    const TABLE = "";
 }

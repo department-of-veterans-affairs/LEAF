@@ -88,11 +88,10 @@ class LogFormatter{
         foreach($changeDetails as $key=> $detail){
             if($columnName == FormatOptions::READ_COLUMN_NAMES){
                 if(in_array($detail["column"], $loggableColumns)){
-                    $result["message"] = "changed %s to %s in ".$result["message"];
+                    $result["message"] = "<strong>changed</strong> %s to %s in ".$result["message"];
                     $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
                     array_push($result["values"], $value);
                     array_push($result["values"], $detail["column"]);
-                    // $result["values"] = array_reverse($result["values"]);
                 }
             }
             if($detail["column"] == $columnName) {
