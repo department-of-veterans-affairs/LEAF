@@ -9,15 +9,13 @@ include_once $currDir . '/../Login.php';
 require_once $currDir . '/../Email.php';
 require_once $currDir . '/../VAMC_Directory.php';
 
-
-
-// this is here until we fully test
-ini_set('display_errors',1);
-error_reporting(E_ALL);
-
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
-$siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+
+
+$request_uri = str_replace(['/var/www/html/','/scripts'],'',$_SERVER['PWD']);
+
+$siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
 
 // allow us to control if this is in days or minutes
 if (!empty($_GET['minutes'])) {
@@ -121,7 +119,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     foreach ($getRecordRes as $record) {
         // send the email
         $email = new Email();
-
+        $email->setSiteRoot($siteRoot);
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
 
@@ -133,8 +131,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             "recordID" => $record['recordID'],
             "service" => $record['service'],
             "stepTitle" => $workflowStep['stepTitle'],
-            "comment" => $comment,
-            "siteRoot" => $siteRoot
+            "comment" => $comment
         ));
 
         // need to get the emails sending to make sure this actually works!
