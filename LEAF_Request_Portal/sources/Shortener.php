@@ -63,6 +63,15 @@ class Shortener
         if(!isset($resReport[0])) {
             return '';
         }
+
+        if(isset($_GET['debug'])) {
+            $query = json_decode(html_entity_decode(html_entity_decode($resReport[0]['data'])), true);
+            if($query == null) {
+                return $resReport[0]['data'];
+            }
+            return $query;
+        }
+
         require_once dirname(__FILE__) . '/../form.php';
         $form = new Form($this->db, $this->login);
         return $form->query($resReport[0]['data']);

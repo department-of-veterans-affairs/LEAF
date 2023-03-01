@@ -198,7 +198,7 @@ class Group
      *
      * @return array|string
      */
-    public function getMembers($groupID): array|string
+    public function getMembers($groupID, bool $searchDeleted = false): array|string
 
     {
         if (!is_numeric($groupID))
@@ -215,7 +215,7 @@ class Group
                 $dir = new VAMC_Directory();
                 foreach ($res as $member)
                 {
-                    $dirRes = $dir->lookupLogin($member['userID'], false, true);
+                    $dirRes = $dir->lookupLogin($member['userID'], false, true, $searchDeleted);
 
                     if (isset($dirRes[0]))
                     {
@@ -256,9 +256,9 @@ class Group
      * @param string $member
      * @param int $groupID
      *
-     * @return void
+     * @return string
      */
-    public function addMember($member, $groupID): void
+    public function addMember($member, $groupID): string
     {
         include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
 
@@ -301,6 +301,7 @@ class Group
                                                     VALUES (:userID, :groupID, :backupID)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
             }
+            return $member;
         }
     }
 
@@ -451,7 +452,7 @@ class Group
     /**
      * @return array
      */
-    public function getGroupsAndMembers(): array
+    public function getGroupsAndMembers(bool $searchDeleted = false): array
     {
         $groups = $this->getGroups();
 
@@ -460,7 +461,7 @@ class Group
         {
             if ($group['groupID'] > 0)
             {
-                $group['members'] = $this->getMembers($group['groupID']);
+                $group['members'] = $this->getMembers($group['groupID'], $searchDeleted);
                 $list[] = $group;
             }
         }

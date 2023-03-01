@@ -32,6 +32,19 @@
     color: black;
 }
 
+.employeeSelectorDisable{
+    width: 99%;
+    font-size: 14px;
+    background-color: #ff7777 !important;
+    border: 1px solid black;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.employeeSelectorDisable:hover{
+    background-color: #b7b7b7 !important;
+}
+
 .employeeSelected {
     width: 99%;
     background-color: #2372b0;

@@ -104,6 +104,12 @@ if ($login->checkGroup(1))
         $siteController = new SiteController($db, $login);
         $siteController->handler($action);
     });
+
+    $controllerMap->register('iconPicker', function () use ($db, $login, $action) {
+        require 'controllers/IconPickerController.php';
+        $iconPickerController = new IconPickerController($db, $login);
+        $iconPickerController->handler($action);
+    });
 }
 
 $controllerMap->register('form', function () use ($db, $login, $action) {

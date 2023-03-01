@@ -6,7 +6,6 @@
 /*
     Database config
     Date Created: November 23, 2009
-
     Central place to put database login information
     This should be kept outside of web accessible directories
 */

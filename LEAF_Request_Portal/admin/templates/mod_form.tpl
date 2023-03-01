@@ -686,7 +686,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>
             <fieldset><legend>Default Answer</legend>
-                <textarea id="default" style="width: 50%;"></textarea>
+                <div id="default-answer"></div>
             </fieldset>
         </fieldset>
         <fieldset><legend>Attributes</legend>
@@ -719,6 +719,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
     $('#container_indicatorSingleAnswer').css('display', 'none');
+    $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
     switch(indFormat?.toLowerCase()) {
         case 'grid':
             $('#container_indicatorGrid').css('display', 'block');
@@ -727,6 +728,64 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
         case 'checkbox':   //single option entry box
             $('#container_indicatorSingleAnswer').css('display', 'block');
             if (formatOptionsStr !== '') $('#indicatorSingleAnswer').val(formatOptionsStr);
+            break;
+        case 'orgchart_employee':
+            $('#default-answer').html('<div id="default"></div>');
+            empSel = new employeeSelector('default');
+            empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+            empSel.rootPath = '<!--{$orgchartPath}-->/';
+            empSel.outputStyle = 'micro';
+            empSel.initialize();
+            empSel.setSelectHandler(function () {
+                $('#default').val(empSel.selectionData[empSel.selection].empUID);
+                $('#default input.employeeSelectorInput').val('userName:' + empSel.selectionData[empSel.selection].userName);
+            });
+            break;
+        case 'orgchart_group':
+            $('#default-answer').html('<div id="default"></div>');
+            let groupSel = new groupSelector('default');
+            groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+            groupSel.basePath = '../';
+            groupSel.setResultHandler(function() {
+                if(groupSel.numResults == 0) {
+                    groupSel.hideResults();
+                }
+                else {
+                    groupSel.showResults();
+                }
+
+                // prevent services from showing up as search results
+                for(let i in groupSel.jsonResponse) {
+                    $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).attr('tabindex', '0');
+                    if(groupSel.jsonResponse[i].tags.service != undefined) {
+                        $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
+                    }
+                }
+            });
+            groupSel.setSelectHandler(function() {
+                console.log(groupSel.selectionData[groupSel.selection]);
+                $('#default').val(groupSel.selectionData[groupSel.selection].groupID);
+                $('#default input.groupSelectorInput').val(String('group#' + groupSel.selectionData[groupSel.selection].groupID));
+            });
+            groupSel.initialize();
+
+            break;
+        case 'orgchart_position':
+            $('#default-answer').html('<div id="default"></div>');
+            let posSel = new positionSelector('default');
+            posSel.apiPath = '<!--{$orgchartPath}-->/api/';
+            posSel.rootPath = '<!--{$orgchartPath}-->/';
+            posSel.enableEmployeeSearch();
+
+            posSel.setSelectHandler(function() {
+                $('#default').val(posSel.selection)
+                $('#default input.positionSelectorInput').val('#'+posSel.selection);
+            });
+            posSel.setResultHandler(function() {
+                $('#default').val(posSel.selection)
+            });
+            posSel.initialize();
+
             break;
         case 'radio':      //multiple option entry box
         case 'checkboxes':
@@ -1297,8 +1356,17 @@ function getForm(indicatorID, series) {
                 $('#sort').val(res[indicatorID].sort);
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
-
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
+                // this only works after all the required elements are rendered.
+                if (formatName === 'orgchart_employee') {
+                    $('#default-answer input.employeeSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
+                }
+                if (formatName === 'orgchart_group') {
+                    $('#default-answer input.groupSelectorInput').val(res[indicatorID].default ? 'group#' + res[indicatorID].default : '');
+                }
+                if (formatName === 'orgchart_position') {
+                    $('#default-answer input.positionSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
+                }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
             },
@@ -1371,6 +1439,11 @@ function getForm(indicatorID, series) {
                     data: {
                         format: $('#format').val(),
                         CSRFToken: '<!--{$CSRFToken}-->'
+                    },
+                    success: function(res) {
+                        if (res === 'size limit exceeded') {
+                            alert(`The input format was not saved because it was too long.\nIf you require extended length, please submit a YourIT ticket.`);
+                        }
                     },
                     error: function(response) {
                         console.log(response);
@@ -2002,7 +2075,7 @@ function viewHistory(categoryId){
 /**
  * Purpose: Check for Secure Form Certifcation
  * @param searchResolved
- * @returns {*|jQuery}
+ * @returns { *|jQuery}
  */
 function fetchLEAFSRequests(searchResolved) {
     let deferred = $.Deferred();
@@ -2027,7 +2100,7 @@ function fetchLEAFSRequests(searchResolved) {
 
 /**
  * Purpose: Get all Indicators on Form
- * @returns {*|jQuery}
+ * @returns { *|jQuery}
  */
 function fetchIndicators() {
     let deferred = $.Deferred();
@@ -2052,6 +2125,13 @@ function fetchFormSecureInfo() {
         cache: false
     })
     .then(function(res) {
+        const siteType = res?.siteType || '';
+        if (siteType.toLowerCase() === 'national_subordinate') {
+            let warnContent = `<div id="subordinate_site_warning"><h3>This is a Nationally Standardized Subordinate Site</h3>`;
+            warnContent += `<span>Do not make modifications! &nbsp;Synchronization problems will occur. &nbsp;`;
+            warnContent += `Please contact your process POC if modifications need to be made.</span></div>`;
+            $('#bodyarea').prepend(warnContent);
+        }
         renderSecureFormsInfo(res)
     });
 }
