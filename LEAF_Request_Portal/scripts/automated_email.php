@@ -77,7 +77,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
         // send the email
         $email = new Email();
-
+        $email->setSiteRoot($siteRoot);
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
 
@@ -89,8 +89,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             "recordID" => $record['recordID'],
             "service" => $record['service'],
             "stepTitle" => $workflowStep['stepTitle'],
-            "comment" => $comment,
-            "siteRoot" => $siteRoot
+            "comment" => $comment
         ));
 
         // need to get the emails sending to make sure this actually works!

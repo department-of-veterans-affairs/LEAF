@@ -64,6 +64,10 @@ class Email
         }
     }
 
+    public function setSiteRoot(string $siteRoot = '') : void{
+        $this->siteRoot = $siteRoot;
+    }
+
     /**
      * Checks for custom templates and returns the filepath if so. Otherwise returns the regular filepath.
      * @param string $tpl the filename of the template
@@ -593,17 +597,13 @@ class Email
         if (count($approvers) > 0) {
             $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
 
-            // if the site root is set outside of our email file
-            if(empty($this->smartyVariables['siteRoot'])){
-                $this->smartyVariables['siteRoot'] = $this->siteRoot;
-            }
-
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $title,
                 "fullTitle" => $approvers[0]['title'],
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
-                "lastStatus" => $approvers[0]['lastStatus']
+                "lastStatus" => $approvers[0]['lastStatus'],
+                "siteRoot" => $this->siteRoot
             ));
 
             if ($emailTemplateID < 2)
@@ -719,17 +719,13 @@ class Email
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
 
-            // if the site root is set outside of our email file
-            if(empty($this->smartyVariables['siteRoot'])){
-                $this->smartyVariables['siteRoot'] = $this->siteRoot;
-            }
-
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $title,
                 "fullTitle" => $recordInfo[0]['title'],
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
+                "siteRoot" => $this->siteRoot
             ));
 
             $this->setTemplateByID($emailTemplateID);
