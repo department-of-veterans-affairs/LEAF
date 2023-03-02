@@ -1371,16 +1371,16 @@ class Form
         $returnValue = 0;
 
         $vars = array(':recordID' => (int)$recordID);
-        //get all the catIDs associated with this record and whether the forms are enabled or submitted 
+        //get all the catIDs associated with this record and whether the forms are enabled or submitted
         $resRecordInfoEachForm = $this->db->prepared_query('SELECT recordID, categoryID, `count`, submitted FROM records
                                                     LEFT JOIN category_count USING (recordID)
-                                                    WHERE recordID=:recordID', $vars);                         
+                                                    WHERE recordID=:recordID', $vars);
         $isSubmitted = false;
         foreach ($resRecordInfoEachForm as $request) {
             if ($request['submitted'] > 0) {
                 $isSubmitted = true;
                 break;
-            } 
+            }
         }
         if ($isSubmitted) {
             $returnValue = 100;
@@ -1393,9 +1393,9 @@ class Form
                 if((int)$form['count'] === 1) {
                     $categories[] = $form['categoryID'];
                 }
-            }  
+            }
             $resRequestRequired = array();
-            foreach ($allRequiredIndicators as $indicator) {   
+            foreach ($allRequiredIndicators as $indicator) {
                 if(in_array($indicator['categoryID'], $categories)) {
                     $resRequestRequired[] = $indicator;
                 }
@@ -1532,7 +1532,7 @@ class Form
                     }
                 }
             }
-        } 
+        }
         return $returnValue;
     }
 
@@ -3241,7 +3241,7 @@ class Form
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ":", ";", "="], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
