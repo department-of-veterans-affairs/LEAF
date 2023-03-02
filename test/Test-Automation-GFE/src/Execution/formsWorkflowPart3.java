@@ -81,57 +81,25 @@ public class formsWorkflowPart3 extends setupFramework {
 			
 		//Select Work-in-progress Form build using formsWorkflow.java
 		@Test(priority = 325)  //Select the form that is in first position (top left)
-		private void selectCurrentFormByXpath() {	
-			//		   
-			waitMethods.waiter(waitMethods.w1k);  //    Either should work, the 1st is Xpath for the AUT element, 2nd is for description
-			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-			//WebElement ele = driver.findElement(By.xpath("//div[text() = 'AUT']"));
-			//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
+		private void selectCurrentFormByXpath() {		   
+			waitMethods.waiter(waitMethods.w1k);  //    
 	   		
 	    	String url = driver.getCurrentUrl();
 	    	
 	    	if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
-	    		WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
-	    		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-		    	highlightElement.highLightElement(driver, ele);
+	    		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/div[2]/div[2]/div[1]/div[1]"));
+	    		//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
+	    		highlightElement.highLightElement(driver, ele);
 		    	ele.click();	    		
 	    	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
-	    		WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
-	    		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-		    	highlightElement.highLightElement(driver, ele);
+	    		WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[1]"));
+	    		//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
+	    		highlightElement.highLightElement(driver, ele);
 		    	ele.click();	    		
 	    	}	   		
 	   		
-	   		
 	    	waitMethods.waiter(waitMethods.w300);
 	   		System.out.println("Select first form top left");
-			
-					
-//			waitMethods.waiter(waitMethods.w500);  //     /html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[2]        
-//			//WebElement ele = driver.findElement(By.xpath("//*[text()='AUT']"));
-//			
-//			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[2]"));
-//			//WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div/div[2]/div[2]/div[1]/div[2]"));
-//	    	highlightElement.highLightElement(driver, ele);
-//	    	ele.click();
-//	   		waitMethods.waiter(waitMethods.w300);
-//	    	System.out.println("Select first form top left");
-
-		
-		    /*		
-		    	IF TEMPLATE
-		    	String url = driver.getCurrentUrl();
-		    	
-		    	if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
-		    	
-		    	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
-		    	
-		    	}
-	
-	
-		    */		
-		
-		
 		
 		}	
 	
@@ -225,7 +193,7 @@ public class formsWorkflowPart3 extends setupFramework {
 		
 		
 		
-		@Test(priority = 435) //  Err here - No form (Staple Form 01)????
+		@Test(priority = 435) //  - No form (Staple Form 01)????						// ERR HERE 3/1/23
 		public void selectFormToBeStapled() {         
 			//waitMethods.implicitWait(waitMethods.w300);
 			waitMethods.waiter(waitMethods.w300);			//The below opens the DDL
@@ -288,7 +256,7 @@ public class formsWorkflowPart3 extends setupFramework {
 //====================================================================================
 		
 	@Test(priority = 465) //  
-		private void verifyStapledForm() {			//
+		private void verifyStapledForm() {			//										// ERR HERE 3/1/23
 			
 			String strExpected = "Staple Form 01";
 			
@@ -556,7 +524,7 @@ public class formsWorkflowPart3 extends setupFramework {
 		
 
 		@Test(priority = 575) //  
-		private void chooseFileToImport() {			
+		private void chooseFileToImport() {										// ERR HERE 3/1/23
 			waitMethods.waiter(waitMethods.w300);  
 			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/form/div[1]/input"));
 			//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Choose File')]"));
@@ -572,12 +540,12 @@ public class formsWorkflowPart3 extends setupFramework {
 ////////////////////////  Change Form Name and Priority, setting up for next run \\\\\\\\\\\\\\\\\
 		
 		
-	@Test(priority = 577)  //Select the form
+	@Test(priority = 577)  //Select the form									// ERR HERE 3/1/23
 	private void selectCurrentFormByXpath01() {
 		selectCurrentFormByXpath();
 	}
 		
-	@Test(priority = 580) //
+	@Test(priority = 580) //													// ERR HERE 3/1/23
 	private void selectEditProperties02() {
 		waitMethods.waiter(waitMethods.w250);       
 		//WebElement ele = driver.findElement(By.xpath("//*[text()='Edit Properties']"));
@@ -593,7 +561,7 @@ public class formsWorkflowPart3 extends setupFramework {
 
 	
 	
-	@Test(priority = 585) //
+	@Test(priority = 585) //														// ERR HERE 3/1/23
 	private void changeFormName() {
 		waitMethods.waiter(waitMethods.w250);       
 		WebElement ele = driver.findElement(By.id("name"));
@@ -614,7 +582,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	
 
 	@Test(priority = 590) //
-	private void changeDescription() {
+	private void changeDescription() {											// ERR HERE 3/1/23
 		waitMethods.waiter(waitMethods.w250);       
 		WebElement ele = driver.findElement(By.id("description"));
     	highlightElement.highLightElement(driver, ele);
@@ -634,7 +602,7 @@ public class formsWorkflowPart3 extends setupFramework {
 
 	
 	
-	@Test(priority = 595) //  Accepts pos & neg integers 
+	@Test(priority = 595) //  Accepts pos & neg integers 							// ERR HERE 3/1/23
 	private void selectSortPriority02() {	
 		waitMethods.waiter(waitMethods.w250);       
 		WebElement ele = driver.findElement(By.id("sort"));
@@ -648,7 +616,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	
 	
 	
-	@Test(priority = 600) //  
+	@Test(priority = 600) //  														// ERR HERE 3/1/23
 	private void selectSave() {
 		waitMethods.waiter(waitMethods.w250);       
 		WebElement ele = driver.findElement(By.id("button_save"));

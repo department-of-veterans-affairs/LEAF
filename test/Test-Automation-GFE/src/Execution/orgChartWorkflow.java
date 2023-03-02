@@ -69,7 +69,7 @@ public class orgChartWorkflow extends setupFramework {
 		WebElement ele = driver.findElement(By.id("search"));
     	highlightElement.highLightElement(driver, ele);
     	
-    	String name = "amanda turner";		//  Scott Wagner
+    	String name = "Richard, Max";		//  Scott Wagner
    
     	for(int i = 0; i < name.length(); i++) {
     		char c = name.charAt(i);
@@ -85,19 +85,35 @@ public class orgChartWorkflow extends setupFramework {
 
 
 	@Test(priority = 104) //									TODO:May have to change name on Pre-prod
-	public void verifySearchByEmployee() {         
+	public void verifySearchByEmployee() {         			// ERR Data not found in PROD
 		//waitMethods.implicitWait(waitMethods.w300);
 		waitMethods.waiter(waitMethods.w1k);	
-		WebElement ele = driver.findElement(By.partialLinkText("Turner Sumner"));    //Wagner
+		WebElement ele = driver.findElement(By.partialLinkText("Richard, Max"));    //Wagner
 		highlightElement.highLightElement(driver, ele);
 		String verify = ele.toString();
-		System.out.println(verify);
-		Assert.assertTrue(ele.toString().contains("Wagner"));	
+		System.out.println("Employee = " + verify);
+		//highlightElement.highLightElement(driver, ele);		
+		
+		Assert.assertTrue(ele.toString().contains("Richard, Max"));	
 		waitMethods.waiter(waitMethods.w300);
 		System.out.println("Search for employee name on page");
 	}
 
-
+//	public void verifySearchByPositionDELETE() {         
+//		//waitMethods.implicitWait(waitMethods.w300);
+//		waitMethods.waiter(waitMethods.w1k);	
+//		WebElement ele = driver.findElement(By.partialLinkText("Accountability")); 
+//		highlightElement.highLightElement(driver, ele);
+//		String verify = ele.toString();
+//		System.out.println(verify);
+//		Assert.assertTrue(ele.toString().contains("Accountability"));
+//	
+//		waitMethods.waiter(waitMethods.w250);
+//		System.out.println("Verify search by Position on page");
+//	}
+	
+	
+	
 	@Test(priority = 106) //
 	private void searchByPosition() {
 		waitMethods.waiter(waitMethods.w300);       
