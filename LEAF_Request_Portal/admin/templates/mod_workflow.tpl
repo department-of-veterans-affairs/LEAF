@@ -252,7 +252,8 @@ function addEmailReminderDialog(stepID){
     dialog.setContent(output);
     
     dialog.setValidator('reminder_days', function() {
-        if ($('#edit_email_check').prop('checked') == true && (parseInt($('#reminder_days').val()) === NaN || parseInt($('#reminder_days').val()) < 1)) {
+        reminder_days = $('#reminder_days').val();
+        if ($('#edit_email_check').prop('checked') == true &&  parseInt(reminder_days) < 1 || reminder_days == '') {
             return false;
         } else {
             return true;
@@ -262,12 +263,28 @@ function addEmailReminderDialog(stepID){
     dialog.setSubmitValid('reminder_days', function() {
         alert('Number of days to remind user must be greater than 0!');
     });
+
+    dialog.setValidator('reminder_days_additional', function() {
+    
+        reminder_days_additional = $('#reminder_days_additional').val();
+        if ($('#edit_email_check').prop('checked') == true && parseInt(reminder_days_additional) < 1 || reminder_days_additional == '') {
+            return false;
+        } else {
+            return true;
+        }
+    });
+
+    dialog.setSubmitValid('reminder_days_additional', function() {
+        alert('Additional Number of days to remind user must be greater than 0!');
+    });
+
     dialog.setSaveHandler(function() {
 
         let seriesData = {
             AutomatedEmailReminders : {
                 'Automate Email Group': $('#edit_email_check').prop('checked'),
                 'Days Selected': $('#reminder_days').val(),
+                'Additional Days Selected': $('#reminder_days_additional').val(),
             }
         }
 
@@ -297,11 +314,13 @@ function addEmailReminderDialog(stepID){
         let stepParse = JSON.parse(workflowStep.stepData);
         let automateEmailGroup = stepParse.AutomatedEmailReminders?.AutomateEmailGroup;
         let daysSelected = stepParse.AutomatedEmailReminders?.DaysSelected;
+        let additionalDaysSelected = stepParse.AutomatedEmailReminders?.AdditionalDaysSelected;
 
         if (automateEmailGroup?.toLowerCase() == "true") {
             $('#edit_email_check').prop('checked', true);
             editEmailChecked();
             $("#reminder_days").val(daysSelected);
+            $("#reminder_days_additional").val(additionalDaysSelected);
         } else {
             $('#edit_email_check').prop('checked', false);
         }
@@ -314,7 +333,7 @@ function editEmailChecked() {
     let editSelectdatesString = "";
     if (emailChecked.checked) {
         editSelectdatesString += '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days"> days of inactivity. <br>';
-      
+        editSelectdatesString += '<br>After the initial notification send another reminder every <input aria-label="number of days additional" type="number" min="1" id="reminder_days_additional"> days of inactivity. <br>';
         createElement("div", "edit_date_select", "edit_email_container");
         document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
     } else {
@@ -1544,7 +1563,7 @@ function showStepInfo(stepID) {
                             if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup === 'true') {
                               let dayCount = stepParse.AutomatedEmailReminders?.DaysSelected;
                               let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                                output += `Email reminders will go out every ${dayCount} ${dayText}<hr>`
+                                output += `Email reminders will be sent after ${dayCount} ${dayText} of inactivity<hr>`
                             }
                         }
                     }
@@ -1769,7 +1788,7 @@ function loadWorkflow(workflowID) {
                     if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
                         let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
                         let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                        emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will go out every ${dayCount} ${dayText}" />`
+                        emailNotificationIcon = `<img src="../../libs/dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
                     }
                 }
 
