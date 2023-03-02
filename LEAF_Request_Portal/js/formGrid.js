@@ -18,6 +18,7 @@ var LeafFormGrid = function (containerID, options) {
   var postProcessDataFunc = null;
   var preRenderFunc = null;
   var postRenderFunc = null;
+  let postSortRequestFunc = null;
   var rootURL = "";
   var isRenderingVirtualHeader = true;
   var isRenderingBody = false;
@@ -241,10 +242,10 @@ var LeafFormGrid = function (containerID, options) {
       $("#" + prefixID + "header_UID").css("cursor", "pointer");
       $("#" + prefixID + "header_UID").on("click", null, null, function (data) {
         if (headerToggle == 0) {
-          sort("recordID", "asc");
+          sort("recordID", "asc", postSortRequestFunc);
           headerToggle = 1;
         } else {
-          sort("recordID", "desc");
+          sort("recordID", "desc", postSortRequestFunc);
           headerToggle = 0;
         }
         renderBody(0, Infinity);
@@ -292,10 +293,10 @@ var LeafFormGrid = function (containerID, options) {
           headers[i].indicatorID,
           function (data) {
             if (headerToggle == 0) {
-              sort(data.data, "asc");
+              sort(data.data, "asc", postSortRequestFunc);
               headerToggle = 1;
             } else {
-              sort(data.data, "desc");
+              sort(data.data, "desc", postSortRequestFunc);
               headerToggle = 0;
             }
             renderBody(0, Infinity);
@@ -309,10 +310,10 @@ var LeafFormGrid = function (containerID, options) {
           function (data) {
             if (data.keyCode == 13) {
               if (headerToggle == 0) {
-                sort(data.data, "asc");
+                sort(data.data, "asc", postSortRequestFunc);
                 headerToggle = 1;
               } else {
-                sort(data.data, "desc");
+                sort(data.data, "desc", postSortRequestFunc);
                 headerToggle = 0;
               }
               renderBody(0, Infinity);
@@ -382,9 +383,13 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * Sort the current dataset based on rendered data in table cells
+   * @param key key to sort on
+   * @param order Sort order: asc/desc
+   * @param callback (optional)
    * @memberOf LeafFormGrid
    */
-  function sort(key, order) {
+  function sort(key, order, callback) {
     if (key != "recordID" && currLimit != Infinity) {
       renderBody(0, Infinity);
     }
@@ -507,6 +512,7 @@ var LeafFormGrid = function (containerID, options) {
       } else {
         isNumeric = false;
       }
+
       array.push(currentData[i]);
     }
     if (isDate) {
@@ -551,13 +557,17 @@ var LeafFormGrid = function (containerID, options) {
         if (b[key] == undefined) {
           b[key] = "";
         }
-        return collator.compare(a[key], b[key]);
+        return collator.compare(b[key], a[key]);
       });
     }
     if (order == "asc") {
       array.reverse();
     }
     currentData = array;
+
+    if (callback != undefined && typeof callback === "function") {
+      callback(key, order);
+    }
   }
 
   /**
@@ -622,6 +632,7 @@ var LeafFormGrid = function (containerID, options) {
     if (startIdx == undefined || startIdx == 0) {
       startIdx = 0;
       $("#" + prefixID + "tbody").empty();
+      renderHistory = {};
       fullRender = true;
     }
 
@@ -983,7 +994,9 @@ var LeafFormGrid = function (containerID, options) {
     $("#" + containerID).html(
       '<br/><button type="button" id="' +
         prefixID +
-        'getExcel" class="buttonNorm"><img src="dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
+        'getExcel" class="buttonNorm"><img src="' +
+        rootURL +
+        'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
     );
 
     $("#" + prefixID + "getExcel").on("click", function () {
@@ -1005,47 +1018,49 @@ var LeafFormGrid = function (containerID, options) {
       var i = 0;
       var thisSite = document.createElement("a");
       var numColumns = headers.length - 1;
-      $("#" + prefixID + "tbody>tr>td").each(function (idx, val) {
-        var foundScripts = val.querySelectorAll("script");
+      document
+        .querySelectorAll("#" + prefixID + "tbody>tr>td")
+        .forEach(function (val) {
+          var foundScripts = val.querySelectorAll("script");
 
-        for (var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
-          foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
-        }
+          for (var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+            foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
+          }
 
-        var trimmedText = val.innerText.trim();
-        line[i] = trimmedText;
-        //prevent some values from being interpretted as dates by excel
-        const dataFormat = val.getAttribute("data-format");
-        const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
-        line[i] =
-          dataFormat !== null &&
-          dataFormat !== "date" &&
-          testDateFormat.test(line[i])
-            ? `="${line[i]}"`
-            : line[i];
-        if (i == 0 && headers[i] == "UID") {
+          var trimmedText = val.innerText.trim();
+          line[i] = trimmedText;
+          //prevent some values from being interpretted as dates by excel
+          const dataFormat = val.getAttribute("data-format");
+          const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
           line[i] =
-            '=HYPERLINK("' +
-            window.location.origin +
-            window.location.pathname +
-            "?a=printview&recordID=" +
-            trimmedText +
-            '", "' +
-            trimmedText +
-            '")';
-        }
-        i++;
-        if (i > numColumns) {
-          output.push(line); //add new row
-          line = [];
-          i = 0;
-        }
-      });
+            dataFormat !== null &&
+            dataFormat !== "date" &&
+            testDateFormat.test(line[i])
+              ? `="${line[i]}"`
+              : line[i];
+          if (i == 0 && headers[i] == "UID") {
+            line[i] =
+              '=HYPERLINK("' +
+              window.location.origin +
+              window.location.pathname +
+              "?a=printview&recordID=" +
+              trimmedText +
+              '", "' +
+              trimmedText +
+              '")';
+          }
+          i++;
+          if (i > numColumns) {
+            output.push(line); //add new row
+            line = [];
+            i = 0;
+          }
+        });
 
       rows = "";
-      $(output).each(function (idx, thisRow) {
+      output.forEach(function (thisRow) {
         //escape double quotes
-        $(thisRow).each(function (idx, col) {
+        thisRow.forEach(function (col, idx) {
           thisRow[idx] = col.replace(/\"/g, '""');
         });
         //add to csv string
@@ -1101,6 +1116,15 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * @memberOf LeafFormGrid
+   * Set callback function to run after the user requests a sort.
+   * The function takes two parameters: key, sort direction (asc/desc)
+   */
+  function setPostSortRequestFunc(func) {
+    postSortRequestFunc = func;
+  }
+
+  /**
+   * @memberOf LeafFormGrid
    * Return data row from loadData() using the array's index
    */
   function getDataByIndex(index) {
@@ -1147,6 +1171,7 @@ var LeafFormGrid = function (containerID, options) {
     setPostProcessDataFunc: setPostProcessDataFunc,
     setPreRenderFunc: setPreRenderFunc,
     setPostRenderFunc: setPostRenderFunc,
+    setPostSortRequestFunc: setPostSortRequestFunc,
     setDefaultLimit: function (limit) {
       defaultLimit = limit;
     },

@@ -328,11 +328,12 @@ class Position extends Data
                       ':positionID' => $positionID,
                       ':isActing' => ($isActing ? 1 : 0),
         );
-        $this->db->prepared_query('INSERT INTO relation_position_employee (positionID, empUID, isActing)
-                                        VALUES (:positionID, :empUID, :isActing)', $vars);
+        $strSQL = 'INSERT INTO relation_position_employee (positionID, empUID, isActing)
+            VALUES (:positionID, :empUID, :isActing)
+            ON DUPLICATE KEY UPDATE positionID=:positionID, empUID=:empUID, isActing=:isActing';
+        $this->db->prepared_query($strSQL, $vars);
 
-        // since there's no ID for relation_position_employee, this always returns 0 - should it?
-        return $this->db->getLastInsertID();
+        return $empUID;
     }
 
     /**

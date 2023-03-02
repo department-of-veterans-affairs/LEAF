@@ -854,8 +854,11 @@ class Group extends Data
 
         $vars = array(':groupID' => $groupID,
                       ':employeeID' => $employeeID, );
-        $this->db->prepared_query('INSERT INTO relation_group_employee (groupID, empUID)
-                                    VALUES (:groupID, :employeeID)', $vars);
+
+        $strSQL = 'INSERT INTO relation_group_employee (groupID, empUID)
+            VALUES (:groupID, :employeeID)
+            ON DUPLICATE KEY UPDATE groupID=:groupID, empUID=:employeeID';
+        $this->db->prepared_query($strSQL, $vars);
 
         $employeeDisplay = $this->getEmployeeDisplay($employeeID);
 
@@ -864,7 +867,7 @@ class Group extends Data
             new \Leaf\LogItem("relation_group_employee", "empUID", $employeeID, $employeeDisplay)
         ]);
 
-        return $this->db->getLastInsertID();
+        return $employeeID;
     }
 
     /**

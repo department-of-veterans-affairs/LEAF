@@ -1769,9 +1769,15 @@ class Form
                 }
 
                 //check if the requester has any backups
-                $nexusDB = $this->login->getNexusDB();
-                $vars4 = array(':empId' => $empUID);
-                $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                $backupIds = [];
+                if (isset($this->cache['checkReadAccess_relation_employee_backup_' . $empUID])) {
+                    $backupIds = $this->cache['checkReadAccess_relation_employee_backup_' . $empUID];
+                } else {
+                    $nexusDB = $this->login->getNexusDB();
+                    $vars4 = array(':empId' => $empUID);
+                    $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                    $this->cache['checkReadAccess_relation_employee_backup_' . $empUID] = $backupIds;
+                }
 
                 if ($empUID == $this->login->getEmpUID())
                 {

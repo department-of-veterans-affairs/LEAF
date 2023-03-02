@@ -456,6 +456,26 @@ switch ($action) {
         $tabText = 'Recover disabled fields';
 
         break;
+    case 'mod_account_updater':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $main->assign('javascripts', array(
+            '../js/formGrid.js',
+            '../js/formQuery.js',
+            '../'.Config::$orgchartPath.'/js/employeeSelector.js',
+            '../../libs/js/LEAF/XSSHelpers.js',
+            '../../libs/js/LEAF/intervalQueue.js'
+        ));
+
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('APIroot', '../api/');
+
+        $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
+        break;
     case 'access_matrix':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';

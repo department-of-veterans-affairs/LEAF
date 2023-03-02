@@ -312,7 +312,13 @@ class Employee extends Data
         return $res;
     }
 
-    public function lookupLogin($login)
+    /**
+     * Purpose: Get employee information for enabled or all accounts
+     *
+     * @param string $login
+     * @param bool $searchDeleted
+     */
+    public function lookupLogin($login, bool $searchDeleted = false): array
     {
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
@@ -321,7 +327,10 @@ class Employee extends Data
         }
 
         $sqlVars = array(':login' => $login);
-	    $strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
+        $accountStatus = $searchDeleted ? "" : " AND deleted = 0";
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName,
+            phoneticFirstName, phoneticLastName, domain, deleted, lastUpdated, new_empUUID
+            FROM {$this->tableName} WHERE userName = :login".$accountStatus;
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         if (is_array($result) && isset($result[0]['empUID'])) {
@@ -774,6 +783,15 @@ class Employee extends Data
                 $input = str_replace('username:', '', strtolower($input));
                 $searchResult = $this->lookupLogin($input);
 
+                break;
+            //explicit search for disabled accounts
+            case substr(strtolower($input), 0, 18) === 'username_disabled:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('username_disabled:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input, true);
                 break;
             // Format: ID number
             case (substr($input, 0, 1) == '#') && is_numeric(substr($input, 1)):
