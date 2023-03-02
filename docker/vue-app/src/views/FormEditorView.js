@@ -80,9 +80,11 @@ export default {
             return main;
         },
         currentSectionNumber() {
-            let ID = parseInt(this.selectedFormNode?.indicatorID);
-            let item = this.listTracker[ID] || '';
-            return (item !== '' && item.parentID === null) ? `${item.currSortIndex + 1} ` : '';
+            let indID = parseInt(this.selectedFormNode?.indicatorID);
+            const elHeaderItems = Array.from(document.querySelectorAll('#base_drop_area > li'));
+            const elThisItem = document.getElementById(`index_listing_${indID}`);
+            const index = elHeaderItems.indexOf(elThisItem);
+            return index === -1 ? '' : index + 1;
         }, 
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
@@ -98,7 +100,7 @@ export default {
         },
         parentIDsToUpdate() {
             let indsToUpdate = [];
-            //NOTE: headers have null as parentID, so listitems element newParentID is initialized with ''
+            //headers have null as their parentID, so newParentID is initialized with ''
             for (let i in this.listTracker) {
                 if (this.listTracker[i].newParentID !== '' && this.listTracker[i].parentID !== this.listTracker[i].newParentID) {
                     indsToUpdate.push({indicatorID:  parseInt(i), ...this.listTracker[i]});
@@ -191,13 +193,16 @@ export default {
                         this.updateSelectedFormTree(res);
                         this.sortValuesToUpdate.forEach(item => {
                             this.listTracker[item.indicatorID].sort = item.listIndex;
-                            this.listTracker[item.indicatorID].currSortIndex = item.listIndex;
                         });
                         this.parentIDsToUpdate.forEach(item => {
                             this.listTracker[item.indicatorID].parentID = item.newParentID;
+                            this.listTracker[item.indicatorID].newParentID = '';
                         });
                         this.sortLastUpdated = new Date().toDateString();
                         this.showLastUpdate('form_index_last_update', `last modified: ${this.sortLastUpdated}`);
+
+                        let elSublistDuplicates = Array.from(document.querySelectorAll('ul#base_drop_area > li.subindicator_heading'));
+                        elSublistDuplicates.forEach(el => document.getElementById('base_drop_area').removeChild(el));
 
                     }).catch(err => console.log(err));
                 }
@@ -215,7 +220,7 @@ export default {
          */
         addToListTracker(formNode = {}, parentID = null, listIndex = 0) {
             const { indicatorID, sort } = formNode;
-            const item = { sort, currSortIndex: listIndex, parentID, listIndex, newParentID: '', }
+            const item = { sort, parentID, listIndex, newParentID: '', }
             this.listTracker[indicatorID] = item;
         },
         /**
@@ -225,6 +230,7 @@ export default {
          * @param {number} listIndex
          */
         updateListTracker(indID = 0, newParIndID = 0, listIndex = 0) {
+            console.log(newParIndID)
             let item = {...this.listTracker[indID]};
             item.listIndex = listIndex;
             item.newParentID = newParIndID;
@@ -376,7 +382,7 @@ export default {
 
                     <ul>
                         <template v-for="form in selectedCategoryWithStapledForms" :key="'primary_form_item_' + form.categoryID">
-                            <li v-if="focusedFormID === form.categoryID">
+                            <li v-if="focusedFormID === form.categoryID" id="primary_form_container">
                                 <ul v-if="selectedFormTree.length > 0" id="base_drop_area"
                                     class="form-index-listing-ul"
                                     data-effect-allowed="move"
