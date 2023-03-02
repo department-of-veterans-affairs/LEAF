@@ -197,7 +197,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        // libs path??
+        $t_form->assign('libsPath', $libsPath);
         $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
@@ -465,13 +465,13 @@ switch ($action) {
         $main->assign('javascripts', array(
             '../js/formGrid.js',
             '../js/formQuery.js',
-            '../'.Config::$orgchartPath.'/js/employeeSelector.js',
+            '../'.Portal\Config::$orgchartPath.'/js/employeeSelector.js',
             '../../libs/js/LEAF/XSSHelpers.js',
             '../../libs/js/LEAF/intervalQueue.js'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('orgchartPath', '../' . Config::$orgchartPath);
+        $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('APIroot', '../api/');
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
