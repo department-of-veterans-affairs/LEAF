@@ -11,9 +11,10 @@ export default {
         return {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
-            listItems: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
+            listTracker: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
             allowedConditionChildFormats: ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'],
-            showToolbars: true
+            showToolbars: true,
+            sortLastUpdated: ''
         }
     },
     components: {
@@ -34,6 +35,10 @@ export default {
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'selectedFormNode',
+        'getFormByCategoryID',
+        'updateSelectedFormTree',
+        'showLastUpdate',
+        'openFormHistoryDialog',
         'newQuestion',
         'currentCategorySelection',
         'selectedCategoryWithStapledForms',
@@ -52,10 +57,10 @@ export default {
     },
     provide() {
         return {
-            listItems: computed(() => this.listItems),
+            listTracker: computed(() => this.listTracker),
             showToolbars: computed(() => this.showToolbars),
             clearListItem: this.clearListItem,
-            addToListItemsObject: this.addToListItemsObject,
+            addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
@@ -66,7 +71,7 @@ export default {
         }
     },
     computed: {
-        focussedFormID() {
+        focusedFormID() {
             return this.currentCategorySelection?.categoryID || '';
         },
         mainQuery() {
@@ -76,7 +81,7 @@ export default {
         },
         currentSectionNumber() {
             let ID = parseInt(this.selectedFormNode?.indicatorID);
-            let item = this.listItems[ID] || '';
+            let item = this.listTracker[ID] || '';
             return (item !== '' && item.parentID === null) ? `${item.currSortIndex + 1} ` : '';
         }, 
         sortOrParentChanged() {
@@ -84,9 +89,9 @@ export default {
         },
         sortValuesToUpdate() {
             let indsToUpdate = [];
-            for (let i in this.listItems) {
-                if (this.listItems[i].sort !== this.listItems[i].listIndex) {
-                    indsToUpdate.push({indicatorID: parseInt(i), ...this.listItems[i]});
+            for (let i in this.listTracker) {
+                if (this.listTracker[i].sort !== this.listTracker[i].listIndex) {
+                    indsToUpdate.push({indicatorID: parseInt(i), ...this.listTracker[i]});
                 }
             }
             return indsToUpdate;
@@ -94,9 +99,9 @@ export default {
         parentIDsToUpdate() {
             let indsToUpdate = [];
             //NOTE: headers have null as parentID, so listitems element newParentID is initialized with ''
-            for (let i in this.listItems) {
-                if (this.listItems[i].newParentID !== '' && this.listItems[i].parentID !== this.listItems[i].newParentID) {
-                    indsToUpdate.push({indicatorID:  parseInt(i), ...this.listItems[i]});
+            for (let i in this.listTracker) {
+                if (this.listTracker[i].newParentID !== '' && this.listTracker[i].parentID !== this.listTracker[i].newParentID) {
+                    indsToUpdate.push({indicatorID:  parseInt(i), ...this.listTracker[i]});
                 }
             }
             return indsToUpdate;
@@ -115,7 +120,7 @@ export default {
             const elToMove = document.getElementById(`index_listing_${indID}`);
             const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
             const newElsLI = oldElsLI.filter(li => li !== elToMove);
-            const listitem = this.listItems[indID];
+            const listitem = this.listTracker[indID];
 
             if(moveup) {
                 if(listitem.listIndex > 0) {
@@ -124,7 +129,7 @@ export default {
                     newElsLI.forEach((li, i) => {
                         const liIndID = parseInt(li.id.replace('index_listing_', ''));
                         parentEl.appendChild(li);
-                        this.listItems[liIndID].listIndex = i;
+                        this.listTracker[liIndID].listIndex = i;
                     });
                     event?.currentTarget?.focus();
                 }
@@ -136,14 +141,14 @@ export default {
                     newElsLI.forEach((li, i) => {
                         const liIndID = parseInt(li.id.replace('index_listing_', ''));
                         parentEl.appendChild(li);
-                        this.listItems[liIndID].listIndex = i;
+                        this.listTracker[liIndID].listIndex = i;
                     });
                     event?.currentTarget?.focus();
                 }
             }
         },
         /**
-         * posts sort and parentID values when user confirms updates with 'apply updates' in Form Index
+         * posts sort and parentID values
          */
         applySortAndParentID_Updates() {
             let updateSort = [];
@@ -156,9 +161,7 @@ export default {
                             sort: item.listIndex,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
-                            //returns the new sort value
-                            console.log('sort update res o/n', item.indicatorID, item.listIndex, res)
+                        success: () => { //returns empty array
                         },
                         error: err => console.log('ind sort post err', err)
                     })
@@ -174,9 +177,7 @@ export default {
                             parentID: item.newParentID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => {
-                            //returns the new parentID
-                            console.log('par ID update res o/n', item.indicatorID, item.newParentID, res)
+                        success: () => { //returns null
                         },
                         error: err => console.log('ind parentID post err', err)
                     })
@@ -186,36 +187,48 @@ export default {
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
-                    this.selectNewCategory(this.focussedFormID, this.selectedNodeIndicatorID);
+                    this.getFormByCategoryID(this.focusedFormID).then(res => {
+                        this.updateSelectedFormTree(res);
+                        this.sortValuesToUpdate.forEach(item => {
+                            this.listTracker[item.indicatorID].sort = item.listIndex;
+                            this.listTracker[item.indicatorID].currSortIndex = item.listIndex;
+                        });
+                        this.parentIDsToUpdate.forEach(item => {
+                            this.listTracker[item.indicatorID].parentID = item.newParentID;
+                        });
+                        this.sortLastUpdated = new Date().toDateString();
+                        this.showLastUpdate('form_index_last_update', `last modified: ${this.sortLastUpdated}`);
+
+                    }).catch(err => console.log(err));
                 }
             }).catch(err => console.log('an error has occurred', err));
 
         },
         clearListItem(indID) {
-            delete this.listItems[indID];
+            delete this.listTracker[indID];
         },
         /**
-         * adds initial sort and parentID values to app listItems object
+         * adds initial sort and parentID values to app list tracker
          * @param {Object} formNode from the Form Index listing
          * @param {number|null} parentID parent ID of the index listing (null for form sections)
          * @param {number} listIndex current index for that depth in the form index
          */
-        addToListItemsObject(formNode = {}, parentID = null, listIndex = 0) {
+        addToListTracker(formNode = {}, parentID = null, listIndex = 0) {
             const { indicatorID, sort } = formNode;
-            const item = { sort, currSortIndex: listIndex, parentID, listIndex, newParentID: '' }
-            this.listItems[indicatorID] = item;
+            const item = { sort, currSortIndex: listIndex, parentID, listIndex, newParentID: '', }
+            this.listTracker[indicatorID] = item;
         },
         /**
-         * updates the listIndex and parentID values for a specific indicator in app listItems when moved via the Form Index
+         * updates the listIndex and newParentID values for a specific indicator in listtracker when moved via the Form Index
          * @param {number} indID 
-         * @param {number|null} formParIndID null for form Sections
-         * @param {number} listIndex 
+         * @param {number|null} newParIndID null for form Sections
+         * @param {number} listIndex
          */
-        updateListItems(indID = 0, formParIndID = 0, listIndex = 0) {
-            let item = {...this.listItems[indID]};
+        updateListTracker(indID = 0, newParIndID = 0, listIndex = 0) {
+            let item = {...this.listTracker[indID]};
             item.listIndex = listIndex;
-            item.newParentID = formParIndID;
-            this.listItems[indID] = item;
+            item.newParentID = newParIndID;
+            this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
             if(event?.dataTransfer) {
@@ -237,7 +250,7 @@ export default {
                 if (elsLI.length === 0) { //if the drop ul has no lis, just append it
                     try {
                         parentEl.append(document.getElementById(draggedElID));
-                        this.updateListItems(indID, formParIndID, 0); 
+                        this.updateListTracker(indID, formParIndID, 0); 
                     } catch (error) {
                         console.log(error);
                     }
@@ -264,7 +277,7 @@ export default {
                         const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
                         newElsLI.forEach((li,i) => {
                             const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
-                            this.updateListItems(indID, formParIndID, i);
+                            this.updateListTracker(indID, formParIndID, i);
                         });
                     } catch(error) {
                         console.log(error);
@@ -295,8 +308,6 @@ export default {
             }
         },
         toggleToolbars(event = {}) {
-            //for debug use
-            //console.log(this.listItems, this.parentIDsToUpdate, this.sortValuesToUpdate)
             event?.stopPropagation();
             if (event?.keyCode === 32) event.preventDefault();
             if (event.currentTarget.classList.contains('indicator-name-preview')) {
@@ -325,8 +336,15 @@ export default {
             return this.truncateText(name, len).trim();
         },
     },
+    watch: {
+        sortOrParentChanged(newVal, oldVal) {
+            if(newVal === true) {
+                this.applySortAndParentID_Updates();
+            }
+        }
+    },
     template:`<div id="formEditor_content">
-    <FormBrowser v-if="focussedFormID===''"></FormBrowser>
+    <FormBrowser v-if="focusedFormID===''"></FormBrowser>
 
     <template v-else>
         <div v-if="appIsLoadingForm" style="border: 2px solid black; text-align: center; 
@@ -337,16 +355,16 @@ export default {
 
         <template v-else>
             <!-- TOP INFO PANEL -->
-            <edit-properties-panel :key="'panel_' + focussedFormID"></edit-properties-panel>
+            <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
 
             <div id="form_index_and_editing">
                 <!-- FORM INDEX -->
                 <div id="form_index_display">
                     <div style="display:flex; align-items: center; justify-content: space-between; height: 28px;">
                         <h3 style="margin: 0;">Form Index</h3>
-                        <button v-if="sortOrParentChanged" type="button" @click="applySortAndParentID_Updates" 
-                            class="btn-general"
-                            title="Apply form structure updates">Apply sorting changes</button>
+                        <button type="button" id="form_index_last_update" @click.prevent="openFormHistoryDialog"
+                            :style="{display: sortLastUpdated==='' ? 'none' : 'flex'}">
+                        </button>
                     </div>
                     <div style="margin: 1em 0">
                         <button v-if="selectedFormNode !== null" type="button" class="btn-general" style="width: 100%; margin-bottom: 0.5em;" 
@@ -358,7 +376,7 @@ export default {
 
                     <ul>
                         <template v-for="form in selectedCategoryWithStapledForms" :key="'primary_form_item_' + form.categoryID">
-                            <li v-if="focussedFormID === form.categoryID">
+                            <li v-if="focusedFormID === form.categoryID">
                                 <ul v-if="selectedFormTree.length > 0" id="base_drop_area"
                                     class="form-index-listing-ul"
                                     data-effect-allowed="move"
@@ -382,7 +400,7 @@ export default {
 
                             <li v-else class="stapled-form-link" draggable="false">
                                 <router-link :title="'select form ' + form.categoryID" :to="{ name: 'category', 
-                                    query: { formID: form.categoryID, main: form.formContextType === 'staple' ? focussedFormID : ''}}" class="router-link">
+                                    query: { formID: form.categoryID, main: form.formContextType === 'staple' ? focusedFormID : ''}}" class="router-link">
                                     {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;<span><em>({{form.formContextType}})</em></span>
                                 </router-link>
                             </li>
@@ -401,7 +419,7 @@ export default {
                         <div><b>Internal Forms</b></div>
                         <ul>
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                                <button v-if="focussedFormID === i.categoryID" disabled>
+                                <button v-if="focusedFormID === i.categoryID" disabled>
                                     {{shortFormNameStripped(i.categoryID, 28)}}<em>&nbsp;(selected)</em>
                                 </button>
                                 <router-link v-else :id="i.categoryID" :title="'select internal form ' + i.categoryID"

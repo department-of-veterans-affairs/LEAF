@@ -491,15 +491,14 @@ div[class$="SelectorBorder"] {
     #availability, #categorySort {
         margin-right: 1.5rem;
     }
-    #form_properties_last_update {
-        opacity: 0;
-        color: $base_navy;
-        font-size: 90%;
-        background-color: transparent;
-        border: 0;
-    }
 }
-
+#form_properties_last_update, #form_index_last_update {
+    opacity: 0;
+    color: $base_navy;
+    font-size: 90%;
+    background-color: transparent;
+    border: 0;
+}
 
 /* Form History modal */
 #history-slice td {

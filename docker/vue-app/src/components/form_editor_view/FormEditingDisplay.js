@@ -16,7 +16,7 @@ export default {
         'editQuestion',
         'openAdvancedOptionsDialog',
         'openIfThenDialog',
-        'listItems',
+        'listTracker',
         'allowedConditionChildFormats',
         'showToolbars',
         'toggleToolbars'
@@ -27,7 +27,7 @@ export default {
     computed: {
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
-            let item = this.listItems[ID];
+            let item = this.listTracker[ID];
             return (item?.parentID === null || item?.newParentID === null);
         },
         sensitiveImg() {

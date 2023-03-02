@@ -44,10 +44,8 @@ export default {
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
-            selectedFormTree: [],          //form tree with information about indicators for each node
-            selectedFormNode: null,
+            selectedFormTree: [],
             selectedNodeIndicatorID: null,
-            currentCategoryIsSensitive: false,
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
             workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
@@ -93,10 +91,12 @@ export default {
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
             selectNewFormNode: this.selectNewFormNode,
+            getFormByCategoryID: this.getFormByCategoryID,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
             removeCategory: this.removeCategory,
+            updateSelectedFormTree: this.updateSelectedFormTree,
             closeFormDialog: this.closeFormDialog,
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
             openNewFormDialog: this.openNewFormDialog,
@@ -163,6 +163,17 @@ export default {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
+        selectedFormNode() {
+            let selectedNode = null;
+            if (this.selectedNodeIndicatorID !== null) {
+                this.selectedFormTree.forEach(section => {
+                    if (selectedNode === null) {
+                        selectedNode = this.getNodeSelection(section, this.selectedNodeIndicatorID) || null;
+                    }
+                });
+            }
+            return selectedNode;
+        },
         /**
          * @returns {String} current main Form ID
          */
@@ -176,6 +187,15 @@ export default {
         subformID() {
             return this.currentCategorySelection?.parentID ?
                 this.currentCategorySelection.categoryID || '' : '';
+        },
+        currentCategoryIsSensitive() {
+            let isSensitive = false;
+            this.selectedFormTree.forEach(section => {
+                if(!isSensitive) {
+                    isSensitive = this.checkSensitive(section);
+                }
+            });
+            return isSensitive;
         },
         /**
          * @returns {array} of non-internal forms that have workflows and are available
@@ -317,7 +337,7 @@ export default {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}formStack/categoryList/allWithStaples`,
-                    success: (res)=> {
+                    success: (res) => {
                         for(let i in res) {
                             this.categories[res[i].categoryID] = res[i];
                             res[i].stapledFormIDs.forEach(id => {
@@ -474,13 +494,11 @@ export default {
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '') {
-            this.appIsLoadingForm = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res)=> {
-                        this.appIsLoadingForm = false;
                         resolve(res)
                     },
                     error: (err)=> reject(err)
@@ -551,28 +569,19 @@ export default {
          */
         selectNewCategory(catID = '', subnodeIndID = null) {
             this.selectedFormTree = [];
-            this.selectedFormNode = null;
-            this.selectedNodeIndicatorID = null;
+            this.selectedNodeIndicatorID = subnodeIndID;
 
-            //switch to specified record, get info for the newly selected form, update sensitive, total values, get staples
+            //get form. selected node, isSensitive, stapled forms are computed from selectedNode ID and rawTree
             if (catID !== '') {
-                this.selectedNodeIndicatorID = subnodeIndID;
-                this.currentCategoryIsSensitive = false;
-
+                this.appIsLoadingForm = true;
                 this.getFormByCategoryID(catID).then(res => {
                     this.selectedFormTree = res;
-                    this.selectedFormTree.forEach(section => {
-                        if (this.selectedFormNode === null) {
-                            this.getNodeSelection(section);
-                        }
-                        this.currentCategoryIsSensitive = this.checkSensitive(section, this.currentCategoryIsSensitive);
-                    });
+                    this.appIsLoadingForm = false;
 
                 }).catch(err => console.log('error getting form info: ', err));
 
             } else {  //card browser.
                 this.categories = {};
-                this.selectedFormNode = null;
                 this.workflowRecords = [];
                 this.getCategoryListAll();
                 this.getSecureFormsInfo();
@@ -588,7 +597,6 @@ export default {
             if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
                 return //prevents enter/space activation from move and menu toggle buttons
             }
-            this.selectedFormNode = node;
             this.selectedNodeIndicatorID = node?.indicatorID || null;
         },
 
@@ -708,29 +716,38 @@ export default {
                 this.openIndicatorEditingDialog(indicatorID);
             }).catch(err => console.log('error getting indicator information', err));
         },
-        checkSensitive(node = {}, isSensitive = false) {
-            if (isSensitive === false) {
-                if (parseInt(node.is_sensitive) === 1) {
-                    isSensitive = true;
-                }
-                if (isSensitive === false && node.child) {
+        checkSensitive(node = {}) {
+            if (parseInt(node.is_sensitive) === 1) {
+                return true;
+
+            } else {
+                let sensitive = false;
+                if (node.child) {
                     for (let c in node.child) {
-                        isSensitive = this.checkSensitive(node.child[c], isSensitive);
-                        if (isSensitive === true) break;
+                        sensitive = this.checkSensitive(node.child[c]) || false;
+                        if (sensitive === true) break;
                     }
                 }
+                return sensitive;
             }
-            return isSensitive;
         },
-        getNodeSelection(node = {}) {
-            if (node.indicatorID === this.selectedNodeIndicatorID) {
-                this.selectedFormNode = node;
-            }
-            if (this.selectedFormNode === null && node.child) {
-                for (let c in node.child) {
-                    this.getNodeSelection(node.child[c]);
+        getNodeSelection(node = {}, indicatorID = 0) {
+            if(parseInt(node.indicatorID) === parseInt(indicatorID)) {
+                return node;
+
+            } else {
+                let nodeSelection = null;
+                if (node.child) {
+                    for (let c in node.child) {
+                        nodeSelection = this.getNodeSelection(node.child[c], indicatorID) || null;
+                        if (nodeSelection !== null) break;
+                    }
                 }
+                return nodeSelection;
             }
+        },
+        updateSelectedFormTree(tree = {}) {
+            this.selectedFormTree = tree;
         }
     }
 }

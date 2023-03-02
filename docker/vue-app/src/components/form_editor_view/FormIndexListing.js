@@ -14,7 +14,7 @@ export default {
     inject: [
         'truncateText',
         'clearListItem',
-        'addToListItemsObject',
+        'addToListTracker',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'startDrag',
@@ -24,17 +24,14 @@ export default {
         'moveListing'
     ],
     mounted() {
-        //console.log('Form Index list item mounted, adding', this.formNode.indicatorID);
-        //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
-        this.addToListItemsObject(this.formNode, this.parentID, this.index);
+        //each list item is added to the array on parent component, to track indicatorID, parentID, sort and current index values
+        this.addToListTracker(this.formNode, this.parentID, this.index);
         if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
-            console.log('added class', this.formNode.indicatorID);
             let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
             if (el) el.classList.add('index-selected');
         }
     },
     beforeUnmount() {
-        //console.log('unmounting index list item, rm', this.formNode.indicatorID)
         this.clearListItem(this.formNode.indicatorID);
     },
     methods: {

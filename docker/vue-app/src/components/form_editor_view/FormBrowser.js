@@ -30,10 +30,10 @@ export default {
             <table id="active_forms">
                 <tr class="header-row">
                     <th id="active_name" style="width:300px">Form Name</th>
-                    <th style="width:300px">Description</th>
+                    <th style="width:400px">Description</th>
                     <th style="width:250px">Workflow#:(Name)</th>
                     <th style="width:125px">Need to Know</th>
-                    <th id="active_sort" style="width:80px">Sort</th>
+                    <th id="active_sort" style="width:80px">Priority</th>
                 </tr>
                 <category-item v-for="c in activeForms" 
                     :categories-record="c" 
@@ -46,10 +46,10 @@ export default {
             <table id="inactive_forms">
                 <tr class="header-row">
                     <th id="inactive_name" style="width:300px">Form Name</th>
-                    <th style="width:300px">Description</th>
+                    <th style="width:400px">Description</th>
                     <th style="width:250px">Workflow#:(Name)</th>
                     <th style="width:125px">Need to Know</th>
-                    <th id="inactive_sort" style="width:80px">Sort</th>
+                    <th id="inactive_sort" style="width:80px">Priority</th>
                 </tr>
                 <category-item v-for="c in inactiveForms" 
                     :categories-record="c" 
@@ -62,10 +62,10 @@ export default {
             <table id="supplemental_forms">
                 <tr class="header-row">
                     <th id="supplemental_name" style="width:300px">Form Name</th>
-                    <th style="width:300px">Description</th>
+                    <th style="width:400px">Description</th>
                     <th style="width:250px">Staple Status</th>
                     <th style="width:125px">Need to Know</th>
-                    <th id="supplemental_sort" style="width:80px">Sort</th>
+                    <th id="supplemental_sort" style="width:80px">Priority</th>
                 </tr>
                 <category-item v-for="c in supplementalForms" 
                     :categories-record="c" 
