@@ -51,7 +51,7 @@ export default {
         workflowDescription() {
             let msg = '';
             if (this.workflowID > 0) {
-                msg = `#${this.categoriesRecord.workflowID}:(${this.categoriesRecord.workflowDescription || 'No Description'})`;
+                msg = `${this.categoriesRecord.workflowDescription || 'No Description'} (#${this.categoriesRecord.workflowID})`;
             } else {
                 msg = 'No Workflow';
             }
@@ -94,7 +94,7 @@ export default {
             </td>
             <td class="formPreviewDescription">{{ formDescription }}</td>
             <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
-            <td v-if="availability==='supplemental'">
+            <td v-if="availability === 'supplemental'">
                 <div v-if="allStapledFormCatIDs.includes(catID)" style="display: flex; justify-content: center;">
                     <span role="img" aria="">📑</span>&nbsp;Stapled
                 </div>

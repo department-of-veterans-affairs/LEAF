@@ -27,20 +27,19 @@ export default {
         'APIroot',
         'CSRFToken',
         'appIsLoadingForm',
-        'selectedFormTree',
+        'focusedFormTree',
         'categories',
-        'mainFormID',
         'internalFormRecords',
         'selectNewCategory',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'selectedFormNode',
         'getFormByCategoryID',
-        'updateSelectedFormTree',
+        'updateFocusedFormTree',
         'showLastUpdate',
         'openFormHistoryDialog',
         'newQuestion',
-        'currentCategorySelection',
+        'focusedFormRecord',
         'selectedCategoryWithStapledForms',
         'stripAndDecodeHTML',
         'truncateText'
@@ -72,12 +71,7 @@ export default {
     },
     computed: {
         focusedFormID() {
-            return this.currentCategorySelection?.categoryID || '';
-        },
-        mainQuery() {
-            const formReg = /^form_[0-9a-f]{5}$/i;
-            const main = formReg.test(this.$route.query?.main || '') ? this.$route.query.main : '';
-            return main;
+            return this.focusedFormRecord?.categoryID || '';
         },
         currentSectionNumber() {
             let indID = parseInt(this.selectedFormNode?.indicatorID);
@@ -110,6 +104,11 @@ export default {
         },
     },
     methods: {
+        setFocusedForm(catID) {
+            this.getFormByCategoryID(catID).then(res => {
+                this.updateFocusedFormTree(catID, res);
+            });
+        },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
          * @param {Object} event 
@@ -190,7 +189,7 @@ export default {
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID).then(res => {
-                        this.updateSelectedFormTree(res);
+                        this.updateFocusedFormTree(this.focusedFormID, res);
                         this.sortValuesToUpdate.forEach(item => {
                             this.listTracker[item.indicatorID].sort = item.listIndex;
                         });
@@ -230,7 +229,6 @@ export default {
          * @param {number} listIndex
          */
         updateListTracker(indID = 0, newParIndID = 0, listIndex = 0) {
-            console.log(newParIndID)
             let item = {...this.listTracker[indID]};
             item.listIndex = listIndex;
             item.newParentID = newParIndID;
@@ -380,37 +378,25 @@ export default {
                         </button>
                     </div>
 
-                    <ul>
-                        <template v-for="form in selectedCategoryWithStapledForms" :key="'primary_form_item_' + form.categoryID">
-                            <li v-if="focusedFormID === form.categoryID" id="primary_form_container">
-                                <ul v-if="selectedFormTree.length > 0" id="base_drop_area"
-                                    class="form-index-listing-ul"
-                                    data-effect-allowed="move"
-                                    @drop.stop="onDrop"
-                                    @dragover.prevent
-                                    @dragenter.prevent="onDragEnter"
-                                    @dragleave="onDragLeave">
+                    <!-- focused drop zone -->
+                    <ul v-if="focusedFormTree.length > 0" id="base_drop_area"
+                        class="form-index-listing-ul"
+                        data-effect-allowed="move"
+                        @drop.stop="onDrop"
+                        @dragover.prevent
+                        @dragenter.prevent="onDragEnter"
+                        @dragleave="onDragLeave">
 
-                                    <form-index-listing v-for="(formSection, i) in selectedFormTree"
-                                        :id="'index_listing_'+formSection.indicatorID"
-                                        :depth=0
-                                        :formNode="formSection"
-                                        :index=i
-                                        :parentID=null
-                                        :key="'index_list_item_' + formSection.indicatorID"
-                                        draggable="true"
-                                        @dragstart.stop="startDrag">
-                                    </form-index-listing>
-                                </ul>
-                            </li>
-
-                            <li v-else class="stapled-form-link" draggable="false">
-                                <router-link :title="'select form ' + form.categoryID" :to="{ name: 'category', 
-                                    query: { formID: form.categoryID, main: form.formContextType === 'staple' ? focusedFormID : ''}}" class="router-link">
-                                    {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;<span><em>({{form.formContextType}})</em></span>
-                                </router-link>
-                            </li>
-                        </template>
+                        <form-index-listing v-for="(formSection, i) in focusedFormTree"
+                            :id="'index_listing_'+formSection.indicatorID"
+                            :depth=0
+                            :formNode="formSection"
+                            :index=i
+                            :parentID=null
+                            :key="'index_list_item_' + formSection.indicatorID"
+                            draggable="true"
+                            @dragstart.stop="startDrag">
+                        </form-index-listing>
                     </ul>
                     <div style="margin: 1em 0 0 0">
                         <button type="button" class="btn-general" style="width: 100%" 
@@ -421,35 +407,45 @@ export default {
                         </button>
                     </div>
                     <!-- INTERNAL FORMS SECTION -->
-                    <div v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + mainFormID">
+                    <div v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + focusedFormID">
                         <div><b>Internal Forms</b></div>
                         <ul>
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
                                 <button v-if="focusedFormID === i.categoryID" disabled>
                                     {{shortFormNameStripped(i.categoryID, 28)}}<em>&nbsp;(selected)</em>
                                 </button>
-                                <router-link v-else :id="i.categoryID" :title="'select internal form ' + i.categoryID"
-                                    :to="{ name: 'category',
-                                    query: { formID: i.categoryID, main: mainQuery }}" class="router-link">
+                                <button @click="setFocusedForm(i.categoryID)">
                                     {{shortFormNameStripped(i.categoryID, 28)}}
-                                </router-link>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- FORM LAYOUT OVERVIEW (if there are staples, this shows the order, and used to changed the focused form) -->
+                    <div v-if="selectedCategoryWithStapledForms.length > 1" :id="'layoutFormRecords_' + $route.query.formID">
+                        <div><b>Form Layout</b></div>
+                        <ul>
+                            <li v-for="form in selectedCategoryWithStapledForms"
+                            :key="'primary_form_item_' + form.categoryID" class="stapled-form-link" draggable="false">
+                                <button @click="setFocusedForm(form.categoryID)">
+                                    {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;<span><em>({{form.formContextType}})</em></span>
+                                </button>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-                <template v-if="selectedFormTree.length > 0">
+                <template v-if="focusedFormTree.length > 0">
                     <!-- ENTIRE FORM EDIT / PREVIEW -->
                     <div v-if="selectedFormNode === null" id="form_entry_and_preview">
                         <div class="form-section-header" style="display: flex; height: 32px;">
-                            <h3 style="margin: 0;">{{ stripAndDecodeHTML(currentCategorySelection.categoryName) }}</h3>
+                            <h3 style="margin: 0;">{{ stripAndDecodeHTML(focusedFormRecord.categoryName) }}</h3>
                             <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">
                                 {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
                             </button>
                         </div>
-                        <template v-for="(formSection, i) in selectedFormTree" :key="'editing_display_' + formSection.indicatorID">
+                        <template v-for="(formSection, i) in focusedFormTree" :key="'editing_display_' + formSection.indicatorID">
                             <div class="printformblock">
                                 <form-editing-display 
                                     :depth="0"

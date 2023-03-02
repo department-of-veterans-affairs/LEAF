@@ -9,7 +9,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'mainFormID',
+        'focusedFormRecord',
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'
@@ -23,6 +23,10 @@ export default {
         },
         descrCharsRemaining(){
             return Math.max(255 - this.categoryDescription.length, 0);
+        },
+        newFormParentID() {
+            //if the focused form does not have a parent, it's a main form - the new form should have that as its parent
+            return this.focusedFormRecord?.parentID === '' ? this.focusedFormRecord.categoryID : '';
         }
     },
     methods: {
@@ -33,7 +37,7 @@ export default {
                 data: {
                     name: this.categoryName,
                     description: this.categoryDescription,
-                    parentID: this.mainFormID || '',
+                    parentID: this.newFormParentID,
                     CSRFToken: this.CSRFToken
                 },
                 success: (res)=> {
@@ -43,7 +47,7 @@ export default {
                     temp.categoryID = newCatID;
                     temp.categoryName = this.categoryName;
                     temp.categoryDescription = this.categoryDescription;
-                    temp.parentID = this.mainFormID || '';
+                    temp.parentID = this.newFormParentID;
                     //default values
                     temp.workflowID = 0;
                     temp.needToKnow = 0;

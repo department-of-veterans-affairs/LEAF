@@ -1,26 +1,24 @@
 export default {
     data() {
         return {
-            categoryName: this.stripAndDecodeHTML(this.currentCategorySelection?.categoryName) || 'Untitled',
-            categoryDescription: this.stripAndDecodeHTML(this.currentCategorySelection?.categoryDescription) || '',
-            workflowID: parseInt(this.currentCategorySelection?.workflowID) || 0,
-            needToKnow: parseInt(this.currentCategorySelection?.needToKnow) || 0,
-            visible: parseInt(this.currentCategorySelection?.visible) || 0,
-            type: this.currentCategorySelection?.type || '',
-            formID: this.subformID || this.mainFormID,
-            formParentID: this.currentCategorySelection?.parentID || '',
+            categoryName: this.stripAndDecodeHTML(this.focusedFormRecord?.categoryName) || 'Untitled',
+            categoryDescription: this.stripAndDecodeHTML(this.focusedFormRecord?.categoryDescription) || '',
+            workflowID: parseInt(this.focusedFormRecord?.workflowID) || 0,
+            needToKnow: parseInt(this.focusedFormRecord?.needToKnow) || 0,
+            visible: parseInt(this.focusedFormRecord?.visible) || 0,
+            type: this.focusedFormRecord?.type || '',
+            formID: this.focusedFormRecord?.categoryID || '',
+            formParentID: this.focusedFormRecord?.parentID || '',
             lastUpdated: ''
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'mainFormID',
-        'subformID',
         'workflowRecords',
         'allStapledFormCatIDs',
-        'currentCategorySelection',
-        'currentCategoryIsSensitive',
+        'focusedFormRecord',
+        'focusedFormIsSensitive',
         'updateCategoriesProperty',
         'openEditCollaboratorsDialog',
         'openFormHistoryDialog',
@@ -38,7 +36,7 @@ export default {
             return returnValue;
         },
         isSubForm() {
-            return this.currentCategorySelection.parentID !== '';
+            return this.focusedFormRecord.parentID !== '';
         },
         isStaple() {
             return this.allStapledFormCatIDs.includes(this.formID);
@@ -212,7 +210,7 @@ export default {
                     </template>
                     <div v-else style="color: #cb0000; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
-                    <div v-if="currentCategoryIsSensitive" style="color: #cb0000; margin-bottom: 0.5rem;">
+                    <div v-if="focusedFormIsSensitive" style="color: #cb0000; margin-bottom: 0.5rem;">
                         <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b> &nbsp;(forced on because sensitive fields are present)
                     </div>
                     <label v-else for="needToKnow" style="margin-bottom: 0.5rem;"

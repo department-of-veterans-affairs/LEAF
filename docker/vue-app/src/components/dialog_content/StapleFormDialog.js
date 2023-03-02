@@ -3,7 +3,6 @@ export default {
     data() {
         return {
             catIDtoStaple: '',
-            formID: this.mainFormID  //staples are added to the main form.
         }
     },
     inject: [
@@ -12,19 +11,28 @@ export default {
         'truncateText',
         'stripAndDecodeHTML',
         'categories',
-        'mainFormID',
+        'focusedFormRecord',
         'closeFormDialog',
         'updateStapledFormsInfo'
     ],
     mounted() {
+        if (this.isSubform) {
+            this.closeFormDialog();
+        }
         if(this.mergeableForms.length > 0) {
             const focusEl = document.getElementById('select-form-to-staple');
             if(focusEl !== null) focusEl.focus();
         }
     },
     computed: {
+        isSubform () {
+            return this.focusedFormRecord?.parentID !== '';
+        },
+        formID () {
+            return this.focusedFormRecord?.categoryID || '';
+        },
         currentStapleIDs() {
-            return this.categories[this.mainFormID]?.stapledFormIDs || [];
+            return this.categories[this.formID]?.stapledFormIDs || [];
         },
         mergeableForms() {
             let mergeable = [];

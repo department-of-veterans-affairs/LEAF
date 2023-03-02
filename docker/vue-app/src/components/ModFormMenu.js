@@ -12,11 +12,12 @@ export default {
         'stripAndDecodeHTML',
         'selectNewCategory',
         'categories',
-        'mainFormID',
-        'subformID',
+        'focusedFormRecord',
         'internalFormRecords',
-        'selectedFormTree',
+        'focusedFormTree',
         'allStapledFormCatIDs',
+        'getFormByCategoryID',
+        'updateFocusedFormTree',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
@@ -24,6 +25,14 @@ export default {
         'openConfirmDeleteFormDialog',
     ],
     computed: {
+        mainFormID() {
+            return this.focusedFormRecord?.parentID !== '' ?
+                this.focusedFormRecord?.parentID || '' : this.focusedFormRecord.categoryID;
+        },
+        subformID() {
+            return this.focusedFormRecord?.parentID !== '' ?
+                this.focusedFormRecord.categoryID || '' : ''
+        },
         currentStapleIDs() {
             return this.categories[this.mainFormID]?.stapledFormIDs || [];
         },
@@ -103,6 +112,11 @@ export default {
             const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
             return this.truncateText(name, len).trim();
         },
+        setFocusedForm(catID) {
+            this.getFormByCategoryID(catID).then(res => {
+                this.updateFocusedFormTree(catID, res);
+            });
+        },
     },
     template: `<nav id="form-editor-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
@@ -133,7 +147,7 @@ export default {
             </ul>
             <!-- FORM EDITING MENU -->
             <ul v-else id="form-editor-menu">
-                <template v-if="selectedFormTree.length !== 0">
+                <template v-if="focusedFormTree.length !== 0">
                     <li>
                         <button type="button" @click="openNewFormDialog" title="New Internal-Use Form">
                             Add New Internal-Use
@@ -169,18 +183,14 @@ export default {
             <!-- FORM EDITING BREADCRUMBS -->
             <ul v-if="mainFormID !== ''" id="form-breadcrumb-menu">
                 <li>
-                    <router-link :to="{ name: 'category', query: { formID: ''}}">
+                    <router-link :to="{ name: 'category', query: { formID: ''}}" title="to Form Browser">
                         <h2>Form Editor</h2>
                     </router-link>
                     <span v-if="mainFormID !== ''" class="header-arrow" role="img" aria="">❯</span>
                 </li>
                 <li>
-                    <router-link v-if="$route.query.formID !== mainFormID" 
-                        :to="{ name: 'category', query: { formID: mainFormID }}"
-                        class="router-link" title="to primary form">
-                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
-                    </router-link>
-                    <button v-else type="button" :title="'viewing form ' + mainFormID" disabled>
+                    <button type="button" v-if="mainFormID !== ''" 
+                        @click="setFocusedForm(mainFormID)" :title="'to primary form ' + mainFormID" :disabled="subformID === ''">
                         <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
                     </button>
                     <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>

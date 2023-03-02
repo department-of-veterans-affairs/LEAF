@@ -93,7 +93,12 @@ export default {
             case 'orgchart_group':
             case 'orgchart_position':
             case 'orgchart_employee':
-                this.initializeOrgSelector(this.selType, this.indicator.indicatorID); 
+                this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
+                const defaultVal = this.indicator.default;
+                if (defaultVal) {
+                    document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
+                        `group#${defaultVal}` : `#${defaultVal}`;
+                }
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);

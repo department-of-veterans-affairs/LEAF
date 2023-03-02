@@ -1,33 +1,32 @@
 export default {
     name: 'confirm-delete-dialog',
-    data() {
-        return {
-            formID: this.subformID || this.mainFormID,
-        }
-    },
     inject: [
         'APIroot',
         'CSRFToken',
-        'mainFormID',
-        'subformID',
-        'currentCategorySelection',
+        'focusedFormRecord',
         'selectNewCategory',
         'removeCategory',
         'closeFormDialog'
     ],
     computed: {
+        formID() {
+            return this.focusedFormRecord?.categoryID || '';
+        },
+        formParentID() {
+            return this.focusedFormRecord?.parentID || '';
+        },
         /**
          * uses LEAF XSSHelpers.js
          * @returns {string} category name / description with all tages stripped
          */
         formName() {
-            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryName);
+            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryName);
         },
         formDescription() {
-            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
+            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryDescription);
         },
         currentStapleIDs() {
-            return this.currentCategorySelection?.stapledFormIDs || [];
+            return this.focusedFormRecord?.stapledFormIDs || [];
         },
     },
     methods:{
@@ -42,9 +41,9 @@ export default {
                             alert(res);
                         } else {
                             this.closeFormDialog();
-                            //if a subform is deleted, re-focus the main form, otherwise go to browser
-                            if (this.subformID !== '') {
-                                this.$router.push({name: 'category', query: { formID: this.mainFormID }});
+                            //if a subform is deleted, re-focus its parent, otherwise go to browser
+                            if (this.formParentID !== '') {
+                                this.$router.push({name: 'category', query: { formID: this.formParentID }});
                                 this.removeCategory(this.formID);
                             } else {
                                 this.selectNewCategory();

@@ -31,7 +31,7 @@ export default {
                 <tr class="header-row">
                     <th id="active_name" style="width:300px">Form Name</th>
                     <th style="width:400px">Description</th>
-                    <th style="width:250px">Workflow#:(Name)</th>
+                    <th style="width:250px">Workflow</th>
                     <th style="width:125px">Need to Know</th>
                     <th id="active_sort" style="width:80px">Priority</th>
                 </tr>
@@ -47,7 +47,7 @@ export default {
                 <tr class="header-row">
                     <th id="inactive_name" style="width:300px">Form Name</th>
                     <th style="width:400px">Description</th>
-                    <th style="width:250px">Workflow#:(Name)</th>
+                    <th style="width:250px">Workflow</th>
                     <th style="width:125px">Need to Know</th>
                     <th id="inactive_sort" style="width:80px">Priority</th>
                 </tr>

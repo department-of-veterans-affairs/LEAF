@@ -2,8 +2,7 @@ export default {
     name: 'edit-collaborators-dialog',
     data() {
         return {
-            //subformID will be empty if the selected form is not a subform.
-            formID: this.subformID || this.mainFormID,
+            formID: this.focusedFormRecord.categoryID,
             group: '',
             allGroups: [],
             collaborators: []
@@ -13,8 +12,7 @@ export default {
         'APIroot',
         'CSRFToken',
         'categories',
-        'mainFormID',
-        'subformID',
+        'focusedFormRecord',
         'closeFormDialog'
     ],
     mounted() {

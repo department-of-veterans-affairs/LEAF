@@ -91,7 +91,7 @@ export default {
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
-                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron"
+                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !subMenuOpen}"
                     @click.stop="toggleSubMenu($event)"
                     @keydown.stop.enter.space="toggleSubMenu($event)">
                     <span v-show="subMenuOpen" role="img" aria="">▾</span>

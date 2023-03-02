@@ -10,7 +10,7 @@ export default {
             initialFocusElID: 'name',
             showAdditionalOptions: false,
             showDetailedFormatInfo: false,
-            formID: this.subformID || this.mainFormID,
+            formID: this.focusedFormRecord.categoryID,
             formats: {
                 text: "Single line text",
                 textarea: "Multi-line text",
@@ -87,11 +87,10 @@ export default {
         'appIsLoadingIndicator',
         'isEditingModal',
         'closeFormDialog',
-        'mainFormID',
-        'subformID',
         'currIndicatorID',
         'indicatorRecord',
-        'selectedFormTree',
+        'focusedFormRecord',
+        'focusedFormTree',
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'updateCategoriesProperty',
@@ -127,9 +126,13 @@ export default {
         if (this.orgSelectorFormats.includes(this.format)){
             const selType = this.format.slice(this.format.indexOf('_') + 1);
             this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue);
-
             document.getElementById(`modal_orgSel_data${this.currIndicatorID}`)?.addEventListener('change', this.updateDefaultValue);
+            document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.addEventListener('change', this.updateDefaultValue);
         }
+    },
+    beforeUnmount() {
+        document.getElementById(`modal_orgSel_data${this.currIndicatorID}`)?.removeEventListener('change', this.updateDefaultValue);
+        document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.removeEventListener('change', this.updateDefaultValue);
     },
     computed:{
         shortLabelTriggered() {
@@ -172,7 +175,7 @@ export default {
         newQuestionSortValue(){
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
             const sortVal = (this.parentID === null) ?
-                this.selectedFormTree.length :                                 //new form sections/pages
+                this.focusedFormTree.length :                                 //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
             return sortVal;
         }
@@ -190,7 +193,7 @@ export default {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}/form/_${this.mainFormID}/flat`,
+                    url: `${this.APIroot}/form/_${this.formID}/flat`,
                     success: (res)=> {
                         for (let i in res) {
                             res[i]['1'].name = XSSHelpers.stripAllTags(res[i]['1'].name);
@@ -227,7 +230,6 @@ export default {
                 const defaultChanged = this.defaultValue !== this.indicatorRecord[this.currIndicatorID].default;
                 const requiredChanged = +this.required !== parseInt(this.indicatorRecord[this.currIndicatorID].required);
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.indicatorRecord[this.currIndicatorID].is_sensitive);
-                //const sortChanged = this.sort !== parseInt(this.indicatorRecord[this.currIndicatorID].sort);
                 const parentIDChanged = this.parentID !== this.indicatorRecord[this.currIndicatorID].parentID;
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
@@ -379,20 +381,7 @@ export default {
                             error: err => console.log('ind parentID post err', err)
                         })
                     );
-                } /*
-                if(sortChanged) { //NOTE: (tentative) using Form Index for sorting, but keeping so this can just be re-added if needed.
-                    indicatorEditingUpdates.push(
-                        $.ajax({
-                            type: 'POST',
-                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/sort`,
-                            data: {
-                                sort: this.sort,
-                                CSRFToken: this.CSRFToken
-                            },
-                            error: err => console.log('ind sort post err', err)
-                        })
-                    );
-                }*/
+                }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 if (this.is_sensitive) {
