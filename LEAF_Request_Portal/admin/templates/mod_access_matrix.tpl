@@ -186,6 +186,9 @@ function buildGroupRow(depID, groupID, groupName) {
 
 function renderGroupPreview() {
     document.querySelectorAll("[data-group-preview]").forEach(elem => {
+        if(groupMembers[elem.dataset.groupPreview] == undefined) {
+            return;
+        }
         let buf = `<span style="color: red">Empty group</span>`;
         let numMembers = groupMembers[elem.dataset.groupPreview].length;
         if(numMembers > 0) {
