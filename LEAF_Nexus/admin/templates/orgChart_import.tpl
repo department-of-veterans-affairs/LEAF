@@ -411,7 +411,7 @@
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'GET',
-                    url: '../api/position/search&q=' + position + '&noLimit=0',
+                    url: '../api/position/search?q=' + position + '&noLimit=0',
                     dataType: 'json',
                     data: {CSRFToken: CSRFToken},
                     success: function(response) {
@@ -445,7 +445,7 @@
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'GET',
-                    url: '../api/national/employee/search&q=' + email + '&noLimit=0',
+                    url: '../api/national/employee/search?q=' + email + '&noLimit=0',
                     dataType: 'json',
                     success: function(response) {
                         if (response != null){
