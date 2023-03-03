@@ -90,7 +90,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	    		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/div[2]/div[2]/div[1]/div[1]"));
 	    		//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
 	    		highlightElement.highLightElement(driver, ele);
-		    	ele.click();	    		
+	    	    	ele.click();	    		
 	    	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
 	    		WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[1]"));
 	    		//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
@@ -180,7 +180,7 @@ public class formsWorkflowPart3 extends setupFramework {
 
 		@Test(priority = 430) //
 		private void selectFormToMergeButton() {
-			waitMethods.waiter(waitMethods.w300);       						
+			waitMethods.waiter(waitMethods.w300);     //      						
 			WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/div/main/div/span"));
 			//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Select a form to merge')]"));
 	    	highlightElement.highLightElement(driver, ele);
@@ -189,11 +189,10 @@ public class formsWorkflowPart3 extends setupFramework {
 	    	System.out.println("Select a form to merge/staple");			
 		}
 		
-
 		
 		
 		
-		@Test(priority = 435) //  - No form (Staple Form 01)????						// ERR HERE 3/1/23
+		@Test(priority = 435) //  - Using Form: Staple Test
 		public void selectFormToBeStapled() {         
 			//waitMethods.implicitWait(waitMethods.w300);
 			waitMethods.waiter(waitMethods.w300);			//The below opens the DDL
@@ -204,7 +203,7 @@ public class formsWorkflowPart3 extends setupFramework {
 			Select select = new Select(driver.findElement(By.id("stapledCategoryID")));
 			highlightElement.highLightElement(driver, ele);
 			//select.selectByValue("76");
-			select.selectByVisibleText("Staple Form 01");
+			select.selectByVisibleText("Staple Test");
 			waitMethods.waiter(waitMethods.w300);
 			WebElement ele2 = driver.findElement(By.id("stapledCategoryID"));
 			ele2.click();
@@ -254,14 +253,15 @@ public class formsWorkflowPart3 extends setupFramework {
 
 		
 //====================================================================================
+	
 		
 	@Test(priority = 465) //  
-		private void verifyStapledForm() {			//										// ERR HERE 3/1/23
+		private void verifyStapledForm() {			//	
 			
-			String strExpected = "Staple Form 01";
+			String strExpected = "Staple Test";
 			
 			waitMethods.waiter(waitMethods.w300);   
-			WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Staple Form 01')]"));
+			WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Staple Test')]"));
 			//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Staple Form 01')]"));
 	    	highlightElement.highLightElement(driver, ele);
 	    	
@@ -523,18 +523,47 @@ public class formsWorkflowPart3 extends setupFramework {
 		}	
 		
 
+		/*  Outstanding Errors ********************************
+
+		selectFormToBeStapled       	435   RESOLVED  
+		verifyStapledForm				465	  RESOLVED
+
+		chooseFileToImport				575	  
+		selectCurrentFormByXpath01		577	  
+		changeFormName					585	  
+		selectEditProperties02			580	  
+		changeDescription				585	  		
+		selectSortPriority02			595	  
+		selectSave						600	  
+
+		*/		
+				
+		
+		
 		@Test(priority = 575) //  
 		private void chooseFileToImport() {										// ERR HERE 3/1/23
-			waitMethods.waiter(waitMethods.w300);  
-			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/form/div[1]/input"));
-			//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Choose File')]"));
-			WebElement ele = driver.findElement(By.id("formPacket"));
-			highlightElement.highLightElement(driver, ele);
-	   		ele.sendKeys("C:\\Users\\MaxRichard\\Documents\\QA\\LEAF-Exports\\LEAF_Form_AUT_2021-11-12.txt");
-			waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Choose File To Import");	
-		}	
-
+			waitMethods.waiter(waitMethods.w200);  
+			String url = driver.getCurrentUrl();
+			if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {
+				WebElement ele = driver.findElement(By.id("formPacket"));
+				highlightElement.highLightElement(driver, ele);
+				ele.click();
+				waitMethods.waiter(waitMethods.w1k);
+				ele.sendKeys("C:\\Users\\OITBIRRICHAM1\\Documents\\LEAF_FormPacket_form_f7ad4.txt");
+				waitMethods.waiter(waitMethods.w300);
+				System.out.println("Choose File To Import");	
+				//driver.navigate().back();
+			} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+				WebElement ele = driver.findElement(By.id("formPacket"));
+				highlightElement.highLightElement(driver, ele);
+				ele.click();
+				waitMethods.waiter(waitMethods.w1k);
+				ele.sendKeys("C:\\Users\\MaxRichard\\Documents\\QA\\LEAF-Exports\\LEAF_Form_AUT_2021-11-12.txt");
+				waitMethods.waiter(waitMethods.w300);
+				System.out.println("Choose File To Import");
+				//driver.navigate().back();
+			}		
+		}
 		
 		
 ////////////////////////  Change Form Name and Priority, setting up for next run \\\\\\\\\\\\\\\\\
@@ -544,6 +573,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	private void selectCurrentFormByXpath01() {
 		selectCurrentFormByXpath();
 	}
+		
 		
 	@Test(priority = 580) //													// ERR HERE 3/1/23
 	private void selectEditProperties02() {
