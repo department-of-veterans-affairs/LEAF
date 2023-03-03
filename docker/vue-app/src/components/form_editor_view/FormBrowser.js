@@ -19,7 +19,7 @@ export default {
     template:
     `<template v-if="appIsLoadingCategoryList === false">
         <!-- secure form section -->
-        <div v-if="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #cb0000; margin-bottom:1em;">
+        <div v-if="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #a00; margin-bottom:1em;">
             <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span>
             <a id="secureBtn" class="buttonNorm">View Details</a>
         </div>
@@ -29,7 +29,7 @@ export default {
             <h3>Active Forms:</h3>
             <table id="active_forms">
                 <tr class="header-row">
-                    <th id="active_name" style="width:300px">Form Name</th>
+                    <th id="active_name" style="width:250px">Form Name</th>
                     <th style="width:400px">Description</th>
                     <th style="width:250px">Workflow</th>
                     <th style="width:125px">Need to Know</th>
@@ -45,7 +45,7 @@ export default {
             <h3>Inactive Forms:</h3>
             <table id="inactive_forms">
                 <tr class="header-row">
-                    <th id="inactive_name" style="width:300px">Form Name</th>
+                    <th id="inactive_name" style="width:250px">Form Name</th>
                     <th style="width:400px">Description</th>
                     <th style="width:250px">Workflow</th>
                     <th style="width:125px">Need to Know</th>
@@ -61,7 +61,7 @@ export default {
             <h3>Supplemental Forms:</h3>
             <table id="supplemental_forms">
                 <tr class="header-row">
-                    <th id="supplemental_name" style="width:300px">Form Name</th>
+                    <th id="supplemental_name" style="width:250px">Form Name</th>
                     <th style="width:400px">Description</th>
                     <th style="width:250px">Staple Status</th>
                     <th style="width:125px">Need to Know</th>

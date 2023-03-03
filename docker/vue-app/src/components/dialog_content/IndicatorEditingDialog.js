@@ -84,7 +84,6 @@ export default {
         'APIroot',
         'CSRFToken',
         'initializeOrgSelector',
-        'appIsLoadingIndicator',
         'isEditingModal',
         'closeFormDialog',
         'currIndicatorID',

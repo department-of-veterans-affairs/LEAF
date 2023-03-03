@@ -38,9 +38,8 @@ export default {
             },
             isEditingModal: false,
 
-            appIsLoadingCategoryList: false,
-            appIsLoadingForm: false,
-            appIsLoadingIndicator: false,
+            appIsLoadingCategoryList: true,
+            appIsLoadingForm: true,
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
@@ -55,15 +54,13 @@ export default {
     provide() {
         return {
             CSRFToken: computed(() => this.CSRFToken),
-            mainFormID: computed(() => this.mainFormID),
-            subformID: computed(() => this.subformID),
             currIndicatorID: computed(() => this.currIndicatorID),
             newIndicatorParentID: computed(() => this.newIndicatorParentID),
             indicatorRecord: computed(() => this.indicatorRecord),
             isEditingModal: computed(() => this.isEditingModal),
             workflowRecords: computed(() => this.workflowRecords),
             categories: computed(() => this.categories),
-            selectedCategoryWithStapledForms: computed(() => this.selectedCategoryWithStapledForms),
+            currentFormCollection: computed(() => this.currentFormCollection),
             allStapledFormCatIDs: computed(() => this.allStapledFormCatIDs),
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             focusedFormRecord: computed(() => this.focusedFormRecord),
@@ -72,7 +69,6 @@ export default {
             selectedFormNode: computed(() => this.selectedFormNode),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
-            appIsLoadingIndicator: computed(() => this.appIsLoadingIndicator),
             activeForms: computed(() => this.activeForms),
             inactiveForms: computed(() => this.inactiveForms),
             supplementalForms: computed(() => this.supplementalForms),
@@ -97,7 +93,6 @@ export default {
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
             removeCategory: this.removeCategory,
-            updateFocusedFormTree: this.updateFocusedFormTree,
             closeFormDialog: this.closeFormDialog,
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
             openNewFormDialog: this.openNewFormDialog,
@@ -126,7 +121,8 @@ export default {
         ConditionsEditorDialog,
         ModFormMenu,
     },
-    beforeMount() {
+    mounted() {
+        console.log('mounted main app')
         this.getCategoryListAll().then(() => {
             if(this.$route.name === 'category' && this.$route.query.formID) {
                 console.log('category route and formID query found, getting from query')
@@ -134,10 +130,6 @@ export default {
             }
         }).catch(err => console.log('error getting category list', err));
 
-        this.getWorkflowRecords();
-    },
-    mounted() {
-        console.log('mounted main app')
         this.getSiteSettings().then(res => {
             this.siteSettings = res;
             if(res.siteType === 'national_subordinate') {
@@ -147,11 +139,12 @@ export default {
                 this.getSecureFormsInfo();
             }
         }).catch(err => console.log('error getting site settings', err));
+        this.getWorkflowRecords();
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
-            if(this.$route.name === 'category') {
-                console.log('calling getFormFromQuery')
+            console.log('watcher', newVal, oldVal)
+            if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
                 this.getFormFromQueryParam();
             }
         }
@@ -160,7 +153,7 @@ export default {
         /**
          * @returns {Object} current record from categories object (main or internal forms)
          */
-        currentCategorySelection() {
+        currentCategoryQuery() {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
@@ -177,20 +170,6 @@ export default {
                 });
             }
             return selectedNode;
-        },
-        /**
-         * @returns {String} current main Form ID
-         */
-        mainFormID() {
-            return this.currentCategorySelection?.parentID ?
-                this.currentCategorySelection.parentID : this.currentCategorySelection.categoryID || '';
-        },
-        /**
-         * @returns {String} current internal Form ID
-         */
-        subformID() {
-            return this.currentCategorySelection?.parentID ?
-                this.currentCategorySelection.categoryID || '' : '';
         },
         focusedFormIsSensitive() {
             let isSensitive = false;
@@ -246,7 +225,7 @@ export default {
         },
         /**
          * 
-         * @returns {array} categories records that are internal forms of the main form
+         * @returns {array} categories records that are internal forms of the focused form
          */
         internalFormRecords() {
             let internalFormRecords = [];
@@ -257,18 +236,18 @@ export default {
             }
             return internalFormRecords;
         },
-        selectedCategoryWithStapledForms() {
+        currentFormCollection() {
             let allRecords = [];
-            let currStapleIDs = this.currentCategorySelection?.stapledFormIDs || [];
+            let currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
             currStapleIDs.forEach(id => {
                 allRecords.push({...this.categories[id], formContextType: 'staple'});
             });
  
-            let focusedFormType = this.currentCategorySelection.parentID !== '' ?
+            let focusedFormType = this.currentCategoryQuery.parentID !== '' ?
                         'internal' : 
-                        this.allStapledFormCatIDs.includes(this.currentCategorySelection?.categoryID || '') ?
+                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
                         'staple' : 'main form';
-            allRecords.push({...this.currentCategorySelection, formContextType: focusedFormType,});
+            allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
             return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
         },
     },
@@ -410,9 +389,7 @@ export default {
                 } else {
                     query.addTerm('stepID', '!=', 'resolved');
                 }
-                query.onSuccess((data) => {
-                    resolve(data);
-                });
+                query.onSuccess((data) => resolve(data));
                 query.execute();
             });
         },
@@ -490,12 +467,17 @@ export default {
          * @param {string} catID 
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
-        getFormByCategoryID(catID = '') {
+        getFormByCategoryID(catID = '', resetSelectedNodeID = false) {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res)=> {
+                        this.focusedFormID = catID;
+                        this.focusedFormTree = res;
+                        if (resetSelectedNodeID === true) {
+                            this.selectedNodeIndicatorID = null;
+                        }
                         resolve(res)
                     },
                     error: (err)=> reject(err)
@@ -508,13 +490,11 @@ export default {
          * @returns {Object} with property information about the specific indicator
          */
         getIndicatorByID(indID = 0) {
-            this.appIsLoadingIndicator = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
                     url: `${this.APIroot}formEditor/indicator/${indID}`,
                     success: (res)=> {
-                        this.appIsLoadingIndicator = false;
                         resolve(res)
                     },
                     error: (err) => reject(err)
@@ -536,13 +516,13 @@ export default {
          * @param {boolean} removeStaple indicates whether staple is being added or removed
          */
         updateStapledFormsInfo(stapledCatID = '', removeStaple = false) {
-            const formID = this.currentCategorySelection.categoryID;
+            const formID = this.currentCategoryQuery.categoryID;
             if(removeStaple === true) {
                 this.allStapledFormCatIDs = this.allStapledFormCatIDs.filter(id => id !== stapledCatID);
                 this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
             } else {
                 this.allStapledFormCatIDs = Array.from(new Set([...this.allStapledFormCatIDs, stapledCatID]));
-                this.categories[formID].stapledFormIDs  = [...this.currentCategorySelection.stapledFormIDs, stapledCatID];
+                this.categories[formID].stapledFormIDs  = [...this.currentCategoryQuery.stapledFormIDs, stapledCatID];
             }
         },
         /**
@@ -565,21 +545,19 @@ export default {
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
          */
         selectNewCategory(catID = '', subnodeIndID = null) {
-            this.focusedFormTree = [];
             this.selectedNodeIndicatorID = subnodeIndID;
 
             //get form. selected node, isSensitive, stapled forms are computed from selectedNode ID and rawTree
             if (catID !== '') {
                 this.appIsLoadingForm = true;
-                this.getFormByCategoryID(catID).then(res => {
-                    this.focusedFormID = catID;
-                    this.focusedFormTree = res;
+                this.getFormByCategoryID(catID).then(() => {
                     this.appIsLoadingForm = false;
 
                 }).catch(err => console.log('error getting form info: ', err));
 
             } else {  //card browser.
                 this.focusedFormID = '';
+                this.focusedFormTree = [];
                 this.categories = {};
                 this.workflowRecords = [];
                 this.getCategoryListAll();
@@ -644,7 +622,7 @@ export default {
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
             const name = this.truncateText(XSSHelpers.stripAllTags(indicatorName));
             this.currIndicatorID = indicatorID;
-            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #c00;">${name} (${indicatorID})</span></h2>`);
+            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #a00;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');
             this.showFormDialog = true;
         },
@@ -679,8 +657,8 @@ export default {
                 this.showFormDialog = true;   
             }).catch(err => console.log('error getting indicator information', err));
         },
-        openNewFormDialog() {
-            const titleHTML = this.mainFormID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
+        openNewFormDialog(event = {}, mainFormID = '') {
+            const titleHTML = mainFormID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
             this.setCustomDialogTitle(titleHTML);
             this.setFormDialogComponent('new-form-dialog');
             this.showFormDialog = true; 
@@ -749,9 +727,5 @@ export default {
                 return nodeSelection;
             }
         },
-        updateFocusedFormTree(catID = '', tree = {}) {
-            this.focusedFormID = catID;
-            this.focusedFormTree = tree;
-        }
     }
 }

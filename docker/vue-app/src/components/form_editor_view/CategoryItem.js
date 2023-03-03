@@ -101,7 +101,7 @@ export default {
             </td>
             <td>
                 <div v-if="parseInt(categoriesRecord.needToKnow) === 1" class="need-to-know-enabled">
-                    <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;"/>
+                    <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;margin-right:2px"/>
                     &nbsp;<em>Need to Know enabled</em>
                 </div>
             </td>
@@ -123,7 +123,7 @@ export default {
                 <td></td>
                 <td>
                     <div v-if="parseInt(categories[form.categoryID].needToKnow) === 1" class="need-to-know-enabled">
-                        <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;"/>
+                        <img :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" style="width: 20px;margin-right:2px"/>
                         &nbsp;<em>Need to Know enabled</em>
                     </div>
                 </td>

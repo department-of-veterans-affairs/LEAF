@@ -56,7 +56,9 @@ export default {
                     temp.type = '';
                     temp.stapledFormIDs = [];
                     this.addNewCategory(newCatID, temp);
-                    this.$router.push({name: 'category', query: { formID: newCatID }});
+                    if(!this.focusedFormRecord?.categoryID) {
+                        this.$router.push({name: 'category', query: { formID: newCatID }});
+                    }
                     this.closeFormDialog();
                 },
                 error: err => {

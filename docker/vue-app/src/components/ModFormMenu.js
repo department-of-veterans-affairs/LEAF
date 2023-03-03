@@ -1,11 +1,4 @@
 export default {
-    data() {
-        return {
-            staplesMenuOpen: false,
-            staplesMenuPinned: false,
-            buttonHeight: 32
-        }
-    },
     inject: [
         'APIroot',
         'truncateText',
@@ -17,7 +10,6 @@ export default {
         'focusedFormTree',
         'allStapledFormCatIDs',
         'getFormByCategoryID',
-        'updateFocusedFormTree',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
@@ -26,12 +18,12 @@ export default {
     ],
     computed: {
         mainFormID() {
-            return this.focusedFormRecord?.parentID !== '' ?
-                this.focusedFormRecord?.parentID || '' : this.focusedFormRecord.categoryID;
+            return this.focusedFormRecord?.parentID === '' ?
+                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
         },
         subformID() {
-            return this.focusedFormRecord?.parentID !== '' ?
-                this.focusedFormRecord.categoryID || '' : ''
+            return this.focusedFormRecord?.parentID ?
+                this.focusedFormRecord.categoryID : '';
         },
         currentStapleIDs() {
             return this.categories[this.mainFormID]?.stapledFormIDs || [];
@@ -112,11 +104,6 @@ export default {
             const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
             return this.truncateText(name, len).trim();
         },
-        setFocusedForm(catID) {
-            this.getFormByCategoryID(catID).then(res => {
-                this.updateFocusedFormTree(catID, res);
-            });
-        },
     },
     template: `<nav id="form-editor-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
@@ -127,7 +114,7 @@ export default {
                     </router-link>                
                 </li>
                 <li>
-                    <button type="button" id="createFormButton" @click="openNewFormDialog">
+                    <button type="button" id="createFormButton" @click="openNewFormDialog($event)">
                         Create Form<span role="img" aria="">📄</span>
                     </button>
                 </li>
@@ -147,22 +134,11 @@ export default {
             </ul>
             <!-- FORM EDITING MENU -->
             <ul v-else id="form-editor-menu">
-                <template v-if="focusedFormTree.length !== 0">
-                    <li>
-                        <button type="button" @click="openNewFormDialog" title="New Internal-Use Form">
-                            Add New Internal-Use
-                            <span role="img" aria="">➕</span>
-                        </button>
-                    </li>
-                    <li v-if="!allStapledFormCatIDs.includes(mainFormID)">
-                        <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
-                            Manage Stapled Forms <span role="img" aria="">📌</span>
-                        </button>
-                    </li>
-                    <li v-else>
-                        <button type="button">This form is merged</button>
-                    </li>
-                </template>
+                <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID && focusedFormTree.length > 0">
+                    <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
+                        Manage Stapled Forms <span role="img" aria="">📌</span>
+                    </button>
+                </li>
                 <li>
                     <button type="button" @click="openFormHistoryDialog" title="view form history">
                         View History<span role="img" aria="">🕗</span>
@@ -190,7 +166,7 @@ export default {
                 </li>
                 <li>
                     <button type="button" v-if="mainFormID !== ''" 
-                        @click="setFocusedForm(mainFormID)" :title="'to primary form ' + mainFormID" :disabled="subformID === ''">
+                        @click="getFormByCategoryID(mainFormID)" :title="'to primary form ' + mainFormID" :disabled="subformID === ''">
                         <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
                     </button>
                     <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>

@@ -194,7 +194,7 @@ export default {
                             title="select workflow"
                             v-model.number="workflowID"
                             style="width:300px;"
-                            :style="{color: workflowID === 0 ? '#cb0000' : 'black'}"
+                            :style="{color: workflowID === 0 ? '#a00' : 'black'}"
                             :disabled="isStaple">
                             <option value="0" :selected="workflowID === 0">
                                               No Workflow.  Users cannot submit requests
@@ -208,16 +208,16 @@ export default {
                             </template>
                         </select></label>
                     </template>
-                    <div v-else style="color: #cb0000; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
+                    <div v-else style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
-                    <div v-if="focusedFormIsSensitive" style="color: #cb0000; margin-bottom: 0.5rem;">
+                    <div v-if="focusedFormIsSensitive" style="color: #a00; margin-bottom: 0.5rem;">
                         <b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b> &nbsp;(forced on because sensitive fields are present)
                     </div>
                     <label v-else for="needToKnow" style="margin-bottom: 0.5rem;"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
-                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#cb0000' : 'black'}" @change="updateNeedToKnow">
+                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#a00' : 'black'}" @change="updateNeedToKnow">
                             <option value="0" :selected="!isNeedToKnow">Off</option>
-                            <option value="1" style="color: #cb0000;" :selected="isNeedToKnow">On</option>
+                            <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
                         </select>
                     </label>
 

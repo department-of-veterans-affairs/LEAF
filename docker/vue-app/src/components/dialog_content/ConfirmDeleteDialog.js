@@ -4,17 +4,12 @@ export default {
         'APIroot',
         'CSRFToken',
         'focusedFormRecord',
+        'getFormByCategoryID',
         'selectNewCategory',
         'removeCategory',
         'closeFormDialog'
     ],
     computed: {
-        formID() {
-            return this.focusedFormRecord?.categoryID || '';
-        },
-        formParentID() {
-            return this.focusedFormRecord?.parentID || '';
-        },
         /**
          * uses LEAF XSSHelpers.js
          * @returns {string} category name / description with all tages stripped
@@ -32,22 +27,24 @@ export default {
     methods:{
         onSave() {
             if(this.currentStapleIDs.length === 0) {
-                
+                const delID = this.focusedFormRecord.categoryID;
+                const parID = this.focusedFormRecord.parentID;
+
                 $.ajax({
                     type: 'DELETE',
-                    url: `${this.APIroot}formStack/_${this.formID}?` + $.param({CSRFToken:this.CSRFToken}),
+                    url: `${this.APIroot}formStack/_${delID}?` + $.param({CSRFToken:this.CSRFToken}),
                     success: (res) => {
                         if(res !== true) {
                             alert(res);
                         } else {
-                            this.closeFormDialog();
                             //if a subform is deleted, re-focus its parent, otherwise go to browser
-                            if (this.formParentID !== '') {
-                                this.$router.push({name: 'category', query: { formID: this.formParentID }});
-                                this.removeCategory(this.formID);
+                            if (parID !== '') {
+                                this.getFormByCategoryID(parID, true);
                             } else {
                                 this.selectNewCategory();
                             }
+                            this.removeCategory(delID);
+                            this.closeFormDialog();
                         }
                     },
                     error: err => console.log('an error has occurred', err)
