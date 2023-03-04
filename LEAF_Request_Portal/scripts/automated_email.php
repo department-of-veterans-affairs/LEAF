@@ -1,8 +1,7 @@
 <?php
 
-require_once 'globals.php';
+require_once '../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
-
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
 
@@ -50,10 +49,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialDaysAgoTimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        LEFT JOIN services USING(serviceID)
+        LEFT JOIN services USING(serviceID) 
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 0
@@ -67,7 +66,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(!empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
-
+        
         $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
 
         $additionalDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
@@ -80,10 +79,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     }
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        JOIN services USING(serviceID)
+        LEFT JOIN services USING(serviceID) 
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 1

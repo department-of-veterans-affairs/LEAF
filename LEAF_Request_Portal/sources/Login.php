@@ -94,14 +94,14 @@ class Login
       return $url;
     }
 
-    public function loginUser()
+    public function loginUser($userID='SYSTEM')
     {
-        $authType = '/../auth_domain/?r=';
-        $nonBrowserAuth = '/../login/?r=';
+        $authType = '/auth_domain/?r=';
+        $nonBrowserAuth = '/login/?r=';
 
         if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
-            $authType = '/../auth_cookie/?r=';
-            $nonBrowserAuth = '/../auth_cookie/?r=';
+            $authType = '/auth_cookie/?r=';
+            $nonBrowserAuth = '/auth_cookie/?r=';
           }
 
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
@@ -130,10 +130,13 @@ class Login
                 header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
+            // else lets login via user id since this is a cli process that needs specific user (think forms/groups/emails)
+            else{
+                $_SESSION['userID'] = $userID;
+            }
 
-            $_SESSION['userID'] = 'SYSTEM';
         }
-
+        
         $var = array(':userID' => $_SESSION['userID']);
         $result = $this->db->prepared_query('SELECT * FROM employee WHERE userName=:userID AND deleted = 0', $var);
 
