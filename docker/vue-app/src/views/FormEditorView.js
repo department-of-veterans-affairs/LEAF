@@ -381,7 +381,7 @@ export default {
                             <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID" draggable="false">
                                 <button @click="getFormByCategoryID(form.categoryID)" class="layout-listitem" :disabled="layoutBtnIsDisabled(form)">
                                     <span :style="{textDecoration: layoutBtnIsDisabled(form) ? 'none' : 'underline'}">
-                                        {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;
+                                        {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
                                     </span>
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
                                     <em v-show="form.categoryID === this.focusedFormRecord.categoryID" style="font-weight: normal; text-decoration: none;">
@@ -433,7 +433,9 @@ export default {
                             </li>
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
                                 <button @click="getFormByCategoryID(i.categoryID)">
-                                    {{shortFormNameStripped(i.categoryID, 28)}}
+                                    <span class="internal">
+                                        {{shortFormNameStripped(i.categoryID, 45)}}
+                                    </span>
                                 </button>
                             </li>
                         </ul>

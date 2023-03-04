@@ -656,6 +656,7 @@ div#form_content_view {
             height: 100%;
             background-color: inherit;
             border: 2px solid transparent;
+            overflow: hidden;
     
             &:not(:disabled):not(#addInternalUse) {
                 color: $charcoal;
@@ -676,6 +677,11 @@ div#form_content_view {
                 color: $base_navy;
             }
         }
+    }
+    div[id^="internalFormRecords_"] button span.internal {
+        text-decoration: underline;
+        font-weight: normal;
+        color: $base_navy;
     }
 }
 
