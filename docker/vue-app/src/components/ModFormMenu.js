@@ -9,7 +9,6 @@ export default {
         'internalFormRecords',
         'focusedFormTree',
         'allStapledFormCatIDs',
-        'getFormByCategoryID',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
@@ -166,7 +165,7 @@ export default {
                 </li>
                 <li>
                     <button type="button" v-if="mainFormID !== ''" 
-                        @click="getFormByCategoryID(mainFormID)" :title="'to primary form ' + mainFormID" :disabled="subformID === ''">
+                        @click="selectNewCategory(mainFormID)" :title="'to primary form ' + mainFormID" :disabled="subformID === ''">
                         <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
                     </button>
                     <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>

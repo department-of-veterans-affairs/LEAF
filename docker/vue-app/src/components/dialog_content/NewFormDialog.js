@@ -56,8 +56,11 @@ export default {
                     temp.type = '';
                     temp.stapledFormIDs = [];
                     this.addNewCategory(newCatID, temp);
-                    if(!this.focusedFormRecord?.categoryID) {
+
+                    if(!this.focusedFormRecord?.categoryID) { //browser page, new main form
                         this.$router.push({name: 'category', query: { formID: newCatID }});
+                    } else { //from existing form, new internal
+                        this.selectNewCategory(newCatID)
                     }
                     this.closeFormDialog();
                 },

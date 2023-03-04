@@ -658,8 +658,7 @@ div#form_content_view {
             border: 2px solid transparent;
     
             &:not(:disabled):not(#addInternalUse) {
-                color: $charcoal;/*$base_navy;*/
-                text-decoration: underline;
+                color: $charcoal;
             }
     
             &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {

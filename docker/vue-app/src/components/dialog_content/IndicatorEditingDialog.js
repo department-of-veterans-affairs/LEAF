@@ -55,22 +55,24 @@ export default {
             orgSelectorFormats: ['orgchart_employee', 'orgchart_group', 'orgchart_position'],
             newIndicatorID: null,
             name: this.indicatorRecord[this.currIndicatorID]?.name || '',
-            options: this.indicatorRecord[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
-            format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //format property here is just the format name
+            options: this.indicatorRecord[this.currIndicatorID]?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
+            format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //base format (eg 'radio')
             description: this.indicatorRecord[this.currIndicatorID]?.description || '',
             defaultValue: this.indicatorRecord[this.currIndicatorID]?.default || '',
             required: parseInt(this.indicatorRecord[this.currIndicatorID]?.required) === 1 || false,
             is_sensitive: parseInt(this.indicatorRecord[this.currIndicatorID]?.is_sensitive) === 1 || false,
             parentID: this.indicatorRecord[this.currIndicatorID]?.parentID ? 
                     parseInt(this.indicatorRecord[this.currIndicatorID].parentID) : this.newIndicatorParentID,
-            //sort can be 0, need to compare specifically against undefined
+            //used here for new questions.  compared against undefined since it can be 0
             sort: this.indicatorRecord[this.currIndicatorID]?.sort !== undefined ? parseInt(this.indicatorRecord[this.currIndicatorID].sort) : null,
+
             //checkboxes input
             singleOptionValue: this.indicatorRecord[this.currIndicatorID]?.format === 'checkbox' ? 
                 this.indicatorRecord[this.currIndicatorID].options : '',
-            //multi answer format inputs
-            multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.indicatorRecord[this.currIndicatorID]?.format) ? 
+            //list of options
+            multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.indicatorRecord[this.currIndicatorID]?.format) ?
                 this.indicatorRecord[this.currIndicatorID].options?.join('\n') : '',
+
             //used for grid formats
             gridBodyElement: 'div#container_indicatorGrid > div',
             gridJSON: this.indicatorRecord[this.currIndicatorID]?.format === 'grid' ? 
@@ -164,18 +166,18 @@ export default {
             }
             return fullFormat;
         },
-        shortlabelCharsRemaining(){
+        shortlabelCharsRemaining() {
             return 50 - this.description.length;
         },
         /**
          * used to set the default sort value of a new question to last index in current depth
          * @returns {number} 
          */
-        newQuestionSortValue(){
+        newQuestionSortValue() {
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
             const sortVal = (this.parentID === null) ?
-                this.focusedFormTree.length :                                 //new form sections/pages
-                Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
+                this.focusedFormTree.length :                                       //new form sections/pages
+                Array.from(document.querySelectorAll(nonSectionSelector)).length    //new questions in existing sections
             return sortVal;
         }
     },
@@ -218,7 +220,7 @@ export default {
             }
             
             let indicatorEditingUpdates = [];
-            if (this.isEditingModal) { /*  CALLS FOR EDITTING AN EXISTING QUESTION */
+            if (this.isEditingModal) { /* CALLS FOR EDITTING AN EXISTING QUESTION */
                 const nameChanged = this.name !== this.indicatorRecord[this.currIndicatorID].name;
                 const descriptionChanged = this.description !== this.indicatorRecord[this.currIndicatorID].description;
 
@@ -233,8 +235,8 @@ export default {
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
                 //keeping for now for potential debugging
-                console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
-                console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
+                //console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
+                //console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
                     indicatorEditingUpdates.push(
@@ -429,6 +431,7 @@ export default {
                     //if a new section was created
                     if (this.newIndicatorID !== null && this.parentID === null) {
                         this.selectNewCategory(this.formID, this.newIndicatorID);
+
                     //other edits
                     } else {
                         const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
@@ -469,7 +472,7 @@ export default {
             }
             return returnValue;
         },
-        updateGridJSON() {  // TODO: try to rework wo jQuery
+        updateGridJSON() {
             let gridJSON = [];
             let t = this;
             //gather column names and column types. if type is dropdown, adds property.options

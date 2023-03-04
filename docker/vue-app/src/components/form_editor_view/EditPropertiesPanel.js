@@ -26,6 +26,9 @@ export default {
         'truncateText',
         'stripAndDecodeHTML',
 	],
+    mounted() {
+        console.log('mounted panel')
+    },
     computed: {
         workflowDescription() {
             let returnValue = '';
@@ -61,9 +64,9 @@ export default {
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
-                success: () => {  //NOTE:  except for WF, these give back an empty array
+                success: () => {  //except for WF, these give back an empty array
                     this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
-                    this.lastUpdated = new Date().toDateString();
+                    this.lastUpdated = new Date().toLocaleString();
                     this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err =>  console.log('name post err', err)
@@ -80,7 +83,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
-                    this.lastUpdated = new Date().toDateString();
+                    this.lastUpdated = new Date().toLocaleString();
                     this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('form description post err', err)
@@ -101,7 +104,7 @@ export default {
                     } else {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
                         this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
-                        this.lastUpdated = new Date().toDateString();
+                        this.lastUpdated = new Date().toLocaleString();
                         this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                     }
                 },
@@ -119,7 +122,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'visible', this.visible);
-                    this.lastUpdated = new Date().toDateString();
+                    this.lastUpdated = new Date().toLocaleString();
                     this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('visibility post err', err)
@@ -136,7 +139,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
-                    this.lastUpdated = new Date().toDateString();
+                    this.lastUpdated = new Date().toLocaleString();
                     this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('ntk post err', err)
@@ -153,7 +156,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'type', this.type);
-                    this.lastUpdated = new Date().toDateString();
+                    this.lastUpdated = new Date().toLocaleString();
                     this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                 },
                 error: err => console.log('type post err', err)

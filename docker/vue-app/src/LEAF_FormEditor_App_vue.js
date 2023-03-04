@@ -39,7 +39,7 @@ export default {
             isEditingModal: false,
 
             appIsLoadingCategoryList: true,
-            appIsLoadingForm: true,
+            appIsLoadingForm: false,
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
@@ -337,7 +337,7 @@ export default {
                 console.log('no form selected or form does not exist');
                 //TODO: form not found status message
             } else {
-                this.selectNewCategory(formID, this.selectedNodeIndicatorID);
+                this.selectNewCategory(formID, this.selectedNodeIndicatorID, true);
             }
         },
         /**
@@ -467,7 +467,7 @@ export default {
          * @param {string} catID 
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
-        getFormByCategoryID(catID = '', resetSelectedNodeID = false) {
+        getFormByCategoryID(catID = '', subnodeIndID = null) {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
@@ -475,9 +475,8 @@ export default {
                     success: (res)=> {
                         this.focusedFormID = catID;
                         this.focusedFormTree = res;
-                        if (resetSelectedNodeID === true) {
-                            this.selectedNodeIndicatorID = null;
-                        }
+                        this.selectedNodeIndicatorID = subnodeIndID;
+                        this.appIsLoadingForm = false;
                         resolve(res)
                     },
                     error: (err)=> reject(err)
@@ -544,18 +543,13 @@ export default {
          * @param {string} catID of the form to select
          * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
          */
-        selectNewCategory(catID = '', subnodeIndID = null) {
-            this.selectedNodeIndicatorID = subnodeIndID;
-
-            //get form. selected node, isSensitive, stapled forms are computed from selectedNode ID and rawTree
+        selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
             if (catID !== '') {
-                this.appIsLoadingForm = true;
-                this.getFormByCategoryID(catID).then(() => {
-                    this.appIsLoadingForm = false;
-
-                }).catch(err => console.log('error getting form info: ', err));
+                if (setFormLoading === true) this.appIsLoadingForm = true
+                this.getFormByCategoryID(catID, subnodeIndID);
 
             } else {  //card browser.
+                this.selectedNodeIndicatorID = null;
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
                 this.categories = {};

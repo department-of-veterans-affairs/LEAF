@@ -26,12 +26,10 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'appIsLoadingCategoryList',
         'appIsLoadingForm',
-        'focusedFormTree',
         'categories',
         'internalFormRecords',
-        'selectNewCategory',
-        'selectNewFormNode',
         'selectedNodeIndicatorID',
         'selectedFormNode',
         'getFormByCategoryID',
@@ -39,6 +37,7 @@ export default {
         'openFormHistoryDialog',
         'newQuestion',
         'focusedFormRecord',
+        'focusedFormTree',
         'openNewFormDialog',
         'currentFormCollection',
         'stripAndDecodeHTML',
@@ -192,7 +191,7 @@ export default {
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
-                    this.getFormByCategoryID(this.focusedFormID).then(()=> {
+                    this.getFormByCategoryID(this.focusedFormID, this.selectedNodeIndicatorID).then(()=> {
                         this.sortValuesToUpdate.forEach(item => {
                             this.listTracker[item.indicatorID].sort = item.listIndex;
                         });
@@ -200,7 +199,7 @@ export default {
                             this.listTracker[item.indicatorID].parentID = item.newParentID;
                             this.listTracker[item.indicatorID].newParentID = '';
                         });
-                        this.sortLastUpdated = new Date().toDateString();
+                        this.sortLastUpdated = new Date().toLocaleString();
                         this.showLastUpdate('form_index_last_update', `last modified: ${this.sortLastUpdated}`);
 
                         let elSublistDuplicates = Array.from(document.querySelectorAll('ul#base_drop_area > li.subindicator_heading'));
@@ -342,6 +341,9 @@ export default {
             const name = this.stripAndDecodeHTML(form?.categoryName || '') || 'Untitled';
             return this.truncateText(name, len).trim();
         },
+        layoutBtnIsDisabled(form) {
+            return form.categoryID === this.focusedFormRecord.categoryID && this.selectedFormNode === null
+        }
     },
     watch: {
         sortOrParentChanged(newVal, oldVal) {
@@ -351,14 +353,14 @@ export default {
         }
     },
     template:`<div id="formEditor_content">
-    <FormBrowser v-if="focusedFormID===''"></FormBrowser>
+    <div v-if="appIsLoadingForm || appIsLoadingCategoryList" style="border: 2px solid black; text-align: center; 
+        font-size: 24px; font-weight: bold; padding: 16px;">
+        Loading... 
+        <img src="../images/largespinner.gif" alt="loading..." />
+    </div>
 
     <template v-else>
-        <div v-if="appIsLoadingForm" style="border: 2px solid black; text-align: center; 
-            font-size: 24px; font-weight: bold; padding: 16px;">
-            Loading... 
-            <img src="../images/largespinner.gif" alt="loading..." />
-        </div>
+        <FormBrowser v-if="focusedFormID===''"></FormBrowser>
 
         <template v-else>
             <!-- TOP INFO PANEL -->
@@ -376,15 +378,18 @@ export default {
                     <!-- FORM LAYOUT OVERVIEW -->
                     <div v-if="currentFormCollection.length > 1" :id="'layoutFormRecords_' + $route.query.formID">
                         <ul>
-                            <li v-for="form in currentFormCollection"
-                            :key="'form_layout_item_' + form.categoryID" draggable="false">
-                                <button @click="getFormByCategoryID(form.categoryID, true)" class="layout-listitem"
-                                    :disabled="form.categoryID === focusedFormRecord.categoryID && selectedFormNode === null">
-                                    {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;
-                                    <span style="font-weight: normal"><em>
-                                        ({{ form.formContextType }})
-                                        {{ form.categoryID === this.focusedFormRecord.categoryID ? ' - selected' : '' }}
-                                    </em></span>
+                            <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID" draggable="false">
+                                <button @click="getFormByCategoryID(form.categoryID)" class="layout-listitem" :disabled="layoutBtnIsDisabled(form)">
+                                    <span :style="{textDecoration: layoutBtnIsDisabled(form) ? 'none' : 'underline'}">
+                                        {{shortFormNameStripped(form.categoryID, 28)}}&nbsp;
+                                    </span>
+                                    <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
+                                    <em v-show="form.categoryID === this.focusedFormRecord.categoryID" style="font-weight: normal; text-decoration: none;">
+                                        (selected)
+                                    </em>
+                                    <em v-show="form.categoryID === this.focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
+                                        (parent)
+                                    </em>
                                 </button>
                             </li>
                         </ul>
@@ -460,7 +465,7 @@ export default {
                     <!-- SUBSECTION EDIT / PREVIEW -->
                     <div v-else id="form_entry_and_preview">
                         <div class="form-section-header" style="display: flex;">
-                            <h3 style="margin: 0;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
+                            <h3 style="margin: 0; color: black;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
                             <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                                 @click.stop="toggleToolbars($event)">
                                 {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}

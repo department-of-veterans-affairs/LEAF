@@ -4,7 +4,6 @@ export default {
         'APIroot',
         'CSRFToken',
         'focusedFormRecord',
-        'getFormByCategoryID',
         'selectNewCategory',
         'removeCategory',
         'closeFormDialog'
@@ -38,11 +37,7 @@ export default {
                             alert(res);
                         } else {
                             //if a subform is deleted, re-focus its parent, otherwise go to browser
-                            if (parID !== '') {
-                                this.getFormByCategoryID(parID, true);
-                            } else {
-                                this.selectNewCategory();
-                            }
+                            this.selectNewCategory(parID, null, true);
                             this.removeCategory(delID);
                             this.closeFormDialog();
                         }
