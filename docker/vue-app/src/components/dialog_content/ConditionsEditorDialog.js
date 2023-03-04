@@ -8,6 +8,7 @@ export default {
             },
             //indicatorOrg: {},  NOTE: keep
             indicators: [],
+            appIsLoadingIndicators: true,
             selectedParentIndicator: {},
             selectedDisabledParentID: null,
             selectedParentOperators: [],
@@ -36,10 +37,10 @@ export default {
         'closeFormDialog',
         'truncateText',
     ],
-    beforeMount(){
+    mounted() {
+        const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
+        if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
         this.getAllIndicators();
-    },
-    mounted(){
         //console.log('IFTHEN (form editor) mounted', this.vueData);
     },
     updated() {
@@ -69,6 +70,7 @@ export default {
                             this.crawlParents(i,i);
                         }    
                     });
+                    this.appIsLoadingIndicators = false;
                     this.updateSelectedChildIndicator();
                 },
                 error: (err)=> {
@@ -569,9 +571,13 @@ export default {
         }
     },
     template: `<div id="condition_editor_center_panel">
-
+            <div v-if="appIsLoadingIndicators" style="border: 2px solid black; text-align: center; 
+                font-size: 24px; font-weight: bold; padding: 16px;">
+                Loading... 
+                <img src="../images/largespinner.gif" alt="loading..." />
+            </div>
             <!-- NOTE: MAIN EDITOR TEMPLATE -->
-            <div id="condition_editor_inputs">
+            <div v-else id="condition_editor_inputs">
                 <div>
                     <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
                         id="savedConditionsList">
@@ -675,7 +681,7 @@ export default {
                         <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>    
                         <option v-for="val in selectedChildValueOptions" 
                             :value="val"
-                            :key="val"
+                            :key="'child_prefill_' + val"
                             :selected="textValueDisplay(conditions.selectedChildValue) === val">
                             {{ val }} 
                         </option>
@@ -706,7 +712,7 @@ export default {
                             :title="i.name" 
                             :value="i.indicatorID"
                             :selected="parseInt(conditions.parentIndID) === parseInt(i.indicatorID)"
-                            :key="i.indicatorID">
+                            :key="'parent_' + i.indicatorID">
                             {{getIndicatorName(parseInt(i.indicatorID)) }} (indicator {{i.indicatorID}})
                             </option>
                         </select>
@@ -731,7 +737,7 @@ export default {
                             @change="updateSelectedParentValue($event.target)">
                             <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>    
                             <option v-for="val in selectedParentValueOptions"
-                                :key="val"
+                                :key="'parent_val_' + val"
                                 :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
                             </option>
                         </select>

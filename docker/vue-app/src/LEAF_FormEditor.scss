@@ -220,7 +220,6 @@ nav#form-editor-nav {
     min-width: 450px;
     resize: horizontal;
     z-index: 9999;
-    min-width: 530px;
     max-width: 900px;
     height: auto;
     min-height: 0;
@@ -692,6 +691,7 @@ div#form_content_view {
     flex-direction: column;
     align-self: flex-start;
     width: 100%;
+    min-width: 420px;
     background-color: white;
     padding: 0.75rem;
     border-radius: 4px;
@@ -873,7 +873,7 @@ span.leaf_check {
     left: 0;
     width: 18px;
     height: 18px;
-    background-color: transparent;
+    background-color: white;
     border: 1px solid rgb(151, 150, 149);
     border-radius: 2px;
 }
@@ -881,6 +881,7 @@ span.leaf_check:hover, span.leaf_check:focus, span.leaf_check:active,
 input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check,
 input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check {
     border: 2px solid #47e;
+    background-color: transparent;
 }
 input[type="radio"][class*="icheck"][class*="leaf_check"] ~ span.leaf_check {
     border-radius: 50%;
@@ -1011,10 +1012,6 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
                 border-right: 0;
                 border-bottom: 1px solid $charcoal;
             }
-        }
-
-        #form_entry_and_preview {
-            min-width: 400px;
         }
 
         #form_index_and_editing {

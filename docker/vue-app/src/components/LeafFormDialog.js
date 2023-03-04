@@ -4,7 +4,11 @@ export default {
             scrollY: window.scrollY,
             initialTop: 15,
             modalElementID: 'leaf_dialog_content',
-            modalBackgroundID: 'leaf-vue-dialog-background'
+            modalBackgroundID: 'leaf-vue-dialog-background',
+
+            elBody: null,
+            elModal: null,
+            elBackground: null
         }
     },
     props: {
@@ -26,14 +30,27 @@ export default {
         }
     },
     mounted() {
-        const elModal = document.getElementById(this.modalElementID);
-        //this helps fix the modal background coverage (being a teleport element seems to affect this)
-        const elBody = document.querySelector('body');
-        const currBodyHeight = elBody.clientHeight;
-        document.getElementById(this.modalBackgroundID).style.minHeight = currBodyHeight + 'px';
-        this.makeDraggable(elModal);
+        this.elBody = document.querySelector('body');
+        this.elModal = document.getElementById(this.modalElementID);
+        this.elBackground = document.getElementById(this.modalBackgroundID);
+        //helps adjust the modal background coverage (being a teleport element seems to affect this)
+        const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
+        this.elBackground.style.minHeight = 200 + this.elBody.clientHeight + 'px';
+        this.elBackground.style.minWidth = min + 'px';
+
+        this.makeDraggable(this.elModal);
+        window.addEventListener('resize', this.checkSizes);
+    },
+    beforeUnmount() {
+        console.log('unmounting')
+        window.removeEventListener('resize', this.checkSizes);
     },
     methods: {
+        checkSizes() {
+            const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
+            this.elBackground.style.minWidth = min + 'px';
+            this.elBackground.style.minHeight = this.elModal.offsetTop + this.elBody.clientHeight + 'px';
+        },
         /**
          * makes the modal draggable
          * @param {Object} el DOM element
@@ -65,16 +82,18 @@ export default {
                 document.onmousemove = elementDrag;
             }
             const checkBounds = ()=> {
-                let scrollbarWidth = 20;
+                let scrollbarWidth = 18;
                 if (el.offsetTop < window.scrollY) {
                     el.style.top = window.scrollY + 'px';
                 }
-                if (el.offsetLeft < 0) {
-                    el.style.left = 0 + 'px';
+                if (el.offsetLeft < window.scrollX) {
+                    el.style.left = window.scrollX + 'px';
                 }
-                if (el.offsetLeft + el.clientWidth + scrollbarWidth > window.innerWidth) {  //extra space for scrollbar
-                    el.style.left = (window.innerWidth - el.clientWidth - scrollbarWidth) + 'px';
+                if (el.offsetLeft + el.clientWidth + scrollbarWidth > window.innerWidth + window.scrollX) {
+                    el.style.left = (window.innerWidth + window.scrollX - el.clientWidth - scrollbarWidth) + 'px';
                 }
+                this.elBackground.style.minWidth = this.elBody.clientWidth + 'px';
+                this.elBackground.style.minHeight = this.elModal.offsetTop + this.elBody.clientHeight + 'px';
             }
             if (document.getElementById(this.modalElementID + "_drag_handle")) {
                 document.getElementById(this.modalElementID + "_drag_handle").onmousedown = dragMouseDown;
