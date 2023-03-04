@@ -9,7 +9,7 @@
 
 */
 
-require_once 'form.php';
+namespace Portal;
 
 class Inbox
 {
@@ -254,7 +254,6 @@ class Inbox
                             // populate relevant info
                             if (!isset($this->dir))
                             {
-                                require_once 'VAMC_Directory.php';
                                 $this->dir = new VAMC_Directory;
                             }
                             $user = $this->dir->lookupEmpUID($empUID);
@@ -274,7 +273,7 @@ class Inbox
                         }
 
                         if(!$res[$i]['hasAccess'])
-                        {                            
+                        {
                             $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
                             $res[$i]['hasAccess'] = $this->checkIfBackup($empUID);
 
@@ -282,14 +281,13 @@ class Inbox
 
                                 if (!isset($this->dir))
                                 {
-                                    require_once 'VAMC_Directory.php';
                                     $this->dir = new VAMC_Directory;
                                 }
-    
+
                                 $user = $this->dir->lookupEmpUID($empUID);
-    
+
                                 $approverName = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : "Unknown User";
-                                
+
                                 $out[$res[$i]['dependencyID']]['approverName'] = 'Backup for '.$approverName;
                             }
                         }
@@ -409,7 +407,7 @@ class Inbox
 
     /**
      * Checks if logged in user serves as a backup for given empUID
-     * @param string $empUID empUID to check 
+     * @param string $empUID empUID to check
      * @return boolean
      */
     public function checkIfBackup($empUID)

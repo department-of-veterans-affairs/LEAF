@@ -10,38 +10,35 @@
     Handler for user groups for the resource management web app
 */
 
-if(!class_exists('DataActionLogger'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
+namespace Portal;
 
 class Group
 {
     /**
-     * @var \DB
+     * @var \Leaf\Db
      */
     private $db;
 
     /**
-     * @var \Login
+     * @var Login
      */
     private $login;
 
     /**
-     * @var \DataActionLogger
+     * @var \Leaf\DataActionLogger
      */
     private $dataActionLogger;
 
     /**
-     * @param \DB $db
-     * @param \Login $login
-     * @param \DataActionLogger $dataActionLogger
+     * @param \Leaf\Db $db
+     * @param Login $login
+     * @param \Leaf\DataActionLogger $dataActionLogger
      */
-    public function __construct($db, $login)
+    public function __construct(\Leaf\Db $db, Login $login)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
     /**
@@ -53,8 +50,8 @@ class Group
     public function importGroup($groupName): void
     {
         // Log group imports
-        $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("users", "groupID", $groupName, $groupName)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::IMPORT, \Leaf\LoggableTypes::PORTAL_GROUP, [
+            new \Leaf\LogItem("users", "groupID", $groupName, $groupName)
         ]);
     }
 
@@ -67,8 +64,8 @@ class Group
     public function addGroup($groupName): void
     {
         // Log group creates
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("groups", "name", $groupName, $groupName)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PORTAL_GROUP, [
+            new \Leaf\LogItem("groups", "name", $groupName, $groupName)
         ]);
     }
 
@@ -83,8 +80,8 @@ class Group
      */
     public function syncImportGroup(array $group): array
     {
-        $this->dataActionLogger->logAction(\DataActions::IMPORT, \LoggableTypes::PORTAL_GROUP, [
-            new \LogItem("users", "groupID", $group['name'], $group['name'])
+        $this->dataActionLogger->logAction(\Leaf\DataActions::IMPORT, \Leaf\LoggableTypes::PORTAL_GROUP, [
+            new \Leaf\LogItem("users", "groupID", $group['name'], $group['name'])
         ]);
 
         $sql_vars = array(':groupID' => $group['groupID'],
@@ -113,8 +110,8 @@ class Group
             if (isset($res[0]) && $res[0]['parentGroupID'] == null)
             {
                 // Log group deletes
-                $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::PORTAL_GROUP, [
-                    new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+                $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PORTAL_GROUP, [
+                    new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
                 ]);
 
                 $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
@@ -144,9 +141,9 @@ class Group
      */
     public function removeUser(string $userID, int $groupID, string|null $backupID): array
     {
-        $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
+                new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
+                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
         if ($backupID == null) {
@@ -199,7 +196,6 @@ class Group
      * @return array|string
      */
     public function getMembers($groupID, bool $searchDeleted = false): array|string
-
     {
         if (!is_numeric($groupID))
         {
@@ -211,7 +207,6 @@ class Group
             $members = array();
             if (count($res) > 0)
             {
-                require_once '../VAMC_Directory.php';
                 $dir = new VAMC_Directory();
                 foreach ($res as $member)
                 {
@@ -260,11 +255,9 @@ class Group
      */
     public function addMember($member, $groupID): string
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID)) {
             $sql_vars = array(':userID' => $member,
@@ -275,9 +268,9 @@ class Group
                                                     VALUES (:userID, :groupID, null, 1, 1)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $sql_vars);
 
-            $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
+                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             // include the backups of employees
@@ -301,6 +294,7 @@ class Group
                                                     VALUES (:userID, :groupID, :backupID)
                                                     ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
             }
+
             return $member;
         }
     }
@@ -318,9 +312,9 @@ class Group
      */
     public function importUser(string $userID, int $groupID, string|null $backupID): array
     {
-        $this->dataActionLogger->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
-            new \LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
-            new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
+            new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
+            new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
         ]);
 
         $sql_vars = array(':userID' => $userID,
@@ -342,20 +336,18 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
         {
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(\DataActions::MODIFY, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::EMPLOYEE, [
+                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             $this->db->prepared_query('UPDATE users SET active = 0, locallyManaged = 1 WHERE userID=:userID AND groupID=:groupID', $sql_vars);
@@ -387,20 +379,18 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        include_once __DIR__ . '/../' . Config::$orgchartPath . '/sources/Employee.php';
-
         $config = new Config();
-        $db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-        $employee = new Orgchart\Employee($db_phonebook, $this->login);
+        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
         {
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-                new \LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
+                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
@@ -444,7 +434,7 @@ class Group
      */
     public function getGroupsList(): array
     {
-        $res = $this->db->query('SELECT groupID, name FROM `groups` WHERE groupID > 1 AND parentGroupID IS NULL ORDER BY name', array());
+        $res = $this->db->query('SELECT groupID, name FROM `groups` WHERE groupID > 1 AND parentGroupID IS NULL ORDER BY name');
 
         return (array) $res;
     }
@@ -483,7 +473,7 @@ class Group
         $sql_vars = array(":groupID" => $groupId);
         $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID = :groupID', $sql_vars);
 
-        if($res[0] != null){
+        if(!empty($res)){
             $return_value = $res[0]["name"];
         } else {
             $return_value = "";
@@ -500,26 +490,31 @@ class Group
      */
     private function getEmployeeDisplay($employeeID): string
     {
-        require_once '../VAMC_Directory.php';
-
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
-        $empData = $dirRes[0];
-        $empDisplay =$empData["firstName"]." ".$empData["lastName"];
+        if (isset($dirRes[0])) {
+            $empData = $dirRes[0];
+            $empDisplay =$empData["firstName"]." ".$empData["lastName"];
 
-        return $empDisplay;
+            return $empDisplay;
+        }
+
+        return '';
     }
 
     /**
      * Returns Portal Group logs.
-     * @param string $filterById - The id of the Group to find the logs of
+     *
+     * @param int|null $filterById
      *
      * @return array
+     *
+     * Created at: 12/5/2022, 10:45:23 AM (America/New_York)
      */
-    public function getHistory($filterById): array
+    public function getHistory(?int $filterById): array
     {
-        return $this->dataActionLogger->getHistory($filterById, "groupID", \LoggableTypes::PORTAL_GROUP);
+        return $this->dataActionLogger->getHistory($filterById, "groupID", \Leaf\LoggableTypes::PORTAL_GROUP);
     }
 
     /**
@@ -529,7 +524,9 @@ class Group
      */
     public function getAllHistoryIDs(): array
     {
-        return $this->dataActionLogger->getAllHistoryIDs("groupID", \LoggableTypes::PORTAL_GROUP);
+        // this method doesn't expect any arguments
+        //return $this->dataActionLogger->getAllHistoryIDs("groupID", \Leaf\LoggableTypes::PORTAL_GROUP);
+        return $this->dataActionLogger->getAllHistoryIDs();
     }
 
     /**
@@ -555,5 +552,4 @@ class Group
     {
         return $this->db->prepared_query('SELECT * FROM users WHERE groupID > 1 ORDER BY userID', array());
     }
-
 }

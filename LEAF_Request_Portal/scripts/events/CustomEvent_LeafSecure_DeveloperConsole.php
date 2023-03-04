@@ -8,14 +8,16 @@
     Template for events triggered by RMC workflow actions
 */
 
+namespace Portal;
+
 class CustomEvent_LeafSecure_DeveloperConsole
 {
     private $db;        // Object, Database connection
-    private $login;     // Object, Login information for the current user 
+    private $login;     // Object, Login information for the current user
     private $dir;       // Object, Phone directory lookup
     private $email;     // Object, Email control
     private $eventInfo; // Array, The event info that triggers this event
-                        //   (recordID, workflowID, stepID, actionType, comment) 
+                        //   (recordID, workflowID, stepID, actionType, comment)
     private $siteRoot;  // String, URL to the root directory
 
     function __construct($db, $login, $dir, $email, $siteRoot, $eventInfo)
@@ -39,12 +41,8 @@ class CustomEvent_LeafSecure_DeveloperConsole
         $res = $this->db->prepared_query('SELECT userID FROM records WHERE recordID=:recordID', $vars);
 
         // get the initiator's empUID
-        $currDir = dirname(__FILE__);
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/config.php';
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Employee.php';
-        require_once $currDir . '/../../' . Config::$orgchartPath . '/sources/Login.php';
         $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $login = new Orgchart\Login($oc_db, $oc_db);
         $employee = new Orgchart\Employee($oc_db, $login);
 

@@ -1,5 +1,8 @@
 <?php
 
-class FormatOptions{
+namespace Leaf;
+
+class FormatOptions
+{
     const READ_COLUMN_NAMES = "READCOLUMNNAME";
 }

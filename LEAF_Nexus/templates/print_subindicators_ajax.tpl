@@ -105,7 +105,7 @@
             <span class="printResponse" style="text-align: right" id="data_<!--{$indicator.indicatorID|strip_tags|escape}-->_<!--{$categoryID|strip_tags|escape}-->_<!--{$uid|strip_tags|escape}-->">
             <!--{if $indicator.data[0] != ''}-->
             <!--{foreach from=$indicator.data item=file}-->
-            <a href="file.php?categoryID=<!--{$categoryID|strip_tags|escape}-->&amp;UID=<!--{$uid|strip_tags|escape}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags|escape}-->&amp;file=<!--{$file|urlencode}-->" target="_blank" class="printResponse" onclick="event.stopPropagation();"><img src="../libs/dynicons/?img=mail-attachment.svg&amp;w=16" /><!--{$file|strip_tags|escape}--></a>
+            <a href="file.php?categoryID=<!--{$categoryID|strip_tags|escape}-->&amp;UID=<!--{$uid|strip_tags|escape}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags|escape}-->&amp;file=<!--{$file|urlencode}-->" target="_blank" class="printResponse" onclick="event.stopPropagation();"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /><!--{$file|strip_tags|escape}--></a>
             <!--{/foreach}-->
             <!--{else}-->
             No files attached.

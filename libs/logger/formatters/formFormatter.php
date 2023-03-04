@@ -1,11 +1,9 @@
 <?php
 
-require_once 'loggableTypes.php';
-require_once 'dataActions.php';
-require_once 'formatOptions.php';
+namespace Leaf;
 
-class FormFormatter{
-
+class FormFormatter
+{
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::FORM => [
             "message"=> "Form %s has been created",
@@ -26,5 +24,4 @@ class FormFormatter{
             "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint"
         ]
     ];
-
 }

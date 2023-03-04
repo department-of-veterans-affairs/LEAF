@@ -8,13 +8,8 @@
     Date Created: September 19, 2008
 
 */
-include_once __DIR__ . '/../libs/smarty/Smarty.class.php';
-require_once 'VAMC_Directory.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
+namespace Portal;
 
 class Email
 {
@@ -137,7 +132,6 @@ class Email
     /**
      * Add content into template variable then into template file
      * This result will then be added into the object variable as HTML output
-     * @param string $objVar       - private variable in Email object
      * @param string $strContent   - content to add to template
      * @param string $tplVar       - variable within template
      * @param string $tplFile      = template file name
@@ -147,9 +141,9 @@ class Email
         if($tplVar != '') {
             $strContent = str_replace("\r\n", '<br />', $strContent);
         }
-        $smarty = new Smarty;
-        $smarty->template_dir = __DIR__ . '/templates/email/';
-        $smarty->compile_dir = __DIR__ . '/templates_c/';
+        $smarty = new \Smarty;
+        $smarty->template_dir = __DIR__ . '/../templates/email/';
+        $smarty->compile_dir = __DIR__ . '/../templates_c/';
         $smarty->left_delimiter = '{{';
         $smarty->right_delimiter = '}}';
         if (($tplVar != '') && ($strContent != '')) {
@@ -316,14 +310,13 @@ class Email
         file_put_contents($currDir . '/templates_c/mailer/' . $emailQueueName, $emailCache);
 
         if (strtoupper(substr(php_uname('s'), 0, 3)) == 'WIN') {
-            $shell = new COM('WScript.Shell');
+            $shell = new \COM('WScript.Shell');
             $shell->Run("php {$currDir}/mailer/mailer.php {$emailQueueName}", 0, false);
         } else {
             exec("php {$currDir}/mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
 
         return true;
-
     }
 
     /**
@@ -333,61 +326,25 @@ class Email
     private function initOrgchart(): void
     {
         // set up org chart assets
-        if (!class_exists('DB')) {
-            include 'db_mysql.php';
-        }
-
-        if (!class_exists('Orgchart\Config')) {
-            include __DIR__ . '/' . Config::$orgchartPath . '/config.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
-        }
-
-        if (!class_exists('Orgchart\Login')) {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Login.php';
-        }
-
-        if (!class_exists('Orgchart\Employee')) {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Employee.php';
-        }
-
-        if (!class_exists('Orgchart\Position')) {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Position.php';
-        }
-
-        if (!class_exists('Orgchart\Group')) {
-            include __DIR__ . '/' . Config::$orgchartPath . '/sources/Group.php';
-        }
-
-        $config = new Orgchart\Config;
-        $oc_db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-        $oc_login = new OrgChart\Login($oc_db, $oc_db);
+        $config = new \Orgchart\Config;
+        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->employee = new OrgChart\Employee($oc_db, $oc_login);
-        $this->position = new OrgChart\Position($oc_db, $oc_login);
-        $this->group = new OrgChart\Group($oc_db, $oc_login);
+        $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
+        $this->position = new \Orgchart\Position($oc_db, $oc_login);
+        $this->group = new \Orgchart\Group($oc_db, $oc_login);
         $this->orgchartInitialized = true;
     }
 
     /**
-     * Initialize portal db object 
+     * Initialize portal db object
      * @return void
      */
     function initPortalDB(): void
     {
         // set up org chart assets
-        if (!class_exists('DB')) {
-            include 'db_mysql.php';
-        }
-
-        if (!class_exists('DB_Config')) {
-            include 'db_config.php';
-        }
-
-        $db_config = new DB_Config;
-        $this->portal_db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $db_config = new DbConfig;
+        $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
     }
 
     /**
@@ -397,16 +354,8 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        if (!class_exists('DB')) {
-            include 'db_mysql.php';
-        }
-
-        if (!class_exists('DB_Config')) {
-            include 'db_config.php';
-        }
-
         $nexus_config = new Config;
-        $this->nexus_db = new DB($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
+        $this->nexus_db = new \Leaf\Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
     }
 
     /**
@@ -471,10 +420,10 @@ class Email
             "WHERE emailTemplateID = :emailTemplateID;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -489,10 +438,10 @@ class Email
             "WHERE label = :emailTemplateLabel;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -513,9 +462,9 @@ class Email
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
-                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
+                    $this->addCcBcc(\Leaf\XSSHelpers::xscrub($emailAddress), true);
                 } else {
-                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
+                    $this->addRecipient(\Leaf\XSSHelpers::xscrub($emailAddress), true);
                 }
             }
         }
@@ -542,7 +491,7 @@ class Email
     public function setBody(string $i): void
     {
         $i = str_replace("\r\n", '<br />', $i);
-        $smarty = new Smarty;
+        $smarty = new \Smarty;
         $smarty->template_dir = __DIR__ . '/templates/email/';
         $smarty->compile_dir = __DIR__ . '/templates_c/';
         $smarty->left_delimiter = '{{';
@@ -616,7 +565,6 @@ class Email
                 $this->setTemplateByID($emailTemplateID);
             }
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
@@ -656,7 +604,6 @@ class Email
 
                     // special case for a person designated by the requestor
                     case -1:
-                        require_once 'form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -697,7 +644,6 @@ class Email
 
                     // special case for a group designated by the requestor
                     case -3:
-                        require_once 'form.php';
                         $form = new Form($this->portal_db, $loggedInUser);
 
                         // find the next step
@@ -737,7 +683,6 @@ class Email
 
             $this->setTemplateByID($emailTemplateID);
 
-            require_once 'VAMC_Directory.php';
             $dir = new VAMC_Directory;
 
             // Get user email and send

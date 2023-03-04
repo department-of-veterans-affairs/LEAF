@@ -75,7 +75,7 @@
                     </a>
                 </em>
                 {if $qrcodeURL != ''}
-                    <div><img class="print nodisplay" style="width: 72px" src="../../libs/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+                    <div><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
                 {/if}
             </div>
             <div class="leaf-header-right">

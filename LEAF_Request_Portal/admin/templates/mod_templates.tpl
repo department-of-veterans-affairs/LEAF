@@ -78,7 +78,7 @@
                     </button>
 
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" target="_blank">
-                        <a href="../../libs/dynicons/gallery.php">Icon Library</a>
+                        <a href="../dynicons/gallery.php">Icon Library</a>
                     </button>
 
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">
@@ -115,7 +115,7 @@ function save() {
 			   file: data},
         url: '../api/templateEditor/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			if($('#btn_compareStop').css('display') != 'none') {
 			    $('#btn_compare').css('display', 'none');

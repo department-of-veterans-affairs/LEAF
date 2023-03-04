@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'NationalData.php';
-
 class NationalEmployee extends NationalData
 {
     public $debug = false;
@@ -96,11 +94,11 @@ class NationalEmployee extends NationalData
         $sqlVars = array(':login' => $login);
 	$strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
 	$sqlVars = array(':empUID' => $result[0]['empUID']);
 	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
         if(isset($result[0]) && isset($resEmail[0])) {
             $result[0] = array_merge($result[0], $resEmail[0]);
         }
@@ -124,14 +122,14 @@ class NationalEmployee extends NationalData
         $strSQL = "SELECT * FROM {$this->tableName} WHERE empUID = :empUID AND deleted = 0";
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
 	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-	    
+
         if(isset($result[0]) && isset($resEmail[0])) {
             $result[0] = array_merge($result[0], $resEmail[0]);
         }
-	
+
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 
         return $result;
@@ -142,9 +140,9 @@ class NationalEmployee extends NationalData
      *
      * @param string $lastName
      * @param bool $disabled
-     * 
+     *
      * @return array
-     * 
+     *
      * Updated at: 1/25/2023, 12:44:32 PM (America/New_York)
      */
     public function lookupAllUsersLastName(string $lastName, bool $disabled): array
@@ -194,9 +192,9 @@ class NationalEmployee extends NationalData
      *
      * @param string $firstName
      * @param bool $disabled
-     * 
+     *
      * @return array
-     * 
+     *
      * Updated at: 1/25/2023, 12:43:43 PM (America/New_York)
      */
     public function lookupAllUsersFirstName(string $firstName, bool $disabled): array
@@ -342,13 +340,13 @@ class NationalEmployee extends NationalData
 
 
     /**
-     * Search for users 
+     * Search for users
      *
      * @param string $input
      * @param bool $includeDisabled
-     * 
+     *
      * @return array|bool
-     * 
+     *
      * Created at: 1/25/2023, 1:17:29 PM (America/New_York)
      */
     public function search(string $input, $indicatorID = '', bool $includeDisabled = false): array|bool
