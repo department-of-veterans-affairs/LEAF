@@ -423,7 +423,8 @@ export default {
                         </button>
                     </div>
                     <!-- INTERNAL FORMS SECTION -->
-                    <div v-if="focusedFormRecord?.parentID === ''" :id="'internalFormRecords_' + focusedFormID"  style="margin-top: 0.5rem;">
+                    <div v-if="focusedFormRecord?.parentID === '' && focusedFormTree.length > 0"
+                        :id="'internalFormRecords_' + focusedFormID"  style="margin-top: 0.5rem;">
                         <ul>
                             <li>
                                 <button type="button" id="addInternalUse" @click="openNewFormDialog($event, focusedFormRecord.categoryID)"
