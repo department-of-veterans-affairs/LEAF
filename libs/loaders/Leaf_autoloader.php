@@ -21,7 +21,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 
     $vars = array(':site_path' => '/' . PORTAL_PATH);
     $sql = 'SELECT site_path, site_uploads, portal_database, orgchart_path,
-                orgchart_database, libs_path
+                orgchart_database
             FROM sites
             WHERE site_path=:site_path';
 
