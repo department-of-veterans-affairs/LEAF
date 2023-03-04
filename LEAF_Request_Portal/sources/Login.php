@@ -94,7 +94,7 @@ class Login
       return $url;
     }
 
-    public function loginUser()
+    public function loginUser($userID='SYSTEM')
     {
         $authType = '/../auth_domain/?r=';
         $nonBrowserAuth = '/../login/?r=';
@@ -130,8 +130,11 @@ class Login
                 header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
+            // else lets login via user id since this is a cli process that needs specific user (think forms/groups/emails)
+            else{
+                $_SESSION['userID'] = $userID;
+            }
 
-            $_SESSION['userID'] = 'SYSTEM';
         }
 
         $var = array(':userID' => $_SESSION['userID']);
