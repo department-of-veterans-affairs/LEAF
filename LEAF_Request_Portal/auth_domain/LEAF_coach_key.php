@@ -1,19 +1,11 @@
 <?php
 // give coaches admin access
-
-namespace Portal;
-
 require_once '../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 ini_set('display_errors', 1);
 
-$db_config = new DbConfig();
-$config = new Config();
-$db = new \Leaf\DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new \Leaf\DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 $db_national = new \Leaf\DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-$login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
@@ -33,7 +25,7 @@ if(count($res) > 0) {
 
     $vars = array(':groupID' => 1,
                   ':empUID' => $login->getEmpUID());
-    $db_phonebook->prepared_query('INSERT INTO relation_group_employee (empUID, groupID) VALUES (:empUID, :groupID)', $vars);
+    $oc_db->prepared_query('INSERT INTO relation_group_employee (empUID, groupID) VALUES (:empUID, :groupID)', $vars);
 
     echo "Added {$userID} to Portal and Nexus admin lists";
 }
