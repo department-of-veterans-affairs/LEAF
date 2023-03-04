@@ -91,14 +91,14 @@ function check($folder) {
             file_put_contents($path_to_new, $file_contents);
             unlink($path_to_file);
             unlink($folder . '/config.php');
-        } else {
-            $items = scandir($folder);
-            $depth++;
-            foreach ($items as $item) {
-                echo 'Location: ' . $folder . '/' . $item;
-                if (is_dir($folder.'/'.$item) && ($item != '.' && $item != '..')) {
-                    check($folder.'/'.$item);
-                }
+        }
+    } else {
+        $items = scandir($folder);
+        $depth++;
+        foreach ($items as $item) {
+            echo 'Location: ' . $folder . '/' . $item . "\r\n";
+            if (is_dir($folder.'/'.$item) && ($item != '.' && $item != '..')) {
+                check($folder.'/'.$item);
             }
         }
     }
