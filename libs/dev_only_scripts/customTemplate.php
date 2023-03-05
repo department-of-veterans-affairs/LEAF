@@ -67,7 +67,4 @@ function getLineWithString($fileName) {
             $result .= '<li>Line # ' . $lineNumber . '- dynicons line</li>';
         }
     }
-
-    $result .= '</ul>';
-    return $result;
 }
