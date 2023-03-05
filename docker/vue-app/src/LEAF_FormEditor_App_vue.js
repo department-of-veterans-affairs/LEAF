@@ -37,6 +37,7 @@ export default {
                 } else { console.log('possible error setting modal save method')}
             },
             isEditingModal: false,
+            orgchartFormats: ['orgchart_group','orgchart_position','orgchart_employee'],
 
             appIsLoadingCategoryList: true,
             appIsLoadingForm: false,
@@ -102,6 +103,7 @@ export default {
             openStapleFormsDialog: this.openStapleFormsDialog,
             openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
             openIfThenDialog: this.openIfThenDialog,
+            orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
             stripAndDecodeHTML: this.stripAndDecodeHTML,

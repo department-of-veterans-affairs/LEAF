@@ -52,7 +52,6 @@ export default {
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
-            orgSelectorFormats: ['orgchart_employee', 'orgchart_group', 'orgchart_position'],
             newIndicatorID: null,
             name: this.indicatorRecord[this.currIndicatorID]?.name || '',
             options: this.indicatorRecord[this.currIndicatorID]?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
@@ -97,6 +96,7 @@ export default {
         'updateCategoriesProperty',
         'newIndicatorParentID',
         'truncateText',
+        'orgchartFormats'
     ],
     provide() {
         return {
@@ -124,15 +124,13 @@ export default {
         } else {
             document.getElementById(this.initialFocusElID).focus();
         }
-        if (this.orgSelectorFormats.includes(this.format)){
+        if (this.orgchartFormats.includes(this.format)){
             const selType = this.format.slice(this.format.indexOf('_') + 1);
             this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue);
-            document.getElementById(`modal_orgSel_data${this.currIndicatorID}`)?.addEventListener('change', this.updateDefaultValue);
             document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.addEventListener('change', this.updateDefaultValue);
         }
     },
     beforeUnmount() {
-        document.getElementById(`modal_orgSel_data${this.currIndicatorID}`)?.removeEventListener('change', this.updateDefaultValue);
         document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.removeEventListener('change', this.updateDefaultValue);
     },
     computed:{
@@ -535,7 +533,7 @@ export default {
     watch: {
         format(newVal, oldVal) {
             this.defaultValue = '';
-            if (this.orgSelectorFormats.includes(newVal)) {
+            if (this.orgchartFormats.includes(newVal)) {
                 const selType = newVal.slice(newVal.indexOf('_') + 1);
 
                 setTimeout(() => {
@@ -616,11 +614,11 @@ export default {
             </div>
             <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
-                <template v-if="orgSelectorFormats.includes(format)">
-                    <input :id="'modal_orgSel_data' + currIndicatorID" v-model="defaultValue" style="display: none; "/>
+                <template v-if="orgchartFormats.includes(format)">
+                    <input :id="'modal_orgSel_data' + currIndicatorID" @change="updateDefaultValue" style="display: none; "/>
                     <div :id="'modal_orgSel_' + currIndicatorID" style="min-height:30px" aria-labelledby="defaultValue"></div>
                 </template>
-                <textarea v-show="!orgSelectorFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
+                <textarea v-show="!orgchartFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
         </div>
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">

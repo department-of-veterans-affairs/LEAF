@@ -5,6 +5,7 @@ export default {
     inject: [
         'libsPath',
         'initializeOrgSelector',
+        'orgchartFormats'
     ],
     computed: {
         truncatedOptions() {
@@ -121,6 +122,20 @@ export default {
             $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
         }
     },
+    watch: {
+        baseFormat(newVal, oldVal) {
+            if(this.orgchartFormats.includes(newVal)) {
+                setTimeout(() => {
+                    this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
+                    const defaultVal = this.indicator.default;
+                    if (defaultVal) {
+                        document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
+                            `group#${defaultVal}` : `#${defaultVal}`;
+                    }
+                }, 10);
+            }
+        }
+    },
     template: `<div class="format-preview">
 
         <input v-if="baseFormat === 'text'" :id="inputElID" type="text" class="text_input_preview"/>
@@ -184,7 +199,7 @@ export default {
             style="display:none">
         </select>
         
-        <template v-if="baseFormat === 'orgchart_group' || baseFormat === 'orgchart_position' || baseFormat === 'orgchart_employee'">
+        <template v-if="orgchartFormats.includes(baseFormat)">
             <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
         </template>
 
