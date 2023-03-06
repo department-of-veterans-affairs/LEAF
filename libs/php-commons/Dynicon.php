@@ -100,13 +100,32 @@ class Dynicon
             $rawWidth = trim($xml->attributes()->width);
             $rawHeight = trim($xml->attributes()->height);
 
-            $xmlWidth = is_numeric($rawWidth) ? $rawWidth : substr($rawWidth, 0, strpos($rawWidth, 'px'));
-            $xmlHeight = is_numeric($rawHeight) ? $rawHeight : substr($rawHeight, 0, strpos($rawHeight, 'px'));
+            $unit_of_measure = 'px';
+
+            if (is_numeric($rawWidth)) {
+                $xmlWidth = $rawWidth;
+            } elseif (strpos($rawWidth, 'px')) {
+                $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'px'));
+            } elseif (strpos($rawWidth, 'mm')) {
+                $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'mm'));
+                $unit_of_measure = 'mm';
+            }
+
+            if (is_numeric($rawHeight)) {
+                $xmlHeight = $rawHeight;
+            } elseif (strpos($rawHeight, 'px')) {
+                $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'px'));
+            } elseif (strpos($rawHeight, 'mm')) {
+                $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'mm'));
+                $unit_of_measure = 'mm';
+            }
+
+
             $ratio = $this->width / $xmlWidth;
             $newHeight = $ratio * $xmlHeight;
 
-            $xml->attributes()->width = $this->width . 'px';
-            $xml->attributes()->height = $newHeight . 'px';
+            $xml->attributes()->width = $this->width . $unit_of_measure;
+            $xml->attributes()->height = $newHeight . $unit_of_measure;
             $xml->addAttribute('viewBox', "0 0 {$xmlWidth} {$xmlHeight}");
 
             file_put_contents("{$this->cacheDir}{$this->file}{$this->width}.svg", $xml->asXML());
