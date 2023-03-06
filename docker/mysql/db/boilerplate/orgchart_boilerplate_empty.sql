@@ -114,10 +114,7 @@ CREATE TABLE IF NOT EXISTS `data_log_items` (
   `column` varchar(75) NOT NULL,
   `value` TEXT NOT NULL,
   `displayValue` varchar(256),
-  PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`),
-  CONSTRAINT `data_log_item_data_action_log`
-    FOREIGN KEY (`data_action_log_fk`)
-    REFERENCES `data_action_log` (`id`)
+  PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`)
 );
 
 -- --------------------------------------------------------
@@ -133,10 +130,7 @@ CREATE TABLE IF NOT EXISTS `employee_privileges` (
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `empUID` (`empUID`,`categoryID`,`UID`),
-  CONSTRAINT `employee_privileges_emp`
-    FOREIGN KEY (`empUID`)
-    REFERENCES `employee` (`empUID`)
+  UNIQUE KEY `empUID` (`empUID`,`categoryID`,`UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -187,10 +181,7 @@ CREATE TABLE IF NOT EXISTS `group_privileges` (
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `groupID` (`groupID`,`categoryID`,`UID`),
-  CONSTRAINT `group_privileges_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+  UNIQUE KEY `groupID` (`groupID`,`categoryID`,`UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -203,10 +194,7 @@ CREATE TABLE IF NOT EXISTS `group_tags` (
   `groupID` smallint(6) unsigned NOT NULL,
   `tag` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   UNIQUE KEY `groupID` (`groupID`,`tag`),
-  INDEX `tag` (`tag`),
-  CONSTRAINT `group_tag_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+  INDEX `tag` (`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -300,13 +288,7 @@ CREATE TABLE IF NOT EXISTS `group_data_history` (
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   INDEX `timestamp` (`timestamp`),
-  INDEX `groupID` (`groupID`,`indicatorID`),
-  CONSTRAINT `group_data_history_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`),
-  CONSTRAINT `group_data_history_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `groupID` (`groupID`,`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -322,13 +304,7 @@ CREATE TABLE IF NOT EXISTS `employee_data` (
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`empUID`,`indicatorID`),
-  INDEX `indicatorID` (`indicatorID`),
-  CONSTRAINT `employee_data_emp`
-    FOREIGN KEY (`empUID`)
-    REFERENCES `employee` (`empUID`),
-  CONSTRAINT `employee_data_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `indicatorID` (`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -362,13 +338,7 @@ CREATE TABLE IF NOT EXISTS `employee_data_history` (
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   INDEX `empUID` (`empUID`,`indicatorID`),
-  INDEX `timestamp` (`timestamp`),
-  CONSTRAINT `employee_data_history_emp`
-    FOREIGN KEY (`empUID`)
-    REFERENCES `employee` (`empUID`),
-  CONSTRAINT `employee_data_history_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `timestamp` (`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -384,10 +354,7 @@ CREATE TABLE IF NOT EXISTS `indicator_privileges` (
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `indicatorID` (`indicatorID`,`categoryID`,`UID`),
-  CONSTRAINT `indicator_privileges_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  UNIQUE KEY `indicatorID` (`indicatorID`,`categoryID`,`UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -487,13 +454,7 @@ CREATE TABLE IF NOT EXISTS `position_data` (
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`positionID`,`indicatorID`),
-  INDEX `indicatorID` (`indicatorID`),
-  CONSTRAINT `position_data_position`
-    FOREIGN KEY (`positionID`)
-    REFERENCES `positions` (`positionID`),
-  CONSTRAINT `position_data_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `indicatorID` (`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -516,13 +477,7 @@ CREATE TABLE IF NOT EXISTS `position_data_history` (
   `author` varchar(30) NOT NULL,
   `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   INDEX `timestamp` (`timestamp`),
-  INDEX `positionID` (`positionID`,`indicatorID`),
-  CONSTRAINT `position_data_history_position`
-    FOREIGN KEY (`positionID`)
-    REFERENCES `positions` (`positionID`),
-  CONSTRAINT `position_data_history_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `positionID` (`positionID`,`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -538,10 +493,7 @@ CREATE TABLE IF NOT EXISTS `position_privileges` (
   `read` tinyint(1) NOT NULL DEFAULT '0',
   `write` tinyint(1) NOT NULL DEFAULT '0',
   `grant` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE KEY `positionID` (`positionID`,`categoryID`,`UID`),
-  CONSTRAINT `position_privileges_position`
-    FOREIGN KEY (`positionID`)
-    REFERENCES `positions` (`positionID`)
+  UNIQUE KEY `positionID` (`positionID`,`categoryID`,`UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -554,10 +506,7 @@ CREATE TABLE IF NOT EXISTS `position_tags` (
   `positionID` smallint(6) unsigned NOT NULL,
   `tag` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   UNIQUE KEY `positionID` (`positionID`,`tag`),
-  INDEX `tag` (`tag`),
-  CONSTRAINT `position_tag_position`
-    FOREIGN KEY (`positionID`)
-    REFERENCES `positions` (`positionID`)
+  INDEX `tag` (`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -571,10 +520,7 @@ CREATE TABLE IF NOT EXISTS `relation_employee_backup` (
   `backupEmpUID` mediumint(8) unsigned NOT NULL,
   `approved` tinyint(4) NOT NULL DEFAULT '0',
   `approverUserName` varchar(30) DEFAULT NULL,
-  UNIQUE KEY `empUID` (`empUID`,`backupEmpUID`),
-  CONSTRAINT `relation_employee_backup_emp`
-    FOREIGN KEY (`empUID`)
-    REFERENCES `employee` (`empUID`)
+  UNIQUE KEY `empUID` (`empUID`,`backupEmpUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -588,13 +534,7 @@ CREATE TABLE IF NOT EXISTS `relation_group_employee` (
   `empUID` mediumint(8) unsigned NOT NULL,
   UNIQUE KEY `groupID_2` (`groupID`,`empUID`),
   INDEX `groupID` (`groupID`),
-  INDEX `empUID` (`empUID`),
-  CONSTRAINT `relation_group_employee_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`),
-  CONSTRAINT `relation_group_employee_emp`
-    FOREIGN KEY (`empUID`)
-    REFERENCES `employee` (`empUID`)
+  INDEX `empUID` (`empUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -626,13 +566,7 @@ CREATE TABLE IF NOT EXISTS `relation_group_position` (
   `positionID` smallint(6) unsigned NOT NULL,
   UNIQUE KEY `groupID_2` (`groupID`,`positionID`),
   INDEX `groupID` (`groupID`),
-  INDEX `positionID` (`positionID`),
-  CONSTRAINT `relation_group_position_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`),
-  CONSTRAINT `relation_group_position_position`
-    FOREIGN KEY (`positionID`)
-    REFERENCES `positions` (`positionID`)
+  INDEX `positionID` (`positionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -647,13 +581,7 @@ CREATE TABLE IF NOT EXISTS `relation_position_employee` (
   `isActing` TINYINT NOT NULL DEFAULT 0,
   UNIQUE KEY `positionID_2` (`positionID`,`empUID`),
   INDEX `positionID` (`positionID`),
-  INDEX `empUID` (`empUID`),
-  CONSTRAINT `relation_position_employee_position`
-    FOREIGN KEY (`positionID`)
-    REFERENCES `positions` (`positionID`),
-  CONSTRAINT `relation_position_employee_emp`
-    FOREIGN KEY (`empUID`)
-    REFERENCES `employee` (`empUID`)
+  INDEX `empUID` (`empUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
