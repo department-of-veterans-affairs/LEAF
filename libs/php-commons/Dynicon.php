@@ -109,6 +109,8 @@ class Dynicon
             } elseif (strpos($rawWidth, 'mm')) {
                 $xmlWidth = substr($rawWidth, 0, strpos($rawWidth, 'mm'));
                 $unit_of_measure = 'mm';
+            } else {
+                $xmlWidth = 1;
             }
 
             if (is_numeric($rawHeight)) {
@@ -118,6 +120,8 @@ class Dynicon
             } elseif (strpos($rawHeight, 'mm')) {
                 $xmlHeight = substr($rawHeight, 0, strpos($rawHeight, 'mm'));
                 $unit_of_measure = 'mm';
+            } else {
+                $xmlHeight = 1;
             }
 
 
