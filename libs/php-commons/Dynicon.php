@@ -72,6 +72,10 @@ class Dynicon
     private function output()
     {
         $time = filemtime($this->cachedFile);
+        header_remove('Pragma');
+        header_remove('Cache-Control');
+        header_remove('Expires');
+        header('Cache-Control: private, max-age=604800');
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == gmdate('D, d M Y H:i:s T', $time))
         {
             header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $time), true, 304);
