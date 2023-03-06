@@ -51,6 +51,11 @@ else {
     QRcode::png($encode, $cacheFile, 'L', 4, 2);
 }
 
+header_remove('Pragma');
+header_remove('Cache-Control');
+header_remove('Expires');
+header('Cache-Control: private, max-age=604800');
+
 $time = filemtime($cacheFile);
 if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == date(DATE_RFC822, $time)) {
     header('Last-Modified: ' . date(DATE_RFC822, $time), true, 304);
