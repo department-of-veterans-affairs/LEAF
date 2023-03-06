@@ -276,6 +276,10 @@ export default {
             if(el) {
                 el.innerText = text;
                 el.style.opacity = 1;
+                el.style.border = '2px solid #20a0f0';
+                setTimeout(() => {
+                    el.style.border = '2px solid transparent';
+                }, 750);
             }
         },
         setDefaultAjaxResponseMessage() {
