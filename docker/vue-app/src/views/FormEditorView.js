@@ -26,6 +26,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDefaultAjaxResponseMessage',
         'appIsLoadingCategoryList',
         'appIsLoadingForm',
         'categories',
@@ -49,9 +50,8 @@ export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
             console.log('entered main/forms route');
-            console.log(vm.$route.query.formID);
-            //load catagories etc.  if the q is not empty, then get the specific form
-        })
+            vm.setDefaultAjaxResponseMessage();
+        });
     },
     provide() {
         return {

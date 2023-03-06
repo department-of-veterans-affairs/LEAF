@@ -12,6 +12,7 @@ import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog
 import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditorDialog.js";
 
 import ModFormMenu from "./components/ModFormMenu.js";
+import ResponseMessage from "./components/ResponseMessage";
 
 
 import './LEAF_FormEditor.scss';
@@ -24,6 +25,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
+            ajaxResponseMessage: '',
             siteSettings: {},
             showCertificationStatus: false,
             dialogTitle: '',
@@ -83,6 +85,7 @@ export default {
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
@@ -122,6 +125,7 @@ export default {
         ConfirmDeleteDialog,
         ConditionsEditorDialog,
         ModFormMenu,
+        ResponseMessage
     },
     mounted() {
         console.log('mounted main app')
@@ -273,6 +277,19 @@ export default {
                 el.innerText = text;
                 el.style.opacity = 1;
             }
+        },
+        setDefaultAjaxResponseMessage() {
+            $.ajax({
+                type: 'GET',
+                url: `ajaxIndex.php?a=default`,
+                data: {
+                    CSRFToken,
+                },
+                success: (res) => {
+                    this.ajaxResponseMessage = res;
+                },
+                error: (err) => reject(err)
+            });
         },
         initializeOrgSelector(selType = 'employee', indicatorID = 0, selectorIDPrefix = '', initialValue = '') {
             const prefix = selType === 'group' ? 'group#' : '#';
@@ -470,6 +487,7 @@ export default {
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '', subnodeIndID = null) {
+            this.setDefaultAjaxResponseMessage();
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',

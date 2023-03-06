@@ -1,5 +1,5 @@
 <div id="vue-formeditor-app">
-    <main>
+    <main v-if="ajaxResponseMessage===''">
         <mod-form-menu></mod-form-menu>
         <div style="display:none; padding: 0.5rem; margin: 0.5rem 0;" id="subordinate_site_warning">
             <h3 style="margin: 0 0 0.5rem 0; color: #a00;">This is a Nationally Standardized Subordinate Site</h3>
@@ -10,6 +10,7 @@
             <router-view></router-view>
         </section>
     </main>
+    <response-message v-else :message="ajaxResponseMessage"></response-message>
     <!-- DIALOGS -->
     <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>  
         <template #dialog-content-slot>

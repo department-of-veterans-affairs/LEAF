@@ -7,7 +7,8 @@ export default {
     },
     inject: [
         'APIroot',
-        'CSRFToken'
+        'CSRFToken',
+        'setDefaultAjaxResponseMessage'
     ],
     /**
      * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
@@ -21,6 +22,12 @@ export default {
             },
             error: (err) => console.log(err),
             cache: false
+        });
+    },
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            console.log('entered restore route');
+            vm.setDefaultAjaxResponseMessage();
         });
     },
     methods: {
