@@ -371,6 +371,7 @@ div[class$="SelectorBorder"] {
     }
     #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
         width: 100%;
+        max-width: 100%;
     }
     #formatDetails {
         margin: 0.5rem 0;
