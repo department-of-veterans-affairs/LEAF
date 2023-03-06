@@ -192,6 +192,7 @@ switch ($action) {
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
            $t_form->assign('APIroot', '../api/');
+           $t_form->assign('domain_path', DOMAIN_PATH);
 
            switch ($action) {
                case 'mod_templates':
