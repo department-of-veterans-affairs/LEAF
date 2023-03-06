@@ -345,7 +345,6 @@ switch ($action) {
     case 'bookmarks':
         $view = new Portal\View($db, $login);
         $bookmarks = $view->buildViewBookmarks($login->getUserID());
-        error_log(print_r($bookmarks, true));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';

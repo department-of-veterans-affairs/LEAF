@@ -274,6 +274,22 @@ INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `defau
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `group_data`
+--
+
+CREATE TABLE `group_data` (
+  `groupID` smallint(5) unsigned NOT NULL,
+  `indicatorID` smallint(5) NOT NULL,
+  `data` text NOT NULL,
+  `author` varchar(30) NOT NULL,
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`groupID`,`indicatorID`),
+  KEY `indicatorID` (`indicatorID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `group_data_history`
 --
 
