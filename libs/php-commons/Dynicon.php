@@ -31,7 +31,6 @@ class Dynicon
 
     public function __construct($file, $width)
     {
-        $file = \Leaf\XSSHelpers::scrubFilename($file);
         $this->file = $file;
         $this->width = $width;
 

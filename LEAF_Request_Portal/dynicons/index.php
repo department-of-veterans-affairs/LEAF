@@ -15,6 +15,8 @@
 */
 
 require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+//require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+include_once LIB_PATH .  '/php-commons/Dynicons.php';
+include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
 
-$image = new \Leaf\Dynicon($_GET['img'], $_GET['w']);
+$image = new \Leaf\Dynicon(\Leaf\XSSHelpers::scrubFilename($_GET['img']), $_GET['w']);
