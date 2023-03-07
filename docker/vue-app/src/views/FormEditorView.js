@@ -38,6 +38,7 @@ export default {
         'showLastUpdate',
         'openFormHistoryDialog',
         'newQuestion',
+        'editQuestion',
         'focusedFormRecord',
         'focusedFormTree',
         'openNewFormDialog',
@@ -313,7 +314,7 @@ export default {
                 event.target.classList.add('entered-drop-zone');
             }
         },
-        toggleToolbars(event = {}) {
+        toggleToolbars(event = {}, indicatorID = null) {
             event?.stopPropagation();
             if (event?.keyCode === 32) event.preventDefault();
             if (event.currentTarget.classList.contains('indicator-name-preview')) {
@@ -325,6 +326,10 @@ export default {
                         const finalTop = document.getElementById(id).getBoundingClientRect().top;
                         window.scrollBy(0, finalTop - initialTop);
                     });
+                } else {
+                    if(indicatorID) {
+                        this.editQuestion(indicatorID);
+                    }
                 }
             } else {
                 this.showToolbars = !this.showToolbars;
@@ -429,7 +434,7 @@ export default {
                             <li>
                                 <button type="button" id="addInternalUse" @click="openNewFormDialog($event, focusedFormRecord.categoryID)"
                                     title="New Internal-Use Form" style="color: black;">
-                                    Add New Internal-Use&nbsp;<span role="img" aria="">➕</span>
+                                    Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
                                 </button>
                             </li>
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">

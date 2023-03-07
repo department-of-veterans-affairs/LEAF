@@ -27,7 +27,7 @@ export default {
         <!-- form browser tables -->
         <div id="form_browser_tables">
             <h3>Active Forms:</h3>
-            <table id="active_forms">
+            <table v-if="activeForms.length > 0" id="active_forms">
                 <tr class="header-row">
                     <th id="active_name" style="width:250px">Form Name</th>
                     <th style="width:400px">Description</th>
@@ -41,9 +41,10 @@ export default {
                     :key="'active_' + c.categoryID">
                 </category-item>
             </table>
+            <p v-else style="margin-bottom: 2rem;">No Active Forms</p>
 
             <h3>Inactive Forms:</h3>
-            <table id="inactive_forms">
+            <table v-if="inactiveForms.length > 0" id="inactive_forms">
                 <tr class="header-row">
                     <th id="inactive_name" style="width:250px">Form Name</th>
                     <th style="width:400px">Description</th>
@@ -57,9 +58,10 @@ export default {
                     :key="'inactive_' + c.categoryID">
                 </category-item>
             </table>
+            <p v-else style="margin-bottom: 2rem;">No Inctive Forms</p>
 
             <h3>Supplemental Forms:</h3>
-            <table id="supplemental_forms">
+            <table v-if="supplementalForms.length > 0" id="supplemental_forms">
                 <tr class="header-row">
                     <th id="supplemental_name" style="width:250px">Form Name</th>
                     <th style="width:400px">Description</th>
@@ -73,6 +75,7 @@ export default {
                     :key="'supplement_' + c.categoryID">
                 </category-item>
             </table>
+            <p v-else style="margin-bottom: 2rem;">No Supplemental Forms</p>
         </div>
     </template>`
 }

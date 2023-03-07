@@ -14,6 +14,9 @@ export default {
         baseFormat() {
             return this.indicator.format?.toLowerCase()?.trim() || '';
         },
+        defaultValue() {
+            return this.indicator?.default || '';
+        },
         inputElID() {
             return `input_preview_${this.indicator.indicatorID}`;
         },
@@ -95,11 +98,7 @@ export default {
             case 'orgchart_position':
             case 'orgchart_employee':
                 this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
-                const defaultVal = this.indicator.default;
-                if (defaultVal) {
-                    document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
-                        `group#${defaultVal}` : `#${defaultVal}`;
-                }
+                this.updateOrgselectorPreview();
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
@@ -120,6 +119,12 @@ export default {
                 btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
             });
             $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
+        },
+        updateOrgselectorPreview() {
+            if (this.indicator?.default) {
+                document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
+                    `group#${this.indicator?.default}` : `#${this.indicator?.default}`;
+            }
         }
     },
     watch: {
@@ -127,12 +132,13 @@ export default {
             if(this.orgchartFormats.includes(newVal)) {
                 setTimeout(() => {
                     this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
-                    const defaultVal = this.indicator.default;
-                    if (defaultVal) {
-                        document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
-                            `group#${defaultVal}` : `#${defaultVal}`;
-                    }
+                    this.updateOrgselectorPreview();
                 }, 10);
+            }
+        },
+        defaultValue(newVal, oldVal) {
+            if(this.orgchartFormats.includes(this.baseFormat) && Number.isInteger(parseInt(newVal))) {
+                this.updateOrgselectorPreview();
             }
         }
     },

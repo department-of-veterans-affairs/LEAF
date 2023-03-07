@@ -80,7 +80,7 @@ export default {
                             class="icon" :title="'edit indicator ' + formNode.indicatorID" style="margin-top: 2px;">
                             <img :src="libsPath + 'dynicons/svg/accessories-text-editor.svg'" style="width: 20px" alt="" />
                         </button>
-                        <div v-html="indicatorName" @click="toggleToolbars($event)"
+                        <div v-html="indicatorName" @click="toggleToolbars($event, parseInt(formNode.indicatorID))"
                         class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                     </div>
                     <!-- FORMAT PREVIEW -->
