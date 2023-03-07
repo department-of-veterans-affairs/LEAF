@@ -618,7 +618,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('dbversion', '2020062600'),
 ('salt', rand()),
 ('version', '2743'),
-('heading', ''),
+('heading', 'Organizational Chart'),
 ('subheading', ''),
 ('timeZone', 'America/New_York'),
 ('adPath', ''),

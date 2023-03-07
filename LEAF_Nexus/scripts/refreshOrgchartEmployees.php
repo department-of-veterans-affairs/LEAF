@@ -15,7 +15,7 @@ define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
 
-require_once '../globals.php';
+require_once $currDir.'/../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 $phonedb = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
@@ -197,10 +197,9 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach ($orgEmployeeRes as $orgEmployee) {
-        $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
-
+        
         $localEmployeeArray[] = [
-            'empUID' => $localEmpArray[$orgEmployee['userName']],
+            'empUID' => (empty($localEmpArray[$orgEmployee['userName']]) ? null : $localEmpArray[$orgEmployee['userName']]),
             'userName' => $orgEmployee['userName'],
             'lastName' => $orgEmployee['lastName'],
             'firstName' => $orgEmployee['firstName'],
@@ -245,6 +244,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     foreach ($orgEmployeeDataRes as $orgEmployeeData) {
 
         $localEmployeeDataArray[] = [
+            // this will need to be checked into further I cannot silence this warning without possibly breaking things.
             'empUID' => $localEmpArray[$orgEmployeeData['userName']],
             'indicatorID' => $orgEmployeeData['indicatorID'],
             'data' => $orgEmployeeData['data'],
