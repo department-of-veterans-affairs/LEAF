@@ -101,11 +101,13 @@ if (session_id() == '') {
 
 if (class_exists('Portal\Login')) {
     $login = new Portal\Login($oc_db, $db);
-} else {
+} else if (class_exists('Orgchart\Login')) {
     $login = new Orgchart\Login($oc_db, $db);
+    $oc_login = new Orgchart\Login($oc_db, $oc_db);
+} else {
+    error_log(print_r($loader, true));
+    exit;
 }
-
-$oc_login = new Orgchart\Login($oc_db, $oc_db);
 $data_action_logger = new Leaf\DataActionLogger($db, $login);
 
 if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_HOST') . '/libs');
