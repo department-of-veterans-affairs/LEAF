@@ -880,10 +880,16 @@ class FormWorkflow
     /**
      * Checks if logged in user has access to the given empUID
      * Also checks if the current user is a backup of the given empUID
-     * @param string|array $empUID empUID to check
+     *
+     * $empUID should be a string, if it is not thus method will
+     * not return the expected result. setting the type in the method
+     * signature to mixed as we currently have string, array and null
+     * coming through.
+     *
+     * @param string $empUID empUID to check
      * @return boolean
      */
-    public function checkEmployeeAccess(string|array $empUID): bool
+    public function checkEmployeeAccess(mixed $empUID): bool
     {
         if ($empUID == $this->login->getEmpUID())
         {
