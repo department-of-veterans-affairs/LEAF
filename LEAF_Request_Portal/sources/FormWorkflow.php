@@ -157,7 +157,6 @@ class FormWorkflow
             if ($res[$i]['isActionable']) {
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
-                        require_once 'VAMC_Directory.php';
                         $dir = new VAMC_Directory;
                         $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
                         $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
@@ -201,7 +200,6 @@ class FormWorkflow
                     $res[$i]['isActionable'] = $this->checkEmployeeAccess($empUID);
 
                     $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
-                    require_once 'VAMC_Directory.php';
                     $dir = new VAMC_Directory;
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
 
@@ -882,10 +880,10 @@ class FormWorkflow
     /**
      * Checks if logged in user has access to the given empUID
      * Also checks if the current user is a backup of the given empUID
-     * @param string $empUID empUID to check
+     * @param string|array $empUID empUID to check
      * @return boolean
      */
-    public function checkEmployeeAccess(string $empUID): bool
+    public function checkEmployeeAccess(string|array $empUID): bool
     {
         if ($empUID == $this->login->getEmpUID())
         {
