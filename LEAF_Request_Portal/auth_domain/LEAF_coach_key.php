@@ -5,7 +5,7 @@ require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 ini_set('display_errors', 1);
 
-$db_national = new \Leaf\DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+$db_national = new Leaf\DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 $login->setBaseDir('../');
 $login->loginUser();
 
