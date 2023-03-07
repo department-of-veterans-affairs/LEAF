@@ -143,6 +143,10 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->setSort((int)$args[0], (int)$_POST['sort']);
         });
 
+        $this->index['POST']->register('formEditor/sort/batch', function ($args) use ($formEditor) {
+            return $formEditor->setSortBatch($_POST['sortData']);
+        });
+
         // Advanced Option allows HTML/JS
         $this->index['POST']->register('formEditor/[digit]/html', function ($args) use ($formEditor) {
             return $formEditor->setHtml((int)$args[0], $_POST['html']);

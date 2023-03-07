@@ -30,6 +30,9 @@ export default {
         if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
             let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
             if (el) el.classList.add('index-selected');
+
+            const elsMenu = Array.from(document.querySelectorAll(`li#index_listing_${this.selectedNodeIndicatorID} .sub-menu-chevron.closed`));
+            elsMenu.forEach(el => el.click());
         }
     },
     beforeUnmount() {

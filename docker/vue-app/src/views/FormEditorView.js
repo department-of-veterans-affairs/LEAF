@@ -14,7 +14,8 @@ export default {
             listTracker: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
             allowedConditionChildFormats: ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'],
             showToolbars: true,
-            sortLastUpdated: ''
+            sortLastUpdated: '',
+            updateKey: 0,
         }
     },
     components: {
@@ -112,6 +113,9 @@ export default {
         }
     },
     methods: {
+        forceUpdate() {
+            this.updateKey += 1;
+        },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
          * @param {Object} event 
@@ -156,21 +160,26 @@ export default {
          */
         applySortAndParentID_Updates() {
             let updateSort = [];
-            this.sortValuesToUpdate.forEach(item => {
+            if (this.sortValuesToUpdate.length > 0) {
+                let sortData = [];
+                this.sortValuesToUpdate.forEach(item => {
+                    sortData.push({ indicatorID: item.indicatorID, sort: item.listIndex });
+                });
+
                 updateSort.push(
                     $.ajax({
                         type: 'POST',
-                        url: `${this.APIroot}formEditor/${item.indicatorID}/sort`,
+                        url: `${this.APIroot}formEditor/sort/batch`,
                         data: {
-                            sort: item.listIndex,
+                            sortData: sortData,
                             CSRFToken: this.CSRFToken
                         },
-                        success: () => { //returns empty array
-                        },
+                        success: () => {}, //returns array of updates, [{ indicatorID, sort },]
                         error: err => console.log('ind sort post err', err)
                     })
                 );
-            });
+            }
+
             let updateParentID = [];
             this.parentIDsToUpdate.forEach(item => {
                 updateParentID.push(
@@ -181,8 +190,7 @@ export default {
                             parentID: item.newParentID,
                             CSRFToken: this.CSRFToken
                         },
-                        success: () => { //returns null
-                        },
+                        success: () => {}, //returns null
                         error: err => console.log('ind parentID post err', err)
                     })
                 );
@@ -192,18 +200,9 @@ export default {
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID, this.selectedNodeIndicatorID).then(()=> {
-                        this.sortValuesToUpdate.forEach(item => {
-                            this.listTracker[item.indicatorID].sort = item.listIndex;
-                        });
-                        this.parentIDsToUpdate.forEach(item => {
-                            this.listTracker[item.indicatorID].parentID = item.newParentID;
-                            this.listTracker[item.indicatorID].newParentID = '';
-                        });
                         this.sortLastUpdated = new Date().toLocaleString();
                         this.showLastUpdate('form_index_last_update', `last modified: ${this.sortLastUpdated}`);
-
-                        let elSublistDuplicates = Array.from(document.querySelectorAll('ul#base_drop_area > li.subindicator_heading'));
-                        elSublistDuplicates.forEach(el => document.getElementById('base_drop_area').removeChild(el));
+                        this.forceUpdate();
 
                     }).catch(err => console.log(err));
                 }
@@ -256,7 +255,8 @@ export default {
                 if (elsLI.length === 0) { //if the drop ul has no lis, just append it
                     try {
                         parentEl.append(document.getElementById(draggedElID));
-                        this.updateListTracker(indID, formParIndID, 0); 
+                        this.updateListTracker(indID, formParIndID, 0);
+                        //TODO: not certain if needed - old parent list updates? (it would just batch on the next load otherwise)
                     } catch (error) {
                         console.log(error);
                     }
@@ -395,7 +395,7 @@ export default {
                         </ul>
                     </div>
                     <!-- focused drop zone -->
-                    <ul v-if="focusedFormTree.length > 0" id="base_drop_area"
+                    <ul v-if="focusedFormTree.length > 0" id="base_drop_area" :key="'drop_zone_' + updateKey"
                         class="form-index-listing-ul"
                         data-effect-allowed="move"
                         @drop.stop="onDrop"
