@@ -465,7 +465,9 @@ class Workflow
                 'NotifyGroup' => $data['Notify Group'],
                 'AutomateEmailGroup' => $data['Automate Email Group'],
                 'DateSelected' => $data['Date Selected'],
-                'DaysSelected' => $data['Days Selected'])));
+                'DaysSelected' => $data['Days Selected'],
+                'AdditionalDaysSelected' => $data['Additional Days Selected']
+            )));
 
         $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
 
@@ -628,7 +630,8 @@ class Workflow
                 ':stepID' => $stepID,
                 ':stepData' => json_encode(['AutomatedEmailReminders' => [
                         'AutomateEmailGroup' => $data['AutomatedEmailReminders']['Automate Email Group'],
-                        'DaysSelected' => $data['AutomatedEmailReminders']['Days Selected']
+                        'DaysSelected' => $data['AutomatedEmailReminders']['Days Selected'],
+                        'AdditionalDaysSelected' => $data['AutomatedEmailReminders']['Additional Days Selected']
                     ]
                 ])
             ];

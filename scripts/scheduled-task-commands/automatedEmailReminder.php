@@ -30,7 +30,8 @@ function checkForOrgChart($folder, $depth = 0)
 
     global $folder_to_check;
 
-    if (is_dir($folder . '/' . $folder_to_check)) {
+    // make sure the folder exists and that it is not in the root directory of where we are checking, scripts in this case.
+    if (is_dir($folder . '/' . $folder_to_check) && $folder . '/' . $folder_to_check !== '/var/www/html/scripts') {
         if ($depth > 4 && strpos($folder, 'libs') > 0) {
             echo "OrgChart: " . $folder . " - depth: {$depth} - IGNORED\r\n";
         } else if (isBlacklisted($folder)) {
