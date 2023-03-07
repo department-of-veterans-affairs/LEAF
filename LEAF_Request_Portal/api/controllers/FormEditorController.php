@@ -95,6 +95,10 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->addIndicator($package);
         });
 
+        $this->index['POST']->register('formEditor/sort/batch', function ($args) use ($formEditor) {
+            return $formEditor->setSortBatch(XSSHelpers::scrubObjectOrArray($_POST['sortData']));
+        });
+
         $this->index['POST']->register('formEditor/[digit]/name', function ($args) use ($formEditor) {
             return $formEditor->setName((int)$args[0], $_POST['name']);
         });
@@ -141,10 +145,6 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/[digit]/sort', function ($args) use ($formEditor) {
             return $formEditor->setSort((int)$args[0], (int)$_POST['sort']);
-        });
-
-        $this->index['POST']->register('formEditor/sort/batch', function ($args) use ($formEditor) {
-            return $formEditor->setSortBatch($_POST['sortData']);
         });
 
         // Advanced Option allows HTML/JS
