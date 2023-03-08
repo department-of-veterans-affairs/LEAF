@@ -24,7 +24,6 @@ export default {
         'moveListing'
     ],
     mounted() {
-        console.log('mounted list item')
         //each list item is added to the array on parent component, to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
         if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {

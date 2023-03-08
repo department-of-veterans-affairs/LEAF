@@ -19,11 +19,9 @@ export default {
         'listTracker',
         'allowedConditionChildFormats',
         'showToolbars',
-        'toggleToolbars'
+        'toggleToolbars',
+        'makePreviewKey'
     ],
-    mounted() {
-        //console.log('form editing area mounted');
-    },
     computed: {
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
@@ -124,7 +122,7 @@ export default {
                 <form-editing-display v-for="child in formNode.child"
                     :depth="depth + 1"
                     :formNode="child"
-                    :key="'FED_' + child.indicatorID">
+                    :key="'FED_' + child.indicatorID + makePreviewKey(child)">
                 </form-editing-display>
             </template>
         </div>`

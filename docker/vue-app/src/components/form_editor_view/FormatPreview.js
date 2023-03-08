@@ -5,17 +5,21 @@ export default {
     inject: [
         'libsPath',
         'initializeOrgSelector',
-        'orgchartFormats'
+        'orgchartFormats',
+        'stripAndDecodeHTML'
     ],
     computed: {
         truncatedOptions() {
-            return this.indicator.options?.slice(0, 5) || [];
+            return this.indicator.options?.slice(0, 6) || [];
         },
         baseFormat() {
             return this.indicator.format?.toLowerCase()?.trim() || '';
         },
         defaultValue() {
             return this.indicator?.default || '';
+        },
+        strippedDefault() {
+            return this.stripAndDecodeHTML(this.defaultValue);
         },
         inputElID() {
             return `input_preview_${this.indicator.indicatorID}`;
@@ -42,7 +46,7 @@ export default {
         }
     },
     mounted() {
-        switch(this.baseFormat) {
+        switch(this.baseFormat.toLowerCase()) {
             case 'raw_data':
                 break;
             case 'date': 
@@ -66,12 +70,11 @@ export default {
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
                 if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
-
                     let options = this.indicator.options || [];
                     options = options.map(o =>({
                         value: o,
                         label: o,
-                        selected: this.indicator.default === o
+                        selected: this.strippedDefault === o
                     }));
                     const choices = new Choices(elSelect, {
                         allowHTML: false,
@@ -80,17 +83,6 @@ export default {
                         choices: options.filter(o => o.value !== "")
                     });
                     elSelect.choicesjs = choices;
-                    elSelect.addEventListener('change', ()=> {
-                        let elEmptyOption = document.getElementById(`${this.indicator.indicatorID}_empty_value`);
-                        if (elEmptyOption === null) {
-                            let opt = document.createElement('option');
-                            opt.id = `${this.indicator.indicatorID}_empty_value`;
-                            opt.value = "";
-                            elSelect.appendChild(opt);
-                            elEmptyOption = document.getElementById(`${this.indicator.indicatorID}_empty_value`);
-                        }
-                        elEmptyOption.selected = elSelect.value === '';
-                    });
                 }
                 $(`#${this.inputElID} ~ input.choices__input`).attr('aria-labelledby', this.labelSelector);
                 break;
@@ -127,33 +119,17 @@ export default {
             }
         }
     },
-    watch: {
-        baseFormat(newVal, oldVal) {
-            if(this.orgchartFormats.includes(newVal)) {
-                setTimeout(() => {
-                    this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
-                    this.updateOrgselectorPreview();
-                }, 10);
-            }
-        },
-        defaultValue(newVal, oldVal) {
-            if(this.orgchartFormats.includes(this.baseFormat) && Number.isInteger(parseInt(newVal))) {
-                this.updateOrgselectorPreview();
-            }
-        }
-    },
     template: `<div class="format-preview">
-
-        <input v-if="baseFormat === 'text'" :id="inputElID" type="text" :value="indicator.default" class="text_input_preview"/>
-        <input v-if="baseFormat === 'number'" :id="inputElID" type="number" :value="indicator.default" class="text_input_preview"/>
+        <input v-if="baseFormat === 'text'" :id="inputElID" type="text" :value="strippedDefault" class="text_input_preview"/>
+        <input v-if="baseFormat === 'number'" :id="inputElID" type="number" :value="strippedDefault" class="text_input_preview"/>
 
         <template v-if="baseFormat === 'currency'">
-            $&nbsp;<input :id="inputElID" type="number" :value="indicator.default"
+            $&nbsp;<input :id="inputElID" type="number" :value="strippedDefault"
             min="0.00" step="0.01" class="text_input_preview"/>
         </template>
 
         <template v-if="baseFormat === 'textarea'">
-            <textarea :id="inputElID" rows="6" class="textarea_input_preview" :value="indicator.default"></textarea>
+            <textarea :id="inputElID" rows="6" class="textarea_input_preview" :value="strippedDefault"></textarea>
             <div :id="'textarea_format_button_' + indicator.indicatorID"
                 @click="useAdvancedEditor" 
                 style="text-align: right; font-size: 12px"><span class="link">formatting options</span>
@@ -165,7 +141,7 @@ export default {
                 <label class="checkable leaf_check" :for="inputElID + '_radio' + i">
                     <input type="radio" :id="inputElID + '_radio' + i" 
                     :name="indicator.indicatorID" class="icheck leaf_check"
-                    :checked="indicator.default === o" />
+                    :checked="strippedDefault === o" />
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
@@ -175,7 +151,7 @@ export default {
         <template v-if="baseFormat === 'checkboxes' || baseFormat === 'checkbox'">
             <template v-for="o, i in truncatedOptions" :key="'check_prev_' + indicator.indicatorID + '_' + i">
                 <label class="checkable leaf_check" :for="inputElID + '_check' + i">
-                    <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  :checked="indicator.default === o" />
+                    <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  :checked="strippedDefault === o" />
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
@@ -194,8 +170,7 @@ export default {
             style="padding-left: 24px; font-size: 1.3em; font-family: monospace;" :value="indicator.default" />
         </template>
 
-        
-        <select v-if="baseFormat === 'dropdown'" :id="inputElID" style="width: 50%" :value="indicator.default">
+        <select v-if="baseFormat === 'dropdown'" :id="inputElID" style="width: 50%" :value="strippedDefault">
             <option v-for="o, i in truncatedOptions" :key="'drop_prev_' + indicator.indicatorID + '_' + i">
             {{o}}
             </option>

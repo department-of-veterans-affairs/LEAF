@@ -44,7 +44,7 @@ export default {
         'openNewFormDialog',
         'currentFormCollection',
         'stripAndDecodeHTML',
-        'truncateText'
+        'truncateText',
     ],
     mounted() {
         console.log('MOUNTED FORM EDITOR VIEW');
@@ -67,7 +67,8 @@ export default {
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
             moveListing: this.moveListing,
-            toggleToolbars: this.toggleToolbars
+            toggleToolbars: this.toggleToolbars,
+            makePreviewKey: this.makePreviewKey
         }
     },
     computed: {
@@ -348,6 +349,9 @@ export default {
         },
         layoutBtnIsDisabled(form) {
             return form.categoryID === this.focusedFormRecord.categoryID && this.selectedFormNode === null
+        },
+        makePreviewKey(node) {
+            return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
         }
     },
     watch: {
@@ -465,7 +469,7 @@ export default {
                                     :depth="0"
                                     :formNode="formSection"
                                     :index="i"
-                                    :key="'FED_' + formSection.indicatorID">
+                                    :key="'FED_' + formSection.indicatorID + makePreviewKey(formSection)">
                                 </form-editing-display>
                             </div>
                         </template>
@@ -484,7 +488,7 @@ export default {
                                 :depth="0"
                                 :formNode="selectedFormNode"
                                 :index="-1"
-                                :key="'FED_' + selectedFormNode.indicatorID">
+                                :key="'FED_' + selectedFormNode.indicatorID + makePreviewKey(selectedFormNode)">
                             </form-editing-display>
                         </div>
                     </div>

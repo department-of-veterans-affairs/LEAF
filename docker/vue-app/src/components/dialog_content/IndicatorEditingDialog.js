@@ -57,7 +57,7 @@ export default {
             options: this.indicatorRecord[this.currIndicatorID]?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //base format (eg 'radio')
             description: this.indicatorRecord[this.currIndicatorID]?.description || '',
-            defaultValue: this.indicatorRecord[this.currIndicatorID]?.default || '',
+            defaultValue: this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID]?.default || ''),
             required: parseInt(this.indicatorRecord[this.currIndicatorID]?.required) === 1 || false,
             is_sensitive: parseInt(this.indicatorRecord[this.currIndicatorID]?.is_sensitive) === 1 || false,
             parentID: this.indicatorRecord[this.currIndicatorID]?.parentID ? 
@@ -96,6 +96,7 @@ export default {
         'updateCategoriesProperty',
         'newIndicatorParentID',
         'truncateText',
+        'stripAndDecodeHTML',
         'orgchartFormats'
     ],
     provide() {
@@ -226,7 +227,7 @@ export default {
                                 '\n' + this.indicatorRecord[this.currIndicatorID]?.options?.join('\n') : '';
                 const fullFormatChanged = this.fullFormatForPost !== this.indicatorRecord[this.currIndicatorID].format + options;
 
-                const defaultChanged = this.defaultValue !== this.indicatorRecord[this.currIndicatorID].default;
+                const defaultChanged = this.stripAndDecodeHTML(this.defaultValue) !== this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID].default);
                 const requiredChanged = +this.required !== parseInt(this.indicatorRecord[this.currIndicatorID].required);
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.indicatorRecord[this.currIndicatorID].is_sensitive);
                 const parentIDChanged = this.parentID !== this.indicatorRecord[this.currIndicatorID].parentID;
