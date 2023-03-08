@@ -22,8 +22,7 @@
  * @return string
  */
 
- include_once __DIR__.'/../../loaders/Leaf_autoloader.php';
-
+include_once __DIR__ . '/../../php-commons/XSSHelpers.php';
 function smarty_modifier_sanitize($in)
 {
     return Leaf\XSSHelpers::sanitizeHTML($in);
