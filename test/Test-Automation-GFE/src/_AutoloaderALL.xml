@@ -1,60 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="RegressionSuite">
-	
- <!--
+<suite name="RegressionSuite-PRE-PROD">
+<!--    -->
+
+
 	<test name="Home Page">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
+		<parameter name="env" value="https://leaf.va.gov/NATIONAL/test/AS_Autoloader_NEW_3623_2/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.homePageTest"/>
 			</classes>
 		</parameter>
 	</test>   
-	
-	<test name="Admin Page">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/">
-		<parameter name="browser" value="chrome"/>
-			<classes>
-				<class name="Execution.adminPageTest"/>
-			</classes>     
-			</parameter>
-	</test>        
-	
 
-  
+ <!--    
+   		 	
 	<test name="User Access Groups">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.adminUserAccessTest"/>
 			</classes>
-			</parameter>
+		</parameter>
 	</test>
+	
+-->   	
+<!--	
+	<test name="Admin Page">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/">
+		<parameter name="browser" value="chrome"/>
+			<classes>
+				<class name="Execution.adminPageTest"/>
+			</classes>
+		</parameter>
+	</test>      
 
-  	  
-	<test name="Create New Request Workflow">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
+ 
+ 
+  
+ 
+	<test name="New Request Workflow"> 
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=newform">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.newRequestWorkflow"/>
 			</classes>
-			</parameter>
-	</test>
-  		 
+		</parameter>
+	</test>    
+
+-->
+
+ 
+
 	<test name="Org Chart Workflow">
-		<parameter name="env" value="https://localhost/LEAF_Nexus/">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/orgchart/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.orgChartWorkflow"/>
 			</classes>
-			</parameter>
-	</test>
-	
+		</parameter>
+	</test>    
+ 
 
-  	
+<!--   
+ 
  	<test name="Report Builder Workflow">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=reports">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.reportBuilderWorkflow"/>
@@ -62,20 +73,21 @@
 		</parameter>
 	</test>    
 
-    
-	
-	 	<test name="Forms Workflow">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
+-->
+
+ 	<test name="Forms Workflow">
+		<parameter name="env" value="https://leaf.va.gov/NATIONAL/test/AS_Autoloader_NEW_3623_2/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflow"/>
 			</classes>
 		</parameter>
-	</test>
+	</test>    
+	
 
- -->
+
 	<test name="Forms Workflow Part 2">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
+		<parameter name="env" value="https://leaf.va.gov/NATIONAL/test/AS_Autoloader_NEW_3623_2/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflowPart2"/>
@@ -83,18 +95,17 @@
 		</parameter>
 	</test>    
 
- 
-<!-- 
+
+
 	<test name="Forms Workflow Part 3">
-		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
+		<parameter name="env" value="https://leaf.va.gov/NATIONAL/test/AS_Autoloader_NEW_3623_2/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflowPart3"/>
 			</classes>
 		</parameter>
-	</test>    
--->
+	</test>   
 
- 		
+
 </suite>
 
