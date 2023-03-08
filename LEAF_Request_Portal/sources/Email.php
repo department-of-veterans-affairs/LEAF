@@ -84,7 +84,7 @@ class Email
     function getFilepath(string $tpl, string $type = ''): string
     {
         if ($type === 'body') {
-            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+            if (file_exists(__DIR__ . "/../templates/email/custom_override/{$tpl}")) {
                 return "custom_override/{$tpl}";
             } else if (preg_match('/CustomEvent_/', $tpl)) {
                 return "base_templates/LEAF_template_body.tpl";
@@ -92,7 +92,7 @@ class Email
                 return "{$tpl}";
             }
         } else if ($type === 'subject') {
-            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+            if (file_exists(__DIR__ . "/../templates/email/custom_override/{$tpl}")) {
                 return "custom_override/{$tpl}";
             } else if (preg_match('/CustomEvent_/', $tpl)) {
                 return "base_templates/LEAF_template_subject.tpl";
@@ -100,7 +100,7 @@ class Email
                 return "{$tpl}";
             }
         } else {
-            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+            if (file_exists(__DIR__ . "/../templates/email/custom_override/{$tpl}")) {
                 return "custom_override/{$tpl}";
             } else {
                 return "{$tpl}";
