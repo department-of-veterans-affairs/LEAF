@@ -21,8 +21,10 @@
  *
  * @return string
  */
+if(!class_exists('Leaf\XSSHelpers')){
+    include_once __DIR__ . '/../../php-commons/XSSHelpers.php';
+}
 
-include_once __DIR__ . '/../../php-commons/XSSHelpers.php';
 function smarty_modifier_sanitize($in)
 {
     return Leaf\XSSHelpers::sanitizeHTML($in);
