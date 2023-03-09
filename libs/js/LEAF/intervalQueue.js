@@ -34,6 +34,10 @@ var intervalQueue = function() {
         queue.push(item);
     }
 
+    function setQueue(myArray) {
+        queue = myArray;
+    }
+
     function start() {
         let promise = new Promise((resolve, reject) => {
             interval = setInterval(function() {
@@ -77,6 +81,7 @@ var intervalQueue = function() {
     return {
         start: start,
         push: push,
+        setQueue: setQueue,
         setConcurrency: setConcurrency,
         setWorker: setWorker,
         setOnWorkerError: setOnWorkerError,

@@ -9,6 +9,8 @@
 
 */
 
+namespace Portal;
+
 class FormStack
 {
     private $db;
@@ -109,7 +111,6 @@ class FormStack
     {
         if (!isset($this->formEditor))
         {
-            require_once 'FormEditor.php';
             $this->formEditor = new FormEditor($this->db, $this->login);
         }
     }

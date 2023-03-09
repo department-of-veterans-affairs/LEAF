@@ -12,7 +12,7 @@
     </main>
     <response-message v-else :message="ajaxResponseMessage"></response-message>
     <!-- DIALOGS -->
-    <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>  
+    <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>
         <template #dialog-content-slot>
             <component :is="dialogFormContent" :ref="dialogFormContent"></component>
         </template>
@@ -31,7 +31,7 @@
 
     $(function() {
         <!--{if $referFormLibraryID != ''}-->
-            postRenderFormBrowser = function() { 
+            postRenderFormBrowser = function() {
                 $('.formLibraryID_<!--{$referFormLibraryID}-->')
                 .animate({'background-color': 'yellow'}, 1000)
                 .animate({'background-color': 'white'}, 1000)
