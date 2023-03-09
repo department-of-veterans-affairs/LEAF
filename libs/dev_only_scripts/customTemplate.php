@@ -6,7 +6,7 @@ checkTemplate($dir);
 
 function checkTemplate($folder) {
     if (is_dir($folder . '/.svn')) {
-        if (is_dir($folder . '/templates/custom_override') || is_dir($folder . '/templates/reports')) {
+        if (is_dir($folder . '/templates/custom_override') || is_dir($folder . '/templates/reports') || is_dir($folder . '/admin/templates/custom_override')) {
             $events = scandir($folder . '/templates/custom_override');
             $events2 = scandir($folder . '/templates/reports');
             $events3 = scandir($folder . '/admin/templates/custom_override');
