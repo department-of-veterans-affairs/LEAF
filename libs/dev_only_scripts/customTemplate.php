@@ -9,18 +9,26 @@ function checkTemplate($folder) {
         if (is_dir($folder . '/templates/custom_override') || is_dir($folder . '/templates/reports')) {
             $events = scandir($folder . '/templates/custom_override');
             $events2 = scandir($folder . '/templates/reports');
+            $events3 = scandir($folder . '/admin/templates/custom_override');
 
             foreach ($events as $event) {
                 if ($event != '.' && $event != '..') {
-                    if (is_file($folder . '/templates/custom_override' . '/' . $event) && substr($event, -4) == '.tpl') {
-                        cleanFile($folder . '/templates/custom_override' . '/' . $event);
+                    if (is_file($folder . '/templates/custom_override/' . $event) && substr($event, -4) == '.tpl') {
+                        cleanFile($folder . '/templates/custom_override/' . $event);
                     }
                 }
             }
             foreach ($events2 as $event) {
                 if ($event != '.' && $event != '..') {
-                    if (is_file($folder . '/templates/reports' . '/' . $event) && substr($event, -4) == '.tpl') {
-                        cleanFile($folder . '/templates/reports' . '/' . $event);
+                    if (is_file($folder . '/templates/reports/' . $event) && substr($event, -4) == '.tpl') {
+                        cleanFile($folder . '/templates/reports/' . $event);
+                    }
+                }
+            }
+            foreach ($events3 as $event) {
+                if ($event != '.' && $event != '..') {
+                    if (is_file($folder . '/admin/templates/custom_override/' . $event) && substr($event, -4) == '.tpl') {
+                        cleanFile($folder . '/admin/templates/custom_override/' . $event);
                     }
                 }
             }
