@@ -11,7 +11,7 @@ export default {
         return {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
-            listTracker: {},  //object w key indID, vals parID, newParID, sort, listindex. for tracking parID and sort changes
+            listTracker: {},  //{indID:{parID, newParID, sort, listindex,},}. for tracking parID and sort changes
             allowedConditionChildFormats: ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'],
             showToolbars: true,
             sortLastUpdated: '',
@@ -47,11 +47,10 @@ export default {
         'truncateText',
     ],
     mounted() {
-        console.log('MOUNTED FORM EDITOR VIEW');
+        //console.log('MOUNTED FORM EDITOR VIEW');
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            console.log('entered main/forms route');
             vm.setDefaultAjaxResponseMessage();
         });
     },
@@ -211,8 +210,14 @@ export default {
             }).catch(err => console.log('an error has occurred', err));
 
         },
-        clearListItem(indID) {
-            delete this.listTracker[indID];
+        /**
+         * adds initial sort and parentID values to app list tracker
+         * @param {number} indID remove a record from the tracker
+         */
+        clearListItem(indID = 0) {
+            if (this.listTracker[indID]) {
+                delete this.listTracker[indID];
+            }
         },
         /**
          * adds initial sort and parentID values to app list tracker

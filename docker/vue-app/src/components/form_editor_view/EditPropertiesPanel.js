@@ -26,9 +26,6 @@ export default {
         'truncateText',
         'stripAndDecodeHTML',
 	],
-    mounted() {
-        console.log('mounted panel')
-    },
     computed: {
         workflowDescription() {
             let returnValue = '';

@@ -90,7 +90,7 @@ class FormEditorController extends RESTfulResponse
         });
 
         $this->index['POST']->register('formEditor/sort/batch', function ($args) use ($formEditor) {
-            return $formEditor->setSortBatch(XSSHelpers::scrubObjectOrArray($_POST['sortData']));
+            return $formEditor->setSortBatch(\Leaf\XSSHelpers::scrubObjectOrArray($_POST['sortData']));
         });
 
         $this->index['POST']->register('formEditor/[digit]/name', function ($args) use ($formEditor) {

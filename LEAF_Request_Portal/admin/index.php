@@ -189,17 +189,17 @@ switch ($action) {
                                             $libsPath.'js/LEAF/XSSHelpers.js',
                                             $libsPath.'js/choicesjs/choices.min.js',
                                             '../js/formQuery.js',
-                                            '../' . Config::$orgchartPath . '/js/employeeSelector.js',
-                                            '../' . Config::$orgchartPath . '/js/groupSelector.js',
-                                            '../' . Config::$orgchartPath . '/js/positionSelector.js'
+                                            '../' . Portal\Config::$orgchartPath . '/js/employeeSelector.js',
+                                            '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
+                                            '../' . Portal\Config::$orgchartPath . '/js/positionSelector.js'
         ));
         $main->assign('stylesheets', array($libsPath.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             $libsPath.'js/codemirror/lib/codemirror.css',
                                             $libsPath.'js/codemirror/addon/display/fullscreen.css',
                                             $libsPath.'js/choicesjs/choices.min.css',
-                                            '../' . Config::$orgchartPath . '/css/employeeSelector.css',
-                                            '../' . Config::$orgchartPath . '/css/groupSelector.css',
-                                            '../' . Config::$orgchartPath . '/css/positionSelector.css'
+                                            '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
+                                            '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
+                                            '../' . Portal\Config::$orgchartPath . '/css/positionSelector.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -207,7 +207,7 @@ switch ($action) {
         $t_form->assign('libsPath', $libsPath);
         $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 

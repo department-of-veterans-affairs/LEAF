@@ -128,10 +128,8 @@ export default {
         ResponseMessage
     },
     mounted() {
-        console.log('mounted main app')
         this.getCategoryListAll().then(() => {
             if(this.$route.name === 'category' && this.$route.query.formID) {
-                console.log('category route and formID query found, getting from query')
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
@@ -149,7 +147,6 @@ export default {
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
-            console.log('watcher', newVal, oldVal)
             if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
                 this.getFormFromQueryParam();
             }
@@ -157,15 +154,21 @@ export default {
     },
     computed: {
         /**
-         * @returns {Object} current record from categories object (main or internal forms)
+         * @returns {Object} current query from categories object
          */
         currentCategoryQuery() {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
+        /**
+         * @returns {Object} focused form record from categories object
+         */
         focusedFormRecord() {
             return this.categories[this.focusedFormID] || {};
         },
+        /**
+         * @returns {Object} form tree node
+         */
         selectedFormNode() {
             let selectedNode = null;
             if (this.selectedNodeIndicatorID !== null) {
@@ -177,6 +180,9 @@ export default {
             }
             return selectedNode;
         },
+        /**
+         * @returns {boolean} true once sensitive indicator found
+         */
         focusedFormIsSensitive() {
             let isSensitive = false;
             this.focusedFormTree.forEach(section => {
@@ -242,6 +248,10 @@ export default {
             }
             return internalFormRecords;
         },
+        /**
+         * 
+         * @returns {array} of categories records for queried form and any staples
+         */
         currentFormCollection() {
             let allRecords = [];
             let currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
@@ -266,7 +276,7 @@ export default {
          * @param {string} content 
          * @returns string with tags removed and remaining characers decoded
          */
-        stripAndDecodeHTML(content='') {
+        stripAndDecodeHTML(content = '') {
             const elDiv = document.createElement('div');
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
@@ -284,8 +294,8 @@ export default {
         },
         setDefaultAjaxResponseMessage() {
             $.ajax({
-                type: 'GET',
-                url: `ajaxIndex.php?a=default`,
+                type: 'POST',
+                url: `ajaxIndex.php?a=checkstatus`,
                 data: {
                     CSRFToken,
                 },
@@ -330,7 +340,6 @@ export default {
          * @returns {array} of objects with all fields from categories and workflow tables for enabled forms
          */
         getCategoryListAll() {
-            console.log('getting categories')
             this.appIsLoadingCategoryList = true;
             return new Promise((resolve, reject)=> {
                 $.ajax({
@@ -357,8 +366,7 @@ export default {
             const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
             if (formID === null || this.categories[formID] === undefined) {
                 this.selectNewCategory();
-                console.log('no form selected or form does not exist');
-                //TODO: form not found status message
+                //console.log('no form selected or form does not exist');
             } else {
                 this.selectNewCategory(formID, this.selectedNodeIndicatorID, true);
             }
@@ -486,8 +494,8 @@ export default {
             }
         },
         /**
-         * 
          * @param {string} catID 
+         * @param {number|null} subnodeIndID indicatorID of the focused form node
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '', subnodeIndID = null) {
@@ -531,10 +539,12 @@ export default {
          * @param {string} keyValue 
          */
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
-            this.categories[catID][keyName] = keyValue;
+            if(this.categories[catID][keyName]) {
+                this.categories[catID][keyName] = keyValue;
+            }
         },
         /**
-         * updates app allStapledFormCatIDs to track which forms have staples, and stapledFormIds of categories object
+         * updates app array allStapledFormCatIDs and stapledFormIds of categories object
          * @param {string} stapledCatID id of the form being merged/unmerged
          * @param {boolean} removeStaple indicates whether staple is being added or removed
          */
@@ -565,7 +575,7 @@ export default {
         },
         /**
          * @param {string} catID of the form to select
-         * @param {number|null} subnodeIndID the indicatorID associated with the currently selected form section from the Form Index
+         * @param {number|null} subnodeIndID indicatorID of currently selected form section
          */
         selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
             if (catID !== '') {

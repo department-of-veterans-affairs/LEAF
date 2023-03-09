@@ -74,7 +74,7 @@ export default {
                     options = options.map(o =>({
                         value: o,
                         label: o,
-                        selected: this.strippedDefault === o
+                        selected: this.strippedDefault !== '' && this.strippedDefault === o
                     }));
                     const choices = new Choices(elSelect, {
                         allowHTML: false,
@@ -141,7 +141,7 @@ export default {
                 <label class="checkable leaf_check" :for="inputElID + '_radio' + i">
                     <input type="radio" :id="inputElID + '_radio' + i" 
                     :name="indicator.indicatorID" class="icheck leaf_check"
-                    :checked="strippedDefault === o" />
+                    :checked="strippedDefault !== '' && strippedDefault === o" />
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
@@ -151,7 +151,7 @@ export default {
         <template v-if="baseFormat === 'checkboxes' || baseFormat === 'checkbox'">
             <template v-for="o, i in truncatedOptions" :key="'check_prev_' + indicator.indicatorID + '_' + i">
                 <label class="checkable leaf_check" :for="inputElID + '_check' + i">
-                    <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  :checked="strippedDefault === o" />
+                    <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  :checked="strippedDefault !== '' && strippedDefault === o" />
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>

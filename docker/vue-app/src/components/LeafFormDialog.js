@@ -42,7 +42,6 @@ export default {
         window.addEventListener('resize', this.checkSizes);
     },
     beforeUnmount() {
-        console.log('unmounting')
         window.removeEventListener('resize', this.checkSizes);
     },
     methods: {
