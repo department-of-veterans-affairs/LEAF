@@ -11,16 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-if(!class_exists('LogFormatter'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logFormatter.php';
-}
-if(!class_exists('LogItem'))
-{
-    require_once dirname(__FILE__) . '/../../libs/logItem.php';
-}
-
 class Group extends Data
 {
     protected $dataTable = 'group_data';
@@ -153,15 +143,15 @@ class Group extends Data
         $vars = array(':groupTitle' => $groupTitle,
                       ':parentID' => $parentGroupID,
                       ':phoGroupTitle' => metaphone($groupTitle), );
-        $this->db->prepared_query('INSERT INTO groups (groupTitle, parentID, phoneticGroupTitle)
+        $this->db->prepared_query('INSERT INTO `groups` (groupTitle, parentID, phoneticGroupTitle)
                VALUES (:groupTitle, :parentID, :phoGroupTitle)', $vars);
 
         $groupID = $this->db->getLastInsertID();
 
-        $this->logAction(\DataActions::ADD, \LoggableTypes::GROUP, [
-            new \LogItem("groups", "groupID", $groupID),
-            new \LogItem("groups", "groupTitle", $groupTitle),
-            new \LogItem("groups", "parentID", $parentGroupID)
+        $this->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::GROUP, [
+            new \Leaf\LogItem("groups", "groupID", $groupID),
+            new \Leaf\LogItem("groups", "groupTitle", $groupTitle),
+            new \Leaf\LogItem("groups", "parentID", $parentGroupID)
         ]);
 
         // Give admin to the person creating the group
@@ -181,12 +171,12 @@ class Group extends Data
                 $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                                     VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
 
-                $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
-                    new \LogItem("group_privileges", "groupID", $groupID, $groupTitle),
-                    new \LogItem("group_privileges", "UID", $position['positionID'], $this->getPositionDisplay($position['positionID'])),
-                    new \LogItem("group_privileges", "read", "true"),
-                    new \LogItem("group_privileges", "write", "true"),
-                    new \LogItem("group_privileges", "grant", "true")
+                $this->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::PRIVILEGES,[
+                    new \Leaf\LogItem("group_privileges", "groupID", $groupID, $groupTitle),
+                    new \Leaf\LogItem("group_privileges", "UID", $position['positionID'], $this->getPositionDisplay($position['positionID'])),
+                    new \Leaf\LogItem("group_privileges", "read", "true"),
+                    new \Leaf\LogItem("group_privileges", "write", "true"),
+                    new \Leaf\LogItem("group_privileges", "grant", "true")
                 ]);
             }
         }
@@ -198,12 +188,12 @@ class Group extends Data
             $res = $this->db->prepared_query('INSERT INTO group_privileges (groupID, categoryID, UID, `read`, `write`, `grant`)
                                                 VALUES (:groupID, :categoryID, :UID, 1, 1, 1)', $vars);
 
-            $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
-                new \LogItem("group_privileges", "groupID", $groupID, $groupTitle ),
-                new \LogItem("group_privileges", "UID", $this->login->getEmpUID(), $this->login->getName()),
-                new \LogItem("group_privileges", "read", "true"),
-                new \LogItem("group_privileges", "write", "true"),
-                new \LogItem("group_privileges", "grant", "true")
+            $this->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::PRIVILEGES,[
+                new \Leaf\LogItem("group_privileges", "groupID", $groupID, $groupTitle ),
+                new \Leaf\LogItem("group_privileges", "UID", $this->login->getEmpUID(), $this->login->getName()),
+                new \Leaf\LogItem("group_privileges", "read", "true"),
+                new \Leaf\LogItem("group_privileges", "write", "true"),
+                new \Leaf\LogItem("group_privileges", "grant", "true")
             ]);
         }
 
@@ -265,8 +255,8 @@ class Group extends Data
         $this->db->commitTransaction();
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::DELETE, \LoggableTypes::GROUP, [
-            new \LogItem("groups", "groupID", $groupID, $groupName)
+        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::GROUP, [
+            new \Leaf\LogItem("groups", "groupID", $groupID, $groupName)
         ]);
 
         return 1;
@@ -333,12 +323,12 @@ class Group extends Data
                       ':abbrTitle' => $abbrTitle,
                       ':groupID' => $groupID,
                       ':phoTitle' => metaphone($newTitle), );
-        $this->db->prepared_query('UPDATE groups SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
+        $this->db->prepared_query('UPDATE `groups` SET groupTitle=:groupTitle, groupAbbreviation=:abbrTitle, phoneticGroupTitle=:phoTitle
                                         WHERE groupID=:groupID', $vars);
 
-        $this->logAction(\DataActions::MODIFY,\LoggableTypes::GROUP,[
-            new \LogItem("groups", "groupID", $groupID),
-            new \LogItem("groups", "groupTitle", $newTitle)
+        $this->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::GROUP,[
+            new \Leaf\LogItem("groups", "groupID", $groupID),
+            new \Leaf\LogItem("groups", "groupTitle", $newTitle)
         ]);
 
         $this->updateLastModified();
@@ -357,13 +347,13 @@ class Group extends Data
 
         $vars = array(':groupID' => $groupID,
                       ':parentID' => $newParentID, );
-        $this->db->prepared_query('UPDATE groups SET parentID=:parentID
+        $this->db->prepared_query('UPDATE `groups` SET parentID=:parentID
                 						WHERE groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::MODIFY, \LoggableTypes::GROUP, [
-            new \LogItem("groups", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("groups", "parentID", $newParentID, $this->getTitle($groupID))
+        $this->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::GROUP, [
+            new \Leaf\LogItem("groups", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("groups", "parentID", $newParentID, $this->getTitle($groupID))
         ]);
 
         return $groupID;
@@ -433,7 +423,7 @@ class Group extends Data
         $this->db->limit($offset, $quantity);
         $vars = array(':tag' => $tag);
         $res = $this->db->prepared_query('SELECT * FROM group_tags
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
                                             WHERE tag=:tag
                                             ORDER BY groupTitle ASC', $vars);
 
@@ -522,13 +512,13 @@ class Group extends Data
     /**
      * Get all employees explicitly associated with a group
      * @param int $groupID
-     * @return array
+     *
      */
     public function listGroupEmployees($groupID)
     {
         if (!is_numeric($groupID))
         {
-            return new Exception('invalid group');
+            return new \Exception('invalid group');
         }
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
@@ -546,7 +536,6 @@ class Group extends Data
      * @param int       $groupID    the id of the group to retrieve
      * @param int       $offset     sql query offset (default=0)
      * @param int       $limit      sql query limit (default=none)
-     * @return array
      */
     public function listGroupEmployeesDetailed($groupID, $offset = 0, $limit = -1)
     {
@@ -583,7 +572,6 @@ class Group extends Data
 
         // Employee->getAllData() relies on lots of variables defined in that class,
         // so let it do the hard work
-        require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         foreach ($res as $key => $value)
         {
@@ -611,7 +599,6 @@ class Group extends Data
     public function listGroupEmployeesAll($groupID)
     {
         $output = array();
-        require_once 'Position.php';
         $position = new Position($this->db, $this->login);
 
         $positions = $this->listGroupPositions($groupID);
@@ -668,7 +655,7 @@ class Group extends Data
             return array(); // Special case to prevent retrieving entire list in one query
         }
 
-        $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
+        $sql = "SELECT * FROM `{$this->tableName}`{$sql_tag}
                     WHERE groupTitle LIKE :groupTitle
                     ORDER BY {$this->sortBy} {$this->sortDir}
                     {$this->limit}";
@@ -679,7 +666,7 @@ class Group extends Data
 
         if (count($result) == 0)
         {
-            $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
+            $sql = "SELECT * FROM `{$this->tableName}`{$sql_tag}
                         WHERE phoneticGroupTitle LIKE :groupTitle
                         ORDER BY {$this->sortBy} {$this->sortDir}
                         {$this->limit}";
@@ -709,7 +696,7 @@ class Group extends Data
 
         if (count($result) <= $this->deepSearch)
         {
-            $sql = "SELECT * FROM {$this->tableName}{$sql_tag}
+            $sql = "SELECT * FROM `{$this->tableName}`{$sql_tag}
                         WHERE groupAbbreviation LIKE :grpAbbr
                         ORDER BY {$this->sortBy} {$this->sortDir}
                         {$this->limit}";
@@ -807,9 +794,9 @@ class Group extends Data
 
         $newRecordID = $this->db->getLastInsertID();
 
-        $this->logAction(\DataActions::ADD, \LoggableTypes::POSITION, [
-            new \LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
+        $this->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::POSITION, [
+            new \Leaf\LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
         ]);
 
 
@@ -838,9 +825,9 @@ class Group extends Data
                                     WHERE positionID=:positionID AND groupID=:groupID', $vars);
         $this->updateLastModified();
 
-        $this->logAction(\DataActions::DELETE, \LoggableTypes::POSITION, [
-            new \LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
+        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::POSITION, [
+            new \Leaf\LogItem("relation_group_position", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("relation_group_position", "positionID", $positionID, $this->getPositionDisplay($positionID))
         ]);
 
         return 1;
@@ -875,9 +862,9 @@ class Group extends Data
 
         $employeeDisplay = $this->getEmployeeDisplay($employeeID);
 
-        $this->logAction(\DataActions::ADD, \LoggableTypes::EMPLOYEE, [
-            new \LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("relation_group_employee", "empUID", $employeeID, $employeeDisplay)
+        $this->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
+            new \Leaf\LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("relation_group_employee", "empUID", $employeeID, $employeeDisplay)
         ]);
 
         return $employeeID;
@@ -907,9 +894,9 @@ class Group extends Data
 
         $employeeDisplay = $this->getEmployeeDisplay($empUID);
 
-        $this->logAction(\DataActions::DELETE, \LoggableTypes::EMPLOYEE, [
-            new \LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("relation_group_employee", "empUID", $empUID, $employeeDisplay)
+        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
+            new \Leaf\LogItem("relation_group_employee", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("relation_group_employee", "empUID", $empUID, $employeeDisplay)
         ]);
 
         return 1;
@@ -1007,13 +994,13 @@ class Group extends Data
                                             AND categoryID=:categoryID
                                             AND UID=:UID", $vars)[0];
 
-        $this->logAction(\DataActions::MODIFY,\LoggableTypes::PRIVILEGES,[
-            new \LogItem("group_privileges", "read", ($newPermissions["read"]? "true": "false")),
-            new \LogItem("group_privileges", "write", ($newPermissions["write"]? "true": "false")),
-            new \LogItem("group_privileges", "grant", ($newPermissions["grant"]? "true": "false")),
-            new \LogItem("group_privileges", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("group_privileges", "categoryID", $categoryID),
-            new \LogItem("group_privileges", "UID", $UID, $this->getUIDDisplay($categoryID, $UID))
+        $this->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::PRIVILEGES,[
+            new \Leaf\LogItem("group_privileges", "read", ($newPermissions["read"]? "true": "false")),
+            new \Leaf\LogItem("group_privileges", "write", ($newPermissions["write"]? "true": "false")),
+            new \Leaf\LogItem("group_privileges", "grant", ($newPermissions["grant"]? "true": "false")),
+            new \Leaf\LogItem("group_privileges", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("group_privileges", "categoryID", $categoryID),
+            new \Leaf\LogItem("group_privileges", "UID", $UID, $this->getUIDDisplay($categoryID, $UID))
         ]);
         return 1;
     }
@@ -1055,13 +1042,13 @@ class Group extends Data
                                             AND categoryID=:categoryID
                                             AND UID=:UID", $vars)[0];
 
-        $this->logAction(\DataActions::MODIFY, \LoggableTypes::PRIVILEGES, [
-            new \LogItem("group_privileges", "read", ($newPermissions["read"] ? "true" : "false")),
-            new \LogItem("group_privileges", "write", ($newPermissions["write"] ? "true" : "false")),
-            new \LogItem("group_privileges", "grant", ($newPermissions["grant"] ? "true" : "false")),
-            new \LogItem("group_privileges", "groupID", $groupID, $this->getTitle($groupID)),
-            new \LogItem("group_privileges", "categoryID", $categoryID),
-            new \LogItem("group_privileges", "UID", $this->getUIDDisplay($categoryID,$UID))
+        $this->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::PRIVILEGES, [
+            new \Leaf\LogItem("group_privileges", "read", ($newPermissions["read"] ? "true" : "false")),
+            new \Leaf\LogItem("group_privileges", "write", ($newPermissions["write"] ? "true" : "false")),
+            new \Leaf\LogItem("group_privileges", "grant", ($newPermissions["grant"] ? "true" : "false")),
+            new \Leaf\LogItem("group_privileges", "groupID", $groupID, $this->getTitle($groupID)),
+            new \Leaf\LogItem("group_privileges", "categoryID", $categoryID),
+            new \Leaf\LogItem("group_privileges", "UID", $this->getUIDDisplay($categoryID,$UID))
         ]);
 
         // if subject has all permissions removed, delete the row from the table

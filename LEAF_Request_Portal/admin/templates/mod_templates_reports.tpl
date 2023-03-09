@@ -77,7 +77,7 @@ function save() {
 			   file: codeEditor.getValue()},
         url: '../api/reportTemplates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			var time = new Date().toLocaleTimeString();
 			$('#saveStatus').html('<br /> Last saved: ' + time);

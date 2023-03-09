@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Orgchart;
+
 class ControllerMap
 {
     private $controllers = array();
@@ -15,7 +17,7 @@ class ControllerMap
     /**
      * Register a controller, throwing an exception if there is an existing key
      * @param string $key
-     * @param closure $code
+     * @param \closure $code
      * @throws Exception
      */
     public function register($key, $code)

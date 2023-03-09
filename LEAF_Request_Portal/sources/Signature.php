@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Portal;
+
 class Signature
 {
     private $db;
@@ -36,7 +38,7 @@ class Signature
         );
 
         $res = $this->db->prepared_query(
-            'INSERT INTO 
+            'INSERT INTO
                 signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, userID, timestamp)
                 VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :userID, :timestamp)
                 ON DUPLICATE KEY UPDATE signature=:signature, message=:message, signerPublicKey=:signerPublicKey, userID=:userID, timestamp=:timestamp',
@@ -53,7 +55,7 @@ class Signature
         );
 
         $res = $this->db->prepared_query(
-            'SELECT * FROM 
+            'SELECT * FROM
                 signatures
                 WHERE recordID=:recordID;',
             $vars
@@ -77,8 +79,8 @@ class Signature
             $res = $this->db->prepared_query(
                 'SELECT * FROM
                 action_history
-                WHERE recordID=:recordID AND 
-                  actionType=:actionType AND 
+                WHERE recordID=:recordID AND
+                  actionType=:actionType AND
                   signature_id=:signature_id;',
                 $vars
             );
@@ -100,7 +102,7 @@ class Signature
         );
 
         $sigs = $this->db->prepared_query(
-            'SELECT * FROM 
+            'SELECT * FROM
                 signatures
                 WHERE recordID=:recordID;',
             $vars
@@ -119,8 +121,8 @@ class Signature
             $res = $this->db->prepared_query(
                 'SELECT * FROM
                 action_history
-                WHERE recordID=:recordID AND 
-                  actionType=:actionType AND 
+                WHERE recordID=:recordID AND
+                  actionType=:actionType AND
                   signature_id=:signature_id;',
                 $vars
             );
@@ -128,10 +130,10 @@ class Signature
             $nexusDB = $this->login->getNexusDB();
             $vars = array(':userName' => $res[0]['userID']);
             $res2 = $nexusDB->prepared_query(
-                'SELECT * FROM employee 
-                LEFT JOIN employee_data 
-                USING (empUID) 
-                WHERE indicatorID=6 AND 
+                'SELECT * FROM employee
+                LEFT JOIN employee_data
+                USING (empUID)
+                WHERE indicatorID=6 AND
                 userName=:userName;', $vars);
 
             array_push($res[0], $res2[0]);

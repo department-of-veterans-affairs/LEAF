@@ -1,19 +1,12 @@
 <?php
-
 $currDir = dirname(__FILE__);
-
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
-include_once $currDir . '/../Login.php';
-
-require_once $currDir . '/../Email.php';
-require_once $currDir . '/../VAMC_Directory.php';
-
+require_once $currDir.'/../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
 
 
-$request_uri = str_replace(['/var/www/html/','/scripts'],'',$_SERVER['PWD']);
+$request_uri = str_replace(['/var/www/html/','/scripts'],'',$currDir);
 
 $siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
 
@@ -26,12 +19,6 @@ if (!empty($_GET['minutes'])) {
 
 // this was what the random function I found used.
 $comment = '';
-
-$db_config = new DB_Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-
-$login = new Login($db, $db);
-
 
 $getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
 FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
@@ -49,6 +36,11 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // get our data, we need to see how many days back we need to look.
     $eventDataArray = json_decode($workflowStep['stepData'], true, 3);
+
+    // if we do not have automated email reminders skip on by, there could be a legacy entry in here.
+    if(empty($eventDataArray['AutomatedEmailReminders'])){
+        continue;
+    }
 
     // DateSelected * DaysSelected * what is a day anyway= how many days to bug this person.
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
@@ -79,7 +71,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(!empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
-        
+
         $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
 
         $additionalDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
@@ -95,7 +87,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID) 
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 1
@@ -118,7 +110,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     // go through each and send an email
     foreach ($getRecordRes as $record) {
         // send the email
-        $email = new Email();
+        $email = new Portal\Email();
         $email->setSiteRoot($siteRoot);
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
@@ -137,7 +129,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         // need to get the emails sending to make sure this actually works!
         // need to get login for this user, as it stands it will default to "SYSTEM" which is not what we want here. $login
         $login->loginUser($record['userID']);
-        $email->attachApproversAndEmail($record['recordID'],\Email::AUTOMATED_EMAIL_REMINDER,$login);
+        $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working
         $updateRecordsWorkflowStateVars = [
