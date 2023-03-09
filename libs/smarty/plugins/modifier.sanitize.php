@@ -21,8 +21,9 @@
  *
  * @return string
  */
-
- include_once '../../loaders/Leaf_autoloader.php';
+if(!class_exists('Leaf\XSSHelpers')){
+    include_once __DIR__ . '/../../php-commons/XSSHelpers.php';
+}
 
 function smarty_modifier_sanitize($in)
 {

@@ -23,18 +23,11 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
     $sql = 'SELECT site_path, site_uploads, portal_database, orgchart_path,
                 orgchart_database
             FROM sites
-            WHERE site_path=:site_path';
+            WHERE site_path= BINARY :site_path';
 
     $site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
     $working_dir = str_replace('/libs/loaders/Leaf_autoloader.php', '', __FILE__);
-
-    $vars = array(':site_path' => $site_paths['orgchart_path']);
-    $sql = 'SELECT site_path, orgchart_path, orgchart_database, site_uploads
-            FROM sites
-            WHERE site_path=:site_path';
-
-    $oc_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
     if (is_dir($working_dir . $site_paths['site_path'])) {
         $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);
@@ -108,11 +101,13 @@ if (session_id() == '') {
 
 if (class_exists('Portal\Login')) {
     $login = new Portal\Login($oc_db, $db);
-} else {
+} else if (class_exists('Orgchart\Login')) {
     $login = new Orgchart\Login($oc_db, $db);
+    $oc_login = new Orgchart\Login($oc_db, $oc_db);
+} else {
+    error_log(print_r($loader, true));
+    exit;
 }
-
-$oc_login = new Orgchart\Login($oc_db, $oc_db);
 $data_action_logger = new Leaf\DataActionLogger($db, $login);
 
 if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_HOST') . '/libs');

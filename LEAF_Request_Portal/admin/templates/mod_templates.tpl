@@ -78,7 +78,7 @@
                     </button>
 
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" target="_blank">
-                        <a href="../dynicons/gallery.php">Icon Library</a>
+                        <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php">Icon Library</a>
                     </button>
 
                     <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" id="btn_history" onclick="viewHistory()">

@@ -54,7 +54,13 @@ class Email
         $this->initPortalDB();
         $this->initNexusDB();
 
-        $this->siteRoot = "https://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+        if(!empty($_SERVER['REQUEST_URI'])){
+            $this->siteRoot = "https://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
+        }
+        else{
+            $this->siteRoot = "https://" . HTTP_HOST . '/';
+        }
+        
         $apiEntry = strpos($this->siteRoot, '/api/');
         if ($apiEntry !== false) {
             $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
@@ -78,7 +84,7 @@ class Email
     function getFilepath(string $tpl, string $type = ''): string
     {
         if ($type === 'body') {
-            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+            if (file_exists(__DIR__ . "/../templates/email/custom_override/{$tpl}")) {
                 return "custom_override/{$tpl}";
             } else if (preg_match('/CustomEvent_/', $tpl)) {
                 return "base_templates/LEAF_template_body.tpl";
@@ -86,7 +92,7 @@ class Email
                 return "{$tpl}";
             }
         } else if ($type === 'subject') {
-            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+            if (file_exists(__DIR__ . "/../templates/email/custom_override/{$tpl}")) {
                 return "custom_override/{$tpl}";
             } else if (preg_match('/CustomEvent_/', $tpl)) {
                 return "base_templates/LEAF_template_subject.tpl";
@@ -94,7 +100,7 @@ class Email
                 return "{$tpl}";
             }
         } else {
-            if (file_exists(__DIR__ . "/templates/email/custom_override/{$tpl}")) {
+            if (file_exists(__DIR__ . "/../templates/email/custom_override/{$tpl}")) {
                 return "custom_override/{$tpl}";
             } else {
                 return "{$tpl}";
@@ -239,7 +245,9 @@ class Email
 
         foreach($res as $user) {
             $tmp = $dir->lookupLogin($user['userID']);
-            $this->addRecipient($tmp[0]['Email']);
+            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                $this->addRecipient($tmp[0]['Email']);
+            }
         }
     }
 
@@ -570,7 +578,9 @@ class Email
             foreach ($approvers as $approver) {
                 if (strlen($approver['approverID']) > 0) {
                     $tmp = $dir->lookupLogin($approver['approverID']);
-                    $this->addRecipient($tmp[0]['Email']);
+                    if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                        $this->addRecipient($tmp[0]['Email']);
+                    }
                 }
 
                 // Special cases depending on dependency of record
@@ -584,7 +594,9 @@ class Email
                         foreach ($chief as $member) {
                             if (strlen($member['userID']) > 0) {
                                 $tmp = $dir->lookupLogin($member['userID']);
-                                $this->addRecipient($tmp[0]['Email']);
+                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                    $this->addRecipient($tmp[0]['Email']);
+                                }
                             }
                         }
                         break;
@@ -597,7 +609,9 @@ class Email
                         foreach ($quadrad as $member) {
                             if (strlen($member['userID']) > 0) {
                                 $tmp = $dir->lookupLogin($member['userID']);
-                                $this->addRecipient($tmp[0]['Email']);
+                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                    $this->addRecipient($tmp[0]['Email']);
+                                }
                             }
                         }
                         break;
@@ -621,7 +635,9 @@ class Email
 
                         if ($empUID > 0) {
                             $tmp = $dir->lookupEmpUID($empUID);
-                            $this->addRecipient($tmp[0]['Email']);
+                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                $this->addRecipient($tmp[0]['Email']);
+                            }
                         }
 
                         // add for backups
@@ -639,7 +655,9 @@ class Email
                         $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
                         $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
                         $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
-                        $this->addRecipient($tmp[0]['Email']);
+                        if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                            $this->addRecipient($tmp[0]['Email']);
+                        }
                         break;
 
                     // special case for a group designated by the requestor
@@ -687,7 +705,9 @@ class Email
 
             // Get user email and send
             $tmp = $dir->lookupLogin($recordInfo['userID']);
-            $this->addRecipient($tmp[0]['Email']);
+            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                $this->addRecipient($tmp[0]['Email']);
+            }
             $this->sendMail();
         } elseif ($emailTemplateID > 1) {
             $this->sendMail(); // Check for custom event to finalize email on Notify Next

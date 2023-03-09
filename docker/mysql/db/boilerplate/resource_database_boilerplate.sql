@@ -297,10 +297,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `locallyManaged` TINYINT(1) NULL DEFAULT 0,
   `active` TINYINT(4) NOT NULL DEFAULT 1,
   PRIMARY KEY (`userID`,`groupID`),
-  INDEX `groupID` (`groupID`),
-  CONSTRAINT `user_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+  INDEX `groupID` (`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -344,13 +341,7 @@ CREATE TABLE IF NOT EXISTS `records` (
   INDEX `deleted` (`deleted`),
   INDEX `serviceID` (`serviceID`),
   INDEX `userID` (`userID`),
-  INDEX `submitted` (`submitted`),
-  CONSTRAINT `record_service`
-    FOREIGN KEY (`serviceID`)
-    REFERENCES `services` (`serviceID`),
-  CONSTRAINT `record_user`
-    FOREIGN KEY (`userID`)
-    REFERENCES `users` (`userID`)
+  INDEX `submitted` (`submitted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -365,13 +356,7 @@ CREATE TABLE IF NOT EXISTS `tags` (
   `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL,
   UNIQUE KEY `recordID` (`recordID`,`tag`),
-  INDEX `tag` (`tag`),
-  CONSTRAINT `tag_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `tag_user`
-    FOREIGN KEY (`userID`)
-    REFERENCES `users` (`userID`)
+  INDEX `tag` (`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -388,16 +373,7 @@ CREATE TABLE IF NOT EXISTS `service_chiefs` (
   `active` tinyint(4) NOT NULL DEFAULT 1,
   UNIQUE KEY `serviceID_2` (`serviceID`,`userID`),
   INDEX `serviceID` (`serviceID`),
-  INDEX `userID` (`userID`),
-  CONSTRAINT `service_chief_service`
-    FOREIGN KEY (`serviceID`)
-    REFERENCES `services` (`serviceID`),
-  CONSTRAINT `service_chief_user`
-    FOREIGN KEY (`userID`)
-    REFERENCES `users` (`userID`),
-  CONSTRAINT `service_chief_backup`
-    FOREIGN KEY (`backupID`)
-    REFERENCES `users` (`userID`)
+  INDEX `userID` (`userID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -416,10 +392,7 @@ CREATE TABLE IF NOT EXISTS `records_dependencies` (
   INDEX `time` (`time`),
   CONSTRAINT `records_dependency_dependency`
     FOREIGN KEY (`dependencyID`)
-    REFERENCES `dependencies` (`dependencyID`),
-  CONSTRAINT `records_dependency_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`)
+    REFERENCES `dependencies` (`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -489,13 +462,7 @@ CREATE TABLE IF NOT EXISTS `records_step_fulfillment` (
   `recordID` mediumint(8) UNSIGNED NOT NULL,
   `stepID` smallint(6) NOT NULL,
   `fulfillmentTime` int(10) UNSIGNED NOT NULL,
-  UNIQUE KEY `recordID` (`recordID`,`stepID`) USING BTREE,
-  CONSTRAINT `records_step_fulfillment_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `records_step_fulfillment_step`
-    FOREIGN KEY (`stepID`)
-    REFERENCES `workflow_steps` (`stepID`)
+  UNIQUE KEY `recordID` (`recordID`,`stepID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -511,13 +478,7 @@ CREATE TABLE IF NOT EXISTS `records_workflow_state` (
   `lastNotified` timestamp DEFAULT CURRENT_TIMESTAMP,
   `initialNotificationSent` TINYINT(1) NULL DEFAULT '0',
   UNIQUE KEY `recordID` (`recordID`,`stepID`),
-  INDEX idx_lastNotified (lastNotified),
-  CONSTRAINT `records_workflow_state_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `records_workflow_state_step`
-    FOREIGN KEY (`stepID`)
-    REFERENCES `workflow_steps` (`stepID`)
+  INDEX idx_lastNotified (lastNotified)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -540,10 +501,7 @@ CREATE TABLE IF NOT EXISTS `workflow_routes` (
     REFERENCES `workflows` (`workflowID`),
   CONSTRAINT `workflow_routes_actionType`
     FOREIGN KEY (`actionType`)
-    REFERENCES `actions` (`actionType`),
-  CONSTRAINT `workflow_route_step`
-    FOREIGN KEY (`stepID`)
-    REFERENCES `workflow_steps` (`stepID`)
+    REFERENCES `actions` (`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -608,18 +566,6 @@ CREATE TABLE IF NOT EXISTS `action_history` (
   INDEX `actionTypeID` (`actionTypeID`),
   INDEX `dependencyID` (`dependencyID`),
   INDEX `actionType` (`actionType`),
-  CONSTRAINT `action_history_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `action_history_user`
-    FOREIGN KEY (`userID`)
-    REFERENCES `users` (`userID`),
-  CONSTRAINT `action_history_step`
-    FOREIGN KEY (`stepID`)
-    REFERENCES `workflow_steps` (`stepID`),
-  CONSTRAINT `action_history_dependency`
-    FOREIGN KEY (`dependencyID`)
-    REFERENCES `dependencies` (`dependencyID`),
   CONSTRAINT `action_history_action_type`
     FOREIGN KEY (`actionTypeID`)
     REFERENCES `action_types` (`actionTypeID`)
@@ -644,16 +590,7 @@ CREATE TABLE IF NOT EXISTS `approvals` (
   INDEX `recordID` (`recordID`),
   INDEX `groupID` (`groupID`),
   INDEX `record_group` (`recordID`,`groupID`),
-  INDEX `record_time` (`recordID`,`time`),
-  CONSTRAINT `approval_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `approval_user`
-    FOREIGN KEY (`userID`)
-    REFERENCES `users` (`userID`),
-  CONSTRAINT `group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+  INDEX `record_time` (`recordID`,`time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -699,9 +636,6 @@ CREATE TABLE IF NOT EXISTS `category_count` (
   `count` tinyint(3) UNSIGNED NOT NULL,
   PRIMARY KEY (`recordID`,`categoryID`),
   INDEX `categoryID` (`categoryID`),
-  CONSTRAINT `category_count_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
   CONSTRAINT `category_count_category`
     FOREIGN KEY (`categoryID`)
     REFERENCES `categories` (`categoryID`)
@@ -720,9 +654,6 @@ CREATE TABLE IF NOT EXISTS `category_privs` (
   `writable` tinyint(4) NOT NULL,
   UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
   INDEX `groupID` (`groupID`),
-  CONSTRAINT `category_privs_category`
-    FOREIGN KEY (`categoryID`)
-    REFERENCES `categories` (`categoryID`),
   CONSTRAINT `category_privs_group`
     FOREIGN KEY (`groupID`)
     REFERENCES `groups` (`groupID`)
@@ -807,13 +738,7 @@ CREATE TABLE IF NOT EXISTS `data` (
   `userID` varchar(50) NOT NULL,
   UNIQUE KEY `unique` (`recordID`,`indicatorID`,`series`),
   INDEX `indicator_series` (`indicatorID`,`series`),
-  INDEX `fastdata` (`indicatorID`, `data`(10)),
-  CONSTRAINT `data_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `data_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `fastdata` (`indicatorID`, `data`(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -828,13 +753,7 @@ CREATE TABLE IF NOT EXISTS `data_extended` (
   `data` text NOT NULL,
   `timestamp` int(10) UNSIGNED NOT NULL,
   `userID` varchar(50) NOT NULL,
-  INDEX `recordID_indicatorID` (`recordID`,`indicatorID`),
-  CONSTRAINT `data_extended_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `data_extended_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `recordID_indicatorID` (`recordID`,`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -851,13 +770,7 @@ CREATE TABLE IF NOT EXISTS `data_history` (
   `timestamp` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `userID` varchar(50) NOT NULL,
   INDEX `recordID` (`recordID`,`indicatorID`,`series`),
-  INDEX `timestamp` (`timestamp`),
-  CONSTRAINT `data_history_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `data_history_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`)
+  INDEX `timestamp` (`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -872,10 +785,7 @@ CREATE TABLE IF NOT EXISTS `data_log_items` (
   `column` varchar(75) NOT NULL,
   `value` TEXT NOT NULL,
   `displayValue` varchar(256),
-  PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`),
-  CONSTRAINT `data_log_items_data_action_log`
-    FOREIGN KEY (`data_action_log_fk`)
-    REFERENCES `data_action_log` (`id`)
+  PRIMARY KEY (`data_action_log_fk`,`tableName`,`column`)
 );
 
 -- --------------------------------------------------------
@@ -891,10 +801,7 @@ CREATE TABLE IF NOT EXISTS `dependency_privs` (
   INDEX `groupID` (`groupID`),
   CONSTRAINT `dependency_privs_dependency`
     FOREIGN KEY (`dependencyID`)
-    REFERENCES `dependencies` (`dependencyID`),
-  CONSTRAINT `dependency_privs_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+    REFERENCES `dependencies` (`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -913,13 +820,7 @@ CREATE TABLE IF NOT EXISTS `email_reminders` (
   `emailTemplate` text NOT NULL,
   `startDateIndicatorID` smallint(5) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `routeID` (`workflowID`,`stepID`,`actionType`),
-  CONSTRAINT `email_reminders_workflow`
-    FOREIGN KEY (`workflowID`)
-    REFERENCES `workflows` (`workflowID`),
-  CONSTRAINT `email_reminders_step`
-    FOREIGN KEY (`stepID`)
-    REFERENCES `workflow_steps` (`stepID`)
+  UNIQUE KEY `routeID` (`workflowID`,`stepID`,`actionType`)
 ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -933,13 +834,7 @@ CREATE TABLE IF NOT EXISTS `indicator_mask` (
   `groupID` mediumint(9) NOT NULL,
   UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`),
   INDEX `indicatorID` (`indicatorID`),
-  INDEX `groupID` (`groupID`),
-  CONSTRAINT `indicator_mask_indicator`
-    FOREIGN KEY (`indicatorID`)
-    REFERENCES `indicators` (`indicatorID`),
-  CONSTRAINT `indicator_mask_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+  INDEX `groupID` (`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -956,13 +851,7 @@ CREATE TABLE IF NOT EXISTS `notes` (
   `userID` varchar(50) NOT NULL,
   `deleted` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`noteID`),
-  INDEX `recordID` (`recordID`),
-  CONSTRAINT `note_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `note_user`
-    FOREIGN KEY (`userID`)
-    REFERENCES `users` (`userID`)
+  INDEX `recordID` (`recordID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -987,10 +876,7 @@ CREATE TABLE IF NOT EXISTS `route_events` (
     FOREIGN KEY (`eventID`)
     REFERENCES `events` (`eventID`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `route_events_workflow`
-    FOREIGN KEY (`workflowID`)
-    REFERENCES `workflows` (`workflowID`)
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -1025,16 +911,7 @@ CREATE TABLE IF NOT EXISTS `signatures` (
   `userID` varchar(50) NOT NULL,
   `timestamp` int(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`signatureID`),
-  UNIQUE KEY `recordID_stepID_depID` (`recordID`,`stepID`,`dependencyID`),
-  CONSTRAINT `signature_record`
-    FOREIGN KEY (`recordID`)
-    REFERENCES `records` (`recordID`),
-  CONSTRAINT `signature_step`
-    FOREIGN KEY (`stepID`)
-    REFERENCES `workflow_steps` (`stepID`),
-  CONSTRAINT `signature_dependency`
-    FOREIGN KEY (`dependencyID`)
-    REFERENCES `dependencies` (`dependencyID`)
+  UNIQUE KEY `recordID_stepID_depID` (`recordID`,`stepID`,`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

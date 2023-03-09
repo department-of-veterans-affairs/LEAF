@@ -1,6 +1,6 @@
 <?php
-
-require_once '../globals.php';
+$currDir = dirname(__FILE__);
+require_once $currDir.'/../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
@@ -37,6 +37,11 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     // get our data, we need to see how many days back we need to look.
     $eventDataArray = json_decode($workflowStep['stepData'], true, 3);
 
+    // if we do not have automated email reminders skip on by, there could be a legacy entry in here.
+    if(empty($eventDataArray['AutomatedEmailReminders'])){
+        continue;
+    }
+
     // DateSelected * DaysSelected * what is a day anyway= how many days to bug this person.
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
 
@@ -66,7 +71,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(!empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
-        
+
         $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
 
         $additionalDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
