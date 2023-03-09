@@ -47,7 +47,7 @@ var LeafForm = function(containerID) {
 
     
     function handleConditionalIndicators(formConditionsByChild = {}, dialog = null) {
-        const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'];
+        const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes', '', 'fileupload', 'image', 'textarea'];
 
         let childRequiredValidators = {};
         const handleChildValidators = (childID)=> {
@@ -304,7 +304,7 @@ var LeafForm = function(containerID) {
                             if(['hide', 'show'].includes(outcome) && !hideShowConditionMet && parentComparisonValues !== parent_val) {
                                 hideShowConditionMet = true;
                             }
-                            if(outcome === 'pre-fill' && childPrefillValue === '' && parentComparisonValues === parent_val) {
+                            if(outcome === 'pre-fill' && childPrefillValue === '' && parentComparisonValues !== parent_val) {
                                 childPrefillValue = cond.selectedChildValue.trim();
                             }
                         }

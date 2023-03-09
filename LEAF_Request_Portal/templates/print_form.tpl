@@ -428,7 +428,7 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
 }
 
 function handlePrintConditionalIndicators(formPrintConditions = {}) {
-    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'];
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes', '', 'fileupload', 'image', 'textarea'];
     const multiChoiceFormats = ['multiselect', 'checkboxes'];
 
     for (c in formPrintConditions) {
