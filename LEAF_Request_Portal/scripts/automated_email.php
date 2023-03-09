@@ -6,7 +6,7 @@ require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 $protocol = 'https';
 
 
-$request_uri = str_replace(['/var/www/html/','/scripts'],'',$_SERVER['PWD']);
+$request_uri = str_replace(['/var/www/html/','/scripts'],'',$currDir);
 
 $siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
 
