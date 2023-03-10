@@ -12,7 +12,7 @@ class FormFormatter
         DataActions::MODIFY.'-'.LoggableTypes::FORM => [
             "message" => "Form %s",
             "variables" => "categoryID,".FormatOptions::READ_COLUMN_NAMES,
-            "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type"
+            "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type,destructionAge"
         ],
         DataActions::ADD.'-'.LoggableTypes::INDICATOR => [
             "message" => "Indicator %s has been added to form %s",

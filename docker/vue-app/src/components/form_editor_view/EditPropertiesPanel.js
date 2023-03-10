@@ -56,7 +56,11 @@ export default {
             return 255 - this.categoryDescription.length;
         },
         destructionAgeInDays() {
-            return 365 * this.destructionAgeYears + this.destructionDaysRemainder;
+            let returnVal = null;
+            if(Number.isInteger(this.destructionAgeYears) && Number.isInteger(this.destructionDaysRemainder)) {
+                returnVal = 365 * this.destructionAgeYears + this.destructionDaysRemainder;
+            }
+            return returnVal;
         }
     },
     methods: {
@@ -169,23 +173,25 @@ export default {
         },
         updateDestructionAge() {
             //TODO: minumum?  opt out? etc
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}formEditor/destructionAge`,
-                data: {
-                    destructionAge: this.destructionAgeInDays,
-                    categoryID: this.formID,
-                    CSRFToken: this.CSRFToken
-                },
-                success: (res) => {
-                    if (res === this.destructionAgeInDays) {
-                        this.updateCategoriesProperty(this.formID, 'destructionAge', this.destructionAgeInDays);
-                        this.lastUpdated = new Date().toLocaleString();
-                        this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
-                    }
-                },
-                error: err => console.log('destruction age post err', err)
-            })
+            if(this.destructionAgeInDays !== null && this.destructionAgeInDays > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: `${this.APIroot}formEditor/destructionAge`,
+                    data: {
+                        destructionAge: this.destructionAgeInDays,
+                        categoryID: this.formID,
+                        CSRFToken: this.CSRFToken
+                    },
+                    success: (res) => {
+                        if (res === this.destructionAgeInDays) {
+                            this.updateCategoriesProperty(this.formID, 'destructionAge', this.destructionAgeInDays);
+                            this.lastUpdated = new Date().toLocaleString();
+                            this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                        }
+                    },
+                    error: err => console.log('destruction age post err', err)
+                })
+            }
         },
     },
     template: `<div id="edit-properties-panel">
@@ -253,11 +259,13 @@ export default {
                     <div style="display:flex; align-items: center; column-gap: 1rem;">
                         <label for="destructionAgeYearsAndDays" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years/Days)
                             <input type="number" id="destructionAgeYears" v-model.number="destructionAgeYears"
-                                aria-labelledby="destructionAgeYearsAndDays" 
+                                aria-labelledby="destructionAgeYearsAndDays"
+                                min="0"
                                 title="resolved request destruction age in years" 
                                 @change="updateDestructionAge" />
                             <input type="number" id="destructionAgeDays" v-model.number="destructionDaysRemainder"
-                                aria-labelledby="destructionAgeYearsAndDays" 
+                                aria-labelledby="destructionAgeYearsAndDays"
+                                min="0" max="364"
                                 title="resolved request destruction age in days" 
                                 @change="updateDestructionAge" />
                         </label>
