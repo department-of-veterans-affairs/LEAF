@@ -30,8 +30,6 @@ class VAMC_Directory_maintenance_AD
     // Connect to the database
     public function __construct()
     {
-        $currDir = dirname(__FILE__);
-        require_once $currDir . '/../config.php';
         $config = new Orgchart\Config();
 
         try
@@ -420,7 +418,7 @@ class VAMC_Directory_maintenance_AD
         $pq->bindParam(':source', $tmp);
 
         $pq->execute();
-        echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
+        //echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
         if ($pq->errorCode() != '00000')
         {
             print_r($pq->errorInfo());
@@ -434,7 +432,8 @@ class VAMC_Directory_maintenance_AD
     {
         $sql = "SELECT SQL_NO_CACHE * FROM {$this->tableName}";
 
-        $res = $this->db->prepared_query($sql, array())->fetchAll(PDO::FETCH_ASSOC);
+        $res = $this->db->prepared_query($sql, array());
+        // ->fetchAll(PDO::FETCH_ASSOC);
         echo 'Generating phonetic cache...';
 
         foreach ($res as $emp)
@@ -443,7 +442,7 @@ class VAMC_Directory_maintenance_AD
             $pLast = metaphone($emp['Lname']);
             $vars = array('pFirst' => $pFirst, 'empID' => $emp['EmpID']);
             $sql = "UPDATE {$this->tableName} SET PhoneticFname = ':pFirst' WHERE EmpID = :empID";
-            $query = $this->db->prepared_query($sql, vars);
+            $query = $this->db->prepared_query($sql, $vars);
             // $query->execute();
 
             $vars2 = array('pLast' => $pLast, 'empID' => $emp['EmpID']);
