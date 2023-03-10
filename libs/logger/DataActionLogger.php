@@ -227,10 +227,6 @@ class DataActionLogger{
             $strSQL = "SELECT :columns FROM :table WHERE :pk = :id";
             
             $potentialValues = $this->db->prepared_query($strSQL, $vars);
-            
-            echo "<pre>";
-            var_dump($potentialValues);
-            echo "</pre>";
         }
 
         return $logData;

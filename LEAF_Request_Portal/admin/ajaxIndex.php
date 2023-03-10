@@ -279,6 +279,9 @@ switch ($action) {
 
 
         $resHistory = $type->getHistory($itemID);
+        usort($resHistory, function($a, $b) {
+            return $b['timestamp'] <=> $a['timestamp'];
+        });
 
         for($i = 0; $i<count($resHistory); $i++){
             $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
@@ -290,10 +293,6 @@ switch ($action) {
 
         if($gethistoryslice)
         {
-            usort($resHistory, function($a, $b) {
-                return $b['timestamp'] <=> $a['timestamp'];
-            });
-
             $pageStart = ($page * $pageLength) - $pageLength;
             $totalHistorySlice = array_slice($resHistory, $pageStart, $pageLength);
             $t_form->assign('dataType', ucwords($typeName));
