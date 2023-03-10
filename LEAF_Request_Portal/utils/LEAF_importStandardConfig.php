@@ -4,6 +4,8 @@ ini_set('display_errors', 0); // Set to 1 to display errors
 require_once '../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
+$db_config = new Portal\DbConfig;
+
 $debug = false;
 
 $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
