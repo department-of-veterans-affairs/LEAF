@@ -445,7 +445,7 @@ var LeafForm = function (containerID) {
               if (
                 outcome === "pre-fill" &&
                 childPrefillValue === "" &&
-                parentComparisonValues === parent_val
+                parentComparisonValues !== parent_val
               ) {
                 childPrefillValue = cond.selectedChildValue.trim();
               }

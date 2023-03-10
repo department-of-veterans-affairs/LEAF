@@ -224,6 +224,7 @@ const ConditionsEditor = Vue.createApp({
       } else {
         value = target.value;
       }
+      value = XSSHelpers.stripAllTags(value);
       this.selectedChildValue = value;
     },
     updateSelectedChildIndicator() {
@@ -465,7 +466,7 @@ const ConditionsEditor = Vue.createApp({
       if (elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
 
       this.selectedChildOutcome = conditionObj?.selectedOutcome;
-      this.selectedChildValue = conditionObj?.selectedChildValue;
+      this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue);
     },
     /**
      *
@@ -678,7 +679,7 @@ const ConditionsEditor = Vue.createApp({
       const selectedOp = this.selectedOperator;
       const selectedParentValue = this.selectedParentValue;
       const selectedOutcome = this.selectedChildOutcome;
-      const selectedChildValue = this.selectedChildValue;
+      const selectedChildValue = XSSHelpers.stripAllTags(this.selectedChildValue);
       const childFormat = this.childFormat;
       const parentFormat = this.parentFormat;
       return {
