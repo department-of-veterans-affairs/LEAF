@@ -4,6 +4,7 @@ export default {
     },
     inject: [
         'orgchartPath',
+        'libsPath',
         'addOrgSelector',
         'orgSelectorClassesAdded'     //JS classes for orgchart formats
     ],
@@ -199,8 +200,9 @@ export default {
         </fieldset>
 
         <template v-if="baseFormat === 'date'">
-            <input type="text" :id="inputElID" 
-            style="background: url(../../libs/dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace; background-color: white;" value="" />
+            <input type="text" :id="inputElID"
+            :style="'background: white url(' + libsPath + 'dynicons/svg/office-calendar.svg) no-repeat 4px center; background-size: 16px;'"
+            style="padding-left: 24px; font-size: 1.3em; font-family: monospace;" value="" />
         </template>
 
         

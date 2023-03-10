@@ -11,6 +11,7 @@ export default {
         FormatPreview
     },
     inject: [
+        'libsPath',
         'newQuestion',
         'editQuestion',
         'openAdvancedOptionsDialog',
@@ -39,7 +40,7 @@ export default {
         },
         sensitiveImg() {
             return this.sensitive ? 
-                `<img src="../../libs/dynicons/?img=eye_invisible.svg&amp;w=16" alt="" class="sensitive-icon"
+                `<img src="${this.libsPath}dynicons/svg/eye_invisible.svg" style="width: 16px" alt="" class="sensitive-icon"
                     title="This field is sensitive" />` : '';
         },
         conditionalQuestion() {
@@ -93,15 +94,15 @@ export default {
                         <button v-if="conditionsAllowed" :id="'edit_conditions_' + formNode.indicatorID" 
                             @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
                             :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
-                            <img src="../../libs/dynicons/?img=preferences-system.svg&amp;w=20" alt="" />
+                            <img :src="libsPath + 'dynicons/svg/preferences-system.svg'" style="width: 20px" alt="" />
                         </button>
                         <button @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
                             title="Open Advanced Options" class="icon">
-                            <img src="../../libs/dynicons/?img=emblem-system.svg&amp;w=20" alt="" />
+                            <img :src="libsPath + 'dynicons/svg/emblem-system.svg'" style="width: 20px" alt="" />
                         </button>
                         <div style="width:26px; display:flex; align-items:center;">
                             <img v-if="formNode.has_code" tabindex="0" title="advanced options are present"
-                            style="cursor:pointer" src="../../libs/dynicons/?img=document-properties.svg&amp;w=20" alt="advanced options are present" />
+                            style="cursor:pointer; width: 20px" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="advanced options are present" />
                         </div>
                         <button class="btn-general add-subquestion" :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
                             @click="newQuestion(formNode.indicatorID)">

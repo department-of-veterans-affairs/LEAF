@@ -25,19 +25,19 @@ function isBlacklisted($folder)
     return FALSE;
 }
 
-function checkForOrgChart($folder, $depth = 0)
+function checkForOrgchart($folder, $depth = 0)
 {
 
     global $folder_to_check;
 
     if (is_dir($folder . '/' . $folder_to_check)) {
         if ($depth > 4 && strpos($folder, 'libs') > 0) {
-            echo "OrgChart: " . $folder . " - depth: {$depth} - IGNORED\r\n";
+            echo "Orgchart: " . $folder . " - depth: {$depth} - IGNORED\r\n";
         } else if (isBlacklisted($folder)) {
-            echo "OrgChart: " . $folder . " - depth: {$depth} - BLACKLISTED\r\n";
+            echo "Orgchart: " . $folder . " - depth: {$depth} - BLACKLISTED\r\n";
         } // orgchart found!
         else {
-            echo "OrgChart: " . $folder . " - depth: {$depth}\r\n";
+            echo "Orgchart: " . $folder . " - depth: {$depth}\r\n";
             //echo $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php'."\r\n";
             //echo exec('php ' . $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php' . " > /dev/null 2>/dev/null &")."\r\n";
             echo exec('php ' . $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php')."\r\n";
@@ -49,13 +49,13 @@ function checkForOrgChart($folder, $depth = 0)
         foreach ($items as $item) {
             if (is_dir($folder . '/' . $item)
                 && ($item != '.' && $item != '..')) {
-                checkForOrgChart($folder . '/' . $item, $depth);
+                checkForOrgchart($folder . '/' . $item, $depth);
             }
         }
     }
 }
 
-checkForOrgChart($dir);
+checkForOrgchart($dir);
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
