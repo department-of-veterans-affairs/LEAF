@@ -591,6 +591,21 @@ class FormEditor
         return $result;
     }
 
+    public function setFormDestructionAge(string $categoryID, int $input): int {
+        
+        $vars = array(':categoryID' => $categoryID, ':input' => $input, );
+        $strSQL = 'UPDATE categories SET destructionAge=:input WHERE categoryID=:categoryID';
+        $result =  $this->db->prepared_query($strSQL, $vars);
+
+        if(!empty($input)) {
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "destructionAge", $input)
+            ]);
+        }
+        return $input;
+    }
+
     public function getCategoryPrivileges($categoryID)
     {
         if (!$this->login->checkGroup(1))

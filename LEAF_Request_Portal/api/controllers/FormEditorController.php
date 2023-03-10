@@ -194,6 +194,10 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->setFormVisible(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['visible']);
         });
 
+        $this->index['POST']->register('formEditor/destructionAge', function ($args) use ($formEditor) {
+            return $formEditor->setFormDestructionAge(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['destructionAge']);
+        });
+
         $this->index['POST']->register('formEditor/[text]/privileges', function ($args) use ($formEditor) {
             return $formEditor->setCategoryPrivileges(\Leaf\XSSHelpers::xscrub($args[0]), (int)$_POST['groupID'], (int)$_POST['read'], (int)$_POST['write']);
         });

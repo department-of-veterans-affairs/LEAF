@@ -481,17 +481,18 @@ div[class$="SelectorBorder"] {
         font-size: 0.75rem;
     }
     .panel-properties {
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
         margin-top: 1rem;
         height: 100%;
+
         input, select {
             margin-left: 3px;
         }
-    }
-    #availability, #categorySort {
-        margin-right: 1.5rem;
+        input[type="number"] {
+            width: 50px;
+        }
     }
 }
 #form_properties_last_update, #form_index_last_update {

@@ -539,7 +539,7 @@ export default {
          * @param {string} keyValue 
          */
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
-            if(this.categories[catID][keyName]) {
+            if(this.categories[catID][keyName] !== undefined) {
                 this.categories[catID][keyName] = keyValue;
             }
         },

@@ -50,7 +50,7 @@ class FormStack
 
     public function getAllCategoriesWithStaples() {
         $strSQL = "SELECT categories.categoryID, parentID, categoryName, categoryDescription, categories.workflowID,
-            sort, needToKnow, formLibraryID, visible, categories.disabled, categories.type,
+            sort, needToKnow, formLibraryID, visible, categories.disabled, categories.type, destructionAge,
             workflows.description AS workflowDescription FROM categories
             LEFT JOIN workflows ON categories.workflowID=workflows.workflowID
             WHERE categories.workflowID >= 0 AND categories.disabled = 0
