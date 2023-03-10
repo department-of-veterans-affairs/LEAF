@@ -137,7 +137,8 @@ class WorkflowController extends RESTfulResponse
         $this->index['POST']->register('workflow/[digit]', function ($args) use ($workflow) {
             try
             {
-                //$workflow->modify($args[0]);
+                $workflow->setWorkflowID((int)$args[0]);
+                $workflow->modify($_POST['description']);
             }
             catch (Exception $e)
             {

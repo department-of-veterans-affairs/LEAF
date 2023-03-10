@@ -1083,6 +1083,25 @@ class Workflow
         return true;
     }
 
+    public function modify(string $description): string {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required.';
+        }
+
+        $vars = array(':workflowID' => $this->workflowID,
+            ':description' => $description);
+        $strSQL = "UPDATE workflows SET description = :description WHERE workflowID = :workflowID";
+
+        $this->db->prepared_query($strSQL, $vars);
+        
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW, [
+            new \Leaf\LogItem("workflows", "workflowID",  $this->workflowID)
+        ]);
+
+        return $description;
+    }
+
     public function newWorkflow($description)
     {
         if (!$this->login->checkGroup(1))
