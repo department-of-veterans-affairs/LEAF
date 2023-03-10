@@ -3,12 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Service.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
+namespace Portal;
 
 class ServiceController extends RESTfulResponse
 {
@@ -66,7 +61,7 @@ class ServiceController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('service', function ($args) use ($db, $login, $service) {
-            return $service->addService(XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
+            return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
         });
 
         $this->index['POST']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {

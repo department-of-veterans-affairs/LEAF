@@ -1,148 +1,177 @@
 div.groupBlock {
-    border-radius: 4px;
-    flex: 0 1 30%;
-    max-width: 18rem;
-    min-width: 18rem;
-    min-height: 5.2rem;
-    margin: 0.4rem 1.0rem 0.4rem 0.0rem;
-    padding: 1.0rem;
-    cursor: pointer;
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-    transition: background-color 0.3s ease;
-    transition: box-shadow 0.3s ease;
-    background-color: #0c60a0;
+  border-radius: 4px;
+  flex: 0 1 30%;
+  max-width: 18rem;
+  min-width: 18rem;
+  min-height: 5.2rem;
+  margin: 0.4rem 1rem 0.4rem 0rem;
+  padding: 1rem;
+  cursor: pointer;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease;
+  transition: box-shadow 0.3s ease;
+  background-color: #0c60a0;
 }
 
-div.groupBlock:hover {box-shadow: 2px 2px 4px #353535; background-color: #0a5288;}
-div.groupBlock:focus, div.groupBlock:active {outline: none; border: 0;}
-div.groupBlock div {margin-top: 0.1rem; font-size: 0.8rem; color: #fff; }
-div.groupBlock .leaf-search-hilite {background:#fee685; color: #000; padding: 0.1rem 0.1rem 0rem 0.2rem;}
+div.groupBlock:hover {
+  box-shadow: 2px 2px 4px #353535;
+  background-color: #0a5288;
+}
+div.groupBlock:focus,
+div.groupBlock:active {
+  outline: none;
+  border: 0;
+}
+div.groupBlock div {
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
+  color: #fff;
+}
+div.groupBlock .leaf-search-hilite {
+  background: #fee685;
+  color: #000;
+  padding: 0.1rem 0.1rem 0rem 0.2rem;
+}
 
 div.groupBlock h2 {
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin: 0.1rem 0.0rem;
-    color: #fff;
-    font-family: 'PublicSans-Medium';
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin: 0.1rem 0rem;
+  color: #fff;
+  font-family: "PublicSans-Medium";
 }
 
 div.groupBlock h3 {
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin: 0.1rem 0.0rem;
-    color: #fff;
-    font-weight: normal;
-    font-family: 'PublicSans-Medium';
-
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin: 0.1rem 0rem;
+  color: #fff;
+  font-weight: normal;
+  font-family: "PublicSans-Medium";
 }
-.leaf-sysadmin-cards {display:inline-block;}
+.leaf-sysadmin-cards {
+  display: inline-block;
+}
 .leaf-empty-cards {
-    flex: 0 1 30%;
-    max-width: 18rem;
-    min-width: 14rem;
-    min-height: 5.2rem;
-    margin: 0.4rem 1.0rem 0.4rem 0.0rem;
-    padding: 1.0rem;
-    border-radius: 4px;
-    background-color: none;
-    border: 1px solid red;
+  flex: 0 1 30%;
+  max-width: 18rem;
+  min-width: 14rem;
+  min-height: 5.2rem;
+  margin: 0.4rem 1rem 0.4rem 0rem;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: none;
+  border: 1px solid red;
 }
 
 div.groupBlockWhite {
-    border-radius: 4px;
-    flex: 0 1 30%;
-    max-width: 18rem;
-    min-width: 14rem;
-    min-height: 5.2rem;
-    margin: 0.4rem 1.0rem 0.4rem 0.0rem;
-    padding: 1.0rem;
-    cursor: pointer;
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-    transition: background-color 0.3s ease;
-    transition: box-shadow 0.3s ease;
-    background-color: #fff;
+  border-radius: 4px;
+  flex: 0 1 30%;
+  max-width: 18rem;
+  min-width: 14rem;
+  min-height: 5.2rem;
+  margin: 0.4rem 1rem 0.4rem 0rem;
+  padding: 1rem;
+  cursor: pointer;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease;
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
 }
 
-div.groupBlockWhite:hover, div.groupBlockWhite:focus {box-shadow: 2px 2px 4px #353535; background-color: #e9e9e9;}
-div.groupBlockWhite:active {outline: none; border: 0;}
-div.groupBlockWhite div {margin-top: 0.1rem; font-size: 0.8rem; color: #000; }
-div.groupBlockWhite .leaf-search-hilite {background:#fee685; padding: 0.1rem 0.1rem 0rem 0.2rem;}
+div.groupBlockWhite:hover,
+div.groupBlockWhite:focus {
+  box-shadow: 2px 2px 4px #353535;
+  background-color: #e9e9e9;
+}
+div.groupBlockWhite:active {
+  outline: none;
+  border: 0;
+}
+div.groupBlockWhite div {
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
+  color: #000;
+}
+div.groupBlockWhite .leaf-search-hilite {
+  background: #fee685;
+  padding: 0.1rem 0.1rem 0rem 0.2rem;
+}
 
 div.groupBlockWhite h2 {
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin: 0.1rem 0.0rem;
-    color: #000;
-    font-family: 'PublicSans-Medium';
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin: 0.1rem 0rem;
+  color: #000;
+  font-family: "PublicSans-Medium";
 }
 
 div.groupBlockWhite h3 {
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin: 0.1rem 0.0rem;
-    color: #000;
-    font-weight: normal;
-    font-family: 'PublicSans-Medium';
-
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin: 0.1rem 0rem;
+  color: #000;
+  font-weight: normal;
+  font-family: "PublicSans-Medium";
 }
 
 .table-bordered {
-    border-collapse: collapse;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    min-width: 700px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  border-collapse: collapse;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 700px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
 .table-bordered thead tr {
-    background-color: #005ea2;
-    color: #ffffff;
-    text-align: left;
+  background-color: #005ea2;
+  color: #ffffff;
+  text-align: left;
 }
 
 #inactive_table thead tr {
-    background-color: #727272;
+  background-color: #727272;
 }
 
 .table-bordered th,
 .table-bordered td {
-    padding: 7px 10px;
+  padding: 7px 10px;
 }
 
 .table-bordered tbody tr {
-    border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
 }
 
 .table-bordered tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
+  background-color: #f3f3f3;
 }
 
 .table-bordered tbody tr:hover {
-    background-color: #adebff;
+  background-color: #adebff;
 }
 
 .table-bordered tbody tr:last-of-type {
-    border-bottom: 2px solid #dddddd;
+  border-bottom: 2px solid #dddddd;
 }
 
 .table-bordered tbody tr.active-row {
-    font-weight: bold;
-    color: #009879;
+  font-weight: bold;
+  color: #009879;
 }
 
 th:nth-child(1) {
-    border-radius: 5px 0px 0px 0px;
+  border-radius: 5px 0px 0px 0px;
 }
 
 th:nth-last-child(1) {
-    border-radius: 0px 5px 0px 0px;
+  border-radius: 0px 5px 0px 0px;
 }
 
 #showInactive.fa-angle-down::after {
-    font-family: "PublicSans-Light";
-    content: " Hide Inactive Users";
+  font-family: "PublicSans-Light";
+  content: " Hide Inactive Users";
 }
 #showInactive.fa-angle-right::after {
-    font-family: "PublicSans-Light";
-    content: " Show Inactive Users";
+  font-family: "PublicSans-Light";
+  content: " Show Inactive Users";
 }

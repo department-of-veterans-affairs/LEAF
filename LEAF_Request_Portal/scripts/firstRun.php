@@ -3,20 +3,15 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-include '../db_mysql.php';
-include_once '../db_config.php';
-require_once '../VAMC_Directory.php';
-
-$db_config = new DB_Config();
-
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+require_once 'globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 $vars = array();
 $res = $db->prepared_query('SELECT * FROM users WHERE groupID=1', $vars);
 
 if (count($res) == 0)
 {
-    $config = new Config();
+    $config = new Portal\Config();
 
     if (strlen($config->adminLogonName) > 0)
     {

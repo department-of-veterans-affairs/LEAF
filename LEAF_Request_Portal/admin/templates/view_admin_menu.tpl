@@ -1,7 +1,7 @@
 <div class="leaf-admin-content">
 
     <h3 role="heading" aria-level="1" tabindex="0">User Access</h3>
-    
+
         <a href="?a=mod_groups" role="button" class="leaf-admin-button bg-yellow-5 lf-trans-yellow">
             <i class="leaf-admin-btnicon fas fa-users text-yellow-40" alt="Modify users and groups" title="Modify users and groups"></i>
             <span class="leaf-admin-btntitle">User Access Groups</span>
@@ -23,7 +23,7 @@
         <!--{/if}-->
 
     <h3 role="heading" aria-level="1" tabindex="0">Site Configuration</h3>
-        
+
         <!--{if $siteType != 'national_subordinate'}-->
         <a href="?a=workflow" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
             <i class="leaf-admin-btnicon fas fa-cogs text-blue-cool-50" alt="Workflow Visualizer" title="Workflow Visualizer"></i>
@@ -156,7 +156,7 @@
             <span class="leaf-admin-btntitle">Grid Splitter</span>
             <span class="leaf-admin-btndesc">Export grid form data to Excel spreadsheet</span>
         </a>
-        
+
 </div>
 
 <script type="text/javascript">

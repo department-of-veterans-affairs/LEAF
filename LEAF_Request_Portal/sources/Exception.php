@@ -9,7 +9,7 @@
 
 */
 
-namespace OrgChart;
+namespace Portal;
 
 class Exception extends \Exception
 {
