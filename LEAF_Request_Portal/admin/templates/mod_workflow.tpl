@@ -2098,7 +2098,20 @@
         dialog.setContent('<input type="text" id="workflow_rename" name="workflow_rename" tabindex="0">' +
             '</input>');
         dialog.setTitle('Rename Workflow');
-        dialog.show();
+        dialog.setSaveHandler(function() {
+                $.ajax({
+                        type: 'POST',
+                        url: '../api/workflow/rename',
+                        data: {description: $('#description').val(),
+                        CSRFToken: CSRFToken
+                    },
+                    success: function(res) {
+                        loadWorkflowList(res);
+                        dialog.hide();
+                    }
+                });
+        });
+    dialog.show();
     }
 
     /*
