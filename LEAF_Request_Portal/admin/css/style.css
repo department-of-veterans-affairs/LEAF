@@ -1,604 +1,621 @@
 #nav-skip-link {
-    position: absolute;
-    opacity: 0;
-    color: black;
-    background-color: #e0e0e0;
-    padding: 0.1em 0.2em;
-    border-radius: 2px;
-    left: -9999px;
+  position: absolute;
+  opacity: 0;
+  color: black;
+  background-color: #e0e0e0;
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+  left: -9999px;
 }
-#nav-skip-link:focus, #nav-skip-link:active  {
-    opacity: 1;
-    left: 0;
-    z-index:100;
+#nav-skip-link:focus,
+#nav-skip-link:active {
+  opacity: 1;
+  left: 0;
+  z-index: 100;
 }
 
 .link {
-    text-decoration: underline;
-    cursor: pointer;
-    color: #445f87;
+  text-decoration: underline;
+  cursor: pointer;
+  color: #445f87;
 }
 
 .link:hover {
-    text-decoration: underline;
-    cursor: pointer;
-    color: #f04e0b;
+  text-decoration: underline;
+  cursor: pointer;
+  color: #f04e0b;
 }
 
 #content {
-    padding: 4px;
-    margin: 0px auto;
-    text-align: left;
+  padding: 4px;
+  margin: 0px auto;
+  text-align: left;
 }
 
-
 .numspinner {
-    width: 70px;
+  width: 70px;
 }
 
 .response {
-    padding: 5px;
+  padding: 5px;
 }
 
 table#tform {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    empty-cells: show;
-    text-align: left;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  empty-cells: show;
+  text-align: left;
 }
 
 table#tform th {
-    border: 0;
-    color: #777;
-    margin: 0 0 5px 0;
-    padding: 5px 0 10px 5px;
-    font-size: 90%;
-    font-weight: normal;
-
+  border: 0;
+  color: #777;
+  margin: 0 0 5px 0;
+  padding: 5px 0 10px 5px;
+  font-size: 90%;
+  font-weight: normal;
 }
 
 table#tform td {
-    color: #444;
-    padding: 3px;
-    font-size: 13px;
+  color: #444;
+  padding: 3px;
+  font-size: 13px;
 }
 
 .printmainform {
-    border: 1px solid black;
+  border: 1px solid black;
 }
 
 .printformblock {
-    page-break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .printmainblock {
-    page-break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .printsubblock {
-    float: left;
-    page-break-inside: avoid;
+  float: left;
+  page-break-inside: avoid;
 }
 
 .printmainlabel {
-    padding-bottom: 4px;
+  padding-bottom: 4px;
 }
 
 .printcounter span {
-    padding: 4px;
-    margin-right: 4px;
-    font-size: 24px;
-    font-weight: bold;
-    background-color: black;
-    color: white;
-    float: left;
+  padding: 4px;
+  margin-right: 4px;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: black;
+  color: white;
+  float: left;
 }
 
 .printheading {
-    padding: 4px;
-    border-top: 2px solid black;
-    background-color: #e0e0e0;
+  padding: 4px;
+  border-top: 2px solid black;
+  background-color: #e0e0e0;
 }
 
 .printheading_missing {
-    padding: 4px;
-    border-top: 2px solid black;
-    background-color: #ee9a9a;
+  padding: 4px;
+  border-top: 2px solid black;
+  background-color: #ee9a9a;
 }
 
 div.printsubheading {
-    position: relative; /* ie6 workaround */
-    padding: 4px 16px 4px 16px;
-    border-bottom: 1px solid black;
-    background-color: #f4f4f4;
-    max-width: 250px;
+  position: relative; /* ie6 workaround */
+  padding: 4px 16px 4px 16px;
+  border-bottom: 1px solid black;
+  background-color: #f4f4f4;
+  max-width: 250px;
 }
 
 div.printsubheading_missing {
-    position: relative; /* ie6 workaround */
-    padding: 4px 16px 4px 16px;
-    border-bottom: 1px solid black;
-    background-color: #ee9a9a;
-    max-width: 250px;
+  position: relative; /* ie6 workaround */
+  padding: 4px 16px 4px 16px;
+  border-bottom: 1px solid black;
+  background-color: #ee9a9a;
+  max-width: 250px;
 }
 
 span.printsubheading {
-    font-weight: normal;
-    font-size: 10px;
+  font-weight: normal;
+  font-size: 10px;
 }
 
 .printsublabel {
-    background-color: white;
+  background-color: white;
 }
 
 div.printResponse {
-    float: left;
-    padding: 0px 16px 8px 16px;
+  float: left;
+  padding: 0px 16px 8px 16px;
 }
 
 span.printResponse {
-    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-    font-size: 21px;
-    letter-spacing: 0.01rem;
-    line-height: 150%;
-    color: rgba(0,0,0,0.8);
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: 21px;
+  letter-spacing: 0.01rem;
+  line-height: 150%;
+  color: rgba(0, 0, 0, 0.8);
 }
 
 a.printResponse {
-    font-size: 23px;
+  font-size: 23px;
 }
 
 span.printResponse li {
-    margin-left: 24px;
-    padding: 2px;
+  margin-left: 24px;
+  padding: 2px;
 }
 
 table.table {
-    border: 1px solid black;
-    border-collapse: collapse;
-    margin: 2px;
+  border: 1px solid black;
+  border-collapse: collapse;
+  margin: 2px;
 }
 
-.table>thead {
-    background-color: #e0e0e0;
-    text-align: center;
+.table > thead {
+  background-color: #e0e0e0;
+  text-align: center;
 }
 
-.table>tbody {
-    background-color: white;
+.table > tbody {
+  background-color: white;
 }
 
 .table td {
-    padding: 6px;
-    border: 1px solid black;
-    font-size: 11px;
+  padding: 6px;
+  border: 1px solid black;
+  font-size: 11px;
 }
 
 .table_important {
-    font-size: 150%;
-    font-weight: bold;
+  font-size: 150%;
+  font-weight: bold;
 }
 
 .table_editable {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .table_editable:hover {
-    background-color: #2372b0;
-    color: white;
+  background-color: #2372b0;
+  color: white;
 }
 
 .table_editable:hover a {
-    color: white;
+  color: white;
 }
 
 .table_priority {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .table_priority:hover {
-/*    border: 1px solid red;*/
-    background-color: #d6edff;
+  /*    border: 1px solid red;*/
+  background-color: #d6edff;
 }
 
 .table_priority:hover img {
-/*    border: 1px solid red;*/
-    background-color: #d6edff;
-    visibility: visible;
+  /*    border: 1px solid red;*/
+  background-color: #d6edff;
+  visibility: visible;
 }
 
 .table_priority img {
-    padding: 4px;
-    visibility: hidden;
+  padding: 4px;
+  visibility: hidden;
 }
 
 .table_priority img:hover {
-    border: 1px solid black;
-    padding: 3px;
+  border: 1px solid black;
+  padding: 3px;
 }
 
 .table_sortable {
-    color: gold;
-    cursor: pointer;
+  color: gold;
+  cursor: pointer;
 }
 
 table.agenda {
-    border: 1px solid black;
-    border-collapse: collapse;
+  border: 1px solid black;
+  border-collapse: collapse;
 }
 
 table.leaf_grid {
-    border: 1px solid black;
-    border-collapse: collapse;
-    margin: 2px;
-    width: 95%;
-    table-layout: fixed;
+  border: 1px solid black;
+  border-collapse: collapse;
+  margin: 2px;
+  width: 95%;
+  table-layout: fixed;
 }
 table.leaf_grid td {
-    vertical-align: top;
-    word-break: break-word;
-    white-space: pre-wrap;
-    width: 20%;
+  vertical-align: top;
+  word-break: break-word;
+  white-space: pre-wrap;
+  width: 20%;
 }
 
 .agenda td {
-    padding: 8px 4px 8px 4px;
-    border: 1px solid black;
+  padding: 8px 4px 8px 4px;
+  border: 1px solid black;
 }
 
 .agenda a {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 span.approval_approved {
-    color: green;
+  color: green;
 }
 
 span.approval_disapproved {
-    color: red;
+  color: red;
 }
 
 .widget {
-    display: none;
+  display: none;
 }
 
 .menu {
-    width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.menu a:link, .menu a:visited {
-    color: black;
-    text-decoration: none;
+.menu a:link,
+.menu a:visited {
+  color: black;
+  text-decoration: none;
 }
 
 /* 508 fix */
-.menu a:focus > .menuButton{
+.menu a:focus > .menuButton {
   box-shadow: 0 4px 6px 2px #8e8e8e;
   margin: 14px;
   outline-style: dotted;
-
 }
 
 .menu a:hover {
-    color: black;
+  color: black;
 }
 
-.menu2 a:link, .menu2 a:visited {
-    color: black;
-    text-decoration: none;
+.menu2 a:link,
+.menu2 a:visited {
+  color: black;
+  text-decoration: none;
 }
 
 .menu2 a:hover {
-    color: black;
+  color: black;
 }
 
 .menuButton {
-    float: left;
-    width: 350px;
-    height: 70px;
-    cursor: pointer;
-    margin: 14px;
-    box-shadow: 0 2px 6px #8e8e8e;
-    transition: box-shadow 0.3s ease;
+  float: left;
+  width: 350px;
+  height: 70px;
+  cursor: pointer;
+  margin: 14px;
+  box-shadow: 0 2px 6px #8e8e8e;
+  transition: box-shadow 0.3s ease;
 }
 
-.menuButton:hover, .menuButton:focus {
-    box-shadow: 0 4px 6px 2px #8e8e8e;
-    margin: 14px;
-    outline-style: dotted;
+.menuButton:hover,
+.menuButton:focus {
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 14px;
+  outline-style: dotted;
 }
 
 .menuIcon {
-    float: left;
-    width: 96px;
-    height: 96px;
-    padding-right: 4px;
-    background-position: center center;
-    background-repeat: no-repeat;
+  float: left;
+  width: 96px;
+  height: 96px;
+  padding-right: 4px;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .menuText {
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 160%;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 160%;
 }
 
 .menuDesc {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .menuButtonSmall {
-    float: left;
-    width: 280px;
-    height: 56px;
-    cursor: pointer;
-    margin: 12px;
-    padding: 2px;
-    box-shadow: 0 2px 6px #8e8e8e;
-    transition: box-shadow 0.3s ease;
+  float: left;
+  width: 280px;
+  height: 56px;
+  cursor: pointer;
+  margin: 12px;
+  padding: 2px;
+  box-shadow: 0 2px 6px #8e8e8e;
+  transition: box-shadow 0.3s ease;
 }
 
-.menuButtonSmall:hover, .menuButtonSmall:focus {
-    box-shadow: 0 4px 6px 2px #8e8e8e;
-    margin: 12px;
-    outline-style: dotted;
+.menuButtonSmall:hover,
+.menuButtonSmall:focus {
+  box-shadow: 0 4px 6px 2px #8e8e8e;
+  margin: 12px;
+  outline-style: dotted;
 }
 
 .menuIconSmall {
-    float: left;
-    width: 76px;
-    height: 76px;
-    padding-right: 4px;
-    background-position: center center;
-    background-repeat: no-repeat;
+  float: left;
+  width: 76px;
+  height: 76px;
+  padding-right: 4px;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .menuTextSmall {
-    font-size: 16px;
-    font-weight: bold;
-    line-height: 160%;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 160%;
 }
 
 .menuDescSmall {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .signatureArea {
-    display: none;
-    visibility: hidden;
+  display: none;
+  visibility: hidden;
 }
 
 #requestTitle {
-    float: left;
-    font-size: 22px;
-    padding: 8px;
+  float: left;
+  font-size: 22px;
+  padding: 8px;
 }
 
 #requestInfo {
-    float: right;
-    padding: 8px;
-    border-left: 1px solid black;
+  float: right;
+  padding: 8px;
+  border-left: 1px solid black;
 }
 
 /* dialog underlay colors */
 #dialogAnchor_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 #dialog_cancel_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 #editdialog1_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 #histdialog1_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 #statusdialog1_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 #tagdialog1_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 #dialog1_underlay {
-    background-color: black;
+  background-color: black;
 }
 
 /* Tags */
 .tags {
-    font-size: 12px;
-/*    color: #646464;*/
-    background-color: black;
-    color: #dedede;
+  font-size: 12px;
+  /*    color: #646464;*/
+  background-color: black;
+  color: #dedede;
 }
 
 .tags b {
-    color: white;
+  color: white;
 }
 
-.tags a:link, .tags a:visited {
-    color: #dedede;
+.tags a:link,
+.tags a:visited {
+  color: #dedede;
 }
 
 .tags a:hover {
-    color: yellow;
+  color: yellow;
 }
 
 div#maincontent {
-    width: 80%;
-    box-shadow: 0 2px 4px #8e8e8e;
+  width: 80%;
+  box-shadow: 0 2px 4px #8e8e8e;
 }
 
 #maincontent {
-    float: left;
-    border: 1px solid #e0e0e0;
-    padding: 4px;
-    background-color: white;
+  float: left;
+  border: 1px solid #e0e0e0;
+  padding: 4px;
+  background-color: white;
 }
 div[id*="xhrDialog"] {
-    max-width: 800px;
+  max-width: 800px;
 }
 #comments {
-    background-color: #e6e4b9;
-    padding: 2px;
-    margin-bottom: 16px;
-    border: 1px solid black;
+  background-color: #e6e4b9;
+  padding: 2px;
+  margin-bottom: 16px;
+  border: 1px solid black;
 }
 
-#comments>div {
-    background-color: #fffdcd;
-    padding: 4px;
-    border-top: 1px solid black;
-    /*cursor: pointer;*/
-    font-size: 100%;
+#comments > div {
+  background-color: #fffdcd;
+  padding: 4px;
+  border-top: 1px solid black;
+  /*cursor: pointer;*/
+  font-size: 100%;
 }
 
 .comments_name {
-    font-size: 80%;
-    font-weight: bold;
+  font-size: 80%;
+  font-weight: bold;
 }
 
 .comments_time {
-    float: right;
-    color: #8c8c8c;
-    font-size: 80%;
+  float: right;
+  color: #8c8c8c;
+  font-size: 80%;
 }
 
 .comments_message {
-    margin-left: 20px;
-    padding-top: 4px;
+  margin-left: 20px;
+  padding-top: 4px;
 }
 
 .tools {
-    background-color: #c0dbff;
+  background-color: #c0dbff;
 }
 
-.tools>div {
-    background-color: #e8f2ff;
+.tools > div {
+  background-color: #e8f2ff;
 }
 
-.tools>div:hover {
-    background-color: #2372b0;
-    color: white;
+.tools > div:hover {
+  background-color: #2372b0;
+  color: white;
 }
 
 .tools {
-    padding: 2px;
-    margin-bottom: 16px;
-    border: 1px solid black;
+  padding: 2px;
+  margin-bottom: 16px;
+  border: 1px solid black;
 }
 
 .tools a {
-    font-size: 14px;
-    text-decoration: none;
-    cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.tools>div {
-    padding: 2px;
-    border-top: 1px solid black;
-    cursor: pointer;
-    font-size: 120%;
+.tools > div {
+  padding: 2px;
+  border-top: 1px solid black;
+  cursor: pointer;
+  font-size: 120%;
 }
 
-
-#adminTools>div {
-    background-color: #ffe8e8;
+#adminTools > div {
+  background-color: #ffe8e8;
 }
 
-#adminTools>div:hover {
-    background-color: #b02323;
+#adminTools > div:hover {
+  background-color: #b02323;
 }
 
-.tools>div>img {
-    vertical-align: middle;
+.tools > div > img {
+  vertical-align: middle;
 }
 
 #category_list {
-    padding: 2px;
-    background-color: #f8dcd1;
-    border: 1px solid black;
-    margin-bottom: 16px;
+  padding: 2px;
+  background-color: #f8dcd1;
+  border: 1px solid black;
+  margin-bottom: 16px;
 }
 
-#category_list>div {
-    background-color: #f9e6df;
-    padding: 2px;
-    border-top: 1px solid black;
-    cursor: pointer;
-    font-size: 120%;
+#category_list > div {
+  background-color: #f9e6df;
+  padding: 2px;
+  border-top: 1px solid black;
+  cursor: pointer;
+  font-size: 120%;
 }
 
-#category_list>div:hover {
-    background-color: #2372b0;
-    color: white;
+#category_list > div:hover {
+  background-color: #2372b0;
+  color: white;
 }
 
-#category_list>div>img {
-    vertical-align: middle;
+#category_list > div > img {
+  vertical-align: middle;
 }
 
 .toolbar_right {
-    float: right;
+  float: right;
 }
 
 .toolbar {
-    width: 200px;
+  width: 200px;
 }
 
 .toolbar h1 {
-    text-align: center;
-    font-size: 12px;
-    margin: 0px;
-    padding: 2px;
+  text-align: center;
+  font-size: 12px;
+  margin: 0px;
+  padding: 2px;
 }
 
 .toolbar h2 {
-    font-size: 42px;
-    font-weight: bold;
-    text-align: center;
-    background-color: #d4d8e0;
-    margin: 2px;
+  font-size: 42px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #d4d8e0;
+  margin: 2px;
 }
 
 .toolbar_inline {
-
 }
 
 .toolbar_inline div {
-    float: left;
-    margin: 4px;
+  float: left;
+  margin: 4px;
 }
 
-.foldable :link, .foldable :visited {
- background: url(../images/expanded.png) 0 50% no-repeat;
- border: none;
- padding-left: 16px;
+.foldable :link,
+.foldable :visited {
+  background: url(../images/expanded.png) 0 50% no-repeat;
+  border: none;
+  padding-left: 16px;
 }
-.foldable :link:hover, .foldable :visited:hover { background-color: transparent }
-.collapsed > .foldable :link, .collapsed > .foldable :visited {
- background-image: url(../images/collapsed.png);
+.foldable :link:hover,
+.foldable :visited:hover {
+  background-color: transparent;
 }
-.collapsed > div, .collapsed > table, .collapsed > ul, .collapsed > dl { display: none }
-fieldset > legend.foldable :link, fieldset > legend.foldable :visited {
- color: #666;
- font-size: 110%;
+.collapsed > .foldable :link,
+.collapsed > .foldable :visited {
+  background-image: url(../images/collapsed.png);
+}
+.collapsed > div,
+.collapsed > table,
+.collapsed > ul,
+.collapsed > dl {
+  display: none;
+}
+fieldset > legend.foldable :link,
+fieldset > legend.foldable :visited {
+  color: #666;
+  font-size: 110%;
 }
 
-fieldset { 
-    border: 1px solid #d7d7d7; 
-    padding: 0.5em; 
-    margin: 1em 0;
-    min-width: 0; /* will otherwise default to fit content, which would disable horizontal scroll */
+fieldset {
+  border: 1px solid #d7d7d7;
+  padding: 0.5em;
+  margin: 1em 0;
+  min-width: 0; /* will otherwise default to fit content, which would disable horizontal scroll */
 }
-p.hint, span.hint { color: #666; font-size: 85%; font-style: italic; margin: .5em 0;
+p.hint,
+span.hint {
+  color: #666;
+  font-size: 85%;
+  font-style: italic;
+  margin: 0.5em 0;
   padding-left: 1em;
 }
 fieldset.iefix {
@@ -607,168 +624,182 @@ fieldset.iefix {
   padding: 0;
   margin: 0;
 }
-* html fieldset.iefix { width: 98% }
+* html fieldset.iefix {
+  width: 98%;
+}
 
-fieldset.iefix p { margin: 0 }
+fieldset.iefix p {
+  margin: 0;
+}
 
-legend { color: #999999; padding: 0 .25em; font-size: 90%; font-weight: bold }
+legend {
+  color: #999999;
+  padding: 0 0.25em;
+  font-size: 90%;
+  font-weight: bold;
+}
 
 div#search > div {
-    float: left;
-    height: 80px;
-    width: 400px;
-    padding: 2px;
-    margin: 2px;
+  float: left;
+  height: 80px;
+  width: 400px;
+  padding: 2px;
+  margin: 2px;
 }
 
 div.workflowbox {
-    padding: 2px;
-    margin: 0px;
+  padding: 2px;
+  margin: 0px;
 }
 
 span.browsecounter a {
-    padding: 4px;
-    margin-right: 4px;
-    font-size: 140%;
-    font-weight: bold;
-    background-color: black;
-    color: white;
-    float: left;
-    text-decoration: none;
+  padding: 4px;
+  margin-right: 4px;
+  font-size: 140%;
+  font-weight: bold;
+  background-color: black;
+  color: white;
+  float: left;
+  text-decoration: none;
 }
 
 span.browsetitle a {
-    font-size: 120%;
-    font-weight: normal;
-    text-decoration: underline;
+  font-size: 120%;
+  font-weight: normal;
+  text-decoration: underline;
 }
 
 span.browsetypes {
-    font-size: 80%;
-    color: #a2a2a2;
+  font-size: 80%;
+  color: #a2a2a2;
 }
 
 .button {
-    background-color: #e8f2ff;
-    padding: 2px;
-    border-top: 1px solid black;
-    cursor: pointer;
-    font-size: 120%;
+  background-color: #e8f2ff;
+  padding: 2px;
+  border-top: 1px solid black;
+  cursor: pointer;
+  font-size: 120%;
 }
 
 .button:hover {
-    background-color: #2372b0;
-    border-top: 1px solid black;
-    color: white;
+  background-color: #2372b0;
+  border-top: 1px solid black;
+  color: white;
 }
 
-.button>img {
-    vertical-align: middle;
+.button > img {
+  vertical-align: middle;
 }
 
 .buttonNorm {
-    background-color: #e8f2ff;
-    padding: 4px;
-    border: 1px solid black;
-    cursor: pointer;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+  background-color: #e8f2ff;
+  padding: 4px;
+  border: 1px solid black;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.buttonNorm:hover, .buttonNormSelected, .buttonNorm:hover>span, .buttonNorm:focus {
-    background-color: #2372b0;
-    color: white;
+.buttonNorm:hover,
+.buttonNormSelected,
+.buttonNorm:hover > span,
+.buttonNorm:focus {
+  background-color: #2372b0;
+  color: white;
 }
 
 .buttonNorm:focus {
- background-color: #2372b0;
- color: white;
+  background-color: #2372b0;
+  color: white;
 }
 
-.buttonNorm>img {
-    vertical-align: middle;
+.buttonNorm > img {
+  vertical-align: middle;
 }
 
 button.buttonNorm {
-    background-color: #e8f2ff;
-    padding: 2px;
-    border: 1px solid black;
-    cursor: pointer;
-    font-size: 12px;
+  background-color: #e8f2ff;
+  padding: 2px;
+  border: 1px solid black;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .checkable {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .ui-datepicker {
-    box-shadow: 0 0 20px;
+  box-shadow: 0 0 20px;
 }
 
 .ui-progressbar-value {
-    transition: width 0.5s;
+  transition: width 0.5s;
 }
 
-.ui-dialog, .ui-dialog-content {
-    box-sizing: content-box;
+.ui-dialog,
+.ui-dialog-content {
+  box-sizing: content-box;
 }
 
 .card {
-    box-shadow: 0 2px 6px #8e8e8e;
-    background-color: white;
-    padding: 0.8rem;
+  box-shadow: 0 2px 6px #8e8e8e;
+  background-color: white;
+  padding: 0.8rem;
 }
 
 .nodisplay {
-    display: none;
-    visibility: hidden;
+  display: none;
+  visibility: hidden;
 }
 
 div#emailReminder label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 2px;
+  display: block;
+  font-weight: bold;
+  margin-bottom: 2px;
 }
-div#emailReminder input,  div#emailReminder .chosen-container {
-    margin-bottom: 15px;
+div#emailReminder input,
+div#emailReminder .chosen-container {
+  margin-bottom: 15px;
 }
 div#emailReminder .groupSelectorInput {
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }
 div#subordinate_site_warning {
-    padding: 0.25rem 0.5rem;
-    background-color: #ffffc0;
+  padding: 0.25rem 0.5rem;
+  background-color: #ffffc0;
 }
 
-@media(max-width: 520px) {
-    #header:not(.usa-header) {
-        height: 120px;
-        border-bottom: 2px solid #5A79A5;
-        margin-bottom: 4px;
-    }
+@media (max-width: 520px) {
+  #header:not(.usa-header) {
+    height: 120px;
+    border-bottom: 2px solid #5a79a5;
+    margin-bottom: 4px;
+  }
 
-    span#headerDescription {
-        font-size: 16px;
-    }
+  span#headerDescription {
+    font-size: 16px;
+  }
 
-    span#headerLabel {
-        top: 30px;
-        font-size: 12px;
-    }
+  span#headerLabel {
+    top: 30px;
+    font-size: 12px;
+  }
 
-    span#headerMenu {
-        position: absolute;
-        top: 95px;
-        right: 4px;
-        font-size: 12px;
-        font-weight: normal;
-        text-align: right;
-    }
+  span#headerMenu {
+    position: absolute;
+    top: 95px;
+    right: 4px;
+    font-size: 12px;
+    font-weight: normal;
+    text-align: right;
+  }
 
-    #headerMenu > a {
-        text-decoration: none;
-        margin-left: 2px;
-        color: black;
-    }
+  #headerMenu > a {
+    text-decoration: none;
+    margin-left: 2px;
+    color: black;
+  }
 }

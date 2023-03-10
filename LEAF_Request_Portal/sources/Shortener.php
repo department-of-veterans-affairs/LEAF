@@ -2,9 +2,8 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
-$currDir = dirname(__FILE__);
 
-include_once $currDir . '/../globals.php';
+namespace Portal;
 
 class Shortener
 {
@@ -60,19 +59,20 @@ class Shortener
         $vars = array(':shortID' => $shortID);
         $resReport = $this->db->prepared_query('SELECT data FROM short_links
                                     WHERE shortID=:shortID', $vars);
-        if(!isset($resReport[0])) {
+        if (!isset($resReport[0])) {
             return '';
         }
 
-        if(isset($_GET['debug'])) {
+        if (isset($_GET['debug'])) {
             $query = json_decode(html_entity_decode(html_entity_decode($resReport[0]['data'])), true);
-            if($query == null) {
+
+            if ($query == null) {
                 return $resReport[0]['data'];
             }
+
             return $query;
         }
 
-        require_once dirname(__FILE__) . '/../form.php';
         $form = new Form($this->db, $this->login);
         return $form->query($resReport[0]['data']);
     }

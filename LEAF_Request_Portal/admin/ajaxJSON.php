@@ -11,19 +11,9 @@
 
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-$db_config = new DB_Config();
-$config = new Config();
-
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
-
-$login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -37,16 +27,13 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        require 'Group.php';
-
-        $group = new Group($db, $login);
+        $group = new Portal\Group($db, $login);
 
         echo json_encode($group->getMembers($_GET['groupID']));
 
         break;
     case 'directory_lookup':
-        require '../VAMC_Directory.php';
-        $dir = new VAMC_Directory();
+        $dir = new Portal\VAMC_Directory();
         $results = $dir->search($_GET['query']);
 
         echo json_encode($results);
