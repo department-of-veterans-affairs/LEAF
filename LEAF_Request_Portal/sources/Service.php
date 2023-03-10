@@ -465,8 +465,6 @@ class Service
      */
     public function getEmployeeUserID($employeeID): int
     {
-        require_once '../VAMC_Directory.php';
-
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
         if (is_array($dirRes) && isset($dirRes[0])) {
