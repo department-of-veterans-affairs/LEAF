@@ -7,22 +7,7 @@
  *  Template Handler
  */
 
- $currDir = dirname(__FILE__);
-
- include_once $currDir . '/../globals.php';
-
- if (!class_exists('XSSHelpers'))
- {
-     require_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
- }
- if (!class_exists('CommonConfig'))
- {
-     require_once dirname(__FILE__) . '/../../libs/php-commons/CommonConfig.php';
- }
-
-if (!class_exists('DataActionLogger')) {
-    require_once dirname(__FILE__) . '/../../libs/logger/dataActionLogger.php';
-}
+namespace Portal;
 
 class TemplateReports
 {
@@ -37,7 +22,7 @@ class TemplateReports
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \DataActionLogger($db, $login);
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
     public function getReportTemplateList()
@@ -143,9 +128,9 @@ class TemplateReports
         {
             file_put_contents("../templates/reports/{$template}", $_POST['file']);
             $this->dataActionLogger->logAction(
-                \DataActions::MODIFY,
-                \LoggableTypes::TEMPLATE_REPORTS_BODY,
-                [new LogItem("template_reports_editor", "body", $template, $template)]
+                \Leaf\DataActions::MODIFY,
+                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
             );
         }
     }
@@ -180,7 +165,7 @@ class TemplateReports
         $history = [];
 
         $fields = [
-            'message' => \LoggableTypes::TEMPLATE_REPORTS_BODY
+            'message' => \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY
         ];
         foreach ($fields as $field => $type) {
             $fieldHistory = $this->dataActionLogger->getHistory(NULL, $field, $type);

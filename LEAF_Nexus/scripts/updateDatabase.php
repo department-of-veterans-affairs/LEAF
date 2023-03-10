@@ -12,19 +12,19 @@ else
 {
     define('BR', '<br />');
 }
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../config.php';
-
-$config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
-if (!isset($res[0]) || !is_numeric($res[0]['data']))
-{
+
+if (!isset($res[0])) {
+    error_log(print_r('$res[0] not set', true));
+    exit();
+} else if (!is_numeric($res[0]['data'])) {
+    error_log(print_r('$res[0][\'data\'] not a number', true));
     exit();
 }
+
 $currentVersion = $res[0]['data'];
 echo "Current Database Version: $currentVersion" . BR . BR;
 

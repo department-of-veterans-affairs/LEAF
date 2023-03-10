@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+namespace Leaf;
+
 class CommonConfig
 {
     public $requestWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
@@ -22,7 +24,7 @@ class CommonConfig
                                         'zip', '7z',
                                         'dwg'
                                     );
-    
+
     public $fileManagerWhitelist = array('doc', 'docx', 'docm', 'dotx', 'dotm',
                                             'csv', 'xls', 'xlsx', 'xlsm', 'xltx', 'xltm', 'xlsb', 'xlam',
                                             'ppt', 'pptx', 'pptm', 'potx', 'potm', 'ppam', 'ppsx', 'ppsm', 'ppts',
