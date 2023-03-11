@@ -28,9 +28,6 @@ export default {
         'truncateText',
         'stripAndDecodeHTML',
 	],
-    mounted() {
-        console.log('mounted panel')
-    },
     computed: {
         workflowDescription() {
             let returnValue = '';
@@ -73,7 +70,7 @@ export default {
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
-                success: (res) => {  //except for WF, these give back an empty array
+                success: () => {  //except for WF and desctuctionAge, these give back an empty array
                     this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
                     this.lastUpdated = new Date().toLocaleString();
                     this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
@@ -173,7 +170,9 @@ export default {
         },
         updateDestructionAge() {
             //TODO: minumum?  opt out? etc
-            if(this.destructionAgeInDays !== null && this.destructionAgeInDays > 0) {
+            if(this.destructionAgeInDays !== null &&
+                this.destructionAgeInDays > 0 &&
+                this.destructionAgeInDays <= 65535) {
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}formEditor/destructionAge`,
@@ -260,7 +259,7 @@ export default {
                         <label for="destructionAgeYearsAndDays" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years/Days)
                             <input type="number" id="destructionAgeYears" v-model.number="destructionAgeYears"
                                 aria-labelledby="destructionAgeYearsAndDays"
-                                min="0"
+                                min="0" max="178"
                                 title="resolved request destruction age in years" 
                                 @change="updateDestructionAge" />
                             <input type="number" id="destructionAgeDays" v-model.number="destructionDaysRemainder"

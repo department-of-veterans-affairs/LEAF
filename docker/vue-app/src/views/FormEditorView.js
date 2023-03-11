@@ -14,6 +14,7 @@ export default {
             listTracker: {},  //{indID:{parID, newParID, sort, listindex,},}. for tracking parID and sort changes
             allowedConditionChildFormats: ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'],
             showToolbars: true,
+            sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
             sortLastUpdated: '',
             updateKey: 0,
         }
@@ -87,7 +88,7 @@ export default {
         sortValuesToUpdate() {
             let indsToUpdate = [];
             for (let i in this.listTracker) {
-                if (this.listTracker[i].sort !== this.listTracker[i].listIndex) {
+                if (this.listTracker[i].sort !== this.listTracker[i].listIndex - this.sortOffset) {
                     indsToUpdate.push({indicatorID: parseInt(i), ...this.listTracker[i]});
                 }
             }
@@ -164,7 +165,7 @@ export default {
             if (this.sortValuesToUpdate.length > 0) {
                 let sortData = [];
                 this.sortValuesToUpdate.forEach(item => {
-                    sortData.push({ indicatorID: item.indicatorID, sort: item.listIndex });
+                    sortData.push({ indicatorID: item.indicatorID, sort: item.listIndex - this.sortOffset});
                 });
 
                 updateSort.push(

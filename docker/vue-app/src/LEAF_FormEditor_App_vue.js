@@ -292,6 +292,10 @@ export default {
                 }, 750);
             }
         },
+        /**
+         * Sends background call to get more immediate feedback during navigation about login or token status,
+         * since the response from the index.php case is only returned on initial load.
+         */
         setDefaultAjaxResponseMessage() {
             $.ajax({
                 type: 'POST',
