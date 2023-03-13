@@ -46,9 +46,16 @@
             return Math.round((parseFloat(a) + parseFloat(b)) * 100) / 100;
         }
 
-        function logError(error) {
-            var sanitizedError = $('<div>').text(error).html();
-            $('#errors').append($('<div>').text(sanitizedError));
+        function logError(error, errorLink, data) {
+            // Escape the error message to prevent XSS attacks
+            const sanitizedError = $('<div>').text(error).html();
+            const sanitizedData = $('<div>').text(data).html();
+
+            // Create an anchor tag with the sanitized error message and link
+            const anchorTag = `${sanitizedError} <a href="${errorLink}" target="_blank">${sanitizedData}</a>`;
+
+            // Append the anchor tag to the errors div
+            $('#errors').append($('<div>').html(anchorTag));
         }
 
         var fteTotal = 0;
@@ -60,24 +67,24 @@
                     if ($.isNumeric(data[11].data)) {
                         fteTotal = Math.round((parseFloat(data[11].data) + fteTotal) * 100) / 100;
                     } else {
-                        logError('Missing FTE Ceiling - <a href="../?a=view_position&positionID=' + positionID + '" target="_blank">' + data.title + '</a>');
+                        logError('Missing FTE Ceiling -','../?a=view_position&positionID=' + positionID , `${data.title}`);
                     }
                     if ($.isNumeric(data[17].data)) {
                         fteCurrent = add(data[17].data, fteCurrent);
                     } else {
-                        logError('Missing Current FTE - <a href="../?a=view_position&positionID=' + positionID + '" target="_blank">' + data.title + '</a>');
+                        logError('Missing Current FTE -','../?a=view_position&positionID=' + positionID , `${data.title}`);
                     }
 
                     for (i in data.subordinates) {
                         if ($.isNumeric(data.subordinates[i][11].data)) {
                             fteTotal = Math.round((parseFloat(data.subordinates[i][11].data) + fteTotal) * 100) / 100;
                         } else {
-                            logError('Missing FTE Ceiling - <a href="../?a=view_position&positionID=' + data.subordinates[i].positionID + '" target="_blank">' + data.subordinates[i].title + '</a>');
+                            logError('Missing FTE Ceiling -','../?a=view_position&positionID=' + `${data.subordinates[i].positionID}`, `${data.subordinates[i].title}`);
                         }
                         if ($.isNumeric(data.subordinates[i][17].data)) {
                             fteCurrent = add(data.subordinates[i][17].data, fteCurrent);
                         } else {
-                            logError('Missing Current FTE - <a href="../?a=view_position&positionID=' + data.subordinates[i].positionID + '" target="_blank">' + data.subordinates[i].title + '</a>');
+                            logError('Missing Current FTE -','../?a=view_position&positionID=' + `${data.subordinates[i].positionID}`, `${data.subordinates[i].title}`);
                         }
 
                         if (data.subordinates[i].hasSubordinates == 1) {
