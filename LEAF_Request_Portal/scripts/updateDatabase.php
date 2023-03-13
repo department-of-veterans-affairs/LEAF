@@ -3,30 +3,26 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+
 define('PREFIX', 'Update_RMC_DB_');
-if (php_sapi_name() == 'cli')
-{
+if (php_sapi_name() == 'cli') {
     define('BR', "\r\n");
-}
-else
-{
+} else {
     define('BR', '<br />');
 }
-$currDir = dirname(__FILE__);
-
-include_once $currDir . '/../db_mysql.php';
-include_once $currDir . '/../db_config.php';
-
-$db_config = new DB_Config();
-$config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
-if (!isset($res[0]) || !is_numeric($res[0]['data']))
-{
+
+if (!isset($res[0])) {
+    error_log(print_r('$res[0] not set', true));
+    exit();
+} else if (!is_numeric($res[0]['data'])) {
+    error_log(print_r('$res[0][\'data\'] not a number', true));
     exit();
 }
+
 $currentVersion = $res[0]['data'];
 echo "Current Database Version: $currentVersion" . BR . BR;
 

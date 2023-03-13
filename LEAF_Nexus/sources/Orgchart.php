@@ -28,9 +28,9 @@ class Orgchart
         $this->db = $db;
         $this->login = $login;
 
-        $this->employee = new Orgchart\Employee($db, $login);
-        $this->position = new Orgchart\Position($db, $login);
-        $this->group = new Orgchart\Group($db, $login);
+        $this->employee = new Employee($db, $login);
+        $this->position = new Position($db, $login);
+        $this->group = new Group($db, $login);
     }
 
     public function getEmployeeDossierByLogin($userID)

@@ -11,34 +11,14 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
+require_once 'globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-include 'globals.php';
-include '../libs/smarty/Smarty.class.php';
-include './sources/Login.php';
-include 'db_mysql.php';
-include 'config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
-
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
-
-$login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
+$oc_login->loginUser();
+if (!$oc_login->isLogin() || !$oc_login->isInDB())
 {
     echo 'Your login is not recognized. This system is locked to the following groups:<br /><pre>';
-    print_r($config->adPath);
+    print_r($oc_config->adPath);
     echo '</pre>';
     exit;
 }
@@ -67,7 +47,7 @@ else
     $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 }
 
-$t_login->assign('name', XSSHelpers::xscrub($login->getName()));
+$t_login->assign('name', Leaf\XSSHelpers::xscrub($oc_login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
@@ -94,7 +74,7 @@ switch ($action) {
         $t_iframe->assign('categoryID', (int)$_GET['categoryID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
-        $t_iframe->assign('file', XSSHelpers::xscrub(strip_tags($_GET['file'])));
+        $t_iframe->assign('file', Leaf\XSSHelpers::xscrub(strip_tags($_GET['file'])));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_iframe->fetch('file_form_delete.tpl'));
 
@@ -122,8 +102,6 @@ switch ($action) {
                     break;
                 default:
                     return false;
-
-                    break;
             }
         }
         else
@@ -135,15 +113,14 @@ switch ($action) {
 
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
-        $t_iframe->assign('privileges', $login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), XSSHelpers::xscrub($type), (int)$_GET['UID']));
+        $t_iframe->assign('privileges', $oc_login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), Leaf\XSSHelpers::xscrub($type), (int)$_GET['UID']));
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $main->assign('body', $t_iframe->fetch('permission_iframe.tpl'));
 
         break;
     case 'view_position_permissions':
-        require 'sources/Position.php';
-        $position = new Orgchart\Position($db, $login);
+        $position = new Orgchart\Position($oc_db, $oc_login);
 
         $t_iframe = new Smarty;
         $t_iframe->left_delimiter = '<!--{';
@@ -175,7 +152,7 @@ switch ($action) {
     default:
         //$main->assign('useDojo', false);
         $main->assign('useDojoUI', false);
-        if ($login->isLogin())
+        if ($oc_login->isLogin())
         {
             $o_login = $t_login->fetch('login.tpl');
 
@@ -202,7 +179,7 @@ $main->assign('tabText', $tabText);
 $main->assign('title', $config->title);
 $main->assign('city', $config->city);
 
-$rev = $db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
-$main->assign('revision', XSSHelpers::xscrub($rev[0]['data']));
+$rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
+$main->assign('revision', Leaf\XSSHelpers::xscrub($rev[0]['data']));
 
 $main->display('main_iframe.tpl');

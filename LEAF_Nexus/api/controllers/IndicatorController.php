@@ -3,19 +3,17 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/Indicators.php';
+namespace Orgchart;
 
 class IndicatorController extends RESTfulResponse
 {
     public $index = array();
 
-    private $API_VERSION = 1;    // Integer
-
     private $indicators;
 
     public function __construct($db, $login)
     {
-        $this->indicators = new OrgChart\Indicators($db, $login);
+        $this->indicators = new Indicators($db, $login);
     }
 
     public function get($act)
@@ -24,7 +22,7 @@ class IndicatorController extends RESTfulResponse
 
         $this->index['GET'] = new ControllerMap();
         $this->index['GET']->register('indicator/version', function () {
-            return $this->API_VERSION;
+            return self::API_VERSION;
         });
 
         $this->index['GET']->register('indicator/[digit]/permissions', function ($args) use ($indicators) {
