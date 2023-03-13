@@ -2066,8 +2066,7 @@
 
                 $('#workflowList').html(output);
                 $('#workflows').on('change', function() {
-                    workflowDescription = $('#workflows').attr('description');
-                    console.log($('#workflows').attr('description'));
+                    workflowDescription = $('option:selected', this).attr('description');
                     loadWorkflow($('#workflows').val());
                 });
                 $('#workflows').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '100%'});
@@ -2075,7 +2074,6 @@
                     workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
                 }
-                console.log(workflowDescription);
                 loadWorkflow(workflowID);
             },
             cache: false

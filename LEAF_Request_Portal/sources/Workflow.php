@@ -1083,14 +1083,16 @@ class Workflow
         return true;
     }
 
-    public function modify(string $description): string {
+    public function modify(string $description): string 
+    {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
         }
 
         $vars = array(':workflowID' => $this->workflowID,
-            ':description' => $description);
+                      ':description' => $description
+                );
         $strSQL = "UPDATE workflows SET description = :description WHERE workflowID = :workflowID";
 
         $this->db->prepared_query($strSQL, $vars);
@@ -1099,7 +1101,7 @@ class Workflow
             new \Leaf\LogItem("workflows", "workflowID",  $this->workflowID)
         ]);
 
-        return $description;
+        return $this->workflowID;
     }
 
     public function newWorkflow($description)
