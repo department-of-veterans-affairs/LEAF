@@ -2045,12 +2045,16 @@
                 let output = '<select id="workflows" style="width: 100%">';
                 var count = 0;
                 var firstWorkflowID = 0;
+                let firstWorkflowDescription = '';
                 for (let i in res) {
                     if (count == 0) {
+                        firstWorkflowDescription = res[i].description;
                         firstWorkflowID = res[i].workflowID;
                     }
                     workflows[res[i].workflowID] = res[i];
-                    output += '<option value="' + res[i].workflowID + '"><b>' + res[i].description +
+                    output += '<option value="' + res[i].workflowID + '" description = "' + res[i]
+                        .description +
+                        '"><b>' + res[i].description +
                         '</b> (ID: #' + res[i].workflowID + ')</option>';
                     count++;
                 }
@@ -2062,12 +2066,16 @@
 
                 $('#workflowList').html(output);
                 $('#workflows').on('change', function() {
+                    workflowDescription = $('#workflows').attr('description');
+                    console.log($('#workflows').attr('description'));
                     loadWorkflow($('#workflows').val());
                 });
                 $('#workflows').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '100%'});
                 if (workflowID == undefined) {
+                    workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
                 }
+                console.log(workflowDescription);
                 loadWorkflow(workflowID);
             },
             cache: false
@@ -2095,14 +2103,16 @@
 
     function renameWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
-        dialog.setContent('<input type="text" id="workflow_rename" name="workflow_rename" tabindex="0">' +
+        dialog.setContent(
+            '<input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
+            '" tabindex="0">' +
             '</input>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
                 $.ajax({
                         type: 'POST',
-                        url: '../api/workflow/rename',
-                        data: {description: $('#description').val(),
+                        url: '../api/workflow/' + currentWorkflow,
+                        data: {description: $('#workflow_rename').val(),
                         CSRFToken: CSRFToken
                     },
                     success: function(res) {
