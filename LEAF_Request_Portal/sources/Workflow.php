@@ -1097,8 +1097,9 @@ class Workflow
 
         $this->db->prepared_query($strSQL, $vars);
         
-        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW, [
-            new \Leaf\LogItem("workflows", "workflowID",  $this->workflowID)
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_NAME, [
+            new \Leaf\LogItem("workflow_name", "description",  $description),
+            new \Leaf\LogItem("workflow_name", "workflowID",  $this->workflowID)
         ]);
 
         return $this->workflowID;
