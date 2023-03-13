@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/System.php';
+namespace Orgchart;
 
 class SystemController extends RESTfulResponse
 {
@@ -41,11 +41,13 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['GET']->register('system/templates', function ($args) use ($system) {
-            return $system->getTemplateList();
+            // getTemplateList does not exist in the System class
+            //return $system->getTemplateList();
         });
 
         $this->index['GET']->register('system/templates/[text]', function ($args) use ($system) {
-            return $system->getTemplate($args[0]);
+            // getTemplate does not exist in the System class
+            //return $system->getTemplate($args[0]);
         });
 
         $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
@@ -79,7 +81,8 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['POST']->register('system/templates/[text]', function ($args) use ($system) {
-            return $system->setTemplate($args[0]);
+            // setTemplate does not exist in the System class
+            //return $system->setTemplate($args[0]);
         });
 
         $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
@@ -103,7 +106,7 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
-            $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
+            $_POST['userID'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['userID']);
             return $system->setPrimaryAdmin();
         });
 
@@ -121,7 +124,8 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['DELETE']->register('system/templates/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeCustomTemplate($args[0]);
+            // removeCustomTemplate does not exist in the System class
+            //return $system->removeCustomTemplate($args[0]);
         });
 
         $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {

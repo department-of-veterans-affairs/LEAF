@@ -15,14 +15,6 @@ function oldFileHash($categoryID, $uid, $indicatorID, $fileName)
     return "{$categoryID}_{$uid}_{$indicatorID}_{$fileName}";
 }
 
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
-
-$config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
 $login->setBaseDir('../');
 $login->loginUser();
 
@@ -54,18 +46,15 @@ foreach ($queue as $file)
         $res = null;
         switch ($categoryID) {
             case 1:
-                include_once '../sources/Employee.php';
-                $type = new OrgChart\Employee($db, $login);
+                $type = new Orgchart\Employee($db, $login);
 
                 break;
             case 2:
-                include_once '../sources/Position.php';
-                $type = new OrgChart\Position($db, $login);
+                $type = new Orgchart\Position($db, $login);
 
                 break;
             case 3:
-                include_once '../sources/Group.php';
-                $type = new OrgChart\Group($db, $login);
+                $type = new Orgchart\Group($db, $login);
 
                 break;
             default:

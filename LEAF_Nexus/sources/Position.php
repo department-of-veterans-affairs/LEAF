@@ -11,8 +11,6 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Position extends Data
 {
     protected $dataTable = 'position_data';
@@ -265,7 +263,6 @@ class Position extends Data
                                             WHERE positionID=:positionID
         									ORDER BY lastName ASC', $vars);
 
-        require_once 'Employee.php';
         $employee = new Employee($this->db, $this->login);
         $out = array();
         foreach ($res as $emp)
@@ -331,11 +328,12 @@ class Position extends Data
                       ':positionID' => $positionID,
                       ':isActing' => ($isActing ? 1 : 0),
         );
-        $this->db->prepared_query('INSERT INTO relation_position_employee (positionID, empUID, isActing)
-                                        VALUES (:positionID, :empUID, :isActing)', $vars);
+        $strSQL = 'INSERT INTO relation_position_employee (positionID, empUID, isActing)
+            VALUES (:positionID, :empUID, :isActing)
+            ON DUPLICATE KEY UPDATE positionID=:positionID, empUID=:empUID, isActing=:isActing';
+        $this->db->prepared_query($strSQL, $vars);
 
-        // since there's no ID for relation_position_employee, this always returns 0 - should it?
-        return $this->db->getLastInsertID();
+        return $empUID;
     }
 
     /**
@@ -373,7 +371,7 @@ class Position extends Data
     {
         $vars = array(':positionID' => $positionID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_position
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
                                             WHERE positionID=:positionID', $vars);
 
         return $res;
@@ -606,7 +604,7 @@ class Position extends Data
             $vars = array(':positionID' => $positionID,
                             ':tag' => $tag, );
             $res = $this->db->prepared_query('SELECT * FROM relation_group_position
-	                                            LEFT JOIN groups USING (groupID)
+	                                            LEFT JOIN `groups` USING (groupID)
 	                                            RIGHT JOIN (SELECT * FROM group_tags
 	                                                            WHERE tag=:tag) rj1
 	                                                USING (groupID)
@@ -751,7 +749,6 @@ class Position extends Data
         if (count($result) == 0
             && $searchEmployees == 1)
         {
-            require_once 'Employee.php';
             $employee = new Employee($this->db, $this->login);
             $employee->position = $this;
             $employees = $employee->search($origInput);

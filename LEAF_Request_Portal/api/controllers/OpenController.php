@@ -3,12 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require dirname(__FILE__) . '/../../sources/Shortener.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
+namespace Portal;
 
 class OpenController extends RESTfulResponse
 {

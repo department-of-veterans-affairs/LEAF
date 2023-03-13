@@ -81,9 +81,9 @@ div.specialties {
 
 <div id="searchBar">
     <input id="searchRosterInput" type="text" placeholder="Search by Name, Process, or Location" />
-    <img id="searchRosterBtn" 
-        class="searchIcon" 
-        src="../libs/dynicons/?img=search.svg&w=25" 
+    <img id="searchRosterBtn"
+        class="searchIcon"
+        src="dynicons/?img=search.svg&w=25"
         alt="search icon" />
 </div>
 
@@ -95,10 +95,10 @@ div.specialties {
 <script type="text/javascript">
 /**
  * Builds a FormQuery object that will search for LEAF coaches based on the searchTerm.
- * 
+ *
  * NOTE: It's possible the categoryID and indicator IDs will need to be changed depending on
  * your LEAF configuration.
- * 
+ *
  * @param searchTerm    string  the term to search indicator data for
  */
 function CoachQuery(searchTerm) {
@@ -134,7 +134,7 @@ function CoachQuery(searchTerm) {
 
 /**
  * Build the FormQuery
- * 
+ *
  * @returns object  the FormQuery object configured for the Coach Roster
  */
 CoachQuery.prototype.buildQuery = function () {
@@ -143,9 +143,9 @@ CoachQuery.prototype.buildQuery = function () {
 
 /**
  * Parse result object of a form query
- * 
+ *
  * @param results   object  JSON object from the form query
- * 
+ *
  * @returns array   an array of Coach objects
  */
 CoachQuery.prototype.parseResults = function (results) {
@@ -161,11 +161,11 @@ CoachQuery.prototype.parseResults = function (results) {
 
             var imgSrc = (pictureData !== undefined && pictureData.length > 0)
                 ? "./image.php?"
-                    + "id=" + this.indicatorMap.picture 
-                    + "&series=" + result.series 
+                    + "id=" + this.indicatorMap.picture
+                    + "&series=" + result.series
                     + "&form=" + result.recordID
                     + "&file=0"
-                : "../libs/dynicons/?img=system-users.svg&w=150";
+                : "dynicons/?img=system-users.svg&w=150";
 
             coaches.push({
                 "id": result.recordID,
@@ -197,7 +197,7 @@ function buildCoachProfile(coach) {
 
     var topDiv = $(document.createElement('div')).addClass('top').appendTo(coachDiv);
 
-    var imgDiv = 
+    var imgDiv =
         $(document.createElement('img'))
             .addClass('profileImage')
             .attr('src', coach.pictureSrc)
@@ -205,7 +205,7 @@ function buildCoachProfile(coach) {
             .appendTo(topDiv);
 
     var infoDiv = $(document.createElement('div')).addClass('info').appendTo(topDiv);
-    var nameDiv = 
+    var nameDiv =
         $(document.createElement('div'))
             .addClass('name')
             .html(coach.name)
@@ -219,11 +219,11 @@ function buildCoachProfile(coach) {
             .attr('href', coach.pulse).html('Pulse Bio Page').appendTo(pulseDiv);
     }
 
-    var locationNameDiv = 
+    var locationNameDiv =
         $(document.createElement('div')).addClass('locationName').html(coach.facility).appendTo(infoDiv);
-    var geoLocationDiv = 
+    var geoLocationDiv =
         $(document.createElement('div')).addClass('geoLocation').html(coach.location).appendTo(infoDiv);
-    
+
     var specialtiesDiv = $(document.createElement('div')).addClass('specialties').appendTo(coachDiv);
     var specialtiesList = coach.process.split('<br />');
     var specialtiesText = "";
@@ -237,7 +237,7 @@ function buildCoachProfile(coach) {
     if(specialtiesList.length > maxDisplaySpecialties) {
         specialtiesText += '<div>... and <a href="#coach_'+ coach.id +'"><b>' + (specialtiesList.length - maxDisplaySpecialties) + '</b> more</a></div>';
     }
-    
+
     var specialtiesArea = $(document.createElement('ul')).html(specialtiesText).appendTo(specialtiesDiv);
     $(specialtiesArea).on('click', function() { $(specialtiesArea).html(coach.process); });
 
