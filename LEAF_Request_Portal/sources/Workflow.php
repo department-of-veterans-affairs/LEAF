@@ -1083,7 +1083,7 @@ class Workflow
         return true;
     }
 
-    public function modify(string $description): string 
+    public function renameWorkflow(string $description): string 
     {
         if (!$this->login->checkGroup(1))
         {
