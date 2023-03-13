@@ -3,12 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../FormWorkflow.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    require_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
+namespace Portal;
 
 class FormWorkflowController extends RESTfulResponse
 {
@@ -58,7 +53,7 @@ class FormWorkflowController extends RESTfulResponse
 
         $this->index['GET']->register('formWorkflow/[digit]/lastActionSummary', function ($args) use ($formWorkflow) {
             $formWorkflow->initRecordID($args[0]);
-            
+
             return $formWorkflow->getLastActionSummary();
         });
 
@@ -77,7 +72,7 @@ class FormWorkflowController extends RESTfulResponse
         $this->index['POST']->register('formWorkflow/[digit]/apply', function ($args) use ($formWorkflow) {
             $formWorkflow->initRecordID($args[0]);
 
-            return $formWorkflow->handleAction($_POST['dependencyID'], XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
+            return $formWorkflow->handleAction($_POST['dependencyID'], \Leaf\XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
         });
 
         $this->index['POST']->register('formWorkflow/[digit]/step', function ($args) use ($formWorkflow) {

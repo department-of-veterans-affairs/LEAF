@@ -199,7 +199,7 @@ function save() {
         },
 		url: '../api/emailTemplates/_' + currentFile,
 		success: function(res) {
-			$('#saveIndicator').attr('src', '../../libs/dynicons/?img=media-floppy.svg&w=32');
+			$('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
 			if($('#btn_compareStop').css('display') != 'none') {
 			    $('#btn_compare').css('display', 'none');

@@ -11,13 +11,11 @@
 
 namespace Orgchart;
 
-require_once 'Data.php';
-
 class Employee extends Data
 {
     public $debug = false;
 
-    //     from main search triggers deep search)
+    //     from main search triggers deep search
 
     public $position;
 
@@ -142,10 +140,9 @@ class Employee extends Data
         $cacheHash = "lookupLogin{$userName}";
         unset($this->cache[$cacheHash]);
 
-        $db_nat = new \DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $db_nat = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $login_nat = new Login($db_nat, $db_nat);
 
-        require_once 'NationalEmployee.php';
         $natEmployee = new NationalEmployee($db_nat, $login_nat);
 
         $res = $natEmployee->lookupLogin($userName);
@@ -298,19 +295,30 @@ class Employee extends Data
 
     /**
      * Get positions associated with an employee
-     * @param int $positionID
-     * @return array
+     *
+     * @param int|string $empUID
+     * @return int|array|bool
+     *
+     * Created at: 1/19/2023, 10:22:32 AM (America/New_York)
      */
-    public function getPositions($empUID)
+    public function getPositions(int|string $empUID): int|array|bool
     {
         $vars = array(':empUID' => $empUID);
-        $res = $this->db->prepared_query('SELECT * FROM relation_position_employee
-                                            WHERE empUID=:empUID', $vars);
+        $sql = 'SELECT *
+                FROM relation_position_employee
+                WHERE empUID=:empUID';
+        $res = $this->db->prepared_query($sql, $vars);
 
         return $res;
     }
 
-    public function lookupLogin($login)
+    /**
+     * Purpose: Get employee information for enabled or all accounts
+     *
+     * @param string $login
+     * @param bool $searchDeleted
+     */
+    public function lookupLogin($login, bool $searchDeleted = false): array
     {
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
@@ -319,7 +327,10 @@ class Employee extends Data
         }
 
         $sqlVars = array(':login' => $login);
-	    $strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
+        $accountStatus = $searchDeleted ? "" : " AND deleted = 0";
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName,
+            phoneticFirstName, phoneticLastName, domain, deleted, lastUpdated, new_empUUID
+            FROM {$this->tableName} WHERE userName = :login".$accountStatus;
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 
         if (is_array($result) && isset($result[0]['empUID'])) {
@@ -364,26 +375,33 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupLastName($lastName)
+    /**
+     * Looks for all user's lastname
+     *
+     * @param string $lastName
+     * @return array
+     *
+     * Created at: 1/18/2023, 2:17:23 PM (America/New_York)
+     */
+    public function lookupAllUsersLastName(string $lastName): array
     {
         $lastName = $this->parseWildcard($lastName);
 
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE lastName LIKE :lastName
-                    	AND deleted = 0
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+        $sql = "SELECT *
+                FROM {$this->tableName}
+                WHERE lastName LIKE :lastName
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $vars = array(':lastName' => $lastName);
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticLastName LIKE :lastName
-                	AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+        if (count($result) == 0){
+            $sql = "SELECT *
+                    FROM {$this->tableName}
+                    WHERE phoneticLastName LIKE :lastName
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             $vars = array(':lastName' => metaphone($lastName));
             if ($vars[':lastName'] != '')
@@ -403,26 +421,33 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupFirstName($firstName)
+    /**
+     * Looks for all user's firstname
+     *
+     * @param string $firstName
+     * @return array
+     *
+     * Created at: 1/18/2023, 2:18:09 PM (America/New_York)
+     */
+    public function lookupAllUsersFirstName(string $firstName): array
     {
         $firstName = $this->parseWildcard($firstName);
 
-        $sql = "SELECT * FROM {$this->tableName}
-                    WHERE firstName LIKE :firstName
-                    	AND deleted = 0
-                    ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+        $sql = "SELECT *
+                FROM {$this->tableName}
+                WHERE firstName LIKE :firstName
+                ORDER BY {$this->sortBy} {$this->sortDir}
+                {$this->limit}";
 
         $vars = array(':firstName' => $firstName);
         $result = $this->db->prepared_query($sql, $vars);
 
-        if (count($result) == 0)
-        {
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE phoneticFirstName LIKE :firstName
-                	AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
+        if (count($result) == 0){
+            $sql = "SELECT *
+                    FROM {$this->tableName}
+                    WHERE phoneticFirstName LIKE :firstName
+                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    {$this->limit}";
 
             $vars = array(':firstName' => metaphone($firstName));
             if ($vars[':firstName'] != '')
@@ -647,7 +672,7 @@ class Employee extends Data
     {
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_group_employee
-                                            LEFT JOIN groups USING (groupID)
+                                            LEFT JOIN `groups` USING (groupID)
                                             WHERE empUID=:empUID', $vars);
 
         return $res;
@@ -702,7 +727,6 @@ class Employee extends Data
                     $input = trim('*' . $input);
                     $searchResult = array_merge($searchResult, $this->searchDeeper($input));
                 }
-
                 break;
             // Format: First Last
             case ($idx = strpos($input, ' ')) > 0 && strpos(strtolower($input), 'username:') === false:
@@ -760,6 +784,15 @@ class Employee extends Data
                 $searchResult = $this->lookupLogin($input);
 
                 break;
+            //explicit search for disabled accounts
+            case substr(strtolower($input), 0, 18) === 'username_disabled:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('username_disabled:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input, true);
+                break;
             // Format: ID number
             case (substr($input, 0, 1) == '#') && is_numeric(substr($input, 1)):
                 $searchResult = $this->lookupEmpUID(substr($input, 1));
@@ -776,12 +809,14 @@ class Employee extends Data
                 {
                     $this->log[] = 'Format Detected: Last OR First';
                 }
-                $res = $this->lookupLastName($input);
+                $res = $this->lookupAllUsersLastName($input);
+                // $res2 = $this->lookupLastName($input);
+
                 // Check first names if theres few hits for last names
                 if (count($res) <= $this->deepSearch)
                 {
                     $this->log[] = 'Extra search on first names';
-                    $res = array_merge($res, $this->lookupFirstName($input));
+                    $res = array_merge($res, $this->lookupAllUsersFirstName($input));
                     // Try to look for service
                     if (count($res) <= $this->deepSearch)
                     {
@@ -802,7 +837,6 @@ class Employee extends Data
         }
         else
         {
-            require_once 'Position.php';
             $position = new Position($this->db, $this->login);
         }
 
@@ -819,7 +853,7 @@ class Employee extends Data
             $sql = "SELECT *, positions.parentID AS parentID FROM relation_position_employee
                         LEFT JOIN positions USING (positionID)
                         LEFT JOIN relation_group_position USING (positionID)
-                        LEFT JOIN groups USING (groupID)
+                        LEFT JOIN `groups` USING (groupID)
                         WHERE empUID IN ({$empUID_list})";
 
             $vars = array();
@@ -843,8 +877,8 @@ class Employee extends Data
                 $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
             }
         }
-
         return $finalResult;
+
     }
 
     // Translates the * wildcard to SQL % wildcard

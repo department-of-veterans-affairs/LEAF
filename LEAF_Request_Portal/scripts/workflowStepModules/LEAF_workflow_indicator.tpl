@@ -6,7 +6,7 @@ workflowStepModule[{{$stepID}}]['LEAF_workflow_indicator'] = (function() {
 	var series = 1;
 	var form;
 
-	function init(step) {
+	function init(step, rootURL) {
 		recordID = step.recordID;
 		depID = step.dependencyID;
 		indicatorID = config.indicatorID;
@@ -18,6 +18,7 @@ workflowStepModule[{{$stepID}}]['LEAF_workflow_indicator'] = (function() {
 				</div>');
 
 		form = new LeafForm(prefixID + 'anchor');
+        form.setRootURL(rootURL);
 		form.initCustom(prefixID + 'anchor', prefixID + 'container', prefixID + 'anchor', prefixID + 'anchor', prefixID + 'anchor');
 		form.setHtmlFormID('form_dep'+ depID);
 		form.setRecordID(recordID);

@@ -1,92 +1,105 @@
 .employeeSelectorBorder {
-    background-color: white;
-    padding: 1px;
+  background-color: white;
+  padding: 1px;
 }
 
 .employeeSelectorInput {
-    border: 1px solid #bbb;
-    font-size: 100%;
-    padding: 4px;
-    height: 28px;
-    width: 90%;
+  border: 1px solid #bbb;
+  font-size: 100%;
+  padding: 4px;
+  height: 28px;
+  width: 90%;
 }
 
 .employeeSelectorIcon {
-    padding: 3px;
-    vertical-align: middle;
-    position: relative;
-    float: left;
+  padding: 3px;
+  vertical-align: middle;
+  position: relative;
+  float: left;
 }
 
 .employeeSelector {
-    width: 99%;
-    font-size: 14px;
-    background-color: #e8f2ff;
-    border: 1px solid black;
-    padding: 2px;
-    cursor: pointer;
+  width: 99%;
+  font-size: 14px;
+  background-color: #e8f2ff;
+  border: 1px solid black;
+  padding: 2px;
+  cursor: pointer;
 }
 
 .employeeSelector:hover {
-    background-color: #fffdcc;
-    color: black;
+  background-color: #fffdcc;
+  color: black;
+}
+
+.employeeSelectorDisable {
+  width: 99%;
+  font-size: 14px;
+  background-color: #ff7777 !important;
+  border: 1px solid black;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.employeeSelectorDisable:hover {
+  background-color: #b7b7b7 !important;
 }
 
 .employeeSelected {
-    width: 99%;
-    background-color: #2372b0;
-    color: white;
-    border: 1px solid black;
-    padding: 2px;
-    cursor: pointer;
+  width: 99%;
+  background-color: #2372b0;
+  color: white;
+  border: 1px solid black;
+  padding: 2px;
+  cursor: pointer;
 }
 
 .employeeSelected > td > a {
-    color: white;
+  color: white;
 }
 
 table.employeeSelectorTable {
-    margin: 10px 0;
-    width: 100%;
-    border: 1px solid black;
-    border-collapse: collapse;
+  margin: 10px 0;
+  width: 100%;
+  border: 1px solid black;
+  border-collapse: collapse;
 }
 
 .employeeSelectorTable th {
-    background-color: #ececec;
-    text-align: center;
-    color: #888888;
-    font-size: 80%
+  background-color: #ececec;
+  text-align: center;
+  color: #888888;
+  font-size: 80%;
 }
 
 .employeeSelectorTable td {
-    border: 1px solid black;
-    padding: 8px;
+  border: 1px solid black;
+  padding: 8px;
 }
 
 .employeeSelectorName {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .employeeSelectorPhoto {
-    float: right;
-    max-width: 48px;
-    max-height: 48px;
+  float: right;
+  max-width: 48px;
+  max-height: 48px;
 }
 
 .employeeSelectorTitle {
-    font-style: italic;
-    font-weight: normal;
+  font-style: italic;
+  font-weight: normal;
 }
 
 .employeeSelectorService {
-    text-align: center;
+  text-align: center;
 }
 
-.employeeSelectorService>span {
-    font-size: 75%;
+.employeeSelectorService > span {
+  font-size: 75%;
 }
 
 .employeeSelectorContact {
-    font-size: 75%;
+  font-size: 75%;
 }

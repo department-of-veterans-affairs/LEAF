@@ -1,5 +1,5 @@
 {if $action != ''}
-    <a href="./" class="buttonNorm" title="nav to homepage"><img src="../libs/dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
+    <a href="./" class="buttonNorm" title="nav to homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
 {/if}
 <div id="headerMenu_container" style="display: inline-block">
     <a id="button_showLinks" tabIndex="0" class="buttonNorm" title="site links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
@@ -9,14 +9,14 @@
 </div>
 <div id="headerMenuHelp_container" style="display: inline-block">
     <a id="button_showHelp" tabIndex="0" class="buttonNorm" title="primary admin contact information" aria-haspopup="true" aria-expanded="false" role="button">
-        <img style="vertical-align: sub;" src="../libs/dynicons/?img=help-browser.svg&amp;w=16" alt="" />&nbsp;Help
+        <img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt="" />&nbsp;Help
     </a>
     <div id="headerMenu_help" tabindex="0">
     {include file={$menu_help}}
     </div>
 </div>
 {if $is_admin == true}
-     <a href="./admin/" class="buttonNorm" role="button"><img src="../libs/dynicons/?img=applications-system.svg&amp;w=16" alt=""/>Admin Panel</a>
+     <a href="./admin/" class="buttonNorm" role="button"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>Admin Panel</a>
 {/if}
 {if $hide_main_control == 1}
 {/if}

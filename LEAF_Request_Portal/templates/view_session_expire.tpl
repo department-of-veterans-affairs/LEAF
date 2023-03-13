@@ -25,11 +25,10 @@
                 <div class="card" style="width: 50%; margin: auto; padding: 16px">
                     <h2>Your Session Has Expired</h2>
                     <p>Return to your <a href="./login">LEAF site</a></p>
-                    <p>If this message persists, please contact your administrator.</p>
+                    <p>If this message persists, please contact the Enterprise Service desk at 855-673-4357 or enter a ticket through <a href="https://yourit.va.gov/">YourIT</a>.</p>
                 </div>
             </div>
         </div>
     </div>
 </body>
 </html>{/strip}
-

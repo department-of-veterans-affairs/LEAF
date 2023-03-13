@@ -64,12 +64,15 @@ function deleteFile(file) {
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/system/files/_'+ file + '?' +
-                $.param({'CSRFToken': CSRFToken}),
+            url: '../api/system/files/delete?' +
+                $.param({'CSRFToken': CSRFToken, 'file': file}),
             success: function() {
                 showFiles();
                 dialog_confirm.hide();
-            }
+            },
+            error: function(err) {
+                console.log('an error occurred during file deletion', err)
+            },
         });
     });
     dialog_confirm.show();

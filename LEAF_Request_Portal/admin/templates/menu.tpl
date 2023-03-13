@@ -2,7 +2,7 @@
 
     <!-- Menu tooggle on smaller screens  -->
     <li id="toggleMenu" role="button" aria-haspopup="true">
-        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i><span id="toggleMenu-text">Toggle Navigation</span></a>
+        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i></a>
     </li>
 
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
@@ -55,7 +55,7 @@
                 <ul>
                 <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
-                <li><a href="../report.php?a=LEAF_request_initiator_new_account">Initiator New Account</a></li>
+                <li><a href="./?a=mod_account_updater">New Account Updater</a></li>
                 <li><a href="../report.php?a=LEAF_table_input_report">Grid Splitter</a></li>
                 </ul>
             </li>
@@ -222,7 +222,7 @@ $('li > ul > li:last-child > a').on('keydown', function(e) {
             {
                 $('#primary-admin').html('Not Set');
             }
-                
+
         }
     });
 </script>

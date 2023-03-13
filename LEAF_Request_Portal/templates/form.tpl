@@ -7,7 +7,7 @@
             <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
                 <div id="progressControl" style="float: left">Form completion progress: <div tabIndex="0" id="progressBar" title="form progress bar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
-                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" /> Next Question</button></div>
+                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="Next" /> Next Question</button></div>
                 <br style="clear: both" />
             </div>
             <div>
@@ -20,8 +20,8 @@
                 </form>
             </div>
             <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
-                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="../libs/dynicons/?img=go-previous.svg&amp;w=22" alt="Previous" aria-label="Previous"/> Previous Question</button></div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="../libs/dynicons/?img=go-next.svg&amp;w=22" alt="Next" aria-label="Next"/> Next Question</button></div>
+                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="Previous" aria-label="Previous"/> Previous Question</button></div>
+                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="Next" aria-label="Next"/> Next Question</button></div>
             </div>
         </div>
         <br />
@@ -29,9 +29,9 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="../libs/dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form"  /> Show single page</div>
+            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form"  /> Show single page</div>
             <br /><br />
-            <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="../libs/dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
+            <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
     </div>
 </div>
@@ -114,7 +114,7 @@ function onKeyPressClick(event){
     }
 }
 
-function updateProgress() {
+function updateProgress(focusNext=false) {
     $.ajax({
         type: 'GET',
         url: "./api/form/<!--{$recordID}-->/progress",
@@ -125,16 +125,26 @@ function updateProgress() {
                 $('#progressLabel').text(response + '%');
             }
             else {
-                savechange = '<div tabindex="0" class="buttonNorm" onkeypress="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="../libs/dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
+                savechange = '<div tabindex="0" class="buttonNorm" onkeypress="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
                 $('#progressControl').html(savechange);
             }
+            window.scrollTo(0,0);
+            if(focusNext===true){
+                $('#nextQuestion').focus();
+            }
+        },
+        error: function(err) {
+            console.log('an error occurred during form progress checking', err);
+        },
+        error: function(e) {
+            console.log(e);
         },
         cache: false
     });
 }
 
 function cancelRequest() {
-    dialog_confirm.setContent('<img src="../libs/dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
+    dialog_confirm.setContent('<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
 
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
@@ -156,7 +166,7 @@ function cancelRequest() {
 function manualSaveChange()
 {
     $("#save_indicator").html('<img src="images/indicator.gif" alt="Saving..." /> Saving...');
-    setTimeout("$('#save_indicator').html('<img src=\"../libs/dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
+    setTimeout("$('#save_indicator').html('<img src=\"dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
     form.setPostModifyCallback(function() {
         getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);
     });
@@ -233,6 +243,9 @@ $(function() {
             $('#navtree').html(buffer);
 
             getForm(formStructure[0].indicatorID, formStructure[0].series);
+        },
+        error: function(e) {
+            console.log(e);
         }
     });
 
@@ -240,7 +253,7 @@ $(function() {
         form.dialog().indicateBusy();
         form.setPostModifyCallback(function() {
             getNext();
-            updateProgress();
+            updateProgress(true);
         });
         form.dialog().clickSave();
     });
@@ -249,7 +262,7 @@ $(function() {
         form.dialog().indicateBusy();
         form.setPostModifyCallback(function() {
             getPrev();
-            updateProgress();
+            updateProgress(true);
         });
         form.dialog().clickSave();
     });

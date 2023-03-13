@@ -5,29 +5,14 @@
 
 error_reporting(E_ERROR);
 
-if (false)
-{
-    echo '<img src="../libs/dynicons/?img=dialog-error.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">Site currently undergoing maintenance, will be back shortly!</div>';
-    exit();
-}
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-include '../globals.php';
-include '../sources/Login.php';
-include '../db_mysql.php';
-include '../config.php';
-require 'RESTfulResponse.php';
-require '../sources/Exception.php';
-require 'ControllerMap.php';
+$oc_db = $oc_db;
+$oc_login->setBaseDir('../');
 
-$config = new Orgchart\Config();
-
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
-
-$login = new Orgchart\Login($db, $db);
-$login->setBaseDir('../');
-
-$login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
+$oc_login->loginUser();
+if (!$oc_login->isLogin() || !$oc_login->isInDB())
 {
     echo 'Your login is not recognized.';
     exit;
@@ -45,73 +30,65 @@ else
     $key = substr($action, 0, $keyIndex);
 }
 
-$controllerMap = new ControllerMap();
+$controllerMap = new Orgchart\ControllerMap();
 
 switch ($key) {
     case 'group':
-        $controllerMap->register('group', function () use ($db, $login, $action) {
-            require 'controllers/GroupController.php';
-            $groupController = new GroupController($db, $login);
+        $controllerMap->register('group', function () use ($oc_db, $oc_login, $action) {
+            $groupController = new Orgchart\GroupController($oc_db, $oc_login);
             $groupController->handler($action);
         });
 
         break;
     case 'position':
-        $controllerMap->register('position', function () use ($db, $login, $action) {
-            require 'controllers/PositionController.php';
-            $positionController = new PositionController($db, $login);
+        $controllerMap->register('position', function () use ($oc_db, $oc_login, $action) {
+            $positionController = new Orgchart\PositionController($oc_db, $oc_login);
             $positionController->handler($action);
         });
 
         break;
     case 'employee':
-        $controllerMap->register('employee', function () use ($db, $login, $action) {
-            require 'controllers/EmployeeController.php';
-            $employeeController = new EmployeeController($db, $login);
+        $controllerMap->register('employee', function () use ($oc_db, $oc_login, $action) {
+            $employeeController = new Orgchart\EmployeeController($oc_db, $oc_login);
             $employeeController->handler($action);
         });
 
         break;
     case 'indicator':
-        $controllerMap->register('indicator', function () use ($db, $login, $action) {
-            require 'controllers/IndicatorController.php';
-            $indicatorController = new IndicatorController($db, $login);
+        $controllerMap->register('indicator', function () use ($oc_db, $oc_login, $action) {
+            $indicatorController = new Orgchart\IndicatorController($oc_db, $oc_login);
             $indicatorController->handler($action);
         });
 
         break;
     case 'tag':
-         $controllerMap->register('tag', function () use ($db, $login, $action) {
-             require 'controllers/TagController.php';
-             $tagController = new TagController($db, $login);
-             $tagController->handler($action);
+         $controllerMap->register('tag', function () use ($oc_db, $oc_login, $action) {
+            $tagController = new Orgchart\TagController($oc_db, $oc_login);
+            $tagController->handler($action);
          });
 
            break;
     case 'system':
-        $controllerMap->register('system', function () use ($db, $login, $action) {
-            require 'controllers/SystemController.php';
-            $systemController = new SystemController($db, $login);
+        $controllerMap->register('system', function () use ($oc_db, $oc_login, $action) {
+            $systemController = new Orgchart\SystemController($oc_db, $oc_login);
             $systemController->handler($action);
         });
 
         break;
     case 'national':
         $controllerMap->register('national', function () use ($action) {
-            $db_nat = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-            $login_nat = new Orgchart\Login($db_nat, $db_nat);
+            $oc_db_nat = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+            $oc_login_nat = new Orgchart\Login($oc_db_nat, $oc_db_nat);
 
-            require 'controllers/NationalEmployeeController.php';
-            $nationalEmployeeController = new NationalEmployeeController($db_nat, $login_nat);
+            $nationalEmployeeController = new Orgchart\NationalEmployeeController($oc_db_nat, $oc_login_nat);
             $nationalEmployeeController->handler($action);
         });
 
         break;
 
     case 'x':
-        $controllerMap->register('x', function () use ($db, $login, $action) {
-            require 'controllers/ExperimentalController.php';
-            $experimentalController = new ExperimentalController($db, $login);
+        $controllerMap->register('x', function () use ($oc_db, $oc_login, $action) {
+            $experimentalController = new Orgchart\ExperimentalController($oc_db, $oc_login);
             $experimentalController->handler($action);
         });
 
@@ -123,5 +100,3 @@ switch ($key) {
 }
 
 $controllerMap->runControl($key);
-
-//echo '<br />' . memory_get_peak_usage();

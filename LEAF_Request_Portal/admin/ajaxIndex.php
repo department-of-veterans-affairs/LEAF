@@ -15,23 +15,8 @@
 */
 error_reporting(E_ERROR);
 
-include '../globals.php';
-include '../../libs/smarty/Smarty.class.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$db_config = new DB_Config();
-$config = new Config();
-
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-unset($db_config);
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
@@ -39,7 +24,6 @@ if (isset($settings['timeZone']))
     date_default_timezone_set($settings['timeZone']);
 }
 
-$login = new Login($db_phonebook, $db);
 $login->setBaseDir('../');
 
 $login->loginUser();
@@ -63,52 +47,47 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 switch ($action) {
     case 'add_user_old':
         checkToken();
-        require 'Group.php';
 
-        $group = new Group($db, $login);
+        $group = new Portal\Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
 
         break;
     case 'remove_user_old':
         checkToken();
-        require 'Group.php';
 
-        $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
+        $deleteList = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
-        $group = new Group($db, $login);
+        $group = new Portal\Group($db, $login);
         foreach ($deleteList as $del)
         {
-            $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
+            $group->removeMember(Leaf\XSSHelpers::xscrub($del['userID']), $del['groupID']);
         }
 
         break;
     case 'add_user':
           checkToken();
-           require 'Group.php';
 
-           $group = new Group($db, $login);
+           $group = new Portal\Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
 
            break;
     case 'remove_user':
            checkToken();
-           require 'Group.php';
 
-           $group = new Group($db, $login);
+           $group = new Portal\Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
 
            break;
     case 'printview':
         if ($login->isLogin())
         {
-            require '../form.php';
-            $form = new Form($db, $login);
+            $form = new Portal\Form($db, $login);
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', (int)$_GET['recordID']);
-            $t_form->assign('orgchartPath', Config::$orgchartPath);
+            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
 
             $t_form->assign('form', $form->getFormByCategory($_GET['categoryID']));
             $t_form->display('print_form_ajax.tpl');
@@ -117,16 +96,14 @@ switch ($action) {
 
         break;
     case 'importForm':
-        require '../sources/FormStack.php';
-        $formStack = new FormStack($db, $login);
+        $formStack = new Portal\FormStack($db, $login);
         $result = $formStack->importForm();
 
         echo $result;
 
         break;
     case 'manualImportForm':
-           require '../sources/FormStack.php';
-           $formStack = new FormStack($db, $login);
+           $formStack = new Portal\FormStack($db, $login);
            $result = $formStack->importForm();
 
         if ($result === true)
@@ -141,8 +118,7 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           require '../sources/System.php';
-           $system = new System($db, $login);
+           $system = new Portal\System($db, $login);
            $result = $system->newFile();
            if ($result === true)
            {
@@ -157,9 +133,9 @@ switch ($action) {
 
            break;
     case 'gethistoryall':
-        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
-        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        $page = isset($_GET['page']) ? Leaf\XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $typeName = isset($_GET['type']) ? Leaf\XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
@@ -183,27 +159,23 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
                 $dataName = "All Services";
-                $type = new \Service($db, $login);
+                $type = new Portal\Service($db, $login);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
                 $dataName = "All Forms";
-                $type = new \FormEditor($db, $login);
+                $type = new Portal\FormEditor($db, $login);
                 break;
             case 'group':
-                include 'Group.php';
                 $dataName = "All Groups";
-                $type = new \Group($db, $login);
+                $type = new Portal\Group($db, $login);
 
-                include '../' . Config::$orgchartPath . '/sources/Group.php';
-                $orgchartGroup = new OrgChart\Group($db_phonebook, $login);
+                $orgchartGroup = new Orgchart\Group($oc_db, $login);
                 break;
         }
 
         /*
-            First time around, gethistoryslice = false, so this loads view_history_all which calls 
+            First time around, gethistoryslice = false, so this loads view_history_all which calls
             this method again which loads view_history & displays it appropriately in the paginator
         */
         if($gethistoryslice)
@@ -215,10 +187,10 @@ switch ($action) {
                 //special case for getting group history, since the only group tracked in portal is sysadmin
                 $adminHistory = $type->getHistory(1);
                 $adminHistory = $adminHistory ?? array();
-                
+
                 $allGroupHistory = $type->getHistory(null);
                 $allGroupHistory = $allGroupHistory ?? array();
-    
+
                 $totalHistory = array_merge($allGroupHistory, $adminHistory);
                 $type = $orgchartGroup;
             }
@@ -242,12 +214,12 @@ switch ($action) {
 
         break;
     case 'gethistory':
-        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
-        $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $typeName = isset($_GET['type']) ? Leaf\XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $page = isset($_GET['page']) ? Leaf\XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $itemID = isset($_GET['id']) ? Leaf\XSSHelpers::xscrub((string)$_GET['id']) : '';
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
-        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
-        
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+
         if($tz == null){
             $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))
@@ -268,35 +240,37 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                include '../sources/Service.php';
-                $type = new \Service($db, $login);
+                $type = new Portal\Service($db, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
-                include '../sources/FormEditor.php';
-                $type = new \FormEditor($db, $login);
+                $type = new Portal\FormEditor($db, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                include 'Group.php';
-                $type = new \Group($db, $login);
+                $type = new Portal\Group($db, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
-                include '../sources/Workflow.php';
-                $type = new \Workflow($db, $login);
+                $type = new Portal\Workflow($db, $login);
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
-                include '../sources/System.php';
-                $type = new \System($db, $login);
+                $type = new Portal\System($db, $login);
                 $itemID = null;
                 $title = 'Primary Admin';
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
             case 'emailTemplate':
-                include '../sources/EmailTemplate.php';
-                $type = new \EmailTemplate($db, $login);
+                $type = new Portal\EmailTemplate($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'templateEditor':
+                $type = new Portal\TemplateEditor($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'templateReports':
+                $type = new Portal\TemplateReports($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

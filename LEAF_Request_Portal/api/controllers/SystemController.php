@@ -3,12 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require '../sources/System.php';
-
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../../libs/php-commons/XSSHelpers.php';
-}
+namespace Portal;
 
 class SystemController extends RESTfulResponse
 {
@@ -65,26 +60,6 @@ class SystemController extends RESTfulResponse
             return $system->getGroups();
         });
 
-        $this->index['GET']->register('system/templates', function ($args) use ($system) {
-            return $system->getTemplateList();
-        });
-
-        $this->index['GET']->register('system/templates/[text]', function ($args) use ($system) {
-            return $system->getTemplate($args[0]);
-        });
-
-        $this->index['GET']->register('system/templates/[text]/standard', function ($args) use ($system) {
-            return $system->getTemplate($args[0], true);
-        });
-
-        $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
-            return $system->getReportTemplateList();
-        });
-
-        $this->index['GET']->register('system/reportTemplates/[text]', function ($args) use ($system) {
-            return $system->getReportTemplate($args[0]);
-        });
-
         $this->index['GET']->register('system/files', function ($args) use ($system) {
             return $system->getFileList();
         });
@@ -116,26 +91,14 @@ class SystemController extends RESTfulResponse
             return $system->addAction();
         });
 
-        $this->index['POST']->register('system/templates/[text]', function ($args) use ($system) {
-            return $system->setTemplate($args[0]);
-        });
-
-        $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
-            return $system->newReportTemplate($_POST['filename']);
-        });
-
-        $this->index['POST']->register('system/reportTemplates/[text]', function ($args) use ($system) {
-            return $system->setReportTemplate($args[0]);
-        });
-
         $this->index['POST']->register('system/settings/heading', function ($args) use ($system) {
-            $_POST['heading'] = XSSHelpers::sanitizeHTML($_POST['heading']);
+            $_POST['heading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['heading']);
 
             return $system->setHeading();
         });
 
         $this->index['POST']->register('system/settings/subHeading', function ($args) use ($system) {
-            $_POST['subHeading'] = XSSHelpers::sanitizeHTML($_POST['subHeading']);
+            $_POST['subHeading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['subHeading']);
 
             return $system->setSubHeading();
         });
@@ -161,7 +124,7 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
-            $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
+            $_POST['userID'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['userID']);
             return $system->setPrimaryAdmin();
         });
 
@@ -184,16 +147,8 @@ class SystemController extends RESTfulResponse
         $this->index['DELETE']->register('system', function ($args) {
         });
 
-        $this->index['DELETE']->register('system/templates/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeCustomTemplate($args[0]);
-        });
-
-        $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeReportTemplate($args[0]);
-        });
-
-        $this->index['DELETE']->register('system/files/[text]', function ($args) use ($db, $login, $system) {
-            return $system->removeFile($args[0]);
+        $this->index['DELETE']->register('system/files/delete', function ($args) use ($db, $login, $system) {
+            return $system->removeFile($_GET['file']);
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

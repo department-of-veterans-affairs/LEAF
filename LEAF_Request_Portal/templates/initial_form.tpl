@@ -1,8 +1,8 @@
 <style>
     section {
-        width: 100%; 
-        border: 1px solid black; 
-        align-self: flex-start; 
+        width: 100%;
+        border: 1px solid black;
+        align-self: flex-start;
         background-color: white;
         box-shadow: 1px 1px 5px rgba(0,0,25, 0.5);
     }
@@ -131,12 +131,12 @@ $(function() {
                 <!--{/if}-->
 
                 <button class="buttonNorm" type="submit" style="display: block; margin-top: 0.75rem; margin-left:auto">
-                    <img src="../libs/dynicons/?img=go-next.svg&amp;w=30" alt="" />Click here to Proceed&nbsp; 
+                    <img src="dynicons/?img=go-next.svg&amp;w=30" alt="" />Click here to Proceed&nbsp;
                 </button>
             </div>
 
-            
-            
+
+
         </section>
 
     </form>

@@ -14,7 +14,7 @@
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="../libs/dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
     </div>
 </div>
 
@@ -478,7 +478,7 @@ function loadSearchPrereqs() {
                 if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
                     categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
                 }
-                buffer += '<div tabindex="0" class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="../libs/dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
+                buffer += '<div tabindex="0" class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
                 for(let j in groupList[i]) {
                     const indID = groupList[i][j];
                     const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
@@ -681,10 +681,16 @@ function editLabels() {
 
     for(let i in resSelectList) {
         if(resIndicatorList[resSelectList[i]] != undefined) {
-            buffer += '<tr id="sortID_'+ resSelectList[i] +'"><td><input type="text" style="min-width: 400px" id="id_'+ resSelectList[i] +'" value="'+ resIndicatorList[resSelectList[i]] +'"></input></td>';
-            buffer += '<td><button class="buttonNorm" onclick="editLabels_down('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-down_red.svg&w=16" /></button> ';
-            buffer += '<button class="buttonNorm" onclick="editLabels_up('+ resSelectList[i] +');"><img src="../libs/dynicons/?img=go-up.svg&w=16" /></button>';
-            buffer += '<input type="color" id="colorPicker' + resSelectList[i] + '" value="#d1dfff" style="height: 26px;" /></td></tr>';
+            buffer += `<tr id="sortID_${resSelectList[i]}">
+                <td>
+                    <input type="color" id="colorPicker${resSelectList[i]}" value="#d1dfff" style="height: 26px;" />
+                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"></input>
+                </td>
+                <td>
+                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" /></button>
+                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" /></button>
+                </td>
+                </tr>`;
         }
     }
     buffer += '</table>';
@@ -763,14 +769,13 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
-    var reportLink = document.URL.substr(document.URL.lastIndexOf('/') + 1);
-
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    var reportLink = document.URL.substr(document.URL.lastIndexOf('?') - 1);
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
                             + '<br /><textarea id="reportLink" style="width: 95%; height: 100px">'+ pwd + reportLink +'</textarea>'
-                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
+                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
                             + '<br /><br /><p>Access rules are automatically applied based on the form and workflow configuration.</p>');
     dialog_message.show();
     $('#reportLink').on('click', function() {
@@ -793,7 +798,7 @@ function openShareDialog() {
 }
 
 function showJSONendpoint() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
     var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
@@ -977,6 +982,7 @@ var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
 let gridColorData = {}; //object updated with id: color
 let tempColorData = {}; //object updated with id: color
+let sortPreference = {}; // store current sorting preference
 let isOneFormType = false;
 
 /**
@@ -1020,11 +1026,26 @@ var version = 3;
     * v3 - uses getData() from formQuery.js
 */
 
-function buildURLComponents(baseURL){
+/**
+ * Generates a url based on the current report preferences
+ * @param baseURL URL of this script, without parameters
+ * @param update (optional) bool - update an existing URL
+ */
+function buildURLComponents(baseURL, update){
     url = baseURL + '&v='+ version + '&query=' + encodeURIComponent(urlQuery) + '&indicators=' + encodeURIComponent(urlIndicators);
+
+    if(update != undefined) {
+        let urlParams = new URLSearchParams(window.location.search);
+        url = baseURL + '&v='+ version + '&query=' + urlParams.get('query') + '&indicators=' + urlParams.get('indicators');
+    }
+
     if (Object.keys(gridColorData).length !== 0){
         urlColorData = LZString.compressToBase64(JSON.stringify(gridColorData));
         url += '&colors=' + encodeURIComponent(urlColorData);
+    }
+    if(Object.keys(sortPreference).length != 0) {
+        let urlSortPreference = LZString.compressToBase64(JSON.stringify(sortPreference));
+        url += '&sort=' + encodeURIComponent(urlSortPreference);
     }
     if($('#reportTitle').val() != '') {
         url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
@@ -1048,7 +1069,7 @@ $(function() {
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
     $('#' + leafSearch.getPrefixID() + 'advancedOptions>legend').css('display', 'none');
-    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="../libs/dynicons/?img=go-next.svg&w=32" alt="next step" />');
+    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="dynicons/?img=go-next.svg&w=32" alt="next step" />');
 
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
 
@@ -1103,6 +1124,11 @@ $(function() {
     var selectedIndicators = [];
     grid = new LeafFormGrid('results');
     grid.enableToolbar();
+    grid.setPostSortRequestFunc((key, order) => {
+        sortPreference = {key: key, order: order};
+        let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
+        buildURLComponents(baseURL, true);
+    });
     var extendedToolbar = false;
     $('#generateReport').off();
     $('#generateReport').on('click', function() {
@@ -1198,7 +1224,13 @@ $(function() {
 
             if(<!--{$version}--> >= 3) {
                 grid.setData(tGridData);
-                grid.sort('recordID', 'desc');
+                let sortKey = 'recordID';
+                let sortDirection = 'desc';
+                if(sortPreference.key != undefined && sortPreference.order != undefined) {
+                    sortKey = sortPreference.key;
+                    sortDirection = sortPreference.order;
+                }
+                grid.sort(sortKey, sortDirection);
                 grid.renderBody();
             }
             else {
@@ -1269,13 +1301,13 @@ $(function() {
 
         // create save link once
         if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="../libs/dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="../libs/dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="../libs/dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="../libs/dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="../libs/dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 
@@ -1315,7 +1347,7 @@ $(function() {
             buildURLComponents(baseURL);
 
             $('#reportTitle').on('keyup', function() {
-                buildURLComponents(baseURL);
+                buildURLComponents(baseURL, true);
             });
         }
         else {
@@ -1369,6 +1401,12 @@ $(function() {
                     gridColorData = queryColors;
                     updateHeaderColors(gridColorData);
                 }
+
+                let urlParams = new URLSearchParams(window.location.search);
+                urlSortParam = urlParams.get('sort');
+                if(urlSortParam != null) {
+                    sortPreference = JSON.parse(LZString.decompressFromBase64(urlSortParam));
+                }
             }
             else {
                 inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
@@ -1393,8 +1431,18 @@ $(function() {
                 }
             }
             leafSearch.getLeafFormQuery().setQuery(inQuery);
+
+            // We usually don't want to see deleted requests, but this parameter still needs to be
+            // passed into the API. To simplify the user interface, the parameter is removed before
+            // rendering the view. Explicit searches for deleted requests are not affected.
             if(!isSearchingDeleted(leafSearch)) {
-                inQuery.terms.pop();
+                for(let i in inQuery.terms) {
+                    if(inQuery.terms[i].id == 'deleted'
+                        && inQuery.terms[i].operator == '='
+                        && parseInt(inQuery.terms[i].match) == 0) {
+                        inQuery.terms.splice(i, 1);
+                    }
+                }
             }
             leafSearch.renderPreviousAdvancedSearch(inQuery.terms);
             headers = headers.concat(inIndicators);

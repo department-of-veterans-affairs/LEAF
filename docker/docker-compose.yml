@@ -1,6 +1,22 @@
 version: "3.7"
 
 services:
+  leaf_vue_ui:
+    container_name: leaf_vue_ui
+    env_file:
+      - ./env_files/vue_ui_local.env
+    build:
+      context: ./vue-app
+      dockerfile: leaf_vue.dockerfile
+    volumes:
+      - './vue-app/src:/app/src'
+      - '/app/node_modules'
+      - '../libs/js/vue-dest:/app/vue-dest'
+    networks:
+      - leaf-sql
+      - leaf
+
+
   leaf-php-8:
     image: leaf-fpm
     container_name: leaf-fpm
@@ -92,8 +108,8 @@ services:
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
     ports:
-      - 2525:25
-      - 5080:5080
+      - "2525:25"
+      - "5080:5080"
     restart: 'always'
     networks:
       - traefik
@@ -112,7 +128,7 @@ services:
     environment:
       ADMINER_DEFAULT_SERVER: leaf-mysql
     ports:
-      - 8080:8080
+      - "8080:8080"
     networks:
       - traefik
       - leaf-sql
@@ -128,7 +144,7 @@ services:
     image: pelentan/leaf-mysql:2.0
     container_name: leaf-mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
     env_file: 
       - ./env_files/mysql_local.env
       - ./env_files/secrets.env
