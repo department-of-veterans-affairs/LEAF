@@ -1345,7 +1345,6 @@ function getForm(indicatorID, series) {
                 $('#format').val(`${formatName}${formatOptionsStr}`);
                 $('#indicatorType').val(formatName);
                 $('#description').val(res[indicatorID].description);
-                $('#default').val(res[indicatorID].default);
                 if(res[indicatorID].required == 1) {
                     $('#required').prop('checked', true);
                 }
@@ -1357,6 +1356,7 @@ function getForm(indicatorID, series) {
                 codeEditorHtml.setValue((res[indicatorID].html == null ? '' : res[indicatorID].html));
                 codeEditorHtmlPrint.setValue((res[indicatorID].htmlPrint == null ? '' : res[indicatorID].htmlPrint));
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
+                $('#default').val(res[indicatorID].default);
                 // this only works after all the required elements are rendered.
                 if (formatName === 'orgchart_employee') {
                     $('#default-answer input.employeeSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
