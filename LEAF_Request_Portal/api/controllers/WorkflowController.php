@@ -138,7 +138,7 @@ class WorkflowController extends RESTfulResponse
             try
             {
                 $workflow->setWorkflowID((int)$args[0]);
-                return $workflow->renameWorkflow($_POST['description']);
+                return $workflow->renameWorkflow(\Leaf\XSSHelpers::xscrub($_POST['description']));
             }
             catch (Exception $e)
             {
