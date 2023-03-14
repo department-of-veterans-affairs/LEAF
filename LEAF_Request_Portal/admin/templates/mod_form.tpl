@@ -763,7 +763,6 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
                 }
             });
             groupSel.setSelectHandler(function() {
-                console.log(groupSel.selectionData[groupSel.selection]);
                 $('#default').val(groupSel.selectionData[groupSel.selection].groupID);
                 $('#default input.groupSelectorInput').val(String('group#' + groupSel.selectionData[groupSel.selection].groupID));
             });
@@ -1358,14 +1357,23 @@ function getForm(indicatorID, series) {
                 renderFormatEntryUI(formatName, formatOptionsStr, columns);
                 $('#default').val(res[indicatorID].default);
                 // this only works after all the required elements are rendered.
+                const updateDefaultValue = (event) => {
+                    const val = parseInt(event.currentTarget.value) || '';
+                    if (val === '' || Number.isInteger(val)) {
+                        $('#default').val(val);
+                    }
+                }
                 if (formatName === 'orgchart_employee') {
                     $('#default-answer input.employeeSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
+                    document.querySelector(`input.employeeSelectorInput`)?.addEventListener('change', updateDefaultValue);
                 }
                 if (formatName === 'orgchart_group') {
                     $('#default-answer input.groupSelectorInput').val(res[indicatorID].default ? 'group#' + res[indicatorID].default : '');
+                    document.querySelector(`input.groupSelectorInput`)?.addEventListener('change', updateDefaultValue);
                 }
                 if (formatName === 'orgchart_position') {
                     $('#default-answer input.positionSelectorInput').val(res[indicatorID].default ? '#' + res[indicatorID].default : '');
+                    document.querySelector(`input.positionSelectorInput`)?.addEventListener('change', updateDefaultValue);
                 }
                 $('#xhr').scrollTop(0);
                 dialog.indicateIdle();
