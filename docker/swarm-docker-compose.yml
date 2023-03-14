@@ -1,0 +1,109 @@
+version: "3.7"
+
+services:
+  leaf_vue_ui:
+    container_name: leaf_vue_ui
+    env_file:
+      - ./env_files/vue_ui_local.env
+    build:
+      context: ./vue-app
+      dockerfile: leaf_vue.dockerfile
+    # volumes:
+    #   - './vue-app/src:/app/src'
+    #   - '/app/node_modules'
+    #   - '../libs/js/vue-dest:/app/vue-dest'
+    networks:
+      - leaf
+    deploy:
+      replicas: 1
+      condition: on-failure
+
+  leaf-php-8:
+    image: pelentan/leaf-swarm
+    container_name: leaf-fpm-swarm-base
+    env_file: 
+      - ./env_files/globals_swarm.env
+      # - ./env_files/secrets.env
+    volumes:
+      - /mnt/leaf/* /var/www/*
+    networks:
+      - leaf
+    environment:
+      - REMOTE_USER=${REMOTE_USER}
+      - APACHE_RUN_USER=build_user
+    deploy:
+      replicas: 1
+      condition: on-failure
+
+  leaf-nginx:
+    image: leaf-nginx
+    container_name: leaf-nginx
+    env_file: 
+      - ./env_files/nginx_local.env
+    build:
+      context: ../
+      dockerfile: docker/nginx/leaf_nginx.dockerfile
+    volumes:
+      - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
+      - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+#      - ./nginx/src:/var/www/html
+      - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+    volumes_from:
+      - leaf-php-8
+    ports:
+      - 80:${HTTP_PORT}
+      - 443:${HTTPS_PORT}
+    networks:
+      - leaf
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
+      - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
+      - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
+      - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
+    deploy:
+      replicas: 1
+      restart_policy:
+      condition: on-failure
+    secrets:
+      - source: leaf-key
+        target: /etc/ssl/certs/leaf.key
+      - source: leaf-pem
+        target: /etc/ssl/certs/leaf.pem
+    
+
+  leaf-adminer:
+    container_name: leaf-adminer
+    image: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: leaf-mysql
+    ports:
+      - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.services.leaf_adminer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.leaf_adminer.rule=Host(`leaf-adminer.dev.vovina-tisa.net`)"
+      - "traefik.http.routers.leaf_adminer.entrypoints=web, web-secure"
+      - "traefik.http.routers.leaf_adminer.tls.certresolver=dev_http"
+    deploy:
+      replicas: 1
+      condition: on-failure
+
+
+volumes:
+  leaf-php-data:
+    external: true
+  leaf-lib:
+    external: true
+
+networks:
+  leaf:
+    external: false
+
+secrets:
+  leaf-key:
+    external: true
+  leaf-pem:
+    external: true
