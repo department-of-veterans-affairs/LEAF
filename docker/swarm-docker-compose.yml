@@ -63,9 +63,9 @@ services:
       restart_policy:
         condition: on-failure
     secrets:
-      - source: leaf-key
+      - source: leaf_key
         target: /etc/ssl/certs/leaf.key
-      - source: leaf-pem
+      - source: leaf_pem
         target: /etc/ssl/certs/leaf.pem
     
 
@@ -99,7 +99,7 @@ networks:
     external: false
 
 secrets:
-  leaf-key:
+  leaf_key:
     external: true
-  leaf-pem:
+  leaf_pem:
     external: true
