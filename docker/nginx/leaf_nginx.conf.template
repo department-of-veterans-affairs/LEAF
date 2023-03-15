@@ -34,9 +34,6 @@ server {
 
     }
 
-
-
-
     location ~ \.php$ {
         try_files $uri $uri/ /index.php =404;
         fastcgi_pass ${LEAF_POD}:9000;
