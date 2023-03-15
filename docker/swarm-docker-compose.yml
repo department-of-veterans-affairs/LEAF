@@ -25,7 +25,7 @@ services:
       - ./env_files/globals_swarm.env
       # - ./env_files/secrets.env
     volumes:
-      - leaf-vol/* /var/www/*
+      - leaf-vol/ /var/www/
     networks:
       - leaf
     environment:
