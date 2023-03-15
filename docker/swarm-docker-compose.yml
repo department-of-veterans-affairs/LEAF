@@ -97,6 +97,8 @@ services:
 volumes:
   leaf-vol:
     external: true
+  leaf-vol-html:
+    external: true
 
 networks:
   leaf:
