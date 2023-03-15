@@ -37,7 +37,7 @@ services:
         condition: on-failure
 
   leaf-nginx:
-    image: pelentan/leaf-nginx-vapo:1.0
+    image: pelentan/nginx-swarm
     env_file: 
       - ./env_files/nginx_local.env
     volumes:
