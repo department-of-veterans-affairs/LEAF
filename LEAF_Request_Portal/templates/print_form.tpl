@@ -453,7 +453,7 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
 
                 if (comparison !== true) { //no need to re-assess if it has already become true
-                    const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerHTML.trim();
+                    const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerText.trim();
 
                     let compVal = '';
                     if (multiChoiceFormats.includes(parentFormat)) {
