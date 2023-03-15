@@ -32,8 +32,10 @@ services:
       - REMOTE_USER=${REMOTE_USER}
       - APACHE_RUN_USER=build_user
     deploy:
+      mode: replicated
       replicas: 1
-      condition: on-failure
+      restart_policy:
+        condition: on-failure
 
 #   leaf-nginx:
 #     image: leaf-nginx
