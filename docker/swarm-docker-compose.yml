@@ -20,12 +20,11 @@ services:
 
   leaf-php-8:
     image: pelentan/leaf-swarm
-    container_name: leaf-fpm-swarm-base
     env_file: 
       - ./env_files/globals_swarm.env
       # - ./env_files/secrets.env
     volumes:
-      - /mnt/leaf/html/:/var/www/html/
+      - /mnt/leaf/:/var/www/
     networks:
       - leaf
     environment:
@@ -38,15 +37,15 @@ services:
         condition: on-failure
 
   leaf-nginx:
-    image: leaf-nginx
-    container_name: leaf-nginx
+    image: pelentan/leaf-nginx-vapo
     env_file: 
       - ./env_files/nginx_local.env
     volumes:
 #      - ./nginx/src:/var/www/html
+      - /mnt/leaf/:/var/www/
       - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-    volumes_from:
-      - leaf-php-8
+    # volumes_from:
+    #   - leaf-php-8
     ports:
       - 80:${HTTP_PORT}
       - 443:${HTTPS_PORT}
@@ -71,7 +70,6 @@ services:
     
 
   leaf-adminer:
-    container_name: leaf-adminer
     image: adminer
     environment:
       ADMINER_DEFAULT_SERVER: leaf-mysql
