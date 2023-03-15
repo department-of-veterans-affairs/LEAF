@@ -47,8 +47,8 @@ services:
     # volumes_from:
     #   - leaf-php-8
     ports:
-      - 80:${HTTP_PORT}
-      - 443:${HTTPS_PORT}
+      - 80:8080
+      - 443:8443
     networks:
       - leaf
     labels:
