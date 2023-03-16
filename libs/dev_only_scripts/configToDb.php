@@ -2,13 +2,13 @@
 
 require_once '/var/www/html/libs/php-commons/Db.php';
 
-$dir = '/var/www/html';
+$dir = '/var/www/html/Academy';
 
 checkTemplate($dir);
 
 function checkTemplate($folder) {
-    //if (is_dir($folder . '/.svn')) {
-    if (is_dir($folder . '/sources')) {
+    if (is_dir($folder . '/.svn')) {
+    //if (is_dir($folder . '/sources')) {
         if (file_exists($folder . '/sources/DbConfig.php')) {
             // we are in a portal
             $portal = str_replace('/var/www/html', '', $folder);
@@ -58,10 +58,6 @@ function checkTemplate($folder) {
                     ':data' => $config->descriptionID);
             $db->prepared_query($sql, $vars);
 
-            $vars = array(':setting' => 'emailPrefix',
-                    ':data' => Portal\Config::$emailPrefix);
-            $db->prepared_query($sql, $vars);
-
             $vars = array(':setting' => 'emailCC',
                     ':data' => json_encode(Portal\Config::$emailCC, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
@@ -69,7 +65,7 @@ function checkTemplate($folder) {
             $vars = array(':setting' => 'emailBCC',
                     ':data' => json_encode(Portal\Config::$emailBCC, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
-        } else {
+        } elseif (file_exists($folder . '/sources/Config.php')) {
             // we are in an orgchart
             $orgchart = str_replace('/var/www/html', '', $folder);
 
@@ -100,7 +96,7 @@ function checkTemplate($folder) {
                     ':data' => $config->title);
             $db->prepared_query($sql, $vars);
 
-            $vars = array(':setting' => 'subHeading',
+            $vars = array(':setting' => 'subheading',
                     ':data' => $config->city);
             $db->prepared_query($sql, $vars);
 
