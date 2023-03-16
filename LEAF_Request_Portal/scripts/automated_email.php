@@ -73,7 +73,9 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     if(empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
         $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'] = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
     }
-    
+
+    $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
+
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
         FROM records_workflow_state
