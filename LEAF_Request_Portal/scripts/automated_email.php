@@ -70,7 +70,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     }
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
-    if(!empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
+    if(empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
         $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'] = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
     }
     
