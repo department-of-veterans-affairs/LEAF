@@ -44,12 +44,14 @@ function checkTemplate($folder) {
                     ':data' => $config->city);
             $db->prepared_query($sql, $vars);
 
+            $data = json_encode($config->adPath, JSON_FORCE_OBJECT);
+            error_log(print_r($data, true));
             $vars = array(':setting' => 'adPath',
-                    ':data' => json_encode($config->adPath));
+                    ':data' => json_encode($config->adPath, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'orgchartImportTags',
-                    ':data' => json_encode(Portal\Config::$orgchartImportTags));
+                    ':data' => json_encode(Portal\Config::$orgchartImportTags, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'descriptionID',
@@ -61,11 +63,11 @@ function checkTemplate($folder) {
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'emailCC',
-                    ':data' => json_encode(Portal\Config::$emailCC));
+                    ':data' => json_encode(Portal\Config::$emailCC, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'emailBCC',
-                    ':data' => json_encode(Portal\Config::$emailBCC));
+                    ':data' => json_encode(Portal\Config::$emailBCC, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
         } else {
             // we are in an orgchart
@@ -103,11 +105,11 @@ function checkTemplate($folder) {
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'adPath',
-                    ':data' => json_encode($config->adPath));
+                    ':data' => json_encode($config->adPath, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'ERM_Sites',
-                    ':data' => json_encode(Orgchart\Config::$ERM_Sites));
+                    ':data' => json_encode(Orgchart\Config::$ERM_Sites, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
         }
     } else {
