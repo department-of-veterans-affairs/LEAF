@@ -9,18 +9,8 @@
 
 */
 
-include '../globals.php';
-include '../Login.php';
-include '../db_mysql.php';
-include '../db_config.php';
-
-$db_config = new DB_Config();
-
-$config = new Config();
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-$db_phonebook = new DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
-
-$login = new Login($db_phonebook, $db);
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
@@ -42,7 +32,7 @@ if (isset($_COOKIE['REMOTE_USER']))
 
     // see if user is valid
     $vars = array(':userName' => $user);
-    $res = $db_phonebook->prepared_query('SELECT * FROM employee
+    $res = $oc_db->prepared_query('SELECT * FROM employee
                                             WHERE userName=:userName
                                             AND deleted=0', $vars);
 
@@ -56,7 +46,7 @@ if (isset($_COOKIE['REMOTE_USER']))
     else
     {
         // try searching through national database
-        $globalDB = new DB(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $user);
         $res = $globalDB->prepared_query('SELECT * FROM employee
                                           LEFT JOIN employee_data USING (empUID)
@@ -73,18 +63,18 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':phoFirstName' => $res[0]['phoneticFirstName'],
                     ':phoLastName' => $res[0]['phoneticLastName'],
                     ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(), 
+                    ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
-            $db_phonebook->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+            $oc_db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
                                             ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
-            $empUID = $db_phonebook->getLastInsertID();
+            $empUID = $oc_db->getLastInsertID();
 
             if ($empUID == 0)
             {
                 $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $db_phonebook->prepared_query('SELECT empUID FROM employee
+                $empUID = $oc_db->prepared_query('SELECT empUID FROM employee
                                                           WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
@@ -94,7 +84,7 @@ if (isset($_COOKIE['REMOTE_USER']))
                     ':author' => 'viaLogin',
                     ':timestamp' => time(),
             );
-            $db_phonebook->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+            $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
                                             VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
                                             ON DUPLICATE KEY UPDATE data=:data', $vars);
 
@@ -116,7 +106,7 @@ if (isset($_COOKIE['REMOTE_USER']))
 function decryptUser($src){
   $corrected = preg_replace("[^0-9a-fA-F]", "", $src);
   $crypted_token = pack("H".strlen($corrected), $corrected);
-  
+
   list($crypted_token, $enc_iv) = explode("::", $crypted_token);
   $cipher_method = 'aes-128-ctr';
   $enc_key = openssl_digest(CIPHER_KEY, 'SHA256', TRUE);

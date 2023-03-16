@@ -735,28 +735,6 @@
         }
       }
     },
-    "/form/import/literal": {
-      "post": {
-        "summary": "Call importForm()",
-        "description": "original endpont:formStack/importLiteral; calls formStack.php importForm(true)",
-        "tags": [
-          "form"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/cookieParam"
-          },
-          {
-            "$ref": "#/components/parameters/tokenParam"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
     "/form/import/manual": {
       "post": {
         "summary": "Call importForm()",

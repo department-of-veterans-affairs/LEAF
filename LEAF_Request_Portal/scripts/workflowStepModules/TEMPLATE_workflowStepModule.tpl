@@ -1,7 +1,7 @@
 workflowStepModule[{{$stepID}}] = workflowStepModule[{{$stepID}}] || {};
 workflowStepModule[{{$stepID}}]['UNIQUE_NAME_OF_MODULE'] = (function() {
 
-	function init(recordID) {
+	function init(recordID, rootURL) {
 
 	}
 

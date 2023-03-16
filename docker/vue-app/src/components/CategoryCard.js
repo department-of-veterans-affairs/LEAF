@@ -8,6 +8,7 @@ export default {
         categoriesRecord: Object
     },
     inject: [
+        'libsPath',
         'selectNewCategory',
         'getStapledFormsByCurrentCategory',
         'truncateText',
@@ -87,8 +88,8 @@ export default {
         :id="catID" 
         :title="catID + ': ' + categoryName + (staplesList ? '. Stapled with: ' + staplesList : '') + (isStapledToOtherForm ? '. This form is stapled to another' : '')">
             <div class="formPreviewTitle" style="position: relative">{{categoryName}}
-                <img v-if="parseInt(categoriesRecord.needToKnow) === 1" src="../../libs/dynicons/?img=emblem-readonly.svg&w=16" alt="" 
-                title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px;"/>
+                <img v-if="parseInt(categoriesRecord.needToKnow) === 1" :src="libsPath + 'dynicons/svg/emblem-readonly.svg'" alt="" 
+                title="Need to know mode enabled" style="position: absolute; top: 4px; right: 4px; width: 16px"/>
             </div>
             <div class="formPreviewDescription" v-html="formDescription"></div>
             <div style="display: flex; justify-content: space-between;">

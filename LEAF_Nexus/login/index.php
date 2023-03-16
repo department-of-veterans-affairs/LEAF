@@ -6,20 +6,12 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-include '../db_mysql.php';
-include '../config.php';
-include '../globals.php';
+require_once '../globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-if (!class_exists('XSSHelpers'))
-{
-    include_once dirname(__FILE__) . '/../../libs/php-commons/XSSHelpers.php';
-}
-
-$config = new Orgchart\Config();
-$db = new DB($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
 $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+$settings['heading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subHeading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
 function getBaseDir()
 {
@@ -68,7 +60,7 @@ When logging into this system, you agree to the following:<br />
     </ul>
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
-   <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../../libs/dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
+   <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
 
 </div>
 
