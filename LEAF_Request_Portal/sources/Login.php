@@ -107,8 +107,6 @@ class Login
 
         $authType = '/../auth_domain/?r=';
         $nonBrowserAuth = '/../login/?r=';
-        $authType = '/../auth_domain/?r=';
-        $nonBrowserAuth = '/../login/?r=';
 
         if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
             $authType = '/../auth_cookie/?r=';
