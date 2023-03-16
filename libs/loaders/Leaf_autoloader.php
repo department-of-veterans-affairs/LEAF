@@ -46,13 +46,6 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
     }
 }
 
-if (class_exists('Portal\DbConfig')) {
-    $db_config = new Portal\DbConfig();
-    $config = new Portal\Config();
-}
-
-$oc_config = new Orgchart\Config();
-
 if (!empty($site_paths['portal_database'])){
     $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 } else {
@@ -61,7 +54,8 @@ if (!empty($site_paths['portal_database'])){
 
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
-unset($db_config);
+// get the settings for this portal
+$settings = new Leaf\Setting($db);
 
 ini_set('session.gc_maxlifetime', 2592000);
 
@@ -114,3 +108,14 @@ if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_H
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['orgchart_path']);
 if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['site_path']);
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
+
+
+
+
+if (class_exists('Portal\DbConfig')) {
+    $db_config = new Portal\DbConfig();
+    $config = new Portal\Config();
+}
+
+$oc_config = new Orgchart\Config();
+
