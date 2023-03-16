@@ -360,7 +360,7 @@
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'GET',
-                    url: '../api/employee/search&q=' + email + '&noLimit=0',
+                    url: '../api/employee/search?q=' + email + '&noLimit=0',
                     dataType: 'json',
                     data: {CSRFToken: CSRFToken},
                     success: function(response) {
