@@ -11,15 +11,8 @@
 
 error_reporting(E_ERROR);
 
-include 'db_mysql.php';
-include 'db_config.php';
-
-$db_config = new DB_Config();
-$config = new Config();
-
-$db = new DB($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
-
-unset($db_config);
+require_once 'globals.php';
+require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 

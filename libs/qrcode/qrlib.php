@@ -24,11 +24,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
-	
-	$QR_BASEDIR = './';
-	
+
+	$QR_BASEDIR = '/var/www/html/libs/qrcode/';
+
 	// Required libs
-	
+
 	include $QR_BASEDIR."qrconst.php";
 	include $QR_BASEDIR."qrconfig.php";
 	include $QR_BASEDIR."qrtools.php";
@@ -40,4 +40,3 @@
 	include $QR_BASEDIR."qrrscode.php";
 	include $QR_BASEDIR."qrmask.php";
 	include $QR_BASEDIR."qrencode.php";
-
