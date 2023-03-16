@@ -2,7 +2,7 @@
 
 # 
 
-Built by VA for VA, LEAF empowers non-technical users to implement workflows and digital forms that allow for fast turnaround, complete transparency and status tracking. LEAF’s built-in Form Library promotes standardization of best practices. LEAF minimizes the startup costs of technology necessary to modernize the underlying business processes, while ultimately improving the health and safety of Veterans.
+Built by VA for VA, LEAF empowers non-technical users to implement workflows and digital forms that allow for fast turnaround, complete transparency and status tracking. LEAF’s built-in Form Library promotes standardization of best practices. LEAF minimizes the startup costs of technology necessary to modernize the underlying business processes, while ultimately improving the health and safety of Veterans. 
 
 **Problem to be solved:** Make it easy for non-technical users to take ownership in digitizing and improving their business processes, reduce no-value steps and focus on superb customer service for our Veterans. Standardize and propagate best practices at minimal cost.
 
@@ -19,19 +19,19 @@ LEAF is currently not configured/optimized for usage outside of the VA, proper s
 ## Repository Overview
 * [LEAF_Nexus](LEAF_Nexus)
 
-  Organizational Chart, user accounts, user groups
+    Organizational Chart, user accounts, user groups 
 
 * [LEAF_Request_Portal](LEAF_Request_Portal)
 
-  Electronic forms and workflow system
+    Electronic forms and workflow system
 
-* [libs](libs)
+* [libs](libs) 
 
-  Shared and third party libraries used within LEAF
+    Shared and third party libraries used within LEAF
 
 * [docs](docs)
-
-  LEAF documentation
+    
+    LEAF documentation
 
     * [Installation and Configuration](docs/InstallationConfiguration.md)
     * [Code Reviews](docs/CodeReviews.md)
@@ -41,7 +41,7 @@ LEAF is currently not configured/optimized for usage outside of the VA, proper s
 
 LEAF will be using the United States Web Design System (USWDS): <https://designsystem.digital.gov/how-to-use-uswds/>
 
-The assets include fonts, colors, layout grid, and FontAwesome icons that are managed and compiled with npm and Gulp.
+The assets include fonts, colors, layout grid, and FontAwesome icons that are managed and compiled with npm and Gulp. 
 The links below provide instructions on how to install the resources using npm and Gulp.
 
 USWDS NPM Install Instructions: <https://www.npmjs.com/package/uswds#install-using-npm>
@@ -63,4 +63,5 @@ Usage
 If you don't already have a project gulpfile, copy the gulpfile.js to your current directory (the project root):
 
 cp node_modules/uswds-gulp/gulpfile.js .
+
 
