@@ -57,6 +57,19 @@ $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths
 // get the settings for this portal
 $settings = new Leaf\Setting($db);
 
+$config = new Portal\Config($settings->getSettings(), $site_paths);
+
+$vars = array(':site_path' => $site_paths['orgchart_path']);
+$sql = 'SELECT site_uploads
+        FROM sites
+        WHERE site_path= BINARY :site_path';
+
+$oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
+
+$oc_settings = new Leaf\Setting($oc_db);
+
+$oc_config = new Orgchart\Config($oc_settings->getSettings(), $oc_site_paths);
+
 ini_set('session.gc_maxlifetime', 2592000);
 
 // Sanitize all $_GET input
@@ -108,14 +121,3 @@ if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_H
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['orgchart_path']);
 if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['site_path']);
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
-
-
-
-
-if (class_exists('Portal\DbConfig')) {
-    $db_config = new Portal\DbConfig();
-    $config = new Portal\Config();
-}
-
-$oc_config = new Orgchart\Config();
-
