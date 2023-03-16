@@ -82,7 +82,10 @@
                         } else {
                             window.location.reload();
                         }
-                    }
+                    },
+                fail: function(err) {
+                    console.log(err);
+                }
             });
         });
         dialog_confirm.show();
@@ -104,6 +107,9 @@
                     $('.workflowStepInfo').css('display', 'none');
                     loadWorkflow(workflowID);
                     dialog_confirm.hide();
+                },
+                fail: function(err) {
+                    console.log(err);
                 }
         });
     });
@@ -186,6 +192,9 @@
      * @groups Group list pass-through
      */
     function groupListContent(groups) {
+        if (typeof groups === 'string') {
+            return 'Invalid parameter(s): groups must be an array.';
+        }
         let content = 'Notify Group: <select id="groupID">' +
             '<optgroup label="User Groups">' +
             '<option value="None">None</option>';
@@ -463,6 +472,10 @@
      * @return HTML Content for addEventDialog
      */
     function addEventContent(events) {
+        if (typeof events === 'string') {
+            return 'Invalid parameter(s): events must be an array.';
+        }
+
         let content = '';
         content = 'Add an event: ';
         content += '<br /><div><select id="eventID" name="eventID">';
@@ -546,6 +559,10 @@
      * @return HTML Content for editEvent
      */
     function editEventContent(event, groups) {
+        if (typeof groups === 'string') {
+            return 'Invalid parameter(s): groups must be an array.';
+        }
+
         let content = '<div>Event Type: <select id="eventType">' +
             '<option value="Email" selected>Email</option>' +
             '</select><br /><br />' +
@@ -735,7 +752,10 @@
                         } else {
                             alert(res);
                         }
-                    }
+                    },
+                fail: function(err) {
+                    console.log(err);
+                }
             });
         });
         dialog_confirm.show();
@@ -775,6 +795,9 @@
                         } else {
                             alert(res);
                         }
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -796,6 +819,9 @@
                         $('.workflowStepInfo').css('display', 'none');
                         loadWorkflow(currentWorkflow);
                         dialog.hide();
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -818,6 +844,9 @@
                     $('.workflowStepInfo').css('display', 'none');
                     showStepInfo(stepID);
                     dialog_confirm.hide();
+                },
+                fail: function(err) {
+                    console.log(err);
                 }
         });
     });
@@ -835,6 +864,9 @@
             success: function() {
                 dialog.hide();
                 showStepInfo(stepID);
+            },
+            fail: function(err) {
+                console.log(err);
             }
         });
     }
@@ -854,6 +886,9 @@
                     $('.workflowStepInfo').css('display', 'none');
                     loadWorkflow(currentWorkflow);
                     dialog_confirm.hide();
+                },
+                fail: function(err) {
+                    console.log(err);
                 }
         });
     });
@@ -893,6 +928,9 @@
                 dialog.setContent(buffer);
                 dialog.indicateIdle();
             },
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
 
@@ -909,6 +947,9 @@
                         if (stepID != undefined) {
                             linkDependency(stepID, dependencyID);
                         }
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -931,6 +972,9 @@
                     success: function(res) {
                         dialog.hide();
                         dependencyGrantAccess(res, stepID);
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -985,6 +1029,9 @@
                     linkDependency(stepID, $('#dependencyID').val());
                 });
             },
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     }
@@ -1009,6 +1056,9 @@
                     success: function(res) {
                         loadWorkflow(currentWorkflow);
                         dialog.hide();
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -1033,8 +1083,14 @@
                             action: 'submit',
                             CSRFToken: CSRFToken
                         },
-                        success: function() {}
+                        success: function() {},
+                        fail: function(err) {
+                            console.log(err);
+                        }
                     });
+            },
+            fail: function(err) {
+                console.log(err);
             }
 
             workflows = {}; $.ajax({
@@ -1045,6 +1101,9 @@
                         workflows[res[i].workflowID] = res[i];
                     }
                     loadWorkflow(currentWorkflow);
+                },
+                fail: function(err) {
+                    console.log(err);
                 },
                 cache: false
             });
@@ -1092,6 +1151,9 @@
                     $("#button_save").show();
                     newAction();
                 });
+            },
+            fail: function(err) {
+                console.log(err);
             },
             cache: false
         });
@@ -1154,9 +1216,15 @@
                                 },
                                 success: function() {
                                     listActionType();
+                                },
+                                fail: function(err) {
+                                    console.log(err);
                                 }
                             }); dialog.hide();
                     });
+            },
+            fail: function(err) {
+                console.log(err);
             },
             cache: false
         });
@@ -1173,7 +1241,10 @@
                     $.param({'CSRFToken': CSRFToken}),
                     success: function() {
                         listActionType();
-                    }
+                    },
+                fail: function(err) {
+                    console.log(err);
+                }
             });
             dialog_confirm.hide();
         });
@@ -1224,6 +1295,9 @@
                         success: function() {
                             alert('Your action type has been created, and is now available as an option.');
                             loadWorkflow(currentWorkflow);
+                        },
+                        fail: function(err) {
+                            console.log(err);
                         }
                     });
                 dialog.hide();
@@ -1272,6 +1346,9 @@
                     },
                     success: function() {
                         loadWorkflow(currentWorkflow);
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
             return;
@@ -1329,6 +1406,9 @@
                     }); dialog.hide();
             });
     },
+    fail: function(err) {
+        console.log(err);
+    },
     cache: false
     });
     }
@@ -1345,7 +1425,10 @@
                     $.param({'CSRFToken': CSRFToken}),
                     success: function() {
                         loadWorkflow(workflowID);
-                    }
+                    },
+                fail: function(err) {
+                    console.log(err);
+                }
             });
             dialog_confirm.hide();
         });
@@ -1389,6 +1472,9 @@
                     addEventDialog(currentWorkflow, stepID, params.action);
                 });
             },
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
 
@@ -1422,6 +1508,9 @@
                     indicatorList + '</select><br /><br />\
     			    * Your form must have a field with the "Orgchart Employee" or "Raw Data" input format');
             },
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
 
@@ -1436,6 +1525,9 @@
                     success: function(res) {
                         loadWorkflow(currentWorkflow);
                         dialog.hide();
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -1465,6 +1557,9 @@
                     indicatorList + '</select><br /><br />\
                     * Your form must have a field with the "Orgchart Group" input format');
             },
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
 
@@ -1479,6 +1574,9 @@
                     success: function(res) {
                         loadWorkflow(currentWorkflow);
                         dialog.hide();
+                    },
+                    fail: function(err) {
+                        console.log(err);
                     }
                 });
         });
@@ -1604,7 +1702,7 @@
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + stepID).html('Loading...');
 
-        switch (stepID) {
+        switch (Number(stepID)) {
             case -1:
                 $('#stepInfo_' + stepID).html('Request initiator (stepID #: -1)');
                 break;
@@ -1796,6 +1894,8 @@
                                 break;
                             case 'disapprove':
                                 loc = 0.75;
+                                break;
+                            default:
                                 break;
                         }
                         if (res[i].nextStepID == 0 &&
