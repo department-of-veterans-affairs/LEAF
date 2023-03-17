@@ -91,22 +91,8 @@ abstract class RESTfulResponse
         $format = isset($_GET['format']) ? $_GET['format'] : '';
         switch ($format) {
             case 'json':
-            case 'jsoncompatmode':
             default:
                 header('Content-type: application/json');
-                //this is used specifically for excel imports 'from web' via Report Builder toolbar -> JSON -> compat mode
-                if($format === 'jsoncompatmode') {
-                    foreach ($out as $recordID => $record) {
-                        $out[$recordID]['title'] = html_entity_decode($record['title'], ENT_QUOTES);
-                        if (isset($record['s1'])) {
-                            foreach ($record['s1'] as $key => $entry) {
-                                if (preg_match('/^id\d+$/', $key) && is_string($entry)) {
-                                    $out[$recordID]['s1'][$key] = html_entity_decode($entry, ENT_QUOTES);
-                                }
-                            }
-                        }
-                    }
-                }
                 $jsonOut = json_encode($out);
 
                 if ($_SERVER['REQUEST_METHOD'] === 'GET')
@@ -170,7 +156,7 @@ abstract class RESTfulResponse
                 break;
             case 'xml':
                 header('Content-type: text/xml');
-                $xml = new SimpleXMLElement('<?xml version="1.0"?><output></output>');
+                $xml = new \SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
                 echo $xml->asXML();
 

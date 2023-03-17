@@ -842,12 +842,7 @@ function showJSONendpoint() {
 
         switch($('#format').val()) {
             case 'json':
-                const isCompatMode = $('#msCompatMode').is(':checked');
-                if (isCompatMode) {
-                    $('#exportFormat').append('format=jsoncompatmode');
-                } else {
-                    $('#exportFormat').html('');
-                }
+                $('#exportFormat').html('');
                 break;
             default:
                 $('#exportFormat').append('format=' + $('#format').val());
