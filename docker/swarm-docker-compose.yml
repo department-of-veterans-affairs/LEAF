@@ -31,9 +31,9 @@ services:
     networks:
       - leaf
     environment:
-      - REMOTE_USER=${REMOTE_USER}
-      - APACHE_RUN_USER=build_user
       - DATABASE_PASSWORD=/run/secrets/db_password
+      - TOGA=/run/secrets/db_password
+      - TOGA2="/run/secrets/db_password"
     deploy:
       mode: replicated
       replicas: 1
