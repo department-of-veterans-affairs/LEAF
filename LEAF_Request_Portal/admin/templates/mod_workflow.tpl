@@ -1088,9 +1088,6 @@
                             console.log(err);
                         }
                     });
-            },
-            fail: function(err) {
-                console.log(err);
             }
 
             workflows = {}; $.ajax({
@@ -2215,6 +2212,7 @@
                     },
                     success: function(res) {
                         loadWorkflowList(res);
+                        workflowDescription = $('#workflow_rename').val();
                         dialog.hide();
                     }
                 });
