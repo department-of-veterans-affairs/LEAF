@@ -37,7 +37,7 @@ services:
         condition: on-failure
 
   leaf-nginx:
-    image: pelentan/nginx-swarm
+    image: quay.vapo.va.gov/oitcleshaffm0/leaf-fpm-base
     env_file: 
       - ./env_files/nginx_local.env
     volumes:
