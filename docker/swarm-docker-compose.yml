@@ -19,7 +19,7 @@ services:
   #     condition: on-failure
 
   leaf-php-8:
-    image: quay.vapo.va.gov/oitcleshaffm0/leaf-fpm-base
+    image: pelentan/leaf-php-nginx-base:1.1
     env_file: 
       - ./env_files/globals_swarm.env
       # - ./env_files/secrets.env
