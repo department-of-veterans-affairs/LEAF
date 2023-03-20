@@ -1,6 +1,6 @@
 START TRANSACTION;
 
-ALTER TABLE `categories` ADD COLUMN `destructionAge` SMALLINT UNSIGNED NULL DEFAULT 10950 AFTER `type`;
+ALTER TABLE `categories` ADD COLUMN `destructionAge` TINYINT UNSIGNED NULL DEFAULT NULL AFTER `type`;
 
 UPDATE `settings` SET `data` = '2023030900' WHERE `settings`.`setting` = 'dbversion';
 

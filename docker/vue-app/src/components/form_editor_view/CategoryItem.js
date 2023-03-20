@@ -115,8 +115,9 @@ export default {
         <template v-if="stapledForms.length > 0">
             <tr v-for="form in stapledForms" :key="catID + '_stapled_with_' + form.categoryID" class="sub-row">
                 <td height="36" class="form-name">
-                    <router-link :to="{ name: 'category', query: { formID: form.categoryID }}">
-                        <span role="img" aria="">📌&nbsp;</span>{{ categories[form.categoryID].categoryName }}
+                    <router-link :to="{ name: 'category', query: { formID: form.categoryID }}" class="router-link">
+                        <span role="img" aria="">📌&nbsp;</span>
+                        <span style="text-decoration:underline;">{{ categories[form.categoryID].categoryName }}</span>
                     </router-link>
                 </td>
                 <td>{{ categories[form.categoryID].categoryDescription }}</td>

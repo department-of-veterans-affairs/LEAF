@@ -96,6 +96,9 @@ a.router-link {
     color: inherit;
     border-radius: 3px;
 }
+td a.router-link {
+    justify-content: flex-start;
+}
 
 nav#form-editor-nav {
     width: 100%;
@@ -342,6 +345,7 @@ nav#form-editor-nav {
     }
 }
 
+/* orgchart selector fixes */
 div[class$="SelectorBorder"] {
     display: flex;
     div {
@@ -351,6 +355,9 @@ div[class$="SelectorBorder"] {
         width: 100%;
         border: 1px solid #bbb;
     }
+}
+table[class$="SelectorTable"] th {
+    color: $charcoal;
 }
 
 #indicator-editing-dialog-content {
@@ -671,13 +678,22 @@ div#form_content_view {
             &:disabled:hover, &:disabled:focus, &:disabled:active {
                 cursor: default;
                 background-color: inherit;
-                border: 2px solid transparent !important;
                 outline: none;
             }
-            &.layout-listitem:disabled, &.layout-listitem:disabled, &.layout-listitem:disabled {
+            &.layout-listitem {
+                line-height: 2;
+                border-radius: 0;
+                padding: 0.5rem;
+            }
+            &.layout-listitem:disabled {
                 color: $base_navy;
+                border: 2px solid $LEAF_CSS_outline !important;
             }
         }
+    }
+    div[id^="layoutFormRecords_"] li {
+        margin-bottom: 0.5rem;
+        background-color: $lt_cyan;
     }
     div[id^="internalFormRecords_"] button span.internal {
         text-decoration: underline;

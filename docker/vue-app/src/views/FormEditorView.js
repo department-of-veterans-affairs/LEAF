@@ -28,6 +28,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'libsPath',
         'setDefaultAjaxResponseMessage',
         'appIsLoadingCategoryList',
         'appIsLoadingForm',
@@ -385,7 +386,11 @@ export default {
                 <!-- FORM INDEX -->
                 <div id="form_index_display">
                     <div style="display:flex; align-items: center; justify-content: space-between; height: 28px; margin-bottom: 0.5rem;">
-                        <h3 style="margin: 0; padding-left: 5px; color: black;">{{ indexHeaderText }}</h3>
+                        <h3 style="margin: 0; color: black;">{{ indexHeaderText }}</h3>
+                        <img v-if="currentFormCollection.length > 1" 
+                            :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
+                            style="width: 16px; margin-left: 0.25rem; margin-right:auto;" 
+                            title="Details for the selected form are shown below" alt="" />
                         <button type="button" id="form_index_last_update" @click.prevent="openFormHistoryDialog"
                             :style="{display: sortLastUpdated==='' ? 'none' : 'flex'}">
                         </button>
@@ -394,7 +399,9 @@ export default {
                     <div v-if="currentFormCollection.length > 1" :id="'layoutFormRecords_' + $route.query.formID">
                         <ul>
                             <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID" draggable="false">
-                                <button @click="getFormByCategoryID(form.categoryID)" class="layout-listitem" :disabled="layoutBtnIsDisabled(form)">
+                                <button type="button" @click="getFormByCategoryID(form.categoryID)"
+                                    class="layout-listitem" :disabled="layoutBtnIsDisabled(form)"
+                                    :title="'form ' + form.categoryID">
                                     <span :style="{textDecoration: layoutBtnIsDisabled(form) ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
                                     </span>

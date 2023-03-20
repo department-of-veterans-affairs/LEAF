@@ -55,6 +55,7 @@ export default {
                     temp.sort = 0;
                     temp.type = '';
                     temp.stapledFormIDs = [];
+                    temp.destructionAge = null;
                     this.addNewCategory(newCatID, temp);
 
                     if(!this.focusedFormRecord?.categoryID) { //browser page, new main form

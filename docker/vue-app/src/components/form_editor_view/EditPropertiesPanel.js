@@ -9,8 +9,7 @@ export default {
             type: this.focusedFormRecord?.type || '',
             formID: this.focusedFormRecord?.categoryID || '',
             formParentID: this.focusedFormRecord?.parentID || '',
-            destructionAgeYears: this.focusedFormRecord?.destructionAge ? Math.floor(this.focusedFormRecord?.destructionAge/365) : 0,
-            destructionDaysRemainder: this.focusedFormRecord?.destructionAge % 365,
+            destructionAge: this.focusedFormRecord?.destructionAge || null,
             lastUpdated: ''
         }
     },
@@ -52,13 +51,6 @@ export default {
         formDescrCharsRemaining() {
             return 255 - this.categoryDescription.length;
         },
-        destructionAgeInDays() {
-            let returnVal = null;
-            if(Number.isInteger(this.destructionAgeYears) && Number.isInteger(this.destructionDaysRemainder)) {
-                returnVal = 365 * this.destructionAgeYears + this.destructionDaysRemainder;
-            }
-            return returnVal;
-        }
     },
     methods: {
         updateName() {
@@ -169,21 +161,18 @@ export default {
             })
         },
         updateDestructionAge() {
-            //TODO: minumum?  opt out? etc
-            if(this.destructionAgeInDays !== null &&
-                this.destructionAgeInDays > 0 &&
-                this.destructionAgeInDays <= 65535) {
+            if(this.destructionAge === null || (this.destructionAge >= 1 && this.destructionAge <= 30)) {
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}formEditor/destructionAge`,
                     data: {
-                        destructionAge: this.destructionAgeInDays,
+                        destructionAge: this.destructionAge,
                         categoryID: this.formID,
                         CSRFToken: this.CSRFToken
                     },
                     success: (res) => {
-                        if (res === this.destructionAgeInDays) {
-                            this.updateCategoriesProperty(this.formID, 'destructionAge', this.destructionAgeInDays);
+                        if (res === this.destructionAge) {
+                            this.updateCategoriesProperty(this.formID, 'destructionAge', this.destructionAge);
                             this.lastUpdated = new Date().toLocaleString();
                             this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                         }
@@ -221,7 +210,7 @@ export default {
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
-                    <template v-if="workflowRecords.length > 0">
+                    <template v-if="!isStaple && workflowRecords.length > 0">
                         <label for="workflowID">Workflow
                         <select id="workflowID" name="select-workflow" @change="updateWorkflow"
                             title="select workflow"
@@ -241,7 +230,7 @@ export default {
                             </template>
                         </select></label>
                     </template>
-                    <div v-else style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
+                    <div v-if="workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Availability
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">
@@ -256,20 +245,15 @@ export default {
                         </select>
                     </label>
                     <div style="display:flex; align-items: center; column-gap: 1rem;">
-                        <label for="destructionAgeYearsAndDays" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years/Days)
-                            <input type="number" id="destructionAgeYears" v-model.number="destructionAgeYears"
-                                aria-labelledby="destructionAgeYearsAndDays"
-                                min="0" max="178"
+                        <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years)
+                            <select id="destructionAgeYears" v-model="destructionAge"
                                 title="resolved request destruction age in years" 
-                                @change="updateDestructionAge" />
-                            <input type="number" id="destructionAgeDays" v-model.number="destructionDaysRemainder"
-                                aria-labelledby="destructionAgeYearsAndDays"
-                                min="0" max="364"
-                                title="resolved request destruction age in days" 
-                                @change="updateDestructionAge" />
+                                @change="updateDestructionAge">
+                                <option :value="null" :selected="destructionAge===null">never</option>
+                                <option v-for="i in 30" :value="i">{{i}}</option>
+                            </select>
                         </label>
                     </div>
-
                     <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
                         <div style="display:flex; align-items: center;"><b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b></div> &nbsp;
                         <div style="display:flex; align-items: center; font-size:90%;">(forced on because sensitive fields are present)</div>
