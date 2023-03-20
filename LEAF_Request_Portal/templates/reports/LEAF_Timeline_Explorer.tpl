@@ -110,6 +110,8 @@ let startBusinessHours = 8; // 8am
 let endBusinessHours = 17; // 5pm
 let currentTzOffset = new Date().getTimezoneOffset() / 60;
 let siteTzOffset = moment.tz.zone("<!--{$systemSettings['timeZone']}-->").offset(moment.utc()) / 60; // time zone offset, in hours
+console.log(new Date(new Date().toLocaleString('en', {timeZone: "<!--{$systemSettings['timeZone']}-->"})).getTimezoneOffset()/60);
+console.log(siteTzOffset,"<!--{$systemSettings['timeZone']}-->",moment.utc());
 let tzOffset = siteTzOffset - currentTzOffset;
 
 // data letiables
