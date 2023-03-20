@@ -4,8 +4,6 @@
 <script src="../libs/js/jquery/layout-grid/js/layout-grid.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/4.2.7/style/dc.css" />
-<script src="../libs/js/moment/moment.min.js"></script>
-<script src="../libs/js/moment/moment-timezone-with-data.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.2.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/4.2.7/dc.min.js"></script>
@@ -109,9 +107,7 @@ function prepCrossfilter(site, service, label, recordID, categoryID, stepID, day
 let startBusinessHours = 8; // 8am
 let endBusinessHours = 17; // 5pm
 let currentTzOffset = new Date().getTimezoneOffset() / 60;
-let siteTzOffset = moment.tz.zone("<!--{$systemSettings['timeZone']}-->").offset(moment.utc()) / 60; // time zone offset, in hours
-console.log(new Date(new Date().toLocaleString('en', {timeZone: "<!--{$systemSettings['timeZone']}-->"})).getTimezoneOffset()/60);
-console.log(siteTzOffset,"<!--{$systemSettings['timeZone']}-->",moment.utc());
+let siteTzOffset = new Date(new Date().toLocaleString('en', {timeZone: "<!--{$systemSettings['timeZone']}-->"})).getTimezoneOffset()/60; // time zone offset, in hours
 let tzOffset = siteTzOffset - currentTzOffset;
 
 // data letiables
