@@ -23,6 +23,9 @@ services:
     env_file: 
       - ./env_files/globals_swarm.env
       # - ./env_files/secrets.env
+    ports:
+      - 80:80
+      - 443:443
     volumes:
       - /mnt/leaf/:/var/www/
     networks:
@@ -57,16 +60,16 @@ services:
 #       - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
 #       - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
 #       - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
-#       - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-    secrets:
-      - source: leaf_key
-        target: /etc/ssl/certs/leaf.key
-      - source: leaf_pem
-        target: /etc/ssl/certs/leaf.pem
+# #       - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
+#     deploy:
+#       replicas: 1
+#       restart_policy:
+#         condition: on-failure
+#     secrets:
+#       - source: leaf_key
+#         target: /etc/ssl/certs/leaf.key
+#       - source: leaf_pem
+#         target: /etc/ssl/certs/leaf.pem
     
 
   leaf-adminer:
