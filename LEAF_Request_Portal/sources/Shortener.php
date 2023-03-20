@@ -54,7 +54,7 @@ class Shortener
         return $res - $this->offset;
     }
 
-    public function decodeEntitiesForExcel($formQuery) {
+    public function decodeEntitiesForImport(array $formQuery): array {
         foreach ($formQuery as $recordID => $record) {
             $formQuery[$recordID]['title'] = html_entity_decode($record['title'], ENT_QUOTES);
             if (isset($record['s1'])) {
@@ -89,7 +89,7 @@ class Shortener
 
         $form = new Form($this->db, $this->login);
         $formQuery = $form->query($resReport[0]['data']);
-        return $this->decodeEntitiesForExcel($formQuery);
+        return $this->decodeEntitiesForImport($formQuery);
     }
 
     public function shortenFormQuery($data) {
