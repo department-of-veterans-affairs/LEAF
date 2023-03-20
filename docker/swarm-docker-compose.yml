@@ -19,7 +19,7 @@ services:
   #     condition: on-failure
 
   leaf-php-8:
-    image: pelentan/leaf-swarm
+    image: quay.vapo.va.gov/oitcleshaffm0/leaf-fpm-base
     env_file: 
       - ./env_files/globals_swarm.env
       # - ./env_files/secrets.env
@@ -36,28 +36,28 @@ services:
       restart_policy:
         condition: on-failure
 
-  leaf-nginx:
-    image: quay.vapo.va.gov/oitcleshaffm0/leaf-fpm-base
-    env_file: 
-      - ./env_files/nginx_local.env
-    volumes:
-#      - ./nginx/src:/var/www/html
-      - /mnt/leaf/:/var/www/
-      - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-    # volumes_from:
-    #   - leaf-php-8
-    ports:
-      - 80:8080
-      - 443:8443
-    networks:
-      - leaf
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
-      - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
-      - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
-      - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
+#   leaf-nginx:
+#     image: pelentan/nginx-swarm
+#     env_file: 
+#       - ./env_files/nginx_local.env
+#     volumes:
+# #      - ./nginx/src:/var/www/html
+#       - /mnt/leaf/:/var/www/
+#       - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+#     # volumes_from:
+#     #   - leaf-php-8
+#     ports:
+#       - 80:8080
+#       - 443:8443
+#     networks:
+#       - leaf
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.docker.network=traefik"
+#       - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
+#       - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
+#       - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
+#       - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
     deploy:
       replicas: 1
       restart_policy:
