@@ -1,6 +1,7 @@
 <?php
 
 require_once '/var/www/html/libs/php-commons/Db.php';
+require_once '/var/www/html/Academy/Demo1/globals.php';
 
 $dir = '/var/www/html/Academy';
 
@@ -65,6 +66,7 @@ function checkTemplate($folder) {
             $vars = array(':setting' => 'emailBCC',
                     ':data' => json_encode(Portal\Config::$emailBCC, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
+            unset($config);
         } elseif (file_exists($folder . '/sources/Config.php')) {
             // we are in an orgchart
             $orgchart = str_replace('/var/www/html', '', $folder);
@@ -107,6 +109,7 @@ function checkTemplate($folder) {
             $vars = array(':setting' => 'ERM_Sites',
                     ':data' => json_encode(Orgchart\Config::$ERM_Sites, JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
+            unset($config);
         }
     } else {
         $items = scandir($folder);
