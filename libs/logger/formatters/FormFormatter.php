@@ -2,26 +2,30 @@
 
 namespace Leaf;
 
-class FormFormatter
-{
+class FormFormatter{
+
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::FORM => [
-            "message"=> "Form %s has been created",
+            "message"=> "added <strong>new form:</strong> %s",
             "variables" => "categoryName"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::FORM => [
-            "message" => "Form %s",
+            "message" => "<strong>modified form:</strong> %s",
             "variables" => "categoryID,".FormatOptions::READ_COLUMN_NAMES,
             "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type"
         ],
         DataActions::ADD.'-'.LoggableTypes::INDICATOR => [
-            "message" => "Indicator %s has been added to form %s",
-            "variables"=> "name,categoryID"
+            "message" => "added <strong>new question:</strong> %s",
+            "variables"=> "name"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::INDICATOR => [
-            "message" => "Indicator %s",
-            "variables"=> "indicatorID,".FormatOptions::READ_COLUMN_NAMES,
+            "message" => "<strong>question</strong>: %s",
+            "variables"=> "indicatorID,".FormatOptions::READ_COLUMN_NAMES.",".FormatOptions::DISPLAY,
+            "key"=>"indicatorID",
+            "displayColumns"=>"description,name",
             "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint"
         ]
     ];
+
+    const TABLE = 'categories';
 }
