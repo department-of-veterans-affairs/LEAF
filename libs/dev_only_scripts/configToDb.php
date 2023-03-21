@@ -36,33 +36,33 @@ function checkTemplate($folder) {
                     ON DUPLICATE KEY UPDATE `setting`=:setting';
 
             $vars = array(':setting' => 'heading',
-                    ':data' => $config->title);
+                    ':data' => $config['title']);
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'subHeading',
-                    ':data' => $config->city);
+                    ':data' => $config['city']);
             $db->prepared_query($sql, $vars);
 
             $data = json_encode($config->adPath, JSON_FORCE_OBJECT);
             error_log(print_r($data, true));
             $vars = array(':setting' => 'adPath',
-                    ':data' => json_encode($config->adPath, JSON_FORCE_OBJECT));
+                    ':data' => json_encode($config['adPath'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'orgchartImportTags',
-                    ':data' => json_encode(Portal\Config::$orgchartImportTags, JSON_FORCE_OBJECT));
+                    ':data' => json_encode($config['orgchartImportTags'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'descriptionID',
-                    ':data' => $config->descriptionID);
+                    ':data' => $config['descriptionID']);
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'emailCC',
-                    ':data' => json_encode(Portal\Config::$emailCC, JSON_FORCE_OBJECT));
+                    ':data' => json_encode($config['emailCC'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'emailBCC',
-                    ':data' => json_encode(Portal\Config::$emailBCC, JSON_FORCE_OBJECT));
+                    ':data' => json_encode($config['emailBCC'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
         } elseif (file_exists($folder . '/sources/Config.php')) {
             // we are in an orgchart
@@ -91,19 +91,19 @@ function checkTemplate($folder) {
                     ON DUPLICATE KEY UPDATE `setting`=:setting';
 
             $vars = array(':setting' => 'heading',
-                    ':data' => $config->title);
+                    ':data' => $config['title']);
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'subheading',
-                    ':data' => $config->city);
+                    ':data' => $config['city']);
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'adPath',
-                    ':data' => json_encode($config->adPath, JSON_FORCE_OBJECT));
+                    ':data' => json_encode($config['adPath'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
 
             $vars = array(':setting' => 'ERM_Sites',
-                    ':data' => json_encode(Orgchart\Config::$ERM_Sites, JSON_FORCE_OBJECT));
+                    ':data' => json_encode($config['ERM_Sites'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
         }
     } else {
