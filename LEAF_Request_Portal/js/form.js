@@ -77,6 +77,141 @@ var LeafForm = function (containerID) {
       "checkboxes",
     ];
 
+    /** crosswalk functions */
+    function loadFormData() {
+      return new Promise((resolve, reject)=> {
+        $.ajax({
+          type: 'GET',
+          url: './api/form/{{ recordID }}/data',
+          success(result) {
+            resolve(result)
+          },
+          error(err) {
+            reject(err)
+          }
+        });
+      });
+    }
+
+    function loadFile(filePath, iID) {
+      return new Promise((resolve, reject)=> {
+        const xhttpInds = new XMLHttpRequest();
+        xhttpInds.onreadystatechange = () => {
+          if (xhttpInds.readyState === 4) {
+            switch(xhttpInds.status) {
+              case 200:
+                resolve(xhttpInds.responseText);
+                break;
+              case 404:
+                let content = `The file for indicator ${iID} was not found at ${dropdownInfo[iID].fileName}.`
+                content += `\nCheck the entered file name in setup and in the LEAF file manager.`
+                reject(new Error(content));
+                break;
+              default:
+                reject(new Error(xhttpInds.status));
+                break;
+            }
+          }
+        };
+        xhttpInds.open("GET", filePath, true);
+        xhttpInds.send();
+      });
+    }  
+
+    function removeSelectOptions(iID) {
+      let selectbox = document.getElementById(iID);
+      const selectElementFound = selectbox && selectbox.nodeName === 'SELECT';
+      if(!selectElementFound) {
+        console.log(`-- Failed to remove options for ${iID}. Indicator was not found or is not a dropdown`);
+      } else {
+        while (selectbox.options.length > 0) selectbox.remove(0);
+      }
+      return selectElementFound;
+    }
+
+    function getSelectOptions(fileContent, iID, isLevel2=false, indLevel1Val=null) {
+      let uniqueList = [];
+      if (isLevel2 && indLevel1Val !== null && indLevel1Val !== "") {
+        let level2_Options = [];
+        let list = fileContent.split(/\n/);
+        list = list.forEach(ele => {
+          ele = ele.split(",");
+          if (ele.length === 2) {
+            let optLv1 = ele[0].trim();
+            let elFilter = document.createElement('div');
+            elFilter.innerHTML = optLv1;
+            optLv1 = elFilter.innerText;
+            if (optLv1 === indLevel1Val || (Array.isArray(indLevel1Val) && indLevel1Val.includes(optLv1)) ) {
+              level2_Options.push(ele[1]);
+            }
+          }
+        });
+        uniqueList = Array.from(new Set(level2_Options));
+      } else {
+        const list = fileContent.split(/\n/).map(line => line.split(",")[0]);
+        uniqueList = Array.from(new Set(list));
+      }
+
+      let options = uniqueList.map(o => {
+        o = o.trim();
+        let elFilter = document.createElement('div');
+        elFilter.innerHTML = o;
+        o = elFilter.innerText;
+        return o;
+      });
+      return options.filter(o => o !== dropdownInfo[iID].headerName && o !== "").sort().reverse();
+    }
+
+    function setSelectOptions(arrOptions = [], iID, formdata) {
+      let selectbox = document.getElementById(iID);
+      const formDataValue = formdata[iID]["1"].value || [];
+
+      if (selectbox && selectbox.multiple === true) { //multiselect with choicesjs
+        selectbox.choicesjs.destroy();   //choices obj is added in subindicators.tpl
+        const options = arrOptions.map(o =>({
+          value: o,
+          label: o,
+          selected: Array.isArray(formDataValue) && formDataValue.some(v => v === o)
+        }));
+        const choices = new Choices(selectbox, {
+          allowHTML: false,
+          removeItemButton: true,
+          editItems: true,
+          choices: options.filter(o => o.value !== "")
+        });
+        selectbox.choicesjs = choices;
+
+      } else { //single dropdown with Chosen
+        $('#'+iID).append(`<option value=""></option>`);
+        arrOptions.forEach(opt => {
+          $('#'+iID).prepend(`<option value="${opt}">${opt}</option>`);
+          if (opt === formDataValue) {
+            $('#'+iID).val(formDataValue);
+          }
+        });
+        $('#'+iID).trigger("chosen:updated");
+      }
+
+      //if crosswalk
+      if (dropdownInfo[iID] !== undefined && dropdownInfo[iID].level2indID !== null) {
+        const updateOptions = ()=> { //add listener to level 1
+          const optionsAreRemoved = removeSelectOptions(dropdownInfo[iID].level2indID);
+          if (optionsAreRemoved) {
+            const options = getSelectOptions(dropdownInfo[iID].fileContents, iID, true, $('#'+iID).val());
+            setSelectOptions(options, dropdownInfo[iID].level2indID, formdata);
+          }
+        }
+        $('#'+iID).on('change', updateOptions);
+
+        const optionsAreRemoved = removeSelectOptions(dropdownInfo[iID].level2indID);
+        if (optionsAreRemoved) { //update level 2
+          const options = getSelectOptions(dropdownInfo[iID].fileContents, iID, true, $('#'+iID).val());
+          setSelectOptions(options, dropdownInfo[iID].level2indID, formdata);
+        }
+      }
+    }
+    /** cross walk end */
+
     let childRequiredValidators = {};
     const handleChildValidators = (childID) => {
       if (!childRequiredValidators[childID]) {
