@@ -32,7 +32,7 @@ services:
       - leaf
     environment:
       - DATABASE_PASSWORD=/run/secrets/db_password
-      - TOGA=/run/secrets/db_password
+      - TOGA_FILE=/run/secrets/db_password
     deploy:
       mode: replicated
       replicas: 1
