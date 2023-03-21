@@ -19,7 +19,7 @@ services:
   #     condition: on-failure
 
   leaf-php-8:
-    image: pelentan/leaf-php-nginx-base:1.1
+    image: pelentan/leaf-swarm
     env_file: 
       - ./env_files/globals_swarm.env
       # - ./env_files/secrets.env
