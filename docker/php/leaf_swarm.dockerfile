@@ -1,5 +1,5 @@
 # FROM pelentan/leaf-app-base:2.0 as base
-FROM pelentan/leaf-base-fpm as base
+FROM pelentan/leaf-php-nginx-base:1.1 as base
 COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Stuff that might need to get into the base image
@@ -29,3 +29,6 @@ RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
 # USER www-data
+
+COPY docker/env_files/secret_setup.sh /etc/init.d/ss.sh
+RUN chmod +x /etc/init.d/ss.sh

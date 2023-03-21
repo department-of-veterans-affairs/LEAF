@@ -32,7 +32,7 @@ services:
       - leaf
     environment:
       - DATABASE_PASSWORD=/run/secrets/db_password
-      - TOGA=`cat /run/secrets/db_password`
+      - TOGA=/run/secrets/db_password
     deploy:
       mode: replicated
       replicas: 1
@@ -44,6 +44,8 @@ services:
         target: /etc/ssl/certs/leaf.key
       - source: leaf_pem
         target: /etc/ssl/certs/leaf.pem
+      - source: leaf_pem
+        target: /etc/ssl/certs/test_leaf.pem
       - source: db_password
 
 #   leaf-nginx:
