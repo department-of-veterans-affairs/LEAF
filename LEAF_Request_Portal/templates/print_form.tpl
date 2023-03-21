@@ -200,7 +200,7 @@ function submitNote(recordID){
 
 function addNote(response) {
     if (typeof response === 'object' && response !== null) {
-        var new_note;
+        let new_note;
 
 new_note = '<div class="comment_block"> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
 
