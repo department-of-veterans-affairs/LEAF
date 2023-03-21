@@ -43,8 +43,6 @@ function checkTemplate($folder) {
                     ':data' => $config['city']);
             $db->prepared_query($sql, $vars);
 
-            $data = json_encode($config->adPath, JSON_FORCE_OBJECT);
-            error_log(print_r($data, true));
             $vars = array(':setting' => 'adPath',
                     ':data' => json_encode($config['adPath'], JSON_FORCE_OBJECT));
             $db->prepared_query($sql, $vars);
