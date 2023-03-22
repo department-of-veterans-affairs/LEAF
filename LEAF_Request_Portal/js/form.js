@@ -186,6 +186,16 @@ var LeafForm = function (containerID) {
         });
         selectbox.choicesjs = choices;
 
+        let elEmptyOption = document.getElementById(`${iID}_empty_value`);
+        if (elEmptyOption === null) {
+            let opt = document.createElement('option');
+            opt.id = `${iID}_empty_value`;
+            opt.value = "";
+            selectbox.appendChild(opt);
+            elEmptyOption = opt;
+        }
+        elEmptyOption.selected = selectbox.value === '';
+
       } else { //single dropdown with Chosen
         $('#'+iID).append(`<option value=""></option>`);
         arrOptions.forEach(opt => {
@@ -197,7 +207,7 @@ var LeafForm = function (containerID) {
         $('#'+iID).trigger("chosen:updated");
       }
 
-      //if crosswalk
+      //if crosswalk (2 level dropdown)
       if (dropdownInfo[iID] !== undefined && dropdownInfo[iID].level2indID !== null) {
         const updateOptions = ()=> { //add listener to level 1
           const optionsAreRemoved = removeSelectOptions(dropdownInfo[iID].level2indID);
@@ -239,7 +249,7 @@ var LeafForm = function (containerID) {
     };
 
     //NOTE: run only for crosswalks
-    const runCrosswalk = (indID) => {
+    const runCrosswalk = (indID = 0, formdata = {}) => {
       //there should only be 1, and it is stored under the child id
       const allIndConditions = formConditions[`id${indID}`].conditions || [];
       const crosswalkConditions = allIndConditions.filter(
@@ -247,23 +257,21 @@ var LeafForm = function (containerID) {
       );
       if(crosswalkConditions.length === 1) {
         const cond = crosswalkConditions[0];
-        dropdownInfo[indID] = { //defined in handleConditions space at start of crosswalk methods
+        dropdownInfo[indID] = { //defined in handleConditionalIndicators at start of crosswalk methods
           fileName: cond.crosswalkFile,
           crosswalkHasHeader: cond.crosswalkHasHeader,
           headerName: null,
-          level2indID: cond.level2IndID //indID for crosswalks
+          level2indID: cond.level2IndID
         }
 
-        loadRecordData().then(formdata => {
-          loadCrosswalkFile(dropdownInfo[indID].fileName, indID).then(fileContents => {
-            dropdownInfo[indID].fileContents = fileContents;  //save for crosswalk listeners
-            const optionsAreRemoved = removeSelectOptions(indID);
-            if (optionsAreRemoved === true) {
-              const options = getSelectOptions(fileContents, indID);
-              setSelectOptions(options, indID, formdata);
-            }
-          }).catch(err => console.log('could not get file contents', err));
-        }).catch(err => console.log('record data did not load', err));
+        loadCrosswalkFile(dropdownInfo[indID].fileName, indID).then(fileContents => {
+          dropdownInfo[indID].fileContents = fileContents;  //save for crosswalk listeners
+          const optionsAreRemoved = removeSelectOptions(indID);
+          if (optionsAreRemoved === true) {
+            const options = getSelectOptions(fileContents, indID);
+            setSelectOptions(options, indID, formdata);
+          }
+        }).catch(err => console.log('could not get file contents', err));
 
       } else {
         console.log('unexpected number of crosswalk conditions.  check indicator condition entry')
@@ -768,7 +776,12 @@ var LeafForm = function (containerID) {
       $("#" + id).on("change", checkConditions);
       $(`input[id^="${id}_"]`).on("change", checkConditions); //this should cover both radio and checkboxes
     });
-    crosswalks.forEach(indID => runCrosswalk(indID));
+
+    if(crosswalks.length > 0) {
+      loadRecordData().then(formdata => {
+        crosswalks.forEach(indID => runCrosswalk(indID, formdata));
+      }).catch(err => console.log('record data did not load', err));
+    }
   }
 
   function doModify() {
