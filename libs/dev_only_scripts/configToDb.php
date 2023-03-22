@@ -122,13 +122,13 @@ function checkTemplate($folder) {
 function readNexusConfig($portalDirectory)
 {
         $phpPath = 'php';
-        $script = '/var/www/scripts/leaf-scripts/src/read_orgchart_config.php';
+        $script = '/var/www/scripts/leaf-scripts/src/orgchart_config_to_db.php';
         return unserialize(shell_exec($phpPath . ' ' . $script . ' ' . $portalDirectory));
 }
 
 function readPortalConfig($portalDirectory)
 {
         $phpPath = 'php';
-        $script = '/var/www/scripts/leaf-scripts/src/read_portal_config.php';
+        $script = '/var/www/scripts/leaf-scripts/src/portal_config_to_db.php';
         return unserialize(shell_exec($phpPath . ' ' . $script . ' '. $portalDirectory));
 }
