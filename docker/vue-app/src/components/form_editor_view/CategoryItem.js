@@ -93,7 +93,7 @@ export default {
             </td>
             <td class="formPreviewDescription">{{ formDescription }}</td>
             <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
-            <td v-if="availability === 'supplemental'">
+            <td v-else>
                 <div v-if="allStapledFormCatIDs.includes(catID)" style="display: flex; justify-content: center;">
                     <span role="img" aria="">📑</span>&nbsp;Stapled
                 </div>
