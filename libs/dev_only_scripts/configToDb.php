@@ -32,7 +32,7 @@ function checkTemplate($folder) {
             $config = readPortalConfig($args);
 
             // populate db with config data
-            $sql = 'INSERT INTO `settings` (`setting`, `data`)
+            /*$sql = 'INSERT INTO `settings` (`setting`, `data`)
                     VALUES (:setting, :data)
                     ON DUPLICATE KEY UPDATE `setting`=:setting';
 
@@ -62,7 +62,7 @@ function checkTemplate($folder) {
 
             $vars = array(':setting' => 'emailBCC',
                     ':data' => json_encode($config['emailBCC'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);
+            $db->prepared_query($sql, $vars);*/
         } elseif (file_exists($folder . '/sources/Config.php')) {
             // we are in an orgchart
             $orgchart = str_replace('/var/www/html', '', $folder);
@@ -86,7 +86,7 @@ function checkTemplate($folder) {
             $config = readNexusConfig($args);
 
             // populate db with config data
-            $sql = 'INSERT INTO `settings` (`setting`, `data`)
+            /*$sql = 'INSERT INTO `settings` (`setting`, `data`)
                     VALUES (:setting, :data)
                     ON DUPLICATE KEY UPDATE `setting`=:setting';
 
@@ -104,7 +104,7 @@ function checkTemplate($folder) {
 
             $vars = array(':setting' => 'ERM_Sites',
                     ':data' => json_encode($config['ERM_Sites'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);
+            $db->prepared_query($sql, $vars);*/
         }
     } else {
         $items = scandir($folder);
