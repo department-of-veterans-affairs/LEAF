@@ -121,14 +121,16 @@ function checkTemplate($folder) {
 
 function readNexusConfig($portalDirectory)
 {
+        $arg = '\'' . serialize($portalDirectory) . '\'';
         $phpPath = 'php';
         $script = '/var/www/scripts/leaf-scripts/src/orgchart_config_to_db.php';
-        return unserialize(shell_exec($phpPath . ' ' . $script . ' ' . json_encode($portalDirectory)));
+        return unserialize(shell_exec($phpPath . ' ' . $script . ' ' . $arg));
 }
 
 function readPortalConfig($portalDirectory)
 {
+        $arg = '\'' . serialize($portalDirectory) . '\'';
         $phpPath = 'php';
         $script = '/var/www/scripts/leaf-scripts/src/portal_config_to_db.php';
-        return unserialize(shell_exec($phpPath . ' ' . $script . ' '. json_encode($portalDirectory)));
+        return unserialize(shell_exec($phpPath . ' ' . $script . ' '. $arg));
 }
