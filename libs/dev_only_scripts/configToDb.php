@@ -9,7 +9,6 @@ checkTemplate($dir);
 
 function checkTemplate($folder) {
     if (is_dir($folder . '/.svn')) {
-    //if (is_dir($folder . '/sources')) {
         if (file_exists($folder . '/sources/DbConfig.php')) {
             // we are in a portal
             $portal = str_replace('/var/www/html', '', $folder);
@@ -30,39 +29,6 @@ function checkTemplate($folder) {
             $args[] = $portal;
             $args[] = $site_paths['portal_database'];
             $config = readPortalConfig($args);
-
-            // populate db with config data
-            /*$sql = 'INSERT INTO `settings` (`setting`, `data`)
-                    VALUES (:setting, :data)
-                    ON DUPLICATE KEY UPDATE `setting`=:setting';
-
-            $vars = array(':setting' => 'heading',
-                    ':data' => $config['title']);
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'subHeading',
-                    ':data' => $config['city']);
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'adPath',
-                    ':data' => json_encode($config['adPath'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'orgchartImportTags',
-                    ':data' => json_encode($config['orgchartImportTags'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'descriptionID',
-                    ':data' => $config['descriptionID']);
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'emailCC',
-                    ':data' => json_encode($config['emailCC'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'emailBCC',
-                    ':data' => json_encode($config['emailBCC'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);*/
         } elseif (file_exists($folder . '/sources/Config.php')) {
             // we are in an orgchart
             $orgchart = str_replace('/var/www/html', '', $folder);
@@ -84,27 +50,6 @@ function checkTemplate($folder) {
             $args[] = $orgchart;
             $args[] = $site_paths['orgchart_database'];
             $config = readNexusConfig($args);
-
-            // populate db with config data
-            /*$sql = 'INSERT INTO `settings` (`setting`, `data`)
-                    VALUES (:setting, :data)
-                    ON DUPLICATE KEY UPDATE `setting`=:setting';
-
-            $vars = array(':setting' => 'heading',
-                    ':data' => $config['title']);
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'subheading',
-                    ':data' => $config['city']);
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'adPath',
-                    ':data' => json_encode($config['adPath'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);
-
-            $vars = array(':setting' => 'ERM_Sites',
-                    ':data' => json_encode($config['ERM_Sites'], JSON_FORCE_OBJECT));
-            $db->prepared_query($sql, $vars);*/
         }
     } else {
         $items = scandir($folder);
@@ -114,8 +59,6 @@ function checkTemplate($folder) {
                 checkTemplate($folder.'/'.$item);
             }
         }
-
-
     }
 }
 
