@@ -107,7 +107,7 @@ export default {
         },
         indexHeaderText() {
             let text = '';
-            if(this.focusedFormRecord?.parentID) {
+            if(this.focusedFormRecord.parentID !== '') {
                 text = 'Internal Form';
             } else {
                 text = this.currentFormCollection.length > 1 ? 'Form Layout' : 'Primary Form'

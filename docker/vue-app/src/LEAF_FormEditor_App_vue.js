@@ -283,7 +283,7 @@ export default {
         },
         showLastUpdate(elementID = '', text = '') {
             const el = document.getElementById(elementID);
-            if(el) {
+            if(el !== null) {
                 el.innerText = text;
                 el.style.opacity = 1;
                 el.style.border = '2px solid #20a0f0';
@@ -304,12 +304,13 @@ export default {
                     CSRFToken,
                 },
                 success: (res) => {
-                    this.ajaxResponseMessage = res;
+                    this.ajaxResponseMessage = res || "";
                 },
                 error: (err) => reject(err)
             });
         },
         initializeOrgSelector(selType = 'employee', indicatorID = 0, selectorIDPrefix = '', initialValue = '') {
+            selType = selType.toLowerCase();
             const prefix = selType === 'group' ? 'group#' : '#';
 
             let orgSelector = {};
@@ -335,7 +336,7 @@ export default {
             orgSelector.initialize();
 
             const el = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-            if (initialValue && el) {
+            if (initialValue !== '' && el !== null) {
                 el.value = `${prefix}` + initialValue;
             }
         },
@@ -503,7 +504,6 @@ export default {
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '', subnodeIndID = null) {
-            this.setDefaultAjaxResponseMessage();
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
@@ -582,6 +582,7 @@ export default {
          * @param {number|null} subnodeIndID indicatorID of currently selected form section
          */
         selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
+            this.setDefaultAjaxResponseMessage();
             if (catID !== '') {
                 if (setFormLoading === true) this.appIsLoadingForm = true
                 this.getFormByCategoryID(catID, subnodeIndID);
@@ -607,7 +608,7 @@ export default {
                 return //prevents enter/space activation from move and menu toggle buttons
             }
             this.selectedNodeIndicatorID = node?.indicatorID || null;
-            if (node?.indicatorID) {
+            if (node?.indicatorID !== null) {
                 const elsMenu = Array.from(document.querySelectorAll(`li#index_listing_${node?.indicatorID} .sub-menu-chevron.closed`));
                 elsMenu.forEach(el => el.click());
             }
@@ -750,7 +751,7 @@ export default {
 
             } else {
                 let nodeSelection = null;
-                if (node.child) {
+                if (node.child && Object.keys(node.child).length > 0) {
                     for (let c in node.child) {
                         nodeSelection = this.getNodeSelection(node.child[c], indicatorID) || null;
                         if (nodeSelection !== null) break;

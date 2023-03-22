@@ -37,9 +37,8 @@ export default {
          * @returns {string} truncated category name for card title
          */
         categoryName() {
-            let name = this.categoriesRecord.categoryName === '' ? 
+            return this.categoriesRecord.categoryName === '' ? 
                 'Untitled' : this.stripAndDecodeHTML(this.categoriesRecord.categoryName);
-            return name;
         },
         formDescription() {
             return this.stripAndDecodeHTML(this.categoriesRecord.categoryDescription);

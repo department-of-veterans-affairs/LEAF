@@ -313,7 +313,7 @@ class FormEditor
         return $result;
     }
 
-    public function setSortBatch(array $batch) {
+    public function setSortBatch(array $batch): array {
         $updates = array();
         foreach($batch as $item) {
             $this->setSort((int)$item['indicatorID'], (int)$item['sort']);

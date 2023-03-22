@@ -346,9 +346,7 @@ export default {
                                 disabled: 1,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => {
-                                console.log('archive', this.currIndicatorID, res);
-                            },
+                            success: () => {},
                             error: err => console.log('ind disabled (archive) post err', err)
                         })
                     );
@@ -362,9 +360,7 @@ export default {
                                 disabled: 2,
                                 CSRFToken: this.CSRFToken
                             },
-                            success: (res) => {
-                                console.log('delete', this.currIndicatorID, res);
-                            },
+                            success: () => {},
                             error: err => console.log('ind disabled (deletion) post err', err)
                         })
                     );
