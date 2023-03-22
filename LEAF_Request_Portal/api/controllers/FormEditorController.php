@@ -65,7 +65,7 @@ class FormEditorController extends RESTfulResponse
         $formEditor = $this->formEditor;
         $login = $this->login;
 
-//        $this->verifyAdminReferrer();
+        //        $this->verifyAdminReferrer();
 
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('formEditor', function ($args) {

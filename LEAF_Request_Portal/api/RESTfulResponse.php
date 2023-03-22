@@ -12,30 +12,21 @@ abstract class RESTfulResponse
      * @param array $actionList
      * @return mixed
      */
-    public function get($actionList)
-    {
-        return 'Method not implemented';
-    }
+    abstract public function get(array $actionList);
 
     /**
      * Returns result for HTTP POST requests
      * @param array $actionList
      * @return mixed
      */
-    public function post($actionList)
-    {
-        return 'Method not implemented';
-    }
+    abstract public function post(array $actionList);
 
     /**
      * Returns result for HTTP DELETE requests
      * @param array $actionList
      * @return mixed
      */
-    public function delete($actionList)
-    {
-        return 'Method not implemented';
-    }
+    abstract public function delete(array $actionList);
 
     /**
      * Handles HTTP request
@@ -156,7 +147,7 @@ abstract class RESTfulResponse
                 break;
             case 'xml':
                 header('Content-type: text/xml');
-                $xml = new SimpleXMLElement('<?xml version="1.0"?><output></output>');
+                $xml = new \SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
                 echo $xml->asXML();
 
