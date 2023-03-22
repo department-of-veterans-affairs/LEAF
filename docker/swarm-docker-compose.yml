@@ -38,7 +38,6 @@ services:
       - source: krb_pass
       - source: cdw_user
       - source: cdw_pass
-      - source: app_pass
       - source: cipher_key
 
   leaf-adminer:
@@ -84,8 +83,6 @@ secrets:
   cdw_user:
     external: true
   cdw_pass:
-    external: true
-  app_pass:
     external: true
   cipher_key:
     external: true
