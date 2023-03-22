@@ -30,5 +30,7 @@ RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
 # USER www-data
 
-COPY docker/env_files/secret_setup.sh /etc/init.d/ss.sh
+COPY docker/scripts/secret_setup.sh /etc/init.d/ss.sh
 RUN chmod +x /etc/init.d/ss.sh
+COPY docker/scripts/startup.sh /startup.sh
+RUN chmod +x /startup.sh

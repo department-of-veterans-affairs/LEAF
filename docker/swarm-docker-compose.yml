@@ -37,6 +37,7 @@ services:
       - source: krb_user
       - source: krb_pass
       - source: cdw_user
+      - source: cdw_host
       - source: cdw_pass
       - source: cipher_key
 
@@ -81,6 +82,8 @@ secrets:
   krb_pass:
     external: true
   cdw_user:
+    external: true
+  cdw_host:
     external: true
   cdw_pass:
     external: true
