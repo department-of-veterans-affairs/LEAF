@@ -123,12 +123,12 @@ function readNexusConfig($portalDirectory)
 {
         $phpPath = 'php';
         $script = '/var/www/scripts/leaf-scripts/src/orgchart_config_to_db.php';
-        return unserialize(shell_exec($phpPath . ' ' . $script . ' ' . $portalDirectory));
+        return unserialize(shell_exec($phpPath . ' ' . $script . ' ' . json_encode($portalDirectory)));
 }
 
 function readPortalConfig($portalDirectory)
 {
         $phpPath = 'php';
         $script = '/var/www/scripts/leaf-scripts/src/portal_config_to_db.php';
-        return unserialize(shell_exec($phpPath . ' ' . $script . ' '. $portalDirectory));
+        return unserialize(shell_exec($phpPath . ' ' . $script . ' '. json_encode($portalDirectory)));
 }
