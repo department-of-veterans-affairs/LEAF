@@ -11,11 +11,11 @@ class ServiceController extends RESTfulResponse
 
     private $API_VERSION = 1;    // Integer
 
-    private $system;
-
     private $db;
 
     private $login;
+
+    private $service;
 
     public function __construct($db, $login)
     {

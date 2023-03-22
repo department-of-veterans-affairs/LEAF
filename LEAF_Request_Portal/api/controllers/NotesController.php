@@ -108,4 +108,10 @@ class NotesController extends RESTfulResponse
             return 'Invalid data passed';
         }
     }
+
+    public function delete($act)
+    {
+        // This method is unused in this class
+        // This is required because of extending RESTfulResponse
+    }
 }
