@@ -450,7 +450,7 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
             const outcome = conditions[i].selectedOutcome.toLowerCase();
 
-            if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+            if (['hide', 'show'].includes(outcome) && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
 
                 if (comparison !== true) { //no need to re-assess if it has already become true
                     const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerHTML.trim();

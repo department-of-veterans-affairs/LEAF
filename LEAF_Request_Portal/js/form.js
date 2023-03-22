@@ -77,23 +77,25 @@ var LeafForm = function (containerID) {
       "checkboxes",
     ];
 
-    /** crosswalk functions */
-    function loadFormData() {
+    /** crosswalk variables and functions */
+    let dropdownInfo = {};
+
+    function loadRecordData() {
       return new Promise((resolve, reject)=> {
         $.ajax({
           type: 'GET',
-          url: './api/form/{{ recordID }}/data',
-          success(result) {
+          url: `./api/form/${recordID}/data`,
+          success: (result) => {
             resolve(result)
           },
-          error(err) {
+          error: (err) => {
             reject(err)
           }
         });
       });
     }
 
-    function loadFile(filePath, iID) {
+    function loadCrosswalkFile(fileName, iID) {
       return new Promise((resolve, reject)=> {
         const xhttpInds = new XMLHttpRequest();
         xhttpInds.onreadystatechange = () => {
@@ -103,7 +105,7 @@ var LeafForm = function (containerID) {
                 resolve(xhttpInds.responseText);
                 break;
               case 404:
-                let content = `The file for indicator ${iID} was not found at ${dropdownInfo[iID].fileName}.`
+                let content = `The file for indicator ${iID} was not found at files/${fileName}.`
                 content += `\nCheck the entered file name in setup and in the LEAF file manager.`
                 reject(new Error(content));
                 break;
@@ -113,7 +115,7 @@ var LeafForm = function (containerID) {
             }
           }
         };
-        xhttpInds.open("GET", filePath, true);
+        xhttpInds.open("GET", `files/${fileName}`, true);
         xhttpInds.send();
       });
     }  
@@ -129,7 +131,7 @@ var LeafForm = function (containerID) {
       return selectElementFound;
     }
 
-    function getSelectOptions(fileContent, iID, isLevel2=false, indLevel1Val=null) {
+    function getSelectOptions(fileContent = "", iID, isLevel2 = false, indLevel1Val = null) {
       let uniqueList = [];
       if (isLevel2 && indLevel1Val !== null && indLevel1Val !== "") {
         let level2_Options = [];
@@ -150,6 +152,9 @@ var LeafForm = function (containerID) {
       } else {
         const list = fileContent.split(/\n/).map(line => line.split(",")[0]);
         uniqueList = Array.from(new Set(list));
+        if (dropdownInfo[iID].crosswalkHasHeader === true) {
+          dropdownInfo[iID].headerName = list[0];
+        }
       }
 
       let options = uniqueList.map(o => {
@@ -233,6 +238,39 @@ var LeafForm = function (containerID) {
       return false;
     };
 
+    //NOTE: run only for crosswalks
+    const runCrosswalk = (indID) => {
+      //there should only be 1, and it is stored under the child id
+      const allIndConditions = formConditions[`id${indID}`].conditions || [];
+      const crosswalkConditions = allIndConditions.filter(
+        c => c.selectedOutcome.toLowerCase() === "crosswalk"
+      );
+      if(crosswalkConditions.length === 1) {
+        const cond = crosswalkConditions[0];
+        dropdownInfo[indID] = { //defined in handleConditions space at start of crosswalk methods
+          fileName: cond.crosswalkFile,
+          crosswalkHasHeader: cond.crosswalkHasHeader,
+          headerName: null,
+          level2indID: cond.level2IndID //indID for crosswalks
+        }
+
+        loadRecordData().then(formdata => {
+          loadCrosswalkFile(dropdownInfo[indID].fileName, indID).then(fileContents => {
+            dropdownInfo[indID].fileContents = fileContents;  //save for crosswalk listeners
+            const optionsAreRemoved = removeSelectOptions(indID);
+            if (optionsAreRemoved === true) {
+              const options = getSelectOptions(fileContents, indID);
+              setSelectOptions(options, indID, formdata);
+            }
+          }).catch(err => console.log('could not get file contents', err));
+        }).catch(err => console.log('record data did not load', err));
+
+      } else {
+        console.log('unexpected number of crosswalk conditions.  check indicator condition entry')
+      }
+    }
+
+    //NOTE: run only for conditional code with parent controllers (hide, show and prefill)
     const checkConditions = (event = 0, selected = 0, parID = 0) => {
       const parentElID =
         event !== null ? parseInt(event.target.id) : parseInt(parID);
@@ -255,7 +293,7 @@ var LeafForm = function (containerID) {
         ["show", "hide"].includes(c.selectedOutcome.toLowerCase())
       );
       let prefillConditions = allConditions.filter(
-        (c) => !["show", "hide"].includes(c.selectedOutcome.toLowerCase())
+        c => c.selectedOutcome.toLowerCase() === "pre-fill"
       );
       allConditions = [...hideShowConditions, ...prefillConditions]; //orders them so that prefills would be last
 
@@ -425,24 +463,18 @@ var LeafForm = function (containerID) {
       //used in the outcome switch after condition checking.
       let conditionOutcomes = [];
       if (
-        arrChildConditions.filter(
-          (c) => c.selectedOutcome.toLowerCase() === "hide"
-        ).length > 0
+        arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "hide")
       )
         conditionOutcomes.push("hide");
       if (
-        arrChildConditions.filter(
-          (c) => c.selectedOutcome.toLowerCase() === "show"
-        ).length > 0
+        arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "show")
       )
         conditionOutcomes.push("show");
       if (
-        arrChildConditions.filter(
-          (c) => c.selectedOutcome.toLowerCase() === "pre-fill"
-        ).length > 0
+        arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "pre-fill")
       )
         conditionOutcomes.push("pre-fill");
-      if (conditionOutcomes.length > 2)
+      if (conditionOutcomes.includes('hide') && conditionOutcomes.includes('show'))
         console.log(
           "there are both hide and show conditions on the same question. check conditions setup"
         );
@@ -686,32 +718,39 @@ var LeafForm = function (containerID) {
     //confirm that the parent indicators exist on the form (in case of archive/deletion)
     let confirmedParElsByIndID = [];
     let notFoundParElsByIndID = [];
+    let crosswalks = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
       formConditions.forEach((c) => {
-        let parentEl = null;
-        switch (c.parentFormat.toLowerCase()) {
-          case "radio": //radio buttons use indID_radio1, indID_radio2 etc
-            parentEl = document.querySelector(
-              `input[id^="${c.parentIndID}_radio"]`
-            );
-            break;
-          case "checkboxes": //checkboxes use indID_0, indID_1 etc
-            parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
-            break;
-          default: //multisel, dropdown, text use input id=indID.
-            parentEl = document.getElementById(c.parentIndID);
-            break;
-        }
-        if (parentEl !== null) {
-          confirmedParElsByIndID.push(parseInt(c.parentIndID));
+        if (c.selectedOutcome.toLowerCase() === "crosswalk") {
+          crosswalks.push(parseInt(c.childIndID));
+
         } else {
-          notFoundParElsByIndID.push(parseInt(c.parentIndID));
+          let parentEl = null;
+          switch (c.parentFormat.toLowerCase()) {
+            case "radio": //radio buttons use indID_radio1, indID_radio2 etc
+              parentEl = document.querySelector(
+                `input[id^="${c.parentIndID}_radio"]`
+              );
+              break;
+            case "checkboxes": //checkboxes use indID_0, indID_1 etc
+              parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
+              break;
+            default: //multisel, dropdown, text use input id=indID.
+              parentEl = document.getElementById(c.parentIndID);
+              break;
+          }
+          if (parentEl !== null) {
+            confirmedParElsByIndID.push(parseInt(c.parentIndID));
+          } else {
+            notFoundParElsByIndID.push(parseInt(c.parentIndID));
+          }
         }
       });
     }
     confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
     notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
+    crosswalks = Array.from(new Set(crosswalks));
 
     if (notFoundParElsByIndID.length > 0) {
       //filter out any conditions that have parent IDs of elements not found in the DOM
@@ -729,6 +768,7 @@ var LeafForm = function (containerID) {
       $("#" + id).on("change", checkConditions);
       $(`input[id^="${id}_"]`).on("change", checkConditions); //this should cover both radio and checkboxes
     });
+    crosswalks.forEach(indID => runCrosswalk(indID));
   }
 
   function doModify() {
