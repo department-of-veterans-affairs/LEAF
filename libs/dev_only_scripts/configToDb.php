@@ -27,8 +27,9 @@ function checkTemplate($folder) {
 
             // instantiate a portal db
             $db =  new \Leaf\Db(getenv('DATABASE_HOST'), getenv('DATABASE_USERNAME'), getenv('DATABASE_PASSWORD'), $site_paths['portal_database']);
-
-            $config = readPortalConfig($portal);
+            $args[] = $portal;
+            $args[] = $site_paths['portal_database'];
+            $config = readPortalConfig($args);
 
             // populate db with config data
             $sql = 'INSERT INTO `settings` (`setting`, `data`)
@@ -80,8 +81,9 @@ function checkTemplate($folder) {
             // instantiate a portal db
             $db =  new \Leaf\Db(getenv('DATABASE_HOST'), getenv('DATABASE_USERNAME'), getenv('DATABASE_PASSWORD'), $site_paths['orgchart_database']);
 
-            // instantiate a Config.php
-            $config = readNexusConfig($orgchart);
+            $args[] = $orgchart;
+            $args[] = $site_paths['orgchart_database'];
+            $config = readNexusConfig($args);
 
             // populate db with config data
             $sql = 'INSERT INTO `settings` (`setting`, `data`)
