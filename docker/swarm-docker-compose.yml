@@ -1,23 +1,6 @@
 version: "3.9"
 
 services:
-  # leaf_vue_ui:
-  #   container_name: leaf_vue_ui
-  #   env_file:
-  #     - ./env_files/vue_ui_local.env
-  #   build:
-  #     context: ./vue-app
-  #     dockerfile: leaf_vue.dockerfile
-  #   # volumes:
-  #   #   - './vue-app/src:/app/src'
-  #   #   - '/app/node_modules'
-  #   #   - '../libs/js/vue-dest:/app/vue-dest'
-  #   networks:
-  #     - leaf
-  #   deploy:
-  #     replicas: 1
-  #     condition: on-failure
-
   leaf-php-8:
     image: pelentan/leaf-swarm
     env_file: 
@@ -32,12 +15,16 @@ services:
       - leaf
     environment:
       - DATABASE_PASSWORD=/run/secrets/db_password
-      - TOGA_FILE=/run/secrets/db_password
     deploy:
       mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
+    # configs:
+    #   - source: entrypoint
+    #     target: ./etc/init.d/ss.sh
+    #     mode: 0777
+    entrypoint: ["/etc/init.d/ss.sh","/startup.sh"]
         
     secrets:
       - source: leaf_key
@@ -47,39 +34,12 @@ services:
       - source: leaf_pem
         target: /etc/ssl/certs/test_leaf.pem
       - source: db_password
-
-#   leaf-nginx:
-#     image: pelentan/nginx-swarm
-#     env_file: 
-#       - ./env_files/nginx_local.env
-#     volumes:
-# #      - ./nginx/src:/var/www/html
-#       - /mnt/leaf/:/var/www/
-#       - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-#     # volumes_from:
-#     #   - leaf-php-8
-#     ports:
-#       - 80:8080
-#       - 443:8443
-#     networks:
-#       - leaf
-#     labels:
-#       - "traefik.enable=true"
-#       - "traefik.docker.network=traefik"
-#       - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
-#       - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
-#       - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
-# #       - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
-#     deploy:
-#       replicas: 1
-#       restart_policy:
-#         condition: on-failure
-#     secrets:
-#       - source: leaf_key
-#         target: /etc/ssl/certs/leaf.key
-#       - source: leaf_pem
-#         target: /etc/ssl/certs/leaf.pem
-    
+      - source: krb_user
+      - source: krb_pass
+      - source: cdw_user
+      - source: cdw_pass
+      - source: app_pass
+      - source: cipher_key
 
   leaf-adminer:
     image: adminer
@@ -116,4 +76,16 @@ secrets:
   leaf_pem:
     external: true
   db_password:
+    external: true
+  krb_user:
+    external: true
+  krb_pass:
+    external: true
+  cdw_user:
+    external: true
+  cdw_pass:
+    external: true
+  app_pass:
+    external: true
+  cipher_key:
     external: true
