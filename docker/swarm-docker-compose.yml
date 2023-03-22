@@ -20,10 +20,10 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
-    # configs:
-    #   - source: entrypoint
-    #     target: ./etc/init.d/ss.sh
-    #     mode: 0777
+    configs:
+      - source: entrypoint
+        target: ./etc/init.d/ss.sh
+        mode: 0777
     entrypoint: ["/etc/init.d/ss.sh","/startup.sh"]
         
     secrets:
