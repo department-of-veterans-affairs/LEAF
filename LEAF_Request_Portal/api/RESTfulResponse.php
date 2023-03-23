@@ -32,32 +32,27 @@ abstract class RESTfulResponse
      * Handles HTTP request
      * @param string $action
      */
-    public function handler($action)
+    public function handler(string $action): void
     {
         $action = $this->parseAction($action);
+
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 $this->output($this->get($action));
 
                 break;
             case 'POST':
-                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'])
-                {
+                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $this->output($this->post($action));
-                }
-                else
-                {
+                } else {
                     $this->output('Invalid Token.');
                 }
 
                 break;
             case 'DELETE':
-                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'])
-                {
+                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $this->output($this->delete($action));
-                }
-                else
-                {
+                } else {
                     $this->output('Invalid Token.');
                 }
 
@@ -81,32 +76,6 @@ abstract class RESTfulResponse
         //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
         switch ($format) {
-            case 'json':
-            default:
-                header('Content-type: application/json');
-                $jsonOut = json_encode($out);
-
-                if ($_SERVER['REQUEST_METHOD'] === 'GET')
-                {
-                    $etag = '"' . md5($jsonOut) . '"';
-                    header_remove('Pragma');
-                    header_remove('Cache-Control');
-                    header_remove('Expires');
-                    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
-                           && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
-                    {
-                        header("ETag: {$etag}", true, 304);
-                        header('Cache-Control: must-revalidate, private');
-                        exit;
-                    }
-
-                    header("ETag: {$etag}");
-                    header('Cache-Control: must-revalidate, private');
-                }
-
-                echo $jsonOut;
-
-                break;
             case 'php':
                 echo serialize($out);
 
@@ -272,40 +241,66 @@ abstract class RESTfulResponse
                 echo '<pre>' . print_r($out, true) . '</pre>';
 
                 break;
+            case 'json':
+            default:
+                header('Content-type: application/json');
+                $jsonOut = json_encode($out);
+
+                if ($_SERVER['REQUEST_METHOD'] === 'GET')
+                {
+                    $etag = '"' . md5($jsonOut) . '"';
+                    header_remove('Pragma');
+                    header_remove('Cache-Control');
+                    header_remove('Expires');
+                    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
+                           && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
+                    {
+                        header("ETag: {$etag}", true, 304);
+                        header('Cache-Control: must-revalidate, private');
+                        exit;
+                    }
+
+                    header("ETag: {$etag}");
+                    header('Cache-Control: must-revalidate, private');
+                }
+
+                echo $jsonOut;
+
+                break;
+
         }
     }
 
     /**
      * Parses url input into generic format
-     * @param string api path
-     * @return string parsed path
+     *
+     * @param string $action
+     *
+     * @return array
+     *
+     * Created at: 3/22/2023, 2:45:39 PM (America/New_York)
      */
-    public function parseAction($action)
+    public function parseAction(string $action): array
     {
         $actionList = explode('/', $action, 10);
 
         $key = '';
         $args = array();
-        foreach ($actionList as $type)
-        {
-            if (is_numeric($type))
-            {
+
+        foreach ($actionList as $type) {
+            if (is_numeric($type)) {
                 $key .= '[digit]/';
                 $args[] = $type;
-            }
-            else
-            {
-                if (substr($type, 0, 1) == '_')
-                {
+            } else {
+                if (substr($type, 0, 1) == '_') {
                     $key .= '[text]/';
                     $args[] = substr($type, 1);
-                }
-                else
-                {
+                } else {
                     $key .= "{$type}/";
                 }
             }
         }
+
         $key = rtrim($key, '/');
 
         $action = array();
