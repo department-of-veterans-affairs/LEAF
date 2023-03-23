@@ -156,8 +156,6 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
-
         $type = null;
         switch ($typeName) {
             case 'service':
@@ -239,8 +237,6 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
-
         $type = null;
         switch ($typeName) {
             case 'service':
@@ -281,20 +277,18 @@ switch ($action) {
 
 
         $resHistory = $type->getHistory($itemID);
-        usort($resHistory, function($a, $b) {
-            return $b['timestamp'] <=> $a['timestamp'];
-        });
 
         for($i = 0; $i<count($resHistory); $i++){
             $dateInLocal = new DateTime($resHistory[$i]['timestamp'], new DateTimeZone('UTC'));
-            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('F j, Y. g:i A');
-            if (array_key_exists("targetUID", $resHistory[$i])) {
-                $resHistory[$i]["targetEmpUID"] = $type->getEmployeeUserID($resHistory[$i]["targetUID"]);
-            }
+            $resHistory[$i]["timestamp"] = $dateInLocal->setTimezone(new DateTimeZone($tz))->format('Y-m-d H:i:s T');
         }
 
         if($gethistoryslice)
         {
+            usort($resHistory, function($a, $b) {
+                return $b['timestamp'] <=> $a['timestamp'];
+            });
+
             $pageStart = ($page * $pageLength) - $pageLength;
             $totalHistorySlice = array_slice($resHistory, $pageStart, $pageLength);
             $t_form->assign('dataType', ucwords($typeName));

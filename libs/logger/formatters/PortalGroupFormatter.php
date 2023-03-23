@@ -2,30 +2,28 @@
 
 namespace Leaf;
 
-class PortalGroupFormatter{
-    
+class PortalGroupFormatter
+{
     const TEMPLATES = [
         DataActions::IMPORT.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"imported <strong>group: </strong>%s",
+            "message"=>"<strong>%s</strong> group was imported",
             "variables"=>"groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"added <strong>new group:</strong> %s",
+            "message"=>"<strong>%s</strong> group was created",
             "variables"=>"name"
         ],
         DataActions::DELETE.'-'.LoggableTypes::PORTAL_GROUP => [
-            "message"=>"deleted <strong>group:</strong> %s",
+            "message"=>"<strong>%s</strong> group was deleted",
             "variables"=>"groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::EMPLOYEE => [
-            "message" => "added <strong>new user:</strong> %s",
-            "variables" => "userID"
+            "message" => "<strong>%s</strong> was added to the group <strong>%s</strong>",
+            "variables" => "userID,groupID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::EMPLOYEE => [
-            "message" => "removed <strong>user:</strong> %s",
-            "variables" => "userID"
+            "message" => "<strong>%s</strong> was removed from the group <strong>%s</strong>",
+            "variables" => "userID,groupID"
         ]
     ];
-
-    const TABLE = "groups";
 }
