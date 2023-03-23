@@ -30,46 +30,58 @@ abstract class RESTfulResponse
 
     /**
      * Handles HTTP request
+     *
      * @param string $action
+     *
+     * @return string
+     *
+     * Created at: 3/23/2023, 8:49:06 AM (America/New_York)
      */
-    public function handler(string $action): void
+    public function handler(string $action): string
     {
         $action = $this->parseAction($action);
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                $this->output($this->get($action));
+                $return_value = $this->output($this->get($action));
 
                 break;
             case 'POST':
                 if ($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
-                    $this->output($this->post($action));
+                    $return_value = $this->output($this->post($action));
                 } else {
-                    $this->output('Invalid Token.');
+                    $return_value = $this->output('Invalid Token.');
                 }
 
                 break;
             case 'DELETE':
                 if ($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
-                    $this->output($this->delete($action));
+                    $return_value = $this->output($this->delete($action));
                 } else {
-                    $this->output('Invalid Token.');
+                    $return_value = $this->output('Invalid Token.');
                 }
 
                 break;
             default:
-                $this->output('unhandled method');
+                $return_value = $this->output('unhandled method');
 
                 break;
         }
+
+        return $return_value;
     }
 
     /**
      * Outputs in specified format based on $_GET['format']
      * Default to JSON
-     * @param string $out
+     *
+     * @param array|string $out
+     *
+     * @return string
+     *
+     * Created at: 3/23/2023, 8:49:26 AM (America/New_York)
      */
-    public function output($out = '')
+    public function output(array|string|null $out = ''): string
     {
         $out = $this->filterData($out);
 
@@ -78,11 +90,11 @@ abstract class RESTfulResponse
 
         switch ($format) {
             case 'php':
-                echo serialize($out);
+                $return_value = serialize($out);
 
                 break;
             case 'string':
-                echo $out;
+                $return_value = $out;
 
                 break;
             case 'json-js-assoc':
@@ -93,7 +105,7 @@ abstract class RESTfulResponse
                     $out2[] = $item;
                 }
 
-                echo json_encode($out2);
+                $return_value = json_encode($out2);
 
                 break;
             case 'jsonp':
@@ -109,7 +121,7 @@ abstract class RESTfulResponse
                     }
                 }
 
-                echo "{$callBackName}(" . json_encode($out) . ')';
+                $return_value = "{$callBackName}(" . json_encode($out) . ')';
 
                 break;
             case 'xml':
@@ -117,7 +129,7 @@ abstract class RESTfulResponse
                 $xml = new \SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
 
-                echo $xml->asXML();
+                $return_value = $xml->asXML();
 
                 break;
             case 'csv':
@@ -166,7 +178,7 @@ abstract class RESTfulResponse
                     $buffer .= "\r\n";
                 }
 
-                echo $buffer;
+                $return_value = $buffer;
 
                 break;
             case 'htmltable':
@@ -205,7 +217,7 @@ abstract class RESTfulResponse
 
                 $body .= '</tbody>';
 
-                echo $body;
+                $return_value = $body;
 
                 break;
             case 'x-visualstudio': // experimental mode for visual studio
@@ -235,11 +247,11 @@ abstract class RESTfulResponse
                     header('Cache-Control: must-revalidate, private');
                 }
 
-                echo $jsonOut;
+                $return_value = $jsonOut;
 
                 break;
             case 'debug':
-                echo '<pre>' . print_r($out, true) . '</pre>';
+                $return_value = '<pre>' . print_r($out, true) . '</pre>';
 
                 break;
             case 'json':
@@ -264,11 +276,12 @@ abstract class RESTfulResponse
                     header('Cache-Control: must-revalidate, private');
                 }
 
-                echo $jsonOut;
+                $return_value = $jsonOut;
 
                 break;
-
         }
+
+        return $return_value;
     }
 
     /**
@@ -312,29 +325,35 @@ abstract class RESTfulResponse
 
     /**
      * Aborts script if the referrer directory doesn't match the admin directory
+     *
+     * @return false|string
+     *
+     * Created at: 3/23/2023, 11:06:40 AM (America/New_York)
      */
-    public function verifyAdminReferrer()
+    public function verifyAdminReferrer(): false|string
     {
+        $return_value = 'false';
+
         if (!isset($_SERVER['HTTP_REFERER'])) {
-            echo 'Error: Invalid request. Missing Referer.';
-            exit();
+            $return_value = 'Error: Invalid request. Missing Referer.';
+        } else {
+            $tIdx = strpos($_SERVER['HTTP_REFERER'], '://');
+            $referer = substr($_SERVER['HTTP_REFERER'], $tIdx);
+
+            $url = '://' . HTTP_HOST;
+
+            $script = $_SERVER['SCRIPT_NAME'];
+            $apiOffset = strpos($script, '/api/');
+            $script = substr($script, 0, $apiOffset + 1);
+
+            $checkMe = strtolower($url . $script . 'admin');
+
+            if (strncmp(strtolower($referer), $checkMe, strlen($checkMe)) !== 0) {
+                $return_value = 'Error: Invalid request. Mismatched Referer';
+            }
         }
-
-        $tIdx = strpos($_SERVER['HTTP_REFERER'], '://');
-        $referer = substr($_SERVER['HTTP_REFERER'], $tIdx);
-
-        $url = '://' . HTTP_HOST;
-
-        $script = $_SERVER['SCRIPT_NAME'];
-        $apiOffset = strpos($script, '/api/');
-        $script = substr($script, 0, $apiOffset + 1);
-
-        $checkMe = strtolower($url . $script . 'admin');
-
-        if (strncmp(strtolower($referer), $checkMe, strlen($checkMe)) !== 0) {
-            echo 'Error: Invalid request. Mismatched Referer';
-            exit();
-        }
+        $return_value = false;
+        return $return_value;
     }
 
     /**
