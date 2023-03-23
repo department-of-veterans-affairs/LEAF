@@ -17,8 +17,8 @@ START TRANSACTION;
 
 ALTER TABLE notes MODIFY recordID mediumint(5) UNSIGNED NOT NULL;
 ALTER TABLE signatures MODIFY recordID smallint(5) UNSIGNED NOT NULL;
-ALTER TABLE signatures MODIFY stepID smallint(5) UNSIGNED NOT NULL;
-ALTER TABLE signatures MODIFY dependencyID smallint(5) UNSIGNED NOT NULL;
+ALTER TABLE signatures MODIFY stepID smallint(5);
+ALTER TABLE signatures MODIFY dependencyID smallint(5);
 ALTER TABLE tags MODIFY recordID int(11) UNSIGNED NOT NULL;
 ALTER TABLE `groups` MODIFY parentGroupID tinyint(4);
 
