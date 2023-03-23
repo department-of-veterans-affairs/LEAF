@@ -204,7 +204,7 @@ class FormStack
                 {
                     $currParentID = $c->parentIndID;
                     $c->childIndID = $rec['indicatorID'];
-                    $c->parentIndID = $formIndicatorsAdded[$currParentID] ?? 0;
+                    $c->parentIndID = (int)$formIndicatorsAdded[$currParentID] ?? 0;
                     if(isset($c->level2IndID)) {
                         $currentLevel2 = $c->level2IndID;
                         $c->level2IndID = (int)$formIndicatorsAdded[$currentLevel2];
