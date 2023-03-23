@@ -48,7 +48,7 @@ $controllerMap = new Portal\ControllerMap();
 
 $controllerMap->register('classicphonebook', function () use ($p_db, $login, $action) {
     $controller = new Portal\ClassicPhonebookController($p_db, $login);
-    $controller->handler($action);
+    echo $controller->handler($action);
 });
 
 // admin only
@@ -56,32 +56,32 @@ if ($login->checkGroup(1))
 {
     $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
         $controller = new Portal\SimpleDataController($p_db, $login);
-        $controller->handler($action);
+        echo $controller->handler($action);
     });
 
     $controllerMap->register('formEditor', function () use ($p_db, $login, $action) {
         $formEditorController = new Portal\FormEditorController($p_db, $login);
-        $formEditorController->handler($action);
+        echo $formEditorController->handler($action);
     });
 
     $controllerMap->register('service', function () use ($p_db, $login, $action) {
         $serviceController = new Portal\ServiceController($p_db, $login);
-        $serviceController->handler($action);
+        echo $serviceController->handler($action);
     });
 
     $controllerMap->register('group', function () use ($p_db, $login, $action) {
         $groupController = new Portal\GroupController($p_db, $login);
-        $groupController->handler($action);
+        echo $groupController->handler($action);
     });
 
     $controllerMap->register('import', function () use ($p_db, $login, $action) {
         $importController = new Portal\ImportController($p_db, $login);
-        $importController->handler($action);
+        echo $importController->handler($action);
     });
 
     $controllerMap->register('site', function () use ($p_db, $login, $action) {
         $siteController = new Portal\SiteController($p_db, $login);
-        $siteController->handler($action);
+        echo $siteController->handler($action);
     });
 
     $icons_path = LIB_PATH . '/dynicons/svg/';
@@ -90,90 +90,90 @@ if ($login->checkGroup(1))
 
     $controllerMap->register('iconPicker', function () use ($p_db, $login, $action, $icons_path, $dynicon_index, $domain) {
         $iconPickerController = new Portal\IconPickerController($p_db, $login, $icons_path, $dynicon_index, $domain);
-        $iconPickerController->handler($action);
+        echo $iconPickerController->handler($action);
     });
 }
 
 $controllerMap->register('form', function () use ($p_db, $login, $action) {
     $formController = new Portal\FormController($p_db, $login);
-    $formController->handler($action);
+    echo $formController->handler($action);
 });
 
 $controllerMap->register('formStack', function () use ($p_db, $login, $action) {
     $formStackController = new Portal\FormStackController($p_db, $login);
-    $formStackController->handler($action);
+    echo $formStackController->handler($action);
 });
 
 $controllerMap->register('formWorkflow', function () use ($p_db, $login, $action) {
     $formWorkflowController = new Portal\FormWorkflowController($p_db, $login);
-    $formWorkflowController->handler($action);
+    echo $formWorkflowController->handler($action);
 });
 
 $controllerMap->register('workflow', function () use ($p_db, $login, $action) {
     $workflowController = new Portal\WorkflowController($p_db, $login);
-    $workflowController->handler($action);
+    echo $workflowController->handler($action);
 });
 
 $controllerMap->register('FTEdata', function () use ($p_db, $login, $action) {
     $FTEdataController = new Portal\FTEdataController($p_db, $login);
-    $FTEdataController->handler($action);
+    echo $FTEdataController->handler($action);
 });
 
 $controllerMap->register('inbox', function () use ($p_db, $login, $action) {
     $InboxController = new Portal\InboxController($p_db, $login);
-    $InboxController->handler($action);
+    echo $InboxController->handler($action);
 });
 
 $controllerMap->register('system', function () use ($p_db, $login, $action) {
     $SystemController = new Portal\SystemController($p_db, $login);
-    $SystemController->handler($action);
+    echo $SystemController->handler($action);
 });
 
 $controllerMap->register('emailTemplates', function () use ($p_db, $login, $action) {
     $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
-    $EmailTemplateController->handler($action);
+    echo $EmailTemplateController->handler($action);
 });
 
 $controllerMap->register('converter', function () use ($p_db, $login, $action) {
     $ConverterController = new Portal\ConverterController($p_db, $login);
-    $ConverterController->handler($action);
+    echo $ConverterController->handler($action);
 });
 
 $controllerMap->register('telemetry', function () use ($p_db, $login, $action) {
     $TelemetryController = new Portal\TelemetryController($p_db, $login);
-    $TelemetryController->handler($action);
+    echo $TelemetryController->handler($action);
 });
 
 $controllerMap->register('signature', function() use ($p_db, $login, $action) {
     $SignatureController = new Portal\SignatureController($p_db, $login);
-    $SignatureController->handler($action);
+    echo $SignatureController->handler($action);
 });
 
 $controllerMap->register('open', function() use ($p_db, $login, $action) {
     $OpenController = new Portal\OpenController($p_db, $login);
-    $OpenController->handler($action);
+    echo $OpenController->handler($action);
 });
 
 $controllerMap->register('userActivity', function() use ($p_db, $login, $action) {
     $UserActivity = new Portal\UserActivity($p_db, $login);
-    $UserActivity->handler($action);
+    echo $UserActivity->handler($action);
 });
 
 $controllerMap->register('note', function() use ($p_db, $login, $action) {
     $dataActionLogger = new Leaf\DataActionLogger($p_db, $login);
 
     $NotesController = new Portal\NotesController($p_db, $login, $dataActionLogger);
-    $NotesController->handler($action);
+    echo $NotesController->handler($action);
 });
 
 $controllerMap->register('templateEditor', function () use ($db, $login, $action) {
     $TemplateEditorController = new Portal\TemplateEditorController($db, $login);
-    $TemplateEditorController->handler($action);
+    echo $TemplateEditorController->handler($action);
 });
 
 $controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
     $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    $TemplateReportsController->handler($action);
+    echo $TemplateReportsController->handler($action);
 });
 
 $controllerMap->runControl($key);

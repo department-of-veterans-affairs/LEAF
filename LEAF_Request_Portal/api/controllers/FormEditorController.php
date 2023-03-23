@@ -63,186 +63,203 @@ class FormEditorController extends RESTfulResponse
     public function post($act)
     {
         $formEditor = $this->formEditor;
-        $login = $this->login;
 
         //        $this->verifyAdminReferrer();
+        // The above line was commented out when I
+        // refactored RESTfulResponse so I'm leaving
+        // it out here as well. But should it need to
+        // be added back in remove the line above,
+        // uncomment the line below and replace
+        // false with '!$verified' in the if statement
+        // and uncomment the echo in the true portion
+        // of the if statement.
+        // $verified = $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
-        $this->index['POST']->register('formEditor', function ($args) {
-        });
+        if (false) {
+            // echo $verified;
+        } else {
+            $this->index['POST'] = new ControllerMap();
+            $this->index['POST']->register('formEditor', function ($args) {
+            });
 
-        $this->index['POST']->register('formEditor/newIndicator', function ($args) use ($formEditor) {
-            $package = array();
-            $package['name'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['name']);
-            $package['format'] = strip_tags($_POST['format']);
-            $package['description'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['description']);
-            $package['default'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['default']);
-            $package['parentID'] = $_POST['parentID'] ? (int)$_POST['parentID'] : null;
-            $package['categoryID'] = \Leaf\XSSHelpers::xscrub($_POST['categoryID']);
-            $package['html'] = $_POST['html'];
-            $package['htmlPrint'] = $_POST['htmlPrint'];
-            $package['conditions'] = $_POST['conditions'];
-            $package['required'] = (int)$_POST['required'];
-            $package['is_sensitive'] = $_POST['is_sensitive'];
-            $package['sort'] = (int)$_POST['sort'];
+            $this->index['POST']->register('formEditor/newIndicator', function ($args) use ($formEditor) {
+                $package = array();
+                $package['name'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['name']);
+                $package['format'] = strip_tags($_POST['format']);
+                $package['description'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['description']);
+                $package['default'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['default']);
+                $package['parentID'] = $_POST['parentID'] ? (int)$_POST['parentID'] : null;
+                $package['categoryID'] = \Leaf\XSSHelpers::xscrub($_POST['categoryID']);
+                $package['html'] = $_POST['html'];
+                $package['htmlPrint'] = $_POST['htmlPrint'];
+                $package['conditions'] = $_POST['conditions'];
+                $package['required'] = (int)$_POST['required'];
+                $package['is_sensitive'] = $_POST['is_sensitive'];
+                $package['sort'] = (int)$_POST['sort'];
 
-            return $formEditor->addIndicator($package);
-        });
+                return $formEditor->addIndicator($package);
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/name', function ($args) use ($formEditor) {
-            return $formEditor->setName((int)$args[0], $_POST['name']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/name', function ($args) use ($formEditor) {
+                return $formEditor->setName((int)$args[0], $_POST['name']);
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/format', function ($args) use ($formEditor) {
-            return $formEditor->setFormat((int)$args[0], strip_tags($_POST['format']));
-        });
+            $this->index['POST']->register('formEditor/[digit]/format', function ($args) use ($formEditor) {
+                return $formEditor->setFormat((int)$args[0], strip_tags($_POST['format']));
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/description', function ($args) use ($formEditor) {
-            return $formEditor->setDescription($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['description']));
-        });
+            $this->index['POST']->register('formEditor/[digit]/description', function ($args) use ($formEditor) {
+                return $formEditor->setDescription($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['description']));
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/default', function ($args) use ($formEditor) {
-            return $formEditor->setDefault($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['default']));
-        });
+            $this->index['POST']->register('formEditor/[digit]/default', function ($args) use ($formEditor) {
+                return $formEditor->setDefault($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['default']));
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/parentID', function ($args) use ($formEditor) {
-            return $formEditor->setParentID((int)$args[0], (int)$_POST['parentID']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/parentID', function ($args) use ($formEditor) {
+                return $formEditor->setParentID((int)$args[0], (int)$_POST['parentID']);
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/categoryID', function ($args) use ($formEditor) {
-            return $formEditor->setCategoryID((int)$args[0], \Leaf\XSSHelpers::xscrub($_POST['categoryID']));
-        });
+            $this->index['POST']->register('formEditor/[digit]/categoryID', function ($args) use ($formEditor) {
+                return $formEditor->setCategoryID((int)$args[0], \Leaf\XSSHelpers::xscrub($_POST['categoryID']));
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/required', function ($args) use ($formEditor) {
-            return $formEditor->setRequired((int)$args[0], (int)$_POST['required']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/required', function ($args) use ($formEditor) {
+                return $formEditor->setRequired((int)$args[0], (int)$_POST['required']);
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/sensitive', function($args) use ($formEditor) {
-            return $formEditor->setSensitive((int)$args[0], (int)$_POST['is_sensitive']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/sensitive', function($args) use ($formEditor) {
+                return $formEditor->setSensitive((int)$args[0], (int)$_POST['is_sensitive']);
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/disabled', function ($args) use ($formEditor) {
-            return $formEditor->setDisabled((int)$args[0], (int)$_POST['disabled']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/disabled', function ($args) use ($formEditor) {
+                return $formEditor->setDisabled((int)$args[0], (int)$_POST['disabled']);
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/deleted', function ($args) use ($formEditor) {
-            return $formEditor->setDisabled((int)$args[0], (int)$_POST['deleted']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/deleted', function ($args) use ($formEditor) {
+                return $formEditor->setDisabled((int)$args[0], (int)$_POST['deleted']);
+            });
 
-        $this->index['POST']->register('formEditor/formType', function ($args) use ($formEditor) {
-            return $formEditor->setFormType(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), \Leaf\XSSHelpers::xscrub($_POST['type']));
-        });
+            $this->index['POST']->register('formEditor/formType', function ($args) use ($formEditor) {
+                return $formEditor->setFormType(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), \Leaf\XSSHelpers::xscrub($_POST['type']));
+            });
 
-        $this->index['POST']->register('formEditor/[digit]/sort', function ($args) use ($formEditor) {
-            return $formEditor->setSort((int)$args[0], (int)$_POST['sort']);
-        });
+            $this->index['POST']->register('formEditor/[digit]/sort', function ($args) use ($formEditor) {
+                return $formEditor->setSort((int)$args[0], (int)$_POST['sort']);
+            });
 
-        // Advanced Option allows HTML/JS
-        $this->index['POST']->register('formEditor/[digit]/html', function ($args) use ($formEditor) {
-            return $formEditor->setHtml((int)$args[0], $_POST['html']);
-        });
+            // Advanced Option allows HTML/JS
+            $this->index['POST']->register('formEditor/[digit]/html', function ($args) use ($formEditor) {
+                return $formEditor->setHtml((int)$args[0], $_POST['html']);
+            });
 
-        // Advanced Option allows HTML/JS
-        $this->index['POST']->register('formEditor/[digit]/htmlPrint', function ($args) use ($formEditor) {
-            return $formEditor->setHtmlPrint((int)$args[0], $_POST['htmlPrint']);
-        });
+            // Advanced Option allows HTML/JS
+            $this->index['POST']->register('formEditor/[digit]/htmlPrint', function ($args) use ($formEditor) {
+                return $formEditor->setHtmlPrint((int)$args[0], $_POST['htmlPrint']);
+            });
 
-        // Set Conditional Formatting for Indicator
-        $this->index['POST']->register('formEditor/[digit]/conditions', function ($args) use ($formEditor) {
-            return $formEditor->setCondition((int)$args[0], $_POST['conditions']);
-        });
+            // Set Conditional Formatting for Indicator
+            $this->index['POST']->register('formEditor/[digit]/conditions', function ($args) use ($formEditor) {
+                return $formEditor->setCondition((int)$args[0], $_POST['conditions']);
+            });
 
-        $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor) {
-            return $formEditor->createForm(
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['name']),
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['description']),
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['parentID'])
-            );
-        });
+            $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor) {
+                return $formEditor->createForm(
+                    \Leaf\XSSHelpers::sanitizeHTML($_POST['name']),
+                    \Leaf\XSSHelpers::sanitizeHTML($_POST['description']),
+                    \Leaf\XSSHelpers::sanitizeHTML($_POST['parentID'])
+                );
+            });
 
-        $this->index['POST']->register('formEditor/formName', function ($args) use ($formEditor) {
-            return $formEditor->setFormName(
-                strip_tags($_POST['categoryID']),
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['name'])
-            );
-        });
+            $this->index['POST']->register('formEditor/formName', function ($args) use ($formEditor) {
+                return $formEditor->setFormName(
+                    strip_tags($_POST['categoryID']),
+                    \Leaf\XSSHelpers::sanitizeHTML($_POST['name'])
+                );
+            });
 
-        $this->index['POST']->register('formEditor/formDescription', function ($args) use ($formEditor) {
-            return $formEditor->setFormDescription(
-                $_POST['categoryID'],
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['description'])
-            );
-        });
+            $this->index['POST']->register('formEditor/formDescription', function ($args) use ($formEditor) {
+                return $formEditor->setFormDescription(
+                    $_POST['categoryID'],
+                    \Leaf\XSSHelpers::sanitizeHTML($_POST['description'])
+                );
+            });
 
-        $this->index['POST']->register('formEditor/formWorkflow', function ($args) use ($formEditor) {
-            return $formEditor->setFormWorkflow(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['workflowID']);
-        });
+            $this->index['POST']->register('formEditor/formWorkflow', function ($args) use ($formEditor) {
+                return $formEditor->setFormWorkflow(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['workflowID']);
+            });
 
-        $this->index['POST']->register('formEditor/formNeedToKnow', function ($args) use ($formEditor) {
-            return $formEditor->setFormNeedToKnow(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['needToKnow']);
-        });
+            $this->index['POST']->register('formEditor/formNeedToKnow', function ($args) use ($formEditor) {
+                return $formEditor->setFormNeedToKnow(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['needToKnow']);
+            });
 
-        $this->index['POST']->register('formEditor/formSort', function ($args) use ($formEditor) {
-            return $formEditor->setFormSort(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['sort']);
-        });
+            $this->index['POST']->register('formEditor/formSort', function ($args) use ($formEditor) {
+                return $formEditor->setFormSort(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['sort']);
+            });
 
-        $this->index['POST']->register('formEditor/formVisible', function ($args) use ($formEditor) {
-            return $formEditor->setFormVisible(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['visible']);
-        });
+            $this->index['POST']->register('formEditor/formVisible', function ($args) use ($formEditor) {
+                return $formEditor->setFormVisible(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['visible']);
+            });
 
-        $this->index['POST']->register('formEditor/[text]/privileges', function ($args) use ($formEditor) {
-            return $formEditor->setCategoryPrivileges(\Leaf\XSSHelpers::xscrub($args[0]), (int)$_POST['groupID'], (int)$_POST['read'], (int)$_POST['write']);
-        });
+            $this->index['POST']->register('formEditor/[text]/privileges', function ($args) use ($formEditor) {
+                return $formEditor->setCategoryPrivileges(\Leaf\XSSHelpers::xscrub($args[0]), (int)$_POST['groupID'], (int)$_POST['read'], (int)$_POST['write']);
+            });
 
-        $this->index['POST']->register('formEditor/[text]/stapled', function ($args) use ($formEditor) {
-            return $formEditor->addStapledCategory(\Leaf\XSSHelpers::xscrub($args[0]), \Leaf\XSSHelpers::xscrub($_POST['stapledCategoryID']));
-        });
+            $this->index['POST']->register('formEditor/[text]/stapled', function ($args) use ($formEditor) {
+                return $formEditor->addStapledCategory(\Leaf\XSSHelpers::xscrub($args[0]), \Leaf\XSSHelpers::xscrub($_POST['stapledCategoryID']));
+            });
 
-        $this->index['POST']->register('formEditor/indicator/[digit]/privileges/remove', function ($args) use ($formEditor) {
-            return $formEditor->removeIndicatorPrivilege((int)$args[0], (int)$_POST['groupID']);
-        });
+            $this->index['POST']->register('formEditor/indicator/[digit]/privileges/remove', function ($args) use ($formEditor) {
+                return $formEditor->removeIndicatorPrivilege((int)$args[0], (int)$_POST['groupID']);
+            });
 
-        $this->index['POST']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
-            if (!is_array($_POST['groupIDs']))
-            {
-                return false;
-            }
-
-            $groups = array();
-            foreach ($_POST['groupIDs'] as $group)
-            {
-                if (is_numeric($group))
+            $this->index['POST']->register('formEditor/indicator/[digit]/privileges', function ($args) use ($formEditor) {
+                if (!is_array($_POST['groupIDs']))
                 {
-                    $groups[] = (int)$group;
+                    return false;
                 }
-            }
 
-            if (count($groups) < 1)
-            {
-                return false;
-            }
+                $groups = array();
+                foreach ($_POST['groupIDs'] as $group)
+                {
+                    if (is_numeric($group))
+                    {
+                        $groups[] = (int)$group;
+                    }
+                }
 
-            return $formEditor->setIndicatorPrivileges((int)$args[0], $groups);
-        });
+                if (count($groups) < 1)
+                {
+                    return false;
+                }
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+                return $formEditor->setIndicatorPrivileges((int)$args[0], $groups);
+            });
+
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
+
+
     }
 
     public function delete($act)
     {
         $formEditor = $this->formEditor;
-        $login = $this->login;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['DELETE'] = new ControllerMap();
-        $this->index['DELETE']->register('formEditor', function ($args) {
-        });
+        if (!$verified) {
+            echo $verified;
+        } else {
+            $this->index['DELETE'] = new ControllerMap();
+            $this->index['DELETE']->register('formEditor', function ($args) {
+            });
 
-        $this->index['DELETE']->register('formEditor/[text]/stapled/[text]', function ($args) use ($formEditor) {
-            return $formEditor->removeStapledCategory(\Leaf\XSSHelpers::xscrub($args[0]), \Leaf\XSSHelpers::xscrub($args[1]));
-        });
+            $this->index['DELETE']->register('formEditor/[text]/stapled/[text]', function ($args) use ($formEditor) {
+                return $formEditor->removeStapledCategory(\Leaf\XSSHelpers::xscrub($args[0]), \Leaf\XSSHelpers::xscrub($args[1]));
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
     }
 }
