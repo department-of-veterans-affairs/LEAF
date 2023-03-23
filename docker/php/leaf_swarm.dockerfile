@@ -29,7 +29,8 @@ RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
 # USER www-data
-
+COPY docker/scripts/startup.sh /startup.sh
+RUN chmod +x /startup.sh
 COPY docker/scripts/leaf_run_after_start.sh /leaf_run_after_start.sh
 RUN chmod +x /leaf_run_after_start.sh
 COPY docker/scripts/leaf_run_after_start_sysD.service /etc/systemd/system/leaf_run_after_start_sysD.service
