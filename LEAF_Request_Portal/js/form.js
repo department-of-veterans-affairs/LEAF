@@ -723,8 +723,11 @@ var LeafForm = function (containerID) {
     let crosswalks = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
+      const currQuestionFormat = formConditionsByChild[entry].format.toLowerCase();
+
       formConditions.forEach((c) => {
-        if (c.selectedOutcome.toLowerCase() === "crosswalk") {
+        if (c.selectedOutcome.toLowerCase() === "crosswalk"
+          && ["dropdown", "multiselect"].includes(currQuestionFormat)) {
           crosswalks.push(parseInt(c.childIndID));
 
         } else {
