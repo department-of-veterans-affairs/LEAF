@@ -103,11 +103,6 @@ if (!defined('LIB_PATH')) define('LIB_PATH', getenv('APP_LIB_PATH'));
 Create the following files `sources/DbConfig.php` and `sources/Config.php` and place the following code into them
 
 ```php
-<?php
-/*
- * As a work of the United States government, this project is in the public domain within the United States.
- */
-
 // This is the DbConfig.php in the sources folder
 <?php
 

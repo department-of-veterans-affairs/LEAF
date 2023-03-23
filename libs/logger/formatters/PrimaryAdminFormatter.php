@@ -6,12 +6,14 @@ class PrimaryAdminFormatter
 {
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::PRIMARY_ADMIN => [
-            "message" => "User %s has been set as primary admin",
+            "message" => "set <strong>user</strong> %s as primary admin",
             "variables" => "userID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::PRIMARY_ADMIN => [
-            "message" => "User %s has been unset as primary admin",
+            "message" => "unset <strong>user</strong> %s as primary admin",
             "variables" => "userID"
         ]
     ];
+
+    const TABLE = "users";
 }

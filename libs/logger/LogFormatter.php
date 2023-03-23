@@ -41,7 +41,11 @@ class LogFormatter
             $result = self::findValue($logData["items"], $formatVariable, $loggableColumns, $message);
             $message = $result["message"];
             foreach($result["values"] as $value) {
-                array_push($variableArray, $value);
+                if($formatVariable == FormatOptions::READ_COLUMN_NAMES) {
+                    array_unshift($variableArray, $value);
+                } else {
+                    array_push($variableArray, $value);
+                }
             }
         }
 
@@ -55,28 +59,40 @@ class LogFormatter
             $output_message = FALSE;
         }
 
-        return $output_message;
+        $output = array(
+            "message" => $output_message
+        );
+
+        if (array_key_exists("targetUID", $result)) {
+            $output["targetUID"] = $result["targetUID"];
+            $output["displayName"] = $result["displayName"];
+        }
+
+        return $output;
     }
 
     private static function findValue($changeDetails, $columnName, $loggableColumns, $message){
-
         $result = ["message"=> $message, "values"=> array()];
 
         foreach($changeDetails as $key=> $detail){
             if($columnName == FormatOptions::READ_COLUMN_NAMES){
                 if(in_array($detail["column"], $loggableColumns)){
-                    $result["message"].=" %s changed to %s ";
-                    array_push($result["values"], $detail["column"]);
+                    $result["message"] = "<strong>changed</strong> %s to %s in ".$result["message"];
                     $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
                     array_push($result["values"], $value);
+                    array_push($result["values"], $detail["column"]);
                 }
             }
             if($detail["column"] == $columnName) {
                 $value = isset($detail["displayValue"]) ? $detail["displayValue"] : $detail["value"];
                 array_push($result["values"], $value);
+
+                if ($columnName == "userID") {
+                    $result["targetUID"] = $detail["value"];
+                    $result["displayName"] = $detail["displayValue"];
+                }
             }
         }
-
         return $result;
     }
 }
