@@ -114,7 +114,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $email->setSiteRoot($siteRoot);
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
-
+var_dump($record);exit();
         // add in variables for the smarty template
         $email->addSmartyVariables(array(
             "daysSince" => $record['daysSince'],
