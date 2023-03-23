@@ -6,7 +6,7 @@
   
    
 	<test name="Home Page">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.homePageTest"/>
@@ -17,7 +17,7 @@
  <!-- 
     		
 	<test name="User Access Groups">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/admin/?a=mod_groups">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.adminUserAccessTest"/>
@@ -28,7 +28,7 @@
  
 	
 	<test name="Admin Page">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/admin/">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.adminPageTest"/>
@@ -41,7 +41,7 @@
 
      
 	<test name="New Request Workflow">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/?a=newform">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=newform">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.newRequestWorkflow"/>
@@ -52,7 +52,7 @@
  -->
 
 	<test name="Org Chart Workflow">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/orgchart/">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/orgchart/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.orgChartWorkflow"/>
@@ -63,7 +63,7 @@
  
  <!--  
  	<test name="Report Builder Workflow">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/?a=reports&v=3">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/?a=reports&v=3">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.reportBuilderWorkflow"/>
@@ -74,7 +74,7 @@
   -->
 
  	<test name="Forms Workflow">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflow"/>
@@ -85,7 +85,7 @@
 
 
 	<test name="Forms Workflow Part 2">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflowPart2"/>
@@ -96,7 +96,7 @@
 
 
 	<test name="Forms Workflow Part 3">
-		<parameter name="env" value="https://autoloader.leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
+		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
 				<class name="Execution.formsWorkflowPart3"/>
