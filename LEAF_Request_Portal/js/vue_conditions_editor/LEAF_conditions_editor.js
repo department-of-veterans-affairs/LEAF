@@ -586,7 +586,7 @@ const ConditionsEditor = Vue.createApp({
           this.indicators.find(
             (indicator) => parseInt(indicator.indicatorID) === id
           )?.name || "";
-        return this.applyMaxTextLength(indicatorName);
+        return this.applyMaxTextLength(XSSHelpers.stripAllTags(indicatorName));
       }
     },
     textValueDisplay(str = "") {
@@ -1022,6 +1022,7 @@ const ConditionsEditor = Vue.createApp({
                         </select>
                     </div>
                   </template>
+                  <!-- LOADED DROPDOWNS AND CROSSWALKS -->
                   <div v-else style="display: flex; align-items: center; column-gap: 1rem; width: 100%;">
                     <div style="width: 30%; display:flex; align-items: center;">
                       <label for="select-crosswalk-file">File</label>
@@ -1030,19 +1031,22 @@ const ConditionsEditor = Vue.createApp({
                         <option v-for="f in fileManagerFiles" :key="f" :value="f">{{f}}</option>
                       </select>
                     </div>
-                    <div style="width: 30%; display:flex; align-items: center;">
+                    <div style="display:flex; align-items: center;">
                       <label for="select-crosswalk-header">1st&nbsp;row&nbsp;header</label>
-                      <select v-model="crosswalkHasHeader" style="margin: 0 0 0 0.25rem;" id="select-crosswalk-header">
+                      <select v-model="crosswalkHasHeader" style="margin: 0 0 0 0.25rem; width:45px;" id="select-crosswalk-header">
                         <option :value="false">No</option>
                         <option :value="true">Yes</option>
                       </select>
                     </div>
-                    <div style="width: 30%; display:flex; align-items: center;">
+                    <div style="width: 40%; display:flex; align-items: center;">
                       <label for="select-level-two">Level&nbsp;2</label>
                       <select v-model.number="level2IndID" style="margin: 0 0 0 0.25rem;" id="select-level-two">
-                        <option :value="null">none</option>
+                        <option :value="null">none (single dropdown)</option>
                         <option v-for="indicator in crosswalkLevelTwo"
-                          :key="'level2_' + indicator.indicatorID">{{ indicator.indicatorID }}</option>
+                          :key="'level2_' + indicator.indicatorID"
+                          :value="parseInt(indicator.indicatorID)">
+                          {{indicator.indicatorID}}: {{getIndicatorName(parseInt(indicator.indicatorID))}}
+                        </option>
                       </select>
                     </div>
                   </div>

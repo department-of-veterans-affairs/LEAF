@@ -133,16 +133,13 @@ var LeafForm = function (containerID) {
 
     function getSelectOptions(fileContent = "", iID, isLevel2 = false, indLevel1Val = null) {
       let uniqueList = [];
-      if (isLevel2 && indLevel1Val !== null && indLevel1Val !== "") {
+      if (isLevel2 && indLevel1Val !== null) {
         let level2_Options = [];
         let list = fileContent.split(/\n/);
         list = list.forEach(ele => {
           ele = ele.split(",");
-          if (ele.length === 2) {
+          if (ele.length === 2 && indLevel1Val !== "") {
             let optLv1 = ele[0].trim();
-            let elFilter = document.createElement('div');
-            elFilter.innerHTML = optLv1;
-            optLv1 = elFilter.innerText;
             if (optLv1 === indLevel1Val || (Array.isArray(indLevel1Val) && indLevel1Val.includes(optLv1)) ) {
               level2_Options.push(ele[1]);
             }
@@ -152,31 +149,26 @@ var LeafForm = function (containerID) {
       } else {
         const list = fileContent.split(/\n/).map(line => line.split(",")[0]);
         uniqueList = Array.from(new Set(list));
-        if (dropdownInfo[iID].crosswalkHasHeader === true) {
-          dropdownInfo[iID].headerName = list[0];
-        }
       }
 
-      let options = uniqueList.map(o => {
-        o = o.trim();
-        let elFilter = document.createElement('div');
-        elFilter.innerHTML = o;
-        o = elFilter.innerText;
-        return o;
-      });
+      let options = uniqueList.map(o => XSSHelpers.stripAllTags(o.trim()));
+
+      if (!isLevel2 && options.length> 0 && dropdownInfo[iID].crosswalkHasHeader === true) {
+        dropdownInfo[iID].headerName = options[0];
+      }
       return options.filter(o => o !== dropdownInfo[iID].headerName && o !== "").sort().reverse();
     }
 
     function setSelectOptions(arrOptions = [], iID, formdata) {
       let selectbox = document.getElementById(iID);
-      const formDataValue = formdata[iID]["1"].value || [];
 
       if (selectbox && selectbox.multiple === true) { //multiselect with choicesjs
+        const formDataValue = formdata[iID]["1"].value || [];
         selectbox.choicesjs.destroy();   //choices obj is added in subindicators.tpl
         const options = arrOptions.map(o =>({
           value: o,
           label: o,
-          selected: Array.isArray(formDataValue) && formDataValue.some(v => v === o)
+          selected: Array.isArray(formDataValue) && formDataValue.some(v => v === sanitize(o))
         }));
         const choices = new Choices(selectbox, {
           allowHTML: false,
@@ -191,17 +183,19 @@ var LeafForm = function (containerID) {
             let opt = document.createElement('option');
             opt.id = `${iID}_empty_value`;
             opt.value = "";
-            selectbox.appendChild(opt);
             elEmptyOption = opt;
         }
+        selectbox.appendChild(elEmptyOption);
         elEmptyOption.selected = selectbox.value === '';
 
       } else { //single dropdown with Chosen
-        $('#'+iID).append(`<option value=""></option>`);
-        arrOptions.forEach(opt => {
-          $('#'+iID).prepend(`<option value="${opt}">${opt}</option>`);
-          if (opt === formDataValue) {
-            $('#'+iID).val(formDataValue);
+        const formDataValue = formdata[iID]["1"].value || "";
+        selectbox.append(`<option value=""></option>`);
+        arrOptions.push("");
+        arrOptions.forEach(o => {
+          $('#'+iID).prepend(`<option value="${o}">${o}</option>`);
+          if (sanitize(o) === formDataValue) {
+            $('#'+iID).val(o);
           }
         });
         $('#'+iID).trigger("chosen:updated");
