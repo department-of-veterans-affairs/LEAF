@@ -48,7 +48,7 @@ class VAMC_Directory
     public function __construct()
     {
         $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = $config->oc_db;
         $login = new \Orgchart\Login($oc_db, $oc_db);
 //        $login->loginUser();
         $this->Employee = new \Orgchart\Employee($oc_db, $login);

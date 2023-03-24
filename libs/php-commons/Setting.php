@@ -26,17 +26,17 @@ class setting
     private function parseSettings(array $settings): void
     {
         foreach ($settings as $key => $value) {
-            error_log(print_r($value, true));
+            //error_log(print_r($value, true));
             $this->settings[$value['setting']] = $this->parseJson($value['data']);
         }
 
-        error_log(print_r($this->settings, true));
+        //error_log(print_r($this->settings, true));
     }
 
     private function parseJson($data): string|array
     {
         $return_value = json_decode($data, true) ?? $data;
-        error_log(print_r($return_value, true));
+        //error_log(print_r($return_value, true));
         return $return_value;
     }
 }

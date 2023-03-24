@@ -42,7 +42,7 @@ class CustomEvent_LeafSecure_DeveloperConsole
 
         // get the initiator's empUID
         $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = $config->oc_db;
         $login = new \Orgchart\Login($oc_db, $oc_db);
         $employee = new \Orgchart\Employee($oc_db, $login);
 

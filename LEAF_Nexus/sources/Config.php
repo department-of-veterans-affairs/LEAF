@@ -18,12 +18,32 @@ class Config
 
     public static $ERM_Sites; // HTTP Path to orgchart with no trailing slash
 
-    public function __construct(array $settings, array $site_paths)
+    public $oc_db;
+
+    public $dbName;
+
+    public function __construct()
     {
-        $this->title = $settings['heading'];
-        $this->city = $settings['subHeading'];
-        $this->adPath = $settings['adPath'];
-        $this->uploadDir = $site_paths['site_uploads'];
-        $this->ERM_Sites = $settings['ERM_Sites'];
+        $lp_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, 'national_leaf_launchpad');
+
+        $vars = array(':site_path' => '/' . \PORTAL_PATH);
+        $sql = 'SELECT site_uploads, orgchart_database
+                FROM sites
+                WHERE site_path= BINARY :site_path';
+
+        $site_paths = $lp_db->prepared_query($sql, $vars)[0];
+
+        $this->oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, $site_paths['orgchart_database']);
+
+        $this->dbName = $site_paths['orgchart_database'];
+
+        $oc_settings = new \Leaf\Setting($this->oc_db);
+        $oc_settings = $oc_settings->getSettings();
+
+        $this->title = $oc_settings['heading'];
+        $this->city = $oc_settings['subHeading'];
+        $this->adPath = $oc_settings['adPath'];
+        self::$uploadDir = $site_paths['site_uploads'];
+        self::$ERM_Sites = $oc_settings['ERM_Sites'];
     }
 }
