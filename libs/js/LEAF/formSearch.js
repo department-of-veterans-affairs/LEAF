@@ -1128,8 +1128,10 @@ var LeafFormSearch = function (containerID) {
    */
   function newSearchWidget(gate) {
     // @TODO IE Fix (No overloading)
-    if (gate === undefined) {
-      gate = "AND";
+    // Validate gate parameter
+    const validGates = ["AND", "OR"];
+    if (!validGates.includes(gate)) {
+      gate = "AND"; // Set default value if gate is invalid
     }
     let widget =
       '<tr id="' +
