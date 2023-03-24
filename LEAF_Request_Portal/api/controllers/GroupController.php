@@ -57,7 +57,7 @@ class GroupController extends RESTfulResponse
     {
         $verified = $this->verifyAdminReferrer();
 
-        if (!$verified) {
+        if ($verified) {
             echo $verified;
         } else {
             $group = $this->group;
@@ -93,7 +93,7 @@ class GroupController extends RESTfulResponse
     {
         $verified = $this->verifyAdminReferrer();
 
-        if (!$verified) {
+        if ($verified) {
             echo $verified;
         } else {
             $group = $this->group;

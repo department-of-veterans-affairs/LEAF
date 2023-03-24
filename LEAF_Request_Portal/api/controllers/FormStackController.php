@@ -47,7 +47,7 @@ class FormStackController extends RESTfulResponse
 
         $verified = $this->verifyAdminReferrer();
 
-        if (!$verified) {
+        if ($verified) {
             echo $verified;
         } else {
             $this->index['POST'] = new ControllerMap();
@@ -68,7 +68,7 @@ class FormStackController extends RESTfulResponse
 
         $verified = $this->verifyAdminReferrer();
 
-        if (!$verified) {
+        if ($verified) {
             echo $verified;
         } else {
             $this->index['DELETE'] = new ControllerMap();
