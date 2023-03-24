@@ -208,6 +208,7 @@ foreach($jsonOut as $key => $item) {
 }
 
 $result = json_encode($jsonOut);
+$result = htmlspecialchars($result, ENT_QUOTES, 'UTF-8');
 
 // cache the result
 $vars = array(':cacheID' => 'jsonExport_PDL.php',
