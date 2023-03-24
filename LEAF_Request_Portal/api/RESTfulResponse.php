@@ -332,7 +332,7 @@ abstract class RESTfulResponse
      */
     public function verifyAdminReferrer(): false|string
     {
-        $return_value = 'false';
+        $return_value = false;
 
         if (!isset($_SERVER['HTTP_REFERER'])) {
             $return_value = 'Error: Invalid request. Missing Referer.';
@@ -358,8 +358,15 @@ abstract class RESTfulResponse
 
     /**
      * Helper function to build an XML file
+     *
+     * @param array|string|null $out
+     * @param \SimpleXMLElement $xml
+     *
+     * @return void
+     *
+     * Created at: 3/24/2023, 7:48:36 AM (America/New_York)
      */
-    private function buildXML($out, $xml)
+    private function buildXML(array|string|null $out, \SimpleXMLElement $xml): void
     {
         if (is_array($out)) {
             $keys = array_keys($out);
@@ -382,11 +389,16 @@ abstract class RESTfulResponse
     /**
      * flattenStructureGridInput performs an in-place restructure of gridInput data
      * within $out to fit 2D data structures
-     * @param array  $out     Target data structure
-     * @param int    $key     Current index
-     * @param string $gridKey gridInput key
+     *
+     * @param array|string|null $out
+     * @param string $key
+     * @param string $gridKey
+     *
+     * @return false|array
+     *
+     * Created at: 3/24/2023, 8:00:37 AM (America/New_York)
      */
-    private function flattenStructureGridInput(&$out, $key, $gridKey)
+    private function flattenStructureGridInput(array|string|null &$out, string $key, string $gridKey): false|array
     {
         $isGrid = strpos($gridKey, '_gridInput') !== false ? true : false;
         $table = isset($_GET['table']) ? $_GET['table'] : '';
@@ -427,10 +439,15 @@ abstract class RESTfulResponse
     /**
      * flattenStructureActionHistory performs an in-place restructure of action_history data
      * within $out to fit 2D data structures
-     * @param array $out Target data structure
-     * @param int   $key Current index
+     *
+     * @param array|string|null $out
+     * @param string $key
+     *
+     * @return false|array
+     *
+     * Created at: 3/24/2023, 8:00:52 AM (America/New_York)
      */
-    private function flattenStructureActionHistory(&$out, $key)
+    private function flattenStructureActionHistory(array|string|null &$out, string $key): false|array
     {
         if (!isset($out[$key]['action_history'])) {
             return false;
@@ -465,10 +482,15 @@ abstract class RESTfulResponse
     /**
      * flattenStructureOrgchart performs an in-place restructure of orgchart data
      * within $out to fit 2D data structures
-     * @param array $out   Target data structure
-     * @param int   $index Current index
+     *
+     * @param array|string|null $out
+     * @param string $index
+     *
+     * @return void
+     *
+     * Created at: 3/24/2023, 8:01:03 AM (America/New_York)
      */
-    private function flattenStructureOrgchart(&$out, $index)
+    private function flattenStructureOrgchart(array|string|null &$out, string $index): void
     {
         // flatten out orgchart_employee fields
         // delete orgchart_position extended content
@@ -478,6 +500,7 @@ abstract class RESTfulResponse
                     $out[$index][$id . '_email'] = $out[$index][$id]['email'];
                     $out[$index][$id . '_userName'] = $out[$index][$id]['userName'];
                 }
+
                 unset($out[$index][$id]);
             }
         }
@@ -485,12 +508,17 @@ abstract class RESTfulResponse
 
     /**
      * flattenStructureCheckGrid is a wrapper for flattenStructureGridInput
-     * @param array $out     Target data structure
-     * @param array $key     Current index
-     * @param array $hasGrid Signal for flattenStructure
-     * @param array $columns Output columns
+     *
+     * @param array|string|null $out
+     * @param string $key
+     * @param bool $hasGrid
+     * @param array $columns
+     *
+     * @return void
+     *
+     * Created at: 3/24/2023, 8:00:15 AM (America/New_York)
      */
-    private function flattenStructureCheckGrid(&$out, $key, &$hasGrid, &$columns)
+    private function flattenStructureCheckGrid(array|string|null &$out, string $key, bool &$hasGrid, array &$columns): void
     {
         foreach (array_keys($out[$key]['s1']) as $tkey) {
             $gridCols = $this->flattenStructureGridInput($out, $key, $tkey);
@@ -504,10 +532,14 @@ abstract class RESTfulResponse
 
     /**
      * flattenStructure performs an in-place restructure of $out to fit 2D data structures
-     * @param array $out Target data structure
-     * @return array Column headers
+     *
+     * @param array|string|null $out
+     *
+     * @return array
+     *
+     * Created at: 3/24/2023, 8:01:27 AM (America/New_York)
      */
-    private function flattenStructure(&$out)
+    private function flattenStructure(array|string|null &$out): array
     {
         $columns = ['recordID', 'serviceID', 'date', 'userID', 'title', 'lastStatus', 'submitted',
             'deleted', 'service', 'abbreviatedService', 'groupID'];
@@ -549,8 +581,14 @@ abstract class RESTfulResponse
     /**
      * filterDataS1HtmlPrint is a helper function to filter out htmlPrint data
      * returned by form data fields
+     *
+     * @param array $s1
+     *
+     * @return array
+     *
+     * Created at: 3/24/2023, 8:07:44 AM (America/New_York)
      */
-    private function filterDataS1HtmlPrint($s1)
+    private function filterDataS1HtmlPrint(array $s1): array
     {
         $sids = array_keys($s1);
 
@@ -567,8 +605,14 @@ abstract class RESTfulResponse
     /**
      * filterDataS1Timestamp is a helper function to filter out timestamps
      * returned by form data fields
+     *
+     * @param array $s1
+     *
+     * @return array
+     *
+     * Created at: 3/24/2023, 8:08:15 AM (America/New_York)
      */
-    private function filterDataS1Timestamp($s1)
+    private function filterDataS1Timestamp(array $s1): array
     {
         $sids = array_keys($s1);
 
@@ -582,8 +626,17 @@ abstract class RESTfulResponse
         return $s1;
     }
 
-    // filterDataActionHistory is a helper function for filterData
-    private function filterDataActionHistory($actionHistory, $filter)
+    /**
+     * filterDataActionHistory is a helper function for filterData
+     *
+     * @param array $actionHistory
+     * @param array $filter
+     *
+     * @return array
+     *
+     * Created at: 3/24/2023, 8:09:01 AM (America/New_York)
+     */
+    private function filterDataActionHistory(array $actionHistory, array $filter): array
     {
         // iterate through keys within each action_history set
         foreach ($actionHistory as $actionIdx => $actionItem) {
@@ -612,8 +665,14 @@ abstract class RESTfulResponse
      *
      * The experimental parameter x-filterData is subject to change and use of this
      * should be limited.
+     *
+     * @param array|null $data
+     *
+     * @return array
+     *
+     * Created at: 3/24/2023, 8:20:12 AM (America/New_York)
      */
-    private function filterData($data)
+    private function filterData(array|string|null $data): array|string|null
     {
         if (isset($_GET['x-filterData'])) {
             $filter = explode(',', $_GET['x-filterData'], 32);
