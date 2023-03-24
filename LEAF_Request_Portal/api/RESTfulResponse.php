@@ -352,7 +352,7 @@ abstract class RESTfulResponse
                 $return_value = 'Error: Invalid request. Mismatched Referer';
             }
         }
-        $return_value = false;
+
         return $return_value;
     }
 
