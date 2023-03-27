@@ -943,7 +943,7 @@ const ConditionsEditor = Vue.createApp({
                             <option value="Show" :selected="conditions.selectedOutcome.toLowerCase()==='show'">Hide this question except ...</option>
                             <option value="Hide" :selected="conditions.selectedOutcome.toLowerCase()==='hide'">Show this question except ...</option>
                             <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question</option>
-                            <option v-if="canAddCrosswalk" value="crosswalk" :selected="conditions.selectedOutcome.toLowerCase()==='crosswalk'">Load dropdown or Crosswalk</option>
+                            <option v-if="canAddCrosswalk" value="crosswalk" :selected="conditions.selectedOutcome.toLowerCase()==='crosswalk'">Load Dropdown or Crosswalk</option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
                     <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
@@ -1023,23 +1023,21 @@ const ConditionsEditor = Vue.createApp({
                     </div>
                   </template>
                   <!-- LOADED DROPDOWNS AND CROSSWALKS -->
-                  <div v-else style="display: flex; align-items: center; column-gap: 1rem; width: 100%;">
-                    <div style="width: 30%; display:flex; align-items: center;">
+                  <div v-else style="display: flex; align-items: center; row-gap: 1rem; width: 100%; flex-wrap: wrap;">
+                    <div style="width: 100%; display:flex; align-items: center;">
                       <label for="select-crosswalk-file">File</label>
-                      <select v-model="crosswalkFile" style="margin: 0 0 0 0.25rem;" id="select-crosswalk-file">
+                      <select v-model="crosswalkFile" style="margin: 0 1rem 0 0.25rem;" id="select-crosswalk-file">
                         <option value="">Select a file</option>
                         <option v-for="f in fileManagerFiles" :key="f" :value="f">{{f}}</option>
                       </select>
-                    </div>
-                    <div style="display:flex; align-items: center;">
-                      <label for="select-crosswalk-header">1st&nbsp;row&nbsp;header</label>
+                      <label for="select-crosswalk-header">Does&nbsp;the&nbsp;file&nbsp;contain&nbsp;headers?</label>
                       <select v-model="crosswalkHasHeader" style="margin: 0 0 0 0.25rem; width:45px;" id="select-crosswalk-header">
                         <option :value="false">No</option>
                         <option :value="true">Yes</option>
                       </select>
                     </div>
-                    <div style="width: 40%; display:flex; align-items: center;">
-                      <label for="select-level-two">Level&nbsp;2</label>
+                    <div style="width: 100%; display:flex; align-items: center;">
+                      <label for="select-level-two">Controlled&nbsp;Dropdown</label>
                       <select v-model.number="level2IndID" style="margin: 0 0 0 0.25rem;" id="select-level-two">
                         <option :value="null">none (single dropdown)</option>
                         <option v-for="indicator in crosswalkLevelTwo"
