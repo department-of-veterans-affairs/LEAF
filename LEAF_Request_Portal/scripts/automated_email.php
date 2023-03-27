@@ -54,7 +54,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialDaysAgoTimestamp)];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
         LEFT JOIN services USING(serviceID) 
@@ -84,7 +84,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     }
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
         LEFT JOIN services USING(serviceID) 
@@ -109,16 +109,36 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     // go through each and send an email
     foreach ($getRecordRes as $record) {
-        // send the email
+
+        // get the last action
+        $getLastActionVar = [':recordID' => $record['recordID']];
+        $getLastActionSql = "SELECT `time` FROM action_history WHERE recordID = :recordID ORDER BY `time` DESC LIMIT 1;";
+        $getLastActionRes = $db->prepared_query($getLastActionSql, $getLastActionVar);
+
+        if(!empty($getLastActionRes[0])){
+            // if this is not empty use the time of the action
+            $lastActionTime = $getLastActionRes[0]['time'];
+        } else {
+            // else this is where some test would show the action history may not be up to date for testing data, use the submitted time
+            $lastActionTime = $record['submitted'];
+        }
+
+        // calculate the days
+        $date1 = new DateTime(date('Y-m-d'));
+        $date2 = new DateTime(date('Y-m-d',$lastActionTime));
+        $interval = $date1->diff($date2);
+        $lastActionDays = $interval->format('%a');
+
+        // initialize the email
         $email = new Portal\Email();
         $email->setSiteRoot($siteRoot);
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
-        var_dump(date('Y-m-d H:i:s',$additionalDaysAgoTimestamp));
-var_dump($record);exit();
+
         // add in variables for the smarty template
         $email->addSmartyVariables(array(
             "daysSince" => $record['daysSince'],
+            "actualDaysAgo" => $lastActionDays,
             "truncatedTitle" => $title,
             "fullTitle" => $record['title'],
             "recordID" => $record['recordID'],
