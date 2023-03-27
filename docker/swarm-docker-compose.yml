@@ -36,6 +36,7 @@ services:
         target: /etc/ssl/certs/test_leaf.pem
       - source: db_password
       - source: db_host
+      - source: db_admin
       - source: krb_user
       - source: krb_pass
       - source: cdw_user
@@ -80,6 +81,8 @@ secrets:
   db_password:
     external: true
   db_host:
+    external: true
+  db_admin:
     external: true
   krb_user:
     external: true
