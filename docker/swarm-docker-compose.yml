@@ -14,8 +14,8 @@ services:
     command: 'source /ss.sh'
     networks:
       - leaf
-    environment:
-      - DATABASE_PASSWORD=/run/secrets/db_password
+    # environment:
+    #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
       replicas: 1
@@ -35,6 +35,7 @@ services:
       - source: leaf_pem
         target: /etc/ssl/certs/test_leaf.pem
       - source: db_password
+      - source: db_host
       - source: krb_user
       - source: krb_pass
       - source: cdw_user
@@ -77,6 +78,8 @@ secrets:
   leaf_pem:
     external: true
   db_password:
+    external: true
+  db_host:
     external: true
   krb_user:
     external: true
