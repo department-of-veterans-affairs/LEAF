@@ -546,6 +546,7 @@ div#form_content_view {
 
     /* Drag-Drop area for focused form */
     ul#base_drop_area {
+        background-color: white;
         margin-top: 0.5rem;
         padding: 0 0 6px 0;
         border: 3px solid $BG_Pearl;
@@ -681,7 +682,7 @@ div#form_content_view {
                 outline: none;
             }
             &.layout-listitem {
-                line-height: 2;
+                min-height: 50px;
                 border-radius: 0;
                 padding: 0.5rem;
             }
@@ -691,9 +692,10 @@ div#form_content_view {
             }
         }
     }
-    div[id^="layoutFormRecords_"] li {
+    div[id^="layoutFormRecords_"] > ul > li {
         margin-bottom: 0.5rem;
         background-color: $lt_cyan;
+        min-height: 50px;
     }
     div[id^="internalFormRecords_"] button span.internal {
         text-decoration: underline;

@@ -413,29 +413,54 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
+                                <!-- focused drop zone for collection -->
+                                <ul v-if="form.categoryID === this.focusedFormRecord.categoryID && focusedFormTree.length > 0"
+                                    id="base_drop_area" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
+                                    class="form-index-listing-ul"
+                                    data-effect-allowed="move"
+                                    @drop.stop="onDrop"
+                                    @dragover.prevent
+                                    @dragenter.prevent="onDragEnter"
+                                    @dragleave="onDragLeave">
+
+                                    <form-index-listing v-for="(formSection, i) in focusedFormTree"
+                                        :id="'index_listing_'+formSection.indicatorID"
+                                        :depth=0
+                                        :formNode="formSection"
+                                        :index=i
+                                        :parentID=null
+                                        :key="'index_list_item_' + formSection.indicatorID"
+                                        draggable="true"
+                                        @dragstart.stop="startDrag">
+                                    </form-index-listing>
+                                </ul>
                             </li>
                         </ul>
                     </div>
-                    <!-- focused drop zone -->
-                    <ul v-if="focusedFormTree.length > 0" id="base_drop_area" :key="'drop_zone_' + updateKey"
-                        class="form-index-listing-ul"
-                        data-effect-allowed="move"
-                        @drop.stop="onDrop"
-                        @dragover.prevent
-                        @dragenter.prevent="onDragEnter"
-                        @dragleave="onDragLeave">
+                    <!-- focused drop zone for single form -->
+                    <template v-else>
+                        <ul v-if="focusedFormTree.length > 0"
+                            id="base_drop_area" :key="'drop_zone_primary' + updateKey"
+                            class="form-index-listing-ul"
+                            data-effect-allowed="move"
+                            @drop.stop="onDrop"
+                            @dragover.prevent
+                            @dragenter.prevent="onDragEnter"
+                            @dragleave="onDragLeave">
 
-                        <form-index-listing v-for="(formSection, i) in focusedFormTree"
-                            :id="'index_listing_'+formSection.indicatorID"
-                            :depth=0
-                            :formNode="formSection"
-                            :index=i
-                            :parentID=null
-                            :key="'index_list_item_' + formSection.indicatorID"
-                            draggable="true"
-                            @dragstart.stop="startDrag">
-                        </form-index-listing>
-                    </ul>
+                            <form-index-listing v-for="(formSection, i) in focusedFormTree"
+                                :id="'index_listing_'+formSection.indicatorID"
+                                :depth=0
+                                :formNode="formSection"
+                                :index=i
+                                :parentID=null
+                                :key="'index_list_item_' + formSection.indicatorID"
+                                draggable="true"
+                                @dragstart.stop="startDrag">
+                            </form-index-listing>
+                        </ul>
+                    </template>
+
                     <div style="margin: 0.5rem 0 0 0">
                         <button type="button" class="btn-general" style="width: 100%" 
                             @click="newQuestion(null)"
