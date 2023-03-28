@@ -504,6 +504,26 @@ class Group
     }
 
     /**
+     * Returns Employee user ID.
+     * @param string $employeeID - The id to create the display name of.
+     *
+     * @return int
+     */
+    public function getEmployeeUserID($employeeID): int
+    {
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+        if (is_array($dirRes) && isset($dirRes[0])) {
+            $empData = $dirRes[0];
+            $empUserID = $empData["empUID"];
+        } else {
+            $empUserID = -1;
+        }
+
+        return $empUserID;
+    }
+
+    /**
      * Returns Portal Group logs.
      *
      * @param int|null $filterById

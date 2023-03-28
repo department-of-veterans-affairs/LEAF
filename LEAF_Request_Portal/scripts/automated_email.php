@@ -70,18 +70,11 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     }
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
-    if(!empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
-
-        $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
-
-        $additionalDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
-
-        echo "Working on step: {$workflowStep['stepID']}, Additional Notification: ".date('Y-m-d H:i:s',$additionalDaysAgoTimestamp)."\r\n";
-
-        // get the other entries
-        $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$additionalDaysAgoTimestamp)];
-
+    if(empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
+        $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'] = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
     }
+
+    $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
 
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, service 

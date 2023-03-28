@@ -197,7 +197,9 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         return FALSE;
     }
     foreach ($orgEmployeeRes as $orgEmployee) {
-        
+
+        $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
+
         $localEmployeeArray[] = [
             'empUID' => (empty($localEmpArray[$orgEmployee['userName']]) ? null : $localEmpArray[$orgEmployee['userName']]),
             'userName' => $orgEmployee['userName'],

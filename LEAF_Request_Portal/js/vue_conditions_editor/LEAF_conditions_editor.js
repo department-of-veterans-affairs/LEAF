@@ -25,7 +25,8 @@ const ConditionsEditor = Vue.createApp({
       crosswalkFile: '',
       crosswalkHasHeader: false,
       crosswalkLevelTwo: [],
-      level2IndID: null
+      level2IndID: null,
+      noPrefillFormats: ['', 'fileupload', 'image']
     };
   },
   beforeMount() {
@@ -250,6 +251,7 @@ const ConditionsEditor = Vue.createApp({
       } else {
         value = target.value;
       }
+      value = XSSHelpers.stripAllTags(value);
       this.selectedChildValue = value;
     },
     updateSelectedChildIndicator() {
@@ -511,10 +513,11 @@ const ConditionsEditor = Vue.createApp({
       if (elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
 
       this.selectedChildOutcome = conditionObj?.selectedOutcome;
-      this.selectedChildValue = conditionObj?.selectedChildValue;
+      this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue);
       this.crosswalkFile = conditionObj?.crosswalkFile;
       this.crosswalkHasHeader = conditionObj?.crosswalkHasHeader;
       this.level2IndID = conditionObj?.level2IndID;
+
     },
     /**
      *
@@ -733,7 +736,8 @@ const ConditionsEditor = Vue.createApp({
       const crosswalkFile = this.crosswalkFile;
       const crosswalkHasHeader = this.crosswalkHasHeader;
       const level2IndID = this.level2IndID;
-      const selectedChildValue = this.selectedChildValue;
+      const selectedChildValue = XSSHelpers.stripAllTags(this.selectedChildValue);
+
       const childFormat = this.childFormat;
       const parentFormat = this.parentFormat;
       return {
@@ -942,8 +946,12 @@ const ConditionsEditor = Vue.createApp({
                             <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option>
                             <option value="Show" :selected="conditions.selectedOutcome.toLowerCase()==='show'">Hide this question except ...</option>
                             <option value="Hide" :selected="conditions.selectedOutcome.toLowerCase()==='hide'">Show this question except ...</option>
-                            <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question</option>
-                            <option v-if="canAddCrosswalk" value="crosswalk" :selected="conditions.selectedOutcome.toLowerCase()==='crosswalk'">Load Dropdown or Crosswalk</option>
+                            <option v-if="!noPrefillFormats.includes(childFormat)" 
+                              value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question
+                            </option>
+                            <option v-if="canAddCrosswalk"
+                              value="crosswalk" :selected="conditions.selectedOutcome.toLowerCase()==='crosswalk'">Load Dropdown or Crosswalk
+                            </option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
                     <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
@@ -959,7 +967,7 @@ const ConditionsEditor = Vue.createApp({
                             {{ val }}
                         </option>
                     </select>
-                    <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && conditions.childFormat==='multiselect' || childFormat==='checkboxes'"
+                    <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (conditions.childFormat==='multiselect' || childFormat==='checkboxes')"
                         placeholder="select some options"
                         multiple="true"
                         id="child_prefill_entry"
@@ -967,7 +975,7 @@ const ConditionsEditor = Vue.createApp({
                         name="child-prefill-value-selector"
                         @change="updateSelectedChildValue($event.target)">
                     </select>
-                    <input v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && childFormat==='text'"
+                    <input v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='text' || childFormat==='textarea')"
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)"
                         :value="textValueDisplay(conditions.selectedChildValue)" />
