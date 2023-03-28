@@ -6,8 +6,10 @@ class TemplateEditorFormatter
 {
     const TEMPLATES = [
         DataActions::MODIFY.'-'.LoggableTypes::TEMPLATE_BODY => [
-            "message" => "Body of <strong>%s</strong> was edited",
+            "message" => "edited body of <strong>%s</strong>",
             "variables" => "body"
         ]
     ];
+
+    const TABLE = "";
 }
