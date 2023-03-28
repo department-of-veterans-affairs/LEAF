@@ -637,7 +637,7 @@ div#form_content_view {
         }
     
         li:first-child {
-            margin-top: 0.8em;
+            margin-top: 0.75rem;
         }
         li:last-child {
             margin-bottom: 0;
@@ -666,6 +666,7 @@ div#form_content_view {
             background-color: inherit;
             border: 2px solid transparent;
             overflow: hidden;
+            max-height: 50px;
     
             &:not(:disabled):not(#addInternalUse) {
                 color: $charcoal;

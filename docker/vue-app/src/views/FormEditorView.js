@@ -406,15 +406,15 @@ export default {
                                         {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
                                     </span>
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
-                                    <em v-show="form.categoryID === this.focusedFormRecord.categoryID" style="font-weight: normal; text-decoration: none;">
+                                    <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
                                         (selected)
                                     </em>
-                                    <em v-show="form.categoryID === this.focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
+                                    <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
                                         (parent)
                                     </em>
                                 </button>
                                 <!-- focused drop zone for collection -->
-                                <ul v-if="form.categoryID === this.focusedFormRecord.categoryID && focusedFormTree.length > 0"
+                                <ul v-if="form.categoryID === focusedFormID && focusedFormTree.length > 0"
                                     id="base_drop_area" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
                                     class="form-index-listing-ul"
                                     data-effect-allowed="move"
