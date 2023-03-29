@@ -18,9 +18,21 @@ server {
     error_log  /var/log/nginx/error.log;
     access_log /var/log/nginx/access.log;
 
+    #no ports in any redirect.
+    port_in_redirect off;
+
     server_name ${HOST};
     root /var/www/html;
     index index.php index.html index.htm;
+
+    #this is for everything except gallery.php and svgs since those need to load still
+    location ~* ^(.*)/libs/dynicons(?!(/gallery.php|/(.*).svg)){
+        
+        #absolute_redirect off;
+
+        rewrite ^/(.*)/libs/dynicons(.*)$ /$1/dynicons;# permanent;
+
+    }
 
     location ~ \.php$ {
         try_files $uri $uri/ /index.php =404;

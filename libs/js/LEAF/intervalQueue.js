@@ -35,7 +35,7 @@ var intervalQueue = function() {
     }
 
     function setQueue(myArray) {
-        queue = myArray;
+        queue = Array.from(myArray);
     }
 
     function start() {
