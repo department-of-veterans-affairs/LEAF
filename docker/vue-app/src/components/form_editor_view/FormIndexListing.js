@@ -2,7 +2,7 @@ export default {
     name: 'FormIndexListing',
     data() {
         return {
-            subMenuOpen: true
+            subMenuOpen: false
         }
     },
     props: {
@@ -13,7 +13,8 @@ export default {
     },
     inject: [
         'truncateText',
-        'addToListItemsObject',
+        'clearListItem',
+        'addToListTracker',
         'selectNewFormNode',
         'selectedNodeIndicatorID',
         'startDrag',
@@ -23,12 +24,20 @@ export default {
         'moveListing'
     ],
     mounted() {
-        //console.log('Form Index list item mounted')
-        //each list item is added to the listItems array on parent component, to track indicatorID, parentID, sort and current index values
-        this.addToListItemsObject(this.formNode, this.parentID, this.index);
-        if(this.selectedNodeIndicatorID !== null) {
-            document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`).classList.add('index-selected');
+        //each list item is added to the array on parent component, to track indicatorID, parentID, sort and current index values
+        this.addToListTracker(this.formNode, this.parentID, this.index);
+        if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
+            let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
+            if (el !== null) {
+                const headingEl = el.closest('li.section_heading');
+                const elsMenu = Array.from(headingEl?.querySelectorAll(`li .sub-menu-chevron.closed`) || []);
+                elsMenu.forEach(el => el.click());
+                el.classList.add('index-selected');
+            }
         }
+    },
+    beforeUnmount() {
+        this.clearListItem(this.formNode.indicatorID);
     },
     methods: {
         indexHover(event = {}) {
@@ -40,22 +49,15 @@ export default {
         toggleSubMenu(event = {}) {
             if(event?.keyCode === 32) event.preventDefault();
             this.subMenuOpen = !this.subMenuOpen;
+            event.currentTarget.closest('li')?.focus();
         }
     },
     computed: {
-        children() {
-            let eles = [];
-            for (let c in this.formNode.child) {
-                eles.push(this.formNode.child[c]);
-            }
-            eles = eles.sort((a, b)=> a.sort - b.sort);
-            return eles;
-        },
         headingNumber() {
             return this.depth === 0 ? this.index + 1 + '.' : '';
         },
         hasConditions() {
-            return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '');
+            return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '' && this.formNode.conditions !== 'null');
         },
         //NOTE: Uses globally available XSSHelpers.js (LEAF class)
         indexDisplay() {
@@ -94,16 +96,16 @@ export default {
                         @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
-                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron"
+                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !subMenuOpen}"
                     @click.stop="toggleSubMenu($event)"
                     @keydown.stop.enter.space="toggleSubMenu($event)">
-                    {{subMenuOpen ? '︽' : '︾'}}
+                    <span v-show="subMenuOpen" role="img" aria="">▾</span>
+                    <span v-show="!subMenuOpen" role="img" aria="">▸</span>
                 </div>
             </div>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
-            
-            <ul v-show="subMenuOpen" class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
+            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop"
                 @dragover.prevent
@@ -111,7 +113,7 @@ export default {
                 @dragleave="onDragLeave">
 
                 <template v-if="formNode.child">
-                    <form-index-listing v-for="(child, i) in children"
+                    <form-index-listing v-show="subMenuOpen" v-for="(child, k, i) in formNode.child"
                         :id="'index_listing_' + child.indicatorID"
                         :depth="depth + 1"
                         :parentID="formNode.indicatorID"
