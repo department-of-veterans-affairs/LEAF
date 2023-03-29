@@ -1191,9 +1191,8 @@
                           </tr>\
                           <tr>\
                               <td>Icon</td>\
-                              <td><input id="actionIcon" type="text" maxlength="50" value="' + res[0].actionIcon +
-                        '" ></input></td>\
-                              <td>eg: go-next.svg <a href="../dynicons/gallery.php" target="_blank">List of available icons</a></td>\
+                              <td><input id="actionIcon" type="text" maxlength="50" value="'+res[0].actionIcon+'" ></input></td>\
+                              <td>eg: go-next.svg <a href="/libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
                           </tr>\
     		          </table>\
     		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
@@ -1270,7 +1269,7 @@
                       <tr>\
                           <td>Icon</td>\
                           <td><input id="actionIcon" type="text" maxlength="50" value="go-next.svg"></input></td>\
-                          <td>eg: go-next.svg <a href="../dynicons/gallery.php" target="_blank">List of available icons</a></td>\
+                          <td>eg: go-next.svg <a href="/libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
                       </tr>\
 		          </table>\
 		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';

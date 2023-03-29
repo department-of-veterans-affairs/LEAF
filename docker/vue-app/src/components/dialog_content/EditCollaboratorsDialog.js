@@ -1,8 +1,8 @@
 export default {
+    name: 'edit-collaborators-dialog',
     data() {
         return {
-            //subformID will be null if the selected form is not a subform.  currCategoryID will always be a main form.
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.focusedFormRecord.categoryID,
             group: '',
             allGroups: [],
             collaborators: []
@@ -12,8 +12,7 @@ export default {
         'APIroot',
         'CSRFToken',
         'categories',
-        'currCategoryID',
-        'currSubformID',
+        'focusedFormRecord',
         'closeFormDialog'
     ],
     mounted() {
@@ -114,7 +113,7 @@ export default {
                 <ul style="list-style-type:none; padding: 0; min-height: 30px;">
                     <li v-for="c in collaborators" :key="c.name + c.groupID">
                         {{c.name}}
-                        <button 
+                        <button type="button"
                             style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                             @click="removePermission(parseInt(c.groupID))" :title="'remove ' + c.name">
                             <b>[ Remove ]</b>
