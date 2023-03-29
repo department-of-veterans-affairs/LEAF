@@ -57,18 +57,21 @@ class ServiceController extends RESTfulResponse
         $login = $this->login;
         $service = $this->service;
 
-        $this->verifyAdminReferrer();
+        if ($login->checkGroup(1)) {
+            
+            $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
-        $this->index['POST']->register('service', function ($args) use ($db, $login, $service) {
-            return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
-        });
+            $this->index['POST'] = new ControllerMap();
+            $this->index['POST']->register('service', function ($args) use ($db, $login, $service) {
+                return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
+            });
 
-        $this->index['POST']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {
-            return $service->addMember($args[0], $_POST['userID']);
-        });
+            $this->index['POST']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {
+                return $service->addMember($args[0], $_POST['userID']);
+            });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
     }
 
     public function delete($act)
@@ -77,20 +80,24 @@ class ServiceController extends RESTfulResponse
         $login = $this->login;
         $service = $this->service;
 
-        $this->verifyAdminReferrer();
+        if ($login->checkGroup(1)) {
 
-        $this->index['DELETE'] = new ControllerMap();
-        $this->index['DELETE']->register('service', function ($args) {
-        });
+            $this->verifyAdminReferrer();
 
-        $this->index['DELETE']->register('service/[digit]', function ($args) use ($db, $login, $service) {
-            return $service->removeService($args[0]);
-        });
+            $this->index['DELETE'] = new ControllerMap();
+            $this->index['DELETE']->register('service', function ($args) {
+            });
 
-        $this->index['DELETE']->register('service/[digit]/members/[text]', function ($args) use ($db, $login, $service) {
-            return $service->removeMember($args[0], $args[1]);
-        });
+            $this->index['DELETE']->register('service/[digit]', function ($args) use ($db, $login, $service) {
+                return $service->removeService($args[0]);
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            $this->index['DELETE']->register('service/[digit]/members/[text]', function ($args) use ($db, $login, $service) {
+                return $service->removeMember($args[0], $args[1]);
+            });
+
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+
+        }
     }
 }
