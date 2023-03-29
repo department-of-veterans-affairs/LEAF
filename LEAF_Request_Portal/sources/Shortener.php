@@ -54,6 +54,20 @@ class Shortener
         return $res - $this->offset;
     }
 
+    public function decodeEntitiesForImport(array $formQuery): array {
+        foreach ($formQuery as $recordID => $record) {
+            $formQuery[$recordID]['title'] = html_entity_decode($record['title'], ENT_QUOTES);
+            if (isset($record['s1'])) {
+                foreach ($record['s1'] as $key => $entry) {
+                    if (preg_match('/^id\d+$/', $key) && is_string($entry)) {
+                        $formQuery[$recordID]['s1'][$key] = html_entity_decode($entry, ENT_QUOTES);
+                    }
+                }
+            }
+        }
+        return $formQuery;
+    }
+
     public function getFormQuery($shortUID) {
         $shortID = $this->decodeShortUID($shortUID);
         $vars = array(':shortID' => $shortID);
@@ -74,7 +88,8 @@ class Shortener
         }
 
         $form = new Form($this->db, $this->login);
-        return $form->query($resReport[0]['data']);
+        $formQuery = $form->query($resReport[0]['data']);
+        return $this->decodeEntitiesForImport($formQuery);
     }
 
     public function shortenFormQuery($data) {

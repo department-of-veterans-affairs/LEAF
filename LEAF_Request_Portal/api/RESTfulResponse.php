@@ -156,7 +156,7 @@ abstract class RESTfulResponse
                 break;
             case 'xml':
                 header('Content-type: text/xml');
-                $xml = new SimpleXMLElement('<?xml version="1.0"?><output></output>');
+                $xml = new \SimpleXMLElement('<?xml version="1.0"?><output></output>');
                 $this->buildXML($out, $xml);
                 echo $xml->asXML();
 
