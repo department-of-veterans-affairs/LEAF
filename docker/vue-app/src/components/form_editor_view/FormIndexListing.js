@@ -28,12 +28,10 @@ export default {
         this.addToListTracker(this.formNode, this.parentID, this.index);
         if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
             let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
-            if (el !== null) {
-                const headingEl = el.closest('li.section_heading');
-                const elsMenu = Array.from(headingEl?.querySelectorAll(`li .sub-menu-chevron.closed`) || []);
-                elsMenu.forEach(el => el.click());
-                el.classList.add('index-selected');
-            }
+            if (el !== null) el.classList.add('index-selected');
+
+            const elsMenu = Array.from(document.querySelectorAll(`li#index_listing_${this.selectedNodeIndicatorID} .sub-menu-chevron.closed`));
+            elsMenu.forEach(el => el.click());
         }
     },
     beforeUnmount() {
