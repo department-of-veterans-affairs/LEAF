@@ -8,7 +8,8 @@
     "dev-vue": "webpack --mode=development --watch"
   },
   "dependencies": {
-    "vue": "^3.2.45"
+    "vue": "^3.2.45",
+    "vue-router":"^4.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.19.1",
