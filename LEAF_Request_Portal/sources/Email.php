@@ -60,7 +60,7 @@ class Email
         else{
             $this->siteRoot = "https://" . HTTP_HOST . '/';
         }
-        
+
         $apiEntry = strpos($this->siteRoot, '/api/');
         if ($apiEntry !== false) {
             $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
@@ -334,8 +334,7 @@ class Email
     private function initOrgchart(): void
     {
         // set up org chart assets
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
@@ -362,8 +361,7 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        $nexus_config = new Config;
-        $this->nexus_db = new \Leaf\Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
+        $this->nexus_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
     }
 
     /**

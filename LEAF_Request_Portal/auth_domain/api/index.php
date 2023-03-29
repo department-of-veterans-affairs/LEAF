@@ -33,12 +33,12 @@ $controllerMap = new Portal\ControllerMap();
 
 $controllerMap->register('form', function () use ($db, $login, $action) {
     $formController = new Portal\FormController($db, $login);
-    $formController->handler($action);
+    echo $formController->handler($action);
 });
 
 $controllerMap->register('open', function() use ($db, $login, $action) {
     $SignatureController = new Portal\OpenController($db, $login);
-    $SignatureController->handler($action);
+    echo $SignatureController->handler($action);
 });
 
 $controllerMap->runControl($key);
