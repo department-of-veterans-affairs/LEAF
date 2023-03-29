@@ -71,11 +71,8 @@ class FormWorkflowController extends RESTfulResponse
 
         $this->index['POST']->register('formWorkflow/[digit]/apply', function ($args) use ($formWorkflow) {
             $formWorkflow->initRecordID($args[0]);
-            if(is_numeric($_POST['dependencyID'])) {
-                return $formWorkflow->handleAction($_POST['dependencyID'], \Leaf\XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
-            } else {
-                return array('status' => 0, 'errors' => array('Requirement from current step is missing<br/> Please contact administrator to add requirement to current step'));
-            }
+
+            return $formWorkflow->handleAction($_POST['dependencyID'], \Leaf\XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
         });
 
         $this->index['POST']->register('formWorkflow/[digit]/step', function ($args) use ($formWorkflow) {

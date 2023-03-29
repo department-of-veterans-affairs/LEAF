@@ -38,10 +38,6 @@ class FormStackController extends RESTfulResponse
             return $formStack->getAllCategories();
         });
 
-        $this->index['GET']->register('formStack/categoryList/allWithStaples', function ($args) use ($formStack) {
-            return $formStack->getAllCategoriesWithStaples();
-        });
-
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

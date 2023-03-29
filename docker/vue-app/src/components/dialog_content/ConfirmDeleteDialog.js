@@ -1,11 +1,17 @@
 export default {
-    name: 'confirm-delete-dialog',
+    data() {
+        return {
+            formID: this.currSubformID || this.currCategoryID,
+        }
+    },
     inject: [
         'APIroot',
         'CSRFToken',
-        'focusedFormRecord',
+        'currCategoryID',
+        'currSubformID',
+        'currentCategorySelection',
+        'ajaxSelectedCategoryStapled',
         'selectNewCategory',
-        'removeCategory',
         'closeFormDialog'
     ],
     computed: {
@@ -14,32 +20,25 @@ export default {
          * @returns {string} category name / description with all tages stripped
          */
         formName() {
-            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryName);
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryName);
         },
         formDescription() {
-            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryDescription);
-        },
-        currentStapleIDs() {
-            return this.focusedFormRecord?.stapledFormIDs || [];
-        },
+            return XSSHelpers.stripAllTags(this.currentCategorySelection.categoryDescription);
+        }
     },
     methods:{
         onSave() {
-            if(this.currentStapleIDs.length === 0) {
-                const delID = this.focusedFormRecord.categoryID;
-                const parID = this.focusedFormRecord.parentID;
-
+            if(this.ajaxSelectedCategoryStapled.length === 0) {
+                
                 $.ajax({
                     type: 'DELETE',
-                    url: `${this.APIroot}formStack/_${delID}?` + $.param({CSRFToken:this.CSRFToken}),
+                    url: `${this.APIroot}formStack/_${this.formID}?` + $.param({CSRFToken:this.CSRFToken}),
                     success: (res) => {
                         if(res !== true) {
                             alert(res);
                         } else {
-                            //if a subform is deleted, re-focus its parent, otherwise go to browser
-                            this.selectNewCategory(parID, null, true);
-                            this.removeCategory(delID);
                             this.closeFormDialog();
+                            this.selectNewCategory(null);
                         }
                     },
                     error: err => console.log('an error has occurred', err)
@@ -55,6 +54,6 @@ export default {
         <div>Are you sure you want to delete this form?</div>
         <div style="margin: 1em 0;"><b>{{formName}}</b></div>
         <div style="min-width:300px; max-width: 500px; min-height: 50px; margin-bottom: 1rem;">{{formDescription}}</div>
-        <div v-if="currentStapleIDs.length > 0">⚠️ This form still has stapled forms attached</div>
+        <div v-if="ajaxSelectedCategoryStapled.length > 0">⚠️ This form still has stapled forms attached</div>
     </div>`
 }

@@ -48,31 +48,6 @@ class FormStack
         return $res;
     }
 
-    public function getAllCategoriesWithStaples() {
-        $strSQL = "SELECT categories.categoryID, parentID, categoryName, categoryDescription, categories.workflowID,
-            sort, needToKnow, formLibraryID, visible, categories.disabled, categories.type, destructionAge,
-            workflows.description AS workflowDescription FROM categories
-            LEFT JOIN workflows ON categories.workflowID=workflows.workflowID
-            WHERE categories.workflowID >= 0 AND categories.disabled = 0
-            ORDER BY sort, categoryName ASC";
-
-        $res = $this->db->prepared_query($strSQL, null);
-
-        foreach($res as $ind => $val) {
-            $res[$ind]['stapledFormIDs'] = [];
-            //internal forms have a parentID.  They cannot have staples by normal means so don't query.
-            if (empty($val['parendID'])) {
-                $vars = array(':categoryID' => $val['categoryID']);
-                $strStaples = "SELECT stapledCategoryID FROM category_staples
-                    WHERE categoryID=:categoryID";
-                $resStaples = $this->db->prepared_query($strStaples, $vars) ?? [];
-
-                $res[$ind]['stapledFormIDs'] = array_column($resStaples,'stapledCategoryID');
-            }
-        }
-        return $res;
-    }
-
     public function deleteForm($categoryID)
     {
         if (!$this->login->checkGroup(1))

@@ -78,35 +78,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             if (actionSuccessCallback !== undefined) {
               actionSuccessCallback();
             }
-
-            let new_note;
-            new_note =
-                '<div class="comment_block"> <span class="comments_time"> ' +
-                response.comment.date +
-                '</span> <span class="comments_name">' +
-                response.comment.responder +
-                " " +
-                response.comment.user_name +
-                '</span> <div class="comments_message">' +
-                response.comment.comment +
-                "</div> </div>";
-
-            if (response.comment.comment != "") {
-              $(new_note).insertAfter("#notes");
-            }
-
-            if ($("#comments").css("display") == "none") {
-              $("#comments").css("display", "block");
-            }
-
-            if (response.comment.nextStep == 0) {
-              $("#notes").css("display", "none");
-              if (!$(".comment_block")[0]) {
-                $("#comments").css({ display: "none" });
-              }
-            } else {
-              $("#notes").css("display", "block");
-            }
           } else {
             var errors = "";
             for (var i in response.errors) {
@@ -137,19 +108,43 @@ var LeafWorkflow = function (containerID, CSRFToken) {
           });
         }
 
+        var new_note;
+
+        new_note =
+          '<div class="comment_block"> <span class="comments_time"> ' +
+          response.comment.date +
+          '</span> <span class="comments_name">' +
+          response.comment.responder +
+          " " +
+          response.comment.user_name +
+          '</span> <div class="comments_message">' +
+          response.comment.comment +
+          "</div> </div>";
+
+        if (response.comment.comment != "") {
+          $(new_note).insertAfter("#notes");
+        }
+
+        if ($("#comments").css("display") == "none") {
+          $("#comments").css("display", "block");
+        }
+
+        if (response.comment.nextStep == 0) {
+          $("#notes").css("display", "none");
+          if (!$(".comment_block")[0]) {
+            $("#comments").css({ display: "none" });
+          }
+        } else {
+          $("#notes").css("display", "block");
+        }
+
         antiDblClick = 0;
       },
       error: function (response) {
         console.log(response);
-        if (data["dependencyID"] === null) {
-          $("#workflowbox_dep" + data["dependencyID"]).html(
-              '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Requirement from current step is missing<br/> Please contact administrator to add requirement to current step</div>'
-          );
-        } else {
-          $("#workflowbox_dep" + data["dependencyID"]).html(
-              '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>'
-          );
-        }
+        $("#workflowbox_dep" + data["dependencyID"]).html(
+          '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>'
+        );
       },
     });
   }

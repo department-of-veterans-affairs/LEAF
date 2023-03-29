@@ -313,9 +313,6 @@ switch ($action) {
         }
 
         break;
-    case 'checkstatus':
-        checkToken();
-        break;
     default:
         /*
         echo "Action: $action<br /><br />Catchall...<br /><br />POST: <pre>";
