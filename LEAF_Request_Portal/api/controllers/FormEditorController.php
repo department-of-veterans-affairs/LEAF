@@ -89,6 +89,10 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->addIndicator($package);
         });
 
+        $this->index['POST']->register('formEditor/sort/batch', function ($args) use ($formEditor) {
+            return $formEditor->setSortBatch(\Leaf\XSSHelpers::scrubObjectOrArray($_POST['sortData']));
+        });
+
         $this->index['POST']->register('formEditor/[digit]/name', function ($args) use ($formEditor) {
             return $formEditor->setName((int)$args[0], $_POST['name']);
         });
@@ -188,6 +192,10 @@ class FormEditorController extends RESTfulResponse
 
         $this->index['POST']->register('formEditor/formVisible', function ($args) use ($formEditor) {
             return $formEditor->setFormVisible(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['visible']);
+        });
+
+        $this->index['POST']->register('formEditor/destructionAge', function ($args) use ($formEditor) {
+            return $formEditor->setFormDestructionAge(\Leaf\XSSHelpers::xscrub($_POST['categoryID']), (int)$_POST['destructionAge']);
         });
 
         $this->index['POST']->register('formEditor/[text]/privileges', function ($args) use ($formEditor) {

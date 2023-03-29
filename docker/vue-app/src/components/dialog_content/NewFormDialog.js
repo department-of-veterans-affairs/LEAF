@@ -1,4 +1,5 @@
 export default {
+    name: 'new-form-dialog',
     data() {
         return {
             categoryName: '',
@@ -8,7 +9,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'currCategoryID', //NOTE: currCatID is null on the card browser page (Create Form), but has the main form value if user clicks Add Internal Use
+        'focusedFormRecord',
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'
@@ -17,14 +18,15 @@ export default {
         document.getElementById('name').focus();
     },
     computed: {
-        isSubform() {
-            return this.currCategoryID !== null;
-        },
         nameCharsRemaining(){
             return Math.max(50 - this.categoryName.length, 0);
         },
         descrCharsRemaining(){
             return Math.max(255 - this.categoryDescription.length, 0);
+        },
+        newFormParentID() {
+            //if the focused form does not have a parent, it's a main form - the new form should have that as its parent
+            return this.focusedFormRecord?.parentID === '' ? this.focusedFormRecord.categoryID : '';
         }
     },
     methods: {
@@ -35,7 +37,7 @@ export default {
                 data: {
                     name: this.categoryName,
                     description: this.categoryDescription,
-                    parentID: this.currCategoryID || '',
+                    parentID: this.newFormParentID,
                     CSRFToken: this.CSRFToken
                 },
                 success: (res)=> {
@@ -45,15 +47,22 @@ export default {
                     temp.categoryID = newCatID;
                     temp.categoryName = this.categoryName;
                     temp.categoryDescription = this.categoryDescription;
-                    temp.parentID = this.currCategoryID || '';
+                    temp.parentID = this.newFormParentID;
                     //default values
                     temp.workflowID = 0;
                     temp.needToKnow = 0;
                     temp.visible = 1;
                     temp.sort = 0;
                     temp.type = '';
+                    temp.stapledFormIDs = [];
+                    temp.destructionAge = null;
                     this.addNewCategory(newCatID, temp);
-                    this.selectNewCategory(newCatID, this.isSubform);
+
+                    if(!this.focusedFormRecord?.categoryID) { //browser page, new main form
+                        this.$router.push({name: 'category', query: { formID: newCatID }});
+                    } else { //from existing form, new internal
+                        this.selectNewCategory(newCatID)
+                    }
                     this.closeFormDialog();
                 },
                 error: err => {
