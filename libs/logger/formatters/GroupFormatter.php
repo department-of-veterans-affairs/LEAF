@@ -46,6 +46,4 @@ class GroupFormatter
             "variables"=>"tag"
         ]
     ];
-
-    const TABLE = "groups";
 }

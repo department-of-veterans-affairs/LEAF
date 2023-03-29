@@ -161,7 +161,7 @@ function addHeader(column) {
                 name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].action_history != undefined) {
                     var cancelData = blob[data.recordID].action_history.pop();
-                    if(cancelData != undefined && cancelData.actionType === 'deleted') {
+                    if(cancelData.actionType === 'deleted') {
                         $('#'+data.cellContainerID).html(cancelData.approverName);
                     }
                 }
@@ -1108,7 +1108,7 @@ $(function() {
         }
 
         if(showOptionCancelled) {
-            $('#option_dateCancelled').css('display', 'block');
+            $('#option_dateCancelled').css('display', 'inline');
         }
         else {
             $('#option_dateCancelled').css('display', 'none');

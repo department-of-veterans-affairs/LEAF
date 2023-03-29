@@ -10,6 +10,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'ajaxIndicatorByID',
         'currIndicatorID',
     ],
     mounted() {
@@ -103,11 +104,11 @@ export default {
                 <template v-if="statusMessageError === ''">
                     <div v-if="groupsWithPrivileges.length === 0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
                     <div v-else style="margin:0.5rem 0">
-                        <div style="color: #a00;">Special access restrictions are enabled.</div>
+                        <div style="color: #cb0000;">Special access restrictions are enabled.</div>
                         <ul>
                             <li v-for="g in groupsWithPrivileges" :key="g.name + g.id">
                                 {{g.name}}
-                                <button type="button" @click="removeIndicatorPrivilege(parseInt(g.id))"
+                                <button @click="removeIndicatorPrivilege(parseInt(g.id))"
                                     style="margin-left: 3px; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                                     :title="'remove ' + g.name">
                                     <b>[ Remove ]</b>
@@ -122,7 +123,7 @@ export default {
                     <select id="selectIndicatorPrivileges" v-model="group" style="width:260px;">
                         <option :value="0">Select a Group</option>
                         <option v-for="g in availableGroups" :value="g" :key="'avail_' + g.groupID">{{g.name}} (id{{g.groupID}})</option>
-                    </select><button type="button" class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
+                    </select><button class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
                 </div>
             </fieldset>`
 }

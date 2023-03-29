@@ -6,22 +6,20 @@ class EmailTemplateFormatter
 {
     const TEMPLATES = [
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_TO => [
-            "message" => "edited 'Email To' field of <strong>%s</strong>",
+            "message" => "'Email To' field of <strong>%s</strong> was edited",
             "variables" => "emailTo"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_CC => [
-            "message" => "edited 'Email CC' field of <strong>%s</strong>",
+            "message" => "'Email CC' field of <strong>%s</strong> was edited",
             "variables" => "emailCc"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_SUBJECT => [
-            "message" => " edited subject of <strong>%s</strong>",
+            "message" => "Subject of <strong>%s</strong> was edited",
             "variables" => "subject"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EMAIL_TEMPLATE_BODY => [
-            "message" => "edited body of <strong>%s</strong>",
+            "message" => "Body of <strong>%s</strong> was edited",
             "variables" => "body"
         ]
     ];
-
-    const TABLE = "email_templates";
 }

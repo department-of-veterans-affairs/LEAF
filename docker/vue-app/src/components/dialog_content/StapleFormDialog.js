@@ -1,8 +1,9 @@
 export default {
-    name: 'staple-form-dialog',
     data() {
         return {
             catIDtoStaple: '',
+            formID: this.currCategoryID  //staples are added to the main form.
+
         }
     },
     inject: [
@@ -11,37 +12,29 @@ export default {
         'truncateText',
         'stripAndDecodeHTML',
         'categories',
-        'focusedFormRecord',
+        'currCategoryID',
+        'currSubformID',
+        'ajaxSelectedCategoryStapled',
+        'getStapledFormsByCurrentCategory',
+        'setCurrCategoryStaples',
         'closeFormDialog',
-        'updateStapledFormsInfo'
+        'updateFormsStapledCatIDs'
     ],
     mounted() {
-        if (this.isSubform) {
-            this.closeFormDialog();
-        }
         if(this.mergeableForms.length > 0) {
             const focusEl = document.getElementById('select-form-to-staple');
             if(focusEl !== null) focusEl.focus();
         }
     },
     computed: {
-        isSubform () {
-            return this.focusedFormRecord?.parentID !== '';
-        },
-        formID () {
-            return this.focusedFormRecord?.categoryID || '';
-        },
-        currentStapleIDs() {
-            return this.categories[this.formID]?.stapledFormIDs || [];
-        },
         mergeableForms() {
             let mergeable = [];
             for (let c in this.categories) {
                 const WF_ID = parseInt(this.categories[c].workflowID);
                 const catID = this.categories[c].categoryID;
                 const parID = this.categories[c].parentID;
-                const isNotAlreadyMerged = this.currentStapleIDs.every(id => id !== catID)
-                if (WF_ID === 0 && parID === '' && catID !== this.formID && isNotAlreadyMerged) {
+                const isNotAlreadyMerged = this.ajaxSelectedCategoryStapled.every(form => form.stapledCategoryID !== catID)
+                if (WF_ID === 0 && catID !== this.formID && parID === '' && isNotAlreadyMerged) {
                     mergeable.push({...this.categories[c]});
                 }
             }
@@ -54,7 +47,10 @@ export default {
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
-                    this.updateStapledFormsInfo(stapledCatID, true);
+                    this.getStapledFormsByCurrentCategory(this.formID)
+                        .then(res => this.setCurrCategoryStaples(res))
+                        .catch(err => console.log('an error has occurred', err));
+                    this.updateFormsStapledCatIDs(stapledCatID, true);
                 },
                 error: err => console.log(err)
             });
@@ -72,8 +68,11 @@ export default {
                         if(res !== 1) {
                             alert(res);
                         } else {
-                            this.updateStapledFormsInfo(this.catIDtoStaple);
-                            this.catIDtoStaple = '';
+                            this.getStapledFormsByCurrentCategory(this.formID).then(res => {
+                                this.setCurrCategoryStaples(res);
+                                this.updateFormsStapledCatIDs(this.catIDtoStaple);
+                                this.catIDtoStaple = '';
+                            }).catch(err => console.log('an error has occurred', err));
                         }
                     },
                     error: err => console.log(err),
@@ -87,11 +86,11 @@ export default {
         <p>The order of the forms will be determined by the forms' assigned sort values.</p>
         <div id="mergedForms" style="margin-top: 1rem;">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
-                <li v-for="id in currentStapleIDs" :key="'staple_list_' + id">
-                    {{truncateText(stripAndDecodeHTML(categories[id]?.categoryName || 'Untitled')) }}
-                    <button type="button"
+                <li v-for="s in ajaxSelectedCategoryStapled" :key="'staple_list_' + s.categoryID">
+                    {{truncateText(stripAndDecodeHTML(s.categoryName)) || 'Untitled'}}
+                    <button 
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                        @click="unmergeForm(id)" :title="'remove ' + categories[id]?.categoryName || 'Untitled'">
+                        @click="unmergeForm(s.categoryID)" :title="'remove ' + s.categoryName || 'Untitled'">
                         <b>[ Remove ]</b>
                     </button>
                 </li>

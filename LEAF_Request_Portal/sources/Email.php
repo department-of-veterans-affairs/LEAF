@@ -462,7 +462,7 @@ class Email
         // Determine if template currently has any email addresses saved
         $tplLocation = str_replace(array('email_to', 'email_cc'), array('emailTo', 'emailCC'), $tplLocation);
         $hasEmailTemplate = $this->getFilepath($tplLocation);
-        $emailTemplate = __DIR__ . '/../templates/email/' . $hasEmailTemplate;
+        $emailTemplate = __DIR__ . '/templates/email/' . $hasEmailTemplate;
         if (file_exists($emailTemplate)) {
             $emailList = file($emailTemplate, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
             // For each line in template, add that email address, if valid
