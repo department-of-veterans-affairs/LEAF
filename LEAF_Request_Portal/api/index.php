@@ -53,7 +53,7 @@ $controllerMap->register('classicphonebook', function () use ($p_db, $login, $ac
 
 $controllerMap->register('service', function () use ($p_db, $login, $action) {
     $serviceController = new Portal\ServiceController($p_db, $login);
-    $serviceController->handler($action);
+    echo $serviceController->handler($action);
 });
 
 // admin only
