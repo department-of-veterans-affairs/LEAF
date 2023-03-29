@@ -55,19 +55,20 @@ class ServiceController extends RESTfulResponse
     {
         $service = $this->service;
 
-        $verified = $this->verifyAdminReferrer();
+        if ($login->checkGroup(1)) {
+          $verified = $this->verifyAdminReferrer();
 
-        if ($verified) {
-            echo $verified;
-        } else {
-            $this->index['POST'] = new ControllerMap();
-            $this->index['POST']->register('service', function ($args) use ($service) {
-                return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
-            });
+          if ($verified) {
+              echo $verified;
+          } else {
+              $this->index['POST'] = new ControllerMap();
+              $this->index['POST']->register('service', function ($args) use ($service) {
+                  return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
+              });
 
-            $this->index['POST']->register('service/[digit]/members', function ($args) use ($service) {
-                return $service->addMember($args[0], $_POST['userID']);
-            });
+              $this->index['POST']->register('service/[digit]/members', function ($args) use ($service) {
+                  return $service->addMember($args[0], $_POST['userID']);
+              });
 
             return $this->index['POST']->runControl($act['key'], $act['args']);
         }
@@ -79,22 +80,23 @@ class ServiceController extends RESTfulResponse
 
         $verified = $this->verifyAdminReferrer();
 
-        if ($verified) {
-            echo $verified;
-        } else {
-            $this->index['DELETE'] = new ControllerMap();
-            $this->index['DELETE']->register('service', function ($args) {
-            });
+        if ($login->checkGroup(1)) {
+            if ($verified) {
+                echo $verified;
+            } else {
+                $this->index['DELETE'] = new ControllerMap();
+                $this->index['DELETE']->register('service', function ($args) {
+                });
 
-            $this->index['DELETE']->register('service/[digit]', function ($args) use ($service) {
-                return $service->removeService($args[0]);
-            });
+                $this->index['DELETE']->register('service/[digit]', function ($args) use ($service) {
+                    return $service->removeService($args[0]);
+                });
 
-            $this->index['DELETE']->register('service/[digit]/members/[text]', function ($args) use ($service) {
-                return $service->removeMember($args[0], $args[1]);
-            });
+                $this->index['DELETE']->register('service/[digit]/members/[text]', function ($args) use ($service) {
+                    return $service->removeMember($args[0], $args[1]);
+                });
 
-            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+                return $this->index['DELETE']->runControl($act['key'], $act['args']);
         }
     }
 }

@@ -51,6 +51,11 @@ $controllerMap->register('classicphonebook', function () use ($p_db, $login, $ac
     echo $controller->handler($action);
 });
 
+$controllerMap->register('service', function () use ($p_db, $login, $action) {
+    $serviceController = new Portal\ServiceController($p_db, $login);
+    $serviceController->handler($action);
+});
+
 // admin only
 if ($login->checkGroup(1))
 {

@@ -1083,6 +1083,28 @@ class Workflow
         return true;
     }
 
+    public function renameWorkflow(string $description): string 
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required.';
+        }
+
+        $vars = array(':workflowID' => $this->workflowID,
+                      ':description' => $description
+                );
+        $strSQL = "UPDATE workflows SET description = :description WHERE workflowID = :workflowID";
+
+        $this->db->prepared_query($strSQL, $vars);
+        
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_NAME, [
+            new \Leaf\LogItem("workflow_name", "description",  $description),
+            new \Leaf\LogItem("workflow_name", "workflowID",  $this->workflowID)
+        ]);
+
+        return $this->workflowID;
+    }
+
     public function newWorkflow($description)
     {
         if (!$this->login->checkGroup(1))

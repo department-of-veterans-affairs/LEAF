@@ -1,9 +1,9 @@
 <?php
 
 namespace Leaf;
-
 class DataActionLogger
 {
+
     protected $db;
     protected $login;
 
@@ -59,11 +59,16 @@ class DataActionLogger
         if($logResults != null){
             for($i = 0; $i<count($logResults); $i++){
                 $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
-                $logResults[$i]["history"] = LogFormatter::getFormattedString($logResults[$i], $logType);
+                // $logResults[$i] = $this->findExternalValue($logResults[$i], $logType);
+                $logHistory = LogFormatter::getFormattedString($logResults[$i], $logType);
+                $logResults[$i]["history"] = $logHistory["message"];
+                if (array_key_exists("targetUID", $logHistory)) {
+                    $logResults[$i]["targetUID"] = $logHistory["targetUID"];
+                    $logResults[$i]["displayName"] = $logHistory["displayName"];
+                }
             }
         }
         return $logResults;
-
     }
 
     /**
@@ -114,6 +119,7 @@ class DataActionLogger
             " SELECT
                     dal.ID,
                     dal.userDisplay as userName,
+                    dal.userID,
                     dal.action,
                     dal.timestamp
                 from data_action_log dal
@@ -156,4 +162,76 @@ class DataActionLogger
 
         return $this->db->prepared_query($sqlFetchLogItems, $vars);
     }
+
+    private function findExternalValue(array $logData, string $logType): array
+    {
+        $tables = array(
+            LoggableTypes::GROUP => GroupFormatter::TABLE,
+            LoggableTypes::SERVICE_CHIEF => ServiceChiefFormatter::TABLE,
+            LoggableTypes::FORM => FormFormatter::TABLE,
+            LoggableTypes::PORTAL_GROUP => PortalGroupFormatter::TABLE,
+            LoggableTypes::WORKFLOW => WorkflowFormatter::TABLE,
+            LoggableTypes::PRIMARY_ADMIN => PrimaryAdminFormatter::TABLE,
+            LoggableTypes::EMAIL_TEMPLATE_TO => EmailTemplateFormatter::TABLE,
+            LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TABLE,
+            LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TABLE,
+            LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TABLE,
+            LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TABLE,
+            LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TABLE,
+        );   
+
+        $formatters = array(
+            LoggableTypes::GROUP => GroupFormatter::TEMPLATES,
+            LoggableTypes::SERVICE_CHIEF => ServiceChiefFormatter::TEMPLATES,
+            LoggableTypes::FORM => FormFormatter::TEMPLATES,
+            LoggableTypes::PORTAL_GROUP => PortalGroupFormatter::TEMPLATES,
+            LoggableTypes::WORKFLOW => WorkflowFormatter::TEMPLATES,
+            LoggableTypes::PRIMARY_ADMIN => PrimaryAdminFormatter::TEMPLATES,
+            LoggableTypes::EMAIL_TEMPLATE_TO => EmailTemplateFormatter::TEMPLATES,
+            LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,
+            LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TEMPLATES,
+            LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
+            LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TEMPLATES,
+            LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TEMPLATES,
+        );    
+
+        $targetTable = $tables[$logType];
+
+        $logDictionary = $formatters[$logType];
+        $dictionaryItem = $logDictionary[$logData["action"]];
+        $primaryKey = $dictionaryItem["key"];
+
+        $displayVariables = array();
+        $formatVariables = array();
+
+        if(array_key_exists("displayColumns", $dictionaryItem) && $dictionaryItem["displayColumns"] != null){
+            $displayVariables = explode(",", $dictionaryItem["displayColumns"]);
+        } else {
+            return $logData;
+        }
+
+        if(array_key_exists("loggableColumns", $dictionaryItem) && $dictionaryItem["loggableColumns"] != null){
+            $loggableColumns = explode(",", $dictionaryItem["loggableColumns"]);
+        }
+        
+        foreach($logData["items"] as $detail) {
+            if ($detail["column"] != $primaryKey) {
+                continue;
+            }
+
+            $vars = array(
+                ":table" => $targetTable,
+                ":columns" => implode("`,`", $displayVariables),
+                ":pk" => $primaryKey,
+                ":id" => $detail["value"]
+            );
+
+            $strSQL = "SELECT :columns FROM :table WHERE :pk = :id";
+            
+            $potentialValues = $this->db->prepared_query($strSQL, $vars);
+        }
+
+        return $logData;
+    }
+
 }
