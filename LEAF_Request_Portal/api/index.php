@@ -51,6 +51,11 @@ $controllerMap->register('classicphonebook', function () use ($p_db, $login, $ac
     echo $controller->handler($action);
 });
 
+$controllerMap->register('service', function () use ($p_db, $login, $action) {
+    $serviceController = new Portal\ServiceController($p_db, $login);
+    $serviceController->handler($action);
+});
+
 // admin only
 if ($login->checkGroup(1))
 {
@@ -62,11 +67,6 @@ if ($login->checkGroup(1))
     $controllerMap->register('formEditor', function () use ($p_db, $login, $action) {
         $formEditorController = new Portal\FormEditorController($p_db, $login);
         echo $formEditorController->handler($action);
-    });
-
-    $controllerMap->register('service', function () use ($p_db, $login, $action) {
-        $serviceController = new Portal\ServiceController($p_db, $login);
-        echo $serviceController->handler($action);
     });
 
     $controllerMap->register('group', function () use ($p_db, $login, $action) {

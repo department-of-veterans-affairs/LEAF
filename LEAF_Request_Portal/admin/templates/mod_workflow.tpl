@@ -1061,7 +1061,8 @@ function editActionType(actionType) {
                           </tr>\
                           <tr>\
                               <td>Icon</td>\
-                              <td><input id="actionIcon" type="text" maxlength="50" value="'+res[0].actionIcon+'" ></input></td>\
+                              <td><input id="actionIcon" type="text" maxlength="50" value="' + res[0].actionIcon +
+                        '" ></input></td>\
                               <td>eg: go-next.svg <a href="../dynicons/gallery.php" target="_blank">List of available icons</a></td>\
                           </tr>\
     		          </table>\
