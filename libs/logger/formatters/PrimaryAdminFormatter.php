@@ -14,6 +14,4 @@ class PrimaryAdminFormatter
             "variables" => "userID"
         ]
     ];
-
-    const TABLE = "users";
 }

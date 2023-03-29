@@ -38,45 +38,48 @@ class FormStackController extends RESTfulResponse
             return $formStack->getAllCategories();
         });
 
-        $this->index['GET']->register('formStack/categoryList/allWithStaples', function ($args) use ($formStack) {
-            return $formStack->getAllCategoriesWithStaples();
-        });
-
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
     public function post($act)
     {
         $formStack = $this->formStack;
-        $login = $this->login;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
-        $this->index['POST']->register('formStack', function ($args) {
-        });
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['POST'] = new ControllerMap();
+            $this->index['POST']->register('formStack', function ($args) {
+            });
 
-        $this->index['POST']->register('formStack/import', function ($args) use ($formStack) {
-            return $formStack->importForm();
-        });
+            $this->index['POST']->register('formStack/import', function ($args) use ($formStack) {
+                return $formStack->importForm();
+            });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
     }
 
     public function delete($act)
     {
         $formStack = $this->formStack;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['DELETE'] = new ControllerMap();
-        $this->index['DELETE']->register('workflow', function ($args) {
-        });
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['DELETE'] = new ControllerMap();
+            $this->index['DELETE']->register('workflow', function ($args) {
+            });
 
-        $this->index['DELETE']->register('formStack/[text]', function ($args) use ($formStack) {
-            return $formStack->deleteForm(\Leaf\XSSHelpers::xscrub($args[0]));
-        });
+            $this->index['DELETE']->register('formStack/[text]', function ($args) use ($formStack) {
+                return $formStack->deleteForm(\Leaf\XSSHelpers::xscrub($args[0]));
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
     }
 }

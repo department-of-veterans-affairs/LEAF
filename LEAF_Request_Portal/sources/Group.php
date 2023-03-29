@@ -255,8 +255,7 @@ class Group
      */
     public function addMember($member, $groupID): string
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID)) {
@@ -336,8 +335,7 @@ class Group
      */
     public function deactivateMember($member, $groupID): void
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -379,8 +377,7 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -501,26 +498,6 @@ class Group
         }
 
         return '';
-    }
-
-    /**
-     * Returns Employee user ID.
-     * @param string $employeeID - The id to create the display name of.
-     *
-     * @return int
-     */
-    public function getEmployeeUserID($employeeID): int
-    {
-        $dir = new VAMC_Directory();
-        $dirRes = $dir->lookupLogin($employeeID);
-        if (is_array($dirRes) && isset($dirRes[0])) {
-            $empData = $dirRes[0];
-            $empUserID = $empData["empUID"];
-        } else {
-            $empUserID = -1;
-        }
-
-        return $empUserID;
     }
 
     /**

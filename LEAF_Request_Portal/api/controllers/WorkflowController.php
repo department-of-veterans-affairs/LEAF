@@ -137,13 +137,14 @@ class WorkflowController extends RESTfulResponse
         $this->index['POST']->register('workflow/[digit]', function ($args) use ($workflow) {
             try
             {
-                $workflow->setWorkflowID((int)$args[0]);
-                return $workflow->renameWorkflow(\Leaf\XSSHelpers::xscrub($_POST['description']));
+                //$workflow->modify($args[0]);
             }
             catch (Exception $e)
             {
                 return $e->getMessage();
             }
+
+            return true;
         });
 
         $this->index['POST']->register('workflow/new', function ($args) use ($workflow) {

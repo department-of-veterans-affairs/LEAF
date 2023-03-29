@@ -10,6 +10,4 @@ class TemplateEditorFormatter
             "variables" => "body"
         ]
     ];
-
-    const TABLE = "";
 }

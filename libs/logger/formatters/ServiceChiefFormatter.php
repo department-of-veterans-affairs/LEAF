@@ -6,14 +6,12 @@ class ServiceChiefFormatter
 {
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::SERVICE_CHIEF => [
-            "message"=>"added <strong>new user:</strong> %s",
-            "variables"=>"userID"
+            "message"=>"<strong>%s</strong> has been added to <strong>%s</strong>",
+            "variables"=>"userID,serviceID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::SERVICE_CHIEF=> [
-            "message"=>"removed <strong>user:</strong> %s",
-            "variables"=>"userID"
+            "message"=>"<strong>%s</strong> has been removed from <strong>%s</strong>",
+            "variables"=>"userID,serviceID"
         ],
     ];
-
-    const TABLE = "service_chiefs";
 }

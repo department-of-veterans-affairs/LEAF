@@ -22,6 +22,4 @@ class EmailTemplateFormatter
             "variables" => "body"
         ]
     ];
-
-    const TABLE = "email_templates";
 }
