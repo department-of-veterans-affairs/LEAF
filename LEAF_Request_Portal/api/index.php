@@ -64,11 +64,6 @@ if ($login->checkGroup(1))
         echo $formEditorController->handler($action);
     });
 
-    $controllerMap->register('service', function () use ($p_db, $login, $action) {
-        $serviceController = new Portal\ServiceController($p_db, $login);
-        echo $serviceController->handler($action);
-    });
-
     $controllerMap->register('group', function () use ($p_db, $login, $action) {
         $groupController = new Portal\GroupController($p_db, $login);
         echo $groupController->handler($action);
