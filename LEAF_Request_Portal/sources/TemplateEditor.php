@@ -55,8 +55,7 @@ class TemplateEditor
         $data = array();
         if (array_search($template, $list) !== false)
         {
-            if (file_exists("../templates/custom_override/{$template}")
-                  && !$getStandard)
+            if (file_exists("../templates/custom_override/{$template}") && !$getStandard)
             {
                 $data['modified'] = 1;
                 $data['file'] = file_get_contents("../templates/custom_override/{$template}");

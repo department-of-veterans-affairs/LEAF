@@ -29,4 +29,5 @@ class LoggableTypes
     const EMAIL_TEMPLATE_BODY = "email_template_body";
     const TEMPLATE_BODY = "template_body";
     const TEMPLATE_REPORTS_BODY = "template_reports_body";
+    const TEMPLATE_HISTORY_BODY = "template_history_body";
 }
