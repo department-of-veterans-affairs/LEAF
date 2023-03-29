@@ -55,50 +55,60 @@ class GroupController extends RESTfulResponse
 
     public function post($act)
     {
-        $this->verifyAdminReferrer();
-        $group = $this->group;
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $group = $this->group;
 
-        $this->index['POST']->register('group', function ($args) use ($group) {
-            return $group->addGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
-        });
+            $this->index['POST'] = new ControllerMap();
 
-        // Controller for Import Group
-        $this->index['POST']->register('group/import', function ($args) use ($group) {
-            return $group->importGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
-        });
+            $this->index['POST']->register('group', function ($args) use ($group) {
+                return $group->addGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+            });
 
-        $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {
-            return $group->removeMember($args[1], $args[0]);
-        });
+            // Controller for Import Group
+            $this->index['POST']->register('group/import', function ($args) use ($group) {
+                return $group->importGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+            });
 
-        $this->index['POST']->register('group/[digit]/members/[text]', function ($args) use ($group) {
-            return $group->deactivateMember($args[1], $args[0]);
-        });
+            $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {
+                return $group->removeMember($args[1], $args[0]);
+            });
 
-        $this->index['POST']->register('group/[digit]/members', function ($args) use ($group) {
-            return $group->addMember($_POST['userID'], $args[0]);
-        });
+            $this->index['POST']->register('group/[digit]/members/[text]', function ($args) use ($group) {
+                return $group->deactivateMember($args[1], $args[0]);
+            });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+            $this->index['POST']->register('group/[digit]/members', function ($args) use ($group) {
+                return $group->addMember($_POST['userID'], $args[0]);
+            });
+
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
     }
 
     public function delete($act)
     {
-        $this->verifyAdminReferrer();
-        $group = $this->group;
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['DELETE'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $group = $this->group;
 
-        $this->index['DELETE']->register('group/[digit]', function ($args) use ($group) {
-            return $group->removeGroup($args[0]);
-        });
+            $this->index['DELETE'] = new ControllerMap();
 
-        $this->index['DELETE']->register('group/[digit]/members/[text]', function ($args) use ($group) {
-            return $group->removeMember($args[1], $args[0]);
-        });
+            $this->index['DELETE']->register('group/[digit]', function ($args) use ($group) {
+                return $group->removeGroup($args[0]);
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            $this->index['DELETE']->register('group/[digit]/members/[text]', function ($args) use ($group) {
+                return $group->removeMember($args[1], $args[0]);
+            });
+
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
     }
 }

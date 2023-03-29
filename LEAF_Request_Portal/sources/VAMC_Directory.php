@@ -47,10 +47,8 @@ class VAMC_Directory
     // Connect to the database
     public function __construct()
     {
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
         $login = new \Orgchart\Login($oc_db, $oc_db);
-//        $login->loginUser();
         $this->Employee = new \Orgchart\Employee($oc_db, $login);
         $this->Group = new \Orgchart\Group($oc_db, $login);
         $this->Group->setNoLimit();
