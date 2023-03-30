@@ -334,7 +334,7 @@ class Email
     private function initOrgchart(): void
     {
         // set up org chart assets
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
@@ -361,7 +361,7 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        $this->nexus_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
+        $this->nexus_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
     }
 
     /**
