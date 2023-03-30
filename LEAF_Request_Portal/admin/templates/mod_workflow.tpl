@@ -2211,9 +2211,14 @@
                         CSRFToken: CSRFToken
                     },
                     success: function(res) {
-                        loadWorkflowList(res);
-                        workflowDescription = $('#workflow_rename').val();
-                        dialog.hide();
+                        if (res != currentWorkflow) {
+                            alert("Prerequisite action needed:\n\n" + res);
+                            dialog.hide();
+                        } else {
+                            loadWorkflowList(res);
+                            workflowDescription = $('#workflow_rename').val();
+                            dialog.hide();
+                        }
                     }
                 });
         });
