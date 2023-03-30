@@ -4,14 +4,13 @@ import GridCell from "../GridCell";
 import IndicatorPrivileges from "../IndicatorPrivileges";
 
 export default {
+    name: 'indicator-editing-dialog',
     data() {
         return {
             initialFocusElID: 'name',
-            showShortLabel: false,
-            shortLabelTrigger: 50,
             showAdditionalOptions: false,
             showDetailedFormatInfo: false,
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.focusedFormRecord.categoryID,
             formats: {
                 text: "Single line text",
                 textarea: "Multi-line text",
@@ -53,28 +52,30 @@ export default {
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
+            newIndicatorID: null,
+            name: this.indicatorRecord[this.currIndicatorID]?.name || '',
+            options: this.indicatorRecord[this.currIndicatorID]?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
+            format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //base format (eg 'radio')
+            description: this.indicatorRecord[this.currIndicatorID]?.description || '',
+            defaultValue: this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID]?.default || ''),
+            required: parseInt(this.indicatorRecord[this.currIndicatorID]?.required) === 1 || false,
+            is_sensitive: parseInt(this.indicatorRecord[this.currIndicatorID]?.is_sensitive) === 1 || false,
+            parentID: this.indicatorRecord[this.currIndicatorID]?.parentID ? 
+                    parseInt(this.indicatorRecord[this.currIndicatorID].parentID) : this.newIndicatorParentID,
+            //used here for new questions.  compared against undefined since it can be 0
+            sort: this.indicatorRecord[this.currIndicatorID]?.sort !== undefined ? parseInt(this.indicatorRecord[this.currIndicatorID].sort) : null,
 
-            name: this.ajaxIndicatorByID[this.currIndicatorID]?.name || '',
-            options: this.ajaxIndicatorByID[this.currIndicatorID]?.options || [],//options property, if present, is arr of options
-            format: this.ajaxIndicatorByID[this.currIndicatorID]?.format || '',  //format property here is just the format name
-            description: this.ajaxIndicatorByID[this.currIndicatorID]?.description || '',
-            defaultValue: this.ajaxIndicatorByID[this.currIndicatorID]?.default || '',
-            required: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.required) === 1 || false,
-            is_sensitive: parseInt(this.ajaxIndicatorByID[this.currIndicatorID]?.is_sensitive) === 1 || false,
-            parentID: this.ajaxIndicatorByID[this.currIndicatorID]?.parentID ? 
-                    parseInt(this.ajaxIndicatorByID[this.currIndicatorID].parentID) : this.newIndicatorParentID,
-            //sort can be 0, need to compare specifically against undefined
-            sort: this.ajaxIndicatorByID[this.currIndicatorID]?.sort !== undefined ? parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort) : null,
             //checkboxes input
-            singleOptionValue: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'checkbox' ? 
-                this.ajaxIndicatorByID[this.currIndicatorID].options : '',
-            //multi answer format inputs
-            multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.ajaxIndicatorByID[this.currIndicatorID]?.format) ? 
-                this.ajaxIndicatorByID[this.currIndicatorID].options?.join('\n') : '',
+            singleOptionValue: this.indicatorRecord[this.currIndicatorID]?.format === 'checkbox' ? 
+                this.indicatorRecord[this.currIndicatorID].options : '',
+            //list of options
+            multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.indicatorRecord[this.currIndicatorID]?.format) ?
+                this.indicatorRecord[this.currIndicatorID].options?.join('\n') : '',
+
             //used for grid formats
             gridBodyElement: 'div#container_indicatorGrid > div',
-            gridJSON: this.ajaxIndicatorByID[this.currIndicatorID]?.format === 'grid' ? 
-               JSON.parse(this.ajaxIndicatorByID[this.currIndicatorID]?.options[0]) : [],
+            gridJSON: this.indicatorRecord[this.currIndicatorID]?.format === 'grid' ? 
+               JSON.parse(this.indicatorRecord[this.currIndicatorID]?.options[0]) : [],
 
             archived: false,
             deleted: false
@@ -83,19 +84,20 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'initializeOrgSelector',
         'isEditingModal',
         'closeFormDialog',
-        'currCategoryID',
-        'currSubformID',
         'currIndicatorID',
-        'ajaxIndicatorByID',
-        'ajaxFormByCategoryID',
+        'indicatorRecord',
+        'focusedFormRecord',
+        'focusedFormTree',
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'updateCategoriesProperty',
         'newIndicatorParentID',
         'truncateText',
-        'toggleIndicatorCountSwitch'
+        'stripAndDecodeHTML',
+        'orgchartFormats'
     ],
     provide() {
         return {
@@ -118,13 +120,27 @@ export default {
             this.sort = this.newQuestionSortValue;
         }
         if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
-            $('#advNameEditor').click();
+            document.getElementById('advNameEditor').click();
             document.querySelector('.trumbowyg-editor').focus();
         } else {
             document.getElementById(this.initialFocusElID).focus();
         }
+        if (this.orgchartFormats.includes(this.format)){
+            const selType = this.format.slice(this.format.indexOf('_') + 1);
+            this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue);
+            document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.addEventListener('change', this.updateDefaultValue);
+        }
+    },
+    beforeUnmount() {
+        document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.removeEventListener('change', this.updateDefaultValue);
     },
     computed:{
+        shortLabelTriggered() {
+            return this.name.trim().split(' ').length > 3;
+        },
+        formatBtnText() {
+            return this.showDetailedFormatInfo ? "Hide Details" : "What's this?";
+        },
         isMultiOptionQuestion() {
             return this.multianswerFormats.includes(this.format);
         },
@@ -149,23 +165,27 @@ export default {
             }
             return fullFormat;
         },
-        shortlabelCharsRemaining(){
+        shortlabelCharsRemaining() {
             return 50 - this.description.length;
         },
         /**
          * used to set the default sort value of a new question to last index in current depth
          * @returns {number} 
          */
-        newQuestionSortValue(){
+        newQuestionSortValue() {
+            const offset = 128;
             const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
             const sortVal = (this.parentID === null) ?
-                this.ajaxFormByCategoryID.length :                                 //new form sections/pages
-                Array.from(document.querySelectorAll(nonSectionSelector)).length   //new questions in existing sections
+                this.focusedFormTree.length - offset:                                       //new form sections/pages
+                Array.from(document.querySelectorAll(nonSectionSelector)).length - offset   //new questions in existing sections
             return sortVal;
         }
     },
     methods: {
-        toggleSelection(event, dataPropertyName = 'showShortLabel') {
+        updateDefaultValue(event) {
+            this.defaultValue = event.currentTarget.value;
+        },
+        toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
                 this[dataPropertyName] = !this[dataPropertyName];
             }
@@ -174,7 +194,7 @@ export default {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}/form/_${this.currCategoryID}/flat`,
+                    url: `${this.APIroot}/form/_${this.formID}/flat`,
                     success: (res)=> {
                         for (let i in res) {
                             res[i]['1'].name = XSSHelpers.stripAllTags(res[i]['1'].name);
@@ -200,23 +220,22 @@ export default {
             }
             
             let indicatorEditingUpdates = [];
-            if (this.isEditingModal) { /*  CALLS FOR EDITTING AN EXISTING QUESTION */
-                const nameChanged = this.name !== this.ajaxIndicatorByID[this.currIndicatorID].name;
-                const descriptionChanged = this.description !== this.ajaxIndicatorByID[this.currIndicatorID].description;
+            if (this.isEditingModal) { /* CALLS FOR EDITTING AN EXISTING QUESTION */
+                const nameChanged = this.name !== this.indicatorRecord[this.currIndicatorID].name;
+                const descriptionChanged = this.description !== this.indicatorRecord[this.currIndicatorID].description;
 
-                const options = this.ajaxIndicatorByID[this.currIndicatorID]?.options ? 
-                                '\n' + this.ajaxIndicatorByID[this.currIndicatorID]?.options?.join('\n') : '';
-                const fullFormatChanged = this.fullFormatForPost !== this.ajaxIndicatorByID[this.currIndicatorID].format + options;
+                const options = this.indicatorRecord[this.currIndicatorID]?.options ? 
+                                '\n' + this.indicatorRecord[this.currIndicatorID]?.options?.join('\n') : '';
+                const fullFormatChanged = this.fullFormatForPost !== this.indicatorRecord[this.currIndicatorID].format + options;
 
-                const defaultChanged = this.defaultValue !== this.ajaxIndicatorByID[this.currIndicatorID].default;
-                const requiredChanged = +this.required !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].required);
-                const sensitiveChanged = +this.is_sensitive !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].is_sensitive);
-                //const sortChanged = this.sort !== parseInt(this.ajaxIndicatorByID[this.currIndicatorID].sort);
-                const parentIDChanged = this.parentID !== this.ajaxIndicatorByID[this.currIndicatorID].parentID;
+                const defaultChanged = this.stripAndDecodeHTML(this.defaultValue) !== this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID].default);
+                const requiredChanged = +this.required !== parseInt(this.indicatorRecord[this.currIndicatorID].required);
+                const sensitiveChanged = +this.is_sensitive !== parseInt(this.indicatorRecord[this.currIndicatorID].is_sensitive);
+                const parentIDChanged = this.parentID !== this.indicatorRecord[this.currIndicatorID].parentID;
                 const shouldArchive = this.archived === true;
                 const shouldDelete = this.deleted === true;
                 //keeping for now for potential debugging
-                //console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,sort,parentID,archive,delete');
+                //console.log('CHANGES?: name,descr,fullFormat,default,required,sensitive,parentID,archive,delete');
                 //console.log(nameChanged,descriptionChanged,fullFormatChanged,defaultChanged,requiredChanged,sensitiveChanged,parentIDChanged,shouldArchive,shouldDelete);
 
                 if(nameChanged) {
@@ -328,6 +347,7 @@ export default {
                                 disabled: 1,
                                 CSRFToken: this.CSRFToken
                             },
+                            success: () => {},
                             error: err => console.log('ind disabled (archive) post err', err)
                         })
                     );
@@ -341,6 +361,7 @@ export default {
                                 disabled: 2,
                                 CSRFToken: this.CSRFToken
                             },
+                            success: () => {},
                             error: err => console.log('ind disabled (deletion) post err', err)
                         })
                     );
@@ -357,20 +378,7 @@ export default {
                             error: err => console.log('ind parentID post err', err)
                         })
                     );
-                } /*
-                if(sortChanged) { //NOTE: (tentative) using Form Index for sorting, but keeping so this can just be re-added if needed.
-                    indicatorEditingUpdates.push(
-                        $.ajax({
-                            type: 'POST',
-                            url: `${this.APIroot}formEditor/${this.currIndicatorID}/sort`,
-                            data: {
-                                sort: this.sort,
-                                CSRFToken: this.CSRFToken
-                            },
-                            error: err => console.log('ind sort post err', err)
-                        })
-                    );
-                }*/
+                }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
                 if (this.is_sensitive) {
@@ -406,22 +414,26 @@ export default {
                             sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
-                        success: () => {},
+                        success: (res) => {
+                            this.newIndicatorID = parseInt(res);
+                        },
                         error: err => console.log('error posting new question', err)
                     })
                 );
             }
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
-                
                 if (res.length > 0) {
-                    const subnodeIndID = (this.archived === true || this.deleted === true) && 
-                            this.currIndicatorID === this.selectedNodeIndicatorID ? null: this.selectedNodeIndicatorID
-                        
-                    if (this.archived === true || this.deleted === true) {
-                        this.toggleIndicatorCountSwitch();
+                    //if a new section was created
+                    if (this.newIndicatorID !== null && this.parentID === null) {
+                        this.selectNewCategory(this.formID, this.newIndicatorID);
+
+                    //other edits
+                    } else {
+                        const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
+                            (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
+                        this.selectNewCategory(this.formID, nodeID);
                     }
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, subnodeIndID);
                 }
                 this.closeFormDialog();
             }).catch(err => console.log('an error has occurred', err));
@@ -456,7 +468,7 @@ export default {
             }
             return returnValue;
         },
-        updateGridJSON() {  // TODO: try to rework wo jQuery
+        updateGridJSON() {
             let gridJSON = [];
             let t = this;
             //gather column names and column types. if type is dropdown, adds property.options
@@ -516,31 +528,38 @@ export default {
             $('#name').trumbowyg('destroy');
         }
     },
+    watch: {
+        format(newVal, oldVal) {
+            this.defaultValue = '';
+            if (this.orgchartFormats.includes(newVal)) {
+                const selType = newVal.slice(newVal.indexOf('_') + 1);
+
+                setTimeout(() => {
+                    this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '');
+                    let el = document.getElementById(`modal_orgSel_data${this.currIndicatorID}`);
+                    el.addEventListener('change', this.updateDefaultValue);
+                },10);
+            }
+        }
+    },
     template: `<div id="indicator-editing-dialog-content">
         <div>
             <label for="name">Field Name</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <div style="display:flex; justify-content: space-between;">
-                <button class="btn-general" id="rawNameEditor"
+                <button type="button" class="btn-general" id="rawNameEditor"
                     title="use basic text editor"
                     @click="rawNameEditorClick" style="display: none; width:135px">
                     Show formatted code
                 </button>
-                <button class="btn-general" id="advNameEditor"
+                <button type="button" class="btn-general" id="advNameEditor"
                     title="use advanced text editor" style="width:135px"
                     @click="advNameEditorClick">
                     Advanced Formatting
                 </button>
-                <button v-show="name.length <= shortLabelTrigger && description === ''" 
-                    class="btn-general" 
-                    style="margin-left: auto; width:135px"
-                    title="access short label field"
-                    @click="toggleSelection($event, 'showShortLabel')">
-                    {{showShortLabel ? 'Hide' : 'Use'}} Short Label
-                </button>
             </div>
         </div>
-        <div v-show="description !== '' || name.length > shortLabelTrigger || showShortLabel === true">
+        <div v-show="description !== '' || shortLabelTriggered">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label for="description">What would you call this field in a spreadsheet?</label>
                 <div>{{shortlabelCharsRemaining}}</div>
@@ -556,10 +575,10 @@ export default {
                         <option v-for="kv in Object.entries(formats)" 
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
-                    <button id="editing-format-assist" class="btn-general"
+                    <button type="button" id="editing-format-assist" class="btn-general"
                         @click="toggleSelection($event, 'showDetailedFormatInfo')"
                         title="select for assistance with format choices" style=" align-self:stretch; margin-left: 3px;">
-                        {{ showDetailedFormatInfo ? 'Hide' : 'Show'}} Details
+                        {{ formatBtnText }}
                     </button>
                 </div>
                 <div v-show="showDetailedFormatInfo" id="formatDetails" style="max-width:500px; font-size: 0.9rem; margin-bottom: 1rem;">
@@ -581,7 +600,7 @@ export default {
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
                 <div style="display:flex; align-items: center;">
-                    <button class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
                         @click="appAddCell">
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
@@ -593,7 +612,11 @@ export default {
             </div>
             <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
-                <textarea id="defaultValue" v-model="defaultValue"></textarea> 
+                <template v-if="orgchartFormats.includes(format)">
+                    <input :id="'modal_orgSel_data' + currIndicatorID" @change="updateDefaultValue" style="display: none; "/>
+                    <div :id="'modal_orgSel_' + currIndicatorID" style="min-height:30px" aria-labelledby="defaultValue"></div>
+                </template>
+                <textarea v-show="!orgchartFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
         </div>
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
@@ -629,7 +652,7 @@ export default {
                     </label>
                 </template>
             </div>
-            <button v-if="isEditingModal" 
+            <button v-if="isEditingModal" type="button"
                 class="btn-general" 
                 title="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
