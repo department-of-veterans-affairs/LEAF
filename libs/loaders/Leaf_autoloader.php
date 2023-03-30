@@ -76,11 +76,7 @@ if (count($_GET) > 0) {
 }
 
 if (session_id() == '') {
-    if(defined('DIRECTORY_HOST')) {
-        $session_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
-    } else {
-        $session_db = $oc_db;
-    }
+    $session_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
 
     if (class_exists('Portal\Session')) {
         $sessionHandler = new \Portal\Session($session_db);
