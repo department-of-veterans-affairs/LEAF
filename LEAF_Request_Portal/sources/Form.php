@@ -39,10 +39,10 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \DIRECTORY_DB);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->oc_dbName = \DIRECTORY_DB;
+        $this->oc_dbName = \ORGCHART_DB;
 
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
         $this->position = new \Orgchart\Position($oc_db, $oc_login);

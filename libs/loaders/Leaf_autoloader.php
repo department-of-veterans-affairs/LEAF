@@ -114,3 +114,10 @@ if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_H
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['orgchart_path']);
 if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['site_path']);
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
+if (!defined('ORGCHART_DB')) define('ORGCHART_DB', $site_paths['orgchart_database']);
+
+if (!empty($site_paths['portal_database'])) {
+    if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['portal_database']);
+} else {
+    if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['orgchart_database']);
+}
