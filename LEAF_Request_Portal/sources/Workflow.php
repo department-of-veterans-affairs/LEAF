@@ -1090,6 +1090,11 @@ class Workflow
             return 'Admin access required.';
         }
 
+        // Don't allow changes to standardized components
+        if ($this->workflowID < 0) {
+            return 'Restricted command.';
+        }
+        
         $vars = array(':workflowID' => $this->workflowID,
                       ':description' => $description
                 );
