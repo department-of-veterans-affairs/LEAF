@@ -18,6 +18,7 @@ $login->setBaseDir('../');
 $p_db = $db;
 
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
+error_log(print_r($action, true));
 $keyIndex = strpos($action, '/');
 $key = null;
 
@@ -189,6 +190,28 @@ $controllerMap->register('templateHistoryMergeFile', function () use ($db, $logi
 $controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
     $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
     $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/fileHistory', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/getHistoryFiles', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/saveReportMergeTemplate', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/deleteHistoryFileReport', function () use ($db, $login, $action) {
+    error_log(print_r("index", true));
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    $TemplateReportsController->handler($action);
+
 });
 
 $controllerMap->runControl($key);

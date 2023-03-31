@@ -435,7 +435,7 @@
         $.ajax({
                 type: 'POST',
                 data: {CSRFToken: '<!--{$CSRFToken}-->',
-                file: data
+                file: codeEditor.getValue()
             },
             url: '../api/templateEditor/_' + currentFile,
             success: function(res) {

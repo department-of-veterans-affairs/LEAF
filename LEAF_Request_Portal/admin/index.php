@@ -200,7 +200,7 @@ switch ($action) {
         $t_form->assign('libsPath', $libsPath);
         $t_form->assign('orgchartPath', '../' . Portal\Config::$orgchartPath);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $db_phonebook));
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 

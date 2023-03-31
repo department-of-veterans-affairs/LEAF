@@ -48,7 +48,7 @@ class TemplateFileHistory
             return 'Admin access required';
         }
 
-        $list = scandir('../templates_history/');
+        $list = scandir('../templates_history/template_editor/');
         $out = array();
         foreach ($list as $item) {
             if (preg_match('/.tpl$/', $item)) {
@@ -99,6 +99,7 @@ class TemplateFileHistory
 
     function setTemplateFileHistory($templateFileHistory)
     {
+        error_log(print_r($templateFileHistory, true));
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
@@ -107,14 +108,14 @@ class TemplateFileHistory
         $random_number = rand(1, 100);
 
         // Generate a new random number if the previous one is already being used
-        while (file_exists("../templates_history/{$random_number}.'_'.{$templateFileHistory}")) {
+        while (file_exists("../templates_history/template_editor/{$random_number}.'_'.{$templateFileHistory}")) {
             $random_number = rand(1, 100);
         }
 
         if (array_search($templateFileHistory, $list) !== false) {
             $fileData = $_POST['file'];
             $fileName = $random_number. "_" .$templateFileHistory;
-            $filePath = "../templates_history/{$fileName}";
+            $filePath = "../templates_history/template_editor/{$fileName}";
             file_put_contents($filePath, $fileData);
 
             $fileSize = filesize($filePath);
