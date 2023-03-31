@@ -81,7 +81,6 @@ class TemplateFileHistory
 
     public function getTemplateFileHistory($templateFile)
     {
-        error_log(print_r($templateFile, true));
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
