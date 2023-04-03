@@ -29,7 +29,7 @@ if ($keyIndex === false) {
 }
 
 // exclude some controllers from login requirement
-switch($key) {
+switch ($key) {
     case 'classicphonebook':
     case 'telemetry':
     case 'userActivity':
@@ -53,8 +53,7 @@ $controllerMap->register('classicphonebook', function () use ($p_db, $login, $ac
 });
 
 // admin only
-if ($login->checkGroup(1))
-{
+if ($login->checkGroup(1)) {
     $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
         $controller = new Portal\SimpleDataController($p_db, $login);
         $controller->handler($action);
@@ -135,6 +134,17 @@ $controllerMap->register('emailTemplates', function () use ($p_db, $login, $acti
     $EmailTemplateController->handler($action);
 });
 
+$controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $login, $action) {
+    $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
+    $EmailTemplateController->handler($action);
+});
+
+$controllerMap->register('getEmailTemplateFileHistory', function () use ($p_db, $login, $action) {
+    $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
+    $EmailTemplateController->handler($action);
+    error_log(print_r('Index, get Email Template', true));
+});
+
 $controllerMap->register('converter', function () use ($p_db, $login, $action) {
     $ConverterController = new Portal\ConverterController($p_db, $login);
     $ConverterController->handler($action);
@@ -145,22 +155,22 @@ $controllerMap->register('telemetry', function () use ($p_db, $login, $action) {
     $TelemetryController->handler($action);
 });
 
-$controllerMap->register('signature', function() use ($p_db, $login, $action) {
+$controllerMap->register('signature', function () use ($p_db, $login, $action) {
     $SignatureController = new Portal\SignatureController($p_db, $login);
     $SignatureController->handler($action);
 });
 
-$controllerMap->register('open', function() use ($p_db, $login, $action) {
+$controllerMap->register('open', function () use ($p_db, $login, $action) {
     $OpenController = new Portal\OpenController($p_db, $login);
     $OpenController->handler($action);
 });
 
-$controllerMap->register('userActivity', function() use ($p_db, $login, $action) {
+$controllerMap->register('userActivity', function () use ($p_db, $login, $action) {
     $UserActivity = new Portal\UserActivity($p_db, $login);
     $UserActivity->handler($action);
 });
 
-$controllerMap->register('note', function() use ($p_db, $login, $action) {
+$controllerMap->register('note', function () use ($p_db, $login, $action) {
     $dataActionLogger = new Leaf\DataActionLogger($p_db, $login);
 
     $NotesController = new Portal\NotesController($p_db, $login, $dataActionLogger);
@@ -208,10 +218,8 @@ $controllerMap->register('reportTemplates/saveReportMergeTemplate', function () 
 });
 
 $controllerMap->register('reportTemplates/deleteHistoryFileReport', function () use ($db, $login, $action) {
-    error_log(print_r("index", true));
     $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
     $TemplateReportsController->handler($action);
-
 });
 
 $controllerMap->runControl($key);
