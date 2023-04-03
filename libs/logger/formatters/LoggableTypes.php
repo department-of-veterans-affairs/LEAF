@@ -13,6 +13,7 @@ class LoggableTypes
     const INDICATOR = "indicator";
     const PORTAL_GROUP = "portal_group";
     const WORKFLOW = "workflow";
+    const WORKFLOW_NAME = "workflow_name";
     const WORKFLOW_STEP = "workflow_step";
     const WORKFLOW_ROUTE = "workflow_route";
     const STEP_DEPENDENCY = "step_dependency";

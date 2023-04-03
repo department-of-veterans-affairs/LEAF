@@ -1,14 +1,15 @@
 export default {
+    name: 'advanced-options-dialog',
     data() {
         return {
             initialFocusElID: '#advanced legend',
             left: '{{',
             right: '}}',
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.focusedFormRecord.categoryID,
             codeEditorHtml: {},
             codeEditorHtmlPrint: {},
-            html: this.ajaxIndicatorByID[this.currIndicatorID].html === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].html,
-            htmlPrint: this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint === null ? '' : this.ajaxIndicatorByID[this.currIndicatorID].htmlPrint
+            html: this.indicatorRecord[this.currIndicatorID].html === null ? '' : this.indicatorRecord[this.currIndicatorID].html,
+            htmlPrint: this.indicatorRecord[this.currIndicatorID].htmlPrint === null ? '' : this.indicatorRecord[this.currIndicatorID].htmlPrint
         }
     },
     inject: [
@@ -16,10 +17,9 @@ export default {
         'libsPath',
         'CSRFToken',
         'closeFormDialog',
-        'currCategoryID',
-        'currSubformID',
+        'focusedFormRecord',
         'currIndicatorID',
-        'ajaxIndicatorByID',
+        'indicatorRecord',
         'selectNewCategory',
         'hasDevConsoleAccess',
         'selectedNodeIndicatorID'
@@ -81,7 +81,7 @@ export default {
                     this.html = htmlValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_html').innerHTML = ', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
                 },
                 error: (err) => console.log(err)
             });
@@ -99,7 +99,7 @@ export default {
                     this.htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_htmlPrint').innerHTML =', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
                 },
                 error: (err) => console.log(err)
             });
@@ -142,7 +142,7 @@ export default {
             Promise.all(advancedOptionsUpdates).then((res)=> {
                 this.closeFormDialog();
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
                 }
             }).catch(err => console.log('an error has occurred', err));
         }
@@ -171,7 +171,7 @@ export default {
                 </table><br />
                 <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     html (for pages where the user can edit data): 
-                    <button id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
+                    <button type="button" id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
                         <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_html"></span>
                     </button>
@@ -179,7 +179,7 @@ export default {
                 <textarea id="html">{{html}}</textarea><br />
                 <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                     htmlPrint (for pages where the user can only read data): 
-                    <button id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
+                    <button  type="button" id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
                         <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_htmlPrint"></span>
                     </button>
