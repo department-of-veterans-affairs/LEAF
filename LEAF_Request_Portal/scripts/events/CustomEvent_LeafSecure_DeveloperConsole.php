@@ -41,7 +41,8 @@ class CustomEvent_LeafSecure_DeveloperConsole
         $res = $this->db->prepared_query('SELECT userID FROM records WHERE recordID=:recordID', $vars);
 
         // get the initiator's empUID
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $config = new \Orgchart\Config;
+        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
         $login = new \Orgchart\Login($oc_db, $oc_db);
         $employee = new \Orgchart\Employee($oc_db, $login);
 

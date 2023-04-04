@@ -77,85 +77,80 @@ class SystemController extends RESTfulResponse
 
     public function post($act)
     {
+        $db = $this->db;
+        $login = $this->login;
         $system = $this->system;
 
-        $verified = $this->verifyAdminReferrer();
+        $this->verifyAdminReferrer();
 
-        if ($verified) {
-            echo $verified;
-        } else {
-            $this->index['POST'] = new ControllerMap();
-            $this->index['POST']->register('system', function () {
-            });
+        $this->index['POST'] = new ControllerMap();
+        $this->index['POST']->register('system', function ($args) {
+        });
 
-            $this->index['POST']->register('system/actions', function () use ($system) {
-                return $system->addAction();
-            });
+        $this->index['POST']->register('system/actions', function ($args) use ($db, $login, $system) {
+            return $system->addAction();
+        });
 
-            $this->index['POST']->register('system/settings/heading', function () use ($system) {
-                $_POST['heading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['heading']);
+        $this->index['POST']->register('system/settings/heading', function ($args) use ($system) {
+            $_POST['heading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['heading']);
 
-                return $system->setHeading();
-            });
+            return $system->setHeading();
+        });
 
-            $this->index['POST']->register('system/settings/subHeading', function () use ($system) {
-                $_POST['subHeading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['subHeading']);
+        $this->index['POST']->register('system/settings/subHeading', function ($args) use ($system) {
+            $_POST['subHeading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['subHeading']);
 
-                return $system->setSubHeading();
-            });
+            return $system->setSubHeading();
+        });
 
-            $this->index['POST']->register('system/settings/requestLabel', function () use ($system) {
-                return $system->setRequestLabel();
-            });
+        $this->index['POST']->register('system/settings/requestLabel', function ($args) use ($system) {
+            return $system->setRequestLabel();
+        });
 
-            $this->index['POST']->register('system/settings/timeZone', function () use ($system) {
-                return $system->setTimeZone();
-            });
+        $this->index['POST']->register('system/settings/timeZone', function ($args) use ($system) {
+            return $system->setTimeZone();
+        });
 
-            $this->index['POST']->register('system/settings/siteType', function () use ($system) {
-                return $system->setSiteType();
-            });
+        $this->index['POST']->register('system/settings/siteType', function ($args) use ($system) {
+            return $system->setSiteType();
+        });
 
-            $this->index['POST']->register('system/settings/national_linkedSubordinateList', function () use ($system) {
-                return $system->setNationalLinkedSubordinateList();
-            });
+        $this->index['POST']->register('system/settings/national_linkedSubordinateList', function ($args) use ($system) {
+            return $system->setNationalLinkedSubordinateList();
+        });
 
-            $this->index['POST']->register('system/settings/national_linkedPrimary', function () use ($system) {
-                return $system->setNationalLinkedPrimary();
-            });
+        $this->index['POST']->register('system/settings/national_linkedPrimary', function ($args) use ($system) {
+            return $system->setNationalLinkedPrimary();
+        });
 
-            $this->index['POST']->register('system/setPrimaryadmin', function () use ($system) {
-                $_POST['userID'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['userID']);
-                return $system->setPrimaryAdmin();
-            });
+        $this->index['POST']->register('system/setPrimaryadmin', function ($args) use ($system) {
+            $_POST['userID'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['userID']);
+            return $system->setPrimaryAdmin();
+        });
 
-            $this->index['POST']->register('system/unsetPrimaryadmin', function () use ($system) {
-                return $system->unsetPrimaryAdmin();
-            });
+        $this->index['POST']->register('system/unsetPrimaryadmin', function ($args) use ($system) {
+            return $system->unsetPrimaryAdmin();
+        });
 
-            return $this->index['POST']->runControl($act['key'], $act['args']);
-        }
+        return $this->index['POST']->runControl($act['key'], $act['args']);
     }
 
     public function delete($act)
     {
+        $db = $this->db;
+        $login = $this->login;
         $system = $this->system;
 
-        $verified = $this->verifyAdminReferrer();
+        $this->verifyAdminReferrer();
 
-        if ($verified) {
-            echo $verified;
-        } else {
-            $this->index['DELETE'] = new ControllerMap();
-            $this->index['DELETE']->register('system', function () {
-            });
+        $this->index['DELETE'] = new ControllerMap();
+        $this->index['DELETE']->register('system', function ($args) {
+        });
 
-            $this->index['DELETE']->register('system/files/delete', function () use ($system) {
-                return $system->removeFile($_GET['file']);
-            });
+        $this->index['DELETE']->register('system/files/delete', function ($args) use ($db, $login, $system) {
+            return $system->removeFile($_GET['file']);
+        });
 
-            return $this->index['DELETE']->runControl($act['key'], $act['args']);
-        }
-
+        return $this->index['DELETE']->runControl($act['key'], $act['args']);
     }
 }

@@ -179,7 +179,6 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $main->assign('javascripts', array($libsPath.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            $libsPath.'js/filesaver/FileSaver.min.js',
                                             $libsPath.'js/codemirror/lib/codemirror.js',
                                             $libsPath.'js/codemirror/mode/xml/xml.js',
                                             $libsPath.'js/codemirror/mode/javascript/javascript.js',
@@ -188,18 +187,12 @@ switch ($action) {
                                             $libsPath.'js/codemirror/addon/display/fullscreen.js',
                                             $libsPath.'js/LEAF/XSSHelpers.js',
                                             $libsPath.'js/choicesjs/choices.min.js',
-                                            '../js/formQuery.js',
-                                            '../' . Portal\Config::$orgchartPath . '/js/employeeSelector.js',
-                                            '../' . Portal\Config::$orgchartPath . '/js/groupSelector.js',
-                                            '../' . Portal\Config::$orgchartPath . '/js/positionSelector.js'
+                                            '../js/formQuery.js'
         ));
         $main->assign('stylesheets', array($libsPath.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
                                             $libsPath.'js/codemirror/lib/codemirror.css',
                                             $libsPath.'js/codemirror/addon/display/fullscreen.css',
-                                            $libsPath.'js/choicesjs/choices.min.css',
-                                            '../' . Portal\Config::$orgchartPath . '/css/employeeSelector.css',
-                                            '../' . Portal\Config::$orgchartPath . '/css/groupSelector.css',
-                                            '../' . Portal\Config::$orgchartPath . '/css/positionSelector.css'
+                                            $libsPath.'js/choicesjs/choices.min.css'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);

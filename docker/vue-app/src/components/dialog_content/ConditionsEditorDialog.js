@@ -1,14 +1,12 @@
 export default {
-    name: 'conditions-editor-dialog',
     data() {
         return {
             vueData: { 
-                formID: this.focusedFormRecord.categoryID,
+                formID: this.currSubformID || this.currCategoryID,
                 indicatorID: this.currIndicatorID
             },
             //indicatorOrg: {},  NOTE: keep
             indicators: [],
-            appIsLoadingIndicators: true,
             selectedParentIndicator: {},
             selectedDisabledParentID: null,
             selectedParentOperators: [],
@@ -23,24 +21,24 @@ export default {
             showRemoveConditionModal: false,
             showConditionEditor: false,
             editingCondition: '',
-            enabledParentFormats: ['dropdown', 'multiselect', 'radio', 'checkboxes'],
-            multiOptionFormats: ['multiselect', 'checkboxes']
+            enabledParentFormats: ['dropdown', 'multiselect']
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
         'currIndicatorID',
-        'focusedFormRecord',
+        'currCategoryID',
+        'currSubformID',
         'selectedNodeIndicatorID',
         'selectNewCategory',
         'closeFormDialog',
         'truncateText',
     ],
-    mounted() {
-        const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
-        if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
+    beforeMount(){
         this.getAllIndicators();
+    },
+    mounted(){
         //console.log('IFTHEN (form editor) mounted', this.vueData);
     },
     updated() {
@@ -70,7 +68,6 @@ export default {
                             this.crawlParents(i,i);
                         }    
                     });
-                    this.appIsLoadingIndicators = false;
                     this.updateSelectedChildIndicator();
                 },
                 error: (err)=> {
@@ -171,9 +168,9 @@ export default {
          * @param {Object} target (DOM element)
          */
         updateSelectedParentValue(target = {}) {
-            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim().toLowerCase();
+            const parFormat = this.selectedParentIndicator.format.split('\n')[0].trim();
             let value = '';
-            if (this.multiOptionFormats.includes(parFormat)) {
+            if (parFormat.toLowerCase() === 'multiselect') {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -188,9 +185,9 @@ export default {
          * @param {Object} target (DOM element)
          */
         updateSelectedChildValue(target = {}) {
-            const childFormat = this.childIndicator.format.split('\n')[0].trim().toLowerCase();
+            const childFormat = this.childIndicator.format.split('\n')[0].trim();
             let value = '';
-            if (this.multiOptionFormats.includes(childFormat)) {
+            if (childFormat === 'multiselect') {
                 const arrSelections = Array.from(target.selectedOptions);
                 arrSelections.forEach(sel => {
                     value += sel.label.replaceAll('\r', '').trim() + '\n';
@@ -212,9 +209,9 @@ export default {
 
                 const headerIndicatorID = parseInt(indicator.headerIndicatorID);
                 this.selectableParents = this.indicators.filter(i => {
-                    const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
                     return parseInt(i.headerIndicatorID) === headerIndicatorID && 
-                        parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) && this.enabledParentFormats.includes(parFormat);
+                            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+                            (i.format.indexOf('dropdown') === 0 || i.format.indexOf('multiselect') === 0);  //dropdowns, multiselect parent only
                 });
             }
             $.ajax({
@@ -290,7 +287,7 @@ export default {
                                 /* refetch works, but just updating the obj would be faster
                                 //TODO: update conditions of this ind on the form view formnode to update the UI
                                 const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
-                                this.selectNewCategory(this.vueData.formID, this.selectedNodeIndicatorID);
+                                this.selectNewCategory(this.vueData.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
                                 this.closeFormDialog();
                             } else { console.log('error adding condition', res) }                          
                         },
@@ -349,7 +346,7 @@ export default {
                                 /*
                                 //TODO: update conditions of this ind on the form view formnode to update the UI
                                 const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
-                                this.selectNewCategory(this.vueData.formID, this.selectedNodeIndicatorID);
+                                this.selectNewCategory(this.vueData.formID, this.currSubformID !== null, this.selectedNodeIndicatorID);
 
                             } else { console.log('error removing condition', res) }
                         },
@@ -404,7 +401,7 @@ export default {
             const parFormat = condition.parentFormat;
             switch(op){
                 case '==':
-                    return this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
+                    return parFormat === 'multiselect' ? 'includes' : 'is';
                 case '!=':
                     return 'is not';
                 case '>':
@@ -443,7 +440,7 @@ export default {
             const parentFormat = this.conditions.parentFormat.toLowerCase();
             const outcome = this.conditions.selectedOutcome.toLowerCase();
            
-            if(this.multiOptionFormats.includes(parentFormat) && elSelectParent !== null && !elSelectParent.choicesjs) {
+            if(parentFormat === 'multiselect' && elSelectParent !== null && !elSelectParent.choicesjs) {
                 let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
 
@@ -462,7 +459,7 @@ export default {
                 elSelectParent.choicesjs = choices;
             }
 
-            if(outcome === 'pre-fill' && this.multiOptionFormats.includes(childFormat) && elSelectChild !== null && elExistingChoicesChild === null) {
+            if(outcome === 'pre-fill' && childFormat === 'multiselect' && elSelectChild !== null && elExistingChoicesChild === null) {
                 let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
                 
@@ -571,13 +568,9 @@ export default {
         }
     },
     template: `<div id="condition_editor_center_panel">
-            <div v-if="appIsLoadingIndicators" style="border: 2px solid black; text-align: center; 
-                font-size: 24px; font-weight: bold; padding: 16px;">
-                Loading... 
-                <img src="../images/largespinner.gif" alt="loading..." />
-            </div>
+
             <!-- NOTE: MAIN EDITOR TEMPLATE -->
-            <div v-else id="condition_editor_inputs">
+            <div id="condition_editor_inputs">
                 <div>
                     <ul v-if="savedConditions && savedConditions.length > 0 && !showRemoveConditionModal" 
                         id="savedConditionsList">
@@ -585,7 +578,7 @@ export default {
                         <div v-if="conditionTypes.show.length > 0">
                             <p style="margin-bottom: 0.5rem;"><b>This field will be hidden except:</b></p>
                             <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
-                                <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -597,7 +590,7 @@ export default {
                                     </span>
                                     <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                                 </button>
-                                <button type="button" style="width: 1.75em;"
+                                <button style="width: 1.75em;"
                                 class="btn_remove_condition"
                                 @click="removeCondition({confirmDelete: false, condition: c})">X
                                 </button>
@@ -607,7 +600,7 @@ export default {
                         <div v-if="conditionTypes.hide.length > 0">
                             <p style="margin-bottom: 0.5rem;"><b>This field will be shown except:</b></p>
                             <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
-                                <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -619,7 +612,7 @@ export default {
                                     </span>
                                     <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                                 </button>
-                                <button  type="button" style="width: 1.75em;"
+                                <button style="width: 1.75em;"
                                 class="btn_remove_condition"
                                 @click="removeCondition({confirmDelete: false, condition: c})">X
                                 </button>
@@ -629,7 +622,7 @@ export default {
                         <div v-if="conditionTypes.prefill.length > 0">
                             <p style="margin-bottom: 0.5rem;"><b>This field will be pre-filled:</b></p>
                             <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
-                                <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                <button @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                     :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
                                     <span v-if="!isOrphan(parseInt(c.parentIndID))">
                                         If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -641,22 +634,22 @@ export default {
                                     </span>
                                     <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
                                 </button>
-                                <button type="button" style="width: 1.75em;"
+                                <button style="width: 1.75em;"
                                     class="btn_remove_condition"
                                     @click="removeCondition({confirmDelete: false, condition: c})">X
                                 </button>
                             </li>
                         </div>
                     </ul>
-                    <button v-if="!showRemoveConditionModal" type="button" @click="newCondition" class="btnNewCondition">+ New Condition</button>
+                    <button v-if="!showRemoveConditionModal" @click="newCondition" class="btnNewCondition">+ New Condition</button>
                     <div v-if="showRemoveConditionModal">
                         <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                         <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                             <li style="width: 30%;">
-                                <button type="button" class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: conditions })">Delete</button>
+                                <button class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: conditions })">Delete</button>
                             </li>
                             <li style="width: 30%;">
-                                <button type="button" id="btn_cancel" @click="showRemoveConditionModal=false">Cancel</button>
+                                <button id="btn_cancel" @click="showRemoveConditionModal=false">Cancel</button>
                             </li>
                         </ul>
                     </div>
@@ -673,20 +666,20 @@ export default {
                             <option value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase() === 'pre-fill'">Pre-fill this Question</option>
                     </select>
                     <span v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill'" class="input-info">Enter a pre-fill value</span>
-                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
-                    <select v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
+                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text -->
+                    <select v-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && childFormat === 'dropdown'"
                         name="child-prefill-value-selector"
                         id="child_prefill_entry"
                         @change="updateSelectedChildValue($event.target)">
                         <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>    
                         <option v-for="val in selectedChildValueOptions" 
                             :value="val"
-                            :key="'child_prefill_' + val"
+                            :key="val"
                             :selected="textValueDisplay(conditions.selectedChildValue) === val">
                             {{ val }} 
                         </option>
                     </select>
-                    <select v-else-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && (conditions.childFormat === 'multiselect' || childFormat === 'checkboxes')"
+                    <select v-else-if="conditions.selectedOutcome.toLowerCase() === 'pre-fill' && conditions.childFormat === 'multiselect'"
                         placeholder="select some options"
                         multiple="true"
                         id="child_prefill_entry"
@@ -712,7 +705,7 @@ export default {
                             :title="i.name" 
                             :value="i.indicatorID"
                             :selected="parseInt(conditions.parentIndID) === parseInt(i.indicatorID)"
-                            :key="'parent_' + i.indicatorID">
+                            :key="i.indicatorID">
                             {{getIndicatorName(parseInt(i.indicatorID)) }} (indicator {{i.indicatorID}})
                             </option>
                         </select>
@@ -731,17 +724,17 @@ export default {
                         </select>
                     </div>
                     <div>    
-                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect, radio, checkboxes) -->
-                        <select v-if="parentFormat === 'dropdown' || parentFormat==='radio'"
+                        <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect) -->
+                        <select v-if="parentFormat === 'dropdown'"
                             id="parent_compValue_entry"
                             @change="updateSelectedParentValue($event.target)">
                             <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>    
                             <option v-for="val in selectedParentValueOptions"
-                                :key="'parent_val_' + val"
+                                :key="val"
                                 :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
                             </option>
                         </select>
-                        <select v-else-if="parentFormat === 'multiselect' || parentFormat==='checkboxes'"
+                        <select v-else-if="parentFormat === 'multiselect'"
                             id="parent_compValue_entry"
                             placeholder="select some options" multiple="true"
                             style="display: none;"

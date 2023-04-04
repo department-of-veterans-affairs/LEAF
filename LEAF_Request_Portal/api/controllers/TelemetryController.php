@@ -50,16 +50,4 @@ class TelemetryController extends RESTfulResponse
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
-
-    public function post($act)
-    {
-        // This method is unused in this class
-        // This is required because of extending RESTfulResponse
-    }
-
-    public function delete($act)
-    {
-        // This method is unused in this class
-        // This is required because of extending RESTfulResponse
-    }
 }

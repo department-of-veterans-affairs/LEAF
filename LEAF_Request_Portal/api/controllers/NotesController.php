@@ -46,13 +46,8 @@ class NotesController extends RESTfulResponse
 
     public function get($act)
     {
-        /* This is never used right now.
-        I didn't want to delete it in case it
-        is ever needed in the future.
-
-
         if (is_numeric($act['args'][0])) {
-            $query[$act['args'][0]]['recordID'] = $act['args'][0];
+            $query[$act['args']['recordID']]['recordID'] = $act['args'][0];
 
             $form = new Form($this->db, $this->login);
             $resRead = $form->checkReadAccess($query);
@@ -74,7 +69,7 @@ class NotesController extends RESTfulResponse
             } else {
                 return 'Access denied';
             }
-        } */
+        }
     }
 
     public function post($act)
@@ -112,11 +107,5 @@ class NotesController extends RESTfulResponse
         } else {
             return 'Invalid data passed';
         }
-    }
-
-    public function delete($act)
-    {
-        // This method is unused in this class
-        // This is required because of extending RESTfulResponse
     }
 }

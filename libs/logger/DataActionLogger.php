@@ -214,8 +214,7 @@ class DataActionLogger
         return $this->db->prepared_query($sqlFetchLogItems, $vars);
     }
 
-    private function findExternalValue(array $logData, string $logType): array
-    {
+    private function findExternalValue($logData, $logType) {
         $tables = array(
             LoggableTypes::GROUP => GroupFormatter::TABLE,
             LoggableTypes::SERVICE_CHIEF => ServiceChiefFormatter::TABLE,

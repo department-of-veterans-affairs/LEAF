@@ -86,10 +86,4 @@ class FormWorkflowController extends RESTfulResponse
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
     }
-
-    public function delete($act)
-    {
-        // This method is unused in this class
-        // This is required because of extending RESTfulResponse
-    }
 }

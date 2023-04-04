@@ -1,5 +1,4 @@
 export default {
-    name: 'import-form-dialog',
     data() {
         return {
             initialFocusElID: 'formPacket',
@@ -35,7 +34,7 @@ export default {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.selectNewCategory();
+                        this.selectNewCategory(null);
                     },
                     error: err => console.log('form import error', err),
                 })

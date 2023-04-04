@@ -61,15 +61,22 @@ class IconPickerController extends RESTfulResponse
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
-    public function post($act)
-    {
-        // This method is unused in this class
-        // This is required because of extending RESTfulResponse
-    }
+    /**
+     * Purpose: Return JSON data depending on endpoint string passed.
+     *
+     * @param string $act
+     * @return array
+     */
+    // public function post($act): array
+    // {
+    //     $workflow = $this->iconPicker;
 
-    public function delete($act)
-    {
-        // This method is unused in this class
-        // This is required because of extending RESTfulResponse
-    }
+    //     $this->verifyAdminReferrer();
+
+    //     $this->index['POST'] = new ControllerMap();
+    //     $this->index['POST']->register('iconpicker', function ($args) {
+    //     });
+
+    //     return $this->index['POST']->runControl($act['key'], $act['args']);
+    // }
 }

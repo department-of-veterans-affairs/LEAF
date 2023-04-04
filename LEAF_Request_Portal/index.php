@@ -174,7 +174,6 @@ switch ($action) {
         $recordIDToPrint = (int)$_GET['recordID'];
 
         $form = new Portal\Form($db, $login);
-
         $t_menu->assign('recordID', $recordIDToPrint);
         $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');

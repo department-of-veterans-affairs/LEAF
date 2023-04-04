@@ -17,7 +17,15 @@ class Session implements \SessionHandlerInterface
 
     public function __construct($db)
     {
-        $this->db = $db;
+        if(defined('DIRECTORY_HOST')) {
+            $this->db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+            if(!$this->db->isConnected()) {
+                $this->db = $db;
+            }
+        }
+        else {
+            $this->db = $db;
+        }
     }
 
     public function close(): bool

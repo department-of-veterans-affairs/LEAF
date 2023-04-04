@@ -61,11 +61,7 @@ class WorkflowFormatter
         DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW => [
             "message"=>"set <strong>initial step:</strong> %s in <strong>workflow:</strong> %s",
             "variables"=>"initialStepID,workflowID"
-        ],
-        DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW_NAME => [
-            "message"=>"set <strong>name:</strong> %s in <strong>workflow:</strong> %s",
-            "variables"=>"description,workflowID"
-        ],
+        ]
     ];
 
     const TABLE = "workflows";

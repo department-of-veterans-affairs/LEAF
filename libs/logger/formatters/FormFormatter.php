@@ -12,7 +12,7 @@ class FormFormatter{
         DataActions::MODIFY.'-'.LoggableTypes::FORM => [
             "message" => "<strong>modified form:</strong> %s",
             "variables" => "categoryID,".FormatOptions::READ_COLUMN_NAMES,
-            "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type,destructionAge"
+            "loggableColumns" => "categoryName,categoryDescription,workflowID,needToKnow,sort,visible,type"
         ],
         DataActions::ADD.'-'.LoggableTypes::INDICATOR => [
             "message" => "added <strong>new question:</strong> %s",
