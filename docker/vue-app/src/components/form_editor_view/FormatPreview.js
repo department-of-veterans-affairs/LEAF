@@ -3,23 +3,26 @@ export default {
         indicator: Object
     },
     inject: [
-        'orgchartPath',
         'libsPath',
-        'addOrgSelector',
-        'orgSelectorClassesAdded'     //JS classes for orgchart formats
+        'initializeOrgSelector',
+        'orgchartFormats',
+        'stripAndDecodeHTML'
     ],
     computed: {
         truncatedOptions() {
-            return this.indicator.options?.slice(0, 5) || [];
+            return this.indicator.options?.slice(0, 6) || [];
         },
         baseFormat() {
             return this.indicator.format?.toLowerCase()?.trim() || '';
         },
+        defaultValue() {
+            return this.indicator?.default || '';
+        },
+        strippedDefault() {
+            return this.stripAndDecodeHTML(this.defaultValue);
+        },
         inputElID() {
             return `input_preview_${this.indicator.indicatorID}`;
-        },
-        selectorInputPrefix() {
-            return this.baseFormat === 'orgchart_group' ? 'group#' : '#';
         },
         selType() {
             return this.baseFormat.slice(this.baseFormat.indexOf('_') + 1);
@@ -43,7 +46,7 @@ export default {
         }
     },
     mounted() {
-        switch(this.baseFormat) {
+        switch(this.baseFormat.toLowerCase()) {
             case 'raw_data':
                 break;
             case 'date': 
@@ -67,12 +70,11 @@ export default {
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
                 if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
-
                     let options = this.indicator.options || [];
                     options = options.map(o =>({
                         value: o,
                         label: o,
-                        selected: false
+                        selected: this.strippedDefault !== '' && this.strippedDefault === o
                     }));
                     const choices = new Choices(elSelect, {
                         allowHTML: false,
@@ -81,40 +83,14 @@ export default {
                         choices: options.filter(o => o.value !== "")
                     });
                     elSelect.choicesjs = choices;
-                    elSelect.addEventListener('change', ()=> {
-                        let elEmptyOption = document.getElementById(`${this.indicator.indicatorID}_empty_value`);
-                        if (elEmptyOption === null) {
-                            let opt = document.createElement('option');
-                            opt.id = `${this.indicator.indicatorID}_empty_value`;
-                            opt.value = "";
-                            elSelect.appendChild(opt);
-                            elEmptyOption = document.getElementById(`${this.indicator.indicatorID}_empty_value`);
-                        }
-                        elEmptyOption.selected = elSelect.value === '';
-                    });
                 }
                 $(`#${this.inputElID} ~ input.choices__input`).attr('aria-labelledby', this.labelSelector);
                 break;
             case 'orgchart_group':
             case 'orgchart_position':
             case 'orgchart_employee':
-                if(this.orgSelectorClassesAdded[this.selType] === false) {
-                    $('head').append(`<link type="text/css" rel="stylesheet" href="${this.orgchartPath}/css/${this.selType}Selector.css" />`);
-
-                    $.ajax({
-                        type: 'GET',
-                        url: `${this.orgchartPath}/js/${this.selType}Selector.js`,
-                        dataType: 'script',
-                        success: ()=> {
-                            this.addOrgSelector(this.selType);
-                            this.createOrgSelector();
-                        },
-                        error: err => console.log('an error has occurred', err)
-                    });
-
-                } else {
-                    this.createOrgSelector(); 
-                }
+                this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
+                this.updateOrgselectorPreview();
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
@@ -136,38 +112,25 @@ export default {
             });
             $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
         },
-        createOrgSelector() {
-            let orgSelector = {};
-            if (this.selType === 'group') {
-                orgSelector = new groupSelector(`orgSel_${this.indicator.indicatorID}`);
-            } else if (this.selType === 'position') {
-                orgSelector = new positionSelector(`orgSel_${this.indicator.indicatorID}`);
-            } else {
-                orgSelector = new employeeSelector(`orgSel_${this.indicator.indicatorID}`);
+        updateOrgselectorPreview() {
+            if (this.indicator?.default) {
+                document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
+                    `group#${this.indicator?.default}` : `#${this.indicator?.default}`;
             }
-            orgSelector.apiPath = `${this.orgchartPath}/api/`;
-            orgSelector.rootPath = `${this.orgchartPath}/`;
-            orgSelector.basePath = `${this.orgchartPath}/`;
-            orgSelector.setSelectHandler(()=> {
-                $(`#sel_prev_${this.indicator.indicatorID}`).val(orgSelector.selection);
-                $(`#orgSel_${this.indicator.indicatorID} input.${this.selType}SelectorInput`).val(`${this.selectorInputPrefix}` + orgSelector.selection);
-            });
-            if(orgSelector.enableEmployeeSearch !== undefined) orgSelector.enableEmployeeSearch();
-            orgSelector.initialize();
         }
     },
     template: `<div class="format-preview">
-
-        <input v-if="baseFormat === 'text'" :id="inputElID" type="text" class="text_input_preview"/>
-        <input v-if="baseFormat === 'number'" :id="inputElID" type="number" class="text_input_preview"/>
+        <input v-if="baseFormat === 'text'" :id="inputElID" type="text" :value="strippedDefault" class="text_input_preview"/>
+        <input v-if="baseFormat === 'number'" :id="inputElID" type="number" :value="strippedDefault" class="text_input_preview"/>
 
         <template v-if="baseFormat === 'currency'">
-            $&nbsp;<input :id="inputElID" type="number" min="0.00" step="0.01" class="text_input_preview"/>
+            $&nbsp;<input :id="inputElID" type="number" :value="strippedDefault"
+            min="0.00" step="0.01" class="text_input_preview"/>
         </template>
 
         <template v-if="baseFormat === 'textarea'">
-            <textarea :id="inputElID" rows="6" class="textarea_input_preview"></textarea>
-            <div :id="'textarea_format_button_' + indicator.indicatorID" 
+            <textarea :id="inputElID" rows="6" class="textarea_input_preview" :value="strippedDefault"></textarea>
+            <div :id="'textarea_format_button_' + indicator.indicatorID"
                 @click="useAdvancedEditor" 
                 style="text-align: right; font-size: 12px"><span class="link">formatting options</span>
             </div>
@@ -176,7 +139,9 @@ export default {
         <template v-if="baseFormat === 'radio'">
             <template v-for="o, i in truncatedOptions" :key="'radio_prev_' + indicator.indicatorID + '_' + i">
                 <label class="checkable leaf_check" :for="inputElID + '_radio' + i">
-                    <input type="radio" :id="inputElID + '_radio' + i" :name="indicator.indicatorID" class="icheck leaf_check"  />
+                    <input type="radio" :id="inputElID + '_radio' + i" 
+                    :name="indicator.indicatorID" class="icheck leaf_check"
+                    :checked="strippedDefault !== '' && strippedDefault === o" />
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
@@ -186,7 +151,7 @@ export default {
         <template v-if="baseFormat === 'checkboxes' || baseFormat === 'checkbox'">
             <template v-for="o, i in truncatedOptions" :key="'check_prev_' + indicator.indicatorID + '_' + i">
                 <label class="checkable leaf_check" :for="inputElID + '_check' + i">
-                    <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  />
+                    <input type="checkbox" :id="inputElID + '_check' + i" :name="indicator.indicatorID" class="icheck leaf_check"  :checked="strippedDefault !== '' && strippedDefault === o" />
                     <span class="leaf_check"></span>{{ o }}
                 </label>
             </template>
@@ -202,11 +167,10 @@ export default {
         <template v-if="baseFormat === 'date'">
             <input type="text" :id="inputElID"
             :style="'background: white url(' + libsPath + 'dynicons/svg/office-calendar.svg) no-repeat 4px center; background-size: 16px;'"
-            style="padding-left: 24px; font-size: 1.3em; font-family: monospace;" value="" />
+            style="padding-left: 24px; font-size: 1.3em; font-family: monospace;" :value="indicator.default" />
         </template>
 
-        
-        <select v-if="baseFormat === 'dropdown'" :id="inputElID" style="width: 50%">
+        <select v-if="baseFormat === 'dropdown'" :id="inputElID" style="width: 50%" :value="strippedDefault">
             <option v-for="o, i in truncatedOptions" :key="'drop_prev_' + indicator.indicatorID + '_' + i">
             {{o}}
             </option>
@@ -219,9 +183,8 @@ export default {
             style="display:none">
         </select>
         
-        <template v-if="baseFormat === 'orgchart_group' || baseFormat === 'orgchart_position' || baseFormat === 'orgchart_employee'">
+        <template v-if="orgchartFormats.includes(baseFormat)">
             <div :id="'orgSel_' + indicator.indicatorID" style="min-height:30px"></div>
-            <input :id="'sel_prev_' + indicator.indicatorID" style="display: none;">
         </template>
 
         <template v-if="baseFormat === 'grid'">
@@ -231,17 +194,17 @@ export default {
 
                     <thead :id="'gridTableHead_' + indicator.indicatorID">
                         <tr>
-                            <td v-for="o in gridOptions">{{ o.name }}</td>
+                            <td v-for="o in gridOptions" :key="'grid_head_' + o.name">{{ o.name }}</td>
                         </tr>
                     </thead>
                     <tbody :id="'gridTableBody_' + indicator.indicatorID">
                         <tr>
-                            <td v-for="o in gridOptions" style="min-width: 150px;">
+                            <td v-for="o in gridOptions" style="min-width: 150px;" :key="'grid_body_' + o.name">
                                 <input v-if="o.type === 'text'" style="width: 100%;" :aria-label="o.name" />
                                 <textarea v-if="o.type === 'textarea'" rows="3" style="resize:none; width: 100%;" :aria-label="o.name"></textarea>
                                 <input type="date" v-if="o.type === 'date'" style="width: 100%;" :aria-label="o.name" />
                                 <select v-if="o.type === 'dropdown'" style="width: 100%;" :aria-label="o.name">
-                                    <option v-for="option in o.options">{{option}}</option>
+                                    <option v-for="option in o.options" :key="'grid_drop_' + option">{{option}}</option>
                                 </select>
                             </td>
                         </tr>
