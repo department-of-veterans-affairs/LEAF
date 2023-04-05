@@ -565,6 +565,43 @@
             </script>
             <!--{$indicator.html}-->
         <!--{/if}-->
+        <!--{if $indicator.format == 'signature' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+                <span id="parentID_<!--{$indicator.parentID|strip_tags}-->">
+                    <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->" value="no" />
+            <!--{foreach from=$indicator.options item=option}-->
+                <!--{if $option|escape == $indicator.value}-->
+                    <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|sanitize}-->" checked="checked"  aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
+                    <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
+                <!--{else}-->
+                    <label class="checkable leaf_check" for="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->">
+                    <input type="checkbox" class="icheck<!--{$indicator.indicatorID|strip_tags}--> leaf_check" id="<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option|strip_tags}-->"  aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->" />
+                    <span class="leaf_check"></span> <!--{$option|sanitize}--></label>
+                <!--{/if}-->
+            <!--{/foreach}-->
+                </span>
+                <script>
+                <!--{if $indicator.required == 1}-->
+                formRequired["id<!--{$indicator.indicatorID}-->"] = {
+                    setRequired: function() {
+                        return ($('#<!--{$indicator.indicatorID|strip_tags}-->_<!--{$idx}-->').prop('checked') == false);
+                    },
+                    setSubmitError: function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
+                        }, 700).clearQueue();
+                    },
+                    setRequiredError: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
+                    },
+                    setRequiredOk: function() {
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
+                    }
+                };
+                <!--{/if}-->
+                </script>
+                <!--{$indicator.html}-->
+        <!--{/if}-->
         <!--{if $indicator.format == 'checkbox' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
                 <span id="parentID_<!--{$indicator.parentID|strip_tags}-->">
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->" value="no" />
