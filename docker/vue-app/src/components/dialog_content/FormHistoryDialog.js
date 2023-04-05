@@ -1,16 +1,16 @@
 export default {
+    name: 'form-history-dialog',
     data() {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
             page: 1,
-            formID: this.currSubformID || this.currCategoryID,
+            formID: this.focusedFormRecord.categoryID,
             ajaxRes: ''
             
         }
     },
     inject: [
-        'currSubformID',
-        'currCategoryID'
+        'focusedFormRecord',
     ],
     mounted() {
         document.getElementById(this.divSaveCancelID).style.display = 'none';
@@ -49,13 +49,13 @@ export default {
     },
     template:`<div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">
-            <button v-if="showPrev" id="prev" 
+            <button v-if="showPrev" id="prev" type="button"
                 class="btn-general"
                 style="width: 125px;"
                 @click="getPrev" title="get previous page">
                 Previous page
             </button>
-            <button v-if="showNext" id="next" 
+            <button v-if="showNext" id="next" type="button"
                 class="btn-general"
                 style="width: 125px; margin-left: auto;"
                 @click="getNext" title="get next page">
