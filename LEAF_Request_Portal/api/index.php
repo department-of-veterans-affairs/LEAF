@@ -195,6 +195,11 @@ $controllerMap->register('templateHistoryMergeFile', function () use ($db, $logi
     $TemplateFileHistoryController->handler($action);
 });
 
+$controllerMap->register('templateEmailHistoryMergeFile', function () use ($db, $login, $action) {
+    $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
+    $TemplateFileHistoryController->handler($action);
+});
+
 $controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
     $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
     $TemplateReportsController->handler($action);

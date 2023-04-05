@@ -83,6 +83,33 @@ class TemplateFileHistory
     }
 
 
+        /**
+     * Summary of getTemplateHistoryList
+     * @return array|string
+     */
+    public function getEmailTemplateHistoryList(): array
+    {
+        if (!$this->login->checkGroup(1)) {
+            return ['error' => 'Admin access required'];
+        }
+
+        $list = @scandir('../templates/email/');
+        if ($list === false) {
+            return ['error' => 'Unable to read template history directory'];
+        }
+
+        $out = [];
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
+                $out[] = $item;
+            }
+        }
+
+        return $out;
+    }
+
+
 
     /**
      * Summary of getComparedTemplateHistoryFile
@@ -185,6 +212,28 @@ class TemplateFileHistory
 
         if (in_array($template, $list)) {
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
+
+            $this->dataActionLogger->logAction(
+                \Leaf\DataActions::MODIFY,
+                \Leaf\LoggableTypes::TEMPLATE_BODY,
+                [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+            );
+        }
+
+        return null;
+    }
+
+    public function setEmailMergeTemplate(string $template): ?string
+    {
+
+        if (!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+
+        $list = $this->getEmailTemplateHistoryList();
+
+        if (in_array($template, $list)) {
+            file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
                 \Leaf\DataActions::MODIFY,

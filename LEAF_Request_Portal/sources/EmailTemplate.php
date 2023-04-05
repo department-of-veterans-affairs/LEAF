@@ -24,7 +24,13 @@ class EmailTemplate
         $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
 
-    public function isEmailTemplateValid($template, $list)
+    /**
+     * Summary of isEmailTemplateValid
+     * @param string $template
+     * @param array $list
+     * @return bool
+     */
+    public function isEmailTemplateValid(string $template, array $list): bool
     {
         $validTemplate = false;
         foreach ($list as $item) {
@@ -35,13 +41,20 @@ class EmailTemplate
         return $validTemplate;
     }
 
-    public function getEmailData($template, $getStandard = false)
+
+    /**
+     * Summary of getEmailData
+     * @param string $template
+     * @param bool $getStandard
+     * @return array
+     */
+    public function getEmailData(string $template, bool $getStandard = false): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['error' => 'Admin access required'];
         }
 
-        $data = array();
+        $data = [];
 
         // If we have a body file, we need to add subject, emailTo, and emailCC template files
         if (preg_match('/_body.tpl$/', $template)) {
@@ -68,13 +81,19 @@ class EmailTemplate
         return $data;
     }
 
-    public function getEmailTemplate($template, $getStandard = false)
+    /**
+     * Summary of getEmailTemplate
+     * @param string $template
+     * @param bool $getStandard
+     * @return array
+     */
+    public function getEmailTemplate(string $template, bool $getStandard = false): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['error' => 'Admin access required'];
         }
         $list = $this->getEmailAndSubjectTemplateList();
-        $data = array();
+        $data = [];
         $validTemplate = $this->isEmailTemplateValid($template, $list);
         if ($validTemplate) {
             if (
@@ -95,7 +114,7 @@ class EmailTemplate
 
             $res = $this->getEmailData($template, $getStandard);
 
-            $emailInfo = array('emailTo', 'emailCc', 'subject');
+            $emailInfo = ['emailTo', 'emailCc', 'subject'];
             foreach ($emailInfo as $infoType) {
                 $data[$infoType . 'File'] = $res[$infoType . 'File'];
             }
@@ -104,15 +123,20 @@ class EmailTemplate
         return $data;
     }
 
-    function getEmailTemplateFileHistory($templateFile)
+    /**
+     * Summary of getEmailTemplateFileHistory
+     * @param string $templateFile
+     * @return array
+     */
+    function getEmailTemplateFileHistory(string $templateFile): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['error' => 'Admin access required'];
         }
 
-        $vars = array(
+        $vars = [
             ':template_file' => $templateFile
-        );
+        ];
         $sql = 'SELECT file_id, file_parent_name, file_name, file_path, file_size, file_modify_by, file_created
                 FROM `template_history_files`
                 WHERE file_parent_name = :template_file
@@ -121,29 +145,38 @@ class EmailTemplate
         return $this->db->prepared_query($sql, $vars);
     }
 
-    public function getEmailAndSubjectTemplateList()
+    /**
+     * Summary of getEmailAndSubjectTemplateList
+     * @return array
+     */
+    public function getEmailAndSubjectTemplateList(): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['Admin access required'];
         }
-        $out = array();
+        $out = [];
         $emailList = $this->db->query(
             'SELECT label, emailTo, emailCc, subject, body from email_templates ORDER BY emailTemplateID DESC'
         );
         foreach ($emailList as $listItem) {
-            $data = array(
+            $data = [
                 'displayName' => $listItem['label'],
                 'fileName' => $listItem['body'],
                 'emailToFileName' => $listItem['emailTo'],
                 'emailCcFileName' => $listItem['emailCc'],
                 'subjectFileName' => $listItem['subject']
-            );
+            ];
             $out[] = $data;
         }
         return $out;
     }
 
-    public function getLabelFromFileName($fileName)
+    /**
+     * Summary of getLabelFromFileName
+     * @param string $fileName
+     * @return string|null
+     */
+    public function getLabelFromFileName(string $fileName): ?string
     {
         $vars = [":body" => $fileName];
         $res = $this->db->prepared_query('SELECT label FROM email_templates WHERE body = :body', $vars);
@@ -151,10 +184,15 @@ class EmailTemplate
             return $res[0]["label"];
         }
 
-        return;
+        return null;
     }
 
-    public function getHistory($filterByName)
+    /**
+     * Summary of getHistory
+     * @param string $filterByName
+     * @return array
+     */
+    public function getHistory(string $filterByName): array
     {
         $history = [];
 
@@ -177,7 +215,12 @@ class EmailTemplate
         return $history;
     }
 
-    public function setEmailTemplate($template)
+    /**
+     * Summary of setEmailTemplate
+     * @param string $template
+     * @return string|null
+     */
+    public function setEmailTemplate(string $template): ?string
     {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
@@ -243,9 +286,16 @@ class EmailTemplate
                 );
             }
         }
+
+        return null;
     }
 
-    public function setHistoryEmailTemplate($template)
+    /**
+     * Summary of setHistoryEmailTemplate
+     * @param string $template
+     * @return string
+     */
+    public function setHistoryEmailTemplate(string $template): string
     {
         // Check if user is authorized to modify email templates
         if (!$this->login->checkGroup(1)) {
@@ -324,11 +374,22 @@ class EmailTemplate
         return 'Email template updated successfully';
     }
 
-    private function getTemplateFilePath($fileName)
+    /**
+     * Summary of getTemplateFilePath
+     * @param string $fileName
+     * @return string
+     */
+    private function getTemplateFilePath(string $fileName): string
     {
         return "../templates_history/email_templates/{$fileName}";
     }
-    public function removeCustomEmailTemplate($template)
+
+    /**
+     * Summary of removeCustomEmailTemplate
+     * @param string $template
+     * @return string|null
+     */
+    public function removeCustomEmailTemplate(string $template): ?string
     {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
@@ -353,5 +414,6 @@ class EmailTemplate
                 unlink("../templates/email/custom_override/{$emailCcFileName}");
             }
         }
+        return null;
     }
 }

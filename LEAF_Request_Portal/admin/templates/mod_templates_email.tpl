@@ -821,6 +821,10 @@
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
 
+
+        $('#emailLists').hide();
+        $('#subject').hide();
+
         var wordWrapEnabled = false; // default to false
 
         $('#word-wrap-button').click(function() {
@@ -897,7 +901,7 @@
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
                 type: 'POST',
-                url: '../api/templateHistoryMergeFile/_' + fileParentName,
+                url: '../api/templateEmailHistoryMergeFile/_' + fileParentName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->',
                 file: mergedContent
             },
@@ -958,6 +962,8 @@
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();
         $('.page-title-container>.close_expand_mode_screen').hide();
+        $('#emailLists').show();
+        $('#subject').show();
         $('.page-title-container>h2').css({
             'width': '100%',
             'text-align': 'center'
