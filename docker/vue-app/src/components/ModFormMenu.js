@@ -125,7 +125,7 @@ export default {
                         Import Form<span role="img" aria="">📦</span>
                     </button>
                 </li>
-                <li v-if="$route.name === 'category'">
+                <li v-if="$route.name !== 'restore'">
                     <router-link :to="{ name: 'restore' }" class="router-link" >
                         Restore Fields<span role="img" aria="">♻️</span>
                     </router-link>
@@ -152,6 +152,11 @@ export default {
                     <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
                         Delete this form<span role="img" aria="">❌</span>
                     </button>
+                </li>
+                <li v-if="$route.name !== 'restore'">
+                    <router-link :to="{ name: 'restore' }" class="router-link" >
+                        Restore Fields<span role="img" aria="">♻️</span>
+                    </router-link>
                 </li>
             </ul>
 
