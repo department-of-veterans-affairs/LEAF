@@ -10,6 +10,9 @@
 
 namespace Portal;
 
+/**
+ * Summary of TemplateFileHistory
+ */
 class TemplateFileHistory
 {
     public $siteRoot = '';
@@ -19,37 +22,30 @@ class TemplateFileHistory
 
     private $dataActionLogger;
 
+    /**
+     * Summary of __construct
+     * @param mixed $db
+     * @param mixed $login
+     */
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
         $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
-
-    public function getTemplateList()
+    /**
+     * Summary of getTemplateList
+     * @return array|string
+     */
+    public function getTemplateList(): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['error' => 'Admin access required'];
         }
+
         $list = scandir('../templates/');
-        $out = array();
-        foreach ($list as $item) {
-            if (preg_match('/.tpl$/', $item)) {
-                $out[] = $item;
-            }
-        }
+        $out = [];
 
-        return $out;
-    }
-
-    public function getTemplateHistoryList()
-    {
-        if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
-
-        $list = scandir('../templates_history/template_editor/');
-        $out = array();
         foreach ($list as $item) {
             if (preg_match('/.tpl$/', $item)) {
                 $out[] = $item;
@@ -60,15 +56,48 @@ class TemplateFileHistory
     }
 
 
-    public function getComparedTemplateHistoryFile($templateFile)
+    /**
+     * Summary of getTemplateHistoryList
+     * @return array|string
+     */
+    public function getTemplateHistoryList(): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['error' => 'Admin access required'];
         }
 
-        $vars = array(
-            ':templateFile' => $templateFile
-        );
+        $list = @scandir('../templates_history/template_editor/');
+        if ($list === false) {
+            return ['error' => 'Unable to read template history directory'];
+        }
+
+        $out = [];
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
+                $out[] = $item;
+            }
+        }
+
+        return $out;
+    }
+
+
+
+    /**
+     * Summary of getComparedTemplateHistoryFile
+     * @param mixed $templateFile
+     * @return mixed
+     */
+    public function getComparedTemplateHistoryFile(string $templateFile): array
+    {
+        if (!$this->login->checkGroup(1)) {
+            return ['error' => 'Admin access required'];
+        }
+
+        $vars = [
+            ':templateFile' => $templateFile,
+        ];
 
         $sql = 'SELECT file_parent_name, file_name, file_path
                 FROM `template_history_files`
@@ -79,35 +108,46 @@ class TemplateFileHistory
     }
 
 
-    public function getTemplateFileHistory($templateFile)
+    /**
+     * Summary of getTemplateFileHistory
+     * @param mixed $templateFile
+     * @return mixed
+     */
+    public function getTemplateFileHistory(string $templateFile): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return ['error' => 'Admin access required'];
         }
-        $vars = array(
-            ':template_file' => $templateFile
-        );
+
+        $vars = [
+            ':template_file' => $templateFile,
+        ];
+
         $sql = 'SELECT file_id, file_parent_name, file_name, file_path, file_size, file_modify_by, file_created
                 FROM `template_history_files`
                 WHERE file_parent_name = :template_file
                 ORDER BY `file_created` DESC';
 
-
         return $this->db->prepared_query($sql, $vars);
     }
 
-    public function setTemplateFileHistory($templateFileHistory)
+    /**
+     * Summary of setTemplateFileHistory
+     * @param mixed $templateFileHistory
+     * @return string
+     */
+    public function setTemplateFileHistory(string $templateFileHistory): void
     {
-        error_log(print_r($templateFileHistory, true));
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            return;
         }
+
         $list = $this->getTemplateList();
         $time = date("Y-m-d h:i:s");
         $random_number = rand(1, 100);
 
         // Generate a new random number if the previous one is already being used
-        while (file_exists("../templates_history/template_editor/{$random_number}.'_'.{$templateFileHistory}")) {
+        while (file_exists("../templates_history/template_editor/{$random_number}_{$templateFileHistory}")) {
             $random_number = rand(1, 100);
         }
 
@@ -129,14 +169,21 @@ class TemplateFileHistory
         }
     }
 
-    public function setMergeTemplate($template)
+
+    /**
+     * Summary of setMergeTemplate
+     * @param mixed $template
+     * @return string
+     */
+    public function setMergeTemplate(string $template): ?string
     {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
+
         $list = $this->getTemplateList();
 
-        if (array_search($template, $list) !== false) {
+        if (in_array($template, $list)) {
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
@@ -145,5 +192,7 @@ class TemplateFileHistory
                 [new \Leaf\LogItem("template_editor", "body", $template, $template)]
             );
         }
+
+        return null;
     }
 }
