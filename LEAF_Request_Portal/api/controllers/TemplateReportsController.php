@@ -97,7 +97,6 @@ class TemplateReportsController extends RESTfulResponse
         });
 
         $this->index['DELETE']->register('reportTemplates/deleteHistoryFileReport/[text]', function ($args) use ($db, $login, $templateReports) {
-            error_log(print_r('delete', true));
             return $templateReports->removeHistoryReportTemplate($args[0]);
         });
 

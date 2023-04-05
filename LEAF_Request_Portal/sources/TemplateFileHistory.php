@@ -1,4 +1,5 @@
 <?php
+
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -8,7 +9,6 @@
  */
 
 namespace Portal;
-
 
 class TemplateFileHistory
 {
@@ -96,7 +96,7 @@ class TemplateFileHistory
         return $this->db->prepared_query($sql, $vars);
     }
 
-    function setTemplateFileHistory($templateFileHistory)
+    public function setTemplateFileHistory($templateFileHistory)
     {
         error_log(print_r($templateFileHistory, true));
         if (!$this->login->checkGroup(1)) {
@@ -113,26 +113,30 @@ class TemplateFileHistory
 
         if (array_search($templateFileHistory, $list) !== false) {
             $fileData = $_POST['file'];
-            $fileName = $random_number. "_" .$templateFileHistory;
+            $fileName = $random_number . "_" . $templateFileHistory;
             $filePath = "../templates_history/template_editor/{$fileName}";
             file_put_contents($filePath, $fileData);
 
             $fileSize = filesize($filePath);
 
-            $this->dataActionLogger->logTemplateFileHistory($fileName, $templateFileHistory, $filePath, $fileSize, $time);
+            $this->dataActionLogger->logTemplateFileHistory(
+                $fileName,
+                $templateFileHistory,
+                $filePath,
+                $fileSize,
+                $time
+            );
         }
     }
 
     public function setMergeTemplate($template)
     {
-        if (!$this->login->checkGroup(1))
-        {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
         $list = $this->getTemplateList();
 
-        if (array_search($template, $list) !== false)
-        {
+        if (array_search($template, $list) !== false) {
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(

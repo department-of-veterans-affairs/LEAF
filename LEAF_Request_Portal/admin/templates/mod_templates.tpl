@@ -268,12 +268,13 @@
 
     .page-title-container>.file_replace_file_btn {
         display: none;
-        width: 15%;
+        width: 20%;
     }
 
     .page-title-container>.close_expand_mode_screen {
         display: none;
         width: 10%;
+        min-width: 200px;
     }
 
     .word-wrap-button {
@@ -611,8 +612,6 @@
                     accordion +=
                         '<li><button class="file_compare_file_btn" onclick="compareHistoryFile(\'' +
                         fileName + '\')">Compare Current File</button></li>';
-                    accordion +=
-                        '<li><button class="file_replace_file_btn">Merge to Current File</button></li>';
                     accordion += '</ul>';
                     accordion += '</div>';
                     accordion += '</div>';
@@ -736,7 +735,7 @@
         $('.page-title-container>.file_replace_file_btn').show();
         $('.page-title-container>.close_expand_mode_screen').show();
         $('.page-title-container>h2').css({
-            'width': '60%',
+            'width': '35%',
             'text-align': 'left'
         });
 
@@ -770,8 +769,6 @@
         $('.page-title-container').css({
             'flex-direction': 'coloumn'
         });
-
-        // exitExpandScreen()
     }
 
     function exitExpandScreen() {

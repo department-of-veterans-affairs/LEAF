@@ -297,7 +297,8 @@
 
     .page-title-container>.file_replace_file_btn {
         display: none;
-        width: 15%;
+        width: 20%;
+        min-width: 200px;
     }
 
     .page-title-container>.close_expand_mode_screen {
@@ -548,6 +549,9 @@
                     $('#btn_compare').css('display', 'none');
                 }
 
+                loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
+                        currentEmailCcFile);
+
                 // Show saved time in "Save Changes" button and set current content
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
@@ -715,7 +719,6 @@
     var currentEmailCcFile = '';
     var currentEmailCcContent = '';
 
-    // Done
     function formatFileSize(bytes, threshold = 1024) {
         if (bytes < threshold) {
             return bytes + ' bytes';
@@ -727,7 +730,6 @@
             return (bytes / (threshold * threshold * threshold)).toFixed(2) + ' GB';
         }
     }
-    // Done
     // According code
     $(document).ready(function() {
         $('#word-wrap-button').css('display', 'none');
@@ -740,7 +742,6 @@
             $(".accordion-container").slideToggle();
         });
     });
-    // Done
     function displayAccordionContent(element) {
         var accordionContent = $(element).next(".accordion-content");
         $(element).toggleClass("accordion-active");
@@ -748,7 +749,6 @@
         $(".accordion-header").not(element).removeClass("accordion-active");
         $(".accordion-content").not(accordionContent).slideUp();
     }
-    // Done
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
@@ -782,6 +782,7 @@
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
+
                     accordion += '<div class="accordion">';
                     accordion
                         += '<div class="accordion-header" onclick="displayAccordionContent(this)">Date: ' +
@@ -797,8 +798,6 @@
                     accordion
                         += '<li><button class="file_compare_file_btn" onclick="compareHistoryFile(\'' +
                         fileName + ' \')">Compare Current File</button></li>';
-                    accordion +=
-                        '<li><button class="file_replace_file_btn">Merge to Current File</button></li>';
                     accordion += '</ul>';
                     accordion += '</div>';
                     accordion += '</div>';
@@ -813,7 +812,6 @@
             cache: false
         });
     }
-    // Kind of
     function compareHistoryFile(fileName) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -896,7 +894,6 @@
             }
         });
     }
-
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
                 type: 'POST',
@@ -916,12 +913,11 @@
             }
         });
     }
-    // Done
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
         $('.page-title-container>.close_expand_mode_screen').show();
         $('.page-title-container>h2').css({
-            'width': '60%',
+            'width': '35%',
             'text-align': 'left'
         });
 
@@ -958,7 +954,6 @@
 
         // exitExpandScreen()
     }
-    // Done
     function exitExpandScreen() {
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();

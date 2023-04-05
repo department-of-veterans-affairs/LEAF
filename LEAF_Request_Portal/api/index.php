@@ -18,7 +18,6 @@ $login->setBaseDir('../');
 $p_db = $db;
 
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
-error_log(print_r($action, true));
 $keyIndex = strpos($action, '/');
 $key = null;
 
@@ -142,7 +141,6 @@ $controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $lo
 $controllerMap->register('getEmailTemplateFileHistory', function () use ($p_db, $login, $action) {
     $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
     $EmailTemplateController->handler($action);
-    error_log(print_r('Index, get Email Template', true));
 });
 
 $controllerMap->register('converter', function () use ($p_db, $login, $action) {

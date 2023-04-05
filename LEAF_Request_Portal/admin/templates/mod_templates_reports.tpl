@@ -445,7 +445,6 @@
             }
         });
     }
-    // Done
     function saveFileHistory() {
         $.ajax({
                 type: 'POST',
@@ -458,7 +457,6 @@
             }
         });
     }
-    // Done
     function formatFileSize(bytes, threshold = 1024) {
         if (bytes < threshold) {
             return bytes + ' bytes';
@@ -470,7 +468,6 @@
             return (bytes / (threshold * threshold * threshold)).toFixed(2) + ' GB';
         }
     }
-    // Done
     // According code
     $(document).ready(function() {
         $('#word-wrap-button').css('display', 'none');
@@ -483,7 +480,6 @@
             $(".accordion-container").slideToggle();
         });
     });
-    // Done
     function displayAccordionContent(element) {
         var accordionContent = $(element).next(".accordion-content");
         $(element).toggleClass("accordion-active");
@@ -491,11 +487,7 @@
         $(".accordion-header").not(element).removeClass("accordion-active");
         $(".accordion-content").not(accordionContent).slideUp();
     }
-    // Done
-    var historyFile = '';
-
     function getFileHistory(template) {
-        // historyFile = template;
         $.ajax({
             type: 'GET',
             url: '../api/reportTemplates/getHistoryFiles/_' + template,
@@ -544,8 +536,6 @@
                     accordion +=
                         '<li><button class="file_compare_file_btn" onclick="compareHistoryFile(\'' +
                         fileName + '\')">Compare Current File</button></li>';
-                    accordion +=
-                        '<li><button class="file_replace_file_btn">Merge to Current File</button></li>';
                     accordion += '</ul>';
                     accordion += '</div>';
                     accordion += '</div>';
@@ -561,7 +551,6 @@
             cache: false
         });
     }
-    // Done
     function compareHistoryFile(fileName) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -644,7 +633,6 @@
             }
         });
     }
-    // Done
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
                 type: 'POST',
@@ -663,7 +651,6 @@
             }
         });
     }
-    // Done
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
         $('.page-title-container>.close_expand_mode_screen').show();
@@ -703,7 +690,6 @@
             'flex-direction': 'coloumn'
         });
     }
-    // Done
     function exitExpandScreen() {
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();
@@ -743,7 +729,6 @@
 
         loadContent(currentFile);
     }
-
     function newReport() {
         dialog.setTitle('New File');
         dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
@@ -781,7 +766,6 @@
         });
         dialog.show();
     }
-
     function deleteReport() {
         dialog_confirm.setTitle('Are you sure?');
         dialog_confirm.setContent('This will irreversibly delete this report.');
@@ -792,36 +776,28 @@
                 url: '../api/reportTemplates/_' + currentFile + '?' +
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
-                        deleteHistoryFileReport();
                         location.reload();
                     }
             });
+            deleteHistoryFileReport(currentFile);
             dialog_confirm.hide();
         });
-
         dialog_confirm.show();
     }
-
-    function deleteHistoryFileReport() {
-
+    function deleteHistoryFileReport(templateFile) {
         $.ajax({
             type: 'DELETE',
-            url: '../api/reportTemplates/deleteHistoryFileReport/_' + currentFile + '?' +
+            url: '../api/reportTemplates/deleteHistoryFileReport/_' + templateFile + '?' +
                 $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                 success: function() {
-
-                    console.log("It worked");
+                    console.log(templateFile + ', was deleted');
                     location.reload();
                 }
         });
     }
-
-
-
     function runReport() {
         window.open('../report.php?a=' + currentFile);
     }
-
     function isExcludedFile(file) {
         if (file == 'example' ||
             file.substr(0, 5) == 'LEAF_'
@@ -833,7 +809,7 @@
 
     var currentFile = '';
     var currentFileContent = '';
-    // Done
+
     function loadContent(file) {
         if (file == undefined) {
             file = currentFile;
@@ -865,13 +841,11 @@
         });
         $('#saveStatus').html('');
     }
-
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 30;
         $('#codeContainer').css('width', codeWidth + 'px');
         $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
     }
-
     function updateFileList() {
         $.ajax({
             type: 'GET',
@@ -899,7 +873,6 @@
             cache: false
         });
     }
-    // Done
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: "htmlmixed",
@@ -922,7 +895,6 @@
         });
         updateEditorSize();
     }
-
     function viewHistory() {
         dialog_message.setContent('');
         dialog_message.setTitle('Access Template History');

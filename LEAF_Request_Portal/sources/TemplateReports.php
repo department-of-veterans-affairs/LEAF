@@ -262,14 +262,10 @@ class TemplateReports
     public function removeHistoryReportTemplate($in)
     {
         $template = preg_replace('/[^A-Za-z0-9_]/', '', $in);
-        if (
-            $template != $in
-            || $this->isReservedFilename($template)
-        ) {
+        if ($template != $in || $this->isReservedFilename($template)) {
             return 0;
         }
         $template .= '.tpl';
-        error_log(print_r($template, true));
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
@@ -281,11 +277,8 @@ class TemplateReports
         }
         $vars = array(':template' => $in);
         $sql = "DELETE FROM template_history_files WHERE file_parent_name = :template";
-        return $this->db->prepared_query($sql,$vars);
-
+        return $this->db->prepared_query($sql, $vars);
     }
-
-
 
     public function getHistory()
     {

@@ -104,13 +104,12 @@ class EmailTemplate
         return $data;
     }
 
-
     function getEmailTemplateFileHistory($templateFile)
     {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
-        error_log(print_r('EmailTemplate', true));
+
         $vars = array(
             ':template_file' => $templateFile
         );
@@ -180,7 +179,6 @@ class EmailTemplate
 
     public function setEmailTemplate($template)
     {
-        error_log(print_r('setEmailTemplate - Template Name: '. $template, true));
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
@@ -201,8 +199,6 @@ class EmailTemplate
                     \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
                     [new \Leaf\LogItem("email_templates", "body", $template, $label)]
                 );
-
-                error_log(print_r('setEmailTemplate - Template Name: '. $template, true));
             }
 
             // if the subject is nonempty and has changed
@@ -271,7 +267,6 @@ class EmailTemplate
 
         // Update email body file
         if (!empty($_POST['file'])) {
-            error_log(print_r($_POST['file'], true));
             $fileData = $_POST['file'];
             $fileName = "{$templateID}_{$template}";
             $filePath = $this->getTemplateFilePath($fileName);
@@ -286,7 +281,6 @@ class EmailTemplate
 
         // Update email subject file
         if (!empty($_POST['subjectFile'])) {
-            error_log(print_r($_POST['subjectFile'], true));
             $subjectFileName = "{$templateID}_" . $_POST['subjectFileName'];
             $subjectFile = $_POST['subjectFile'];
             $filePath = $this->getTemplateFilePath($subjectFileName);
@@ -296,12 +290,11 @@ class EmailTemplate
             }
 
             $fileSize = filesize($filePath);
-            $this->dataActionLogger->logTemplateFileHistory($subjectFileName, $template, $filePath, $fileSize, $time);
+            $this->dataActionLogger->logTemplateFileHistory($subjectFileName, $_POST['subjectFileName'], $filePath, $fileSize, $time);
         }
 
         // Update emailTo file
         if (!empty($_POST['emailToFile'])) {
-            error_log(print_r($_POST['emailToFile'] . $_POST['emailToFileName'], true));
             $emailToFileName = "{$templateID}_" . $_POST['emailToFileName'];
             $emailToFile = $_POST['emailToFile'];
             $filePath = $this->getTemplateFilePath($emailToFileName);
@@ -311,12 +304,11 @@ class EmailTemplate
             }
 
             $fileSize = filesize($filePath);
-            $this->dataActionLogger->logTemplateFileHistory($emailToFileName, $template, $filePath, $fileSize, $time);
+            $this->dataActionLogger->logTemplateFileHistory($emailToFileName, $_POST['emailToFileName'], $filePath, $fileSize, $time);
         }
 
         // Update emailCc file
         if (!empty($_POST['emailCcFile'])) {
-            error_log(print_r($_POST['emailCcFileName'] . $_POST['emailCcFile'], true));
             $emailCCFileName = "{$templateID}_" . $_POST['emailCcFileName'];
             $emailCCFile = $_POST['emailCcFile'];
             $filePath = $this->getTemplateFilePath($emailCCFileName);
@@ -326,7 +318,7 @@ class EmailTemplate
             }
 
             $fileSize = filesize($filePath);
-            $this->dataActionLogger->logTemplateFileHistory($emailCCFileName, $template, $filePath, $fileSize, $time);
+            $this->dataActionLogger->logTemplateFileHistory($emailCCFileName, $_POST['emailCcFileName'], $filePath, $fileSize, $time);
         }
 
         return 'Email template updated successfully';
