@@ -2,7 +2,6 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
-
 /*
  *  Template Handler
  */
@@ -13,76 +12,54 @@ class TemplateEditor
 {
     public $siteRoot = '';
     private $db;
-
     private $login;
-
     private $dataActionLogger;
-
     public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
         $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
     }
-
     public function getTemplateList()
     {
-        if (!$this->login->checkGroup(1))
-        {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
         $list = scandir('../templates/');
         $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
                 $out[] = $item;
             }
         }
-
         return $out;
     }
-
     public function getTemplate($template, $getStandard = false)
     {
-        if (!$this->login->checkGroup(1))
-        {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
         $list = $this->getTemplateList();
-
         $data = array();
-        if (array_search($template, $list) !== false)
-        {
-            if (file_exists("../templates/custom_override/{$template}")
-                  && !$getStandard)
-            {
+        if (array_search($template, $list) !== false) {
+            if (file_exists("../templates/custom_override/{$template}") && !$getStandard) {
                 $data['modified'] = 1;
                 $data['file'] = file_get_contents("../templates/custom_override/{$template}");
-            }
-            else
-            {
+            } else {
                 $data['modified'] = 0;
                 $data['file'] = file_get_contents("../templates/{$template}");
             }
         }
-
         return $data;
     }
-
     public function setTemplate($template)
     {
-        if (!$this->login->checkGroup(1))
-        {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
         $list = $this->getTemplateList();
-
-        if (array_search($template, $list) !== false)
-        {
+        if (array_search($template, $list) !== false) {
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
-
             $this->dataActionLogger->logAction(
                 \Leaf\DataActions::MODIFY,
                 \Leaf\LoggableTypes::TEMPLATE_BODY,
@@ -90,29 +67,21 @@ class TemplateEditor
             );
         }
     }
-
     public function removeCustomTemplate($template)
     {
-        if (!$this->login->checkGroup(1))
-        {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
         $list = $this->getTemplateList();
-
-        if (array_search($template, $list) !== false)
-        {
-            if (file_exists("../templates/custom_override/{$template}"))
-            {
+        if (array_search($template, $list) !== false) {
+            if (file_exists("../templates/custom_override/{$template}")) {
                 return unlink("../templates/custom_override/{$template}");
             }
         }
     }
-
-
     public function getHistory()
     {
         $history = [];
-
         $fields = [
             'message' => \Leaf\LoggableTypes::TEMPLATE_BODY
         ];
@@ -120,11 +89,9 @@ class TemplateEditor
             $fieldHistory = $this->dataActionLogger->getHistory(NULL, $field, $type);
             $history = array_merge($history, $fieldHistory);
         }
-
-        usort($history, function($a, $b) {
+        usort($history, function ($a, $b) {
             return $a['timestamp'] <=> $b['timestamp'];
         });
-
         return $history;
     }
 }

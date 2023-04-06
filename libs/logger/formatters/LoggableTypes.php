@@ -13,7 +13,6 @@ class LoggableTypes
     const INDICATOR = "indicator";
     const PORTAL_GROUP = "portal_group";
     const WORKFLOW = "workflow";
-    const WORKFLOW_NAME = "workflow_name";
     const WORKFLOW_STEP = "workflow_step";
     const WORKFLOW_ROUTE = "workflow_route";
     const STEP_DEPENDENCY = "step_dependency";
@@ -30,4 +29,5 @@ class LoggableTypes
     const EMAIL_TEMPLATE_BODY = "email_template_body";
     const TEMPLATE_BODY = "template_body";
     const TEMPLATE_REPORTS_BODY = "template_reports_body";
+    const TEMPLATE_HISTORY_BODY = "template_history_body";
 }
