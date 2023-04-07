@@ -31,7 +31,7 @@ abstract class Data
 
     protected $dataActionLogger;
 
-    private $cache = array();
+    protected $cache = array();
 
     public function __construct($db, $login)
     {
