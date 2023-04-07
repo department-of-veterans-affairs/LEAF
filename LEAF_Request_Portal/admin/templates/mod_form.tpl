@@ -671,7 +671,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <option value="orgchart_position">Orgchart Position</option>
                 <option value="orgchart_employee">Orgchart Employee</option>
                 <option value="raw_data">Raw Data (for programmers)</option>
-                <option value="signature">Signature</option>
+                <!-- <option value="signature">Signature</option> -->
             </select>
             <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox:<br/>
                 <input type="text" id="indicatorSingleAnswer" />
