@@ -11,7 +11,7 @@ services:
       - 443:443
     volumes:
       - /mnt/leaf/:/var/www/
-    command: 'source /startu.sh'
+    command: 'source /startup.sh'
     networks:
       - leaf
     # environment:
