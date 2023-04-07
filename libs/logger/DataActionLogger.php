@@ -118,7 +118,7 @@ class DataActionLogger
         return  $this->db->query_kv($sql, 'value', 'value', array());
     }
 
-    function fetchLogData($filterById, $filterByColumnName, $logType)
+    public function fetchLogData($filterById, $filterByColumnName, $logType)
     {
 
         $filterResults = isset($filterById) && isset($filterByColumnName);
@@ -167,7 +167,7 @@ class DataActionLogger
         return $results;
     }
 
-    function buildInClause($logType)
+    public function buildInClause($logType)
     {
         $actions = array_keys(LogFormatter::formatters[$logType]);
 
@@ -182,7 +182,7 @@ class DataActionLogger
         return $inClause;
     }
 
-    function fetchLogItems($logResult)
+    public function fetchLogItems($logResult)
     {
 
         $vars = array(
