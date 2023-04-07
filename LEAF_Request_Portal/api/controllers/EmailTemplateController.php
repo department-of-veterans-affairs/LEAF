@@ -36,12 +36,16 @@ class EmailTemplateController extends RESTfulResponse
             return $emailTemplate->getEmailAndSubjectTemplateList();
         });
 
-        $this->index['GET']->register('emailTemplates/[text]', function($args) use ($emailTemplate) {
+        $this->index['GET']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
             return $emailTemplate->getEmailTemplate($args[0]);
         });
 
         $this->index['GET']->register('emailTemplates/[text]/standard', function ($args) use ($emailTemplate) {
             return $emailTemplate->getEmailTemplate($args[0], true);
+        });
+
+        $this->index['GET']->register('getEmailTemplateFileHistory/[text]', function ($args) use ($emailTemplate) {
+            return $emailTemplate->getEmailTemplateFileHistory($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -60,6 +64,9 @@ class EmailTemplateController extends RESTfulResponse
 
             $this->index['POST']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
                 return $emailTemplate->setEmailTemplate($args[0]);
+            });
+            $this->index['POST']->register('emailTemplateFileHistory/[text]', function ($args) use ($emailTemplate) {
+                return $emailTemplate->setHistoryEmailTemplate($args[0]);
             });
 
             return $this->index['POST']->runControl($act['key'], $act['args']);

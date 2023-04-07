@@ -176,4 +176,55 @@ $controllerMap->register('reportTemplates', function () use ($db, $login, $actio
     echo $TemplateReportsController->handler($action);
 });
 
+
+$controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $login, $action) {
+    $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
+    echo $EmailTemplateController->handler($action);
+});
+
+$controllerMap->register('getEmailTemplateFileHistory', function () use ($p_db, $login, $action) {
+    $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
+    echo $EmailTemplateController->handler($action);
+});
+
+$controllerMap->register('templateFileHistory', function () use ($db, $login, $action) {
+    $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
+    echo $TemplateFileHistoryController->handler($action);
+});
+
+$controllerMap->register('templateCompareFileHistory', function () use ($db, $login, $action) {
+    $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
+    echo $TemplateFileHistoryController->handler($action);
+});
+
+$controllerMap->register('templateHistoryMergeFile', function () use ($db, $login, $action) {
+    $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
+    echo $TemplateFileHistoryController->handler($action);
+});
+
+$controllerMap->register('templateEmailHistoryMergeFile', function () use ($db, $login, $action) {
+    $TemplateFileHistoryController = new Portal\TemplateFileHistoryController($db, $login);
+    echo $TemplateFileHistoryController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/fileHistory', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    echo $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/getHistoryFiles', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    echo $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/saveReportMergeTemplate', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    echo $TemplateReportsController->handler($action);
+});
+
+$controllerMap->register('reportTemplates/deleteHistoryFileReport', function () use ($db, $login, $action) {
+    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
+    echo $TemplateReportsController->handler($action);
+});
+
 $controllerMap->runControl($key);
