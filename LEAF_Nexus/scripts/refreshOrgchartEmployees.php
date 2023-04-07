@@ -18,7 +18,7 @@ define("ADTITLEIID", 23);
 require_once $currDir.'/../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-$phonedb = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+$globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 
 $oc_login->loginUser();
 
@@ -50,7 +50,7 @@ if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
  */
 function updateUserInfo(string $userName, int $empUID)
 {
-    global $db, $phonedb, $oc_db;
+    global $db, $globalDB, $oc_db;
 
     $vars = array(':userName' => htmlspecialchars_decode($userName, ENT_QUOTES)); //for users with apostrophe in name
 
@@ -80,7 +80,7 @@ function updateUserInfo(string $userName, int $empUID)
              FROM employee
              WHERE userName=:userName AND lastUpdated > 0";
 
-    $res = $phonedb->prepared_query($sql, $vars);
+    $res = $globalDB->prepared_query($sql, $vars);
 
     if (count($res) == 0) {
         //if there is no record in nat, disable the account.
@@ -130,7 +130,7 @@ function updateUserInfo(string $userName, int $empUID)
 
 function updateLocalOrgchartBatch()
 {
-    global $oc_db, $phonedb;
+    global $oc_db, $globalDB;
 
     // replace the separate function for getting employee
     $localEmployeeSql = "SELECT userName FROM employee";
@@ -161,7 +161,7 @@ function updateLocalOrgchartBatch()
 function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
 
-    global $oc_db, $phonedb;
+    global $oc_db, $globalDB;
 
     if (empty($localEmployeeUsernames)) {
         return FALSE;
@@ -181,7 +181,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     		FROM employee
     		WHERE userName IN (" . implode(",", array_fill(1, count($localEmployeeUsernames), '?')) . ")";
 
-    $orgEmployeeRes = $phonedb->prepared_query($orgEmployeeSql, $localEmployeeUsernames);
+    $orgEmployeeRes = $globalDB->prepared_query($orgEmployeeSql, $localEmployeeUsernames);
 
     // get local empuids
     $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
@@ -238,7 +238,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         ':ADTITLEIID' => ADTITLEIID
     ];
 
-    $orgEmployeeDataRes = $phonedb->prepared_query($orgEmployeeDataSql, $orgEmployeeDataVars);
+    $orgEmployeeDataRes = $globalDB->prepared_query($orgEmployeeDataSql, $orgEmployeeDataVars);
 
     if (empty($orgEmployeeDataRes)) {
         return FALSE;
@@ -267,7 +267,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 */
 function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
-    global $oc_db, $phonedb;
+    global $oc_db, $globalDB;
 
     $sql = "SELECT empUID, indicatorID, data, author, timestamp
             FROM employee_data
@@ -283,7 +283,7 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
         ':ADTITLEIID' => ADTITLEIID
     );
 
-    $res = $phonedb->prepared_query($sql, $selectVars);
+    $res = $globalDB->prepared_query($sql, $selectVars);
 
     if (count($res) > 0) {
         for ($i = 0; $i < count($res); $i++) {

@@ -47,13 +47,16 @@ class InboxController extends RESTfulResponse
 
     public function post($act)
     {
-        $form = $this->form;
-        $login = $this->login;
-
         $this->index['POST'] = new ControllerMap();
         $this->index['POST']->register('inbox', function ($args) {
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
+    }
+
+    public function delete($act)
+    {
+        // This method is unused in this class
+        // This is required because of extending RESTfulResponse
     }
 }

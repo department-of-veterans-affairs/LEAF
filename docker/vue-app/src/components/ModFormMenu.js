@@ -1,48 +1,39 @@
 export default {
-    data() {
-        return {
-            menuOpen: false,
-            menuPinned: false
-        }
-    },
     inject: [
         'APIroot',
         'truncateText',
         'stripAndDecodeHTML',
         'selectNewCategory',
         'categories',
-        'currCategoryID',
-        'currSubformID',
-        'currentCategoryIndicatorTotal',
-        'internalForms',
-        'ajaxSelectedCategoryStapled',
-        'formsStapledCatIDs',
-        'restoringFields',
-        'showRestoreFields',
+        'focusedFormRecord',
+        'internalFormRecords',
+        'focusedFormTree',
+        'allStapledFormCatIDs',
         'openNewFormDialog',
         'openImportFormDialog',
         'openFormHistoryDialog',
         'openStapleFormsDialog',
         'openConfirmDeleteFormDialog',
     ],
+    computed: {
+        mainFormID() {
+            return this.focusedFormRecord?.parentID === '' ?
+                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
+        },
+        subformID() {
+            return this.focusedFormRecord?.parentID ?
+                this.focusedFormRecord.categoryID : '';
+        },
+        currentStapleIDs() {
+            return this.categories[this.mainFormID]?.stapledFormIDs || [];
+        },
+    },
     methods: {
-        toggleMenu() {
-            this.menuPinned = !this.menuPinned;
-            this.menuOpen = this.menuPinned;
-        },
-        showMenu() {
-            this.menuOpen = true;
-        },
-        hideMenu() {
-            if (!this.menuPinned) {
-                this.menuOpen = false;
-            }
-        },
         /**
          * resolve main form, internal form, and workflow info, then export
          */
         exportForm() {
-            const catID = this.currCategoryID;
+            const catID = this.mainFormID;
 
             let packet = {};
             packet.form = {};
@@ -61,7 +52,7 @@ export default {
                     error: err => console.log(err)
                 })
             );
-            this.internalForms.forEach(f => {
+            this.internalFormRecords.forEach(f => {
                 const subID = f.categoryID;
                 exportCalls.push(
                     $.ajax({
@@ -98,14 +89,8 @@ export default {
                 outPacket.packet = packet;
 
                 let outBlob = new Blob([JSON.stringify(outPacket).replace(/[^ -~]/g,'')], {type : 'text/plain'}); // Regex replace needed to workaround IE11 encoding issue
-                saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt');
+                saveAs(outBlob, 'LEAF_FormPacket_'+ catID +'.txt'); //FileSaver.js method
             }).catch(err => console.log('an error has occurred', err));
-        },
-        selectMainForm(catID = this.currCategoryID) {
-            this.selectNewCategory(catID, false);
-        },
-        selectSubform(subformID = ''){
-            this.selectNewCategory(subformID, true);
         },
         /**
          * //NOTE: uses XSSHelpers.js
@@ -119,114 +104,78 @@ export default {
             return this.truncateText(name, len).trim();
         },
     },
-    template: `<header id="form-editor-header">
-        <nav>
-            <ul>
+    template: `<nav id="form-editor-nav">
+            <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
+            <ul v-if="mainFormID === ''" id="form-editor-menu">
+                <li v-if="$route.name === 'restore'">
+                    <router-link :to="{ name: 'category' }" class="router-link" @click="selectNewCategory()">
+                        Form Browser
+                    </router-link>                
+                </li>
                 <li>
-                    <button type="button"
-                        :title="(menuPinned ? 'close ' : 'pin ') + 'menu'"
-                        id="form-editor-menu-toggle" 
-                        @click="toggleMenu" @mouseenter="showMenu">
-                        <span>{{menuPinned ? '↡' : menuOpen ? '⭱' : '⭳'}}</span>menu
+                    <button type="button" id="createFormButton" @click="openNewFormDialog($event)">
+                        Create Form<span role="img" aria="">📄</span>
                     </button>
-                
-                    <template v-if="menuOpen">
-                        <ul v-if="currCategoryID === null" id="form-editor-menu"
-                            @mouseenter="showMenu" @mouseleave="hideMenu">
-                            <li>
-                                <button id="createFormButton" @click="openNewFormDialog">
-                                Create Form<span>📄</span>
-                                </button>
-                            </li>
-                            <li>
-                                <a href="./?a=formLibrary">
-                                LEAF Library<span>📘</span>
-                                </a>
-                            </li>
-                            <li>
-                                <button @click="openImportFormDialog">
-                                Import Form<span>📦</span>
-                                </button>
-                            </li>
-                            <li>
-                                <button @click="showRestoreFields">
-                                Restore Fields<span>♻️</span>
-                                </button>
-                            </li>
-                        </ul>
-                        <ul v-else id="form-editor-menu"
-                            @mouseenter="showMenu" 
-                            @mouseleave="hideMenu">
-                            <li v-if="currentCategoryIndicatorTotal !== 0">
-                                <button @click="openNewFormDialog" title="add new internal use form">
-                                Add Internal-Use<span>➕</span>
-                                </button>
-                                <ul v-if="internalForms.length > 0" id="internalForms">
-                                    <li v-for="i in internalForms" :key="'internal_' + i.categoryID">
-                                        <button :id="i.categoryID" @click="selectSubform(i.categoryID)" title="select internal form">
-                                        {{shortFormNameStripped(i.categoryID, 22)}}
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li v-if="!formsStapledCatIDs.includes(currCategoryID)">
-                                <button @click="openStapleFormsDialog" title="staple another form">
-                                    <div>
-                                        Edit Main Form Staples<br/>
-                                        <span class="staple-sort-info">form sort value: {{categories[currCategoryID].sort}}</span>
-                                    </div><span>📌</span>
-                                </button>
-                                <ul v-if="ajaxSelectedCategoryStapled.length > 0" id="stapledForms">
-                                    <li v-for="s in ajaxSelectedCategoryStapled" 
-                                        :key="'staple_' + s.stapledCategoryID">
-                                        <button @click="selectMainForm(s.categoryID)">
-                                            <div>
-                                                {{shortFormNameStripped(s.categoryID, 20) || 'Untitled'}}<br/>
-                                                <span class="staple-sort-info">staple sort value: {{s.sort}}</span>
-                                            </div><span>📑</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <button @click="openFormHistoryDialog" title="view form history">
-                                View History<span>🕗</span>
-                                </button>
-                            </li>
-                            <li>
-                                <button @click="exportForm" title="export form">
-                                Export Form<span>💾</span>
-                                </button>
-                            </li>
-                            <li>
-                                <button @click="openConfirmDeleteFormDialog" title="delete this form">
-                                Delete this form<span>❌</span>
-                                </button>
-                            </li>
-                        </ul>
-                    </template>
                 </li>
-                
                 <li>
-                    <button type="button" @click="selectNewCategory(null)" title="View All Forms">
-                        <h2>Form Editor</h2>
-                    </button>
-                    <span v-if="currCategoryID !== null" class="header-arrow">❯</span>
+                    <a href="./?a=formLibrary" class="router-link">LEAF Library<span role="img" aria="">📘</span></a>
                 </li>
-                <li v-if="currCategoryID !== null">
-                    <button type="button" :id="'header_'+currCategoryID" @click="selectMainForm(currCategoryID)" title="main form">
-                        <h2>{{shortFormNameStripped(currCategoryID, 50)}}</h2>
-                    </button>
-                    <span v-if="currSubformID !== null" class="header-arrow">❯</span>
-                </li>
-                <li v-if="currSubformID !== null">
-                    <button :id="'header_' + currSubformID" @click="selectSubform(currSubformID)" title="select internal form">
-                        <h2>{{shortFormNameStripped(currSubformID, 50)}}</h2>
+                <li>
+                    <button type="button" @click="openImportFormDialog">
+                        Import Form<span role="img" aria="">📦</span>
                     </button>
                 </li>
-
+                <li v-if="$route.name === 'category'">
+                    <router-link :to="{ name: 'restore' }" class="router-link" >
+                        Restore Fields<span role="img" aria="">♻️</span>
+                    </router-link>
+                </li>
             </ul>
-        </nav>
-        
-    </header>`
+            <!-- FORM EDITING MENU -->
+            <ul v-else id="form-editor-menu">
+                <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID && focusedFormTree.length > 0">
+                    <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
+                        Manage Stapled Forms <span role="img" aria="">📌</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="openFormHistoryDialog" title="view form history">
+                        View History<span role="img" aria="">🕗</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="exportForm" title="export form">
+                        Export Form<span role="img" aria="">💾</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
+                        Delete this form<span role="img" aria="">❌</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- FORM EDITING BREADCRUMBS -->
+            <ul v-if="mainFormID !== ''" id="form-breadcrumb-menu">
+                <li>
+                    <router-link :to="{ name: 'category', query: { formID: ''}}" title="to Form Browser">
+                        <h2>Form Editor</h2>
+                    </router-link>
+                    <span v-if="mainFormID !== ''" class="header-arrow" role="img" aria="">❯</span>
+                </li>
+                <li>
+                    <button type="button" v-if="mainFormID !== ''" 
+                        @click="selectNewCategory(mainFormID)" :title="'to parent form ' + mainFormID" :disabled="subformID === ''">
+                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
+                    </button>
+                    <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>
+                </li>
+                <li v-if="subformID !== ''">
+                    <button type="button" :id="'header_' + subformID" 
+                        :title="'viewing internal form ' + subformID" disabled>
+                        <h2>{{shortFormNameStripped(subformID, 50)}}</h2>
+                    </button>
+                </li>
+            </ul>
+        </nav>`
 };

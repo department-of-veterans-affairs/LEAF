@@ -47,10 +47,8 @@ class VAMC_Directory
     // Connect to the database
     public function __construct()
     {
-        $config = new \Orgchart\Config;
-        $oc_db = $config->oc_db;
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $login = new \Orgchart\Login($oc_db, $oc_db);
-//        $login->loginUser();
         $this->Employee = new \Orgchart\Employee($oc_db, $login);
         $this->Group = new \Orgchart\Group($oc_db, $login);
         $this->Group->setNoLimit();
@@ -375,13 +373,13 @@ class VAMC_Directory
     // Looks up the last name and returns an associative array
     private function lookupLastName($lastName)
     {
-        return $this->Employee->lookupLastName($lastName);
+        return $this->Employee->lookupAllUsersLastName($lastName);
     }
 
     // Looks up the last name and returns an associative array
     private function lookupFirstName($firstName)
     {
-        return $this->Employee->lookupFirstName($firstName);
+        return $this->Employee->lookupAllUsersFirstName($firstName);
     }
 
     // Looks up phone or pager numbers

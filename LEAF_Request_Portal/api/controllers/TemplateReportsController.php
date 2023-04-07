@@ -48,39 +48,43 @@ class TemplateReportsController extends RESTfulResponse
 
     public function post($act)
     {
-        $db = $this->db;
-        $login = $this->login;
         $templateReports = $this->templateReports;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['POST'] = new ControllerMap();
 
-        $this->index['POST']->register('reportTemplates', function ($args) use ($templateReports) {
-            return $templateReports->newReportTemplate($_POST['filename']);
-        });
+            $this->index['POST']->register('reportTemplates', function () use ($templateReports) {
+                return $templateReports->newReportTemplate($_POST['filename']);
+            });
 
-        $this->index['POST']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
-            return $templateReports->setReportTemplate($args[0]);
-        });
+            $this->index['POST']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
+                return $templateReports->setReportTemplate($args[0]);
+            });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
     }
 
     public function delete($act)
     {
-        $db = $this->db;
-        $login = $this->login;
         $templateReports = $this->templateReports;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['DELETE'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['DELETE'] = new ControllerMap();
 
-        $this->index['DELETE']->register('reportTemplates/[text]', function ($args) use ($db, $login, $templateReports) {
-            return $templateReports->removeReportTemplate($args[0]);
-        });
+            $this->index['DELETE']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
+                return $templateReports->removeReportTemplate($args[0]);
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
     }
 }
