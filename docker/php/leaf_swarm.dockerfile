@@ -1,6 +1,6 @@
 # FROM pelentan/leaf-app-base:2.0 as base
-FROM pelentan/leaf-php-nginx-base:1.1 as base
-COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+FROM pelentan/leaf-php-nginx-base:1.2 as base
+# COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Stuff that might need to get into the base image
 WORKDIR /var/www/php-logs
@@ -9,8 +9,8 @@ WORKDIR /var/www/html
 
 # ssmtp
 # ARG SMTP_HOST
-COPY docker/php/ssmtp/ssmtp.conf /etc/ssmtp/ssmtp.conf
-COPY docker/php/ssmtp/revaliases /etc/ssmtp/revaliases
+COPY ./docker/php/ssmtp/swarm_ssmtp.conf /etc/ssmtp/ssmtp.conf
+COPY ./docker/php/ssmtp/swarm_revaliases /etc/ssmtp/revaliases
 
 FROM base as dev 
 # xdebug
@@ -20,7 +20,7 @@ FROM base as dev
 
 FROM base as prod
 COPY ./LEAF_Nexus /var/www/html/app/Orgchart
-COPY ./LEAF_Request_Portal /var/www/html/Portal
+COPY ./LEAF_Request_Portal /var/www/html/app/Portal
 COPY ./libs /var/www/html/libs
 COPY ./health_checks /var/www/html/health_checks
 COPY ../LEAF_Request_Portal/vafavicon.ico /var/www/html/favicon.ico
