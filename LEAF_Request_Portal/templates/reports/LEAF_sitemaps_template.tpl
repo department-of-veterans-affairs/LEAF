@@ -26,21 +26,21 @@
 </style>
 
 <script>
-	var sitemapOBJ;
+    var sitemapOBJ;
     var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     $(function() {
-		//load existing sitemap on page load
+        //load existing sitemap on page load
         parseSitemapJSON();
         // hide alert
         $("#sitemap-alert").hide();
         $("#sortable").sortable({
             revert: true,
-            stop: function(){
+            stop: function() {
                 var idsInOrder = $("#sortable").sortable("toArray");
-                idsInOrder = $.map( idsInOrder, function( val ) {
-                    return val.replace("div_buttonID_","");
+                idsInOrder = $.map(idsInOrder, function(val) {
+                    return val.replace("div_buttonID_", "");
                 });
-                $.each(sitemapOBJ.buttons,  function(index, value){
+                $.each(sitemapOBJ.buttons, function(index, value) {
                     //set order = arraykeyat(id)
                     sitemapOBJ.buttons[index].order = idsInOrder.indexOf(value.id)
                 });
@@ -49,8 +49,8 @@
         });
     });
 
-	// parses sitemap json into sitemapOBJ
-    function parseSitemapJSON(){
+    // parses sitemap json into sitemapOBJ
+    function parseSitemapJSON() {
         $.ajax({
             type: 'GET',
             url: './api/system/settings',
@@ -66,30 +66,40 @@
         });
     }
 
-	// builds sitemap JSON from sitemapOBJ
-    function buildSitemapJSON(){
-    	return JSON.stringify(sitemapOBJ);
+    // builds sitemap JSON from sitemapOBJ
+    function buildSitemapJSON() {
+        return JSON.stringify(sitemapOBJ);
     }
 
     //refresh buttons after edit
-    function refreshButtons(){
+    function refreshButtons() {
         $('ul.usa-sidenav').html('');
         $('div#sortable').html('');
         var buttons = sitemapOBJ.buttons;
-        buttons.sort(function(a, b){
-            return a.order-b.order;
+        buttons.sort(function(a, b) {
+            return a.order - b.order;
         });
-        $.each(buttons, function(index, value){
+        $.each(buttons, function(index, value) {
             addButtonToUI(value);
         });
         save();
     }
 
-	// insert button into sortable list and sidenav
-    function addButtonToUI(button){
-        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Site">' + button.title + '</a></li>');
-        const icon = button.icon ? '<img style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' + button.icon + '">' : '';
-        $('div#sortable').append('<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' + button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id + '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id + '"><a tabindex="-1" href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id + '\');" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' + icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description + '</p></div>');
+    // insert button into sortable list and sidenav
+    function addButtonToUI(button) {
+        $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +
+            ' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Site">' + button.title +
+            '</a></li>');
+        const icon = button.icon ? '<img style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' +
+            button.icon + '">' : '';
+        $('div#sortable').append(
+            '<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' +
+            button.color + '; color: ' + button.fontColor + ';" id="div_buttonID_' + button.id +
+            '");" title="Drag to move, click to edit."><h3 class="edit-card" id="div_headingID_' + button.id +
+            '"><a tabindex="-1" href="javascript:void(0);" onClick="editButtonDialog(\'' + button.id +
+            '\');" title="Click title to edit." style="color: ' + button.fontColor + '">' + button.title + '</a>' +
+            icon + '</h3><p class="edit-card" id="div_paragraphID_' + button.id + '">' + button.description +
+            '</p></div>');
         $('#div_buttonID_' + button.id).on('keydown', function(event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
@@ -105,17 +115,18 @@
         window.addEventListener("mousemove", drag);
         window.addEventListener("mouseup", lift);
         var didDrag = false;
+
         function drag() {
             didDrag = true;
         }
+
         function lift() {
             if (!didDrag) {
                 var eventTarget = event.target.id;
                 var eventClass = event.target.className.split(' ')[0];
                 var editTarget = eventTarget.slice(-5);
                 (eventClass == 'edit-card') && (editButtonDialog(editTarget));
-            }
-            else {
+            } else {
                 window.removeEventListener("mousemove", drag);
                 window.removeEventListener("mouseup", this);
             }
@@ -123,10 +134,10 @@
     });
 
     //remove button from sortable list and sidenav
-    function deleteButtonFromUI(buttonID){
-        $.each(sitemapOBJ.buttons,  function(index, value){
-        	if(value.id == buttonID){
-            	sitemapOBJ.buttons.splice(index, 1);
+    function deleteButtonFromUI(buttonID) {
+        $.each(sitemapOBJ.buttons, function(index, value) {
+            if (value.id == buttonID) {
+                sitemapOBJ.buttons.splice(index, 1);
                 return false;
             }
         });
@@ -135,30 +146,30 @@
         save();
     }
 
-	// generate unique id for sitemap button
-    function generateNewButtonID(){
+    // generate unique id for sitemap button
+    function generateNewButtonID() {
         do {
-           var result = '';
-           var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-           for ( var i = 0; i < 5; i++ ) {
-              result += characters.charAt(Math.floor(Math.random() * 62));
-           }
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            for (var i = 0; i < 5; i++) {
+                result += characters.charAt(Math.floor(Math.random() * 62));
+            }
         }
         while (buttonIDExists(result));
         return result;
     }
 
-	// check if unique id already exists
+    // check if unique id already exists
     function buttonIDExists(newID) {
-        $.each(sitemapOBJ.buttons,  function(index, value){
-        	if(value.id == newID){
-            	return true;
+        $.each(sitemapOBJ.buttons, function(index, value) {
+            if (value.id == newID) {
+                return true;
             }
         });
         return false;
     }
 
-	// brings up dialog to add a button
+    // brings up dialog to add a button
     function createGroup() {
         var dialog = createNewButtonDialog();
         dialog.setTitle('Add Site');
@@ -179,7 +190,7 @@
             '<div id="picked-icon" class="icon-picked" style="display: inline-block;"></div>' +
             '</div>' +
             '<div id="iconpicker" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
-        '</div></div>');
+            '</div></div>');
         $('#iconpicker').on('keydown', function(event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
@@ -191,7 +202,7 @@
         $('input:visible:first, select:visible:first').focus();
     }
 
-	// instantiates new button dialog
+    // instantiates new button dialog
     function createNewButtonDialog() {
         dialog.setSaveHandler(function() {
             dialog.indicateBusy();
@@ -209,11 +220,11 @@
             dialog.hide();
             save();
         });
-	    $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
+        $('#simplexhr').css({width: $(window).width() * .8, height: $(window).height() * .8});
         return dialog;
     }
 
-	// instantiates and pops up edit button dialog
+    // instantiates and pops up edit button dialog
     function editButtonDialog(buttonID) {
         let title = '';
         let description = '';
@@ -222,8 +233,8 @@
         let fontColor = '';
         let icon = '';
         // get old values
-        $.each(sitemapOBJ.buttons, function(index, value){
-            if(value.id == buttonID){
+        $.each(sitemapOBJ.buttons, function(index, value) {
+            if (value.id == buttonID) {
                 title = value.title;
                 description = value.description;
                 target = value.target;
@@ -234,26 +245,32 @@
         });
         dialog.setTitle('Edit Site');
         dialog.setContent('<div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" value="'+title+'"size="48" maxlength="27"></input></div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" value="'+description+'" size="48" maxlength="48"></input></div>' +
-        '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="'+target+'"size="48"></input></div>' +
-        '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
-        '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
-        '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
-        '</div>' +
-        '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
-        '<label for="btnFntColor" class="leaf-bold" style="display: block;">Font Color</label>' +
-        '<input type="color" name="btnFntColor" style="display: block;" value="#000000" />' +
-        '</div>' +
-        '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
-        '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
-        '<div id="picked-icon" class="icon-picked" style="display: inline-block;">' + (icon ? '<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') + '</div>' +
-        '</div>' +
-        '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
-        '<div class="leaf-buttonBar leaf-clearBoth">' +
-        '<button class="usa-button usa-button--secondary leaf-float-right" onClick="deleteButtonFromUI(\'' + buttonID + '\');" id="delete-button">Delete Site</button>' +
-        '</div>' +
-        '</div></div>');
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" value="' +
+            title + '"size="48" maxlength="27"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" value="' +
+            description + '" size="48" maxlength="48"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="' +
+            target + '"size="48"></input></div>' +
+            '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
+            '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
+            '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
+            '</div>' +
+            '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
+            '<label for="btnFntColor" class="leaf-bold" style="display: block;">Font Color</label>' +
+            '<input type="color" name="btnFntColor" style="display: block;" value="#000000" />' +
+            '</div>' +
+            '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
+            '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
+            '<div id="picked-icon" class="icon-picked" style="display: inline-block;">' + (icon ?
+                '<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') +
+            '</div>' +
+            '</div>' +
+            '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
+            '<div class="leaf-buttonBar leaf-clearBoth">' +
+            '<button class="usa-button usa-button--secondary leaf-float-right" onClick="deleteButtonFromUI(\'' +
+            buttonID + '\');" id="delete-button">Delete Site</button>' +
+            '</div>' +
+            '</div></div>');
         document.querySelector("#xhr input[name='btnColor']").value = color ?? '#ffffff';
         document.querySelector("#xhr input[name='btnFntColor']").value = fontColor ?? '#000000';
         $('#iconpicker').on('keydown', function(event) {
@@ -274,8 +291,8 @@
             let fontColor = $("#xhr input[name='btnFntColor']").val();
             let icon = $("#xhr #picked-icon>img").attr('src') ?? '';
             let order = sitemapOBJ.buttons.length;
-            $.each(sitemapOBJ.buttons, function(index, value){
-                if(value.id == buttonID){
+            $.each(sitemapOBJ.buttons, function(index, value) {
+                if (value.id == buttonID) {
                     sitemapOBJ.buttons[index].title = title;
                     sitemapOBJ.buttons[index].description = description;
                     sitemapOBJ.buttons[index].target = target;
@@ -303,9 +320,9 @@
                     icon = results[result];
                     icon.id = icon.alt.replace('.svg', '');
                     $('#iconpicker').append(`
-                        <div id="${icon.id}_parent" value=${icon.src} onClick="selectIcon('${icon.src}');" style="cursor: pointer;">
-                            <div id="${icon.id}_child" style="padding: 1rem; float: left;" tabindex="0">
-                                <img class="icon" style="vertical-align: middle;" src="${icon.src}" alt="${icon.alt}" title="${icon.name}" />
+<div id="${icon.id}_parent" value=${icon.src} onClick="selectIcon('${icon.src}');" style="cursor: pointer;">
+<div id="${icon.id}_child" style="padding: 1rem; float: left;" tabindex="0">
+<img class="icon" style="vertical-align: middle;" src="${icon.src}" alt="${icon.alt}" title="${icon.name}" />
                             </div>
                         </div>
                     `);
@@ -328,14 +345,15 @@
         document.getElementById('picked-icon').innerHTML = `<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=${src}>`;
     }
 
-	// saves sitemap json into the custom report
+    // saves sitemap json into the custom report
     function save() {
         var newJson = buildSitemapJSON();
         $.ajax({
-            type: 'POST',
-            url: './api/site/settings/sitemap_json',
-            data: {CSRFToken: '<!--{$CSRFToken}-->',
-                    sitemap_json: newJson},
+                type: 'POST',
+                url: './api/site/settings/sitemap_json',
+                data: {CSRFToken: '<!--{$CSRFToken}-->',
+                sitemap_json: newJson
+            },
             success: function(res) {
                 // show/hide alert
                 $("#sitemap-alert").fadeIn();
@@ -344,20 +362,29 @@
             cache: false
         });
     }
-
 </script>
 
 <div class="leaf-center-content">
 
     <aside class="sidenav">
-        <h3 class="navhead"><!--{$city}-->  Sitemap</h3>
+        <h3 class="navhead">
+            <!--{$city}--> Sitemap
+        </h3>
         <ul class="usa-sidenav leaf-border-bottom">
         </ul>
         <div>
-            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct" onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Site"></i> Add Site</button>
+            <button class="usa-button leaf-btn-green leaf-marginTopBot-halfRem leaf-width100pct"
+                onclick="createGroup();"><i class="fas fa-plus leaf-font0-7rem" title="Delete Site"></i> Add
+                Site</button>
         </div>
         <div>
-            <a href="./?a=sitemap" target="_blank" class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
+            <a href="./?a=sitemap" target="_blank"
+                class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
+        </div>
+        <div>
+            <a href="./report.php?a=LEAF_inbox_combined" target="_blank"
+                class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Combined
+                Inbox</a>
         </div>
 
         <!--<div class="leaf-sidenav-bottomBtns">
@@ -369,12 +396,14 @@
     <div class="main-content-noRight">
 
         <h1>
-            <a href="./admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i> Sitemap Editor
+            <a href="./admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>
+            Sitemap Editor
             <span id="sitemap-alert" class="leaf-sitemap-alert"><i class="fas fa-check"></i> Sitemap updated</span>
         </h1>
         <div id="sortable" class="leaf-displayFlexRow">
         </div>
-        <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%" id="spinner">
+        <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%"
+            id="spinner">
             Loading... <img src="./images/largespinner.gif" alt="loading..." />
         </div>
 
