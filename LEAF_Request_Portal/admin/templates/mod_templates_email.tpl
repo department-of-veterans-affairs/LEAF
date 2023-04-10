@@ -733,7 +733,7 @@
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
-            url: '../api/getEmailTemplateFileHistory/_' + template,
+            url: '../api/templateFileHistory/_' + template,
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {

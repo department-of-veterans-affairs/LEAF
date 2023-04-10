@@ -11,7 +11,7 @@ START TRANSACTION;
    PRIMARY KEY (`file_id`)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
- UPDATE `settings` SET `data` = '2023040600' WHERE `settings`.`setting` = 'dbversion';
+ UPDATE `settings` SET `data` = '2023040700' WHERE `settings`.`setting` = 'dbversion';
 
  COMMIT;
 

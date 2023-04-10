@@ -176,13 +176,7 @@ $controllerMap->register('reportTemplates', function () use ($db, $login, $actio
     echo $TemplateReportsController->handler($action);
 });
 
-
 $controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $login, $action) {
-    $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
-    echo $EmailTemplateController->handler($action);
-});
-
-$controllerMap->register('getEmailTemplateFileHistory', function () use ($p_db, $login, $action) {
     $EmailTemplateController = new Portal\EmailTemplateController($p_db, $login);
     echo $EmailTemplateController->handler($action);
 });

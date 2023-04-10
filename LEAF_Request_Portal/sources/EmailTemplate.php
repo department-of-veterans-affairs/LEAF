@@ -160,28 +160,6 @@ class EmailTemplate
         return $history;
     }
 
-    /**
-     * Summary of getEmailTemplateFileHistory
-     * @param string $templateFile
-     * @return array
-     */
-    function getEmailTemplateFileHistory(string $templateFile): array
-    {
-        if (!$this->login->checkGroup(1)) {
-            return ['error' => 'Admin access required'];
-        }
-
-        $vars = [
-            ':template_file' => $templateFile
-        ];
-        $sql = 'SELECT file_id, file_parent_name, file_name, file_path, file_size, file_modify_by, file_created
-                 FROM `template_history_files`
-                 WHERE file_parent_name = :template_file
-                 ORDER BY `file_created` DESC';
-
-        return $this->db->prepared_query($sql, $vars);
-    }
-
     public function setEmailTemplate($template)
     {
         if (!$this->login->checkGroup(1)) {

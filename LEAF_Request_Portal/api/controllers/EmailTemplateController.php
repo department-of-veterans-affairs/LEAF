@@ -44,10 +44,6 @@ class EmailTemplateController extends RESTfulResponse
             return $emailTemplate->getEmailTemplate($args[0], true);
         });
 
-        $this->index['GET']->register('getEmailTemplateFileHistory/[text]', function ($args) use ($emailTemplate) {
-            return $emailTemplate->getEmailTemplateFileHistory($args[0]);
-        });
-
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

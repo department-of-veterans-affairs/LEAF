@@ -761,6 +761,7 @@
             'transition': 'all 1s ease'
         });
         $('#codeContainer').css({
+            'display': 'block',
             'height': '95%',
             'width': '90% !important'
         })
@@ -789,7 +790,9 @@
 
     function loadContent(file) {
         if (file == undefined) {
-            file = currentFile;
+            console.error('No file specified. File cannot be loaded.');
+            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            return;
         }
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -797,7 +800,7 @@
 
         initEditor();
         currentFile = file;
-        $('#codeContainer').css('display', 'none');
+        $('#codeContainer').css('display', 'block');
         $('#controls').css('visibility', 'visible');
         $('#filename').html(file.replace('.tpl', ''));
         $.ajax({
@@ -819,6 +822,7 @@
         });
         $('#saveStatus').html('');
     }
+
 
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 66;
@@ -896,6 +900,7 @@
         });
 
         loadContent('view_homepage.tpl');
+        // loadContent();
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator',
             'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
