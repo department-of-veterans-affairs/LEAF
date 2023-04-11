@@ -38,8 +38,8 @@
                 <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
             </label>
             <!--{else}-->
-            <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
-                    <!--{if $indicator.format == null}-->
+            <span id="format_label_<!--{$indicator.indicatorID|strip_tags}-->" <!--{if $indicator.format|in_array:['','fileupload','image'] }-->tabindex="0"<!--{/if}-->>
+                    <!--{if $indicator.format === ''}-->
                         <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
                     <!--{else}-->
                         <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
@@ -60,7 +60,7 @@
             <div class="tableinput">
             <table class="table" id="grid_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_input"
                 style="word-wrap:break-word; table-layout: fixed; height: 100%; display: table"
-                aria-label="<!--{$indicator.name|sanitizeRichtext}-->">
+                aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
                 <thead>
                 </thead>
                 <tbody>
