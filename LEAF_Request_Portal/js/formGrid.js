@@ -443,12 +443,6 @@ var LeafFormGrid = function (containerID, options) {
         ).html();
         currentData[i][key] =
           currentData[i][key] == undefined ? "" : currentData[i][key];
-
-        // IE workaround... it adds zero-width "left-to-right mark" spaces for some reason, and we need to take it out
-        currentData[i][key] = currentData[i][key].replace(
-          /[\u200B-\u200E]/g,
-          ""
-        );
       }
       if (currentData[i].s1 == undefined) {
         currentData[i].s1 = {};
