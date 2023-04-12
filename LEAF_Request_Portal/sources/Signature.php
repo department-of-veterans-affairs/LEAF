@@ -20,18 +20,18 @@ class Signature
     /**
      * Create a new Signature.
      *
-     * @param mixed $signature
-     * @param mixed $recordID
-     * @param mixed $stepID
-     * @param mixed $dependencyID
-     * @param mixed $message
-     * @param mixed $signerPublicKey
+     * @param string $signature
+     * @param int $recordID
+     * @param int $stepID
+     * @param int $dependencyID
+     * @param string $message
+     * @param string $signerPublicKey
      *
      * @return int
      *
-     * Created at: 4/5/2023, 8:32:01 AM (America/New_York)
+     * Created at: 4/12/2023, 9:36:30 AM (America/New_York)
      */
-    public function create($signature, $recordID, $stepID, $dependencyID, $message, $signerPublicKey): int
+    public function create(string $signature, int $recordID, int $stepID, int $dependencyID, string $message, string $signerPublicKey): int
     {
         $vars = array(
             ':signature' => $signature,
