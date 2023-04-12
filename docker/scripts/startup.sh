@@ -14,6 +14,8 @@ export DATABASE_DB_ADMIN=$(cat /run/secrets/db_admin)
 export APP_CIPHER_KEY=$(cat /run/secrets/cipher_key)
 set +a
 
+source /etc/init.d/krb_wrangler.sh
+
 nginx
 
 php-fpm --nodaemonize
