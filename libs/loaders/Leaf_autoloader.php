@@ -55,9 +55,10 @@ if (!empty($site_paths['portal_database'])){
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
 // get the settings for this portal
-$settings = new Leaf\Setting($db);
+$setting_up = new Leaf\Setting($db);
+$settings = $setting_up->getSettings();
 
-$config = new Portal\Config($settings->getSettings(), $site_paths);
+$config = new Portal\Config();
 
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
@@ -66,9 +67,10 @@ $sql = 'SELECT site_uploads
 
 $oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
-$oc_settings = new Leaf\Setting($oc_db);
+$oc_setting_up = new Leaf\Setting($oc_db);
+$oc_settings = $oc_setting_up->getSettings();
 
-$oc_config = new Orgchart\Config($oc_settings->getSettings(), $oc_site_paths);
+$oc_config = new Orgchart\Config();
 
 ini_set('session.gc_maxlifetime', 2592000);
 

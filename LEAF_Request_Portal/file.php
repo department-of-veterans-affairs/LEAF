@@ -30,7 +30,7 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Portal\Config::$uploadDir) ? Portal\Config::$uploadDir : UPLOAD_DIR;
+$uploadDir = $site_paths['site_uploads'];
 $filename = $uploadDir . Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 if (file_exists($filename))
