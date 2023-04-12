@@ -701,7 +701,7 @@
             cache: false,
             success: function(res) {
                 console.log(res);
-                loadContent();
+                loadContent(currentFile);
                 exitExpandScreen();
             },
             error: function(xhr, status, error) {
@@ -781,7 +781,7 @@
         });
 
         $('#save_button').css('display', 'block');
-        loadContent();
+        loadContent(currentFile);
     }
 
 
@@ -800,7 +800,7 @@
 
         initEditor();
         currentFile = file;
-        $('#codeContainer').css('display', 'block');
+        $('#codeContainer').css('display', 'none');
         $('#controls').css('visibility', 'visible');
         $('#filename').html(file.replace('.tpl', ''));
         $.ajax({
@@ -900,7 +900,6 @@
         });
 
         loadContent('view_homepage.tpl');
-        // loadContent();
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator',
             'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
