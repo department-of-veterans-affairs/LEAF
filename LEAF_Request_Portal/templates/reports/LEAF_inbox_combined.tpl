@@ -416,7 +416,7 @@
                     if (!isNaN(parseInt(cols[j]))) {
                         getData.push(parseInt(cols[j]));
                     } else {
-                        switch (cols[j]) {
+                        switch (cols[j].toLowerCase()) {
                             case 'days_since_last_action':
                             case 'email_reminder':
                                 query.join('action_history');
