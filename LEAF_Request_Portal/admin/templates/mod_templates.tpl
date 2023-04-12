@@ -388,7 +388,7 @@
 
                     <button
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        id="btn_compareStop" style="display: none" onclick="loadContent();">
+                        id="btn_compareStop" style="display: none" onclick="stop_comparing();">
                         Stop Comparing
                     </button>
 
@@ -452,7 +452,7 @@
                     alert(res);
                 }
                 saveFileHistory();
-                loadContent();
+                loadContent(currentFile);
             }
         });
     }
@@ -503,6 +503,7 @@
         $('#btn_compare').css('display', 'none');
         $('#btn_compareStop').css('display', 'block');
 
+
         $.ajax({
             type: 'GET',
             url: '../api/templateEditor/_' + currentFile + '/standard',
@@ -522,9 +523,18 @@
                     }
                 });
                 updateEditorSize();
+                editorExpandScreen();
+                $('.file_replace_file_btn').hide();
+                $('.CodeMirror-linebackground').css({
+                    'background-color': '#8ce79b !important'
+                });
             },
             cache: false
         });
+    }
+
+    function stop_comparing() {
+        loadContent(currentFile);
     }
 
     function formatFileSize(bytes, threshold = 1024) {
