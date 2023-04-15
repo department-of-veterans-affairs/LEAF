@@ -212,11 +212,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     $("#form_dep_container" + step.dependencyID).css({
       margin: "auto",
       width: "95%",
-      padding: "8px",
+      padding: "8px 0",
     });
-    $("#workflowbox_dep" + step.dependencyID).append(
-      '<br style="clear: both"/>'
-    );
 
     $("#comment_dep" + step.dependencyID).css({
       height: "40px",
@@ -225,47 +222,30 @@ var LeafWorkflow = function (containerID, CSRFToken) {
       resize: "vertical",
     });
 
+    //add alignment area for buttons
+    $("#form_dep_container" + step.dependencyID).append(
+      `<div class="action_button_container" style="display:flex; justify-content:space-between">
+        <div class="actions_alignment_left" style="display:flex; flex-wrap:wrap;"></div>
+        <div class="actions_alignment_right" style="display:flex; flex-wrap:wrap; justify-content:flex-end"></div>
+      </div>`
+    );
     // draw buttons
-    for (var i in step.dependencyActions) {
-      var icon = "";
-      if (step.dependencyActions[i].actionIcon != "") {
-        icon =
-          '<img src="' +
-          rootURL +
-          "dynicons/?img=" +
-          step.dependencyActions[i].actionIcon +
-          '&amp;w=22" alt="' +
-          step.dependencyActions[i].actionText +
-          '" style="vertical-align: middle" />';
-      }
+    for (let i in step.dependencyActions) {
+      const icon = step.dependencyActions[i].actionIcon != "" ? 
+      `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
+            alt="${step.dependencyActions[i].actionText}" style="vertical-align: middle" />` : "";
+      const alignment = step.dependencyActions[i].actionAlignment.toLowerCase();
 
-      $("#form_dep_container" + step.dependencyID).append(
-        '<div id="button_container' +
-          step.dependencyID +
-          "_" +
-          step.dependencyActions[i].actionType +
-          '" style="float: ' +
-          step.dependencyActions[i].actionAlignment +
-          '">\
-                    <button type="button" id="button_step' +
-          step.dependencyID +
-          "_" +
-          step.dependencyActions[i].actionType +
-          '" class="button">\
-                    ' +
-          icon +
-          " " +
-          step.dependencyActions[i].actionText +
-          "\
-                    </button>\
-                    </div>"
+      $(`#form_dep_container${step.dependencyID} .actions_alignment_${alignment}`).append(
+        `<div id="button_container${step.dependencyID}_${step.dependencyActions[i].actionType}">
+          <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button">
+            ${icon} ${step.dependencyActions[i].actionText}
+          </button>
+        </div>`
       );
-      $(
-        "#button_step" +
-          step.dependencyID +
-          "_" +
-          step.dependencyActions[i].actionType
-      ).css({ border: "1px solid black", padding: "6px", margin: "4px" });
+
+      $(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`)
+        .css({ border: "1px solid black", padding: "6px", margin: "4px" });
 
       $(
         "#button_step" +
