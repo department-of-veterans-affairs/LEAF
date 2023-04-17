@@ -2,10 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './src/LEAF_FormEditor_main.js',
+    entry: './src_designer/LEAF_designer_main.js',
     output: {
-        filename: 'LEAF_FormEditor_main_build.js',
-        path: path.resolve(__dirname, '/app/vue-dest')
+        filename: 'LEAF_designer_main_build.js',
+        path: path.resolve(__dirname, '/app/vue-dest/site_designer'),
+        clean: true
     },
     watchOptions: {
         poll: true
@@ -13,7 +14,7 @@ module.exports = {
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
-            "@": path.resolve(__dirname, "src")
+            "@": path.resolve(__dirname, "src_designer")
         }
     },
     module: {
