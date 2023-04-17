@@ -1394,7 +1394,7 @@ class Workflow
             ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
             ':actionIcon' => $_POST['actionIcon'],
             ':actionAlignment' => $alignment,
-            ':sort' => 0,
+            ':sort' => (int)strip_tags($_POST['sort']),
             ':fillDependency' => $_POST['fillDependency'],
         );
 
@@ -1404,7 +1404,7 @@ class Workflow
             new \Leaf\LogItem("actions", "actionText",  strip_tags($_POST['actionText'])),
             new \Leaf\LogItem("actions", "actionIcon",  $_POST['actionIcon']),
             new \Leaf\LogItem("actions", "actionAlignment",  $alignment),
-            new \Leaf\LogItem("actions", "sort",  0),
+            new \Leaf\LogItem("actions", "sort",  strip_tags($_POST['sort'])),
             new \Leaf\LogItem("actions", "fillDependency",  $_POST['fillDependency']),
             new \Leaf\LogItem("actions", "actionTextPasttense",   strip_tags($_POST['actionTextPasttense']))
         ]);
