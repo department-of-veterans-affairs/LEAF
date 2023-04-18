@@ -1048,7 +1048,7 @@ class Form
                                             WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
 
         if (strpos($res[0]['format'], 'signature') == 0) {
-            $this->writeSignature($recordID);
+            // $this->writeSignature($recordID);
         }
         return 1;
     }
