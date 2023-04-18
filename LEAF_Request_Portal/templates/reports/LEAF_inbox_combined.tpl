@@ -262,23 +262,23 @@
 
         let icon = getIcon(site.icon, site.name);
         if (document.getElementById('siteContainer' + hash) == null) {
-            $('#indexSites').append('<li style="font-size: 120%; line-height: 150%"><a href="#' + hash + '">' + site
+            $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site
                 .name + '</a></li>');
             $('#inbox').append('<div id="siteContainer' + hash +
                 '" style="box-shadow: 0 2px 3px #a7a9aa; border-radius: 4px; border-left: 8px solid ' + site
                 .backgroundColor + '; border-right: 8px solid ' + site.backgroundColor +
-                '; border-bottom: 8px solid ' + site.backgroundColor + '; margin: 0px auto 8px">' +
+                '; background-color:' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
                 '<a name="' + hash + '" />' +
                 '<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
                 .backgroundColor + '; color: ' + site.fontColor + '; ">' + icon + ' ' + site.name + '</div>' +
                 '</div>');
         }
         $('#siteContainer' + hash).append('<div id="depContainer' + hash + '_' + depID +
-            '" style="border: 1px solid black; background-color: #e6e4b9; cursor: pointer; margin-bottom: -15px;">' +
+            '" style="border: 1px solid black; background-color: #e6e4b9; cursor: pointer; margin-bottom: 0.5rem;">' +
             '<div id="depLabel' + hash + '_' + depID +
             '" class="depInbox" style="padding: 8px"><span style="float: right; text-decoration: underline; font-weight: bold">View ' +
             recordIDs.length + ' requests</span>' +
-            '<span style="font-size: 120%; font-weight: bold">' + categoryName + '</span>' +
+            '<span style="font-size: 130%; font-weight: bold">' + categoryName + '</span>' +
             '</div>' +
             '<div id="depList' + hash + '_' + depID +
             '" style="width: 90%; margin: auto; display: none"></div></div><br />');
