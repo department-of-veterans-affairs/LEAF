@@ -267,7 +267,7 @@
             $('#inbox').append('<div id="siteContainer' + hash +
                 '" style="box-shadow: 0 2px 3px #a7a9aa; border-radius: 4px; border-left: 8px solid ' + site
                 .backgroundColor + '; border-right: 8px solid ' + site.backgroundColor +
-                '; background-color:' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
+                '; border-bottom: 8px solid ' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
                 '<a name="' + hash + '" />' +
                 '<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
                 .backgroundColor + '; color: ' + site.fontColor + '; ">' + icon + ' ' + site.name + '</div>' +
