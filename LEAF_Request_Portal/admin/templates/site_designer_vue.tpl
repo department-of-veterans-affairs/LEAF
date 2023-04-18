@@ -1,9 +1,8 @@
 <div id="site-designer-app">
     <main>
         <section>
-            <h2>TEST designer page load</h2>
-            <p>{{ CSRFToken }}</p>
-            <button @click="testShowDialog">Test Modal</button>
+            <h2>Site Designer</h2>
+            <button @click="openDesignButtonDialog">Test Modal</button>
             <p>{{ test }}</p>
             <mod-home-menu></mod-home-menu>
         </section>
@@ -20,4 +19,5 @@
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
+    const APIroot = '<!--{$APIroot}-->';
 </script>

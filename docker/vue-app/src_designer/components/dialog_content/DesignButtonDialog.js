@@ -26,13 +26,14 @@ export default {
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
             $('.trumbowyg-box').css({
-                'min-height': '130px',
+                'min-height': '75px',
+                'height': 'auto',
                 'max-width': '700px',
                 'margin': '0.5rem 0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-                'min-height': '100px',
-                'height': '100px',
+                'min-height': '50px',
+                'height': 'auto',
                 'padding': '1rem'
             });
         },
@@ -56,10 +57,12 @@ export default {
         }
     },
     template: `<div>
-        <p>Button Title</p>
-        <div id="menu_title_trumbowyg" @input="updateTitleText"></div>
-        <p>Button Description</p>
-        <div id="menu_description_trumbowyg" @input="updateDescriptionText"></div>
+        <div id="menu_title_trumbowyg_label">Button Title</div>
+        <div id="menu_title_trumbowyg" aria-labelledby="menu_title_trumbowyg_label"
+            @input="updateTitleText"></div>
+        <div id="menu_description_trumbowyg_label">Button Description</div>
+        <div id="menu_description_trumbowyg" aria-labelledby="menu_description_trumbowyg_label"
+            @input="updateDescriptionText"></div>
         <p style="margin-top: 1rem;">Button Preview</p>
         <div>
             <div v-html="buttonTitleTrumbowyg"></div>
