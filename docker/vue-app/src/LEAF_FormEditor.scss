@@ -1,104 +1,4 @@
-$BG-DarkNavy: #162e51;
-$base_navy: #005EA2;
-$LtNavy: #1476bd;
-$LEAF_CSS_outline: #2491ff;
-$charcoal: #252f3e;
-$dk-gray: #4a5778;
-$BG_LightGray: #dcdee0;
-$BG_Pearl: #f2f2f6;
-$manila: #feffd1;
-$USWDS_LtGray: #c9c9c9;
-$USWDS_Cyan: #00bde3;
-$lt_cyan: #e8f2ff;
-$BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
-$attention: #a00;
-
-@mixin flexcenter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-body { /* fixes header not extending entire width */
-    min-width: -moz-fit-content; /*firefox prior to nov 2021*/
-    min-width: fit-content;
-} 
-[v-cloak] {
-    display: none;
-}
-/* general app-wide styles and resets */
-#vue-formeditor-app {
-    min-height: 100vh;
-    main {
-        margin: 0;
-    }
-    section {
-        margin: 0rem 1rem 1rem 1rem;
-    }
-}
-#vue-formeditor-app * {
-    box-sizing: border-box;
-    font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
-}
-#vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
-.leaf-vue-dialog button:not(.choices__button,[class*="trumbowyg"]) {
-    @include flexcenter;
-    cursor: pointer;
-    font-weight: bolder;
-    padding: 2px 0.4em;
-    border-radius: 3px;
-    white-space: nowrap;
-    line-height: normal;
-    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
-        outline: 2px solid #20a0f0;
-    }
-}
-button.btn-general, button.btn-confirm {
-    background-color: white;
-    color: $base_navy;
-    border: 2px solid $base_navy;
-    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
-        background-color: $base_navy;
-        color: white;
-        border: 2px solid black !important;
-    }
-    &.disabled {
-        cursor: auto !important;
-        &:active {
-            border: 2px solid $base_navy !important;
-        }
-    }
-}
-button.btn-confirm {
-    color: white;
-    background-color: $base_navy;
-}
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-label {
-    padding: 0;
-    display: flex;
-    align-items: center;
-    font-weight: bolder;
-    white-space: nowrap;
-    margin-bottom: 2px;
-    &.checkable {
-        margin-bottom: 0;
-    }
-}
-
-a.router-link {
-    @include flexcenter;
-    text-decoration: none;
-    color: inherit;
-    border-radius: 3px;
-}
-td a.router-link {
-    justify-content: flex-start;
-}
+@import '../src_common/LEAF_Vue_Dialog__Common.scss';
 
 nav#form-editor-nav {
     width: 100%;
@@ -204,89 +104,6 @@ nav#form-editor-nav {
     }
 }
 
-
-/* base dialog modal styling */
-#leaf-vue-dialog-background {
-    @include flexcenter;
-    width: 100vw; 
-    height: 100%;
-    z-index: 999;
-    background-color: rgba(0,0,20,0.5);
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-.leaf-vue-dialog {
-    position: absolute;
-    margin: auto;
-    width: auto;
-    min-width: 450px;
-    resize: horizontal;
-    z-index: 9999;
-    max-width: 900px;
-    height: auto;
-    min-height: 0;
-    border-radius: 4px;
-    background-color: white;
-    box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
-    overflow: visible;
-
-    * {
-        box-sizing: border-box;
-        font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
-    }
-
-    p {
-        margin: 0;
-        padding: 0;
-        line-height: 1.5;
-    }
-
-    > div {
-        padding: 0.75rem 1rem;
-    }
-    li {
-        display: flex;
-        align-items: center;
-    }
-    .leaf-vue-dialog-title {
-        color: $charcoal;
-        border-top: 3px solid white;
-        border-left: 3px solid white;
-        border-right: 3px solid #cadff0;
-        border-bottom: 2px solid #cadff0;
-        border-radius: 3px;
-        background-color: $lt_cyan;
-        cursor: move;
-    
-        h2 {
-            color: inherit;
-            margin: 0;
-        }
-    } 
-    #leaf-vue-dialog-close {
-        @include flexcenter;
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 25px;
-        height: 25px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-    #leaf-vue-dialog-cancel-save {
-        display:flex; 
-        justify-content: space-between; 
-        margin-top: 1em;
-        #button_save {
-            margin-right:auto;
-        }
-        #button_cancelchange {
-            margin-left: auto;
-        }
-    }
-}
 
 #form_browser_tables {
     h3 {
@@ -881,6 +698,175 @@ div#form_content_view {
         }
     }
 }
+
+/* ifthen sections */
+#condition_editor_center_panel {
+    min-width: 700px;
+    max-width: 900px;
+    margin: auto;
+    background-color: white;
+
+    .hidden {
+        visibility: hidden;
+    }
+
+    #condition_editor_inputs > div {
+        padding: 1rem 0;
+        border-bottom: 3px solid $lt_cyan;
+    }
+    #condition_editor_actions > div {
+        padding-top: 1rem;
+    }
+    div.if-then-setup {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        > div {
+            display: inline-block;
+            width: 30%;
+        }
+    }
+    select, input:not(.choices__input) {
+        font-size: 85%;
+        padding: 0.15em;
+        text-overflow: ellipsis;
+        width: 100%;
+        border: 1px inset gray;
+
+        &:not(:last-child) {
+            margin-bottom: 1em;
+        }
+    }
+
+    ul#savedConditionsList {
+        padding-bottom: 0.5em;
+    }
+
+    li.savedConditionsCard {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.4em;
+    }
+
+    button.btnNewCondition {
+        display: flex;
+        align-items: center;
+        margin: 0.3em 0;
+        width: -moz-fit-content;
+        width: fit-content;
+        color: white;
+        background-color: $base_navy;
+        padding: 0.4em 0.92em;
+        box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+        border: 1px solid $base_navy;
+        border-radius: 3px;
+        margin-right: 1em;
+        transition: box-shadow 0.1s ease;
+
+        &:hover, &:focus, &:active {
+            color: white;
+            background-color: $BG_DarkNavy;
+            border: 1px solid $BG_DarkNavy !important;
+            box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+        }
+    }
+    button.btnSavedConditions {
+        justify-content: flex-start;
+        font-weight: normal;
+        background-color: white;
+        padding: 0.4em;
+        border: 1px outset $base_navy;
+        box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+        border-radius: 3px;
+        margin-right: 1em;
+        max-width: 825px;
+        overflow: hidden;
+        transition: box-shadow 0.1s ease;
+
+        &.isOrphan {
+            background-color: #d8d8d8;
+            color: black;
+            border: 1px solid black;
+        }
+
+        &:hover:not(.isOrphan), &:focus:not(.isOrphan), &:active:not(.isOrphan) {
+            color: white;
+            border: 1px outset $base_navy !important;
+            background-color: $base_navy;
+            box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+        }
+    }
+
+
+    .changesDetected {
+        color: #c80000;
+    }
+    .selectedConditionEdit .changesDetected,
+    button.btnSavedConditions:hover .changesDetected, 
+    button.btnSavedConditions:focus .changesDetected, 
+    button.btnSavedConditions:active .changesDetected {
+        color: white;
+    }
+    
+    button.selectedConditionEdit {
+        color: white;
+        border: 1px outset $base_navy !important;
+        background-color: $base_navy;
+        box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+    }
+    
+    li button {
+        padding: 0.3em;
+        width: 100%;
+        cursor: pointer;
+    }
+    button.btn-condition-select {
+        margin: 0;
+        padding: 0.4em;
+        border: 0;
+        text-align: left;
+        background-color: white;
+        color: $BG_DarkNavy;
+        border-left:3px solid transparent;
+        border-bottom: 1px solid rgb(203, 213, 218);
+    
+        &:hover, &:active, &:focus {
+            border-left:3px solid #005EA2 !important;
+            border-bottom: 1px solid rgb(172, 181, 185) !important;
+            background-color: $lt_cyan;
+        }
+    }
+
+    .btn_remove_condition {
+        background-color: #922;
+        border: 1px solid #922;
+        color: white;
+    }
+    .btn_remove_condition:hover, .btn_remove_condition:active, .btn_remove_condition:focus {
+        border: 1px solid black !important;
+        background-color: #600;
+    }
+    
+    .form-name {
+        color: $BG_DarkNavy;
+    }
+    .input-info {
+        padding: 0.4em 0;
+        font-weight: bolder;
+        color: $base_navy;
+    }
+    
+    #remove-condition-modal {
+        position: absolute;
+        width: 400px;
+        height: 250px;
+        background-color: white;
+        box-shadow: 1px 1px 6px 2px rgba(0,0,25,0.5);
+    }
+
+}
+
 
 /* checkboxes and radio */
 .checkable.leaf_check {

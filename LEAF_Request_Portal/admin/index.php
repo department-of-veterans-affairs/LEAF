@@ -530,7 +530,9 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('libsPath', $libsPath);
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
+        $main->assign('useUI', true); //needed for jQ associated w trumbowyg
         $main->assign('javascripts', array(
             '../../libs/js/LEAF/XSSHelpers.js',
             '../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',

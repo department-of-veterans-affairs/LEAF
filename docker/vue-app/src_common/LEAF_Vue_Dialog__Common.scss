@@ -1,0 +1,191 @@
+/* variables, SASS mixins, Modal styles */
+
+$BG_DarkNavy: #162e51;
+$base_navy: #005EA2;
+$LtNavy: #1476bd;
+$LEAF_CSS_outline: #2491ff;
+$charcoal: #252f3e;
+$dk-gray: #4a5778;
+$BG_LightGray: #dcdee0;
+$BG_Pearl: #f2f2f6;
+$manila: #feffd1;
+$USWDS_LtGray: #c9c9c9;
+$USWDS_Cyan: #00bde3;
+$lt_cyan: #e8f2ff;
+$BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
+$attention: #a00;
+
+@mixin flexcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body { /* fixes header not extending entire width */
+    min-width: -moz-fit-content; /*firefox prior to nov 2021*/
+    min-width: fit-content;
+} 
+[v-cloak] {
+    display: none;
+}
+
+
+/* base dialog modal styling */
+#leaf-vue-dialog-background {
+    @include flexcenter;
+    width: 100vw; 
+    height: 100%;
+    z-index: 999;
+    background-color: rgba(0,0,20,0.5);
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.leaf-vue-dialog {
+    position: absolute;
+    margin: auto;
+    width: auto;
+    min-width: 450px;
+    resize: horizontal;
+    z-index: 9999;
+    max-width: 900px;
+    height: auto;
+    min-height: 0;
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: 0 0 5px 1px rgba(0,0,25,0.25);
+    overflow: visible;
+
+    * {
+        box-sizing: border-box;
+        font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+        line-height: 1.5;
+    }
+
+    > div {
+        padding: 0.75rem 1rem;
+    }
+    li {
+        display: flex;
+        align-items: center;
+    }
+    .leaf-vue-dialog-title {
+        color: $charcoal;
+        border-top: 3px solid white;
+        border-left: 3px solid white;
+        border-right: 3px solid #cadff0;
+        border-bottom: 2px solid #cadff0;
+        border-radius: 3px;
+        background-color: $lt_cyan;
+        cursor: move;
+    
+        h2 {
+            color: inherit;
+            margin: 0;
+        }
+    } 
+    #leaf-vue-dialog-close {
+        @include flexcenter;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    #leaf-vue-dialog-cancel-save {
+        display:flex; 
+        justify-content: space-between; 
+        margin-top: 1em;
+        #button_save {
+            margin-right:auto;
+        }
+        #button_cancelchange {
+            margin-left: auto;
+        }
+    }
+}
+/* dialog modal end */
+
+
+/* general styles and resets */
+#vue-formeditor-app, #site-designer-app {
+    min-height: 100vh;
+    main {
+        margin: 0;
+    }
+    section {
+        margin: 0rem 1rem 1rem 1rem;
+    }
+}
+#vue-formeditor-app *, #site-designer-app * {
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+}
+#vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
+#site-designer-app button:not(.choices__button,[class*="trumbowyg"]),
+.leaf-vue-dialog button:not(.choices__button,[class*="trumbowyg"]) {
+    @include flexcenter;
+    cursor: pointer;
+    font-weight: bolder;
+    padding: 2px 0.4em;
+    border-radius: 3px;
+    white-space: nowrap;
+    line-height: normal;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        outline: 2px solid #20a0f0;
+    }
+}
+button.btn-general, button.btn-confirm {
+    background-color: white;
+    color: $base_navy;
+    border: 2px solid $base_navy;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        background-color: $base_navy;
+        color: white;
+        border: 2px solid black !important;
+    }
+    &.disabled {
+        cursor: auto !important;
+        &:active {
+            border: 2px solid $base_navy !important;
+        }
+    }
+}
+button.btn-confirm {
+    color: white;
+    background-color: $base_navy;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+label {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    white-space: nowrap;
+    margin-bottom: 2px;
+    &.checkable {
+        margin-bottom: 0;
+    }
+}
+
+a.router-link {
+    @include flexcenter;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 3px;
+}
+td a.router-link {
+    justify-content: flex-start;
+}
