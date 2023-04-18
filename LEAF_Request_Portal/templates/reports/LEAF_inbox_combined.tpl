@@ -269,12 +269,12 @@
                 .backgroundColor + '; border-right: 8px solid ' + site.backgroundColor +
                 '; border-bottom: 8px solid ' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
                 '<a name="' + hash + '" />' +
-                '<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
+                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
                 .backgroundColor + '; color: ' + site.fontColor + '; ">' + icon + ' ' + site.name + '</div>' +
                 '</div>');
         }
         $('#siteContainer' + hash).append('<div id="depContainer' + hash + '_' + depID +
-            '" style="border: 1px solid black; background-color: #e6e4b9; cursor: pointer; margin-bottom: 0.5rem;">' +
+            '" style="border: 1px solid black; background-color: #e6e4b9; cursor: pointer;">' +
             '<div id="depLabel' + hash + '_' + depID +
             '" class="depInbox" style="padding: 8px"><span style="float: right; text-decoration: underline; font-weight: bold">View ' +
             recordIDs.length + ' requests</span>' +
