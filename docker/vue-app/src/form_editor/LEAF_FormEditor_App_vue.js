@@ -1,6 +1,6 @@
 import { computed } from 'vue';
 
-import LeafFormDialog from "../src_common/components/LeafFormDialog.js";
+import LeafFormDialog from "../common/components/LeafFormDialog.js";
 
 import IndicatorEditingDialog from "./components/dialog_content/IndicatorEditingDialog.js";
 import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";

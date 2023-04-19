@@ -10,8 +10,6 @@ services:
       dockerfile: leaf_vue.dockerfile
     volumes:
       - './vue-app/src:/app/src'
-      - './vue-app/src_designer:/app/src_designer'
-      - './vue-app/src_common:/app/src_common'
       - '/app/node_modules'
       - '../libs/js/vue-dest:/app/vue-dest'
     networks:

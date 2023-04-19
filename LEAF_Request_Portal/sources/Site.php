@@ -42,4 +42,20 @@ class Site
 
         return 1;
     }
+
+	public function setHomeMenuJSON()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+		$strSQL = 'INSERT INTO settings (setting, `data`)
+			VALUES ("home_menu_json", :input)
+			ON DUPLICATE KEY UPDATE `data`=:input';
+        $vars = array(':input' => $_POST['home_menu_json']);
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        return 1;
+    }
 }

@@ -2,8 +2,7 @@
     <main>
         <section>
             <h2>Site Designer</h2>
-            <button @click="openDesignButtonDialog">Test Modal</button>
-            <p>{{ test }}</p>
+            <button class="btn-general" @click="openDesignButtonDialog">Test Modal</button>
             <mod-home-menu></mod-home-menu>
         </section>
     </main>
@@ -15,7 +14,7 @@
     </leaf-form-dialog>
 </div>
 
-<script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer_main_build.js" defer></script>
+<script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer.js" defer></script>
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';

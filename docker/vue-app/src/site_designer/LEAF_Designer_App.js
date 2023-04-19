@@ -1,7 +1,7 @@
 import { computed } from 'vue';
 
-import LeafFormDialog from "../src_common/components/LeafFormDialog.js";
-import './LEAF_designer.scss';
+import LeafFormDialog from "../common/components/LeafFormDialog.js";
+import './LEAF_Designer.scss';
 
 import ModHomeMenu from "./components/ModHomeMenu.js";
 import DesignButtonDialog from "./components/dialog_content/DesignButtonDialog.js";
@@ -63,7 +63,6 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}system/settings`,
                     success: (res) => {
-                        console.log('site btns', res)
                         this.sitemapOBJ = JSON.parse(res?.sitemap_json || '');
                         resolve();
                     },
@@ -77,7 +76,6 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}iconPicker/list`,
                     success: (res) => {
-                        console.log('picker', res)
                         this.iconList = res || [];
                         resolve();
                     },
@@ -102,8 +100,8 @@ export default {
 
         openDesignButtonDialog() {
             this.showFormDialog = true;
-            this.dialogTitle = '<h3>Editor</h3>';
-            this.dialogFormContent = 'design-button-dialog';
+            this.dialogTitle = '<h2>Editor</h2>';
+            this.setFormDialogComponent('design-button-dialog');
         }
     }
 }

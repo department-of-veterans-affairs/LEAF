@@ -120,9 +120,9 @@ body { /* fixes header not extending entire width */
     min-height: 100vh;
     main {
         margin: 0;
-    }
-    section {
-        margin: 0rem 1rem 1rem 1rem;
+        > section {
+            margin: 0rem 1rem 1rem 1rem;
+        }
     }
 }
 #vue-formeditor-app *, #site-designer-app * {
