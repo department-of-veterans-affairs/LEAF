@@ -29,7 +29,7 @@ if (!$login->checkGroup(1))
     echo 'You must be in the administrator group to access this section.';
     exit();
 }
-error_log(print_r($oc_settings, true));
+
 $main = new Smarty;
 $t_login = new Smarty;
 $t_menu = new Smarty;
