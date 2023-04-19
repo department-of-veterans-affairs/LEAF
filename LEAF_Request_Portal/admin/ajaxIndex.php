@@ -239,7 +239,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+        $t_form->assign('orgchartPath', ABSOLUTE_ORG_PATH);
 
         $type = null;
         switch ($typeName) {

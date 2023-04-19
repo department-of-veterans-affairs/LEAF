@@ -48,7 +48,7 @@
                             <td class="leaf-width70pct">
                                 <span>
                                     <a style="color: #005ea2"
-                                        href="../<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$log.userID}-->"
+                                        href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$log.userID}-->"
                                         target="_blank">
                                         <!--{$log.userName|sanitize}-->
                                     </a>
