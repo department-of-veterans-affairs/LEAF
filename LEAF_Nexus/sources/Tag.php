@@ -27,7 +27,7 @@ class Tag extends Data
 
     protected $login;
 
-    private $cache = array();
+    protected $cache = array();
 
     public function __construct($db, $login)
     {
@@ -98,8 +98,8 @@ class Tag extends Data
                       ':data' => $time,
                       ':cacheTime' => $time, );
         $this->db->prepared_query('INSERT INTO cache (cacheID, data, cacheTime)
-    								   VALUES (:cacheID, :data, :cacheTime)
-    								   ON DUPLICATE KEY UPDATE data=:data, cacheTime=:cacheTime', $vars);
+                                       VALUES (:cacheID, :data, :cacheTime)
+                                       ON DUPLICATE KEY UPDATE data=:data, cacheTime=:cacheTime', $vars);
 
         return 1;
     }

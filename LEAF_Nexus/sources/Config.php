@@ -41,7 +41,7 @@ class Config
         $oc_settings = $oc_settings->getSettings();
 
         $this->title = $oc_settings['heading'];
-        $this->city = $oc_settings['subHeading'];
+        $this->city = $oc_settings['subheading'];
         $this->adPath = $oc_settings['adPath'];
         self::$uploadDir = $site_paths['site_uploads'];
         self::$ERM_Sites = $oc_settings['ERM_Sites'];
