@@ -58,7 +58,10 @@ $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths
 $setting_up = new Leaf\Setting($db);
 $settings = $setting_up->getSettings();
 
-$config = new Portal\Config();
+if (class_exists('Portal\DbConfig')) {
+    $db_config = new Portal\DbConfig();
+    $config = new Portal\Config();
+}
 
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
