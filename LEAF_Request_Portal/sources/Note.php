@@ -96,27 +96,33 @@ class Note
      *
      * @param array $db_fields - sanitized array of key value pairs that will be parsed here for entry into the db.
      *
-     * @return int
+     * @return int|array
      *
      * Created at: 10/4/2022, 7:49:50 AM (America/New_York)
      */
-    public function postNote(array $db_fields): int
+    public function postNote(array $db_fields): int|array
     {
-        $sql_vars = array();
-        $field_list = array();
-        $value_list = array();
+        if (!empty($db_fields['note'])) {
+            $sql_vars = array();
+            $field_list = array();
+            $value_list = array();
 
-        foreach ($db_fields as $key => $field) {
-            $sql_vars[':'.$key] = $field;
-            $field_list[] = $key;
-            $value_list[] = ':'.$key;
+            foreach ($db_fields as $key => $field) {
+                $sql_vars[':'.$key] = $field;
+                $field_list[] = $key;
+                $value_list[] = ':'.$key;
+            }
+
+            $sql = 'INSERT INTO notes (' . implode(',', $field_list) . ') VALUES (' . implode(',', $value_list) . ')';
+
+            $this->db->prepared_query($sql, $sql_vars);
+
+            $return_value = (int) $this->db->getLastInsertID();
+        } else {
+            $return_value = array('error' => 'Missing data');
         }
 
-        $sql = 'INSERT INTO notes (' . implode(',', $field_list) . ') VALUES (' . implode(',', $value_list) . ')';
-
-        $this->db->prepared_query($sql, $sql_vars);
-
-        return (int) $this->db->getLastInsertID();
+        return $return_value;
     }
 
     /**
