@@ -987,6 +987,7 @@ class Form
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series, );
+
         $res = $this->db->prepared_query('SELECT data, format FROM data
                                             LEFT JOIN indicators USING (indicatorID)
                                             WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
@@ -1018,26 +1019,58 @@ class Form
         }
 
         // check write access
-        if (!$this->hasWriteAccess($recordID, 0, $key))
-        {
+        if (!$this->hasWriteAccess($recordID, 0, $key)) {
             return 0;
         }
+
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
+
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
                                             VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
 
-        if (!$duplicate)
-        {
-            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+        if (!$duplicate) {
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
         }
+
+        $vars = array(':recordID' => $recordID,
+                      ':indicatorID' => $key,
+                      ':series' => $series, );
+
+        $res = $this->db->prepared_query('SELECT data, format FROM data
+                                            LEFT JOIN indicators USING (indicatorID)
+                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+
+        if (strpos($res[0]['format'], 'signature') == 0) {
+            // $this->writeSignature($recordID);
+        }
         return 1;
+    }
+
+    private function writeSignature(int $recordID): void
+    {
+        $form = json_encode($this->getFullFormDataForSigning($recordID));
+        $workflow = new FormWorkflow($this->db, $this->login, $recordID);
+        $current_step = $workflow->getCurrentSteps();
+
+        if ($current_step === null) {
+            $step_id = -1;
+            $dependency_id = 0;
+        } else {
+            foreach ($current_step as $key => $value) {
+                $step_id = $value['stepID'];
+                $dependency_id = $value['dependencyID'];
+            }
+        }
+
+        $signature = new Signature($this->db, $this->login);
+        $signature->create('place holder, coming from piv card?', $recordID, $step_id, $dependency_id, $form, 'another place holder for signerPublicKey');
     }
 
     /**

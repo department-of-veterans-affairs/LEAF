@@ -64,7 +64,7 @@ class FormStack
             if (empty($val['parendID'])) {
                 $vars = array(':categoryID' => $val['categoryID']);
                 $strStaples = "SELECT stapledCategoryID FROM category_staples
-                    WHERE categoryID=:categoryID";
+                    WHERE categoryID=:categoryID AND stapledCategoryID !=''";
                 $resStaples = $this->db->prepared_query($strStaples, $vars) ?? [];
 
                 $res[$ind]['stapledFormIDs'] = array_column($resStaples,'stapledCategoryID');
