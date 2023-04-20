@@ -1,1 +1,9 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
+
+div.LEAF_custom * {
+    color: inherit;
+}
+a.LEAF_custom {
+    text-decoration: none;
+    color: inherit;
+}

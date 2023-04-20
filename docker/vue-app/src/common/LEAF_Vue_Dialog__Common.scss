@@ -15,10 +15,19 @@ $lt_cyan: #e8f2ff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 $attention: #a00;
 
+
+/* mixins, utils, resets, general styles */
 @mixin flexcenter {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.test {
+    color: #b00;
+    font-size: 1rem;
+    border: 1px solid #b00;
+    margin: 0.5rem 0;
 }
 
 body { /* fixes header not extending entire width */
@@ -28,7 +37,83 @@ body { /* fixes header not extending entire width */
 [v-cloak] {
     display: none;
 }
+input[type="color"] {
+    cursor: pointer;
+}
 
+#vue-formeditor-app, #site-designer-app {
+    min-height: 100vh;
+    main {
+        margin: 0;
+        > section {
+            margin: 0rem 1rem 1rem 1rem;
+        }
+    }
+}
+#vue-formeditor-app *, #site-designer-app * {
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
+}
+#vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
+#site-designer-app button:not(.choices__button,[class*="trumbowyg"]),
+.leaf-vue-dialog button:not(.choices__button,[class*="trumbowyg"]) {
+    @include flexcenter;
+    cursor: pointer;
+    font-weight: bolder;
+    padding: 2px 0.4em;
+    border-radius: 3px;
+    white-space: nowrap;
+    line-height: normal;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        outline: 2px solid #20a0f0;
+    }
+}
+button.btn-general, button.btn-confirm {
+    background-color: white;
+    color: $base_navy;
+    border: 2px solid $base_navy;
+    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
+        background-color: $base_navy;
+        color: white;
+        border: 2px solid black !important;
+    }
+    &.disabled {
+        cursor: auto !important;
+        &:active {
+            border: 2px solid $base_navy !important;
+        }
+    }
+}
+button.btn-confirm {
+    color: white;
+    background-color: $base_navy;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+label {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    white-space: nowrap;
+    margin-bottom: 2px;
+    &.checkable {
+        margin-bottom: 0;
+    }
+}
+
+a.router-link {
+    @include flexcenter;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 3px;
+}
+td a.router-link {
+    justify-content: flex-start;
+}
 
 /* base dialog modal styling */
 #leaf-vue-dialog-background {
@@ -111,81 +196,4 @@ body { /* fixes header not extending entire width */
             margin-left: auto;
         }
     }
-}
-/* dialog modal end */
-
-
-/* general styles and resets */
-#vue-formeditor-app, #site-designer-app {
-    min-height: 100vh;
-    main {
-        margin: 0;
-        > section {
-            margin: 0rem 1rem 1rem 1rem;
-        }
-    }
-}
-#vue-formeditor-app *, #site-designer-app * {
-    box-sizing: border-box;
-    font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
-}
-#vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
-#site-designer-app button:not(.choices__button,[class*="trumbowyg"]),
-.leaf-vue-dialog button:not(.choices__button,[class*="trumbowyg"]) {
-    @include flexcenter;
-    cursor: pointer;
-    font-weight: bolder;
-    padding: 2px 0.4em;
-    border-radius: 3px;
-    white-space: nowrap;
-    line-height: normal;
-    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
-        outline: 2px solid #20a0f0;
-    }
-}
-button.btn-general, button.btn-confirm {
-    background-color: white;
-    color: $base_navy;
-    border: 2px solid $base_navy;
-    &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
-        background-color: $base_navy;
-        color: white;
-        border: 2px solid black !important;
-    }
-    &.disabled {
-        cursor: auto !important;
-        &:active {
-            border: 2px solid $base_navy !important;
-        }
-    }
-}
-button.btn-confirm {
-    color: white;
-    background-color: $base_navy;
-}
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-label {
-    padding: 0;
-    display: flex;
-    align-items: center;
-    font-weight: bolder;
-    white-space: nowrap;
-    margin-bottom: 2px;
-    &.checkable {
-        margin-bottom: 0;
-    }
-}
-
-a.router-link {
-    @include flexcenter;
-    text-decoration: none;
-    color: inherit;
-    border-radius: 3px;
-}
-td a.router-link {
-    justify-content: flex-start;
 }

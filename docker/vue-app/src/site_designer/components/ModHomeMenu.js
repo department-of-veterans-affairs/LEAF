@@ -1,21 +1,20 @@
+import CustomMenuItem from "./CustomMenuItem";
+
 export default {
-    name: 'mod-home-item',
-    data() {
-        return {
-            test: 'mod home menu'
-        }
+    name: 'mod-home-menu',
+    components: {
+        CustomMenuItem
     },
     inject: [
-        'menuButtonList',
+        'menuItemList',
+        'setMenuItem'
     ],
     template: `<div>
-        <h2>TEST HEADER</h2>
-        <p>{{ test }}</p>
         <ul>
-            <li v-for="b in menuButtonList" :key="b.id"
-                style="display: flex; align-items:center;" :style="{ backgroundColor: b.color, color: b.fontColor }">
-                <img :src="b.icon"/> {{ b.description }}
+            <li v-for="m in menuItemList" :key="m.id" @click="setMenuItem(m.id)" style="cursor:pointer">
+                <custom-menu-item :menuItem="m"></custom-menu-item>
             </li>
         </ul>
+        <button type="button" @click="setMenuItem">Create New Menu Item</button>
     </div>`
 }
