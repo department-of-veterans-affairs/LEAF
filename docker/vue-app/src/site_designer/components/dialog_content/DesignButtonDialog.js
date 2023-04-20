@@ -21,6 +21,8 @@ export default {
     },
     inject: [
         'menuItem',
+        'saveMenuItem',
+        'iconList'
     ],
     mounted() {
         this.useTrumbowEditor();

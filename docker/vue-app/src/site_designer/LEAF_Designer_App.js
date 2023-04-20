@@ -46,6 +46,7 @@ export default {
     provide() {
         return {
             CSRFToken: computed(() => this.CSRFToken),
+            iconList: computed(() => this.iconList),
             menuItemList: computed(() => this.menuItemList),
             menuItem: computed(() => this.menuItem),
             formSaveFunction: computed(() => this.formSaveFunction),
@@ -76,6 +77,7 @@ export default {
                 subtitle: "Item subtitle",
                 subtitleColor: "#006080",
                 bgColor: "#f0f0ff",
+                icon: "",
                 link: "https://localhost/LEAF_Request_Portal/?a=reports&v=3"
             },
         ]
