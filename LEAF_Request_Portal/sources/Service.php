@@ -146,8 +146,7 @@ class Service
 
     public function addMember($groupID, $member)
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
@@ -233,8 +232,7 @@ class Service
 
     public function removeMember($groupID, $member)
     {
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
@@ -447,7 +445,7 @@ class Service
         $dir = new VAMC_Directory();
         $dirRes = $dir->lookupLogin($employeeID);
 
-        if (is_array($dirRes && isset($dirRes[0]))) {
+        if (is_array($dirRes) && isset($dirRes[0])) {
             $empData = $dirRes[0];
             $empDisplay = $empData["firstName"] . " " . $empData["lastName"];
         } else {
@@ -455,6 +453,26 @@ class Service
         }
 
         return $empDisplay;
+    }
+
+    /**
+     * Returns Employee user ID.
+     * @param string $employeeID - The id to create the display name of.
+     *
+     * @return int
+     */
+    public function getEmployeeUserID($employeeID): int
+    {
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+        if (is_array($dirRes) && isset($dirRes[0])) {
+            $empData = $dirRes[0];
+            $empUserID = $empData["empUID"];
+        } else {
+            $empUserID = -1;
+        }
+
+        return $empUserID;
     }
 
     /**

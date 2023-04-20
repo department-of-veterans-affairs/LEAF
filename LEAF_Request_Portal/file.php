@@ -20,7 +20,7 @@ $value = $data[$_GET['id']]['value'];
 
 if (!is_numeric($_GET['file'])
     || $_GET['file'] < 0
-    || $_GET['file'] > count($value) - 1)
+    || !is_countable($value) || $_GET['file'] > count($value) - 1)
 {
     echo 'Invalid file';
     exit();

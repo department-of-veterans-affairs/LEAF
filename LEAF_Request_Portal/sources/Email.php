@@ -60,7 +60,7 @@ class Email
         else{
             $this->siteRoot = "https://" . HTTP_HOST . '/';
         }
-        
+
         $apiEntry = strpos($this->siteRoot, '/api/');
         if ($apiEntry !== false) {
             $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
@@ -334,8 +334,7 @@ class Email
     private function initOrgchart(): void
     {
         // set up org chart assets
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
@@ -362,8 +361,7 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        $nexus_config = new Config;
-        $this->nexus_db = new \Leaf\Db($nexus_config->phonedbHost, $nexus_config->phonedbUser, $nexus_config->phonedbPass, $nexus_config->phonedbName);
+        $this->nexus_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
     }
 
     /**
@@ -464,7 +462,7 @@ class Email
         // Determine if template currently has any email addresses saved
         $tplLocation = str_replace(array('email_to', 'email_cc'), array('emailTo', 'emailCC'), $tplLocation);
         $hasEmailTemplate = $this->getFilepath($tplLocation);
-        $emailTemplate = __DIR__ . '/templates/email/' . $hasEmailTemplate;
+        $emailTemplate = __DIR__ . '/../templates/email/' . $hasEmailTemplate;
         if (file_exists($emailTemplate)) {
             $emailList = file($emailTemplate, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
             // For each line in template, add that email address, if valid

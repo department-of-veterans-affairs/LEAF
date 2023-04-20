@@ -54,35 +54,39 @@ class TemplateEditorController extends RESTfulResponse
 
      public function post($act)
      {
-         $db = $this->db;
-         $login = $this->login;
-         $templateEditor = $this->templateEditor;
+        $templateEditor = $this->templateEditor;
 
-         $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-         $this->index['POST'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['POST'] = new ControllerMap();
 
-         $this->index['POST']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
-          return $templateEditor->setTemplate($args[0]);
-      });
+            $this->index['POST']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
+                return $templateEditor->setTemplate($args[0]);
+            });
 
-         return $this->index['POST']->runControl($act['key'], $act['args']);
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
      }
 
      public function delete($act)
      {
-         $db = $this->db;
-         $login = $this->login;
-         $templateEditor = $this->templateEditor;
+        $templateEditor = $this->templateEditor;
 
-         $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-         $this->index['DELETE'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['DELETE'] = new ControllerMap();
 
-         $this->index['DELETE']->register('templateEditor/[text]', function ($args) use ($db, $login, $templateEditor) {
-          return $templateEditor->removeCustomTemplate($args[0]);
-      });
+            $this->index['DELETE']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
+                return $templateEditor->removeCustomTemplate($args[0]);
+            });
 
-         return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
      }
  }

@@ -521,23 +521,24 @@ class Position extends Data
      * Set position supervisor
      * @param int $positionID
      * @return array
+     * @throws Exception
      */
     public function setSupervisor($positionID, $parentID)
     {
         if (!is_numeric($positionID) || !is_numeric($parentID))
         {
-            throw new Exception('Invalid input');
+            return array('status' => 0, 'errors' => array('Invalid input'));
         }
         $privs = $this->getUserPrivileges($parentID);
         if ($privs[$parentID]['write'] == 0)
         {
-            throw new Exception('No write access for the supervisor');
+            return array('status' => 0, 'errors' => array('You do not have write access to this position.</br> Please contact your primary admin.'));
         }
 
         $privs = $this->getUserPrivileges($positionID);
         if ($privs[$positionID]['write'] == 0)
         {
-            throw new Exception('No write access for this position');
+            return array('status' => 0, 'errors' => array('You do not have write access to this position.</br> Please contact your primary admin.'));
         }
 
         // avoid circular link - make sure we can't set a subordinate as a supervisor

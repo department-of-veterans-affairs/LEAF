@@ -75,7 +75,155 @@ var LeafForm = function (containerID) {
       "multiselect",
       "radio",
       "checkboxes",
+      "",
+      "fileupload",
+      "image",
+      "textarea"
     ];
+
+    /** crosswalk variables and functions */
+    let dropdownInfo = {};
+
+    function loadRecordData() {
+      return new Promise((resolve, reject)=> {
+        $.ajax({
+          type: 'GET',
+          url: `./api/form/${recordID}/data`,
+          success: (result) => {
+            resolve(result)
+          },
+          error: (err) => {
+            reject(err)
+          }
+        });
+      });
+    }
+
+    function loadCrosswalkFile(fileName, iID) {
+      return new Promise((resolve, reject)=> {
+        const xhttpInds = new XMLHttpRequest();
+        xhttpInds.onreadystatechange = () => {
+          if (xhttpInds.readyState === 4) {
+            switch(xhttpInds.status) {
+              case 200:
+                resolve(xhttpInds.responseText);
+                break;
+              case 404:
+                let content = `The file for indicator ${iID} was not found at files/${fileName}.`
+                content += `\nCheck the entered file name in setup and in the LEAF file manager.`
+                reject(new Error(content));
+                break;
+              default:
+                reject(new Error(xhttpInds.status));
+                break;
+            }
+          }
+        };
+        xhttpInds.open("GET", `files/${fileName}`, true);
+        xhttpInds.send();
+      });
+    }  
+
+    function removeSelectOptions(iID) {
+      let selectbox = document.getElementById(iID);
+      const selectElementFound = selectbox && selectbox.nodeName === 'SELECT';
+      if(!selectElementFound) {
+        console.log(`-- Failed to remove options for ${iID}. Indicator was not found or is not a dropdown`);
+      } else {
+        while (selectbox.options.length > 0) selectbox.remove(0);
+      }
+      return selectElementFound;
+    }
+
+    function getSelectOptions(fileContent = "", iID, isLevel2 = false, indLevel1Val = null) {
+      let uniqueList = [];
+      if (isLevel2 && indLevel1Val !== null) {
+        let level2_Options = [];
+        let list = fileContent.split(/\n/);
+        list = list.forEach(ele => {
+          ele = ele.split(",");
+          if (ele.length === 2 && indLevel1Val !== "") {
+            let optLv1 = ele[0].trim();
+            if (optLv1 === indLevel1Val || (Array.isArray(indLevel1Val) && indLevel1Val.includes(optLv1)) ) {
+              level2_Options.push(ele[1]);
+            }
+          }
+        });
+        uniqueList = Array.from(new Set(level2_Options));
+      } else {
+        const list = fileContent.split(/\n/).map(line => line.split(",")[0]);
+        uniqueList = Array.from(new Set(list));
+      }
+
+      let options = uniqueList.map(o => XSSHelpers.stripAllTags(o.trim()));
+
+      if (!isLevel2 && options.length> 0 && dropdownInfo[iID].crosswalkHasHeader === true) {
+        dropdownInfo[iID].headerName = options[0];
+      }
+      return options.filter(o => o !== dropdownInfo[iID].headerName && o !== "").sort().reverse();
+    }
+
+    function setSelectOptions(arrOptions = [], iID, formdata) {
+      let selectbox = document.getElementById(iID);
+
+      if (selectbox && selectbox.multiple === true) { //multiselect with choicesjs
+        const formDataValue = formdata[iID]["1"].value || [];
+        selectbox.choicesjs.destroy();   //choices obj is added in subindicators.tpl
+        const options = arrOptions.map(o =>({
+          value: o,
+          label: o,
+          selected: Array.isArray(formDataValue) && formDataValue.some(v => v === sanitize(o))
+        }));
+        const choices = new Choices(selectbox, {
+          allowHTML: false,
+          removeItemButton: true,
+          editItems: true,
+          choices: options.filter(o => o.value !== "")
+        });
+        selectbox.choicesjs = choices;
+
+        let elEmptyOption = document.getElementById(`${iID}_empty_value`);
+        if (elEmptyOption === null) {
+            let opt = document.createElement('option');
+            opt.id = `${iID}_empty_value`;
+            opt.value = "";
+            elEmptyOption = opt;
+        }
+        selectbox.appendChild(elEmptyOption);
+        elEmptyOption.selected = selectbox.value === '';
+
+      } else { //single dropdown with Chosen
+        const formDataValue = formdata[iID]["1"].value || "";
+        selectbox.append(`<option value=""></option>`);
+        arrOptions.push("");
+        arrOptions.forEach(o => {
+          $('#'+iID).prepend(`<option value="${o}">${o}</option>`);
+          if (sanitize(o) === formDataValue) {
+            $('#'+iID).val(o);
+          }
+        });
+        $('#'+iID).trigger("chosen:updated");
+      }
+
+      //if crosswalk (2 level dropdown)
+      if (dropdownInfo[iID] !== undefined && dropdownInfo[iID].level2indID !== null) {
+        const updateOptions = ()=> { //add listener to level 1
+          const optionsAreRemoved = removeSelectOptions(dropdownInfo[iID].level2indID);
+          if (optionsAreRemoved) {
+            const options = getSelectOptions(dropdownInfo[iID].fileContents, iID, true, $('#'+iID).val());
+            setSelectOptions(options, dropdownInfo[iID].level2indID, formdata);
+          }
+        }
+        $('#'+iID).on('change', updateOptions);
+
+        const optionsAreRemoved = removeSelectOptions(dropdownInfo[iID].level2indID);
+        if (optionsAreRemoved) { //update level 2
+          const options = getSelectOptions(dropdownInfo[iID].fileContents, iID, true, $('#'+iID).val());
+          setSelectOptions(options, dropdownInfo[iID].level2indID, formdata);
+        }
+      }
+    }
+    /** cross walk end */
 
     let childRequiredValidators = {};
     const handleChildValidators = (childID) => {
@@ -98,6 +246,37 @@ var LeafForm = function (containerID) {
       return false;
     };
 
+    //NOTE: run only for crosswalks
+    const runCrosswalk = (indID = 0, formdata = {}) => {
+      //there should only be 1, and it is stored under the child id
+      const allIndConditions = formConditions[`id${indID}`].conditions || [];
+      const crosswalkConditions = allIndConditions.filter(
+        c => c.selectedOutcome.toLowerCase() === "crosswalk"
+      );
+      if(crosswalkConditions.length === 1) {
+        const cond = crosswalkConditions[0];
+        dropdownInfo[indID] = { //defined in handleConditionalIndicators at start of crosswalk methods
+          fileName: cond.crosswalkFile,
+          crosswalkHasHeader: cond.crosswalkHasHeader,
+          headerName: null,
+          level2indID: cond.level2IndID
+        }
+
+        loadCrosswalkFile(dropdownInfo[indID].fileName, indID).then(fileContents => {
+          dropdownInfo[indID].fileContents = fileContents;  //save for crosswalk listeners
+          const optionsAreRemoved = removeSelectOptions(indID);
+          if (optionsAreRemoved === true) {
+            const options = getSelectOptions(fileContents, indID);
+            setSelectOptions(options, indID, formdata);
+          }
+        }).catch(err => console.log('could not get file contents', err));
+
+      } else {
+        console.log('unexpected number of crosswalk conditions.  check indicator condition entry')
+      }
+    }
+
+    //NOTE: run only for conditional code with parent controllers (hide, show and prefill)
     const checkConditions = (event = 0, selected = 0, parID = 0) => {
       const parentElID =
         event !== null ? parseInt(event.target.id) : parseInt(parID);
@@ -120,7 +299,7 @@ var LeafForm = function (containerID) {
         ["show", "hide"].includes(c.selectedOutcome.toLowerCase())
       );
       let prefillConditions = allConditions.filter(
-        (c) => !["show", "hide"].includes(c.selectedOutcome.toLowerCase())
+        c => c.selectedOutcome.toLowerCase() === "pre-fill"
       );
       allConditions = [...hideShowConditions, ...prefillConditions]; //orders them so that prefills would be last
 
@@ -290,24 +469,18 @@ var LeafForm = function (containerID) {
       //used in the outcome switch after condition checking.
       let conditionOutcomes = [];
       if (
-        arrChildConditions.filter(
-          (c) => c.selectedOutcome.toLowerCase() === "hide"
-        ).length > 0
+        arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "hide")
       )
         conditionOutcomes.push("hide");
       if (
-        arrChildConditions.filter(
-          (c) => c.selectedOutcome.toLowerCase() === "show"
-        ).length > 0
+        arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "show")
       )
         conditionOutcomes.push("show");
       if (
-        arrChildConditions.filter(
-          (c) => c.selectedOutcome.toLowerCase() === "pre-fill"
-        ).length > 0
+        arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "pre-fill")
       )
         conditionOutcomes.push("pre-fill");
-      if (conditionOutcomes.length > 2)
+      if (conditionOutcomes.includes('hide') && conditionOutcomes.includes('show'))
         console.log(
           "there are both hide and show conditions on the same question. check conditions setup"
         );
@@ -441,7 +614,7 @@ var LeafForm = function (containerID) {
               if (
                 outcome === "pre-fill" &&
                 childPrefillValue === "" &&
-                parentComparisonValues === parent_val
+                parentComparisonValues !== parent_val
               ) {
                 childPrefillValue = cond.selectedChildValue.trim();
               }
@@ -551,32 +724,42 @@ var LeafForm = function (containerID) {
     //confirm that the parent indicators exist on the form (in case of archive/deletion)
     let confirmedParElsByIndID = [];
     let notFoundParElsByIndID = [];
+    let crosswalks = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
+      const currQuestionFormat = formConditionsByChild[entry].format.toLowerCase();
+
       formConditions.forEach((c) => {
-        let parentEl = null;
-        switch (c.parentFormat.toLowerCase()) {
-          case "radio": //radio buttons use indID_radio1, indID_radio2 etc
-            parentEl = document.querySelector(
-              `input[id^="${c.parentIndID}_radio"]`
-            );
-            break;
-          case "checkboxes": //checkboxes use indID_0, indID_1 etc
-            parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
-            break;
-          default: //multisel, dropdown, text use input id=indID.
-            parentEl = document.getElementById(c.parentIndID);
-            break;
-        }
-        if (parentEl !== null) {
-          confirmedParElsByIndID.push(parseInt(c.parentIndID));
+        if (c.selectedOutcome.toLowerCase() === "crosswalk"
+          && ["dropdown", "multiselect"].includes(currQuestionFormat)) {
+          crosswalks.push(parseInt(c.childIndID));
+
         } else {
-          notFoundParElsByIndID.push(parseInt(c.parentIndID));
+          let parentEl = null;
+          switch (c.parentFormat.toLowerCase()) {
+            case "radio": //radio buttons use indID_radio1, indID_radio2 etc
+              parentEl = document.querySelector(
+                `input[id^="${c.parentIndID}_radio"]`
+              );
+              break;
+            case "checkboxes": //checkboxes use indID_0, indID_1 etc
+              parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
+              break;
+            default: //multisel, dropdown, text use input id=indID.
+              parentEl = document.getElementById(c.parentIndID);
+              break;
+          }
+          if (parentEl !== null) {
+            confirmedParElsByIndID.push(parseInt(c.parentIndID));
+          } else {
+            notFoundParElsByIndID.push(parseInt(c.parentIndID));
+          }
         }
       });
     }
     confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
     notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
+    crosswalks = Array.from(new Set(crosswalks));
 
     if (notFoundParElsByIndID.length > 0) {
       //filter out any conditions that have parent IDs of elements not found in the DOM
@@ -594,6 +777,12 @@ var LeafForm = function (containerID) {
       $("#" + id).on("change", checkConditions);
       $(`input[id^="${id}_"]`).on("change", checkConditions); //this should cover both radio and checkboxes
     });
+
+    if(crosswalks.length > 0) {
+      loadRecordData().then(formdata => {
+        crosswalks.forEach(indID => runCrosswalk(indID, formdata));
+      }).catch(err => console.log('record data did not load', err));
+    }
   }
 
   function doModify() {

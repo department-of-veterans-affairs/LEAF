@@ -141,7 +141,7 @@ services:
       - "traefik.http.routers.leaf_adminer.tls.certresolver=dev_http"
 
   leaf-mysql:
-    image: pelentan/leaf-mysql:2.0
+    image: pelentan/leaf-mysql:2.5
     container_name: leaf-mysql
     ports:
       - "3306:3306"
