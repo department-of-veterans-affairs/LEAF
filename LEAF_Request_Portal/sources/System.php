@@ -49,8 +49,7 @@ class System
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
         //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
 
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $group = new \Orgchart\Group($oc_db, $this->login);
         $position = new \Orgchart\Position($oc_db, $this->login);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -163,8 +162,7 @@ class System
         //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $group = new \Orgchart\Group($oc_db, $this->login);
         $position = new \Orgchart\Position($oc_db, $this->login);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -196,6 +194,9 @@ class System
             $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
         }
 
+	// clear backups in case of updates
+	$vars = array(':groupID' => $groupID);
+	$this->db->prepared_query('DELETE FROM users WHERE backupID IS NOT NULL AND groupID=:groupID', $vars);
         foreach ($resEmp as $emp)
         {
             if ($emp['userName'] != '')
@@ -225,29 +226,6 @@ class System
             }
         }
 
-        //refresh request portal members backups
-        $vars = array(':groupID' => $groupID,);
-
-        $resRP = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID', $vars);
-
-        foreach ($resRP as $empRP) {
-            if ($empRP['active'] == 1) {
-                $empID = $employee->lookupLogin($empRP['userID']);
-                $backups = $employee->getBackups($empID[0]['empUID']);
-                foreach ($backups as $backup) {
-                    $vars = array(':userID' => $backup['userName'],
-                        ':groupID' => $groupID,
-                        ':backupID' => $empRP['userID'],);
-
-                    // Add backupID check for updates
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $vars);
-                }
-            }
-        }
-
-
         //if the group is removed, also remove the category_privs
         $vars = array(':groupID' => $groupID);
         $res = $this->db->prepared_query('SELECT *
@@ -276,13 +254,12 @@ class System
         } else if ($groupID == 1) {
             $return_value = 'Cannot update admin group';
         } else {
-                // clear out old data first
+            // clear out old data first
             $vars = array(':groupID' => $groupID);
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-            $config = new Config();
-            $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -301,7 +278,7 @@ class System
                 ':name' => $resGroup['groupTitle'],
                 ':groupDescription' => '',);
 
-        $this->db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name, groupDescription)
+            $this->db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name, groupDescription)
                     					VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
 
             // build list of member employees
@@ -312,6 +289,9 @@ class System
                 $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
             }
 
+	    // clear backups in case of updates
+	    $vars = array(':groupID' => $groupID);
+	    $this->db->prepared_query('DELETE FROM users WHERE backupID IS NOT NULL AND groupID=:groupID', $vars);
             foreach ($resEmp as $emp) {
                 if ($emp['userName'] != '') {
                     $vars = array(':userID' => $emp['userName'],

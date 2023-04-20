@@ -477,7 +477,7 @@ class FormWorkflow
      * @param string $comment
      * @return array {status(int), errors[string]}
      */
-    public function handleAction(int $dependencyID, string $actionType, string $comment): array
+    public function handleAction(int $dependencyID, string $actionType, string $comment = ''): array
     {
         if (!is_numeric($dependencyID))
         {
@@ -762,11 +762,15 @@ class FormWorkflow
                             ':recordID' => $this->recordID,
                             ':stepID' => $actionable['stepID'],
                             ':nextStepID' => $res2[0]['nextStepID'],
+                            ':lastNotified' => date('Y-m-d H:i:s'),
+                            ':initialNotificationSent' => 0,
                             ':blockingStepID' => 0,
                         );
                         $strSQL2 = 'UPDATE records_workflow_state SET
                             stepID = :nextStepID,
-                            blockingStepID = :blockingStepID
+                            blockingStepID = :blockingStepID,
+                            lastNotified = :lastNotified,
+                            initialNotificationSent = :initialNotificationSent
                             WHERE recordID = :recordID
                             AND stepID = :stepID';
                         $this->db->prepared_query($strSQL2, $vars2);
@@ -829,10 +833,14 @@ class FormWorkflow
                                 $vars2 = array(
                                     ':recordID' => $this->recordID,
                                     ':stepID' => $step['stepID'],
+                                    ':lastNotified' => date('Y-m-d H:i:s'),
+                                    ':initialNotificationSent' => 0,
                                     ':blockingStepID' => $conflictID,
                                 );
                                 $strSQL2 = 'UPDATE records_workflow_state SET
-                                    blockingStepID = :blockingStepID
+                                    blockingStepID = :blockingStepID,
+                                    lastNotified = :lastNotified,
+                                    initialNotificationSent = :initialNotificationSent
                                     WHERE recordID = :recordID
                                     AND stepID = :stepID';
                                 $this->db->prepared_query($strSQL2, $vars2);
@@ -1287,10 +1295,14 @@ class FormWorkflow
                 $vars2 = array(
                     ':recordID' => $this->recordID,
                     ':stepID' => $dep['stepID'],
+                    ':lastNotified' => date('Y-m-d H:i:s'),
+                    ':initialNotificationSent' => 0,
                     ':blockingStepID' => 0,
                 );
                 $strSQL = 'UPDATE records_workflow_state SET
-                    blockingStepID = :blockingStepID
+                    blockingStepID = :blockingStepID,
+                    lastNotified = :lastNotified,
+                    initialNotificationSent = :initialNotificationSent
                     WHERE recordID = :recordID
                     AND stepID = :stepID';
                 $this->db->prepared_query($strSQL, $vars2);

@@ -200,7 +200,7 @@ function submitNote(recordID){
 
 function addNote(response) {
     if (typeof response === 'object' && response !== null) {
-        var new_note;
+        let new_note;
 
 new_note = '<div class="comment_block"> <span class="comments_time"> ' + response.date + '</span> <span class="comments_name">Note Added by ' + response.user_name + '</span> <div class="comments_message">' + response.note + '</div> </div>';
 
@@ -429,7 +429,7 @@ const valIncludesMultiselOption = (values = [], arrOptions = []) => {
 }
 
 function handlePrintConditionalIndicators(formPrintConditions = {}) {
-    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'];
+    const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes', '', 'fileupload', 'image', 'textarea'];
     const multiChoiceFormats = ['multiselect', 'checkboxes'];
 
     for (c in formPrintConditions) {
@@ -450,10 +450,10 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
             const outcome = conditions[i].selectedOutcome.toLowerCase();
 
-            if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+            if (['hide', 'show'].includes(outcome) && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
 
                 if (comparison !== true) { //no need to re-assess if it has already become true
-                    const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerHTML.trim();
+                    const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerText.trim();
 
                     let compVal = '';
                     if (multiChoiceFormats.includes(parentFormat)) {

@@ -13,55 +13,61 @@ class WorkflowFormatter
 
     const TEMPLATES = [
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_STEP => [
-            "message"=>"Workflow Step <strong>%s</strong> - <strong>%s</strong> has been added",
-            "variables"=>"stepID,stepTitle"
+            "message"=>"added <strong>new workflow step:</strong> %s",
+            "variables"=>"stepTitle"
         ],
         DataActions::DELETE.'-'.LoggableTypes::WORKFLOW_STEP => [
-            "message"=>"Workflow Step <strong>%s</strong> deleted",
-            "variables"=>"stepID"
+            "message"=>"removed <strong>workflow step:</strong> %s",
+            "variables"=>"stepTitle"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW_STEP => [
-            "message"=>"Workflow Step <strong>%s</strong>",
+            "message"=>"<strong>workflow step:</strong> %s",
             "variables"=>"stepID,".FormatOptions::READ_COLUMN_NAMES,
             "loggableColumns"=>"posX,posY,stepTitle,indicatorID_for_assigned_empUID,indicatorID_for_assigned_groupID"
         ],
         DataActions::ADD.'-'.LoggableTypes::EVENTS => [
-            "message"=>"Event <strong>%s</strong> has been added",
+            "message"=>"added <strong>new event:</strong> %s",
             "variables"=>"eventDescription"
         ],
         DataActions::DELETE.'-'.LoggableTypes::EVENTS => [
-            "message"=>"Event <strong>%s</strong> has been deleted",
+            "message"=>"removed <strong>event</strong> %s",
             "variables"=>"eventID"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::EVENTS => [
-            "message"=>"Event <strong>%s</strong> has been modified",
+            "message"=>"modified <strong>event:</strong> %s",
             "variables"=>"eventDescription"
         ],
         DataActions::ADD.'-'.LoggableTypes::ROUTE_EVENTS => [
-            "message"=>"Workflow <strong>%s</strong> Step <strong>%s</strong> <strong>%s</strong> action has been added",
+            "message"=>"added <strong>new action:</strong> <strong>workflow:</strong> %s <strong>step %s:</strong> %s",
             "variables"=>"workflowID,stepID,actionType"
         ],
         // This is labelled differently in the data_log_items table than the add route_events event. (action instead of actionType)
         DataActions::DELETE.'-'.LoggableTypes::ROUTE_EVENTS => [
-            "message"=>"Workflow <strong>%s</strong> Step <strong>%s</strong> <strong>%s</strong> action has been deleted",
+            "message"=>"removed <strong>action:</strong> <strong>workflow:</strong> %s <strong>step %s:</strong> %s",
             "variables"=>"workflowID,stepID,action"
         ],
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW_ROUTE => [
-            "message"=>"Added <strong>%s</strong> action between steps <strong>%s</strong> and <strong>%s</strong>",
+            "message"=>"added <strong>action: </strong>%s between <strong>steps:</strong> %s, %s",
             "variables"=>"actionType,stepID,nextStepID"
         ],
         DataActions::ADD.'-'.LoggableTypes::WORKFLOW => [
-            "message"=>"Workflow <strong>%s</strong> created",
+            "message"=>"added <strong>new workflow:</strong> %s",
             "variables"=>"workflowID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::WORKFLOW => [
-            "message"=>"Workflow <strong>%s</strong> deleted",
+            "message"=>"removed <strong>workflow:</strong> %s",
             "variables"=>"workflowID"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW => [
-            "message"=>"Workflow <strong>%s</strong> initial step set to <strong>%s</strong>",
-            "variables"=>"workflowID,initialStepID"
-        ]
-
+            "message"=>"set <strong>initial step:</strong> %s in <strong>workflow:</strong> %s",
+            "variables"=>"initialStepID,workflowID"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW_NAME => [
+            "message"=>"set <strong>name:</strong> %s in <strong>workflow:</strong> %s",
+            "variables"=>"description,workflowID"
+        ],
     ];
+
+    const TABLE = "workflows";
+
 }

@@ -39,11 +39,10 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->oc_dbName = $config->dbName;
+        $this->oc_dbName = \ORGCHART_DB;
 
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
         $this->position = new \Orgchart\Position($oc_db, $oc_login);
@@ -3217,7 +3216,7 @@ class Form
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ":", ";", "="], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
@@ -3793,7 +3792,11 @@ class Form
 
             foreach ($res as $field)
             {
-                $idx = $field['indicatorID'];
+                if (isset($_GET['childkeys']) && strtolower($_GET['childkeys']) === 'nonnumeric') {
+                    $idx = "id".$field['indicatorID'];
+                } else {
+                    $idx = $field['indicatorID'];
+                }
 
                 // todo: cleanup required field
                 $required = isset($field['required']) && $field['required'] == 1 ? ' required="true" ' : '';

@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
 --
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
-('dbversion', '2023012600'),
+('dbversion', '2023022300'),
 ('heading', ''),
 ('leafSecure', '0'),
 ('national_linkedPrimary', ''),
