@@ -32,6 +32,10 @@ class SiteController extends RESTfulResponse
 			return $site->getAllSitePaths();
 		});
 
+		$this->index['GET']->register('site/settings/sitemap_json', function() use ($site){
+			return $site->getSitemapJSON();
+		});
+
 		return $this->index['GET']->runControl($act['key'], $act['args']);
 	}
 

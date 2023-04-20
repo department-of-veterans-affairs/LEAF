@@ -33,13 +33,14 @@ export default {
                     type: 'DELETE',
                     url: `${this.APIroot}formStack/_${delID}?` + $.param({CSRFToken:this.CSRFToken}),
                     success: (res) => {
-                        if(res !== true) {
-                            alert(res);
-                        } else {
+                        //res for successful deletion had initially been true and is now '1'.  +res will cover 1, '1', and true
+                        if(+res === 1) {
                             //if a subform is deleted, re-focus its parent, otherwise go to browser
                             this.selectNewCategory(parID, null, true);
                             this.removeCategory(delID);
                             this.closeFormDialog();
+                        } else {
+                            alert(res);
                         }
                     },
                     error: err => console.log('an error has occurred', err)

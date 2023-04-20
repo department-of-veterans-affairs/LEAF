@@ -69,7 +69,7 @@ export default {
                         stapledCategoryID: this.catIDtoStaple
                     },
                     success: res => {
-                        if(res !== 1) {
+                        if(+res !== 1) {
                             alert(res);
                         } else {
                             this.updateStapledFormsInfo(this.catIDtoStaple);
