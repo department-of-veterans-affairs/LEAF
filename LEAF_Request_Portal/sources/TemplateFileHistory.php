@@ -213,7 +213,7 @@ class TemplateFileHistory
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MODIFY,
+                \Leaf\DataActions::MERGE,
                 \Leaf\LoggableTypes::TEMPLATE_BODY,
                 [new \Leaf\LogItem("template_editor", "body", $template, $template)]
             );
@@ -235,9 +235,9 @@ class TemplateFileHistory
             file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MODIFY,
-                \Leaf\LoggableTypes::TEMPLATE_BODY,
-                [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                \Leaf\DataActions::MERGE,
+                \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
+                [new \Leaf\LogItem("email_template_body", "body", $template, $template)]
             );
         }
 

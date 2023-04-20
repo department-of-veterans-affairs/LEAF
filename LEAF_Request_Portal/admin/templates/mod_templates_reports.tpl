@@ -106,7 +106,7 @@
     }
 
     .file-history {
-        width: 100%;
+        width:90%;
         max-height: 600px;
         overflow: auto;
         position: relative;
@@ -136,7 +136,7 @@
     }
 
     .accordion-container {
-        display: none;
+        display: block;
         margin-top: 10px;
         width: 100%;
         font-family: sans-serif;
@@ -153,11 +153,15 @@
     }
 
     .accordion-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-flow: row;
         padding: 10px 0;
         background-color: #1a4480;
         color: #fff;
         font-size: 0.75rem;
-        font-weight: bold;
+        /* font-weight: bold; */
         text-align: center;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -169,6 +173,15 @@
 
     .accordion-header.accordion-active {
         background-color: #112e51;
+    }
+
+    .accordion-date {
+        border-right: 1px solid #fff;
+        padding: 0 10px;
+    }
+
+    .accordion-name {
+        padding: 0 10px;
     }
 
     .accordion-content {
@@ -311,15 +324,17 @@
         text-align: center;
     }
 
-    .leaf-btn-med {
+    .usa-button {
         width: 90%;
+        max-width: 200px;
         margin: 5px auto;
     }
 
     .leaf-ul {
         width: 100%;
-        overflow: scroll;
-        padding: 0;
+        min-height: 300px;
+        overflow: auto;
+        padding: 0 10px;
         margin: 10px auto;
     }
 
@@ -351,6 +366,11 @@
         <div class="leaf-left-nav">
             <aside class="sidenav" id="fileBrowser">
                 <button class="usa-button leaf-btn-med leaf-width-13rem" onclick="newReport();">New File</button>
+                <button
+                    class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                    id="btn_history" onclick="viewHistory()">
+                    View History
+                </button>
                 <div id="fileList"></div>
             </aside>
         </div>
@@ -394,15 +414,12 @@
                 </button>
                 <button
                     class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
-                    runReport();">Open Report</button>
+                    runReport();">Open File</button>
                 <button id="deleteButton"
                     class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
-                    deleteReport();">Delete Report</button>
-                <button
-                    class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                    id="btn_history" onclick="viewHistory()">
-                    View History
+                    deleteReport();">Delete File
                 </button>
+
                 <button class="view-history">View File History</button>
                 <div class="file-history">
                 </div>
@@ -421,23 +438,41 @@
 <script>
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
+        var data = '';
+        if (typeof codeEditor.edit !== 'undefined' && typeof codeEditor.edit.getValue === 'function') {
+            data = codeEditor.edit.getValue();
+        } else if (typeof codeEditor.getValue === 'function') {
+            data = codeEditor.getValue();
+        }
+
+        if (data === currentFileContent) {
+            alert('There are no changes to save.');
+            return;
+        }
+
         $.ajax({
-                type: 'POST',
-                data: {CSRFToken: '<!--{$CSRFToken}-->',
-                file: codeEditor.getValue()
+            type: 'POST',
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
+                file: data
             },
             url: '../api/reportTemplates/_' + currentFile,
             success: function(res) {
-                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
-                $('.modifiedTemplate').css('display', 'block');
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
-                if (res != null) {
-                    alert(res);
-                }
-
+                setTimeout(function() {
+                    $('#saveStatus').fadeOut(1000, function() {
+                        $(this).html('').fadeIn();
+                    });
+                    loadContent(currentFile);
+                }, 3000);
                 saveFileHistory();
-                location.reload();
+            },
+            error: function() {
+                alert('An error occurred while saving the file.');
+            },
+            complete: function() {
+                $('#saveIndicator').attr('src', '');
             }
         });
     }
@@ -450,7 +485,8 @@
             },
             url: '../api/reportTemplates/fileHistory/_' + currentFile,
             success: function(res) {
-                console.log("It worked");
+                console.log("File history has been saved.");
+                getFileHistory(currentFile);
             }
         });
     }
@@ -470,12 +506,13 @@
     $(document).ready(function() {
         $('#word-wrap-button').css('display', 'none');
         // Hide the accordion container and all accordion content on page load
-        $(".accordion-container").hide();
+        $(".accordion-container").show();
         $(".accordion-content").hide();
         // When the View File History button is clicked, toggle the accordion container
         $(".view-history").click(function() {
             $(".accordion-container").slideToggle();
         });
+
     });
 
     function displayAccordionContent(element) {
@@ -519,8 +556,11 @@
                     var formattedFileSize = formatFileSize(fileSize);
                     accordion += '<div class="accordion">';
                     accordion +=
-                        '<div class="accordion-header" onclick="displayAccordionContent(this)">Date: ' +
-                        fileCreated + '</div>';
+                        '<div class="accordion-header" onclick="displayAccordionContent(this)"><span class="accordion-date"><strong style="color:#37beff;">DATE:</strong><br>' +
+                        fileCreated +
+                        '</span><span class="accordion-name"><strong style="color:#37beff;">USER:</strong><br>' +
+                        whoChangedFile +
+                        '</span></div>';
                     accordion += '<div class="accordion-content">';
                     accordion += '<ul>';
                     accordion += '<li><strong>File Name: </strong><br><p>' + fileParentName + '</p></li>';
@@ -622,7 +662,7 @@
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
                 type: 'POST',
-                url: '../api/reportTemplates/saveReportMergeTemplate/_' + fileParentName,
+                url: '../api/reportTemplates/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->',
                 file: mergedContent
             },
@@ -709,7 +749,6 @@
         loadContent(currentFile);
     }
 
-
     function newReport() {
         dialog.setTitle('New File');
         dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
@@ -787,34 +826,6 @@
 
     var currentFile = '';
 
-    // function loadContent(file) {
-    //     currentFile = file;
-    //     $('#codeContainer').css('display', 'none');
-
-    //     var reportURL = window.location.origin + window.location.pathname;
-    //     reportURL = reportURL.replace('admin/', '') + 'report.php?a=' + file.replace('.tpl', '');
-
-    //     $('#reportURL').html('URL: <a href="' + reportURL + '" target="_blank">' + reportURL + '</a>');
-    //     $('#controls').css('visibility', 'visible');
-    //     if (isExcludedFile(file)) {
-    //         $('#controls').css('visibility', 'hidden');
-    //     }
-
-    //     $('#filename').html(file.replace('.tpl', ''));
-    //     $.ajax({
-    //         type: 'GET',
-    //         url: '../api/reportTemplates/_' + file,
-    //         success: function(res) {
-    //             $('#codeContainer').fadeIn();
-    //             currentFileContent = res.file;
-    //             codeEditor.setValue(res.file);
-    //             getFileHistory(file);
-    //         },
-    //         cache: false
-    //     });
-    //     $('#saveStatus').html('');
-    // }
-
     function loadContent(file) {
         if (file == undefined) {
             file = currentFile;
@@ -866,8 +877,6 @@
         updateEditorSize();
     }
 
-
-
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 30;
         $('#codeContainer').css('width', codeWidth + 'px');
@@ -900,8 +909,6 @@
             cache: false
         });
     }
-
-
 
     function viewHistory() {
         dialog_message.setContent('');

@@ -332,6 +332,11 @@ class EmailTemplate
         if ($validTemplate) {
             if (file_exists("../templates/email/custom_override/{$template}")) {
                 unlink("../templates/email/custom_override/{$template}");
+                $this->dataActionLogger->logAction(
+                    \Leaf\DataActions::RESTORE,
+                    \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
+                    [new \Leaf\LogItem("email_templates", "body", $template, $template)]
+                );
             }
 
             $subjectFileName = htmlentities($_REQUEST['subjectFileName'], ENT_QUOTES);

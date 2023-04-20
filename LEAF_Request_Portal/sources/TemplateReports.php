@@ -142,6 +142,11 @@ class TemplateReports
 
         if (array_search($template, $list) === false)
         {
+            $this->dataActionLogger->logAction(
+                \Leaf\DataActions::CREATE,
+                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
+            );
             file_put_contents("../templates/reports/{$template}", '');
         }
         else
@@ -205,6 +210,11 @@ class TemplateReports
 
         if (array_search($template, $list) !== false)
         {
+            $this->dataActionLogger->logAction(
+                \Leaf\DataActions::DELETE,
+                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
+            );
             if (file_exists("../templates/reports/{$template}"))
             {
                 return unlink("../templates/reports/{$template}");
@@ -307,7 +317,7 @@ class TemplateReports
         if (array_search($template, $list) !== false) {
             file_put_contents("../templates/reports/{$template}", $_POST['file']);
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MODIFY,
+                \Leaf\DataActions::MERGE,
                 \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
                 [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
             );

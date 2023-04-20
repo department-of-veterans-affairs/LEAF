@@ -12,6 +12,11 @@
         content: '\25ba\25ba\25ba';
     }
 
+    .CodeMirror,
+    .cm-s-default {
+        height: auto !important;
+    }
+
     #subjectCompare .CodeMirror-merge,
     .CodeMirror-merge .CodeMirror {}
 
@@ -144,7 +149,7 @@
     }
 
     .view-history {
-        width: 100%;
+        width: 90%;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -162,7 +167,7 @@
     }
 
     .accordion-container {
-        display: none;
+        display: block;
         margin-top: 10px;
         width: 100%;
         font-family: sans-serif;
@@ -179,6 +184,10 @@
     }
 
     .accordion-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-flow: row;
         padding: 10px 0;
         background-color: #1a4480;
         color: #fff;
@@ -195,6 +204,15 @@
 
     .accordion-header.accordion-active {
         background-color: #112e51;
+    }
+
+    .accordion-date {
+        border-right: 1px solid #fff;
+        padding: 0 10px;
+    }
+
+    .accordion-name {
+        padding: 0 10px;
     }
 
     .accordion-content {
@@ -337,18 +355,28 @@
         text-align: center;
     }
 
-    .leaf-btn-med {
-        width: 100%;
+    .usa-button {
+        width: 90%;
+        max-width: 200px;
+        margin: 5px auto;
     }
 
     .leaf-ul {
+        width: 100%;
+        min-height: 300px;
         overflow: auto;
+        padding: 0 10px;
+        margin: 10px auto;
     }
 
     #controls {
         width: 90%;
         margin: 0 auto;
         padding: 10px 0;
+        display: flex;
+        flex-direction: column;
+        justify-items: center;
+        align-items: center;
     }
 </style>
 
@@ -519,6 +547,14 @@
         } else {
             subject = subjectEditor.getValue();
         }
+
+        // Check if the content has changed
+        if (data === currentFileContent || data === currentSubjectContent || data === currentEmailToContent || data ===
+            currentEmailCcContent) {
+            alert('There are no changes to save.');
+            return;
+        }
+
         let emailToData = document.getElementById('emailToCode').value;
         let emailCcData = document.getElementById('emailCcCode').value;
         // Send the email template data to the API to process
@@ -542,11 +578,17 @@
                 if ($('#btn_compareStop').css('display') != 'none') {
                     $('#btn_compare').css('display', 'none');
                 }
-                loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
-                    currentEmailCcFile);
+
                 // Show saved time in "Save Changes" button and set current content
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
+                setTimeout(function() {
+                    $('#saveStatus').fadeOut(1000, function() {
+                        $(this).html('').fadeIn();
+                    });
+                    loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
+                        currentEmailCcFile);
+                }, 3000);
                 currentFileContent = data;
                 currentSubjectContent = subject;
                 currentEmailToContent = emailToData;
@@ -603,10 +645,8 @@
                 currentSubjectContent = subject;
                 currentEmailToContent = emailToData;
                 currentEmailCcContent = emailCcData;
-                if (res != null) {
-                    alert(res);
-                }
-                console.log('Save history');
+                console.log("File history has been saved.");
+                getFileHistory(currentFile);
             }
         });
     }
@@ -761,9 +801,12 @@
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
                     accordion += '<div class="accordion">';
-                    accordion
-                        += '<div class="accordion-header" onclick="displayAccordionContent(this)">Date: ' +
-                        fileCreated + '</div>';
+                    accordion +=
+                        '<div class="accordion-header" onclick="displayAccordionContent(this)"><span class="accordion-date"><strong style="color:#37beff;">DATE:</strong><br>' +
+                        fileCreated +
+                        '</span><span class="accordion-name"><strong style="color:#37beff;">USER:</strong><br>' +
+                        whoChangedFile +
+                        '</span></div>';
                     accordion += '<div class="accordion-content">';
                     accordion += '<ul>';
                     accordion

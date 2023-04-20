@@ -76,7 +76,7 @@ class TemplateReportsController extends RESTfulResponse
                 return $templateReports->setReportTemplateFileHistory($args[0]);
             });
 
-            $this->index['POST']->register('reportTemplates/saveReportMergeTemplate/[text]', function ($args) use ($templateReports) {
+            $this->index['POST']->register('reportTemplates/mergeFileHistory/saveReportMergeTemplate/[text]', function ($args) use ($templateReports) {
                 return $templateReports->setReportMergeTemplate($args[0]);
             });
 
@@ -99,7 +99,7 @@ class TemplateReportsController extends RESTfulResponse
                 return $templateReports->removeReportTemplate($args[0]);
             });
 
-            $this->index['DELETE']->register('reportTemplates/deleteHistoryFileReport/[text]', function ($args) use ($db, $login, $templateReports) {
+            $this->index['DELETE']->register('reportTemplates/deleteHistoryFileReport/[text]', function ($args) use ($templateReports) {
                 return $templateReports->removeHistoryReportTemplate($args[0]);
             });
 
