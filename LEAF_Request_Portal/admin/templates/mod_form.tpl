@@ -2039,7 +2039,7 @@ function renderSecureFormsInfo(res) {
             // if newIndicator found, look for existing leaf-s request and assign proper next step
             if (newIndicator) {
                 fetchLEAFSRequests(false).then(function(unresolvedLeafSRequests) {
-                    if (unresolvedLeafSRequests.length == 0) { // if no new request, create one
+                    if (Object.keys(unresolvedLeafSRequests).length == 0) { // if no new request, create one
                         $('#secureStatus').text('Forms have been modified.');
                         $('#secureBtn').text('Please Recertify Your Site');
                         $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');
