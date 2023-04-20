@@ -10,6 +10,7 @@ services:
     ports:
       - 80:80
       - 443:443
+      - 9000:9000
     volumes:
       - /mnt/leaf/:/var/www/
     command: 'source /startup.sh'
@@ -19,7 +20,7 @@ services:
     #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
     # configs:
