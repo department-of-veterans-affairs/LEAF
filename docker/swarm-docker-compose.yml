@@ -20,7 +20,7 @@ services:
     #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
-      replicas: 4
+      replicas: 2
       restart_policy:
         condition: on-failure
     # configs:
