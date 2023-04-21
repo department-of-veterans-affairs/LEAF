@@ -103,7 +103,7 @@ class NotesController extends RESTfulResponse
                         $posted_note['user_name'] = $_SESSION['name'];
                         $posted_note['date'] = date('M j', $posted_note['timestamp']);
                     } else {
-                        $posted_note = array('error' => 'Missing data');
+                        $posted_note = array('error' => 'Missing data, note cannot be blank.');
                     }
 
                     return $posted_note;

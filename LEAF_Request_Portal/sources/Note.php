@@ -119,7 +119,7 @@ class Note
 
             $return_value = (int) $this->db->getLastInsertID();
         } else {
-            $return_value = array('error' => 'Missing data');
+            $return_value = array('error' => 'Missing data, note cannot be blank.');
         }
 
         return $return_value;
