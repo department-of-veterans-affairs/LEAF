@@ -5,12 +5,11 @@ export default {
     data() {
         return {
             id: this.menuItem.id,
+            order: this.menuItem.order || 0,
             title: this.menuItem?.title || '',
             titleColor: this.menuItem?.titleColor || '#000000',
-
             subtitle: this.menuItem?.subtitle || '',
             subtitleColor: this.menuItem?.subtitleColor || '#000000',
-
             bgColor: this.menuItem?.bgColor || '#ffffff',
             icon: this.menuItem?.icon || '',
             link: this.menuItem?.link || ''
@@ -31,6 +30,7 @@ export default {
         menuItemOBJ() {
             return {
                 id: this.id,
+                order: this.order,
                 title: this.title,
                 titleColor: this.titleColor,
                 subtitle: this.subtitle,
@@ -39,9 +39,6 @@ export default {
                 icon: this.icon,
                 link: this.link
             }
-        },
-        menuItemJSON() {
-            return JSON.stringify(this.menuItemOBJ);
         },
     },
     methods: {
@@ -76,15 +73,17 @@ export default {
                 }
             }
         },
-
-        testing() {
-            console.log('testing called')
-        },
         onSave() {
-            console.log('modal save')
+            this.saveMenuItem(this.menuItemOBJ);
         }
     },
     template: `<div style="max-width: 600px;">
+        <div>
+            <h3 style="margin: 1rem 0;">Button Preview</h3>
+            <a :style="{bgColor: bgColor}" :href="link" target="_blank" class="LEAF_custom">
+                <custom-menu-item :menuItem="menuItemOBJ"></custom-menu-item>
+            </a>
+        </div>
         <!-- NOTE: the initial trumbow html content needs to use the menuitem not the data property -->
         <label for="menu_title_trumbowyg" id="menu_title_trumbowyg_label">Button Title</label>
         <div id="menu_title_trumbowyg" aria-labelledby="menu_title_trumbowyg_label"
@@ -105,13 +104,8 @@ export default {
                 <input type="color" id="bg_color" v-model="bgColor" />
             </label>
         </div>
-        <h3 style="margin: 1rem 0;">Button Preview</h3>
-        <a :style="{bgColor: bgColor}" :href="link" target="_blank" class="LEAF_custom">
-            <custom-menu-item :menuItem="menuItemOBJ"></custom-menu-item>
-        </a>
-        <div class="test">obj + json
+        <div class="test">menu item object
             <div>{{ menuItemOBJ }}</div>
-            <div style="word-break:break-all">{{ menuItemJSON }}</div>
         </div>
     </div>`
 }

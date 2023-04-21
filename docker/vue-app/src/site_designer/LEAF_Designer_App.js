@@ -6,7 +6,6 @@ import './LEAF_Designer.scss';
 import ModHomeMenu from "./components/ModHomeMenu.js";
 import DesignButtonDialog from "./components/dialog_content/DesignButtonDialog.js";
 
-
 export default {
     data() {
         return {
@@ -16,22 +15,7 @@ export default {
             menuItemList: [],
             menuItem: {},
 
-            /* sitemap json pattern for initial comparison
-            {
-                "buttons":[
-                    {
-                        "id":"rbm9i",
-                        "title":"LEAF Request Portal",
-                        "description":"The original and best portal",
-                        "target":"https://localhost/LEAF_Request_Portal/",
-                        "color":"#a694ff","order":0,
-                        "fontColor":"#000000",
-                        "icon":"https://localhost/libs/dynicons/svg/applications-other.svg"
-                    },
-                ]
-            } */
-
-            /* general modal data properties */
+            /* general modal properties */
             formSaveFunction: ()=> {
                 if(this.$refs[this.dialogFormContent]) {
                     this.$refs[this.dialogFormContent].onSave();
@@ -68,19 +52,7 @@ export default {
     },
     mounted() {
         this.getIconList();
-        //MOCK:
-        this.menuItemList = [
-            {
-                id: "FUeoZ",
-                title: "<b>Report Builder</b>",
-                titleColor: "#2090a0",
-                subtitle: "Item subtitle",
-                subtitleColor: "#006080",
-                bgColor: "#f0f0ff",
-                icon: "",
-                link: "https://localhost/LEAF_Request_Portal/?a=reports&v=3"
-            },
-        ]
+        this.getHomeMenuJSON();
     },
     methods: {
         generateID() {
@@ -93,12 +65,56 @@ export default {
             } while (this.buttonIDExists(result));
             return result;
         },
-        buttonIDExists(ID) {
+        buttonIDExists(ID = '') {
             return this.menuItemList.length > 0 ? this.menuItemList.some(button => button?.id === ID) : false;
         },
         setMenuItem(ID = '') {
-            this.menuItem = this.menuItemList.find(item => item.id === ID) || {id: this.generateID()};
+            this.menuItem =
+                this.menuItemList.find(item => item.id === ID) || 
+                {
+                    id: this.generateID(),
+                    order: this.menuItemList.length
+                };
             this.openDesignButtonDialog();
+        },
+        menuItemListJSON() {
+            return JSON.stringify(this.menuItemList);
+        },
+        saveMenuItem(menuItem = {}) {
+            this.menuItemList = this.menuItemList.filter(item => item.id !== menuItem.id);
+            this.menuItemList.push(menuItem);
+            this.menuItemList = this.menuItemList.sort((a,b) => a.order - b.order);
+            this.postMenuItemListJSON().then((res) => {
+                if(+res !== 1) {
+                    console.log('unexpected value returned', res)
+                }
+            }).catch(err => console.log(err));
+            this.closeFormDialog();
+            this.menuItem = {};
+        },
+        postMenuItemListJSON() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'POST',
+                    url: `${this.APIroot}site/settings/home_menu_json`,
+                    data: {
+                        home_menu_json: this.menuItemListJSON,
+                        CSRFToken: this.CSRFToken
+                    },
+                    success: (res) => resolve(res),
+                    error: (err) => reject(err)
+                });
+            });
+        },
+        getHomeMenuJSON() {
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}system/settings`,
+                success: (res) => {
+                    this.menuItemList = JSON.parse(res?.home_menu_json || "[]");
+                },
+                error: (err) => console.log(err)
+            });
         },
         getIconList() {
             return new Promise((resolve, reject) => {
@@ -114,25 +130,18 @@ export default {
             });
         },
 
-        /** general modal methods */
+        /** general and app specific modal methods.  Use a component name to set 
+        /** the dialog's main content. Components must be registered to this app */
         closeFormDialog() {
             this.showFormDialog = false;
             this.dialogTitle = '';
-            this.setFormDialogComponent('');
+            this.dialogFormContent = '';
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
         },
-        /**
-         * set the component for the dialog modal's main content. Components must be registered to this app
-         * @param {string} component name as string, eg 'confirm-delete-dialog'
-         */
-        setFormDialogComponent(component = '') {
-            this.dialogFormContent = component;
-        },
-
         openDesignButtonDialog() {
             this.showFormDialog = true;
             this.dialogTitle = '<h2>Menu Editor</h2>';
-            this.setFormDialogComponent('design-button-dialog');
+            this.dialogFormContent = 'design-button-dialog';
         }
     }
 }

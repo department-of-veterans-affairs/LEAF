@@ -6,7 +6,14 @@ export default {
             required: true
         }
     },
-    template:`<div style="display: flex; width:200px; padding: 0.5rem;" :style="{backgroundColor: menuItem.bgColor}">
+    computed: {
+        baseCardStyles() {
+            return {
+                backgroundColor: this.menuItem.bgColor,
+            }
+        }
+    },
+    template:`<div style="display: flex; width:200px; padding: 0.5rem;" :style="baseCardStyles">
         <img v-if="menuItem.icon" :src="menuItem.icon" />
         <div style="display: flex; flex-direction: column; width: 100%;">
             <div v-html="menuItem.title" :style="{color: menuItem.titleColor}" class="LEAF_custom"></div>

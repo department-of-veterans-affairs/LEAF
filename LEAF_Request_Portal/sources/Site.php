@@ -43,8 +43,7 @@ class Site
         return 1;
     }
 
-	public function setHomeMenuJSON()
-    {
+	public function setHomeMenuJSON() {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required';
