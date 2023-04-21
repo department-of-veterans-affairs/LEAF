@@ -16,6 +16,7 @@
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
     const APIroot = '<!--{$APIroot}-->';
+    const libsPath = '<!--{$libsPath}-->';
 </script>
 
 <script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer.js" defer></script>

@@ -175,13 +175,13 @@ Password: tester
 
 Dev mode: Log in to container and run the command:
 
-npm run dev-vue
+npm run dev
 
 webpack will watch for changes to /docker/vue-app/src
 **Remember to build for production if src files have been edited**
 
 Production mode: Log in to container and run the command:
 
-npm run build-vue
+npm run build
 
 webpack will build to /libs/js/vue-dest

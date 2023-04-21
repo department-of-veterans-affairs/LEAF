@@ -11,9 +11,16 @@ export default {
         return {
             CSRFToken: CSRFToken,
             APIroot: APIroot,
+            libsPath: libsPath,
             iconList: [],
             menuItemList: [],
-            menuItem: {},
+            menuItem: null,
+            builtInLinks: {
+                "Portal Inbox": "?a=inbox",
+                "Bookmarks": "?a=bookmarks",
+                "New Request": "?a=newform",
+                "Report Builder": "?a=reports&v=3",
+            },
 
             /* general modal properties */
             formSaveFunction: ()=> {
@@ -41,8 +48,9 @@ export default {
             //static
             closeFormDialog: this.closeFormDialog,
             APIroot: this.APIroot,
+            libsPath: this.libsPath,
             setMenuItem: this.setMenuItem,
-            saveMenuItem: this.saveMenuItem
+            editMenuItemList: this.editMenuItemList
         }
     },
     components: {
@@ -68,29 +76,36 @@ export default {
         buttonIDExists(ID = '') {
             return this.menuItemList.length > 0 ? this.menuItemList.some(button => button?.id === ID) : false;
         },
-        setMenuItem(ID = '') {
-            this.menuItem =
-                this.menuItemList.find(item => item.id === ID) || 
-                {
-                    id: this.generateID(),
-                    order: this.menuItemList.length
-                };
+        setMenuItem(menuItem = null) {
+            this.menuItem = menuItem === null ?
+            {
+                id: this.generateID(),
+                order: this.menuItemList.length,
+                icon: '',
+            } : menuItem;
             this.openDesignButtonDialog();
         },
         menuItemListJSON() {
             return JSON.stringify(this.menuItemList);
         },
-        saveMenuItem(menuItem = {}) {
+        /**
+         * Filters menu item list using ID of an existing or new menu item
+         * Adds the new or edited item and re-sorts the list if remove is not true
+         * @param {Object} menuItem 
+         * @param {boolean} remove 
+         */
+        editMenuItemList(menuItem = {}, remove = false) {
             this.menuItemList = this.menuItemList.filter(item => item.id !== menuItem.id);
-            this.menuItemList.push(menuItem);
-            this.menuItemList = this.menuItemList.sort((a,b) => a.order - b.order);
+            if (remove !== true) {
+                this.menuItemList.push(menuItem);
+                this.menuItemList = this.menuItemList.sort((a,b) => a.order - b.order);
+            }
             this.postMenuItemListJSON().then((res) => {
                 if(+res !== 1) {
                     console.log('unexpected value returned', res)
                 }
             }).catch(err => console.log(err));
-            this.closeFormDialog();
-            this.menuItem = {};
+            this.menuItem = null;
         },
         postMenuItemListJSON() {
             return new Promise((resolve, reject) => {

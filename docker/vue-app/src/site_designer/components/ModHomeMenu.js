@@ -11,10 +11,10 @@ export default {
     ],
     template: `<div>
         <ul>
-            <li v-for="m in menuItemList" :key="m.id" @click="setMenuItem(m.id)" style="cursor:pointer">
-                <custom-menu-item :menuItem="m"></custom-menu-item>
+            <li v-for="m in menuItemList" :key="m.id" style="cursor:pointer; margin: 0.75rem 0;">
+                <custom-menu-item :menuItem="m" @click="setMenuItem(m)"></custom-menu-item>
             </li>
         </ul>
-        <button type="button" @click="setMenuItem">Create New Menu Item</button>
+        <button type="button" @click="setMenuItem(null)">Create New Menu Item</button>
     </div>`
 }

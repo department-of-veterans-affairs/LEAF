@@ -5,5 +5,38 @@ div.LEAF_custom * {
 }
 a.LEAF_custom {
     text-decoration: none;
+    display: block;
+    width: -moz-fit-content; /*firefox prior to nov 2021*/
+    width: fit-content;
     color: inherit;
+}
+.designer_inputs {
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+    margin-bottom:0.5rem;
+}
+.icon_choice {
+    width: 30px;
+    height: 30px;
+    cursor: pointer
+}
+.disableClick {
+    pointer-events: none;
+}
+
+.custom_card {
+    display: flex;
+    align-items: center;
+    width: 300px;
+    padding: 0.25rem 0.5rem;
+    & * {
+        margin: 0;
+    }
+    .icon_choice {
+        cursor: auto;
+        margin-right: 0.5rem;
+        width: 50px;
+        height: 50px;
+    }
 }
