@@ -13,7 +13,12 @@ class TemplateEditorFormatter
         DataActions::MERGE . '-' . LoggableTypes::TEMPLATE_BODY => [
             "message" => "merge changes to file <strong>%s</strong>",
             "variables" => "body"
+        ],
+        DataActions::RESTORE . '-' . LoggableTypes::TEMPLATE_BODY => [
+            "message" => "restored file <strong>%s</strong>",
+            "variables" => "body"
         ]
+
     ];
 
     const TABLE = "";
