@@ -333,7 +333,11 @@ function changeSupervisor() {
             data: {positionID: posSel.selection,
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
-                window.location.reload();
+                if (Number.isInteger(response)) {
+                    window.location.reload();
+                } else {
+                    dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;">${response.errors[0]}</strong>`);
+                }
             },
             cache: false
         });
