@@ -22,6 +22,10 @@ $attention: #a00;
     justify-content: center;
     align-items: center;
 }
+@mixin fit {
+    width: -moz-fit-content;
+    width: fit-content;
+}
 
 .test {
     color: #b00;
@@ -41,7 +45,7 @@ input[type="color"] {
     cursor: pointer;
 }
 
-#vue-formeditor-app, #site-designer-app {
+#vue-formeditor-app {
     min-height: 100vh;
     main {
         margin: 0;

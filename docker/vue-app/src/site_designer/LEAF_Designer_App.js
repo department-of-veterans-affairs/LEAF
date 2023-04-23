@@ -62,6 +62,11 @@ export default {
         this.getIconList();
         this.getHomeMenuJSON();
     },
+    computed: {
+        menuItemListJSON() {
+            return JSON.stringify(this.menuItemList);
+        },
+    },
     methods: {
         generateID() {
             let result = '';
@@ -85,27 +90,38 @@ export default {
             } : menuItem;
             this.openDesignButtonDialog();
         },
-        menuItemListJSON() {
-            return JSON.stringify(this.menuItemList);
-        },
         /**
-         * Filters menu item list using ID of an existing or new menu item
-         * Adds the new or edited item and re-sorts the list if remove is not true
-         * @param {Object} menuItem 
-         * @param {boolean} remove 
+         * Updates order value on drop, or filters menu item list using ID of an existing or
+         * new menu item. Adds the new or edited item and re-sorts the list if remove is not true
+         * @param {Object|null} menuItem 
+         * @param {boolean} remove
          */
-        editMenuItemList(menuItem = {}, remove = false) {
-            this.menuItemList = this.menuItemList.filter(item => item.id !== menuItem.id);
-            if (remove !== true) {
-                this.menuItemList.push(menuItem);
-                this.menuItemList = this.menuItemList.sort((a,b) => a.order - b.order);
+        editMenuItemList(menuItem = null, remove = false) {
+            if (menuItem === null) { //drag drop 
+                let itemIDs = []
+                let elList = Array.from(document.querySelectorAll('#menu_designer li')) || [];
+                
+                elList.forEach(li => itemIDs.push(li.id));
+
+                this.menuItemList.forEach(item => {
+                    const index = itemIDs.indexOf(item.id);
+                    if(index > -1) {
+                        item.order = index;
+                    }
+                });
+
+            } else { //editing modal - either updating or deleting an item
+                let items = this.menuItemList.filter(item => item.id !== menuItem.id);
+                if (remove !== true) {
+                    items.push(menuItem);
+                    this.menuItemList = items.sort((a,b) => a.order - b.order);
+                }
             }
             this.postMenuItemListJSON().then((res) => {
                 if(+res !== 1) {
                     console.log('unexpected value returned', res)
                 }
             }).catch(err => console.log(err));
-            this.menuItem = null;
         },
         postMenuItemListJSON() {
             return new Promise((resolve, reject) => {
@@ -126,7 +142,8 @@ export default {
                 type: 'GET',
                 url: `${this.APIroot}system/settings`,
                 success: (res) => {
-                    this.menuItemList = JSON.parse(res?.home_menu_json || "[]");
+                    let menuItems = JSON.parse(res?.home_menu_json || "[]");
+                    this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
                 },
                 error: (err) => console.log(err)
             });

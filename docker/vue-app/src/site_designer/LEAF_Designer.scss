@@ -1,42 +1,78 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
-div.LEAF_custom * {
-    color: inherit;
-}
-a.LEAF_custom {
-    text-decoration: none;
-    display: block;
-    width: -moz-fit-content; /*firefox prior to nov 2021*/
-    width: fit-content;
-    color: inherit;
-}
-.designer_inputs {
-    display:flex;
-    gap:1rem;
-    flex-wrap:wrap;
-    margin-bottom:0.5rem;
-}
-.icon_choice {
-    width: 30px;
-    height: 30px;
-    cursor: pointer
-}
-.disableClick {
-    pointer-events: none;
+#site-designer-app {
+    min-height: 100vh;
+    main > section {
+        margin: 1rem;
+    }
 }
 
-.custom_card {
-    display: flex;
-    align-items: center;
-    width: 300px;
-    padding: 0.25rem 0.5rem;
-    & * {
+#site-designer-app, #leaf_dialog_content {
+    h1, h2, h3, h4, h5 {
         margin: 0;
+        color: black;
     }
-    .icon_choice {
-        cursor: auto;
-        margin-right: 0.5rem;
-        width: 50px;
-        height: 50px;
+
+    ul#menu_designer {
+        @include fit;
+        margin: 1rem 0;
+        padding: 0.75rem;
+        background-color: white;
+        border: 1px solid #aab;
+        display: flex;
+        flex-direction: column;
+
+        li {
+            position: relative;
+            cursor: grab;
+            margin: 0.5rem 0;
+
+            button.edit_menu_card {
+                padding: 2px 6px 3px 6px;
+                position: absolute;
+                top: 50%;
+                right: -1.5rem;
+                transform: translate(100%, -50%);
+            }
+        }
     }
+
+    #design_button_modal {
+        .designer_inputs {
+            display:flex;
+            gap:1rem;
+            flex-wrap:wrap;
+            margin-bottom:0.5rem;
+        }
+        .designer_inputs .icon_choice {
+            width: 30px;
+            height: 30px;
+            cursor: pointer
+        }
+    }
+    
+    .custom_menu_card {
+        display: flex;
+        align-items: center;
+        width: 300px;
+        padding: 0.4rem 0.5rem;
+        text-decoration: none;
+        box-shadow: 0 0 4px rgba(0,0,25,0.4);
+    
+        .icon_choice {
+            cursor: auto;
+            margin-right: 0.5rem;
+            width: 50px;
+            height: 50px;
+        }
+        div.LEAF_custom * {
+            color: inherit; /* prevents override of color choices */
+        }
+    }
+    
+    .disableClick {
+        pointer-events: none;
+    }
+
 }
+

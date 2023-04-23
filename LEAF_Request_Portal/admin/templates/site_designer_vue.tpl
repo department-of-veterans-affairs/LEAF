@@ -1,7 +1,7 @@
 <div id="site-designer-app">
     <main>
         <section>
-            <h2>Site Designer</h2>
+            <h2 style="margin: 1rem 0;">Site Designer</h2>
             <mod-home-menu></mod-home-menu>
         </section>
     </main>

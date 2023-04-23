@@ -501,9 +501,10 @@ switch ($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
         $main->display(customTemplate('main.tpl'));
         exit();
+    case 'custom_homepage':
     default:
 
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js','../libs/js/LEAF/XSSHelpers.js',));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
@@ -527,10 +528,11 @@ switch ($action) {
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
+        $action === 'custom_homepage' ?
+            $main->assign('body', $t_form->fetch(customTemplate('custom_homepage.tpl'))) :
+            $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
 
-        $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
-
-        if ($action != 'menu' && $action != '' && $action != 'dosubmit') {
+        if ($action != 'menu' && $action != '' && $action != 'dosubmit' && $action != 'custom_homepage') {
             $main->assign('status', 'The page you are looking for does not exist or may have been moved. Please update your bookmarks.');
         }
 
