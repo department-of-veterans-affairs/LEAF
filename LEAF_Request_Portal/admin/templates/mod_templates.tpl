@@ -12,7 +12,8 @@
         content: '\25ba\25ba\25ba';
     }
 
-    .CodeMirror, .cm-s-default {
+    .CodeMirror,
+    .cm-s-default {
         height: auto !important;
     }
 
@@ -89,7 +90,7 @@
         width: 60%;
         flex: none;
         margin: 0 auto;
-        transition: all 3s ease;
+        transition: all 1s ease;
     }
 
     #filename {
@@ -293,6 +294,11 @@
         min-width: 200px;
     }
 
+    #save_button_compare {
+        display: none;
+        margin: 10px 0;
+    }
+
     .word-wrap-button {
         display: inline-block;
         background-color: #ddd;
@@ -338,6 +344,11 @@
         margin: 10px auto;
     }
 
+    .leaf-ul li {
+        font-size: .8rem !important;
+        line-height: 2;
+    }
+
     #controls {
         width: 90%;
         margin: 0 auto;
@@ -354,6 +365,11 @@
         <h2>Template Editor</h2>
         <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
         <button class="file_replace_file_btn">Merge to Current File</button>
+        <button id="save_button_compare" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+            onclick="save_compare();">
+            Save Changes<span id="saveStatusCompared"
+                class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+        </button>
         <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Exit</button>
 
     </div>
@@ -486,7 +502,51 @@
                     $('#saveStatus').fadeOut(1000, function() {
                         $(this).html('').fadeIn();
                     });
-                    loadContent(currentFile);
+                }, 3000);
+                currentFileContent = data;
+                if (res != null) {
+                    alert(res);
+                }
+                saveFileHistory();
+            }
+        });
+    }
+
+    function save_compare() {
+        $('#saveIndicator').attr('src', '../images/indicator.gif');
+        var data = '';
+        if (codeEditor.getValue == undefined) {
+            data = codeEditor.edit.getValue();
+        } else {
+            data = codeEditor.getValue();
+        }
+
+        // Check if the content has changed
+        if (data === currentFileContent) {
+            alert('There are no changes to save.');
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
+                file: data
+            },
+            url: '../api/templateEditor/_' + currentFile,
+            success: function(res) {
+                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
+                $('.modifiedTemplate').css('display', 'block');
+                if ($('#btn_compareStop').css('display') != 'none') {
+                    $('#btn_compare').css('display', 'none');
+                }
+
+                var time = new Date().toLocaleTimeString();
+                $('#saveStatusCompared').html('<br /> Last saved: ' + time);
+                setTimeout(function() {
+                    $('#saveStatusCompared').fadeOut(1000, function() {
+                        $(this).html('').fadeIn();
+                    });
                 }, 3000);
                 currentFileContent = data;
                 if (res != null) {
@@ -544,6 +604,7 @@
         $('#codeCompare').empty();
         $('#btn_compare').css('display', 'none');
         $('#btn_compareStop').css('display', 'block');
+        $('#save_button_compare').css('display', 'block');
 
 
         $.ajax({
@@ -580,15 +641,15 @@
     }
 
     function formatFileSize(bytes, threshold = 1024) {
-        if (bytes < threshold) {
-            return bytes + ' bytes';
-        } else if (bytes < threshold * threshold) {
-            return (bytes / threshold).toFixed(2) + ' KB';
-        } else if (bytes < threshold * threshold * threshold) {
-            return (bytes / (threshold * threshold)).toFixed(2) + ' MB';
-        } else {
-            return (bytes / (threshold * threshold * threshold)).toFixed(2) + ' GB';
+        const units = ['bytes', 'KB', 'MB', 'GB'];
+        let i = 0;
+
+        while (bytes >= threshold && i < units.length - 1) {
+            bytes /= threshold;
+            i++;
         }
+
+        return bytes.toFixed(2) + ' ' + units[i];
     }
     // According code
     $(document).ready(function() {
@@ -678,6 +739,7 @@
         $('#btn_compareStop').css('display', 'none');
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
+        $('.save_button').css('display', 'none');
         var wordWrapEnabled = false; // default to false
         $('#word-wrap-button').click(function() {
             wordWrapEnabled = !wordWrapEnabled;
@@ -778,7 +840,7 @@
             'top': 0,
             'left': 0,
             'align-items': 'center',
-            'transition': 'all 1s ease'
+            'transition': 'all .5s ease'
         });
         $('.leaf-code-container').css({
             'width': '100% !important'
@@ -787,12 +849,12 @@
         $('.leaf-right-nav').css({
             'position': 'fixed',
             'right': '-100%',
-            'transition': 'all 3s ease'
+            'transition': 'all .5s ease'
         });
         $('.leaf-left-nav').css({
             'position': 'fixed',
             'left': '-100%',
-            'transition': 'all 3s ease'
+            'transition': 'all .5s ease'
         });
         $('.page-title-container').css({
             'flex-direction': 'coloumn'
@@ -803,6 +865,7 @@
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();
         $('.page-title-container>.close_expand_mode_screen').hide();
+        $('#save_button_compare').css('display', 'none');
         $('.page-title-container>h2').css({
             'width': '100%',
             'text-align': 'center'
@@ -813,7 +876,7 @@
             'top': 0,
             'left': 0,
             'align-items': 'center',
-            'transition': 'all 1s ease'
+            'transition': 'all .5s ease'
         });
         $('#codeContainer').css({
             'display': 'block',
@@ -824,12 +887,12 @@
         $('.leaf-right-nav').css({
             'position': 'relative',
             'right': '0',
-            'transition': 'all 1.5s ease'
+            'transition': 'all .5s ease'
         });
         $('.leaf-left-nav').css({
             'position': 'relative',
             'left': '0',
-            'transition': 'all 1.5s ease'
+            'transition': 'all .5s ease'
         });
         $('.page-title-container').css({
             'flex-direction': 'row'

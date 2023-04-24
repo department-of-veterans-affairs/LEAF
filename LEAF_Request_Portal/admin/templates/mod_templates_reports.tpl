@@ -94,7 +94,7 @@
         width: 60%;
         flex: none;
         margin: 0 auto;
-        transition: all 3s ease;
+        transition: all .5s ease;
     }
 
     #filename {
@@ -106,7 +106,7 @@
     }
 
     .file-history {
-        width:90%;
+        width: 90%;
         max-height: 600px;
         overflow: auto;
         position: relative;
@@ -338,6 +338,11 @@
         margin: 10px auto;
     }
 
+    .leaf-ul li {
+        font-size: .8rem !important;
+        line-height: 2;
+    }
+
     #controls {
         width: 90%;
         margin: 0 auto;
@@ -492,16 +497,17 @@
     }
 
     function formatFileSize(bytes, threshold = 1024) {
-        if (bytes < threshold) {
-            return bytes + ' bytes';
-        } else if (bytes < threshold * threshold) {
-            return (bytes / threshold).toFixed(2) + ' KB';
-        } else if (bytes < threshold * threshold * threshold) {
-            return (bytes / (threshold * threshold)).toFixed(2) + ' MB';
-        } else {
-            return (bytes / (threshold * threshold * threshold)).toFixed(2) + ' GB';
+        const units = ['bytes', 'KB', 'MB', 'GB'];
+        let i = 0;
+
+        while (bytes >= threshold && i < units.length - 1) {
+            bytes /= threshold;
+            i++;
         }
+
+        return bytes.toFixed(2) + ' ' + units[i];
     }
+
     // According code
     $(document).ready(function() {
         $('#word-wrap-button').css('display', 'none');
@@ -691,7 +697,7 @@
             'top': 0,
             'left': 0,
             'align-items': 'center',
-            'transition': 'all 1s ease'
+            'transition': 'all .5s ease'
         });
         $('.leaf-code-container').css({
             'width': '100% !important'
@@ -700,12 +706,12 @@
         $('.leaf-right-nav').css({
             'position': 'fixed',
             'right': '-100%',
-            'transition': 'all 3s ease'
+            'transition': 'all .5s ease'
         });
         $('.leaf-left-nav').css({
             'position': 'fixed',
             'left': '-100%',
-            'transition': 'all 3s ease'
+            'transition': 'all .5s ease'
         });
         $('.page-title-container').css({
             'flex-direction': 'coloumn'
@@ -726,7 +732,7 @@
             'top': 0,
             'left': 0,
             'align-items': 'center',
-            'transition': 'all 1s ease'
+            'transition': 'all .5s ease'
         });
         $('#codeContainer').css({
             'height': '95%',
@@ -736,12 +742,12 @@
         $('.leaf-right-nav').css({
             'position': 'relative',
             'right': '0',
-            'transition': 'all 1.5s ease'
+            'transition': 'all .5s ease'
         });
         $('.leaf-left-nav').css({
             'position': 'relative',
             'left': '0',
-            'transition': 'all 1.5s ease'
+            'transition': 'all .5s ease'
         });
         $('.page-title-container').css({
             'flex-direction': 'row'
