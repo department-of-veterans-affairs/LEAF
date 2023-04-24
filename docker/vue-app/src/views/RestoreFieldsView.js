@@ -8,6 +8,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'selectNewCategory',
         'setDefaultAjaxResponseMessage'
     ],
     /**
@@ -26,6 +27,7 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
+            vm.selectNewCategory(); //update during more signif refactor of restorefields view - for now this prevents menu issues
             vm.setDefaultAjaxResponseMessage();
         });
     },
