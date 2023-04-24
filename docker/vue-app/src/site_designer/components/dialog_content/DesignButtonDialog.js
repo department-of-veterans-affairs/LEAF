@@ -50,6 +50,9 @@ export default {
                 enabled: +this.enabled
             }
         },
+        builtInCard() {
+            return this.builtInIDs.includes(this.id)
+        }
     },
     methods: {
         useTrumbowEditor() {
@@ -129,6 +132,10 @@ export default {
                     <span class="leaf_check"></span>{{ +markedForDeletion === 1 ? 'click delete to confirm' : 'mark for deletion'}}
                 </label>
             </div>
+        </div>
+        <div v-if="!builtInCard" style="margin-bottom: 1rem;">
+            <label for="card_link">Card Link (full URL)</label>
+            <input type="text" id="card_link" style="width: 475px;" v-model="link" />
         </div>
         <!-- NOTE: initial trumbow html content needs to use menuitem -->
         <div class="designer_inputs">

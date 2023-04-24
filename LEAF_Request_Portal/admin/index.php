@@ -537,10 +537,6 @@ switch ($action) {
             $libsPath.'js/jquery/jquery-ui.custom.min.js',
             $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
         ));
-        /*
-        $main->assign('stylesheets', array(
-            '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-        ));*/
 
         if ($login->checkGroup(1)) {
             $main->assign('body', $t_form->fetch('site_designer_vue.tpl'));

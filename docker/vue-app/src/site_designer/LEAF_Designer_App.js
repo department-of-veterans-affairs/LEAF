@@ -27,7 +27,7 @@ export default {
                     bgColor: "#000000",
                     icon: "dynicons/svg/x-office-spreadsheet.svg",
                     link: "?a=reports&v=3",
-                    enabled: 0
+                    enabled: 1
                 },
                 {
                     id: "btn_bookmarks",
@@ -39,7 +39,7 @@ export default {
                     bgColor: "#7eb2b3",
                     icon: "dynicons/svg/bookmark.svg",
                     link: "?a=bookmarks",
-                    enabled: 0
+                    enabled: 1
                 },
                 {
                     id: "btn_inbox",
@@ -51,7 +51,7 @@ export default {
                     bgColor: "#b6ef6d",
                     icon: "dynicons/svg/document-open.svg",
                     link: "?a=inbox",
-                    enabled: 0
+                    enabled: 1
                 },
                 {
                     id: "btn_new_request",
@@ -63,7 +63,7 @@ export default {
                     bgColor: "#2372b0",
                     icon: "dynicons/svg/document-new.svg",
                     link: "?a=newform",
-                    enabled: 0
+                    enabled: 1
                 },
             ],
 

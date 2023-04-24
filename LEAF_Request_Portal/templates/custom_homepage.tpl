@@ -2,6 +2,8 @@
     /* NOTE: temp template - can replace with vue app later */
     #bodyarea {
         margin: 1rem;
+        font-size: 14px;
+        font-family: "Source Sans Pro Web", Helvetica, Arial, sans-serif;
     }
     ul#menu {
         width: fit-content;
