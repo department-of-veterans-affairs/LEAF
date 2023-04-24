@@ -20,7 +20,7 @@ export default {
             }
         },
         anchorClasses() {
-            const linkClass = this.menuItem?.link ? '' : ' disableClick';
+            const linkClass = this.menuItem?.link && this.enableLink === true ? '' : ' disableClick';
             return "custom_menu_card" + linkClass;
         }
     },

@@ -23,17 +23,27 @@
         flex-direction: column;
 
         li {
-            position: relative;
             cursor: grab;
             margin: 0.5rem 0;
+            display: flex;
 
-            button.edit_menu_card {
-                padding: 2px 6px 3px 6px;
-                position: absolute;
-                top: 50%;
-                right: -1.5rem;
-                transform: translate(100%, -50%);
+            div.edit_card {
+                cursor: auto;
+                position: relative;
+                @include flexcenter;
+                button.edit_menu_card {
+                    padding: 2px 6px 3px 6px;
+                    margin-left: 0.75rem;
+                }
+                .notify_disabled {
+                    cursor: auto;
+                    position: absolute;
+                    top: 50%;
+                    right: 0;  /* 0.75 padding + same amt margin */
+                    transform: translate(calc(100% + 1.5rem), -50%);
+                }
             }
+
         }
     }
 
@@ -41,8 +51,11 @@
         .designer_inputs {
             display:flex;
             gap:1rem;
-            flex-wrap:wrap;
             margin-bottom:0.5rem;
+
+            &.wrap {
+                flex-wrap:wrap;
+            }
         }
         .designer_inputs .icon_choice {
             width: 30px;

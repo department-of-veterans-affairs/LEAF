@@ -45,7 +45,8 @@ class SiteController extends RESTfulResponse
 			return $site->setSitemapJSON();
 		});
 		$this->index['POST']->register('site/settings/home_menu_json', function ($args) use ($site) {
-			return $site->setHomeMenuJSON();
+            $list = $_POST['home_menu_list'] ?? [];
+			return $site->setHomeMenuJSON($list);
 		});
 
 		return $this->index['POST']->runControl($act['key'], $act['args']);

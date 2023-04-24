@@ -3,6 +3,8 @@
         <section>
             <h2 style="margin: 1rem 0;">Site Designer</h2>
             <mod-home-menu></mod-home-menu>
+
+            <p class="test">test <a href="https://localhost/LEAF_Request_Portal/?a=custom_homepage" target="_blank">home link</a></p>
         </section>
     </main>
     <!-- DIALOGS -->

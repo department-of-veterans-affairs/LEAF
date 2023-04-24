@@ -7,6 +7,7 @@ export default {
     },
     inject: [
         'menuItemList',
+        'addStarterButtons',
         'editMenuItemList',
         'setMenuItem'
     ],
@@ -30,9 +31,7 @@ export default {
                 const closest = elOtherLi.find(item => event.clientY <= item.offsetTop + item.offsetHeight / 2);
 
                 elUl.insertBefore(elLiToMove,closest);
-                setTimeout(() => {
-                    this.editMenuItemList();
-                });
+                this.editMenuItemList();
             }
         }
     },
@@ -43,14 +42,21 @@ export default {
             @drop.stop="onDrop"
             @dragover.prevent>
             <li v-for="m in menuItemList" :key="m.id" :id="m.id"
+                :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is enabled'"
                 draggable="true"
                 @dragstart.stop="onDragStart">
                 <custom-menu-item :menuItem="m"></custom-menu-item>
-                <button type="button" @click="setMenuItem(m)" title="edit this card" class="edit_menu_card btn-general">
-                    <span role="img" aria="">☰</span>
-                </button>
+                <div class="edit_card">
+                    <button type="button" @click="setMenuItem(m)" title="edit this card" class="edit_menu_card btn-general">
+                        <span role="img" aria="">☰</span>
+                    </button>
+                    <div class="notify_disabled">{{+m.enabled === 1 ? 'enabled' : 'hidden'}}</div>
+                </div>
             </li>
         </ul>
-        <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
+        <div style="display:flex; justify-content: space-between; width: 368px;">
+            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
+            <button type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
+        </div>
     </div>`
 }

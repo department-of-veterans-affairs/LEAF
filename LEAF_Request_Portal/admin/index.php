@@ -532,14 +532,15 @@ switch ($action) {
         $t_form->assign('libsPath', $libsPath);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
-        $main->assign('useUI', true); //needed for jQ associated w trumbowyg
         $main->assign('javascripts', array(
-            '../../libs/js/LEAF/XSSHelpers.js',
-            '../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+            $libsPath.'/js/LEAF/XSSHelpers.js',
+            $libsPath.'js/jquery/jquery-ui.custom.min.js',
+            $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
         ));
+        /*
         $main->assign('stylesheets', array(
             '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-        ));
+        ));*/
 
         if ($login->checkGroup(1)) {
             $main->assign('body', $t_form->fetch('site_designer_vue.tpl'));

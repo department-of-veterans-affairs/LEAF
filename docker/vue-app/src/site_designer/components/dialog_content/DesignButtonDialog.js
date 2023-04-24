@@ -13,6 +13,9 @@ export default {
             bgColor: this.menuItem?.bgColor || '#ffffff',
             icon: this.menuItem?.icon || '',
             link: this.menuItem?.link || '',
+
+            builtInIDs: ['btn_reports','btn_bookmarks','btn_inbox','btn_new_request'],
+            enabled: +this.menuItem?.enabled === 1,
             useTitleColor: this.menuItem?.titleColor === this.menuItem?.subtitleColor,
             useAnIcon: this.menuItem?.icon !== '',
             markedForDeletion: false
@@ -26,7 +29,8 @@ export default {
         'menuItem',
         'editMenuItemList',
         'iconList',
-        'closeFormDialog'
+        'closeFormDialog',
+        'setDialogButtonText'
     ],
     mounted() {
         this.useTrumbowEditor();
@@ -36,13 +40,14 @@ export default {
             return {
                 id: this.id,
                 order: this.order,
-                title: this.title,
+                title: XSSHelpers.stripTags(this.title, ['<script>']),
                 titleColor: this.titleColor,
-                subtitle: this.subtitle,
+                subtitle: XSSHelpers.stripTags(this.subtitle, ['<script>']),
                 subtitleColor: this.useTitleColor ? this.titleColor : this.subtitleColor,
                 bgColor: this.bgColor,
                 icon: this.useAnIcon === true ? this.icon : '',
-                link: this.link
+                link: this.link,
+                enabled: +this.enabled
             }
         },
     },
@@ -61,7 +66,7 @@ export default {
             $('.trumbowyg-box').css({
                 'min-height': '60px',
                 'height': 'auto',
-                'max-width': '580px',
+                'width':'475px',
                 'margin': '0 0.5rem 1rem 0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
@@ -90,38 +95,74 @@ export default {
             }
         },
         onSave() {
-            this.editMenuItemList(this.menuItemOBJ);
+            this.editMenuItemList(this.menuItemOBJ, this.markedForDeletion);
             this.closeFormDialog();
         }
     },
+    watch: {
+        markedForDeletion(newVal, oldVal) {
+            let elButton = document.getElementById('button_save');
+            if(newVal === true) {
+                this.setDialogButtonText({confirm: 'Delete', cancel: 'Cancel'});
+                elButton.setAttribute('title', 'Delete');
+                elButton.style.backgroundColor = '#b00000';
+            } else {
+                this.setDialogButtonText({confirm: 'Save', cancel: 'Cancel'});
+                elButton.setAttribute('title', 'Save');
+                elButton.style.backgroundColor = '#005EA2';
+            }
+        }
+    },
     template: `<div style="max-width: 600px;" id="design_button_modal">
-        <div style="margin: 1rem 0 1.5rem 0;">
+        <h3>Card Preview</h3>
+        <div class="designer_inputs" style="margin-bottom:1rem;">
             <custom-menu-item :menuItem="menuItemOBJ"></custom-menu-item>
-        </div>
-        <!-- NOTE: initial trumbow html content needs to use menuitem -->
-        <label for="menu_title_trumbowyg" id="menu_title_trumbowyg_label">Button Title</label>
-        <div id="menu_title_trumbowyg" aria-labelledby="menu_title_trumbowyg_label"
-            @input="updateTrumbowygText('title')" v-html="menuItem.title">
-        </div>
-        <label for="menu_subtitle_trumbowyg" id="menu_subtitle_trumbowyg_label">Button Subtitle</label>
-        <div id="menu_subtitle_trumbowyg" aria-labelledby="menu_subtitle_trumbowyg_label"
-            @input="updateTrumbowygText('subtitle')" v-html="menuItem.subtitle">
-        </div>
-        <h3 style="margin: 0.5rem 0;">Style Attributes</h3>
-        <div class="designer_inputs">
-            <label for="title_color">
-                <input type="color" id="title_color" v-model="titleColor" />&nbsp;Title Color
-            </label>
-            <div style="display:flex">
-                <label v-if="!useTitleColor" for="descr_color" style="margin-right: 0.5rem;">
-                    <input type="color" id="descr_color" v-model="subtitleColor"/>&nbsp;Subtitle Color
+            <div style="display: flex; flex-direction: column;">
+                <label class="checkable leaf_check" for="button_enabled"
+                    style="margin-top: auto;" :style="{color: +enabled === 1 ? '#209060' : '#b00000'}">
+                    <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check" />
+                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden until enabled'}}
                 </label>
-                <label class="checkable leaf_check" for="title_color_confirm">
-                    <input type="checkbox" id="title_color_confirm" v-model="useTitleColor" class="icheck leaf_check" />
-                    <span class="leaf_check"></span>Use title color
+                <label class="checkable leaf_check" for="button_delete"
+                    :style="{color: +markedForDeletion === 1 ? '#b00000' : 'inherit'}">
+                    <input type="checkbox" id="button_delete" v-model="markedForDeletion" class="icheck leaf_check" />
+                    <span class="leaf_check"></span>{{ +markedForDeletion === 1 ? 'click delete to confirm' : 'mark for deletion'}}
                 </label>
             </div>
         </div>
+        <!-- NOTE: initial trumbow html content needs to use menuitem -->
+        <div class="designer_inputs">
+            <div>
+                <label for="menu_title_trumbowyg" id="menu_title_trumbowyg_label">Button Title</label>
+                <div id="menu_title_trumbowyg" aria-labelledby="menu_title_trumbowyg_label"
+                    @input="updateTrumbowygText('title')" v-html="menuItem.title">
+                </div>
+            </div>
+            <div>
+                <label for="title_color">Font Color</label>
+                <input type="color" id="title_color" v-model="titleColor" />
+            </div>
+        </div>
+        <div class="designer_inputs">
+            <div>
+                <label for="menu_subtitle_trumbowyg" id="menu_subtitle_trumbowyg_label">Button Subtitle</label>
+                <div id="menu_subtitle_trumbowyg" aria-labelledby="menu_subtitle_trumbowyg_label"
+                    @input="updateTrumbowygText('subtitle')" v-html="menuItem.subtitle">
+                </div>
+            </div>
+            <div>
+                <div v-show="!useTitleColor" style="margin-bottom: 1rem;">
+                    <label for="subtitle_color" style="margin-right: 0.5rem;">Font Color</label>
+                    <input type="color" id="subtitle_color" v-model="subtitleColor"/>
+                </div>
+                <label class="checkable leaf_check" for="title_color_confirm">
+                    <input type="checkbox" id="title_color_confirm" v-model="useTitleColor" class="icheck leaf_check" />
+                    <span class="leaf_check"></span>title color
+                </label>
+            </div>
+        </div>
+
+        <h3 style="margin: 0.5rem 0;">Style Attributes</h3>
         <div class="designer_inputs">
             <label for="bg_color">
                 <input type="color" id="bg_color" v-model="bgColor" />&nbsp;Background Color
@@ -133,7 +174,7 @@ export default {
         </div>
         <fieldset v-if="useAnIcon">
             <legend>Icon Selections</legend>
-            <div class="designer_inputs" style="height:150px; max-width: 560px; overflow:auto;" @click="setIcon($event)">
+            <div class="designer_inputs wrap" style="height:150px; max-width: 560px; overflow:auto;" @click="setIcon($event)">
                 <img v-for="icon in iconList" :key="icon.name" 
                     :id="icon.src" class="icon_choice"
                     :src="getIconSrc(icon.src)" :alt="icon.name" />

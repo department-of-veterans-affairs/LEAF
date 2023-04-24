@@ -6,7 +6,7 @@
     ul#menu {
         width: fit-content;
         list-style-type: none;
-        margin: 0;
+        margin: 0 1rem 1rem 0;
         padding: 0;
     }
     .custom_menu_card {
@@ -30,12 +30,15 @@
 
 </style>
 
-<h2>Test Homepage Alpha</h2>
+<main>
+    <h2>Test Homepage Alpha</h2>
 
-<ul id="menu" style="height: 100%"></ul>
+    <div style="display: flex; flex-wrap: wrap;">
+        <ul id="menu"></ul>
 
-<!--{include file=$tpl_search is_service_chief=$is_service_chief is_admin=$is_admin empUID=$empUID userID=$userID}-->
-
+        <!--{include file=$tpl_search is_service_chief=$is_service_chief is_admin=$is_admin empUID=$empUID userID=$userID}-->
+    </div>
+</main>
 
 <script>
         
@@ -44,6 +47,7 @@
         url: `./api/system/settings`,
         success: (res) => {
             let menuItems = JSON.parse(res?.home_menu_json || "[]");
+            menuItems = menuItems.filter(item => +item.enabled === 1)
             menuItems = menuItems.sort((a,b) => a.order - b.order);
 
             let buffer = '';

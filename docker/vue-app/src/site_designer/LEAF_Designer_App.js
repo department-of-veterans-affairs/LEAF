@@ -15,12 +15,57 @@ export default {
             iconList: [],
             menuItemList: [],
             menuItem: null,
-            builtInLinks: {
-                "Portal Inbox": "?a=inbox",
-                "Bookmarks": "?a=bookmarks",
-                "New Request": "?a=newform",
-                "Report Builder": "?a=reports&v=3",
-            },
+
+            builtInButtons: [
+                {
+                    id: "btn_reports",
+                    order: -1,
+                    title: "<h3>Report Builder</h3>",
+                    titleColor: "#ffffff",
+                    subtitle: "View saved links to requests",
+                    subtitleColor: "#ffffff",
+                    bgColor: "#000000",
+                    icon: "dynicons/svg/x-office-spreadsheet.svg",
+                    link: "?a=reports&v=3",
+                    enabled: 0
+                },
+                {
+                    id: "btn_bookmarks",
+                    order: -2,
+                    title: "<h3>Bookmarks</h3>",
+                    titleColor: "#000000",
+                    subtitle: "View saved links to requests",
+                    subtitleColor: "#000000",
+                    bgColor: "#7eb2b3",
+                    icon: "dynicons/svg/bookmark.svg",
+                    link: "?a=bookmarks",
+                    enabled: 0
+                },
+                {
+                    id: "btn_inbox",
+                    order: -3,
+                    title: "<h3>Inbox</h3>",
+                    titleColor: "#000000",
+                    subtitle: "Review and apply actions to active requests",
+                    subtitleColor: "#000000",
+                    bgColor: "#b6ef6d",
+                    icon: "dynicons/svg/document-open.svg",
+                    link: "?a=inbox",
+                    enabled: 0
+                },
+                {
+                    id: "btn_new_request",
+                    order: -4,
+                    title: "<h3>New Request</h3>",
+                    titleColor: "#ffffff",
+                    subtitle: "Start a new request",
+                    subtitleColor: "#ffffff",
+                    bgColor: "#2372b0",
+                    icon: "dynicons/svg/document-new.svg",
+                    link: "?a=newform",
+                    enabled: 0
+                },
+            ],
 
             /* general modal properties */
             formSaveFunction: ()=> {
@@ -47,8 +92,10 @@ export default {
 
             //static
             closeFormDialog: this.closeFormDialog,
+            setDialogButtonText: this.setDialogButtonText,
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             editMenuItemList: this.editMenuItemList
         }
@@ -62,11 +109,7 @@ export default {
         this.getIconList();
         this.getHomeMenuJSON();
     },
-    computed: {
-        menuItemListJSON() {
-            return JSON.stringify(this.menuItemList);
-        },
-    },
+    computed: {},
     methods: {
         generateID() {
             let result = '';
@@ -83,21 +126,37 @@ export default {
         },
         setMenuItem(menuItem = null) {
             this.menuItem = menuItem === null ?
-            {
-                id: this.generateID(),
-                order: this.menuItemList.length,
-                icon: '',
-            } : menuItem;
+                {
+                    id: this.generateID(),
+                    order: this.menuItemList.length,
+                    icon: '',
+                    enabled: 0
+                }
+                : menuItem;
+
             this.openDesignButtonDialog();
+        },
+        addStarterButtons() {
+            let buttonsAdded = 0;
+            this.builtInButtons.forEach(b => {
+                const doNotHaveID = !this.menuItemList.some(item => item.id === b.id);
+                if (doNotHaveID) {
+                    this.menuItemList.unshift({...b});
+                    buttonsAdded += 1;
+                }
+            });
+            if(buttonsAdded > 0) {
+                this.editMenuItemList();
+            }
         },
         /**
          * Updates order value on drop, or filters menu item list using ID of an existing or
          * new menu item. Adds the new or edited item and re-sorts the list if remove is not true
          * @param {Object|null} menuItem 
-         * @param {boolean} remove
+         * @param {boolean} markedForDeletion
          */
-        editMenuItemList(menuItem = null, remove = false) {
-            if (menuItem === null) { //drag drop 
+        editMenuItemList(menuItem = null, markedForDeletion = false) {
+            if (menuItem === null) { //called for drag drop event or when adding starter buttons
                 let itemIDs = []
                 let elList = Array.from(document.querySelectorAll('#menu_designer li')) || [];
                 
@@ -112,10 +171,11 @@ export default {
 
             } else { //editing modal - either updating or deleting an item
                 let items = this.menuItemList.filter(item => item.id !== menuItem.id);
-                if (remove !== true) {
+                if (markedForDeletion !== true) {
                     items.push(menuItem);
-                    this.menuItemList = items.sort((a,b) => a.order - b.order);
+                    items = items.sort((a,b) => a.order - b.order);
                 }
+                this.menuItemList = items;
             }
             this.postMenuItemListJSON().then((res) => {
                 if(+res !== 1) {
@@ -129,7 +189,7 @@ export default {
                     type: 'POST',
                     url: `${this.APIroot}site/settings/home_menu_json`,
                     data: {
-                        home_menu_json: this.menuItemListJSON,
+                        home_menu_list: this.menuItemList,
                         CSRFToken: this.CSRFToken
                     },
                     success: (res) => resolve(res),
@@ -169,6 +229,10 @@ export default {
             this.dialogTitle = '';
             this.dialogFormContent = '';
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
+        },
+        setDialogButtonText(textObj = {}) {
+            const { confirm, cancel } = textObj;
+            this.dialogButtonText = { confirm, cancel };
         },
         openDesignButtonDialog() {
             this.showFormDialog = true;

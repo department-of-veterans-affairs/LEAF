@@ -43,15 +43,22 @@ class Site
         return 1;
     }
 
-	public function setHomeMenuJSON() {
-        if (!$this->login->checkGroup(1))
-        {
+	public function setHomeMenuJSON(array $arrayIn = []): string|int {
+        if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
+        foreach ($arrayIn as $i => $item) {
+            $arrayIn[$i]['title'] = \Leaf\XSSHelpers::sanitizeHTMLRich($item['title']);
+            $arrayIn[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizeHTMLRich($item['subtitle']);
+            $arrayIn[$i]['link'] = \Leaf\XSSHelpers::xscrub($item['link']);
+            $arrayIn[$i]['icon'] = \Leaf\XSSHelpers::xscrub($item['icon']);
+        }
+        $home_menu_json = json_encode($arrayIn);
+
 		$strSQL = 'INSERT INTO settings (setting, `data`)
-			VALUES ("home_menu_json", :input)
-			ON DUPLICATE KEY UPDATE `data`=:input';
-        $vars = array(':input' => $_POST['home_menu_json']);
+			VALUES ("home_menu_json", :home_menu_json)
+			ON DUPLICATE KEY UPDATE `data`=:home_menu_json';
+        $vars = array(':home_menu_json' => $home_menu_json);
 
         $this->db->prepared_query($strSQL, $vars);
 
