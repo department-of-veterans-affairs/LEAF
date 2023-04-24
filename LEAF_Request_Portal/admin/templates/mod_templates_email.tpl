@@ -424,7 +424,7 @@
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
-                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Email Content</div>
+                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</div>
                 <div id="divCode" style="border: 1px solid black">
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
