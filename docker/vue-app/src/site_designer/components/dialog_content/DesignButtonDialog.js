@@ -124,7 +124,7 @@ export default {
                 <label class="checkable leaf_check" for="button_enabled"
                     style="margin-top: auto;" :style="{color: +enabled === 1 ? '#209060' : '#b00000'}">
                     <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check" />
-                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden until enabled'}}
+                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden unless enabled'}}
                 </label>
                 <label class="checkable leaf_check" for="button_delete"
                     :style="{color: +markedForDeletion === 1 ? '#b00000' : 'inherit'}">
@@ -179,7 +179,7 @@ export default {
                 <span class="leaf_check"></span>Use an Icon
             </label>
         </div>
-        <fieldset v-if="useAnIcon">
+        <fieldset v-if="useAnIcon" style="padding-right: 0;">
             <legend>Icon Selections</legend>
             <div class="designer_inputs wrap" style="height:150px; max-width: 560px; overflow:auto;" @click="setIcon($event)">
                 <img v-for="icon in iconList" :key="icon.name" 

@@ -43,7 +43,7 @@ class Site
         return 1;
     }
 
-	public function setHomeMenuJSON(array $arrayIn = []): string|int {
+    public function setHomeMenuJSON(array $arrayIn = []): string|int {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
@@ -55,10 +55,25 @@ class Site
         }
         $home_menu_json = json_encode($arrayIn);
 
-		$strSQL = 'INSERT INTO settings (setting, `data`)
-			VALUES ("home_menu_json", :home_menu_json)
-			ON DUPLICATE KEY UPDATE `data`=:home_menu_json';
+        $strSQL = 'INSERT INTO settings (setting, `data`)
+            VALUES ("home_menu_json", :home_menu_json)
+            ON DUPLICATE KEY UPDATE `data`=:home_menu_json';
         $vars = array(':home_menu_json' => $home_menu_json);
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        return 1;
+    }
+
+    public function enableNoCodeHome(int $isEnabled = 0): string|int {
+        if (!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+        $home_enabled = $isEnabled === 1 ? '1' : '0';
+        $strSQL = 'INSERT INTO settings (setting, `data`)
+            VALUES ("home_enabled", :home_enabled)
+            ON DUPLICATE KEY UPDATE `data`=:home_enabled';
+        $vars = array(':home_enabled' => $home_enabled);
 
         $this->db->prepared_query($strSQL, $vars);
 

@@ -48,6 +48,9 @@ class SiteController extends RESTfulResponse
             $list = $_POST['home_menu_list'] ?? [];
 			return $site->setHomeMenuJSON($list);
 		});
+		$this->index['POST']->register('site/settings/enable_home', function ($args) use ($site) {
+			return $site->enableNoCodeHome((int)$_POST['home_enabled']);
+		});
 
 		return $this->index['POST']->runControl($act['key'], $act['args']);
 	}

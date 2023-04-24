@@ -12,6 +12,7 @@ export default {
             CSRFToken: CSRFToken,
             APIroot: APIroot,
             libsPath: libsPath,
+            home_enabled: false,
             iconList: [],
             menuItemList: [],
             menuItem: null,
@@ -107,10 +108,24 @@ export default {
     },
     mounted() {
         this.getIconList();
-        this.getHomeMenuJSON();
+        this.getSettingsData();
     },
     computed: {},
     methods: {
+        postCustomHomeEnabled() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}site/settings/enable_home`,
+                data: {
+                    CSRFToken: this.CSRFToken,
+                    home_enabled: +this.home_enabled,
+                },
+                success: (res) => {
+                    console.log(res)
+                },
+                error: (err) => console.log(err)
+            });
+        },
         generateID() {
             let result = '';
             do {
@@ -189,21 +204,22 @@ export default {
                     type: 'POST',
                     url: `${this.APIroot}site/settings/home_menu_json`,
                     data: {
-                        home_menu_list: this.menuItemList,
-                        CSRFToken: this.CSRFToken
+                        CSRFToken: this.CSRFToken,
+                        home_menu_list: this.menuItemList
                     },
                     success: (res) => resolve(res),
                     error: (err) => reject(err)
                 });
             });
         },
-        getHomeMenuJSON() {
+        getSettingsData() {
             $.ajax({
                 type: 'GET',
                 url: `${this.APIroot}system/settings`,
                 success: (res) => {
                     let menuItems = JSON.parse(res?.home_menu_json || "[]");
                     this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
+                    this.home_enabled = +res?.home_enabled === 1;
                 },
                 error: (err) => console.log(err)
             });

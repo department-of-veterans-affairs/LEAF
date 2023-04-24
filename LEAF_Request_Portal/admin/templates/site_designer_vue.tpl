@@ -5,6 +5,8 @@
             <mod-home-menu></mod-home-menu>
 
             <p class="test">test <a href="https://localhost/LEAF_Request_Portal/?a=custom_homepage" target="_blank">home link</a></p>
+            <input type="checkbox" v-model="home_enabled" />Homepage enabled
+            <button @click="postCustomHomeEnabled">TEST ENABLE</button>
         </section>
     </main>
     <!-- DIALOGS -->
