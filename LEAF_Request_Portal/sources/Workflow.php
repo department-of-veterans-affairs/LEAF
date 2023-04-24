@@ -1387,6 +1387,13 @@ class Workflow
         {
             $alignment = 'left';
         }
+        $sort = (int)strip_tags($_POST['sort'] ?? 0);
+        if ($sort < -128) {
+            $sort = -128;
+        }
+        if ($sort > 127) {
+            $sort = 127;
+        }
 
         $vars = array(
             ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
@@ -1394,7 +1401,7 @@ class Workflow
             ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
             ':actionIcon' => $_POST['actionIcon'],
             ':actionAlignment' => $alignment,
-            ':sort' => (int)strip_tags($_POST['sort']),
+            ':sort' => $sort,
             ':fillDependency' => $_POST['fillDependency'],
         );
 
@@ -1404,7 +1411,7 @@ class Workflow
             new \Leaf\LogItem("actions", "actionText",  strip_tags($_POST['actionText'])),
             new \Leaf\LogItem("actions", "actionIcon",  $_POST['actionIcon']),
             new \Leaf\LogItem("actions", "actionAlignment",  $alignment),
-            new \Leaf\LogItem("actions", "sort",  strip_tags($_POST['sort'])),
+            new \Leaf\LogItem("actions", "sort",  $sort),
             new \Leaf\LogItem("actions", "fillDependency",  $_POST['fillDependency']),
             new \Leaf\LogItem("actions", "actionTextPasttense",   strip_tags($_POST['actionTextPasttense']))
         ]);

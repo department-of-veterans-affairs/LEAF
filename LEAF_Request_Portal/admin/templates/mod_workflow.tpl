@@ -1201,7 +1201,7 @@
                         <input id="actionSortNumber" type="number" min="-128" max="127"
                         value="${action?.sort || 0}" aria-labelledby="action_sort_label"/>
                     </td>
-                    <td>-128 to 127</td>
+                    <td>lower numbers appear first</td>
                 </tr>
             </table>
             <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
