@@ -14,12 +14,16 @@
         display: flex;
         align-items: center;
         width: 300px;
+        min-height: 50px;
         padding: 0.4rem 0.5rem;
         text-decoration: none;
         box-shadow: 0 0 4px rgba(0,0,25,0.4);
     }
-    .custom_menu_card * {
+    div.LEAF_custom * {
         margin: 0;
+        padding: 0;
+        font-family: inherit;
+        color: inherit; /* prevents override of color choices and interference w other styles*/
     }
     .icon_choice {
         cursor: auto;
@@ -58,9 +62,9 @@
                 if (item.icon !== '') {
                     buffer += `<img v-if="menuItem.icon" src="../libs/${item.icon}" alt="" class="icon_choice "/>`
                 }
-                buffer += `<div style="display: flex; flex-direction: column; justify-content: center; align-self: stretch; width: 100%;">
-                    <div style="color:${item.titleColor}">${title}</div>
-                    <div style="color:${item.subtitleColor}">${subtitle}</div>
+                buffer += `<div style="display: flex; flex-direction: column; justify-content: space-around; align-self: stretch; width: 100%;">
+                    <div style="color:${item.titleColor}" class="LEAF_custom">${title}</div>
+                    <div style="color:${item.subtitleColor}" class="LEAF_custom">${subtitle}</div>
                 </div></a></li>`
             });
             $('#menu').html(buffer);
