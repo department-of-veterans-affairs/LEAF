@@ -4,7 +4,7 @@ export default {
             name: this.cell?.name || 'No title',
             id: this.cell?.id || this.makeColumnID(),
             gridType: this.cell?.type || 'text',
-            textareaDropOptions: this.cell?.options?.join('\n') || '',
+            textareaDropOptions: this.cell?.options ? this.cell.options.join('\n') : [],
         }
     },
     props: {
