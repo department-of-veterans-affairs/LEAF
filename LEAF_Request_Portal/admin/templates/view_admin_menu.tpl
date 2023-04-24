@@ -171,8 +171,7 @@
         <span class="leaf-admin-btndesc">Edit portal Sitemap links</span>
     </a>
 
-    <a href="../report.php?a=LEAF_combined_inbox_template" role="button"
-        class="leaf-admin-button bg-orange-10 lf-trans-orange">
+    <a href="?a=mod_combined_inbox" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
         <i class="leaf-admin-btnicon fas fa-solid fa-inbox text-orange-50 leaf-icn-narrow2" alt="Combined Inbox Editor"
             title="Combined Inbox Editor"></i>
         <span class="leaf-admin-btntitle">Combined Inbox Editor</span>

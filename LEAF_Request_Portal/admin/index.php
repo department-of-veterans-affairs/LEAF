@@ -409,6 +409,19 @@ switch ($action) {
         $tabText = 'Upload File';
 
         break;
+    case 'mod_combined_inbox':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+
+        $main->assign('useUI', true);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+
+        $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
+
+        $tabText = 'Combined Inbox Editor';
+
+        break;
     case 'mod_system':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
