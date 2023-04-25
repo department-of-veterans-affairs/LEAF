@@ -103,6 +103,11 @@ class TemplateEditor
         {
             if (file_exists("../templates/custom_override/{$template}"))
             {
+                $this->dataActionLogger->logAction(
+                    \Leaf\DataActions::RESTORE,
+                    \Leaf\LoggableTypes::TEMPLATE_BODY,
+                    [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                );
                 return unlink("../templates/custom_override/{$template}");
             }
         }

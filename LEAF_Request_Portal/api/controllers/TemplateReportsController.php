@@ -43,6 +43,13 @@ class TemplateReportsController extends RESTfulResponse
         $this->index['GET']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
             return $templateReports->getReportTemplate($args[0]);
         });
+
+        $this->index['GET']->register('reportTemplates/getHistoryFiles/[text]', function ($args) use ($templateReports) {
+            return $templateReports->getHistoryReportTemplate($args[0]);
+        });
+        $this->index['GET']->register('reportTemplates/getCompareHistoryHistoryFiles/[text]', function ($args) use ($templateReports) {
+            return $templateReports->getCompareHistoryReportTemplate($args[0]);
+        });
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -65,6 +72,14 @@ class TemplateReportsController extends RESTfulResponse
                 return $templateReports->setReportTemplate($args[0]);
             });
 
+            $this->index['POST']->register('reportTemplates/fileHistory/[text]', function ($args) use ($templateReports) {
+                return $templateReports->setReportTemplateFileHistory($args[0]);
+            });
+
+            $this->index['POST']->register('reportTemplates/mergeFileHistory/saveReportMergeTemplate/[text]', function ($args) use ($templateReports) {
+                return $templateReports->setReportMergeTemplate($args[0]);
+            });
+
             return $this->index['POST']->runControl($act['key'], $act['args']);
         }
     }
@@ -82,6 +97,10 @@ class TemplateReportsController extends RESTfulResponse
 
             $this->index['DELETE']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
                 return $templateReports->removeReportTemplate($args[0]);
+            });
+
+            $this->index['DELETE']->register('reportTemplates/deleteHistoryFileReport/[text]', function ($args) use ($templateReports) {
+                return $templateReports->removeHistoryReportTemplate($args[0]);
             });
 
             return $this->index['DELETE']->runControl($act['key'], $act['args']);

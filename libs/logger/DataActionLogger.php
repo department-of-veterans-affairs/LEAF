@@ -1,6 +1,7 @@
 <?php
 
 namespace Leaf;
+
 class DataActionLogger
 {
 
@@ -13,9 +14,10 @@ class DataActionLogger
         $this->login = $login;
     }
 
-    public function logAction($verb, $type, $toLog){
+    public function logAction($verb, $type, $toLog)
+    {
 
-        $action = $verb.'-'.$type;
+        $action = $verb . '-' . $type;
 
         $vars = array(
             ':userID' => (int)$this->login->getEmpUID(),
@@ -34,7 +36,7 @@ class DataActionLogger
             INSERT INTO data_log_items (`data_action_log_fk`, `tableName`, `column`, `value`, `displayValue`)
                 VALUES";
 
-        for($i = 0; $i < count($toLog); $i++){
+        for ($i = 0; $i < count($toLog); $i++) {
 
             $nowAdding = $toLog[$i];
 
@@ -43,21 +45,22 @@ class DataActionLogger
             $vars[":value$i"] = $nowAdding->value;
             $vars[":displayValue$i"] = $nowAdding->displayValue;
 
-            $sql = $sql."(@log_id, :tableName$i, :column$i, :value$i, :displayValue$i)".(($i == count($toLog)-1? "; ":", "));
+            $sql = $sql . "(@log_id, :tableName$i, :column$i, :value$i, :displayValue$i)" . (($i == count($toLog) - 1 ? "; " : ", "));
         }
 
-        $sql = $sql.'COMMIT;';
+        $sql = $sql . 'COMMIT;';
 
         $this->db->prepared_query($sql, $vars);
     }
 
 
-    public function getHistory($filterById, $filterByColumnName, $logType){
+    public function getHistory($filterById, $filterByColumnName, $logType)
+    {
 
         $logResults = $this->fetchLogData($filterById, $filterByColumnName, $logType);
 
-        if($logResults != null){
-            for($i = 0; $i<count($logResults); $i++){
+        if ($logResults != null) {
+            for ($i = 0; $i < count($logResults); $i++) {
                 $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
                 // $logResults[$i] = $this->findExternalValue($logResults[$i], $logType);
                 $logHistory = LogFormatter::getFormattedString($logResults[$i], $logType);
@@ -71,12 +74,43 @@ class DataActionLogger
         return $logResults;
     }
 
+    public function logTemplateFileHistory($fileName, $templateFileHistory, $filePath, $fileSize, $time)
+    {
+        $vars = array(
+            ':file_parent_name' => $templateFileHistory,
+            ':file_name' => $fileName,
+            ':file_path' => $filePath,
+            ':file_size' => $fileSize,
+            ':file_modify_by' => $this->login->getName(),
+            ':file_created' => $time
+        );
+        $sql = 'INSERT INTO `template_history_files` (`file_parent_name`,`file_name`, `file_path`, `file_size`, `file_modify_by`, `file_created`) VALUES (:file_parent_name, :file_name, :file_path, :file_size, :file_modify_by, :file_created)';
+        $stmt = $this->db->prepared_query($sql, $vars);
+
+        if (!$stmt) {
+            return 'Error: could not execute SQL statement';
+        }
+    }
+
+    public function getHistoryLogAction($filterById, $filterByColumnName, $logType)
+    {
+        $logResults = $this->fetchLogData($filterById, $filterByColumnName, $logType);
+        if ($logResults != null) {
+            for ($i = 0; $i < count($logResults); $i++) {
+                $logResults[$i]["items"] = $this->fetchLogItems($logResults[$i]);
+                $logResults[$i]["history"] = LogFormatter::getFormattedString($logResults[$i], $logType);
+            }
+        }
+        return $logResults;
+    }
+
     /**
      * Returns all history ids for all groups
      *
      * @return array all history ids for all groups
      */
-    public function getAllHistoryIDs(){
+    public function getAllHistoryIDs()
+    {
         $sql = "SELECT `value`
                 FROM `data_log_items`
                 WHERE `column` = 'groupID'
@@ -84,7 +118,8 @@ class DataActionLogger
         return  $this->db->query_kv($sql, 'value', 'value', array());
     }
 
-    function fetchLogData($filterById, $filterByColumnName, $logType){
+    public function fetchLogData($filterById, $filterByColumnName, $logType)
+    {
 
         $filterResults = isset($filterById) && isset($filterByColumnName);
 
@@ -100,8 +135,8 @@ class DataActionLogger
 
         $vars = [];
 
-        if($filterResults){
-            $sqlCreateTemp.="dli.column = :filterBy
+        if ($filterResults) {
+            $sqlCreateTemp .= "dli.column = :filterBy
             AND
                 dli.VALUE = :filterById
             AND";
@@ -111,11 +146,11 @@ class DataActionLogger
             $vars[':filterById'] = $filterById;
         }
 
-        $sqlCreateTemp.=" dal.ACTION IN ".$this->buildInClause($logType).";";
+        $sqlCreateTemp .= " dal.ACTION IN " . $this->buildInClause($logType) . ";";
 
         $this->db->prepared_query($sqlCreateTemp, $vars);
 
-        $sqlFetchLogData=
+        $sqlFetchLogData =
             " SELECT
                     dal.ID,
                     dal.userDisplay as userName,
@@ -132,27 +167,30 @@ class DataActionLogger
         return $results;
     }
 
-    function buildInClause($logType){
+    public function buildInClause($logType)
+    {
         $actions = array_keys(LogFormatter::formatters[$logType]);
 
         $inClause = "(";
 
-        for($i=0; $i<count($actions); $i++){
-            $inClause.="'".$actions[$i]."'".($i == count($actions)-1 ? "": ",");
+        for ($i = 0; $i < count($actions); $i++) {
+            $inClause .= "'" . $actions[$i] . "'" . ($i == count($actions) - 1 ? "" : ",");
         }
 
-        $inClause.=")";
+        $inClause .= ")";
 
         return $inClause;
     }
 
-    function fetchLogItems($logResult){
+    public function fetchLogItems($logResult)
+    {
 
         $vars = array(
-            ':dalFK' => $logResult["ID"]);
+            ':dalFK' => $logResult["ID"]
+        );
 
         $sqlFetchLogItems =
-        " Select
+            " Select
             `column`,
             `value`,
             `displayValue`
@@ -178,7 +216,7 @@ class DataActionLogger
             LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TABLE,
             LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TABLE,
             LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TABLE,
-        );   
+        );
 
         $formatters = array(
             LoggableTypes::GROUP => GroupFormatter::TEMPLATES,
@@ -193,7 +231,7 @@ class DataActionLogger
             LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
             LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TEMPLATES,
             LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TEMPLATES,
-        );    
+        );
 
         $targetTable = $tables[$logType];
 
@@ -204,17 +242,17 @@ class DataActionLogger
         $displayVariables = array();
         $formatVariables = array();
 
-        if(array_key_exists("displayColumns", $dictionaryItem) && $dictionaryItem["displayColumns"] != null){
+        if (array_key_exists("displayColumns", $dictionaryItem) && $dictionaryItem["displayColumns"] != null) {
             $displayVariables = explode(",", $dictionaryItem["displayColumns"]);
         } else {
             return $logData;
         }
 
-        if(array_key_exists("loggableColumns", $dictionaryItem) && $dictionaryItem["loggableColumns"] != null){
+        if (array_key_exists("loggableColumns", $dictionaryItem) && $dictionaryItem["loggableColumns"] != null) {
             $loggableColumns = explode(",", $dictionaryItem["loggableColumns"]);
         }
-        
-        foreach($logData["items"] as $detail) {
+
+        foreach ($logData["items"] as $detail) {
             if ($detail["column"] != $primaryKey) {
                 continue;
             }
@@ -227,11 +265,10 @@ class DataActionLogger
             );
 
             $strSQL = "SELECT :columns FROM :table WHERE :pk = :id";
-            
+
             $potentialValues = $this->db->prepared_query($strSQL, $vars);
         }
 
         return $logData;
     }
-
 }
