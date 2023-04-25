@@ -149,7 +149,7 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('is_admin', $oc_login->getMembership()['groupID'][1]);
 
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
 
             if (count($summary['employee']) > 0)
             {
@@ -196,7 +196,7 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
-            $t_form->assign('ERM_site_resource_management', Orgchart\Config::$ERM_Sites['resource_management']);
+            $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
 
             if (count($summary) > 0)
             {

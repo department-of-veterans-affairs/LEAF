@@ -195,6 +195,11 @@ class Db
         }
     }
 
+    public function errorInfo()
+    {
+        return $this->db->errorInfo();
+    }
+
     /**
      * Allows data to be inserted and updated in batches
      * @param string $database
