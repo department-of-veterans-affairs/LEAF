@@ -26,7 +26,7 @@ $BG-DarkNavy: #162e51;
         justify-content: space-between;
         align-items: center;
 
-        > div {
+        > div:not(.crosswalks) {
             display: inline-block;
             width: 30%;
         }
@@ -43,7 +43,7 @@ $BG-DarkNavy: #162e51;
         }
     }
 
-    ul#savedConditionsList {
+    div#savedConditionsLists {
         padding-bottom: 0.5em;
     }
 

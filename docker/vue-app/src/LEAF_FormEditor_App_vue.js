@@ -31,6 +31,7 @@ export default {
             secureStatusText: 'LEAF-Secure Certified',
             secureBtnText: 'View Details',
             secureBtnLink: '',
+            fileManagerTextFiles: [],
 
             showCertificationStatus: false,
             dialogTitle: '',
@@ -84,6 +85,7 @@ export default {
             secureStatusText: computed(() => this.secureStatusText),
             secureBtnText: computed(() => this.secureBtnText),
             secureBtnLink: computed(() => this.secureBtnLink),
+            fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
 
             showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
@@ -153,6 +155,7 @@ export default {
             }
         }).catch(err => console.log('error getting site settings', err));
         this.getWorkflowRecords();
+        this.getFileManagerTextFiles();
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
@@ -543,6 +546,21 @@ export default {
                 });
             });
         },
+        getFileManagerTextFiles() {
+            $.ajax({
+              type: 'GET',
+              url: `${this.APIroot}system/files`,
+              success: (res) => {
+                const files = res || [];
+                this.fileManagerTextFiles = files.filter(
+                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
+              },
+              error: (err) => {
+                console.log(err);
+              },
+              cache: false
+            });
+        },
         /**
          * updates app categories object property value
          * @param {string} catID 
@@ -603,6 +621,7 @@ export default {
                 this.getCategoryListAll();
                 this.getSecureFormsInfo();
                 this.getWorkflowRecords();
+                this.getFileManagerTextFiles();
             }
         },
         /**
