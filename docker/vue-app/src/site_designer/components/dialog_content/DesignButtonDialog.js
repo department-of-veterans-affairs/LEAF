@@ -15,6 +15,7 @@ export default {
             link: this.menuItem?.link || '',
 
             builtInIDs: ['btn_reports','btn_bookmarks','btn_inbox','btn_new_request'],
+            iconPreviewSize: '30px',
             enabled: +this.menuItem?.enabled === 1,
             useTitleColor: this.menuItem?.titleColor === this.menuItem?.subtitleColor,
             useAnIcon: this.menuItem?.icon !== '',
@@ -92,10 +93,14 @@ export default {
         },
         setIcon(event = {}) {
             const id = event.target.id;
-            const index = id.indexOf('dynicons\/');
+            const index = id.indexOf('svg\/');
             if (index > -1) {
-                this.icon = id.slice(index);
+                this.icon = id.slice(index + 4);
             }
+        },
+        test(el) {
+            console.log(el)
+            return true
         },
         onSave() {
             this.editMenuItemList(this.menuItemOBJ, this.markedForDeletion);
@@ -182,7 +187,8 @@ export default {
         <fieldset v-if="useAnIcon" style="padding-right: 0;">
             <legend>Icon Selections</legend>
             <div class="designer_inputs wrap" style="height:150px; max-width: 560px; overflow:auto;" @click="setIcon($event)">
-                <img v-for="icon in iconList" :key="icon.name" 
+                <img v-for="icon in iconList" :key="icon.name"
+                    :style="{width: iconPreviewSize, height: iconPreviewSize}" style="cursor: pointer;"
                     :id="icon.src" class="icon_choice"
                     :src="getIconSrc(icon.src)" :alt="icon.name" />
             </div>

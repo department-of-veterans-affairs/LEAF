@@ -50,8 +50,8 @@ class Site
         foreach ($arrayIn as $i => $item) {
             $arrayIn[$i]['title'] = \Leaf\XSSHelpers::sanitizeHTMLRich($item['title']);
             $arrayIn[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizeHTMLRich($item['subtitle']);
-            $arrayIn[$i]['link'] = \Leaf\XSSHelpers::xscrub($item['link']);
-            $arrayIn[$i]['icon'] = \Leaf\XSSHelpers::xscrub($item['icon']);
+            $arrayIn[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL($item['link']);
+            $arrayIn[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
         }
         $home_menu_json = json_encode($arrayIn);
 

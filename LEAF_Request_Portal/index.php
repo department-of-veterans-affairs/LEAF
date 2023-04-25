@@ -528,6 +528,7 @@ switch ($action) {
 
         $t_form->assign('inbox_status', 1);
         if (isset($settings['home_enabled']) && $settings['home_enabled'] == 1) {
+            $t_form->assign('menuItems', $settings['home_menu_json']);
             $main->assign('body', $t_form->fetch('custom_homepage.tpl'));
         } else {
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));

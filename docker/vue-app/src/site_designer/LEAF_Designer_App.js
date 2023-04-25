@@ -12,7 +12,7 @@ export default {
             CSRFToken: CSRFToken,
             APIroot: APIroot,
             libsPath: libsPath,
-            home_enabled: false,
+            home_enabled: null,
             iconList: [],
             menuItemList: [],
             menuItem: null,
@@ -26,7 +26,7 @@ export default {
                     subtitle: "View saved links to requests",
                     subtitleColor: "#ffffff",
                     bgColor: "#000000",
-                    icon: "dynicons/svg/x-office-spreadsheet.svg",
+                    icon: "x-office-spreadsheet.svg",
                     link: "?a=reports&v=3",
                     enabled: 1
                 },
@@ -38,7 +38,7 @@ export default {
                     subtitle: "View saved links to requests",
                     subtitleColor: "#000000",
                     bgColor: "#7eb2b3",
-                    icon: "dynicons/svg/bookmark.svg",
+                    icon: "bookmark.svg",
                     link: "?a=bookmarks",
                     enabled: 1
                 },
@@ -50,7 +50,7 @@ export default {
                     subtitle: "Review and apply actions to active requests",
                     subtitleColor: "#000000",
                     bgColor: "#b6ef6d",
-                    icon: "dynicons/svg/document-open.svg",
+                    icon: "document-open.svg",
                     link: "?a=inbox",
                     enabled: 1
                 },
@@ -62,7 +62,7 @@ export default {
                     subtitle: "Start a new request",
                     subtitleColor: "#ffffff",
                     bgColor: "#2372b0",
-                    icon: "dynicons/svg/document-new.svg",
+                    icon: "document-new.svg",
                     link: "?a=newform",
                     enabled: 1
                 },
@@ -113,14 +113,18 @@ export default {
     computed: {},
     methods: {
         postCustomHomeEnabled() {
+            const flag = +(!this.home_enabled);
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}site/settings/enable_home`,
                 data: {
                     CSRFToken: this.CSRFToken,
-                    home_enabled: +this.home_enabled,
+                    home_enabled: flag,
                 },
                 success: (res) => {
+                    if (+res === 1) {
+                        this.home_enabled = !this.home_enabled;
+                    }
                     console.log(res)
                 },
                 error: (err) => console.log(err)

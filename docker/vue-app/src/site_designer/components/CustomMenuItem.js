@@ -1,5 +1,10 @@
 export default {
     name: 'custom-menu-item',
+    data() {
+        return {
+            dyniconsPath: this.libsPath + 'dynicons/svg/',
+        }
+    },
     props: {
         menuItem: {
             type: Object,
@@ -25,7 +30,7 @@ export default {
         }
     },
     template:`<a :class="anchorClasses" :style="baseCardStyles" :href="menuItem.link" target="_blank">
-        <img v-if="menuItem.icon" :src="libsPath + menuItem.icon" alt="" class="icon_choice "/>
+        <img v-if="menuItem.icon" :src="dyniconsPath + menuItem.icon" alt="" class="icon_choice "/>
         <div style="display: flex; flex-direction: column; justify-content: center; align-self: stretch; width: 100%;">
             <div v-html="menuItem.title" :style="{color: menuItem.titleColor}" class="LEAF_custom"></div>
             <div v-html="menuItem.subtitle" :style="{color: menuItem.subtitleColor}" class="LEAF_custom"></div>
