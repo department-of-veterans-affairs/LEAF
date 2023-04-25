@@ -200,15 +200,16 @@ $empEmails = $oc_db->query_kv("SELECT * FROM employee_data
             WHERE indicatorID = 6 AND empUID IN ({$empUID_list})", 'empUID', 'data', $vars);
 foreach($jsonOut as $key => $item) {
     if($item['employeeUID'] != '') {
-        $jsonOut[$key]['employeeEmail'] = $empEmails[$item['employeeUID']];
+        $jsonOut[$key]['employeeEmail'] = htmlspecialchars($empEmails[$item['employeeUID']], ENT_QUOTES, 'UTF-8');
     }
     else {
         $jsonOut[$key]['employeeEmail'] = '';
     }
 }
 
+// the data here that is getting encoded for json is being scrubed before now.
+// Look at lines 169-184 and line 203 above, that should be sufficient for fortify
 $result = json_encode($jsonOut);
-$result = htmlspecialchars($result, ENT_QUOTES, 'UTF-8');
 
 // cache the result
 $vars = array(':cacheID' => 'jsonExport_PDL.php',

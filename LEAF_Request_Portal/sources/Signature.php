@@ -20,11 +20,18 @@ class Signature
     /**
      * Create a new Signature.
      *
-     * @param signature string  the actual signature fingerprint
-     * @param recordID  int     the id of the record the signature belongs to
-     * @param message   string  the message that was signed
+     * @param string $signature
+     * @param int $recordID
+     * @param int $stepID
+     * @param int $dependencyID
+     * @param string $message
+     * @param string $signerPublicKey
+     *
+     * @return int
+     *
+     * Created at: 4/12/2023, 9:36:30 AM (America/New_York)
      */
-    public function create($signature, $recordID, $stepID, $dependencyID, $message, $signerPublicKey)
+    public function create(string $signature, int $recordID, int $stepID, int $dependencyID, string $message, string $signerPublicKey): int
     {
         $vars = array(
             ':signature' => $signature,
@@ -36,14 +43,17 @@ class Signature
             ':userID' => $this->login->getUserID(),
             ':timestamp' => time()
         );
+        $sql = 'INSERT INTO signatures
+                    (`signature`, `recordID`, `stepID`, `dependencyID`, `message`,
+                     `signerPublicKey`, `userID`, `timestamp`)
+                VALUES
+                    (:signature, :recordID, :stepID, :dependencyID, :message,
+                     :signerPublicKey, :userID, :timestamp)
+                ON DUPLICATE KEY UPDATE `signature` = :signature, `message` = :message,
+                    `signerPublicKey` = :signerPublicKey, `userID` = :userID,
+                    `timestamp` = :timestamp';
 
-        $res = $this->db->prepared_query(
-            'INSERT INTO
-                signatures (signature, recordID, stepID, dependencyID, message, signerPublicKey, userID, timestamp)
-                VALUES (:signature, :recordID, :stepID, :dependencyID, :message, :signerPublicKey, :userID, :timestamp)
-                ON DUPLICATE KEY UPDATE signature=:signature, message=:message, signerPublicKey=:signerPublicKey, userID=:userID, timestamp=:timestamp',
-            $vars
-        );
+        $this->db->prepared_query($sql, $vars);
 
         return $this->db->getLastInsertID();
     }
