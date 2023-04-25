@@ -633,8 +633,8 @@
                         success: function(fileContent) {
                             codeEditor = CodeMirror.MergeView(document.getElementById(
                                 "codeCompare"), {
-                                value: fileContent.replace(/\r\n/g, "\n"),
-                                origLeft: currentFileContent.replace(/\r\n/g, "\n"),
+                                value: currentFileContent.replace(/\r\n/g, "\n"),
+                                origLeft: fileContent.replace(/\r\n/g, "\n"),
                                 lineNumbers: true,
                                 mode: 'htmlmixed',
                                 collapseIdentical: true,
