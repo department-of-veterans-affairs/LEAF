@@ -26,7 +26,12 @@ export default {
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
             ajaxResponseMessage: '',
+
             siteSettings: {},
+            secureStatusText: 'LEAF-Secure Certified',
+            secureBtnText: 'View Details',
+            secureBtnLink: '',
+
             showCertificationStatus: false,
             dialogTitle: '',
             dialogFormContent: '',
@@ -76,6 +81,10 @@ export default {
             inactiveForms: computed(() => this.inactiveForms),
             supplementalForms: computed(() => this.supplementalForms),
             showCertificationStatus: computed(() => this.showCertificationStatus),
+            secureStatusText: computed(() => this.secureStatusText),
+            secureBtnText: computed(() => this.secureBtnText),
+            secureBtnLink: computed(() => this.secureBtnLink),
+
             showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
             dialogFormContent: computed(() => this.dialogFormContent),
@@ -471,7 +480,7 @@ export default {
                     mostRecentID = i;
                 }
             }
-            document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + mostRecentID);
+            this.secureBtnLink = '../index.php?a=printview&recordID=' + mostRecentID;
             const mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
             for(let i in indicatorList) {
                 if(new Date(indicatorList[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
@@ -479,22 +488,20 @@ export default {
                     break;
                 }
             }
-            if (newIndicator === true && this.focusedFormID === '') { //empty if on form browser page
+            if (newIndicator === true) {
                 this.showCertificationStatus = true;
                 this.fetchLEAFSRequests(false).then(unresolvedLeafSRequests => {
-                    if (this.focusedFormID === '') {
-                        if (Object.keys(unresolvedLeafSRequests).length === 0) { // if no new request, create one
-                            document.getElementById('secureStatus')?.setAttribute('innerText', 'Forms have been modified.');
-                            document.getElementById('secureBtn')?.setAttribute('innerText', 'Please Recertify Your Site');
-                            document.getElementById('secureBtn')?.setAttribute('href', '../report.php?a=LEAF_start_leaf_secure_certification');
-                        } else {
-                            const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
-                            document.getElementById('secureStatus')?.setAttribute('innerText', 'Re-certification in progress.');
-                            document.getElementById('secureBtn')?.setAttribute('innerText', 'Check Certification Progress');
-                            document.getElementById('secureBtn')?.setAttribute('href', '../index.php?a=printview&recordID=' + recordID);
-                        }
-
+                    if (Object.keys(unresolvedLeafSRequests).length === 0) { // if no new request, create one
+                        this.secureStatusText = 'Forms have been modified.';
+                        this.secureBtnText = 'Please Recertify Your Site';
+                        this.secureBtnLink = '../report.php?a=LEAF_start_leaf_secure_certification';
+                    } else {
+                        const recordID = unresolvedLeafSRequests[Object.keys(unresolvedLeafSRequests)[0]].recordID;
+                        this.secureStatusText = 'Re-certification in progress.';
+                        this.secureBtnText = 'Check Certification Progress';
+                        this.secureBtnLink = '../index.php?a=printview&recordID=' + recordID;
                     }
+                    
                 }).catch(err => console.log('an error has occurred', err));
             }
         },
