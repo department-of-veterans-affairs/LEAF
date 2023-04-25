@@ -35,8 +35,3 @@ LEAF_Request_Portal/UPLOADS
 /LEAF_Request_Portal/templates_c/mailer/
 
 docker/nginx/nginx.conf
-
-LEAF_Request_Portal/templates_history
-LEAF_Request_Portal/templates_history/email_templates
-LEAF_Request_Portal/templates_history/leaf_programmer
-LEAF_Request_Portal/templates_history/template_editor
