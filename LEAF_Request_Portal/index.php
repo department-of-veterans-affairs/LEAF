@@ -529,12 +529,12 @@ switch ($action) {
         $t_form->assign('inbox_status', 1);
         if (isset($settings['home_enabled']) && $settings['home_enabled'] == 1) {
             $t_form->assign('menuItems', $settings['home_menu_json']);
-            $main->assign('body', $t_form->fetch('custom_homepage.tpl'));
+            $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
         }
 
-        if ($action != 'menu' && $action != '' && $action != 'dosubmit' && $action != 'custom_homepage') {
+        if ($action != 'menu' && $action != '' && $action != 'dosubmit') {
             $main->assign('status', 'The page you are looking for does not exist or may have been moved. Please update your bookmarks.');
         }
 
