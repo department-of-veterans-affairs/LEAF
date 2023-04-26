@@ -269,7 +269,8 @@
                 .backgroundColor + '; border-right: 8px solid ' + site.backgroundColor +
                 '; border-bottom: 8px solid ' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
                 '<a name="' + hash + '" />' +
-                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
+                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' +
+                site
                 .backgroundColor + '; color: ' + site.fontColor + '; ">' + icon + ' ' + site.name + '</div>' +
                 '</div>');
         }
@@ -508,6 +509,7 @@
                         backgroundColor: site.color,
                         icon: site.icon,
                         fontColor: site.fontColor,
+                        cols: site.cols,
                         nonAdmin: true
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
