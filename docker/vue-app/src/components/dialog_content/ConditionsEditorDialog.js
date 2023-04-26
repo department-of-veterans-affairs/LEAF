@@ -305,9 +305,6 @@ export default {
                         },
                         success: (res)=> {
                             if (res !== 'Invalid Token.') {
-                                /* refetch works, but just updating the obj would be faster
-                                //TODO: update conditions of this ind on the form view formnode to update the UI
-                                const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
                                 this.selectNewCategory(this.vueData.formID, this.selectedNodeIndicatorID);
                                 this.closeFormDialog();
                             } else { console.log('error adding condition', res) }                          
@@ -326,24 +323,31 @@ export default {
          * 
          * @param {Object} data ({confirmDelete:boolean, condition:Object})
          */
-        removeCondition(data = {}) {  
+        removeCondition(data = {}) {
             this.selectConditionFromList(data.condition);
 
             if(data.confirmDelete === true) { //if user pressed delete btn on the confirm modal
                 const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
                 
                 if (childIndID !== undefined) {
-                    const hasActiveParentIndicator = this.indicators.some(ele => parseInt(ele.indicatorID) === parseInt(parentIndID));
+                    const hasActiveParentIndicator =
+                        selectedOutcome.toLowerCase() !== 'crosswalk' &&
+                        this.indicators.some(ele => parseInt(ele.indicatorID) === parseInt(parentIndID));
+
                     const conditionsJSON = JSON.stringify(data.condition);
 
                     //get all conditions on this child
-                    let currConditions = JSON.parse(this.indicators.find(i => parseInt(i.indicatorID) === parseInt(childIndID)).conditions) || [];
-                    //fixes issues due to data type changes after php8.
+                    let currConditions = JSON.parse(
+                        this.indicators.find(
+                            i => parseInt(i.indicatorID) === parseInt(childIndID)
+                        ).conditions) || [];
+
+                    //fixes issues due to data type and br tags after php8.
                     currConditions.forEach(c => {
                         c.childIndID = parseInt(c.childIndID);
                         c.parentIndID = parseInt(c.parentIndID);
+                        c.selectedChildValue = XSSHelpers.stripAllTags(c.selectedChildValue);
                     });
- 
                     //filter out the condition to be rm'd from the indicator's currConditions
                     let newConditions = [];
                     if(hasActiveParentIndicator) {
@@ -364,9 +368,6 @@ export default {
                         success: (res)=> {
                             if (res !== 'Invalid Token.') {
                                 this.closeFormDialog()
-                                /*
-                                //TODO: update conditions of this ind on the form view formnode to update the UI
-                                const updatedConditions = (newConditions !== null) ? JSON.stringify(newConditions) : ''; */
                                 this.selectNewCategory(this.vueData.formID, this.selectedNodeIndicatorID);
 
                             } else { console.log('error removing condition', res) }
@@ -443,12 +444,40 @@ export default {
             }
         },
         /**
-         * returns true if the parentID of the condition is no longer in the list (due to archive or delete)
-         * @param {number} childIndID 
+         * returns true if the outcome is not a crosswalk and its parentIndID
+         * is no longer in the list of selectable parents (due to archive or delete)
+         * @param {object} condition 
          * @returns {boolean}
          */
-        isOrphan(childIndID = 0) {
-            return !this.selectableParents.some(p => parseInt(p.indicatorID) === childIndID);
+        isOrphan(condition = {}) {
+            const indID = condition?.parentIndID || 0;
+            const outcome = condition.selectedOutcome.toLowerCase();
+            return outcome !== 'crosswalk' && !this.selectableParents.some(p => parseInt(p.indicatorID) === indID);
+        },
+        /**
+         * @param {String} conditionType
+         * @returns {String}
+         */
+        listHeaderText(conditionType = '') {
+            const type = conditionType.toLowerCase();
+            let text = '';
+            switch(type) {
+                case 'show':
+                    text = 'This field will be hidden except:'
+                    break;
+                case 'hide':
+                    text = 'This field will be shown except:'
+                    break;
+                case 'prefill':
+                    text = 'This field will be pre-filled:'
+                    break;
+                case 'crosswalk':
+                    text = 'This field has loaded dropdown(s)'
+                    break;
+                default:
+                    break;
+            }
+            return text;
         },
         /**
          * @param {Object} condition 
@@ -516,10 +545,10 @@ export default {
     computed: {
         showSetup() {
             return  !this.showRemoveConditionModal && this.showConditionEditor &&
-                (this.selectedChildOutcome.toLowerCase() === 'crosswalk' || this.selectableParents.length > 0);
+                (this.selectedChildOutcome === 'crosswalk' || this.selectableParents.length > 0);
         },
         showNoOptionsMessage() {
-            return !['', 'crosswalk'].includes(this.selectedChildOutcome.toLowerCase()) && this.selectableParents.length < 1;
+            return !['', 'crosswalk'].includes(this.selectedChildOutcome) && this.selectableParents.length < 1;
         },
         /**
          * @returns {string} lower case base format of the parent question
@@ -630,110 +659,49 @@ export default {
         }
     },
     template: `<div id="condition_editor_center_panel">
+            <!-- LOADING SPINNER -->
             <div v-if="appIsLoadingIndicators" style="border: 2px solid black; text-align: center; 
                 font-size: 24px; font-weight: bold; padding: 16px;">
                 Loading... 
                 <img src="../images/largespinner.gif" alt="loading..." />
             </div>
-            <!-- NOTE: MAIN EDITOR TEMPLATE -->
+            <!-- INPUT AREA -->
             <div v-else id="condition_editor_inputs">
                 <div>
+                    <!-- LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0 && !showRemoveConditionModal" id="savedConditionsLists">
-                        <!-- NOTE: SHOW LIST -->
-                        <template v-if="conditionTypes.show.length > 0">
-                            <p style="margin-bottom: 0.5rem;"><b>This field will be hidden except:</b></p>
-                            <ul>
-                                <li v-for="c in conditionTypes.show" :key="c" class="savedConditionsCard">
-                                    <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                        :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
-                                        <span v-if="!isOrphan(parseInt(c.parentIndID))">
-                                            If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                            {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                                            then show this question.
-                                            <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
-                                            The format of this question has changed.  
-                                            Please review and save it to update</span>
-                                        </span>
-                                        <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
-                                    </button>
-                                    <button type="button" style="width: 1.75em;"
-                                    class="btn_remove_condition"
-                                    @click="removeCondition({confirmDelete: false, condition: c})">X
-                                    </button>
-                                </li>
-                            </ul>
-                        </template>
-                        <!-- NOTE: HIDE LIST -->
-                        <template v-if="conditionTypes.hide.length > 0">
-                            <p style="margin-bottom: 0.5rem;"><b>This field will be shown except:</b></p>
-                            <ul>
-                                <li v-for="c in conditionTypes.hide" :key="c" class="savedConditionsCard">
-                                    <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                        :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
-                                        <span v-if="!isOrphan(parseInt(c.parentIndID))">
-                                            If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                            {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                                            then hide this question.
-                                            <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
-                                            The format of this question has changed.  
-                                            Please review and save it to update</span>
-                                        </span>
-                                        <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
-                                    </button>
-                                    <button  type="button" style="width: 1.75em;"
-                                    class="btn_remove_condition"
-                                    @click="removeCondition({confirmDelete: false, condition: c})">X
-                                    </button>
-                                </li>
-                            </ul>
-                        </template>
-                        <!-- NOTE: PREFILL LIST -->
-                        <template v-if="conditionTypes.prefill.length > 0">
-                            <p style="margin-bottom: 0.5rem;"><b>This field will be pre-filled:</b></p>
-                            <ul>
-                                <li v-for="c in conditionTypes.prefill" :key="c" class="savedConditionsCard">
-                                    <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                        :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(parseInt(c.parentIndID))}">
-                                        <span v-if="!isOrphan(parseInt(c.parentIndID))">
-                                            If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                            {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                                            then this question will be <strong>{{ textValueDisplay(c.selectedChildValue) }}</strong>
-                                            <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
-                                            The format of this question has changed.  
-                                            Please review and save it to update</span>
-                                        </span>
-                                        <span v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</span>
-                                    </button>
-                                    <button type="button" style="width: 1.75em;"
-                                        class="btn_remove_condition"
-                                        @click="removeCondition({confirmDelete: false, condition: c})">X
-                                    </button>
-                                </li>
-                            </ul>
-                        </template>
-                        <!-- NOTE: CROSSWALK LIST -->
-                        <template v-if="conditionTypes.crosswalk.length > 0">
-                            <p><b>This field has loaded dropdown(s)</b></p>
-                            <ul style="margin-bottom: 1.5rem;">
-                                <li v-for="c in conditionTypes.crosswalk" :key="c" class="savedConditionsCard">
-                                    <button @click="selectConditionFromList(c)" class="btnSavedConditions"
-                                        :class="{selectedConditionEdit: JSON.stringify(c)===editingCondition}">
-                                        <span>
-                                            Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b>
-                                            <span v-if="childFormatChangedSinceSave(c)" class="changesDetected"><br/>
-                                            The format of this question has changed.
-                                            Please review and save it to update</span>
-                                        </span>
-                                    </button>
-                                    <button style="width: 1.75em;"
-                                    class="btn_remove_condition"
-                                    @click="removeCondition({confirmDelete: false, condition: c})">X
-                                    </button>
-                                </li>
-                            </ul>
+                        <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
+                            <template v-if="typeVal.length > 0">
+                                <p><b>{{ listHeaderText(typeKey) }}</b></p>
+                                <ul style="margin-bottom: 1rem;">
+                                    <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
+                                        <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                            :class="{selectedConditionEdit: JSON.stringify(c) === editingCondition, isOrphan: isOrphan(c)}">
+                                            <template v-if="!isOrphan(c)">
+                                                <div style="text-align: left">
+                                                    <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
+                                                        If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
+                                                        {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                                        then {{c.selectedOutcome}} this question.
+                                                    </div>
+                                                    <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
+                                                    <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
+                                                        This question's format has changed.  Please review and save to update it
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived or deleted.</div>
+                                        </button>
+                                        <button type="button" style="width: 1.75em;" class="btn_remove_condition"
+                                            @click="removeCondition({confirmDelete: false, condition: c})">X
+                                        </button>
+                                    </li>
+                                </ul>
+                            </template>
                         </template>
                     </div>
                     <button v-if="!showRemoveConditionModal" type="button" @click="newCondition" class="btnNewCondition">+ New Condition</button>
+                    <!-- DELETION DIALOG -->
                     <div v-if="showRemoveConditionModal">
                         <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                         <ul style="display: flex; justify-content: space-between; margin-top: 1em">
@@ -791,11 +759,9 @@ export default {
                             :value="textValueDisplay(conditions.selectedChildValue)" />
                     </template>
                 </div>
-
-
                 <div v-if="showSetup" class="if-then-setup">
                     <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                        <h4 style="margin: 0;">IF</h4>
+                        <h3 style="margin: 0;">IF</h3>
                         <div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
                             <select title="select an indicator" 
@@ -874,12 +840,12 @@ export default {
                 </div>
                 <div v-if="conditionComplete">
                     <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                        <h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
+                        <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(vueData.indicatorID)}}'
                         <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                        <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+                        <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
                         </span>
                         <span v-else>will 
-                            <span style="color: #00A91C; font-weight: bold;">
+                            <span style="color: #008010; font-weight: bold;">
                             be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
                             </span>
                         </span>
