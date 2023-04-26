@@ -37,9 +37,14 @@
         });
     });
 
-    const loadSiteCols = (site) => new Promise((resolve, reject) => {
-        let
+    const loadSiteCols = (sites) => new Promise((resolve, reject) => {
+        let buf = [];
         // for each site, show each column and process as html in separate array
+        sites.forEach(site => {
+            site.cols.forEach(col => {
+
+            });
+        });
     });
 
     const loadSiteColPreview = (siteCols) => new Promise((resolve, reject) => {
