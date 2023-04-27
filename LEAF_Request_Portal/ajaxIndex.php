@@ -28,7 +28,7 @@ if ($login)
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
     date_default_timezone_set($settings['timeZone']);
