@@ -383,6 +383,29 @@
         justify-items: center;
         align-items: center;
     }
+
+    .compared-label-content {
+        width: 100%;
+        display: none;
+        justify-content: space-evenly;
+        align-items: center;
+
+    }
+
+    .CodeMirror-merge-pane-label {
+        width: 45%;
+        text-align: center;
+        font-weight: bold;
+        padding: 10px 0;
+    }
+
+    .CodeMirror-merge-pane-label:nth-child(1) {
+        color: #9f0000;
+    }
+
+    .CodeMirror-merge-pane-label:nth-child(2) {
+        color: #083;
+    }
 </style>
 
 <div class="leaf-center-content">
@@ -431,6 +454,10 @@
                 </div>
                 <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</div>
                 <div id="divCode" style="border: 1px solid black">
+                    <div class="compared-label-content">
+                        <div class="CodeMirror-merge-pane-label">(File being compared)</div>
+                        <div class="CodeMirror-merge-pane-label">(Current file)</div>
+                    </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
@@ -869,6 +896,7 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
+                $(".compared-label-content").css("display", "flex");
                 var filePath = '';
                 var fileParentFile = '';
                 for (var i = 0; i < res.length; i++) {
@@ -882,24 +910,28 @@
                         success: function(fileContent) {
                             codeEditor = CodeMirror.MergeView(document.getElementById(
                                 "codeCompare"), {
-                                value: fileContent.replace(/\r\n/g, "\n"),
-                                origLeft: currentFileContent.replace(/\r\n/g, "\n"),
+                                value: currentFileContent.replace(/\r\n/g, "\n"),
+                                origLeft: fileContent.replace(/\r\n/g, "\n"),
                                 lineNumbers: true,
                                 mode: 'htmlmixed',
                                 collapseIdentical: true,
                                 lineWrapping: true, // initial value
                                 autoFormatOnStart: true,
-                                autoFormatOnMode: true
+                                autoFormatOnMode: true,
+                                leftTitle: "Current File",
+                                rightTitle: "Comparison File"
                             });
                             updateEditorSize();
                             $('.CodeMirror-linebackground').css({
                                 'background-color': '#8ce79b !important'
                             });
                             $('.file_replace_file_btn').click(function() {
-                                var changedLines = codeEditor.editor().lineCount();
+                                var changedLines = codeEditor.leftOriginal()
+                                    .lineCount();
                                 var mergedContent = "";
                                 for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.editor().getLine(i);
+                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
                                     }
@@ -970,6 +1002,7 @@
     }
 
     function exitExpandScreen() {
+        $(".compared-label-content").css("display", "none");
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();
         $('.page-title-container>.close_expand_mode_screen').hide();

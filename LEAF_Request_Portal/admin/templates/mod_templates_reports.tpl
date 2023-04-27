@@ -358,6 +358,29 @@
         overflow: auto;
         margin: 0 auto;
     }
+
+    .compared-label-content {
+        width: 100%;
+        display: none;
+        justify-content: space-evenly;
+        align-items: center;
+
+    }
+
+    .CodeMirror-merge-pane-label {
+        width: 45%;
+        text-align: center;
+        font-weight: bold;
+        padding: 10px 0;
+    }
+
+    .CodeMirror-merge-pane-label:nth-child(1) {
+        color: #9f0000;
+    }
+
+    .CodeMirror-merge-pane-label:nth-child(2) {
+        color: #083;
+    }
 </style>
 
 <div class="leaf-center-content">
@@ -381,11 +404,14 @@
         </div>
 
         <main id="codeArea" class="main-content">
-
             <div id="codeContainer" class="leaf-code-container">
                 <div id="filename"></div>
                 <div id="reportURL"></div>
                 <div>
+                    <div class="compared-label-content">
+                        <div class="CodeMirror-merge-pane-label">(File being compared)</div>
+                        <div class="CodeMirror-merge-pane-label">(Current file)</div>
+                    </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
@@ -620,6 +646,7 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
+                $(".compared-label-content").css("display", "flex");
                 var filePath = '';
                 var fileParentFile = '';
                 for (var i = 0; i < res.length; i++) {
@@ -640,17 +667,21 @@
                                 collapseIdentical: true,
                                 lineWrapping: true, // initial value
                                 autoFormatOnStart: true,
-                                autoFormatOnMode: true
+                                autoFormatOnMode: true,
+                                leftTitle: "Current File",
+                                rightTitle: "Comparison File"
                             });
                             updateEditorSize();
                             $('.CodeMirror-linebackground').css({
                                 'background-color': '#8ce79b !important'
                             });
                             $('.file_replace_file_btn').click(function() {
-                                var changedLines = codeEditor.editor().lineCount();
+                                var changedLines = codeEditor.leftOriginal()
+                                    .lineCount();
                                 var mergedContent = "";
                                 for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.editor().getLine(i);
+                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
                                     }
@@ -719,6 +750,7 @@
     }
 
     function exitExpandScreen() {
+        $(".compared-label-content").css("display", "none");
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();
         $('.page-title-container>.close_expand_mode_screen').hide();
