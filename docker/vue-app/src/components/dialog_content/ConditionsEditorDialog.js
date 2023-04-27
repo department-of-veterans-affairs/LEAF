@@ -63,9 +63,11 @@ export default {
                     const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
                     this.indicators = filteredList;
                     this.indicators.forEach(i => { 
-                        if (i.parentIndicatorID !== null) { //no need to check headers themselves
-                            this.crawlParents(i,i);
-                        }    
+                        if (i.parentIndicatorID !== null) {
+                            this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
+                        } else {
+                            i.headerIndicatorID = parseInt(i.indicatorID);
+                        }
                     });
                     this.appIsLoadingIndicators = false;
                     this.updateSelectedChildIndicator();
@@ -81,10 +83,10 @@ export default {
          * @returns 
          */
         updateSelectedParentIndicator(indicatorID = 0) {
-            //get rid of possible multiselect choices instance and reset parent comparison value
+            //get rid of possible multiselect choices instance and parent comparison value
             const elSelectParent = document.getElementById('parent_compValue_entry');
             if(elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
-            this.selectedParentValue = '';  
+            this.selectedParentValue = ''; 
             
             const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
             //if it's archived/deleted just return, otherwise update values
@@ -92,24 +94,14 @@ export default {
                 return;
 
             } else {
+                this.selectedParentIndicator = {...indicator};
 
                 let formatNameAndOptions = indicator.format.split("\n");  //format field has the format name followed by options, separator is \n
                 let valueOptions = formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
                 valueOptions = valueOptions.map(o => o.trim());  //there are sometimes carriage returns in the array
-
-                this.selectedParentIndicator = {...indicator};
                 this.selectedParentValueOptions = valueOptions.filter(vo => vo !== '');
 
                 switch(this.parentFormat) {
-                    case 'number':
-                    case 'currency':
-                        this.selectedParentOperators = [
-                            {val:"==", text: "is equal to"},
-                            {val:"!=", text: "is not equal to"},
-                            {val:">", text: "is greater than"},
-                            {val:"<", text: "is less than"},
-                        ];
-                        break;
                     case 'multiselect':
                     case 'checkboxes':
                         this.selectedParentOperators = [
@@ -124,28 +116,8 @@ export default {
                             {val:"!=", text: "is not"}
                         ];
                         break;
-                    case 'checkbox':
-                        this.selectedParentOperators = [
-                            {val:"==", text: "is checked"},
-                            {val:"!=", text: "is not checked"}
-                        ];
-                        break;
-                    case 'date':
-                        this.selectedParentOperators = [
-                            {val:"==", text: "on"},
-                            {val:">=", text: "on and after"},
-                            {val:"<=", text: "on and before"}
-                        ];
-                        break;
-                    case 'orgchart_employee':
-                    case 'orgchart_group':
-                    case 'orgchart_position':
-                        break;
                     default:
-                        this.selectedParentOperators = [
-                            {val:"LIKE", text: "contains"},
-                            {val:"NOT LIKE", text:"does not contain"}
-                        ];
+                        this.selectedParentOperators = [];
                         break;
                 }
             }
@@ -223,16 +195,20 @@ export default {
                 );
             });
         },
-        crawlParents(indicator = {}, initialIndicator = {}) { //ind to get parentID from, 
-            const parentIndicatorID = parseInt(indicator.parentIndicatorID);
-            const parent = this.indicators.find(i => parseInt(i.indicatorID) === parentIndicatorID);
-
-            if (parent===undefined || parent.parentIndicatorID===null) {
-                //add information about the headerIndicatorID to the indicators
-                let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === parseInt(initialIndicator.indicatorID));
-                indToUpdate.headerIndicatorID = parentIndicatorID;
+        /**
+         * Recursively searches indicators to add headerIndicatorID to the indicators list.
+         * The headerIndicatorID is used to track which indicators are on the same page.
+         * @param {Number} indID parent ID of indicator at the current depth
+         * @param {Object} initialIndicator reference to the indicator to update
+         */
+        addHeaderIDs(indID = 0, initialIndicator = {}) {
+            const parent = this.indicators.find(i => parseInt(i.indicatorID) === indID);
+            if(parent === undefined) return;
+            //if the parent has a null parentID, then this is the header, update the passed reference
+            if (parent?.parentIndicatorID === null) {
+                initialIndicator.headerIndicatorID = indID;
             } else {
-                this.crawlParents(parent, initialIndicator);
+                this.addHeaderIDs(parseInt(parent.parentIndicatorID), initialIndicator);
             }
         },
         newCondition() {
@@ -255,10 +231,10 @@ export default {
         },
         postConditions(addSelected = true) {
             if (this.conditionComplete || addSelected === false) {
-                //copy of all conditions on child, rm the selected one using stored JSON val
+                //copy of all conditions on child, and filter using stored JSON val
                 let currConditions = [...this.savedConditions];
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
-                //clean up some possible data type issues after php8 and br tags.
+                //clean up some possible data type issues after php8 and br tags before saving.
                 newConditions.forEach(c => {
                     c.childIndID = parseInt(c.childIndID);
                     c.parentIndID = parseInt(c.parentIndID);
@@ -266,7 +242,7 @@ export default {
                     c.selectedParentValue = XSSHelpers.stripAllTags(c.selectedParentValue);
                 });
 
-                //if adding new conditions, confirm that it is unique
+                //if adding, confirm new conditions is unique
                 const newConditionJSON = JSON.stringify(this.conditions);
                 const newConditionIsUnique = newConditions.every(c => JSON.stringify(c) !== newConditionJSON);
                 if (addSelected === true && newConditionIsUnique) {
@@ -297,12 +273,11 @@ export default {
          * @param {Object} data ({confirmDelete:boolean, condition:Object})
          */
         removeCondition(data = {}) {
-            this.selectConditionFromList(data.condition);
-
-            if(data.confirmDelete === true) { //delete btn on the confirm modal
+            if(data.confirmDelete === true) { //delete btn confirm modal
                 this.postConditions(false);
              
-            } else { //X button in a conditions list opens the confirm delete modal
+            } else { //X button select and open the confirm delete modal
+                this.selectConditionFromList(data.condition);
                 this.showRemoveModal = true;
             }
         },
@@ -312,23 +287,17 @@ export default {
         selectConditionFromList(conditionObj = {}) {
             this.selectedConditionJSON = JSON.stringify(conditionObj);
 
-            if(conditionObj.selectedOutcome.toLowerCase() !== "crosswalk") { //crosswalks do not have parents
-                this.updateSelectedParentIndicator(parseInt(conditionObj?.parentIndID));
-            } else {
-                this.selectedParentIndicator = {};
-            }
-
-            //rm possible child choicesjs instance associated with prior list item
-            const elSelectChild = document.getElementById('child_prefill_entry');
-            if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
-
+            this.updateSelectedParentIndicator(parseInt(conditionObj?.parentIndID || 0));
             this.selectedOperator = conditionObj?.selectedOp || '';
+            this.selectedChildOutcome = conditionObj?.selectedOutcome || '';
             this.selectedParentValue = conditionObj?.selectedParentValue || '';
-            this.selectedChildOutcome = conditionObj?.selectedOutcome.toLowerCase();
-            this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue);
+            this.selectedChildValue = conditionObj?.selectedChildValue || '';
             this.crosswalkFile = conditionObj?.crosswalkFile || '';
             this.crosswalkHasHeader = conditionObj?.crosswalkHasHeader || false;
             this.level2IndID = conditionObj?.level2IndID || null;
+            //rm possible child choicesjs instance associated with prior list item
+            const elSelectChild = document.getElementById('child_prefill_entry');
+            if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
             this.showConditionEditor = true;
         },
         /**
@@ -354,17 +323,19 @@ export default {
         getOperatorText(condition = {}) {
             const op = condition.selectedOp;
             const parFormat = condition.parentFormat.toLowerCase();
+            let text = '';
             switch(op){
                 case '==':
-                    return this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
+                    text = this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
+                    break;
                 case '!=':
-                    return 'is not';
-                case '>':
-                    return 'is greater than';
-                case '<':
-                    return 'is less than';    
-                default: return op;
+                    text = 'is not';
+                    break;
+                default:
+                    text = op;
+                    break;z
             }
+            return text;
         },
         /**
          * returns true if the outcome is not a crosswalk and its parentIndID
@@ -373,7 +344,7 @@ export default {
          * @returns {boolean}
          */
         isOrphan(condition = {}) {
-            const indID = condition?.parentIndID || 0;
+            const indID = parseInt(condition?.parentIndID || 0);
             const outcome = condition.selectedOutcome.toLowerCase();
             return outcome !== 'crosswalk' && !this.selectableParents.some(p => parseInt(p.indicatorID) === indID);
         },
@@ -407,12 +378,12 @@ export default {
          * @returns {boolean}
          */
         childFormatChangedSinceSave(condition = {}) {
-            const childConditionFormat = condition.childFormat;
-            const currentIndicatorFormat = this.childIndicator?.format?.split('\n')[0];
+            const childConditionFormat = condition.childFormat.toLowerCase();
+            const currentIndicatorFormat = this.childFormat;
             return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
         },
         /**
-         * called when the app updates if the outcome is selected.  Creates choicejs combobox instances for multiselect format select boxes
+         * called if the app updates to create choicejs combobox instances for multi option formats if needed
          */
         updateChoicesJS() {
             const elExistingChoicesChild = document.querySelector('#outcome-editor > div.choices');
@@ -424,7 +395,7 @@ export default {
             const outcome = this.conditions.selectedOutcome;
            
             if(this.multiOptionFormats.includes(parentFormat) && elSelectParent !== null && !elSelectParent.choicesjs) {
-                let arrValues = this.conditions?.selectedParentValue.split('\n') || [];
+                let arrValues = this.conditions.selectedParentValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
 
                 let options = this.selectedParentValueOptions || [];
@@ -443,7 +414,7 @@ export default {
             }
 
             if(outcome === 'pre-fill' && this.multiOptionFormats.includes(childFormat) && elSelectChild !== null && elExistingChoicesChild === null) {
-                let arrValues = this.conditions?.selectedChildValue.split('\n') || [];
+                let arrValues = this.conditions.selectedChildValue.split('\n') || [];
                 arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
                 
                 let options = this.selectedChildValueOptions || [];
@@ -470,14 +441,14 @@ export default {
             return  !this.showRemoveModal && this.showConditionEditor &&
                 (this.selectedChildOutcome === 'crosswalk' || this.selectableParents.length > 0);
         },
-        showNoOptionsMessage() {
+        noOptions() {
             return !['', 'crosswalk'].includes(this.selectedChildOutcome) && this.selectableParents.length < 1;
         },
         childIndicator() {
             return this.indicators.find(i => parseInt(i.indicatorID) === this.formIndicatorID);
         },
         /**
-         * @returns {string} lower case base format of the parent question
+         * @returns {string} lower case base format of the parent question if there is one
          */
         parentFormat() {
             if(this.selectedParentIndicator?.format) {
@@ -489,23 +460,21 @@ export default {
          * @returns {string} lower case base format of the child question
          */
         childFormat() {
-            if(this.childIndicator?.format){
-                const f = this.childIndicator.format.toLowerCase();
-                return f.split('\n')[0].trim();
-            } else return '';
+            const f = this.childIndicator.format.toLowerCase();
+            return f.split('\n')[0].trim();
         },
         canAddCrosswalk() {
             return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
         },
         /**
-         * @returns {Object} current conditions object
+         * @returns {Object} current conditions object, properties to lower and tags removed as needed
          */
         conditions() {
             return {
                 childIndID: parseInt(this.childIndicator?.indicatorID || 0),
                 parentIndID: parseInt(this.selectedParentIndicator?.indicatorID || 0),
                 selectedOp: this.selectedOperator, 
-                selectedParentValue: this.selectedParentValue,
+                selectedParentValue: XSSHelpers.stripAllTags(this.selectedParentValue),
                 selectedChildValue: XSSHelpers.stripAllTags(this.selectedChildValue),
                 selectedOutcome: this.selectedChildOutcome.toLowerCase(),
                 crosswalkFile: this.crosswalkFile,
@@ -531,26 +500,28 @@ export default {
             } = this.conditions;
 
             let returnValue = false;
-            switch(selectedOutcome) {
-            case 'pre-fill':
-                returnValue = childIndID !== 0
-                            && parentIndID !== 0
-                            && selectedOp !== ""
-                            && selectedParentValue !== ""
-                            && selectedChildValue !== "";
-                break;
-            case 'hide':
-            case 'show':
-                returnValue = childIndID !== 0
-                            && parentIndID !== 0
-                            && selectedOp !== ""
-                            && selectedParentValue !== "";
-                break;
-            case 'crosswalk':
-                returnValue = crosswalkFile !== "";
-                break;
-            default:
-                break;
+            if (!this.showRemoveModal) { //don't bother w this logic if showing delete view
+                switch(selectedOutcome) {
+                    case 'pre-fill':
+                        returnValue = childIndID !== 0
+                                    && parentIndID !== 0
+                                    && selectedOp !== ""
+                                    && selectedParentValue !== ""
+                                    && selectedChildValue !== "";
+                        break;
+                    case 'hide':
+                    case 'show':
+                        returnValue = childIndID !== 0
+                                    && parentIndID !== 0
+                                    && selectedOp !== ""
+                                    && selectedParentValue !== "";
+                        break;
+                    case 'crosswalk':
+                        returnValue = crosswalkFile !== "";
+                        break;
+                    default:
+                        break;
+                }
             }
             //btn is part of the LEAF modal
             const elSave = document.getElementById('button_save');
@@ -595,7 +566,7 @@ export default {
             <!-- INPUT AREA -->
             <div v-else id="condition_editor_inputs">
                 <div>
-                    <!-- LISTS BY CONDITION TYPE -->
+                    <!-- NOTE: LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0 && !showRemoveModal" id="savedConditionsLists">
                         <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
                             <template v-if="typeVal.length > 0">
@@ -634,7 +605,7 @@ export default {
                         <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                             <li style="width: 30%;">
                                 <button type="button" class="btn_remove_condition"
-                                @click="removeCondition({confirmDelete: true, condition: JSON.parse(selectedConditionJSON) })">
+                                    @click="removeCondition({confirmDelete: true, condition: {}})">
                                     Delete
                                 </button>
                             </li>
@@ -648,7 +619,6 @@ export default {
                     <!-- NOTE: OUTCOME SELECTION -->
                     <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
                     <select v-if="conditions.childIndID" title="select outcome"
-                            name="child-outcome-selector"
                             @change="updateSelectedOutcome($event.target.value)">
                             <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option> 
                             <option value="show" :selected="conditions.selectedOutcome === 'show'">Hide this question except ...</option>
@@ -660,11 +630,10 @@ export default {
                                 value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown or Crosswalk
                             </option>
                     </select>
-                    <template v-if="!showNoOptionsMessage">
+                    <template v-if="!noOptions">
                         <span v-if="conditions.selectedOutcome === 'pre-fill'" class="input-info">Enter a pre-fill value</span>
-                        <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
+                        <!-- NOTE: PRE-FILL ENTRY AREA -->
                         <select v-if="conditions.selectedOutcome === 'pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
-                            name="child-prefill-value-selector"
                             id="child_prefill_entry"
                             @change="updateSelectedChildValue($event.target)">
                             <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>
@@ -680,7 +649,6 @@ export default {
                             multiple="true"
                             id="child_prefill_entry"
                             style="display: none;"
-                            name="child-prefill-value-selector"
                             @change="updateSelectedChildValue($event.target)">
                         </select>
                         <input v-else-if="conditions.selectedOutcome === 'pre-fill' && (childFormat==='text' || childFormat==='textarea')" 
@@ -695,7 +663,6 @@ export default {
                         <div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
                             <select title="select an indicator" 
-                                    name="indicator-selector" 
                                     @change="updateSelectedParentIndicator($event.target.value)">
                                 <option v-if="!conditions.parentIndID" value="" selected>Select an Indicator</option>
                                 <option v-for="i in selectableParents" 
@@ -768,7 +735,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div v-if="conditionComplete && !showRemoveModal">
+                <div v-if="conditionComplete">
                     <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                         <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(formIndicatorID)}}'
                         <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
@@ -784,7 +751,7 @@ export default {
                         <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
                     </template>
                 </div>
-                <div v-if="showNoOptionsMessage">No options are currently available for this selection</div>
+                <div v-if="noOptions">No options are currently available for this selection</div>
             </div>
         </div>` 
 }
