@@ -42,8 +42,15 @@ class Config
 
         $this->title = $oc_settings['heading'];
         $this->city = $oc_settings['subheading'];
-        $this->adPath = $oc_settings['adPath'];
+        $this->adPath = $this->parseJson($oc_settings['adPath']);
         self::$uploadDir = $site_paths['site_uploads'];
-        self::$ERM_Sites = $oc_settings['ERM_Sites'];
+        self::$ERM_Sites = $this->parseJson($oc_settings['ERM_Sites']);
+    }
+
+    private function parseJson($data): string|array
+    {
+        $return_value = json_decode($data, true) ?? $data;
+
+        return $return_value;
     }
 }

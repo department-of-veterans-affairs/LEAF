@@ -50,14 +50,21 @@ class Config
 
         $this->title = $settings['heading'];
         $this->city = $settings['subHeading'];
-        $this->adPath = $settings['adPath'];
+        $this->adPath = $this->parseJson($settings['adPath']);
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
-        self::$orgchartImportTags = $settings['orgchartImportTags'];
+        self::$orgchartImportTags = $this->parseJson($settings['orgchartImportTags']);
         $this->descriptionID = $settings['descriptionID'];
         self::$emailPrefix = $settings['requestLabel'];
-        self::$emailCC = $settings['emailCC'];
-        self::$emailBCC = $settings['emailBCC'];
+        self::$emailCC = $this->parseJson($settings['emailCC']);
+        self::$emailBCC = $this->parseJson($settings['emailBCC']);
         $this->phonedbName = $site_paths['orgchart_database'];
+    }
+
+    private function parseJson($data): string|array
+    {
+        $return_value = json_decode($data, true) ?? $data;
+
+        return $return_value;
     }
 }
