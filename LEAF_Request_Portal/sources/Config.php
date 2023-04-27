@@ -53,7 +53,7 @@ class Config
         $this->adPath = $this->parseJson($settings['adPath']);
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
-        self::$orgchartImportTags = $this->parseJson($settings['orgchartImportTags']);
+        self::$orgchartImportTags = $this->parseJson($settings['orgchartImportTags'])[0];
         $this->descriptionID = $settings['descriptionID'];
         self::$emailPrefix = $settings['requestLabel'];
         self::$emailCC = $this->parseJson($settings['emailCC']);
