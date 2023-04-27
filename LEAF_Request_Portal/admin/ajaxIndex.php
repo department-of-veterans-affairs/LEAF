@@ -18,7 +18,7 @@ error_reporting(E_ERROR);
 require_once '../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
     date_default_timezone_set($settings['timeZone']);
@@ -139,7 +139,7 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
-            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))
             {
                 $tz = $settings['timeZone'];
@@ -223,7 +223,7 @@ switch ($action) {
         $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
 
         if($tz == null){
-            $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
             if(isset($settings['timeZone']))
             {
                 $tz = $settings['timeZone'];
