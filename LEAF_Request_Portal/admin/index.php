@@ -163,7 +163,7 @@ switch ($action) {
                                            $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-        $t_form->assign('orgchartImportTags', $settings['orgchartImportTags']);
+        $t_form->assign('orgchartImportTags', $settings['orgchartImportTags'][0]);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -429,7 +429,7 @@ switch ($action) {
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $settings['orgchartImportTags']);
+        $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -444,7 +444,7 @@ switch ($action) {
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $settings['orgchartImportTags']);
+            $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 
