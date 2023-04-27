@@ -62,12 +62,6 @@ export default {
                     const list = res;
                     const filteredList = list.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
                     this.indicators = filteredList;
-
-                    /* this.indicators.forEach(i => {
-                        if (i.parentIndicatorID === null){
-                            this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
-                        }
-                    }); //NOTE: keep for later use to make object for organization according to header */
                     this.indicators.forEach(i => { 
                         if (i.parentIndicatorID !== null) { //no need to check headers themselves
                             this.crawlParents(i,i);
@@ -93,70 +87,67 @@ export default {
             this.selectedParentValue = '';  
             
             const indicator = this.indicators.find(i => indicatorID !== null && parseInt(i.indicatorID) === parseInt(indicatorID));
-            //handle scenario if a parent is archived/deleted
+            //if it's archived/deleted just return, otherwise update values
             if(indicator === undefined) {
-                this.parentFound = false;
-                this.selectedDisabledParentID = indicatorID === 0 ? this.selectedDisabledParentID : parseInt(indicatorID);
                 return;
+
             } else {
-                this.parentFound = true;
-                this.selectedDisabledParentID = null;
-            }
 
-            let formatNameAndOptions = indicator.format.split("\n");  //format field has the format name followed by options, separator is \n
-            let valueOptions = formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
-            valueOptions = valueOptions.map(o => o.trim());  //there are sometimes carriage returns in the array
+                let formatNameAndOptions = indicator.format.split("\n");  //format field has the format name followed by options, separator is \n
+                let valueOptions = formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
+                valueOptions = valueOptions.map(o => o.trim());  //there are sometimes carriage returns in the array
 
-            this.selectedParentIndicator = {...indicator};
-            this.selectedParentValueOptions = valueOptions.filter(vo => vo !== '');
+                this.selectedParentIndicator = {...indicator};
+                this.selectedParentValueOptions = valueOptions.filter(vo => vo !== '');
 
-            switch(this.parentFormat) {
-                case 'number':
-                case 'currency':
-                    this.selectedParentOperators = [
-                        {val:"==", text: "is equal to"}, 
-                        {val:"!=", text: "is not equal to"},
-                        {val:">", text: "is greater than"},
-                        {val:"<", text: "is less than"},
-                    ];
-                    break;
-                case 'multiselect':
-                case 'checkboxes':
-                    this.selectedParentOperators = [
-                        {val:"==", text: "includes"}, 
-                        {val:"!=", text: "does not include"}
-                    ];
-                    break;                   
-                case 'dropdown':
-                case 'radio':
-                    this.selectedParentOperators = [
-                        {val:"==", text: "is"}, 
-                        {val:"!=", text: "is not"}
-                    ];
-                    break;
-                case 'checkbox':
-                    this.selectedParentOperators = [
-                        {val:"==", text: "is checked"}, 
-                        {val:"!=", text: "is not checked"}
-                    ];
-                    break;          
-                case 'date':
-                    this.selectedParentOperators = [
-                        {val:"==", text: "on"}, 
-                        {val:">=", text: "on and after"},
-                        {val:"<=", text: "on and before"}
-                    ];
-                    break;
-                case 'orgchart_employee':
-                case 'orgchart_group':  
-                case 'orgchart_position':
-                    break;  
-                default:
-                    this.selectedParentOperators = [
-                        {val:"LIKE", text: "contains"}, 
-                        {val:"NOT LIKE", text:"does not contain"}
-                    ]; 
-                    break;
+                switch(this.parentFormat) {
+                    case 'number':
+                    case 'currency':
+                        this.selectedParentOperators = [
+                            {val:"==", text: "is equal to"},
+                            {val:"!=", text: "is not equal to"},
+                            {val:">", text: "is greater than"},
+                            {val:"<", text: "is less than"},
+                        ];
+                        break;
+                    case 'multiselect':
+                    case 'checkboxes':
+                        this.selectedParentOperators = [
+                            {val:"==", text: "includes"},
+                            {val:"!=", text: "does not include"}
+                        ];
+                        break;
+                    case 'dropdown':
+                    case 'radio':
+                        this.selectedParentOperators = [
+                            {val:"==", text: "is"},
+                            {val:"!=", text: "is not"}
+                        ];
+                        break;
+                    case 'checkbox':
+                        this.selectedParentOperators = [
+                            {val:"==", text: "is checked"},
+                            {val:"!=", text: "is not checked"}
+                        ];
+                        break;
+                    case 'date':
+                        this.selectedParentOperators = [
+                            {val:"==", text: "on"},
+                            {val:">=", text: "on and after"},
+                            {val:"<=", text: "on and before"}
+                        ];
+                        break;
+                    case 'orgchart_employee':
+                    case 'orgchart_group':
+                    case 'orgchart_position':
+                        break;
+                    default:
+                        this.selectedParentOperators = [
+                            {val:"LIKE", text: "contains"},
+                            {val:"NOT LIKE", text:"does not contain"}
+                        ];
+                        break;
+                }
             }
         },
         /**
@@ -262,57 +253,12 @@ export default {
 
             if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         },
-        postCondition() {
-            const { childIndID } = this.conditions;
-            if (this.conditionComplete) {
-                const conditionsJSON = JSON.stringify(this.conditions);
-                //get a copy of all conditions on the child and rm the currently selected one using stored JSON val
+        postConditions(addSelected = true) {
+            if (this.conditionComplete || addSelected === false) {
+                //copy of all conditions on child, rm the selected one using stored JSON val
                 let currConditions = [...this.savedConditions];
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
-
-                //confirm that the new condition is unique and if it is add it to the new array
-                const isUnique = newConditions.every(c => JSON.stringify(c) !== conditionsJSON);
-                if (isUnique){
-                    newConditions.push(this.conditions);
-
-                    $.ajax({
-                        type: 'POST',
-                        url: `${this.APIroot}formEditor/${childIndID}/conditions`,
-                        data: {
-                            conditions: JSON.stringify(newConditions),
-                            CSRFToken: this.CSRFToken
-                        },
-                        success: (res)=> {
-                            if (res !== 'Invalid Token.') {
-                                this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
-                                this.closeFormDialog();
-                            } else { console.log('error adding condition', res) }                          
-                        },
-                        error:(err)=> {
-                            console.log(err);
-                        }
-                    });
-
-                } else {
-                    this.closeFormDialog();
-                }
-            }
-        },
-        /**
-         * 
-         * @param {Object} data ({confirmDelete:boolean, condition:Object})
-         */
-        removeCondition(data = {}) {
-            this.selectConditionFromList(data.condition);
-
-            if(data.confirmDelete === true) { //user pressed delete btn on the confirm modal
-                const { childIndID, parentIndID, selectedOutcome, selectedChildValue } = data.condition;
-
-                //copy of all conditions and rm all but the currently selected one using its stored JSON val
-                const currConditions = [...this.savedConditions];
-                let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
-
-                //clean up some possible data type issues after after php8 and br tags.
+                //clean up some possible data type issues after php8 and br tags.
                 newConditions.forEach(c => {
                     c.childIndID = parseInt(c.childIndID);
                     c.parentIndID = parseInt(c.parentIndID);
@@ -320,24 +266,41 @@ export default {
                     c.selectedParentValue = XSSHelpers.stripAllTags(c.selectedParentValue);
                 });
 
+                //if adding new conditions, confirm that it is unique
+                const newConditionJSON = JSON.stringify(this.conditions);
+                const newConditionIsUnique = newConditions.every(c => JSON.stringify(c) !== newConditionJSON);
+                if (addSelected === true && newConditionIsUnique) {
+                    newConditions.push(this.conditions);
+                }
+
                 $.ajax({
                     type: 'POST',
-                    url: `${this.APIroot}formEditor/${childIndID}/conditions`,
+                    url: `${this.APIroot}formEditor/${this.formIndicatorID}/conditions`,
                     data: {
                         conditions: newConditions.length > 0 ? JSON.stringify(newConditions) : '',
                         CSRFToken: this.CSRFToken
                     },
                     success: (res)=> {
                         if (res !== 'Invalid Token.') {
-                            this.closeFormDialog()
                             this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
-
-                        } else { console.log('error removing condition', res) }
+                            this.closeFormDialog();
+                        } else { console.log('error adding condition', res) }
                     },
-                    error: (err)=> {
+                    error:(err)=> {
                         console.log(err);
                     }
                 });
+            }
+        },
+        /**
+         *
+         * @param {Object} data ({confirmDelete:boolean, condition:Object})
+         */
+        removeCondition(data = {}) {
+            this.selectConditionFromList(data.condition);
+
+            if(data.confirmDelete === true) { //delete btn on the confirm modal
+                this.postConditions(false);
              
             } else { //X button in a conditions list opens the confirm delete modal
                 this.showRemoveModal = true;
@@ -355,14 +318,12 @@ export default {
                 this.selectedParentIndicator = {};
             }
 
-            if(this.parentFound && this.enabledParentFormats.includes(this.parentFormat)) {
-                this.selectedOperator = conditionObj?.selectedOp;
-                this.selectedParentValue = conditionObj?.selectedParentValue;
-            }
             //rm possible child choicesjs instance associated with prior list item
             const elSelectChild = document.getElementById('child_prefill_entry');
             if(elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
 
+            this.selectedOperator = conditionObj?.selectedOp || '';
+            this.selectedParentValue = conditionObj?.selectedParentValue || '';
             this.selectedChildOutcome = conditionObj?.selectedOutcome.toLowerCase();
             this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue);
             this.crosswalkFile = conditionObj?.crosswalkFile || '';
@@ -501,7 +462,7 @@ export default {
             }
         },
         onSave() {
-            this.postCondition();
+            this.postConditions(true);
         }
     },
     computed: {
@@ -672,7 +633,10 @@ export default {
                         <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                         <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                             <li style="width: 30%;">
-                                <button type="button" class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: conditions })">Delete</button>
+                                <button type="button" class="btn_remove_condition"
+                                @click="removeCondition({confirmDelete: true, condition: JSON.parse(selectedConditionJSON) })">
+                                    Delete
+                                </button>
                             </li>
                             <li style="width: 30%;">
                                 <button type="button" id="btn_cancel" @click="showRemoveModal=false">Cancel</button>
