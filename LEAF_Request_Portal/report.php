@@ -116,7 +116,7 @@ switch ($action) {
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
             $t_form->assign('currUserActualName', Leaf\XSSHelpers::xscrub($login->getName()));
-            $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
@@ -136,7 +136,7 @@ $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure'
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
-$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

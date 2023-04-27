@@ -46,13 +46,6 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
     }
 }
 
-if (class_exists('Portal\DbConfig')) {
-    $db_config = new Portal\DbConfig();
-    $config = new Portal\Config();
-}
-
-$oc_config = new Orgchart\Config();
-
 if (!empty($site_paths['portal_database'])){
     $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 } else {
@@ -61,7 +54,26 @@ if (!empty($site_paths['portal_database'])){
 
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
-unset($db_config);
+// get the settings for this portal
+$setting_up = new Leaf\Setting($db);
+$settings = $setting_up->getSettings();
+
+if (class_exists('Portal\DbConfig')) {
+    $db_config = new Portal\DbConfig();
+    $config = new Portal\Config();
+}
+
+$vars = array(':site_path' => $site_paths['orgchart_path']);
+$sql = 'SELECT site_uploads
+        FROM sites
+        WHERE site_path= BINARY :site_path';
+
+$oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
+
+$oc_setting_up = new Leaf\Setting($oc_db);
+$oc_settings = $oc_setting_up->getSettings();
+
+$oc_config = new Orgchart\Config();
 
 ini_set('session.gc_maxlifetime', 2592000);
 

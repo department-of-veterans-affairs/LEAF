@@ -1119,27 +1119,30 @@
             type: 'GET',
             url: '../api/workflow/userActions',
             success: function(res) {
-                let buffer = '';
-                buffer +=
-                    '<table id="actions" class="table" border="1"><caption><h2>List of Actions</h2></caption><thead><th scope="col">Action</th><th scope="col">Action (Past Tense)</th><th scope="col"></th></thead>';
+                let buffer =
+                    `<table id="actions" class="table" border="1">
+                        <caption><h2>List of Actions</h2></caption>
+                        <thead>
+                            <th scope="col">Action</th>
+                            <th scope="col">Action (Past Tense)</th>
+                            <th scope="col">Button Order</th>
+                            <th scope="col"></th>
+                        </thead>`;
 
                 for (let i in res) {
-                    buffer += '<tr>';
-                    buffer += '<td width="300px" id="' + res[i].actionType + '">' + res[i].actionText +
-                        '</td>';
-                    buffer += '<td width="300px" id="' + res[i].actionTextPasttense + '">' + res[i]
-                        .actionTextPasttense + '</td>';
-                    buffer += '<td width="150px" id="' + res[i].actionType +
-                        '"><button class="buttonNorm" onclick="editActionType(\'' + res[i].actionType +
-                        '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteActionType(\'' +
-                        res[i].actionType +
-                        '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
-                    buffer += '</tr>';
+                    buffer += `<tr><td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>`;
+                    buffer += `<td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>`;
+                    buffer += `<td width="100px">${res[i]?.sort || 0}</td>`;
+                    buffer += `<td width="150px" id="${res[i].actionType}">
+                        <button type="button" class="buttonNorm" onclick="editActionType('${res[i].actionType}')"
+                            style="background: blue;color: #fff;">Edit</button>
+                        <button type="button" class="buttonNorm" onclick="deleteActionType('${res[i].actionType}')"
+                            style="background: red;color: #fff;margin-left: 10px;">Delete</button>
+                        </td></tr>`;
                 }
 
                 buffer += '</table><br /> <br />';
-                buffer +=
-                    '<span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>';
+                buffer += '<span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>';
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
@@ -1161,6 +1164,55 @@
         });
     }
 
+    /**
+    * @param {Object} action
+    * @returns string template for action editing modal
+    */
+    function renderActionInputModal(action = {}) {
+        return `
+            <table style="margin-bottom:2rem;">
+                <tr>
+                    <td><span id="action_label">Action <span style="color: red">*Required</span></span></td>
+                    <td>
+                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red"
+                        value="${action?.actionText || ''}" aria-labelledby="action_label"/>
+                    </td>
+                    <td>eg: Approve</td>
+                </tr>
+                <tr>
+                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: red">*Required</span></span></td>
+                    <td>
+                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"
+                        value="${action?.actionTextPasttense || ''}" aria-labelledby="action_past_tense_label"/>
+                    </td>
+                    <td>eg: Approved</td>
+                </tr>
+                <tr>
+                    <td><span id="choose_icon_label">Icon</span></td>
+                    <td>
+                        <input id="actionIcon" type="text" maxlength="50"
+                        value="${action?.actionIcon || ''}" aria-labelledby="choose_icon_label"/>
+                    </td>
+                    <td>eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></td>
+                </tr>
+                <tr>
+                    <td><span id="action_sort_label">Button Order</span></td>
+                    <td>
+                        <input id="actionSortNumber" type="number" min="-128" max="127"
+                        value="${action?.sort || 0}" aria-labelledby="action_sort_label"/>
+                    </td>
+                    <td>lower numbers appear first</td>
+                </tr>
+            </table>
+            <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
+                Does this action represent moving forwards or backwards in the process?
+            </label>
+            <select id="fillDependency">
+                <option value="1">Forwards</option>
+                <option value="-1">Backwards</option>
+            </select><br />`
+    }
+
     //edit action type
     function editActionType(actionType) {
         dialog.hide();
@@ -1169,56 +1221,37 @@
         dialog.show();
 
         $.ajax({
-                type: 'GET',
-                url: '../api/workflow/action/_' + actionType,
-                success: function(res) {
-                    let buffer = '';
-
-                    buffer += '<table>\
-    		              <tr>\
-    		                  <td>Action <span style="color: red">*Required</span></td>\
-    		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="' +
-                        res[0].actionText +
-                        '"></input></td>\
-    		                  <td>eg: Approve</td>\
-    		              </tr>\
-    		              <tr>\
-                              <td>Action Past Tense <span style="color: red">*Required</span></td>\
-                              <td><input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="' +
-                        res[
-                            0].actionTextPasttense + '"></input></td>\
-                              <td>eg: Approved</td>\
-                          </tr>\
-                          <tr>\
-                              <td>Icon</td>\
-                              <td><input id="actionIcon" type="text" maxlength="50" value="' + res[0].actionIcon +
-                        '" ></input></td>\
-                              <td>eg: go-next.svg <a href="/libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
-                          </tr>\
-    		          </table>\
-    		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
-
-                    dialog.indicateIdle();
-                    dialog.setContent(buffer);
-                    $('#fillDependency').val(res[0].fillDependency);
-                    dialog.setSaveHandler(function() {
-                            $.ajax({
-                                    type: 'POST',
-                                    url: '../api/workflow/editAction/_' + actionType,
-                                    data: {actionText: $('#actionText').val(),
-                                    actionTextPasttense: $('#actionTextPasttense').val(),
-                                    actionIcon: $('#actionIcon').val(),
-                                    fillDependency: $('#fillDependency').val(),
-                                    CSRFToken: CSRFToken
-                                },
-                                success: function() {
-                                    listActionType();
-                                },
-                                fail: function(err) {
-                                    console.log(err);
-                                }
-                            }); dialog.hide();
-                    });
+            type: 'GET',
+            url: '../api/workflow/action/_' + actionType,
+            success: function(res) {
+                dialog.indicateIdle();
+                dialog.setContent(renderActionInputModal(res[0]));
+                $('#fillDependency').val(res[0].fillDependency);
+                dialog.setSaveHandler(function() {
+                    let sort = parseInt($('#actionSortNumber').val());
+                    sort = Number.isInteger(sort) ? sort : 0;
+                    sort = sort < -128 ? -128
+                         : sort > 127 ? 127
+                         : sort;
+                    $.ajax({
+                        type: 'POST',
+                        url: '../api/workflow/editAction/_' + actionType,
+                        data: {
+                            actionText: $('#actionText').val(),
+                            actionTextPasttense: $('#actionTextPasttense').val(),
+                            actionIcon: $('#actionIcon').val(),
+                            sort: sort,
+                            fillDependency: $('#fillDependency').val(),
+                            CSRFToken: CSRFToken
+                        },
+                        success: function() {
+                            listActionType();
+                        },
+                        fail: function(err) {
+                            console.log(err);
+                        }
+                    }); dialog.hide();
+                });
             },
             fail: function(err) {
                 console.log(err);
@@ -1255,37 +1288,24 @@
         dialog.setTitle('Create New Action Type');
         dialog.show();
 
-        let buffer =
-            '<table>\
-		              <tr>\
-		                  <td>Action <span style="color: red">*Required</span></td>\
-		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red"></input></td>\
-		                  <td>eg: Approve</td>\
-		              </tr>\
-		              <tr>\
-                          <td>Action Past Tense <span style="color: red">*Required</span></td>\
-                          <td><input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"></input></td>\
-                          <td>eg: Approved</td>\
-                      </tr>\
-                      <tr>\
-                          <td>Icon</td>\
-                          <td><input id="actionIcon" type="text" maxlength="50" value="go-next.svg"></input></td>\
-                          <td>eg: go-next.svg <a href="/libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
-                      </tr>\
-		          </table>\
-		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
-
         dialog.setSaveHandler(function() {
                 if ($('#actionText').val() == '' ||
                     $('#actionTextPasttense').val() == '') {
                     alert('Please fill out required fields.');
                 } else {
+                    let sort = parseInt($('#actionSortNumber').val());
+                    sort = Number.isInteger(sort) ? sort : 0;
+                    sort = sort < -128 ? -128
+                         : sort > 127 ? 127
+                         : sort;
                     $.ajax({
-                            type: 'POST',
-                            url: '../api/system/actions',
-                            data: {actionText: $('#actionText').val(),
+                        type: 'POST',
+                        url: '../api/system/actions',
+                        data: {
+                            actionText: $('#actionText').val(),
                             actionTextPasttense: $('#actionTextPasttense').val(),
                             actionIcon: $('#actionIcon').val(),
+                            sort: sort,
                             fillDependency: $('#fillDependency').val(),
                             CSRFToken: CSRFToken
                         },
@@ -1301,7 +1321,7 @@
             }
         });
 
-    dialog.setContent(buffer);
+        dialog.setContent(renderActionInputModal());
     }
 
     // connect 2 steps with an action
