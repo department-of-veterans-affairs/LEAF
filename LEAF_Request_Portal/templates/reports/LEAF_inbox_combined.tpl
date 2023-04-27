@@ -333,13 +333,15 @@
                 }
             });
         }
+        let customCols = [];
         if (customColumns == false) {
-            let customCols = [];
-            'UID,service,title,status'.split(',').forEach(col => {
-                customCols.push(headerDefinitions[col](site));
-            });
-            headers = customCols.concat(headers);
+            site.columns = 'UID,service,title,status';
         }
+        site.columns.split(',').forEach(col => {
+            customCols.push(headerDefinitions[col](site));
+        });
+
+        headers = customCols.concat(headers);
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + depID);
         formGrid.setRootURL(site.url);
