@@ -5,7 +5,7 @@ $BG-DarkNavy: #162e51;
 
 
 #condition_editor_center_panel {
-    min-width: 700px;
+    min-width: 600px;
     max-width: 900px;
     margin: auto;
     background-color: white;
@@ -21,14 +21,21 @@ $BG-DarkNavy: #162e51;
     #condition_editor_actions > div {
         padding-top: 1rem;
     }
-    div.if-then-setup {
+    div#if-then-setup {
         display: flex;
-        justify-content: space-between;
+        gap: 0 1rem;
+        border-bottom: 3px solid transparent;
         align-items: center;
 
-        > div:not(.crosswalks) {
-            display: inline-block;
+        > select {
             width: 30%;
+            margin: 0;
+        }
+        > div.crosswalks {
+            display:flex;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+            max-width:600px;
         }
     }
     select, input:not(.choices__input) {
@@ -202,6 +209,5 @@ $BG-DarkNavy: #162e51;
         width: 100%;
         min-width: 400px;
         border: 0;
-        padding-right: 1em;
     }
 }
