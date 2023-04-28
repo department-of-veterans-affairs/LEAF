@@ -81,7 +81,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
 }
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
@@ -108,13 +108,13 @@ switch ($action) {
                                            $site_paths['orgchart_path'] . '/js/groupSelector.js',
         ));
 
-        $settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+        //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
         $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
 
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
-        $t_form->assign('orgchartImportTag', $settings['orgchartImportTags']);
+        $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
@@ -163,7 +163,7 @@ switch ($action) {
                                            $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-        $t_form->assign('orgchartImportTags', $settings['orgchartImportTags']);
+        $t_form->assign('orgchartImportTags', $settings['orgchartImportTags'][0]);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -429,7 +429,7 @@ switch ($action) {
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $settings['orgchartImportTags']);
+        $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -444,7 +444,7 @@ switch ($action) {
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $settings['orgchartImportTags']);
+            $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 

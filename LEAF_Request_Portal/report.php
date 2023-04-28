@@ -54,7 +54,7 @@ $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
 
 $main->assign('useUI', false);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 foreach (array_keys($settings) as $key)
 {

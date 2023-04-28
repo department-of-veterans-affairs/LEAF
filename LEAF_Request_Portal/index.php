@@ -47,7 +47,7 @@ $main->assign('hideFooter', false);
 $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 if (isset($settings['timeZone'])) {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));

@@ -9,7 +9,7 @@ setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 require_once '../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 $settings['heading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
 $settings['subHeading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
