@@ -70,9 +70,9 @@ class VAMC_Directory_maintenance_AD
         try
         {
             $this->db = new \PDO(
-                "mysql:host=".DIRECTORY_HOST.";dbname={$config->phonedbName}",
-                            DIRECTORY_USER,
-                DIRECTORY_PASS,
+                "mysql:host=".\DIRECTORY_HOST.";dbname={$config->phonedbName}",
+                            \DIRECTORY_USER,
+                \DIRECTORY_PASS,
                 array(\PDO::ATTR_PERSISTENT => true)
             );
             unset($config);
