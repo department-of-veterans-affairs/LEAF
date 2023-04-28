@@ -11,6 +11,8 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+namespace Orgchart;
+
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -37,7 +39,7 @@ class VAMC_Directory_maintenance_AD
         try
         {
             $this->db = new PDO(
-                "mysql:host={\DIRECTORY_HOST};dbname={$config->dbName}",
+                "mysql:host=".\DIRECTORY_HOST.";dbname={$config->dbName}",
                             \DIRECTORY_USER,
                 \DIRECTORY_PASS,
                 array(PDO::ATTR_PERSISTENT => true)
