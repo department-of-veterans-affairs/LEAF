@@ -249,9 +249,9 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('subHeading', ''),
 ('timeZone', 'America/New_York'),
 ('version', '2240'),
-('adPath', ''),
-('emailBCC', ''),
-('emailCC', ''),
+('adPath', '{}'),
+('emailBCC', '{}'),
+('emailCC', '{}'),
 ('sitemap_json', '{"buttons":[]}'),
 ('emailPrefix', 'Resources: ');
 
