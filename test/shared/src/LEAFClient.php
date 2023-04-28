@@ -134,11 +134,11 @@ class LEAFClient
         // Due to how database access classes/configs are setup, these should be included/required
         // only within this function to prevent the same classes from being included more than once.
         // Requiring/including them within this function keeps their scope to just this function.
-        require_once '../../LEAF_Request_Portal/db_config.php';
-        require_once '../../LEAF_Request_Portal/db_mysql.php';
+        require_once __DIR__ . '/../../../LEAF_Request_Portal/globals.php';
+        require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-        $config = new \Config();
-        $db_phonebook = new \DB($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $config = new Config();
+        $db_phonebook = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $config->phonedbName);
         $cookieJar = $this->client->getConfig('cookies');
         $cookie = $cookieJar->getCookieByName('PHPSESSID');
         if (is_null($cookie))
