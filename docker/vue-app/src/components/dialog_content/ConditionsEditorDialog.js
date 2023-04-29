@@ -332,7 +332,7 @@ export default {
     },
     computed: {
         showSetup() {
-            return  !this.showRemoveModal && this.showConditionEditor && this.selectedOutcome &&
+            return  this.showConditionEditor && this.selectedOutcome &&
                 (this.selectedOutcome === 'crosswalk' || this.selectableParents.length > 0);
         },
         noOptions() {
@@ -523,177 +523,175 @@ export default {
     },
     template: `<div id="condition_editor_center_panel">
             <!-- LOADING SPINNER -->
-            <div v-if="appIsLoadingIndicators" style="border: 2px solid black; text-align: center; 
-                font-size: 24px; font-weight: bold; padding: 16px;">
-                Loading... 
-                <img src="../images/largespinner.gif" alt="loading..." />
+            <div v-if="appIsLoadingIndicators" id="loader_spinner">
+                Loading... <img src="../images/largespinner.gif" alt="loading..." />
             </div>
             <div v-else id="condition_editor_inputs">
                 <!-- NOTE: DELETION DIALOG -->
-                <div v-if="showRemoveModal">
+                <div v-if="showRemoveModal" style="margin-bottom: -0.75rem;">
                     <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
-                    <ul style="display: flex; justify-content: space-between; margin-top: 1em">
-                        <li style="width: 30%;">
-                            <button type="button" class="btn_remove_condition"
-                                @click="removeCondition({confirmDelete: true, condition: {}})">
-                                Delete
-                            </button>
-                        </li>
-                        <li style="width: 30%;">
-                            <button type="button" id="btn_cancel" @click="showRemoveModal=false">Cancel</button>
-                        </li>
-                    </ul>
-                </div>
-                <!-- NOTE: LISTS BY CONDITION TYPE -->
-                <div v-if="savedConditions.length > 0 && !showRemoveModal" id="savedConditionsLists">
-                    <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
-                        <template v-if="typeVal.length > 0">
-                            <p><b>{{ listHeaderText(typeKey) }}</b></p>
-                            <ul style="margin-bottom: 1rem;">
-                                <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
-                                    <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
-                                        :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
-                                        <div v-if="!isOrphan(c)" style="text-align: left">
-                                            <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
-                                                If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
-                                                then {{c.selectedOutcome}} this question.
-                                            </div>
-                                            <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
-                                            <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
-                                                This question's format has changed.  Please review and save to update it
-                                            </div>
-                                        </div>
-                                        <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
-                                    </button>
-                                    <button type="button" style="width: 1.75em;" class="btn_remove_condition"
-                                        @click="removeCondition({confirmDelete: false, condition: c})">X
-                                    </button>
-                                </li>
-                            </ul>
-                        </template>
-                    </template>
-                    <button type="button" @click="newCondition" class="btnNewCondition">+ New Condition</button>
-                </div>
-                <!-- NOTE: OUTCOME SELECTION and PREFILL AREAS -->
-                <div v-if="!showRemoveModal && showConditionEditor" id="outcome-editor">
-                    <span class="input-info">Select an outcome</span>
-                    <select title="select outcome" @change="updateSelectedOutcome($event.target.value)">
-                        <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option> 
-                        <option value="show" :selected="conditions.selectedOutcome === 'show'">Hide this question except ...</option>
-                        <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Show this question except ...</option>
-                        <option v-if="!noPrefillFormats.includes(childFormat)" 
-                            value="pre-fill" :selected="conditions.selectedOutcome === 'pre-fill'">Pre-fill this Question
-                        </option>
-                        <option v-if="canAddCrosswalk"
-                            value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown or Crosswalk
-                        </option>
-                    </select>
-                    <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
-                        <span class="input-info">Enter a pre-fill value</span>
-                        <select v-if="childFormat==='dropdown' || childFormat==='radio'"
-                            id="child_prefill_entry_single"
-                            @change="updateSelectedOptionValue($event.target, 'child')">
-                            <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>
-                            <option v-for="val in selectedChildValueOptions" 
-                                :value="val"
-                                :key="'child_prefill_' + val"
-                                :selected="textValueDisplay(conditions.selectedChildValue) === val">
-                                {{ val }} 
-                            </option>
-                        </select>
-                        <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
-                            placeholder="select some options"
-                            multiple="true"
-                            id="child_prefill_entry_multi"
-                            style="display: none;"
-                            @change="updateSelectedOptionValue($event.target, 'child')">
-                        </select>
-                        <input v-if="childFormat==='text' || childFormat==='textarea'" 
-                            id="child_prefill_entry_text"
-                            @change="updateSelectedOptionValue($event.target, 'child')"
-                            :value="textValueDisplay(conditions.selectedChildValue)" />
-                    </template>
-                </div>
-                <div v-if="showSetup" id="if-then-setup">
-                    <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                        <h3 style="margin: 0;">IF</h3>
-                        <!-- NOTE: PARENT CONTROLLER SELECTION -->
-                        <select title="select an indicator" v-model.number="parentIndicatorID">
-                            <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
-                            <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
-                            :title="i.name"
-                            :value="i.indicatorID">
-                            {{getIndicatorName(parseInt(i.indicatorID)) }} (indicator {{i.indicatorID}})
-                            </option>
-                        </select>
-                        <!-- NOTE: OPERATOR SELECTION -->
-                        <select v-model="selectedOperator">
-                            <option v-if="conditions.selectedOp === ''" value="" selected>Select a condition</option>
-                            <option v-for="o in selectedParentOperators" :key="o.val" :value="o.val" >
-                            {{ o.text }}
-                            </option>
-                        </select>
-                        <!-- NOTE: COMPARED VALUE SELECTIONS -->
-                        <select v-if="parentFormat === 'dropdown' || parentFormat==='radio'"
-                            id="parent_compValue_entry_single"
-                            @change="updateSelectedOptionValue($event.target, 'parent')">
-                            <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
-                            <option v-for="val in selectedParentValueOptions"
-                                :key="'parent_val_' + val"
-                                :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
-                            </option>
-                        </select>
-                        <select v-else-if="parentFormat === 'multiselect' || parentFormat==='checkboxes'"
-                            id="parent_compValue_entry_multi"
-                            placeholder="select some options" multiple="true"
-                            style="display: none;"
-                            @change="updateSelectedOptionValue($event.target, 'parent')">
-                        </select>
-                    </template>
-                    <!-- NOTE: LOADED DROPDOWNS AND CROSSWALKS -->
-                    <div v-else class="crosswalks">
-                        <label for="select-crosswalk-file">File&nbsp;
-                            <select v-model="crosswalkFile" id="select-crosswalk-file" style="width: 200px;">
-                                <option value="">Select a file</option>
-                                <option v-for="f in fileManagerTextFiles" :key="f" :value="f">{{f}}</option>
-                            </select>
-                        </label>
-                        <label for="select-crosswalk-header">Does file contain headers?&nbsp;
-                            <select v-model="crosswalkHasHeader" style="width:60px;" id="select-crosswalk-header">
-                                <option :value="false">No</option>
-                                <option :value="true">Yes</option>
-                            </select>
-                        </label>
-                        <label for="select-level-two">Controlled Dropdown&nbsp;
-                            <select v-model.number="level2IndID" id="select-level-two" style="width: 200px;">
-                                <option :value="null">none (single dropdown)</option>
-                                <option v-for="indicator in crosswalkLevelTwo"
-                                    :key="'level2_' + indicator.indicatorID"
-                                    :value="parseInt(indicator.indicatorID)">
-                                    {{indicator.indicatorID}}: {{getIndicatorName(parseInt(indicator.indicatorID))}}
-                                </option>
-                            </select>
-                        </label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 2rem">
+                        <button type="button" class="btn_remove_condition" style="width: 120px;"
+                            @click="removeCondition({confirmDelete: true, condition: {}})">
+                            Delete
+                        </button>
+                        <button type="button" class="btn-general" style="width: 120px;" @click="showRemoveModal=false">
+                            Cancel
+                        </button>
                     </div>
                 </div>
-                <div v-if="conditionComplete">
-                    <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                        <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(formIndicatorID)}}'
-                        <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                        <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
-                        </span>
-                        <span v-else>will 
-                            <span style="color: #008010; font-weight: bold;">
-                            be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
+                <template v-else>
+                    <!-- NOTE: LISTS BY CONDITION TYPE -->
+                    <div v-if="savedConditions.length > 0" id="savedConditionsLists">
+                        <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
+                            <template v-if="typeVal.length > 0">
+                                <p><b>{{ listHeaderText(typeKey) }}</b></p>
+                                <ul style="margin-bottom: 1rem;">
+                                    <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
+                                        <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                            :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
+                                            <template v-if="!isOrphan(c)">
+                                                <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
+                                                    If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
+                                                    {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                                    then {{c.selectedOutcome}} this question.
+                                                </div>
+                                                <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
+                                                <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
+                                                    This question's format has changed.  Please review and save to update it
+                                                </div>
+                                            </template>
+                                            <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
+                                        </button>
+                                        <button type="button" style="width: 1.75em;" class="btn_remove_condition"
+                                            @click="removeCondition({confirmDelete: false, condition: c})">X
+                                        </button>
+                                    </li>
+                                </ul>
+                            </template>
+                        </template>
+                    </div>
+                    <button type="button" @click="newCondition" class="btn-confirm new">+ New Condition</button>
+                    <!-- NOTE: OUTCOME SELECTION and PREFILL AREAS -->
+                    <div v-if="showConditionEditor" id="outcome-editor">
+                        <span class="input-info">Select an outcome</span>
+                        <select title="select outcome" @change="updateSelectedOutcome($event.target.value)">
+                            <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option> 
+                            <option value="show" :selected="conditions.selectedOutcome === 'show'">Hide this question except ...</option>
+                            <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Show this question except ...</option>
+                            <option v-if="!noPrefillFormats.includes(childFormat)" 
+                                value="pre-fill" :selected="conditions.selectedOutcome === 'pre-fill'">Pre-fill this Question
+                            </option>
+                            <option v-if="canAddCrosswalk"
+                                value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown or Crosswalk
+                            </option>
+                        </select>
+                        <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
+                            <span class="input-info">Enter a pre-fill value</span>
+                            <select v-if="childFormat==='dropdown' || childFormat==='radio'"
+                                id="child_prefill_entry_single"
+                                @change="updateSelectedOptionValue($event.target, 'child')">
+                                <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>
+                                <option v-for="val in selectedChildValueOptions" 
+                                    :value="val"
+                                    :key="'child_prefill_' + val"
+                                    :selected="textValueDisplay(conditions.selectedChildValue) === val">
+                                    {{ val }} 
+                                </option>
+                            </select>
+                            <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
+                                placeholder="select some options"
+                                multiple="true"
+                                id="child_prefill_entry_multi"
+                                style="display: none;"
+                                @change="updateSelectedOptionValue($event.target, 'child')">
+                            </select>
+                            <input v-if="childFormat==='text' || childFormat==='textarea'" 
+                                id="child_prefill_entry_text"
+                                @change="updateSelectedOptionValue($event.target, 'child')"
+                                :value="textValueDisplay(conditions.selectedChildValue)" />
+                        </template>
+                    </div>
+                    <div v-if="showSetup" id="if-then-setup">
+                        <template v-if="conditions.selectedOutcome !== 'crosswalk'">
+                            <h3 style="margin: 0;">IF</h3>
+                            <!-- NOTE: PARENT CONTROLLER SELECTION -->
+                            <select title="select an indicator" v-model.number="parentIndicatorID">
+                                <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
+                                <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
+                                :title="i.name"
+                                :value="i.indicatorID">
+                                {{getIndicatorName(parseInt(i.indicatorID)) }} (indicator {{i.indicatorID}})
+                                </option>
+                            </select>
+                            <!-- NOTE: OPERATOR SELECTION -->
+                            <select v-model="selectedOperator">
+                                <option v-if="conditions.selectedOp === ''" value="" selected>Select a condition</option>
+                                <option v-for="o in selectedParentOperators" :key="o.val" :value="o.val" >
+                                {{ o.text }}
+                                </option>
+                            </select>
+                            <!-- NOTE: COMPARED VALUE SELECTIONS -->
+                            <select v-if="parentFormat === 'dropdown' || parentFormat==='radio'"
+                                id="parent_compValue_entry_single"
+                                @change="updateSelectedOptionValue($event.target, 'parent')">
+                                <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
+                                <option v-for="val in selectedParentValueOptions"
+                                    :key="'parent_val_' + val"
+                                    :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
+                                </option>
+                            </select>
+                            <select v-else-if="parentFormat === 'multiselect' || parentFormat==='checkboxes'"
+                                id="parent_compValue_entry_multi"
+                                placeholder="select some options" multiple="true"
+                                style="display: none;"
+                                @change="updateSelectedOptionValue($event.target, 'parent')">
+                            </select>
+                        </template>
+                        <!-- NOTE: LOADED DROPDOWNS AND CROSSWALKS -->
+                        <div v-else class="crosswalks">
+                            <label for="select-crosswalk-file">File&nbsp;
+                                <select v-model="crosswalkFile" id="select-crosswalk-file" style="width: 200px;">
+                                    <option value="">Select a file</option>
+                                    <option v-for="f in fileManagerTextFiles" :key="f" :value="f">{{f}}</option>
+                                </select>
+                            </label>
+                            <label for="select-crosswalk-header">Does file contain headers?&nbsp;
+                                <select v-model="crosswalkHasHeader" style="width:60px;" id="select-crosswalk-header">
+                                    <option :value="false">No</option>
+                                    <option :value="true">Yes</option>
+                                </select>
+                            </label>
+                            <label for="select-level-two">Controlled Dropdown&nbsp;
+                                <select v-model.number="level2IndID" id="select-level-two" style="width: 200px;">
+                                    <option :value="null">none (single dropdown)</option>
+                                    <option v-for="indicator in crosswalkLevelTwo"
+                                        :key="'level2_' + indicator.indicatorID"
+                                        :value="parseInt(indicator.indicatorID)">
+                                        {{indicator.indicatorID}}: {{getIndicatorName(parseInt(indicator.indicatorID))}}
+                                    </option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    <div v-if="conditionComplete">
+                        <template v-if="conditions.selectedOutcome !== 'crosswalk'">
+                            <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(formIndicatorID)}}'
+                            <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
+                            <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
                             </span>
-                        </span>
-                    </template>
-                    <template v-else>
-                        <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
-                    </template>
-                </div>
-                <div v-if="noOptions">No options are currently available for this selection</div>
+                            <span v-else>will 
+                                <span style="color: #008010; font-weight: bold;">
+                                be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
+                                </span>
+                            </span>
+                        </template>
+                        <template v-else>
+                            <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
+                        </template>
+                    </div>
+                    <div v-if="noOptions">No options are currently available for this selection</div>
+                </template>
             </div>
         </div>` 
 }
