@@ -54,7 +54,7 @@
 <script>
     const dyniconsPath = "../libs/dynicons/svg/";
 
-    let menuItems = JSON.parse('<!--{$menuItems}-->' || "[]");
+    let menuItems = JSON.parse(<!--{$menuItems}--> || "[]");
     menuItems = menuItems.filter(item => +item.enabled === 1)
     menuItems = menuItems.sort((a,b) => a.order - b.order);
 

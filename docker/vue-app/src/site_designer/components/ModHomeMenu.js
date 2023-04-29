@@ -37,7 +37,7 @@ export default {
     },
     template: `<div>
         <p>Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
-        <ul id="menu_designer"
+        <ul v-if="menuItemList.length > 0" id="menu_designer"
             data-effect-allowed="move"
             @drop.stop="onDrop"
             @dragover.prevent>
