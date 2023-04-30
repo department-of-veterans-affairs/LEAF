@@ -7,6 +7,7 @@ export default {
     },
     inject: [
         'menuItemList',
+        'allBuiltinsPresent',
         'addStarterButtons',
         'editMenuItemList',
         'setMenuItem'
@@ -56,7 +57,7 @@ export default {
         </ul>
         <div style="display:flex; justify-content: space-between; width: 368px;">
             <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
-            <button type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
+            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
         </div>
     </div>`
 }

@@ -8,7 +8,7 @@
 }
 
 #site-designer-app, #leaf_dialog_content {
-    h1, h2, h3, h4, h5 {
+    h1, h2, h3, h4 {
         margin: 0;
         color: black;
     }
@@ -63,7 +63,7 @@
         display: flex;
         align-items: center;
         width: 300px;
-        min-height: 50px;
+        min-height: 55px;
         padding: 0.4rem 0.5rem;
         text-decoration: none;
         box-shadow: 0 0 4px rgba(0,0,25,0.4);
@@ -73,6 +73,16 @@
             margin-right: 0.5rem;
             width: 50px;
             height: 50px;
+        }
+        .card_text {
+            font-family: Verdana, sans-serif;
+            display: flex;
+            gap: 2px;
+            flex-direction: column;
+            justify-content: center;
+            align-self: stretch;
+            width: 100%;
+            min-height: 55px;
         }
         div.LEAF_custom * {
             margin: 0;

@@ -59,18 +59,32 @@ export default {
         useTrumbowEditor() {
             $('#menu_title_trumbowyg').trumbowyg({
                 resetCss: false,
-                btns: ['formatting', 'bold', 'italic', 'underline',
+                btnsDef: {
+                    formats: {
+                        dropdown: ['p','h1','h2','h3','h4'],
+                        ico:'p'
+                    }
+                },
+                tagsToRemove: ['script', 'link'],
+                btns: [['formats'], 'bold', 'italic', 'underline',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
             $('#menu_subtitle_trumbowyg').trumbowyg({
                 resetCss: false,
-                btns: ['formatting', 'bold', 'italic', 'underline',
+                btnsDef: {
+                    formats: {
+                        dropdown: ['p','h1','h2','h3','h4'],
+                        ico:'p'
+                    }
+                },
+                tagsToRemove: ['script', 'link'],
+                btns: [['formats'], 'bold', 'italic', 'underline',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
             $('.trumbowyg-box').css({
                 'min-height': '60px',
                 'height': 'auto',
-                'width':'475px',
+                'width':'400px',
                 'margin': '0 0.5rem 1rem 0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
@@ -125,16 +139,20 @@ export default {
         <h3>Card Preview</h3>
         <div class="designer_inputs" style="margin-bottom:1rem;">
             <custom-menu-item :menuItem="menuItemOBJ"></custom-menu-item>
-            <div style="display: flex; flex-direction: column;">
+            <div>
+                <label for="bg_color">Background</label>
+                <input type="color" id="bg_color" v-model="bgColor" />
+            </div>
+            <div style="display: flex; flex-direction:column; margin-left:1.5rem;">
                 <label class="checkable leaf_check" for="button_enabled"
-                    style="margin-top: auto;" :style="{color: +enabled === 1 ? '#209060' : '#b00000'}">
+                     :style="{color: +enabled === 1 ? '#209060' : '#b00000'}">
                     <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check" />
-                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden unless enabled'}}
+                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
                 </label>
                 <label class="checkable leaf_check" for="button_delete"
                     :style="{color: +markedForDeletion === 1 ? '#b00000' : 'inherit'}">
                     <input type="checkbox" id="button_delete" v-model="markedForDeletion" class="icheck leaf_check" />
-                    <span class="leaf_check"></span>{{ +markedForDeletion === 1 ? 'click delete to confirm' : 'mark for deletion'}}
+                    <span class="leaf_check"></span>{{ +markedForDeletion === 1 ? 'delete to confirm' : 'mark for deletion'}}
                 </label>
             </div>
         </div>
@@ -176,9 +194,6 @@ export default {
 
         <h3 style="margin: 0.5rem 0;">Style Attributes</h3>
         <div class="designer_inputs">
-            <label for="bg_color">
-                <input type="color" id="bg_color" v-model="bgColor" />&nbsp;Background Color
-            </label>
             <label class="checkable leaf_check" for="use_icon_confirm">
                 <input type="checkbox" id="use_icon_confirm" v-model="useAnIcon" class="icheck leaf_check" />
                 <span class="leaf_check"></span>Use an Icon

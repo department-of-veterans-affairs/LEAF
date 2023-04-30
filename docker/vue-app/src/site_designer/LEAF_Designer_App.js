@@ -16,7 +16,7 @@ export default {
             iconList: [],
             menuItemList: [],
             menuItem: null,
-
+            builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
             builtInButtons: [
                 {
                     id: "btn_reports",
@@ -85,6 +85,7 @@ export default {
             CSRFToken: computed(() => this.CSRFToken),
             iconList: computed(() => this.iconList),
             menuItemList: computed(() => this.menuItemList),
+            allBuiltinsPresent: computed(() => this.allBuiltinsPresent),
             menuItem: computed(() => this.menuItem),
             formSaveFunction: computed(() => this.formSaveFunction),
             dialogTitle: computed(() => this.dialogTitle),
@@ -110,7 +111,17 @@ export default {
         this.getIconList();
         this.getSettingsData();
     },
-    computed: {},
+    computed: {
+        allBuiltinsPresent() {
+            let result = true;
+            this.builtInIDs.forEach(id => {
+                if (!this.menuItemList.some(item => item.id === id)) {
+                    result = false;
+                }
+            });
+            return result;
+        }
+    },
     methods: {
         postCustomHomeEnabled() {
             const flag = +(!this.home_enabled);
@@ -250,8 +261,7 @@ export default {
             this.dialogFormContent = '';
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
         },
-        setDialogButtonText(textObj = {}) {
-            const { confirm, cancel } = textObj;
+        setDialogButtonText({ confirm = '', cancel = '' } = {}) {
             this.dialogButtonText = { confirm, cancel };
         },
         openDesignButtonDialog() {
