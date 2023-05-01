@@ -99,7 +99,8 @@ export default {
             libsPath: this.libsPath,
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
-            editMenuItemList: this.editMenuItemList
+            editMenuItemList: this.editMenuItemList,
+            postMenuItemList: this.postMenuItemList
         }
     },
     components: {
@@ -136,7 +137,6 @@ export default {
                     if (+res === 1) {
                         this.home_enabled = !this.home_enabled;
                     }
-                    console.log(res)
                 },
                 error: (err) => console.log(err)
             });
@@ -154,15 +154,16 @@ export default {
         buttonIDExists(ID = '') {
             return this.menuItemList.length > 0 ? this.menuItemList.some(button => button?.id === ID) : false;
         },
+        /**
+         * @param {object|null} menuItem set menuitem for editing
+         */
         setMenuItem(menuItem = null) {
-            this.menuItem = menuItem === null ?
+            this.menuItem = menuItem !== null ? menuItem :
                 {
                     id: this.generateID(),
                     order: this.menuItemList.length,
-                    icon: '',
                     enabled: 0
                 }
-                : menuItem;
 
             this.openDesignButtonDialog();
         },
@@ -177,6 +178,7 @@ export default {
             });
             if(buttonsAdded > 0) {
                 this.editMenuItemList();
+                this.postMenuItemList();
             }
         },
         /**
@@ -207,24 +209,21 @@ export default {
                 }
                 this.menuItemList = items;
             }
-            this.postMenuItemListJSON().then((res) => {
-                if(+res !== 1) {
-                    console.log('unexpected value returned', res)
-                }
-            }).catch(err => console.log(err));
         },
-        postMenuItemListJSON() {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}site/settings/home_menu_json`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        home_menu_list: this.menuItemList
-                    },
-                    success: (res) => resolve(res),
-                    error: (err) => reject(err)
-                });
+        postMenuItemList() {
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}site/settings/home_menu_json`,
+                data: {
+                    CSRFToken: this.CSRFToken,
+                    home_menu_list: this.menuItemList
+                },
+                success: (res) => {
+                    if(+res !== 1) {
+                        console.log('unexpected value returned', res)
+                    }
+                },
+                error: (err) => console.log(err)
             });
         },
         getSettingsData() {

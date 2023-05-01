@@ -10,6 +10,7 @@ export default {
         'allBuiltinsPresent',
         'addStarterButtons',
         'editMenuItemList',
+        'postMenuItemList',
         'setMenuItem'
     ],
     methods: {
@@ -33,6 +34,7 @@ export default {
 
                 elUl.insertBefore(elLiToMove,closest);
                 this.editMenuItemList();
+                this.postMenuItemList();
             }
         }
     },

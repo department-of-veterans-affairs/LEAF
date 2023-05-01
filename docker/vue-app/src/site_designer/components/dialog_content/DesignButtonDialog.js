@@ -5,18 +5,18 @@ export default {
     data() {
         return {
             id: this.menuItem.id,
-            order: this.menuItem.order || 0,
-            title: this.menuItem?.title || '',
+            order: this.menuItem?.order || 0,
+            title: XSSHelpers.stripTags(this.menuItem?.title || '', ['<script>']),
             titleColor: this.menuItem?.titleColor || '#000000',
-            subtitle: this.menuItem?.subtitle || '',
+            subtitle: XSSHelpers.stripTags(this.menuItem?.subtitle || '', ['<script>']),
             subtitleColor: this.menuItem?.subtitleColor || '#000000',
             bgColor: this.menuItem?.bgColor || '#ffffff',
             icon: this.menuItem?.icon || '',
-            link: this.menuItem?.link || '',
+            link: XSSHelpers.stripAllTags(this.menuItem?.link || ''),
+            enabled: +this.menuItem?.enabled === 1,
 
             builtInIDs: ['btn_reports','btn_bookmarks','btn_inbox','btn_new_request'],
             iconPreviewSize: '30px',
-            enabled: +this.menuItem?.enabled === 1,
             useTitleColor: this.menuItem?.titleColor === this.menuItem?.subtitleColor,
             useAnIcon: this.menuItem?.icon !== '',
             markedForDeletion: false
@@ -29,6 +29,7 @@ export default {
         'libsPath',
         'menuItem',
         'editMenuItemList',
+        'postMenuItemList',
         'iconList',
         'closeFormDialog',
         'setDialogButtonText'
@@ -47,7 +48,7 @@ export default {
                 subtitleColor: this.useTitleColor ? this.titleColor : this.subtitleColor,
                 bgColor: this.bgColor,
                 icon: this.useAnIcon === true ? this.icon : '',
-                link: this.link,
+                link: XSSHelpers.stripAllTags(this.link),
                 enabled: +this.enabled
             }
         },
@@ -112,12 +113,9 @@ export default {
                 this.icon = id.slice(index + 4);
             }
         },
-        test(el) {
-            console.log(el)
-            return true
-        },
         onSave() {
             this.editMenuItemList(this.menuItemOBJ, this.markedForDeletion);
+            this.postMenuItemList();
             this.closeFormDialog();
         }
     },
@@ -145,7 +143,8 @@ export default {
             </div>
             <div style="display: flex; flex-direction:column; margin-left:1.5rem;">
                 <label class="checkable leaf_check" for="button_enabled"
-                     :style="{color: +enabled === 1 ? '#209060' : '#b00000'}">
+                     :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
+                     :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
                     <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check" />
                     <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
                 </label>
@@ -191,8 +190,6 @@ export default {
                 </label>
             </div>
         </div>
-
-        <h3 style="margin: 0.5rem 0;">Style Attributes</h3>
         <div class="designer_inputs">
             <label class="checkable leaf_check" for="use_icon_confirm">
                 <input type="checkbox" id="use_icon_confirm" v-model="useAnIcon" class="icheck leaf_check" />

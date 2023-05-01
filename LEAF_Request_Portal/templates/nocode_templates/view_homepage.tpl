@@ -74,7 +74,8 @@
     menuItems.forEach(item => {
         const title = XSSHelpers.stripTags(item.title, ['<script>']);
         const subtitle = XSSHelpers.stripTags(item.subtitle, ['<script>']);
-        buffer += `<li><a href="${item.link}" target="_blank" style="background-color:${item.bgColor};" class="custom_menu_card">`
+        const link = XSSHelpers.stripAllTags(item.link);
+        buffer += `<li><a href="${link}" target="_blank" style="background-color:${item.bgColor};" class="custom_menu_card">`
         if (item.icon !== '') {
             buffer += `<img v-if="menuItem.icon" src="${dyniconsPath}${item.icon}" alt="" class="icon_choice "/>`
         }
