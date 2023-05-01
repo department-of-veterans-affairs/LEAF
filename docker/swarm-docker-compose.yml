@@ -45,6 +45,7 @@ services:
       - source: cdw_host
       - source: cdw_pass
       - source: cipher_key
+      - source: db_host_ip
 
   leaf-adminer:
     image: adminer
@@ -97,4 +98,6 @@ secrets:
   cdw_pass:
     external: true
   cipher_key:
+    external: true
+  db_host_ip:
     external: true
