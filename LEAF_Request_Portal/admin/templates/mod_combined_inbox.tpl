@@ -1,9 +1,11 @@
 <style>
     .col-header {
         font-weight: 300;
-        font-size: 50%;
+        font-size: 100%;
         background-color: #D1DFFF;
-        border-color: black;
+        border: 1px solid black;
+        padding: 1rem;
+        display: table-cell;
     }
 
     .col-header:hover {
@@ -43,6 +45,15 @@
         border: 1px solid black;
         padding: 1rem;
     }
+
+    .inbox {
+        margin-bottom: 1rem;
+        display: table;
+    }
+
+    .header-row {
+        display: table-row;
+    }
 </style>
 
 <script type='text/javascript'>
@@ -81,36 +92,52 @@
         });
     });
 
-    const loadSiteCols = (sites) => new Promise((resolve, reject) => {
-        // for each site, show each column and process as html in separate array
-        sites.forEach(site => {
-            let displayColumnsArr = [];
-            site.columns = site.columns?.split(',') ?? defaultCols;
-            site.columns.forEach(column => {
-                site.displayColumns.push(`<div class="col-header">${column}</div>`);
-            });
+    const buildHeaderColumns = (preCon, cols, postCon) => {
+        cols = cols.split(',') ?? defaultCols;
+        let headerColumns = [];
+        cols.forEach(col => {
+            headerColumns.push(`${preCon}${col}${postCon}`);
         });
-        resolve(sites);
-    });
+        return headerColumns;
+    };
 
     const loadSiteColPreview = (sites) => new Promise((resolve, reject) => {
         buf = [];
         sites.forEach(site => {
+            let headerColumns = buildHeaderColumns(`<div class="col-header">`, site.columns, `</div>`);
             // build the preview pane and headers
-            displayColumns = site.displayColumns.join('');
-            buf.push(`<div class="site-container" style="border-right: 8px ${site.backgroundColor}; border-left: 8px ${site.backgroundColor}; border-right: 8px ${site.backgroundColor};">
-                <div class="site-title" style="backgroundColor: ${site.backgroundColor} color: ${site.fontColor}">
+            buf.push(`
+            <div class="site-container" style="border-right: 8px solid ${site.backgroundColor}; border-left: 8px solid ${site.backgroundColor}; border-bottom: 8px solid ${site.backgroundColor};">
+                <div class="site-title" style="background-color: ${site.backgroundColor}; color: ${site.fontColor};">
                     ${site.name}
-                    <div class="inbox">
-                        ${displayColumns.replaceAll(',', '')}
+                </div>
+                <div class="inbox">
+                    <div class="header-row">
+                        ${headerColumns.join('')}
                     </div>
                 </div>
             </div>`);
         });
 
-        console.log(buf.join('<br/>'));
         // assign buffer to id div for display
         $('#inbox-preview').html(buf.join('<br/>'));
+    });
+
+    const loadSiteColMenu = (site) => new Promise((resolve, reject) => {
+        buf = [];
+        sites.forEach(site => {
+            let headerOptions = buildHeaderColumns(`<div>`, site.columns, `</div>`);
+            buf.push(`
+                <div>
+                    ${site.name}
+                </div>
+                <div>
+                    ${headerOptions.join('')}
+                </div>
+            `);
+        });
+
+        $(`#side-bar`).html(buf.join(`<br/>`));
     });
 
     const updateColumns = new Promise((resolve, reject) => {
@@ -129,10 +156,7 @@
     window.onload = () => {
         getMapSites
             .then(sites => {
-                loadSiteCols(sites)
-                    .then(sites => {
-                        loadSiteColPreview(sites);
-                    });
+                Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites)]);
             });
     };
 </script>
@@ -140,6 +164,6 @@
 <h1 style="margin: 3rem;">Combined Inbox Editor</h1>
 
 <div id="editor-container">
-    <div id="side-bar" class="inbox" style="display: block;">Jump to Section: </div>
+    <div id="side-bar" class="inbox" style="display: block;">Edit Columns <br/></div>
     <div id="inbox-preview" style="display: block;"></div>
 </div>
