@@ -16,6 +16,7 @@ export default {
             iconList: [],
             menuItemList: [],
             menuItem: null,
+            tagsToRemove: ['script', 'img', 'a', 'link', 'br'],
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
             builtInButtons: [
                 {
@@ -100,7 +101,8 @@ export default {
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             editMenuItemList: this.editMenuItemList,
-            postMenuItemList: this.postMenuItemList
+            postMenuItemList: this.postMenuItemList,
+            tagsToRemove: this.tagsToRemove
         }
     },
     components: {
@@ -190,8 +192,7 @@ export default {
         editMenuItemList(menuItem = null, markedForDeletion = false) {
             if (menuItem === null) { //called for drag drop event or when adding starter buttons
                 let itemIDs = []
-                let elList = Array.from(document.querySelectorAll('#menu_designer li')) || [];
-                
+                let elList = Array.from(document.querySelectorAll('#menu_designer li'));
                 elList.forEach(li => itemIDs.push(li.id));
 
                 this.menuItemList.forEach(item => {
@@ -204,6 +205,7 @@ export default {
             } else { //editing modal - either updating or deleting an item
                 let items = this.menuItemList.filter(item => item.id !== menuItem.id);
                 if (markedForDeletion !== true) {
+                    console.log(menuItem);
                     items.push(menuItem);
                     items = items.sort((a,b) => a.order - b.order);
                 }
@@ -222,6 +224,7 @@ export default {
                     if(+res !== 1) {
                         console.log('unexpected value returned', res)
                     }
+                    this.getSettingsData();
                 },
                 error: (err) => console.log(err)
             });
@@ -232,6 +235,11 @@ export default {
                 url: `${this.APIroot}system/settings`,
                 success: (res) => {
                     let menuItems = JSON.parse(res?.home_menu_json || "[]");
+                    menuItems.map(item => {
+                        item.link = XSSHelpers.decodeHTMLEntities(item.link);
+                        item.title = XSSHelpers.decodeHTMLEntities(item.title);
+                        item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
+                    });
                     this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
                     this.home_enabled = +res?.home_enabled === 1;
                 },

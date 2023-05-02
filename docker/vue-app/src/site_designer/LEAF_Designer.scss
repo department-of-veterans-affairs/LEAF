@@ -1,5 +1,9 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
+body {
+    background-color: #f3f3f3;
+}
+
 #site-designer-app {
     min-height: 100vh;
     main > section {
@@ -59,15 +63,21 @@
         }
     }
     
+
     .custom_menu_card {
         display: flex;
         align-items: center;
         width: 300px;
         min-height: 55px;
-        padding: 0.4rem 0.5rem;
+        padding: 6px 8px;
         text-decoration: none;
+        border: 2px solid transparent;
         box-shadow: 0 0 4px rgba(0,0,25,0.4);
-    
+
+        &:hover, &:focus, &:active {
+            border: 2px solid white;
+        }
+
         .icon_choice {
             cursor: auto;
             margin-right: 0.5rem;
@@ -77,7 +87,7 @@
         .card_text {
             font-family: Verdana, sans-serif;
             display: flex;
-            gap: 2px;
+            gap: 3px;
             flex-direction: column;
             justify-content: center;
             align-self: stretch;

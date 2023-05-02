@@ -48,9 +48,9 @@ class Site
             return 'Admin access required';
         }
         foreach ($arrayIn as $i => $item) {
-            $arrayIn[$i]['title'] = \Leaf\XSSHelpers::sanitizeHTMLRich($item['title']);
-            $arrayIn[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizeHTMLRich($item['subtitle']);
-            $arrayIn[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL($item['link']);
+            $arrayIn[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
+            $arrayIn[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
+            $arrayIn[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link']));
             $arrayIn[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
         }
         $home_menu_json = json_encode($arrayIn);

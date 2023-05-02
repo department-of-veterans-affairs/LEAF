@@ -6,9 +6,9 @@ export default {
         return {
             id: this.menuItem.id,
             order: this.menuItem?.order || 0,
-            title: XSSHelpers.stripTags(this.menuItem?.title || '', ['<script>']),
+            title: XSSHelpers.stripTags(this.menuItem?.title || '', this.tagsToRemove),
             titleColor: this.menuItem?.titleColor || '#000000',
-            subtitle: XSSHelpers.stripTags(this.menuItem?.subtitle || '', ['<script>']),
+            subtitle: XSSHelpers.stripTags(this.menuItem?.subtitle || '', this.tagsToRemove),
             subtitleColor: this.menuItem?.subtitleColor || '#000000',
             bgColor: this.menuItem?.bgColor || '#ffffff',
             icon: this.menuItem?.icon || '',
@@ -32,9 +32,12 @@ export default {
         'postMenuItemList',
         'iconList',
         'closeFormDialog',
-        'setDialogButtonText'
+        'setDialogButtonText',
+        'tagsToRemove',
     ],
     mounted() {
+        this.resetIfNoVisibleText('title');
+        this.resetIfNoVisibleText('subtitle');
         this.useTrumbowEditor();
     },
     computed: {
@@ -42,9 +45,9 @@ export default {
             return {
                 id: this.id,
                 order: this.order,
-                title: XSSHelpers.stripTags(this.title, ['<script>']),
+                title: this.title,
                 titleColor: this.titleColor,
-                subtitle: XSSHelpers.stripTags(this.subtitle, ['<script>']),
+                subtitle: this.subtitle,
                 subtitleColor: this.useTitleColor ? this.titleColor : this.subtitleColor,
                 bgColor: this.bgColor,
                 icon: this.useAnIcon === true ? this.icon : '',
@@ -52,36 +55,36 @@ export default {
                 enabled: +this.enabled
             }
         },
-        builtInCard() {
+        isBuiltInCard() {
             return this.builtInIDs.includes(this.id)
-        }
+        },
     },
     methods: {
         useTrumbowEditor() {
             $('#menu_title_trumbowyg').trumbowyg({
-                resetCss: false,
                 btnsDef: {
                     formats: {
                         dropdown: ['p','h1','h2','h3','h4'],
                         ico:'p'
                     }
                 },
-                tagsToRemove: ['script', 'link'],
+                tagsToRemove: this.tagsToRemove,
                 btns: [['formats'], 'bold', 'italic', 'underline',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
+            $('#menu_title_trumbowyg').trumbowyg('html', this.title);
             $('#menu_subtitle_trumbowyg').trumbowyg({
-                resetCss: false,
                 btnsDef: {
                     formats: {
                         dropdown: ['p','h1','h2','h3','h4'],
                         ico:'p'
                     }
                 },
-                tagsToRemove: ['script', 'link'],
+                tagsToRemove: this.tagsToRemove,
                 btns: [['formats'], 'bold', 'italic', 'underline',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
+            $('#menu_subtitle_trumbowyg').trumbowyg('html', this.subtitle);
             $('.trumbowyg-box').css({
                 'min-height': '60px',
                 'height': 'auto',
@@ -96,11 +99,20 @@ export default {
         },
         updateTrumbowygText(section = 'title') {
             if (['title','subtitle'].includes(section)) {
-                const elTrumbow = document.querySelector(`#menu_${section}_trumbowyg.trumbowyg-editor`);
+                const elTrumbow = document.querySelector(`#menu_${section}_trumbowyg`);
                 if(elTrumbow !== undefined && elTrumbow !== null) {
-                    this[section] = elTrumbow.innerHTML;
+                    //replace in case tags were written in the editor to remove unwanted
+                    const content = elTrumbow.innerHTML.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+                    this[section] = XSSHelpers.stripTags(content, this.tagsToRemove);
+                    console.log(this[section])
                 }
             }
+        },
+        //gets rid of any invisible content eg <h1></h1>
+        resetIfNoVisibleText(keyname = 'title') {
+            if (this[keyname] !== undefined && this[keyname] !== '' && XSSHelpers.decodeHTMLEntities(this[keyname]).trim() === '') {
+                this[keyname] = '';
+            };
         },
         getIconSrc(absolutePath = '') {
             const index = absolutePath.indexOf('dynicons\/');
@@ -155,16 +167,15 @@ export default {
                 </label>
             </div>
         </div>
-        <div v-if="!builtInCard" style="margin-bottom: 1rem;">
+        <div v-if="!isBuiltInCard" style="margin-bottom: 1rem;">
             <label for="card_link">Card Link (full URL)</label>
             <input type="text" id="card_link" style="width: 475px;" v-model="link" />
         </div>
-        <!-- NOTE: initial trumbow html content needs to use menuitem -->
         <div class="designer_inputs">
             <div>
                 <label for="menu_title_trumbowyg" id="menu_title_trumbowyg_label">Button Title</label>
                 <div id="menu_title_trumbowyg" aria-labelledby="menu_title_trumbowyg_label"
-                    @input="updateTrumbowygText('title')" v-html="menuItem.title">
+                    @input="updateTrumbowygText('title')">
                 </div>
             </div>
             <div>
@@ -176,7 +187,7 @@ export default {
             <div>
                 <label for="menu_subtitle_trumbowyg" id="menu_subtitle_trumbowyg_label">Button Subtitle</label>
                 <div id="menu_subtitle_trumbowyg" aria-labelledby="menu_subtitle_trumbowyg_label"
-                    @input="updateTrumbowygText('subtitle')" v-html="menuItem.subtitle">
+                    @input="updateTrumbowygText('subtitle')">
                 </div>
             </div>
             <div>

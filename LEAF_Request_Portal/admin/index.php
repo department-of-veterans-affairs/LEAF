@@ -533,7 +533,7 @@ switch ($action) {
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
 
         $main->assign('javascripts', array(
-            $libsPath.'/js/LEAF/XSSHelpers.js',
+            $libsPath.'js/LEAF/XSSHelpers.js',
             $libsPath.'js/jquery/jquery-ui.custom.min.js',
             $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
         ));

@@ -10,27 +10,29 @@
         margin: 0 1rem 1rem 0;
         padding: 0;
     }
+    ul#menu > li {
+        margin: 0.75rem 0;
+        box-shadow: 0 0 4px rgba(0,0,25,0.4);
+    }
+    ul#menu:first-child {
+        margin-top: 0.25rem;
+    }
     .custom_menu_card {
         /* TODO: some of these can be customizable */
-        margin: 0.75rem 0;
         display: flex;
         align-items: center;
         width: 300px;
-        padding: 0.4rem 0.5rem;
+        padding: 6px 8px;
         text-decoration: none;
-        box-shadow: 0 0 4px rgba(0,0,25,0.4);
         border: 2px solid transparent;
     }
-    .custom_menu_card:first-child {
-        margin-top: 0.25rem;
-    }
-    .custom_menu_card:hover, .custom_menu_card:focus,.custom_menu_card:active {
+    .custom_menu_card:hover, .custom_menu_card:focus, .custom_menu_card:active {
         border: 2px solid white;
     }
     .card_text {
         font-family: Verdana, sans-serif;
         display: flex;
-        gap: 2px;
+        gap: 3px;
         flex-direction: column;
         justify-content: center;
         align-self: stretch;
@@ -62,9 +64,10 @@
 
 <script>
     const dyniconsPath = "../libs/dynicons/svg/";
+    const tagsToRemove = ['script', 'img', 'a', 'link', 'br'];
 
     let menuItems = JSON.parse(<!--{$menuItems}--> || "[]");
-    menuItems = menuItems.filter(item => +item.enabled === 1)
+    menuItems = menuItems.filter(item => +item.enabled === 1);
     menuItems = menuItems.sort((a,b) => a.order - b.order);
     //testing TODO: rework JSON to include and store menu direction
     const direction = '';//'horizontal';
@@ -72,8 +75,8 @@
     //
     let buffer = `<ul ${directionAttr} id="menu">`;
     menuItems.forEach(item => {
-        const title = XSSHelpers.stripTags(item.title, ['<script>']);
-        const subtitle = XSSHelpers.stripTags(item.subtitle, ['<script>']);
+        const title = XSSHelpers.stripTags(XSSHelpers.decodeHTMLEntities(item.title), tagsToRemove);
+        const subtitle = XSSHelpers.stripTags(XSSHelpers.decodeHTMLEntities(item.subtitle), tagsToRemove);
         const link = XSSHelpers.stripAllTags(item.link);
         buffer += `<li><a href="${link}" target="_blank" style="background-color:${item.bgColor};" class="custom_menu_card">`
         if (item.icon !== '') {
