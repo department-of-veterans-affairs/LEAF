@@ -150,7 +150,7 @@ public class newRequestWorkflow extends setupFramework {
     		char c = name.charAt(i);
     		String s = new StringBuilder().append(c).toString();
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
 	   
 		waitMethods.waiter(waitMethods.w250);
@@ -392,7 +392,7 @@ public class newRequestWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
 		
 	    System.out.println("Entered First and Last Name");
@@ -414,7 +414,7 @@ public class newRequestWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
 	    
 	    System.out.println("Entered Middle Initial");
@@ -484,7 +484,7 @@ public class newRequestWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
 	    
 	     System.out.println("Request Comment Added");
@@ -754,7 +754,7 @@ public class newRequestWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	 waitMethods.waiter(waitMethods.w250);
 	     System.out.println("Select Request Initiator");
@@ -986,7 +986,7 @@ public class newRequestWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
 	    
 	     System.out.println("Step Change Comment Added");

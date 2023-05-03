@@ -116,7 +116,7 @@ public class reportBuilderWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	System.out.println("Input text to first textbox");			
@@ -236,7 +236,7 @@ public class reportBuilderWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	System.out.println("Input user name - Tester Testers");			
@@ -490,7 +490,7 @@ public class reportBuilderWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	System.out.println("Input Report Name");			
@@ -572,7 +572,7 @@ public class reportBuilderWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	System.out.println("Input user name - M. Gao");			

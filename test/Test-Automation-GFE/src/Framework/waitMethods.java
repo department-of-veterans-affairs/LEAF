@@ -79,6 +79,8 @@ public class waitMethods {
 	//String var;				//For testing commits only, delete
 	
 		//Standard Values
+//		public final static int w10 = 10;		//10
+//		public final static int w20 = 20;		//20
 //		public final static int w30 = 30;		//30
 //		public final static int w50 = 50;		//50	
 //		public final static int w100 = 100;		//100
@@ -106,6 +108,10 @@ public class waitMethods {
 	
 	
 		//Headless values - Speed up
+//		public final static int w10 = 10;		//10
+//		public final static int w20 = 20;		//20
+//		public final static int w30 = 30;		//30
+//		public final static int w50 = 50;		//50	
 //		public final static int w30 = 30;		//30
 //		public final static int w50 = 50;		//50
 //		public final static int w100 = 100;		//100
@@ -127,6 +133,8 @@ public class waitMethods {
 	
 	
 		//Super slo-mo mode
+		public final static int w10 = 10;		//10
+		public final static int w20 = 20;		//20
 		public final static int w30 = 30;		//30
 		public final static int w50 = 75;		//75	
 		public final static int w100 = 400;		//100

@@ -45,7 +45,7 @@ public class homePageTest extends setupFramework {
 
 	    	waitMethods.waiter(waitMethods.w200);
 	    	
-	        WebElement ele2 = driver.findElement(By.partialLinkText("Proceed to localhost")); 
+	        WebElement ele2 = driver.findElement(By.partialLinkText("Proceed to")); 
 	        highlightElement.highLightElement(driver, ele2);
 	        ele2.click();
 	        System.out.println("Certificate not found, proceeding to unsecure site");
@@ -147,7 +147,7 @@ public class homePageTest extends setupFramework {
     		char c = name.charAt(i);
     		String s = new StringBuilder().append(c).toString();
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	waitMethods.waiter(waitMethods.w500);
@@ -172,7 +172,7 @@ public class homePageTest extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
 		
 		highlightElement.highLightElement(driver, ele);

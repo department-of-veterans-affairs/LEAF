@@ -141,7 +141,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Test Question: Currency");			
@@ -161,7 +161,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Test Question: Short Label)");			
@@ -203,7 +203,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Test Question: input Default Answer Q2");			
@@ -362,7 +362,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Q2 Sub-question 1: Input Field Name)");			
@@ -382,7 +382,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Test Sub-question Q2S01: Date)");			
@@ -421,7 +421,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Q2 Sub-Question 1: Default Answer");			
@@ -509,7 +509,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Q2 Sub-question 2: Input Field Name)");			
@@ -529,7 +529,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Test Sub-question Q2S02: Radio)");			
@@ -588,7 +588,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Q2 Sub-Question 2: Default Answer");			
@@ -674,7 +674,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Q2 Sub-question 3: Input Field Name)");			
@@ -694,7 +694,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Test Sub-question Q2S03: Checkbox)");			
@@ -746,7 +746,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Q2 Sub-Question 3: Default Answer");			
@@ -834,7 +834,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q2S04: Input Field Name)");			
@@ -854,7 +854,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q2S04: Checkbox)");			
@@ -910,7 +910,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q2S04: Default Answer");			
@@ -998,7 +998,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3: Input Field Name)");			
@@ -1018,7 +1018,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3: Multiselect)");			
@@ -1074,7 +1074,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3: Default Answer");			
@@ -1164,7 +1164,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3S01: Input Field Name)");			
@@ -1184,7 +1184,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q3S01: Dropdown)");			
@@ -1240,7 +1240,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3S01: Default Answer");			
@@ -1325,7 +1325,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3S02: Input Field Name)");			
@@ -1345,7 +1345,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q3S02: File Attachment)");			
@@ -1401,7 +1401,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3S02: Default Answer");			
@@ -1487,7 +1487,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3S03: Input Field Name)");			
@@ -1507,7 +1507,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q3S03: Image Attachment)");			
@@ -1563,7 +1563,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q3S03: Default Answer");			
@@ -1647,7 +1647,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q4: Input Field Name)");			
@@ -1667,7 +1667,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q4: Orgchart Group)");			
@@ -1723,7 +1723,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q4: Default Answer");			
@@ -1808,7 +1808,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q4S01: Input Field Name)");			
@@ -1828,7 +1828,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q4S01: Orgchart Position)");			
@@ -1884,7 +1884,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q4S01: Default Answer");			
@@ -1970,7 +1970,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q4S02: Input Field Name)");			
@@ -1990,7 +1990,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q4S02: Orgchart Employee)");			
@@ -2046,7 +2046,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q4S02: Default Answer");			
@@ -2132,7 +2132,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q5: Input Field Name)");			
@@ -2152,7 +2152,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Test Sub-question Q5: Raw Data)");			
@@ -2208,7 +2208,7 @@ public class formsWorkflowPart2_BAK extends setupFramework {
 		    		char c = name.charAt(i);
 		    		String s = new StringBuilder().append(c).toString();
 		    		ele.sendKeys(s);
-		    		waitMethods.waiter(waitMethods.w30);
+		    		waitMethods.waiter(waitMethods.w20);
 		    	}
 		    	
 		    	System.out.println("Q5: Default Answer");			

@@ -76,7 +76,7 @@ public class orgChartWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	driver.findElement(By.id("search")).clear(); 
@@ -127,7 +127,7 @@ public class orgChartWorkflow extends setupFramework {
     		String s = new StringBuilder().append(c).toString();
     		//ele.sendKeys(Keys.chord(name));
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	driver.findElement(By.id("search")).clear();
@@ -163,7 +163,7 @@ public class orgChartWorkflow extends setupFramework {
     		char c = name.charAt(i);
     		String s = new StringBuilder().append(c).toString();
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	driver.findElement(By.id("search")).clear();
@@ -199,7 +199,7 @@ public class orgChartWorkflow extends setupFramework {
     		char c = name.charAt(i);
     		String s = new StringBuilder().append(c).toString();
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
     	driver.findElement(By.id("search")).clear();
