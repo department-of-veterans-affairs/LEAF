@@ -73,7 +73,6 @@ class NationalEmployeeController extends RESTfulResponse
                 $email = $_POST["email"];
                 $username = $employee->lookupEmail($email);
 
-                $config = new Config();
                 $login = new Login($this->db, $this->db);
                 $localEmp = new Employee($this->db, $login);
 

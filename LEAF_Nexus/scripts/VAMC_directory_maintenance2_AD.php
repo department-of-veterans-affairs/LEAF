@@ -11,6 +11,8 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+namespace Orgchart;
+
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -32,12 +34,11 @@ class VAMC_Directory_maintenance_AD
     // Connect to the database
     public function __construct()
     {
-        $config = new Orgchart\Config();
-        $this->oc_db = $config->oc_db;
-        try
+        $this->oc_db = \OC_DB;
+        /* try
         {
             $this->db = new PDO(
-                "mysql:host={\DIRECTORY_HOST};dbname={$config->dbName}",
+                "mysql:host=".\DIRECTORY_HOST.";dbname={$config->dbName}",
                             \DIRECTORY_USER,
                 \DIRECTORY_PASS,
                 array(PDO::ATTR_PERSISTENT => true)
@@ -48,7 +49,7 @@ class VAMC_Directory_maintenance_AD
         {
             echo 'Database Error: ' . $e->getMessage();
             exit();
-        }
+        } */
     }
 
     public function __destruct()
