@@ -165,7 +165,7 @@ public class homePageTest extends setupFramework {
 		waitMethods.waiter(waitMethods.w1k);								//REMOVE
 		WebElement ele = driver.findElement(By.name("searchtxt"));
 
-    	String name = "Conditional Dropdown";
+    	String name = "email test";
     	   
     	for(int i = 0; i < name.length(); i++) {
     		char c = name.charAt(i);

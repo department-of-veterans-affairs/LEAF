@@ -2312,7 +2312,16 @@ public class formsWorkflowPart2 extends setupFramework {
 //	      return date;
 //	}
 
+			/*	IF TEMPLATE	
+			String url = driver.getCurrentUrl();
+			
+			if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+			
+			} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+			
+			}
 
+		*/		
 			
 			
 			
