@@ -332,7 +332,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Input Form Label");			
@@ -352,7 +352,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Input Form Description");			
@@ -397,7 +397,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	    		char c = name.charAt(i);
 	    		String s = new StringBuilder().append(c).toString();
 	    		ele.sendKeys(s);
-	    		waitMethods.waiter(waitMethods.w30);
+	    		waitMethods.waiter(waitMethods.w20);
 	    	}
 	    	
 	    	System.out.println("Input Form Description");
@@ -604,7 +604,7 @@ public class formsWorkflowPart3 extends setupFramework {
     		char c = name.charAt(i);
     		String s = new StringBuilder().append(c).toString();
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
    	    	System.out.println("Changed Form Name to Automation Test Run");			
@@ -624,7 +624,7 @@ public class formsWorkflowPart3 extends setupFramework {
     		char c = name.charAt(i);
     		String s = new StringBuilder().append(c).toString();
     		ele.sendKeys(s);
-    		waitMethods.waiter(waitMethods.w30);
+    		waitMethods.waiter(waitMethods.w20);
     	}
     	
    	    	System.out.println("Changed Description to Test Form Description + getDate()");			
