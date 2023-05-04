@@ -92,7 +92,7 @@ public class formsWorkflowPart3 extends setupFramework {
 	    		highlightElement.highLightElement(driver, ele);
 	    	    	ele.click();	    		
 	    	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
-	    		WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[1]"));
+	    		WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]"));
 	    		//WebElement ele = driver.findElement(By.xpath("//div[contains(text(), 'AUT')]"));
 	    		highlightElement.highLightElement(driver, ele);
 		    	ele.click();	    		

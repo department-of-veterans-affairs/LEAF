@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.openqa.selenium.support.ui.Select;			//Select Method
 
+import Framework.AppVariables;
 import Framework.TestData;
 import Framework.setupFramework;
 import Framework.waitMethods;
@@ -101,19 +102,27 @@ public class formsWorkflowPart2 extends setupFramework {
 	
 	
 	
-	
+			// For PreProd      /html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]
 		//Select Work-in-progress Form build using formsWorkflow.java
 		@Test(priority = 380)  //Select the form that is in first position (top left)
 		private void selectCurrentFormByXpath() {	
 			waitMethods.waiter(waitMethods.w1k);  //      
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
-	    	highlightElement.highLightElement(driver, ele);
-	    	ele.click();
-	   		waitMethods.waiter(waitMethods.w300);
-	    	System.out.println("Select form with name = 'AUT'");
+			String url = driver.getCurrentUrl();
+			if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) { 
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div[1]/div[1]"));
+		    	highlightElement.highLightElement(driver, ele);
+		    	ele.click();
+		   		waitMethods.waiter(waitMethods.w300);
+			} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {	  													   
+		   		WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]"));
+		    	highlightElement.highLightElement(driver, ele);
+		    	ele.click();
+		   		waitMethods.waiter(waitMethods.w300);
+			}	
+		    	System.out.println("Select first form, upper left (-127)");
 		}	
 	
-
+		
 		
 		@Test(priority = 382) //  
 		private void selectAddSectionHeading02() {			
