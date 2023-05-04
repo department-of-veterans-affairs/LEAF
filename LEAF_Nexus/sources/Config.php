@@ -22,24 +22,8 @@ class Config
 
     public $dbName;
 
-    public function __construct()
+    public function __construct(array $site_paths, array $oc_settings)
     {
-        $lp_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, 'national_leaf_launchpad');
-
-        $vars = array(':site_path' => '/' . \PORTAL_PATH);
-        $sql = 'SELECT site_uploads, orgchart_database
-                FROM sites
-                WHERE site_path= BINARY :site_path';
-
-        $site_paths = $lp_db->prepared_query($sql, $vars)[0];
-
-        $this->oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, $site_paths['orgchart_database']);
-
-        $this->dbName = $site_paths['orgchart_database'];
-
-        $oc_settings = new \Leaf\Setting($this->oc_db);
-        $oc_settings = $oc_settings->getSettings();
-
         $this->title = $oc_settings['heading'];
         $this->city = $oc_settings['subheading'];
         $this->adPath = $oc_settings['adPath'];

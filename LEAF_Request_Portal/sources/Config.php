@@ -32,22 +32,8 @@ class Config
 
     public $db;
 
-    public function __construct()
+    public function __construct(array $site_paths, array $settings)
     {
-        $lp_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, 'national_leaf_launchpad');
-
-        $vars = array(':site_path' => '/' . \PORTAL_PATH);
-        $sql = 'SELECT site_uploads, portal_database, orgchart_path, orgchart_database
-                FROM sites
-                WHERE site_path= BINARY :site_path';
-
-        $site_paths = $lp_db->prepared_query($sql, $vars)[0];
-
-        $this->db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, $site_paths['portal_database']);
-
-        $settings = new \Leaf\Setting($this->db);
-        $settings = $settings->getSettings();
-
         $this->title = $settings['heading'];
         $this->city = $settings['subHeading'];
         $this->adPath = $settings['adPath'];

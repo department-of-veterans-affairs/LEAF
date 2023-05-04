@@ -60,7 +60,8 @@ $settings = $setting_up->getSettings();
 
 if (class_exists('Portal\DbConfig')) {
     $db_config = new Portal\DbConfig();
-    $config = new Portal\Config();
+    $config = new Portal\Config($site_paths, $settings);
+    if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }
 
 $vars = array(':site_path' => $site_paths['orgchart_path']);
@@ -73,7 +74,8 @@ $oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 $oc_setting_up = new Leaf\Setting($oc_db);
 $oc_settings = $oc_setting_up->getSettings();
 
-$oc_config = new Orgchart\Config();
+$oc_config = new Orgchart\Config($site_paths, $oc_settings);
+if (!defined('ORGCHART_CONFIG')) define('ORGCHART_CONFIG', $oc_config);
 
 ini_set('session.gc_maxlifetime', 2592000);
 
@@ -123,6 +125,7 @@ if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . gete
 if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['site_path']);
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
 if (!defined('ORGCHART_DB')) define('ORGCHART_DB', $site_paths['orgchart_database']);
+if (!defined('OC_DB')) define('OC_DB', $oc_db);
 
 if (!empty($site_paths['portal_database'])) {
     if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['portal_database']);
