@@ -522,6 +522,28 @@ switch ($action) {
         }
 
         break;
+    case 'site_designer':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $libsPath = '../../libs/';
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('APIroot', '../api/');
+        $t_form->assign('libsPath', $libsPath);
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
+
+        $main->assign('javascripts', array(
+            $libsPath.'js/LEAF/XSSHelpers.js',
+            $libsPath.'js/jquery/jquery-ui.custom.min.js',
+            $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
+        ));
+
+        if ($login->checkGroup(1)) {
+            $main->assign('body', $t_form->fetch('site_designer_vue.tpl'));
+        } else {
+            $main->assign('body', 'You require System Administrator level access to view this section.');
+        }
+        break;
     default:
 //        $main->assign('useDojo', false);
         if ($login->isLogin())

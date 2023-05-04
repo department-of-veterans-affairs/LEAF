@@ -1,0 +1,39 @@
+export default {
+    name: 'custom-menu-item',
+    data() {
+        return {
+            dyniconsPath: this.libsPath + 'dynicons/svg/',
+        }
+    },
+    props: {
+        menuItem: {
+            type: Object,
+            required: true
+        },
+        enableLink: {
+            type: Boolean,
+            default: false
+        }
+    },
+    inject: [
+        'libsPath',
+    ],
+    computed: {
+        baseCardStyles() {
+            return {
+                backgroundColor: this.menuItem.bgColor,
+            }
+        },
+        anchorClasses() {
+            const linkClass = this.menuItem?.link && this.enableLink === true ? '' : ' disableClick';
+            return "custom_menu_card" + linkClass;
+        }
+    },
+    template:`<a :class="anchorClasses" :style="baseCardStyles" :href="menuItem.link" target="_blank">
+        <img v-if="menuItem.icon" :src="dyniconsPath + menuItem.icon" alt="" class="icon_choice "/>
+        <div class="card_text">
+            <div v-html="menuItem.title" :style="{color: menuItem.titleColor}" class="LEAF_custom"></div>
+            <div v-html="menuItem.subtitle" :style="{color: menuItem.subtitleColor}" class="LEAF_custom"></div>
+        </div>
+    </a>`
+}

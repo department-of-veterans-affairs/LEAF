@@ -503,7 +503,7 @@ switch ($action) {
         exit();
     default:
 
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js','../libs/js/LEAF/XSSHelpers.js',));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
@@ -527,8 +527,12 @@ switch ($action) {
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
-
-        $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
+        if (isset($settings['home_enabled']) && $settings['home_enabled'] == 1) {
+            $t_form->assign('menuItems', json_encode($settings['home_menu_json']));
+            $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
+        } else {
+            $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
+        }
 
         if ($action != 'menu' && $action != '' && $action != 'dosubmit') {
             $main->assign('status', 'The page you are looking for does not exist or may have been moved. Please update your bookmarks.');

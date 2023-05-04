@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 
-import LeafFormDialog from "./components/LeafFormDialog.js";
+import LeafFormDialog from "../common/components/LeafFormDialog.js";
+
 import IndicatorEditingDialog from "./components/dialog_content/IndicatorEditingDialog.js";
 import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";
 import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
@@ -14,9 +15,7 @@ import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditor
 import ModFormMenu from "./components/ModFormMenu.js";
 import ResponseMessage from "./components/ResponseMessage";
 
-
 import './LEAF_FormEditor.scss';
-import './LEAF_IfThen.scss';
 
 export default {
     data() {
@@ -76,7 +75,6 @@ export default {
             inactiveForms: computed(() => this.inactiveForms),
             supplementalForms: computed(() => this.supplementalForms),
             showCertificationStatus: computed(() => this.showCertificationStatus),
-            showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),

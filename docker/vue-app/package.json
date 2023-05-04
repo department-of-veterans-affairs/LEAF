@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-vue": "webpack --mode=production",
-    "dev-vue": "webpack --mode=development --watch"
+    "dev": "webpack --mode=development --watch",
+    "build": "webpack --mode=production"
   },
   "dependencies": {
     "vue": "^3.2.45",
