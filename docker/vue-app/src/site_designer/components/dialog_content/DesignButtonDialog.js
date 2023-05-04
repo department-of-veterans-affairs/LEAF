@@ -35,19 +35,14 @@ export default {
         'setDialogButtonText',
         'tagsToRemove',
     ],
-    mounted() {
-        this.resetIfNoVisibleText('title');
-        this.resetIfNoVisibleText('subtitle');
-        this.useTrumbowEditor();
-    },
     computed: {
         menuItemOBJ() {
             return {
                 id: this.id,
                 order: this.order,
-                title: this.title,
+                title: XSSHelpers.stripAllTags(this.title),
                 titleColor: this.titleColor,
-                subtitle: this.subtitle,
+                subtitle: XSSHelpers.stripAllTags(this.subtitle),
                 subtitleColor: this.useTitleColor ? this.titleColor : this.subtitleColor,
                 bgColor: this.bgColor,
                 icon: this.useAnIcon === true ? this.icon : '',
@@ -60,60 +55,6 @@ export default {
         },
     },
     methods: {
-        useTrumbowEditor() {
-            $('#menu_title_trumbowyg').trumbowyg({
-                btnsDef: {
-                    formats: {
-                        dropdown: ['p','h1','h2','h3','h4'],
-                        ico:'p'
-                    }
-                },
-                tagsToRemove: this.tagsToRemove,
-                btns: [['formats'], 'bold', 'italic', 'underline',
-                    'justifyLeft', 'justifyCenter', 'justifyRight']
-            });
-            $('#menu_title_trumbowyg').trumbowyg('html', this.title);
-            $('#menu_subtitle_trumbowyg').trumbowyg({
-                btnsDef: {
-                    formats: {
-                        dropdown: ['p','h1','h2','h3','h4'],
-                        ico:'p'
-                    }
-                },
-                tagsToRemove: this.tagsToRemove,
-                btns: [['formats'], 'bold', 'italic', 'underline',
-                    'justifyLeft', 'justifyCenter', 'justifyRight']
-            });
-            $('#menu_subtitle_trumbowyg').trumbowyg('html', this.subtitle);
-            $('.trumbowyg-box').css({
-                'min-height': '60px',
-                'height': 'auto',
-                'width':'400px',
-                'margin': '0 0.5rem 1rem 0'
-            });
-            $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-                'min-height': '40px',
-                'height': 'auto',
-                'padding': '0.5rem'
-            });
-        },
-        updateTrumbowygText(section = 'title') {
-            if (['title','subtitle'].includes(section)) {
-                const elTrumbow = document.querySelector(`#menu_${section}_trumbowyg`);
-                if(elTrumbow !== undefined && elTrumbow !== null) {
-                    //replace in case tags were written in the editor to remove unwanted
-                    const content = elTrumbow.innerHTML.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
-                    this[section] = XSSHelpers.stripTags(content, this.tagsToRemove);
-                    console.log(this[section])
-                }
-            }
-        },
-        //gets rid of any invisible content eg <h1></h1>
-        resetIfNoVisibleText(keyname = 'title') {
-            if (this[keyname] !== undefined && this[keyname] !== '' && XSSHelpers.decodeHTMLEntities(this[keyname]).trim() === '') {
-                this[keyname] = '';
-            };
-        },
         getIconSrc(absolutePath = '') {
             const index = absolutePath.indexOf('dynicons\/');
             return this.libsPath + absolutePath.slice(index);
@@ -167,16 +108,10 @@ export default {
                 </label>
             </div>
         </div>
-        <div v-if="!isBuiltInCard" style="margin-bottom: 1rem;">
-            <label for="card_link">Card Link (full URL)</label>
-            <input type="text" id="card_link" style="width: 475px;" v-model="link" />
-        </div>
         <div class="designer_inputs">
             <div>
-                <label for="menu_title_trumbowyg" id="menu_title_trumbowyg_label">Button Title</label>
-                <div id="menu_title_trumbowyg" aria-labelledby="menu_title_trumbowyg_label"
-                    @input="updateTrumbowygText('title')">
-                </div>
+                <label for="menu_title">Card Title</label>
+                <textarea id="menu_title" v-model="title"></textarea>
             </div>
             <div>
                 <label for="title_color">Font Color</label>
@@ -185,13 +120,11 @@ export default {
         </div>
         <div class="designer_inputs">
             <div>
-                <label for="menu_subtitle_trumbowyg" id="menu_subtitle_trumbowyg_label">Button Subtitle</label>
-                <div id="menu_subtitle_trumbowyg" aria-labelledby="menu_subtitle_trumbowyg_label"
-                    @input="updateTrumbowygText('subtitle')">
-                </div>
+                <label for="menu_subtitle">Card Subtitle</label>
+                <textarea id="menu_subtitle" v-model="subtitle"></textarea>
             </div>
             <div>
-                <div v-show="!useTitleColor" style="margin-bottom: 1rem;">
+                <div v-show="!useTitleColor" style="margin-bottom: 0.5rem;">
                     <label for="subtitle_color" style="margin-right: 0.5rem;">Font Color</label>
                     <input type="color" id="subtitle_color" v-model="subtitleColor"/>
                 </div>
@@ -200,6 +133,10 @@ export default {
                     <span class="leaf_check"></span>title color
                 </label>
             </div>
+        </div>
+        <div v-if="!isBuiltInCard" style="margin-bottom: 1rem;">
+            <label for="card_link">Card Link (full URL)</label>
+            <input type="text" id="card_link" style="width: 475px;" v-model="link" />
         </div>
         <div class="designer_inputs">
             <label class="checkable leaf_check" for="use_icon_confirm">

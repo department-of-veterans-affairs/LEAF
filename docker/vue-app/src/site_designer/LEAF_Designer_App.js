@@ -22,7 +22,7 @@ export default {
                 {
                     id: "btn_reports",
                     order: -1,
-                    title: "<h3>Report Builder</h3>",
+                    title: "Report Builder",
                     titleColor: "#ffffff",
                     subtitle: "View saved links to requests",
                     subtitleColor: "#ffffff",
@@ -34,7 +34,7 @@ export default {
                 {
                     id: "btn_bookmarks",
                     order: -2,
-                    title: "<h3>Bookmarks</h3>",
+                    title: "Bookmarks",
                     titleColor: "#000000",
                     subtitle: "View saved links to requests",
                     subtitleColor: "#000000",
@@ -46,7 +46,7 @@ export default {
                 {
                     id: "btn_inbox",
                     order: -3,
-                    title: "<h3>Inbox</h3>",
+                    title: "Inbox",
                     titleColor: "#000000",
                     subtitle: "Review and apply actions to active requests",
                     subtitleColor: "#000000",
@@ -58,7 +58,7 @@ export default {
                 {
                     id: "btn_new_request",
                     order: -4,
-                    title: "<h3>New Request</h3>",
+                    title: "New Request",
                     titleColor: "#ffffff",
                     subtitle: "Start a new request",
                     subtitleColor: "#ffffff",
@@ -71,7 +71,9 @@ export default {
 
             /* general modal properties */
             formSaveFunction: ()=> {
-                if(this.$refs[this.dialogFormContent]) {
+                if(this.$refs[this.dialogFormContent] &&
+                    typeof this.$refs[this.dialogFormContent].onSave === 'function'
+                ) {
                     this.$refs[this.dialogFormContent].onSave();
                 } else { console.log('possible error setting modal save method')}
             },

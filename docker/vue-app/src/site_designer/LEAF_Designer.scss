@@ -56,7 +56,11 @@ body {
             display:flex;
             gap:1rem;
             margin-bottom:0.5rem;
-
+            textarea {
+                width: 300px;
+                height: 60px;
+                resize: none;
+            }
             &.wrap {
                 flex-wrap:wrap;
             }
