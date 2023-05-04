@@ -17,7 +17,7 @@
 <noscript><div class="alert"><span>Javascript must be enabled for this version of software to work!</span></div></noscript>
 
 <div id="links" style="position: absolute; padding: 24px; z-index: 1000; display: none; background-color: white; border: 1px solid black; width: 310px; box-shadow: 0 2px 6px #8e8e8e;">
-    <a href="../{$orgchartPath}">
+    <a href="{$orgchartPath}">
         <span class="menuButtonSmall" style="background-color: #ffecb7">
             <img class="menuIconSmall" src="../dynicons/?img=system-users.svg&amp;w=76" style="position: relative" alt="Org Chart" title="Org Chart" />
             <span class="menuTextSmall">Organizational Chart</span><br />

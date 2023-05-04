@@ -700,6 +700,13 @@ const ConditionsEditor = Vue.createApp({
     },
   },
   computed: {
+    showSetup() {
+      return  !this.showRemoveConditionModal && this.showConditionEditor &&
+          (this.selectedChildOutcome.toLowerCase() === 'crosswalk' || this.selectableParents.length > 0);
+    },
+    showNoOptionsMessage() {
+      return !['', 'crosswalk'].includes(this.selectedChildOutcome.toLowerCase()) && this.selectableParents.length < 1;
+    },
     /**
      *
      * @returns {string} base format of the parent question (dropdown, multiselect)
@@ -953,34 +960,36 @@ const ConditionsEditor = Vue.createApp({
                               value="crosswalk" :selected="conditions.selectedOutcome.toLowerCase()==='crosswalk'">Load Dropdown or Crosswalk
                             </option>
                     </select>
-                    <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
-                    <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
-                    <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
-                        name="child-prefill-value-selector"
-                        id="child_prefill_entry"
-                        @change="updateSelectedChildValue($event.target)">
-                        <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>
-                        <option v-for="val in selectedChildValueOptions"
-                            :value="val"
-                            :key="val"
-                            :selected="textValueDisplay(conditions.selectedChildValue)===val">
-                            {{ val }}
-                        </option>
-                    </select>
-                    <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (conditions.childFormat==='multiselect' || childFormat==='checkboxes')"
-                        placeholder="select some options"
-                        multiple="true"
-                        id="child_prefill_entry"
-                        style="display: none;"
-                        name="child-prefill-value-selector"
-                        @change="updateSelectedChildValue($event.target)">
-                    </select>
-                    <input v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='text' || childFormat==='textarea')"
-                        id="child_prefill_entry"
-                        @change="updateSelectedChildValue($event.target)"
-                        :value="textValueDisplay(conditions.selectedChildValue)" />
+                    <template v-if="!showNoOptionsMessage">
+                      <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'" class="input-info">Enter a pre-fill value</span>
+                      <!-- NOTE: PRE-FILL ENTRY AREA dropdown, multidropdown, text, radio, checkboxes -->
+                      <select v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='dropdown' || childFormat==='radio')"
+                          name="child-prefill-value-selector"
+                          id="child_prefill_entry"
+                          @change="updateSelectedChildValue($event.target)">
+                          <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>
+                          <option v-for="val in selectedChildValueOptions"
+                              :value="val"
+                              :key="val"
+                              :selected="textValueDisplay(conditions.selectedChildValue)===val">
+                              {{ val }}
+                          </option>
+                      </select>
+                      <select v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (conditions.childFormat==='multiselect' || childFormat==='checkboxes')"
+                          placeholder="select some options"
+                          multiple="true"
+                          id="child_prefill_entry"
+                          style="display: none;"
+                          name="child-prefill-value-selector"
+                          @change="updateSelectedChildValue($event.target)">
+                      </select>
+                      <input v-else-if="conditions.selectedOutcome.toLowerCase()==='pre-fill' && (childFormat==='text' || childFormat==='textarea')"
+                          id="child_prefill_entry"
+                          @change="updateSelectedChildValue($event.target)"
+                          :value="textValueDisplay(conditions.selectedChildValue)" />
+                    </template>
                 </div>
-                <div v-if="!showRemoveConditionModal && showConditionEditor && selectableParents.length > 0" class="if-then-setup">
+                <div v-if="showSetup" class="if-then-setup">
                   <template v-if="conditions.selectedOutcome.toLowerCase()!=='crosswalk'">
                     <h4 style="margin: 0;">IF</h4>
                     <div>
@@ -1073,7 +1082,7 @@ const ConditionsEditor = Vue.createApp({
                     <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
                   </template>
                 </div>
-                <div v-if="selectableParents.length < 1">No options are currently available for the indicators on this form</div>
+                <div v-if="showNoOptionsMessage">No options are currently available for this selection</div>
             </div>
 
             <!--NOTE: save cancel panel  -->
