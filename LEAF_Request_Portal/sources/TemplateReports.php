@@ -280,16 +280,16 @@ class TemplateReports
 
         $list = $this->getReportTemplateList();
         $time = date("Y-m-d h:i:s");
-        $random_number = rand(1, 100);
+        $templateID = uniqid();
 
         // Generate a new random number if the previous one is already being used
-        while (file_exists("../templates_history/leaf_programmer/{$random_number}.'_'.{$template}")) {
-            $random_number = rand(1, 100);
+        while (file_exists("../templates_history/leaf_programmer/{$templateID}.'_'.{$template}")) {
+            $templateID = uniqid();
         }
 
         if (array_search($template, $list) !== false) {
             $fileData = $_POST['file'];
-            $fileName = $random_number . "_" . $template;
+            $fileName = $templateID . "_" . $template;
             $filePath = "../templates_history/leaf_programmer/{$fileName}";
             file_put_contents($filePath, $fileData);
 
