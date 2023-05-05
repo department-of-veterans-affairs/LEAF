@@ -904,10 +904,14 @@ function setFormatElementValue() {
                     properties.name = $(this).children('input:eq(0)').val();
                 }
                 properties.id = $(this).attr('id');
-                properties.type = $(this).find('select').val();
+                properties.type = $(this).find('select[id^="grid_cell_type"]').val();
                 if(properties.type !== undefined){
                     if(properties.type === 'dropdown'){
                         properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                    } else if(properties.type === 'dropdown_file'){
+                        properties.file = $(this).find('select[id^="dropdown_file_select"]').val();
+                    } else {
+                        console.log(properties.type);
                     }
                 } else {
                     properties.type = 'textarea';
@@ -1023,11 +1027,23 @@ function makeGrid(columns) {
         let name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         let id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
         $(gridBodyElement).append(
-            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
-            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
-            '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-            '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
+            `<div tabindex="0" id="${id}" class="cell">
+                <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />
+                <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />
+                </br>
+                <span class="columnNumber">Column #${(i + 1)}: </span>
+                <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
+                </br>&nbsp;
+                <input type="text" value="${name}" onchange="updateNames();" />
+                </br>&nbsp;</br>
+                <label for="grid_cell_type_${i + 1}" style="display: block; text-align: left;">Type: </label>
+                <select id="grid_cell_type_${i + 1}" style="width: 185px;" onchange="toggleDropDown(this.value, this, ${i + 1});">
+                    <option value="text">Single line input</option>
+                    <option value="date">Date</option>
+                    <option value="dropdown">Drop Down</option>
+                    <option value="dropdown_file">Dropdown From File</option>
+                    <option value="textarea">Multi-line text</option>
+                </select>`
         );
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > div:last'), false);
@@ -1057,23 +1073,83 @@ function makeGrid(columns) {
                     $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
                 }
             }
+            if(gridJSON[i].type.toString() === 'dropdown_file') {
+                if($(gridBodyElement + ' > div:eq(' + i + ') > div.dropdown_file').length === 0) {
+                    const gridFile = gridJSON[i]?.file;
+                    let options = '<option value="">Select a File</option>';
+                    for (let f = 0; f < fileManagerTextFiles.length; f++) {
+                        const filename = XSSHelpers.stripAllTags(fileManagerTextFiles[f]);
+                        const attrSelected = gridFile === filename ? 'selected' : '';
+                        options += `<option value=${filename} ${attrSelected}>${filename}</option>`
+                    }
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append(`
+                        <div class="dropdown_file" style="margin-top: 0.5rem;">
+                            <label for="dropdown_file_select_${i}" style="display: block; text-align: left;">File:</label>
+                            <select id="dropdown_file_select_${i}" style="width: 185px;">${options}</select>
+                        </div>`
+                    );
+                }
+            }
         }
     }
 }
 
 /**
- * Purpose: Dropdown for Grid Options
+ * Purpose: handle Dropdowns for normal and file Grid options, update aria status
  * @param type
  * @param cell
+ * @param columnNumber
  */
-function toggleDropDown(type, cell){
-    if(type === 'dropdown'){
-        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
-        $('#tableStatus').attr('aria-label', 'Make drop options in the space below, one option per line.');
-    } else {
-        $(cell).parent().find('span.dropdown').remove();
-        $('#tableStatus').attr('aria-label', 'Dropdown options box removed');
-    }
+function toggleDropDown(type, cell, columnNumber) {
+    elJQDropDown = $(cell).parent().find('span.dropdown');
+    elJQDropDownFile = $(cell).parent().find('div.dropdown_file');
+    let ariaStatus = '';
+
+    switch(type) {
+        case 'dropdown':
+            if(elJQDropDownFile.length === 1) {
+                elJQDropDownFile.remove();
+                ariaStatus += `Source file select removed.  `;
+            }
+            ariaStatus += `Dropdown options box added.  Make drop options in the space below, one option per line.`;
+            $(cell).parent().append(
+                `<span class="dropdown">
+                    <div>One option per line</div>
+                    <textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea>
+                </span>`
+            );
+            $('#tableStatus').attr('aria-label', ariaStatus);
+            break;
+        case 'dropdown_file':
+            if(elJQDropDown.length === 1) {
+                elJQDropDown.remove();
+                ariaStatus += 'Dropdown options box removed. ';
+            }
+            let options = '<option value="">Select File</option>';
+            for (let i = 0; i < fileManagerTextFiles.length; i++) {
+                options += `<option value=${XSSHelpers.stripAllTags(fileManagerTextFiles[i])}>${fileManagerTextFiles[i]}</option>`
+            }
+            $(cell).parent().append(`
+                <div class="dropdown_file" style="margin-top: 0.5rem;">
+                    <label for="dropdown_file_select_${columnNumber}" style="display: block; text-align: left;">File:</label>
+                    <select id="dropdown_file_select_${columnNumber}" style="width: 185px;">${options}</select>
+                </div>`
+            );
+            ariaStatus += 'Source file select added.';
+            $('#tableStatus').attr('aria-label', ariaStatus);
+            break;
+        default:
+            if(elJQDropDown.length === 1) {
+                elJQDropDown.remove();
+                ariaStatus += 'Dropdown options box removed.';
+            }
+            if(elJQDropDownFile.length === 1) {
+                elJQDropDownFile.remove();
+                ariaStatus += 'Source file select removed.';
+            }
+            $('#tableStatus').attr('aria-label', ariaStatus);
+            break;
+	}
 }
 
 /**
@@ -1109,11 +1185,23 @@ function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
     $(gridBodyElement).append(
-        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
-        '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
-        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
-        '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-        '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
+        `<div tabindex="0" id="${makeColumnID()}" class="cell">
+            <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />
+            <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />
+            </br>
+            <span class="columnNumber"></span>
+            <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
+            </br>&nbsp;
+            <input type="text" value="No title" onchange="updateNames();" />
+            </br>&nbsp;</br>
+            <label for="grid_cell_type_${columns}" style="display: block; text-align: left;">Type: </label>
+            <select id="grid_cell_type_${columns}" style="width: 185px;" onchange="toggleDropDown(this.value, this, columns);">
+                <option value="text">Single line input</option>
+                <option value="date">Date</option>
+                <option value="dropdown">Drop Down</option>
+                <option value="dropdown_file">Dropdown From File</option>
+                <option value="textarea">Multi-line text</option>
+            </select>`
     );
     $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
     $(gridBodyElement + ' > div:last').focus();
@@ -2146,6 +2234,24 @@ function fetchFormSecureInfo() {
         renderSecureFormsInfo(res)
     });
 }
+/**
+ * Purpose: Get text files from file mngr for use with grid questions
+*/
+let fileManagerTextFiles = [];
+function fetchDropdownFiles() {
+    $.ajax({
+        type: 'GET',
+        url: '../api/system/files',
+        success: (res) => {
+            const files = res || [];
+            fileManagerTextFiles = files.filter(filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
+        },
+        error: (err) => {
+            console.log(err);
+        },
+        cache: false
+    });
+}
 
 /**
  * Purpose: Create New form
@@ -2235,6 +2341,7 @@ $(function() {
 
     showFormBrowser();
     fetchFormSecureInfo();
+    fetchDropdownFiles();
 
     <!--{if $form != ''}-->
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };
