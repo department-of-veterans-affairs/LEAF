@@ -911,6 +911,7 @@ function setFormatElementValue() {
                     }
                     if(properties.type === 'dropdown_file'){
                         properties.file = $(this).find('select[id^="dropdown_file_select"]').val();
+                        properties.hasHeader = Boolean(+$(this).find('select[id^="dropdown_file_header_select"]').val());
                     }
                 } else {
                     properties.type = 'textarea';
@@ -1075,6 +1076,7 @@ function makeGrid(columns) {
             if(gridJSON[i].type.toString() === 'dropdown_file') {
                 if($(gridBodyElement + ' > div:eq(' + i + ') > div.dropdown_file').length === 0) {
                     const gridFile = gridJSON[i]?.file;
+                    const hasHeader = gridJSON[i]?.hasHeader;
                     let options = '<option value="">Select a File</option>';
                     for (let f = 0; f < fileManagerTextFiles.length; f++) {
                         const filename = XSSHelpers.stripAllTags(fileManagerTextFiles[f]);
@@ -1084,7 +1086,12 @@ function makeGrid(columns) {
                     $(gridBodyElement + ' > div:eq(' + i + ')').append(`
                         <div class="dropdown_file" style="margin-top: 0.5rem;">
                             <label for="dropdown_file_select_${i}" style="display: block; text-align: left;">File:</label>
-                            <select id="dropdown_file_select_${i}" style="width: 185px;">${options}</select>
+                            <select id="dropdown_file_select_${i}" style="width: 185px; margin-bottom:0.25rem;">${options}</select>
+                            <label for="dropdown_file_header_select_${i}" style="display: block; text-align: left;">Does file contain headers</label>
+                            <select id="dropdown_file_header_select_${i}" style="width: 185px;">
+                                <option value="0" ${hasHeader === false ? 'selected': ''}>No</option>
+                                <option value="1" ${hasHeader === true ? 'selected': ''}>Yes</option>
+                            </select>
                         </div>`
                     );
                 }
@@ -1131,7 +1138,12 @@ function toggleDropDown(type, cell, columnNumber) {
             $(cell).parent().append(`
                 <div class="dropdown_file" style="margin-top: 0.5rem;">
                     <label for="dropdown_file_select_${columnNumber}" style="display: block; text-align: left;">File:</label>
-                    <select id="dropdown_file_select_${columnNumber}" style="width: 185px;">${options}</select>
+                    <select id="dropdown_file_select_${columnNumber}" style="width: 185px; margin-bottom:0.25rem;">${options}</select>
+                    <label for="dropdown_file_header_select_${columnNumber}" style="display: block; text-align: left;">Does file contain headers</label>
+                    <select id="dropdown_file_header_select_${columnNumber}" style="width: 185px;">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
                 </div>`
             );
             ariaStatus += 'Source file select added.';

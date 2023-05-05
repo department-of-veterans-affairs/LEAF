@@ -26,7 +26,6 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
   }
   function makeDropdown(options, selected, headerName = "") {
     let dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
-    dropdownElement += `<option value="">Select an option</option>`;
     for (let i = 0; i < options.length; i++) {
       const optVal = options[i].replaceAll('\"', '&quot;');
       const attrSelected = selected === options[i] ? 'selected' : '';
@@ -104,8 +103,13 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
           case "dropdown_file":
             const filename = gridParameters[j].file;
             if (fileOptions[filename] !== undefined) {
+              const hasHeader = gridParameters[j].hasHeader;
+              const loadedOptions = fileOptions[filename]?.options || [];
+              const firstRow =  fileOptions[filename]?.firstRow || '';
+              const options = hasHeader ?
+                loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
               element = makeDropdown(
-                fileOptions[filename],
+                options,
                 selectedRowValues[j] || null,
                 gridParameters[j].name
               );
@@ -333,8 +337,12 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
             .then(fileContent => {
               let list = fileContent.split(/\n/).map(line => line.split(",")[0]) || [];
               list = list.map(o => XSSHelpers.stripAllTags(o.trim()));
+              const firstRow = list[0];
               list = Array.from(new Set(list)).sort();
-              fileOptions[filename] = list;
+              fileOptions[filename] = {
+                firstRow,
+                options: list
+              };
               count += 1;
               if (count === uniqueFiles.length) {
                 resolve();
@@ -370,12 +378,17 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
           break;
         case "dropdown_file":
           const filename = gridParameters[i].file;
+          const hasHeader = gridParameters[i].hasHeader;
+          const loadedOptions = fileOptions[filename]?.options || [];
+          const firstRow =  fileOptions[filename]?.firstRow || '';
+          const options = hasHeader ?
+            loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
           $(gridBodyElement + " > tr:last").append(
             '<td aria-label="' +
             gridParameters[i].name +
             '">' +
             makeDropdown(
-              fileOptions[filename] || [],
+              options,
               null,
               gridParameters[i].name
             ) +
