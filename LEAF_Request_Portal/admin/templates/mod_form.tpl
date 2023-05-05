@@ -908,10 +908,9 @@ function setFormatElementValue() {
                 if(properties.type !== undefined){
                     if(properties.type === 'dropdown'){
                         properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                    } else if(properties.type === 'dropdown_file'){
+                    }
+                    if(properties.type === 'dropdown_file'){
                         properties.file = $(this).find('select[id^="dropdown_file_select"]').val();
-                    } else {
-                        console.log(properties.type);
                     }
                 } else {
                     properties.type = 'textarea';
