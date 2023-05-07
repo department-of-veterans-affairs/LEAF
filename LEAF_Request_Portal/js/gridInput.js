@@ -102,18 +102,16 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
             break;
           case "dropdown_file":
             const filename = gridParameters[j].file;
-            if (fileOptions[filename] !== undefined) {
-              const hasHeader = gridParameters[j].hasHeader;
-              const loadedOptions = fileOptions[filename]?.options || [];
-              const firstRow =  fileOptions[filename]?.firstRow || '';
-              const options = hasHeader ?
-                loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
-              element = makeDropdown(
-                options,
-                selectedRowValues[j] || null,
-                gridParameters[j].name
-              );
-            }
+            const hasHeader = gridParameters[j].hasHeader;
+            const loadedOptions = fileOptions[filename]?.options || [];
+            const firstRow =  fileOptions[filename]?.firstRow || '';
+            const options = hasHeader ?
+              loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+            element = makeDropdown(
+              options,
+              selectedRowValues[j] || null,
+              gridParameters[j].name
+            );
             break;
           case "textarea":
             element = `<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;" aria-label="${gridParameters[j].name}"></textarea>`;
@@ -303,8 +301,8 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
               resolve(xhttpInds.responseText);
               break;
             case 404:
-              let content = `The file for indicator ${iID} was not found at files/${fileName}.`
-              content += `\nCheck the entered file name in setup and in the LEAF file manager.`
+              let content = `The file '${fileName}' for indicator ${iID} was not found.`
+              content += `\nCheck the file in the LEAF file manager or notify an admin.`
               reject(new Error(content));
               break;
             default:
@@ -337,7 +335,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
             .then(fileContent => {
               let list = fileContent.split(/\n/).map(line => line.split(",")[0]) || [];
               list = list.map(o => XSSHelpers.stripAllTags(o.trim()));
-              const firstRow = list[0];
+              const firstRow = list[0] || '';
               list = Array.from(new Set(list)).sort();
               fileOptions[filename] = {
                 firstRow,
@@ -369,7 +367,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
               gridParameters[i].name +
               '">' +
               makeDropdown(
-                gridParameters[i].options,
+                gridParameters[i].options || [],
                 null,
                 gridParameters[i].name
               ) +
