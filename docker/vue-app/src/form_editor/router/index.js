@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-const FormEditorView = () => import("../views/FormEditorView");
-const RestoreFieldsView = () => import("../views/RestoreFieldsView");
+const FormEditorView = () => import(/* webpackPrefetch: true, webpackChunkName:"form_editor/form-editor-view" */"../views/FormEditorView");
+const RestoreFieldsView = () => import(/* webpackChunkName:"form_editor/restore-fields-view" */"../views/RestoreFieldsView");
 
 const routes = [
     {
