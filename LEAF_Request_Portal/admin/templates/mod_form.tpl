@@ -1009,7 +1009,28 @@ function updateNames(){
         gridJSON[i].id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
     });
 }
-
+/**
+ * Purpose: Add basic HTML input areas to the grid cell
+ */
+function gridCellBasicInputs(name = '', columnNumber = '', id = makeColumnID(), isNewRow = false) {
+    return `<div tabindex="0" id="${id}" class="cell">
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer;" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: ${isNewRow ? 'none;' : 'inline;'}" />
+      </br>
+      <span class="columnNumber">Column #${columnNumber}: </span>
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
+      </br>&nbsp;
+      <input type="text" value="${name}" onchange="updateNames();" />
+      </br>&nbsp;</br>
+      <label for="grid_cell_type_${columnNumber}" style="display: block; text-align: left;">Type: </label>
+      <select id="grid_cell_type_${columnNumber}" style="width: 185px;" onchange="toggleDropDown(this.value, this, ${columnNumber});">
+        <option value="text">Single line input</option>
+        <option value="date">Date</option>
+        <option value="dropdown">Drop Down</option>
+        <option value="dropdown_file">Dropdown From File</option>
+        <option value="textarea">Multi-line text</option>
+      </select>`;
+}
 /**
  * Purpose: Make Grid for Input Option
  * @param columns
@@ -1026,25 +1047,7 @@ function makeGrid(columns) {
         }
         let name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         let id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
-        $(gridBodyElement).append(
-            `<div tabindex="0" id="${id}" class="cell">
-                <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />
-                <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" />
-                </br>
-                <span class="columnNumber">Column #${(i + 1)}: </span>
-                <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
-                </br>&nbsp;
-                <input type="text" value="${name}" onchange="updateNames();" />
-                </br>&nbsp;</br>
-                <label for="grid_cell_type_${i + 1}" style="display: block; text-align: left;">Type: </label>
-                <select id="grid_cell_type_${i + 1}" style="width: 185px;" onchange="toggleDropDown(this.value, this, ${i + 1});">
-                    <option value="text">Single line input</option>
-                    <option value="date">Date</option>
-                    <option value="dropdown">Drop Down</option>
-                    <option value="dropdown_file">Dropdown From File</option>
-                    <option value="textarea">Multi-line text</option>
-                </select>`
-        );
+        $(gridBodyElement).append(gridCellBasicInputs(name, i + 1, id, false));
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > div:last'), false);
             leftArrows($(gridBodyElement + ' > div:last'), false);
@@ -1195,25 +1198,7 @@ function rightArrows(cell, toggle){
 function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
-    $(gridBodyElement).append(
-        `<div tabindex="0" id="${makeColumnID()}" class="cell">
-            <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />
-            <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" />
-            </br>
-            <span class="columnNumber"></span>
-            <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
-            </br>&nbsp;
-            <input type="text" value="No title" onchange="updateNames();" />
-            </br>&nbsp;</br>
-            <label for="grid_cell_type_${columns}" style="display: block; text-align: left;">Type: </label>
-            <select id="grid_cell_type_${columns}" style="width: 185px;" onchange="toggleDropDown(this.value, this, columns);">
-                <option value="text">Single line input</option>
-                <option value="date">Date</option>
-                <option value="dropdown">Drop Down</option>
-                <option value="dropdown_file">Dropdown From File</option>
-                <option value="textarea">Multi-line text</option>
-            </select>`
-    );
+    $(gridBodyElement).append(gridCellBasicInputs('No Title', columns, makeColumnID(), true));
     $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
     $(gridBodyElement + ' > div:last').focus();
     updateColumnNumbers();

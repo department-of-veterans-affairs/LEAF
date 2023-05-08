@@ -26,6 +26,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
   }
   function makeDropdown(options, selected, headerName = "") {
     let dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
+    dropdownElement += `<option value="">Select an option</option>`;
     for (let i = 0; i < options.length; i++) {
       const optVal = options[i].replaceAll('\"', '&quot;');
       const attrSelected = selected === options[i] ? 'selected' : '';
