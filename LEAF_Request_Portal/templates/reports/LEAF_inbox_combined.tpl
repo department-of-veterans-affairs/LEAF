@@ -512,7 +512,8 @@
                         icon: site.icon,
                         fontColor: site.fontColor,
                         cols: site.cols,
-                        nonAdmin: true
+                        nonAdmin: true,
+                        order: site.order,
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
