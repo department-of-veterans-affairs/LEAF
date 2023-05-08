@@ -3,7 +3,6 @@ import { computed } from 'vue';
 import LeafFormDialog from "../common/components/LeafFormDialog.js";
 import './LEAF_Designer.scss';
 
-import ModHomeMenu from "./components/ModHomeMenu.js";
 import DesignButtonDialog from "./components/dialog_content/DesignButtonDialog.js";
 
 export default {
@@ -11,8 +10,17 @@ export default {
         return {
             CSRFToken: CSRFToken,
             APIroot: APIroot,
+            rootPath: '../',
             libsPath: libsPath,
-            home_enabled: null,
+            customizableTemplates: ['homepage', 'search'], //NOTE: only homepage is tech a view
+            views: ['homepage'],
+            custom_page_select: 'homepage',
+            isPostingUpdate: false,
+            isEditingMode: true,
+            publishedStatus: {
+                homepage: null,
+                search: null
+            },
             iconList: [],
             menuItemList: [],
             menuItem: null,
@@ -87,6 +95,8 @@ export default {
         return {
             CSRFToken: computed(() => this.CSRFToken),
             iconList: computed(() => this.iconList),
+            isPostingUpdate: computed(() => this.isPostingUpdate),
+            isEditingMode: computed(() => this.isEditingMode),
             menuItemList: computed(() => this.menuItemList),
             allBuiltinsPresent: computed(() => this.allBuiltinsPresent),
             menuItem: computed(() => this.menuItem),
@@ -94,21 +104,23 @@ export default {
             dialogTitle: computed(() => this.dialogTitle),
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),
+            publishedStatus: computed(() => this.publishedStatus),
 
             //static
             closeFormDialog: this.closeFormDialog,
             setDialogButtonText: this.setDialogButtonText,
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            rootPath: this.rootPath,
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             editMenuItemList: this.editMenuItemList,
             postMenuItemList: this.postMenuItemList,
+            postEnableTemplate: this.postEnableTemplate,
             tagsToRemove: this.tagsToRemove
         }
     },
     components: {
-        ModHomeMenu,
         LeafFormDialog,
         DesignButtonDialog,
     },
@@ -128,22 +140,30 @@ export default {
         }
     },
     methods: {
-        postCustomHomeEnabled() {
-            const flag = +(!this.home_enabled);
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/enable_home`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    home_enabled: flag,
-                },
-                success: (res) => {
-                    if (+res === 1) {
-                        this.home_enabled = !this.home_enabled;
-                    }
-                },
-                error: (err) => console.log(err)
-            });
+        setEditMode(isEditMode = true) {
+            this.isEditingMode = isEditMode;
+        },
+        //TODO: further organization of enabled templates and design data
+        postEnableTemplate(templateName = '') {
+            if(this.customizableTemplates.includes(templateName)) {
+                const flag = +(!this.publishedStatus[templateName]);
+                this.isPostingUpdate = true;
+                $.ajax({
+                    type: 'POST',
+                    url: `${this.APIroot}site/settings/enable_${templateName}`,
+                    data: {
+                        CSRFToken: this.CSRFToken,
+                        enabled: flag,
+                    },
+                    success: (res) => {
+                        if (+res === 1) {
+                            this.publishedStatus[templateName] = !this.publishedStatus[templateName];
+                            this.isPostingUpdate = false;
+                        }
+                    },
+                    error: (err) => console.log(err)
+                });
+            }
         },
         generateID() {
             let result = '';
@@ -207,7 +227,6 @@ export default {
             } else { //editing modal - either updating or deleting an item
                 let items = this.menuItemList.filter(item => item.id !== menuItem.id);
                 if (markedForDeletion !== true) {
-                    console.log(menuItem);
                     items.push(menuItem);
                     items = items.sort((a,b) => a.order - b.order);
                 }
@@ -215,6 +234,7 @@ export default {
             }
         },
         postMenuItemList() {
+            this.isPostingUpdate = true;
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}site/settings/home_menu_json`,
@@ -224,8 +244,9 @@ export default {
                 },
                 success: (res) => {
                     if(+res !== 1) {
-                        console.log('unexpected value returned', res)
+                        console.log('unexpected value returned', res);
                     }
+                    this.isPostingUpdate = false;
                     this.getSettingsData();
                 },
                 error: (err) => console.log(err)
@@ -243,22 +264,18 @@ export default {
                         item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
                     });
                     this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
-                    this.home_enabled = +res?.home_enabled === 1;
+                    this.publishedStatus.homepage = +res?.home_enabled === 1;
+                    this.publishedStatus.search = +res?.search_enabled === 1;
                 },
                 error: (err) => console.log(err)
             });
         },
         getIconList() {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}iconPicker/list`,
-                    success: (res) => {
-                        this.iconList = res || [];
-                        resolve();
-                    },
-                    error: (err) => reject(err)
-                });
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}iconPicker/list`,
+                success: (res) => this.iconList = res || [],
+                error: (err) => console.log(err)
             });
         },
 
@@ -277,6 +294,13 @@ export default {
             this.showFormDialog = true;
             this.dialogTitle = '<h2>Menu Editor</h2>';
             this.dialogFormContent = 'design-button-dialog';
+        }
+    },
+    watch: {
+        custom_page_select(newVal, oldVal) {
+            if(newVal !== '') {
+                this.$router.push({name: this.custom_page_select});
+            }
         }
     }
 }

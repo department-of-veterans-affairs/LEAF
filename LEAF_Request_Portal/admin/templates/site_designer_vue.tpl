@@ -1,16 +1,21 @@
 <!--{if true}-->
 <div id="site-designer-app">
     <main>
-        <section>
-            <h2 style="margin: 1rem 0;">Site Designer</h2>
-            <mod-home-menu></mod-home-menu>
-            <hr style="margin: 2rem 0; border-bottom: 1px solid black;" />
-            <h3 style="margin: 0.5rem 0;">This page is {{ home_enabled ? '' : 'not'}} enabled</h3>
-            <button v-if="home_enabled !== null" class="btn-confirm" @click="postCustomHomeEnabled">
-                {{ home_enabled ? 'Click to disable' : 'Click to enable'}}
-            </button>
+        <h2 style="margin: 1rem;">Site Designer</h2>
 
-            <p class="test">test <a href="https://localhost/LEAF_Request_Portal/" target="_blank">home link</a></p>
+        <!-- NOTE: routes -->
+        <section>
+            <div style="display:flex; justify-content: space-between;">
+                <label v-if="views.length > 1" for="custom_page_select">Select a Page&nbsp;
+                    <select id="custom_page_select" style="width:150px;" v-model="custom_page_select">
+                        <option value="homepage">homepage</option>
+                    </select>
+                </label>
+                <button type="button" class="btn-general" style="width: 145px" @click="setEditMode(!isEditingMode)">
+                    {{isEditingMode ? 'Preview ' : 'Edit '}}this page
+                </button>
+            </div>
+            <router-view></router-view>
         </section>
     </main>
     <!-- DIALOGS -->

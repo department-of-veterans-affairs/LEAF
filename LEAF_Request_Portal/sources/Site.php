@@ -64,7 +64,7 @@ class Site
 
         return 1;
     }
-
+    //TODO: new table?
     public function enableNoCodeHome(int $isEnabled = 0): string|int {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
@@ -74,6 +74,20 @@ class Site
             VALUES ("home_enabled", :home_enabled)
             ON DUPLICATE KEY UPDATE `data`=:home_enabled';
         $vars = array(':home_enabled' => $home_enabled);
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        return 1;
+    }
+    public function enableNoCodeSearch(int $isEnabled = 0): string|int {
+        if (!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+        $search_enabled = $isEnabled === 1 ? '1' : '0';
+        $strSQL = 'INSERT INTO settings (setting, `data`)
+            VALUES ("search_enabled", :search_enabled)
+            ON DUPLICATE KEY UPDATE `data`=:search_enabled';
+        $vars = array(':search_enabled' => $search_enabled);
 
         $this->db->prepared_query($strSQL, $vars);
 

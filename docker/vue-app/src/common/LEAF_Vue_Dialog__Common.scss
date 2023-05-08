@@ -27,13 +27,6 @@ $attention: #a00;
     width: fit-content;
 }
 
-.test {
-    color: #b00;
-    font-size: 1rem;
-    border: 1px solid #b00;
-    margin: 0.5rem 0;
-}
-
 body { /* fixes header not extending entire width */
     min-width: -moz-fit-content; /*firefox prior to nov 2021*/
     min-width: fit-content;

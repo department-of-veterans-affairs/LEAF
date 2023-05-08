@@ -27,9 +27,18 @@ body {
         flex-direction: column;
 
         li {
-            cursor: grab;
             margin: 0.5rem 0;
             display: flex;
+            &.editMode {
+                cursor: grab;
+            }
+
+            a {
+                border: 2px solid transparent;
+                &:hover &:active, &:focus  {
+                    border: 2px solid white !important;
+                }
+            }
 
             div.edit_card {
                 cursor: auto;

@@ -10,13 +10,11 @@ export default {
             type: Object,
             required: true
         },
-        enableLink: {
-            type: Boolean,
-            default: false
-        }
     },
     inject: [
         'libsPath',
+        'rootPath',
+        'isEditingMode'
     ],
     computed: {
         baseCardStyles() {
@@ -25,11 +23,11 @@ export default {
             }
         },
         anchorClasses() {
-            const linkClass = this.menuItem?.link && this.enableLink === true ? '' : ' disableClick';
+            const linkClass = this.menuItem?.link && this.isEditingMode === false ? '' : ' disableClick';
             return "custom_menu_card" + linkClass;
         }
     },
-    template:`<a :class="anchorClasses" :style="baseCardStyles" :href="menuItem.link" target="_blank">
+    template:`<a :class="anchorClasses" :style="baseCardStyles" :href="rootPath + menuItem.link" target="_blank">
         <img v-if="menuItem.icon" :src="dyniconsPath + menuItem.icon" alt="" class="icon_choice "/>
         <div class="card_text">
             <h2 :style="{color: menuItem.titleColor}" class="LEAF_custom">{{ menuItem.title }}</h2>

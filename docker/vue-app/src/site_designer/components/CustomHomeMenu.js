@@ -1,11 +1,13 @@
 import CustomMenuItem from "./CustomMenuItem";
 
 export default {
-    name: 'mod-home-menu',
+    name: 'custom-home-menu',
     components: {
         CustomMenuItem
     },
     inject: [
+        'isPostingUpdate',
+        'isEditingMode',
         'menuItemList',
         'allBuiltinsPresent',
         'addStarterButtons',
@@ -15,14 +17,14 @@ export default {
     ],
     methods: {
         onDragStart(event = {}) {
-            if(event?.dataTransfer) {
+            if(!this.isPostingUpdate && event?.dataTransfer) {
                 event.dataTransfer.dropEffect = 'move';
                 event.dataTransfer.effectAllowed = 'move';
                 event.dataTransfer.setData('text/plain', event.target.id);
             }
         },
         onDrop(event = {}) {
-            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
+            if(!this.isPostingUpdate && event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 const dataID = event.dataTransfer.getData('text');
                 const elUl = event.currentTarget;
 
@@ -44,12 +46,12 @@ export default {
             data-effect-allowed="move"
             @drop.stop="onDrop"
             @dragover.prevent>
-            <li v-for="m in menuItemList" :key="m.id" :id="m.id"
-                :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is enabled'"
-                draggable="true"
+            <li v-for="m in menuItemList" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
+                :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is not enabled'"
+                :draggable="isEditingMode ? true : false"
                 @dragstart.stop="onDragStart">
                 <custom-menu-item :menuItem="m"></custom-menu-item>
-                <div class="edit_card">
+                <div v-show="isEditingMode" class="edit_card">
                     <button type="button" @click="setMenuItem(m)" title="edit this card" class="edit_menu_card btn-general">
                         <span role="img" aria="">☰</span>
                     </button>
