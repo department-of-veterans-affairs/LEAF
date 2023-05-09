@@ -36,7 +36,7 @@
     .card_text {
         font-family: Verdana, sans-serif;
         display: flex;
-        gap: 3px;
+        gap: 2px;
         flex-direction: column;
         justify-content: center;
         align-self: stretch;

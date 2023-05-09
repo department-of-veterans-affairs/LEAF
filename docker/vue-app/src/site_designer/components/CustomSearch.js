@@ -12,7 +12,11 @@ export default {
     inject: [
         'userID',
         'rootPath',
-        'orgchartPath'
+        'orgchartPath',
+        'isEditingMode',
+        'postEnableTemplate',
+        'publishedStatus',
+        'isPostingUpdate'
     ],
     methods: {
         renderResult(leafSearch, res) {
@@ -264,6 +268,14 @@ export default {
         }
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
+        <template v-if="isEditingMode">
+            <h3 style="margin: 0.5rem 0;">Search section is {{ publishedStatus.search === true ? '' : 'not'}} enabled</h3>
+            <button type="button" class="btn-confirm" @click="postEnableTemplate('search')"
+                style="width: 150px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
+                {{ publishedStatus.search === true ? 'Click to disable' : 'Click to enable'}}
+            </button>
+            <p style="color:#b00000;">TODO: entry area (multiselect?) for which columns to show / order</p>
+        </template>
         <div id="searchContainer"></div>
         <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
     </section>`

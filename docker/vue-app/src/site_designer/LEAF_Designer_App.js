@@ -116,6 +116,7 @@ export default {
             rootPath: this.rootPath,
             orgchartPath: this.orgchartPath,
             userID: this.userID,
+            builtInIDs: this.builtInIDs,
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             editMenuItemList: this.editMenuItemList,

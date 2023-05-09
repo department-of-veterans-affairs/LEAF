@@ -1,7 +1,7 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
 body {
-    background-color: #f3f3f3;
+    background-color: $BG_LightGray;
 }
 
 #site-designer-app {
@@ -12,7 +12,7 @@ body {
 }
 
 #site-designer-app, #leaf_dialog_content {
-    h1, h2, h3, h4 {
+    h1, h2, h3, h4, p {
         margin: 0;
         color: black;
     }
@@ -30,15 +30,15 @@ body {
             word-break: break-word;
             white-space: normal;
             background-color: white;
-            width: auto;
             &:hover, &:focus, &:active {
                 background-color: $LtNavy;
             }
             span {
                 color: inherit;
+                word-break: break-word !important;
             }
         }
-        th {
+        th:not([id^="Vheader_"]) {
             background-color: #D1DFFF;
         }
         .chosen-container a.chosen-single span {
@@ -46,63 +46,71 @@ body {
             max-width: 175px;
             color: Black;
         }
-        .buttonNorm {
-            background-color: #e8f2ff;
-            border: 1px solid black;
-            margin: 2px;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 4px;
-            white-space: nowrap;
-            &:hover, &:focus, &:active {
-                background-color: $LtNavy;
-            }
+    }
+
+    #searchContainer .buttonNorm, #searchContainer_getMoreResults {
+        background-color: #e8f2ff;
+        border: 1px solid black;
+        border-radius: 0;
+        margin: 2px;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 4px;
+        white-space: nowrap;
+        font-weight: normal;
+        &:hover, &:focus, &:active {
+            background-color: $LtNavy;
         }
     }
 
-
-    ul#menu_designer {
-        @include fit;
-        margin: 1rem 1rem 1rem 0;
-        background-color: white;
-        display: flex;
-        flex-direction: column;
+    #custom_menu_wrapper {
+        max-width: 375px;
         &.editMode {
-            padding: 0.75rem;
-            border: 1px solid #aab;
+            margin-right: 5rem;
         }
-
-        li {
-            margin: 0.5rem 0;
+        ul#menu {
+            margin: 1rem 1rem 0 0;
             display: flex;
+            flex-direction: column;
             &.editMode {
-                cursor: grab;
+                padding: 0.75rem;
+                border: 1px solid #aab;
+                background-color: white;
             }
 
-            a {
-                border: 2px solid transparent;
-                &:hover &:active, &:focus  {
-                    border: 2px solid white !important;
-                }
-            }
+            li {
+                margin: 0.5rem 0;
+                display: flex;
 
-            div.edit_card {
-                cursor: auto;
-                position: relative;
-                @include flexcenter;
-                button.edit_menu_card {
-                    padding: 2px 6px 3px 6px;
-                    margin-left: 0.75rem;
+                &.editMode {
+                    cursor: grab;
                 }
-                .notify_disabled {
+
+                a {
+                    border: 2px solid transparent;
+                    &:hover &:active, &:focus  {
+                        border: 2px solid white !important;
+                    }
+                }
+
+                div.edit_card {
                     cursor: auto;
-                    position: absolute;
-                    top: 50%;
-                    right: 0;  /* 0.75 padding + same amt margin */
-                    transform: translate(calc(100% + 1.5rem), -50%);
+                    position: relative;
+                    @include flexcenter;
+                    button.edit_menu_card {
+                        padding: 2px 6px 3px 6px;
+                        margin-left: 0.75rem;
+                    }
+                    .notify_disabled {
+                        cursor: auto;
+                        position: absolute;
+                        top: 50%;
+                        right: 0;  /* 0.75 padding + same amt margin */
+                        transform: translate(calc(100% + 1.5rem), -50%);
+                    }
                 }
-            }
 
+            }
         }
     }
 
@@ -131,7 +139,7 @@ body {
         padding: 6px 8px;
         text-decoration: none;
         border: 2px solid transparent;
-        box-shadow: 0 0 4px rgba(0,0,25,0.4);
+        box-shadow: 0 0 6px rgba(0,0,25,0.5);
 
         &:hover, &:focus, &:active {
             border: 2px solid white;
@@ -146,7 +154,7 @@ body {
         .card_text {
             font-family: Verdana, sans-serif;
             display: flex;
-            gap: 3px;
+            gap: 2px;
             flex-direction: column;
             justify-content: center;
             align-self: stretch;

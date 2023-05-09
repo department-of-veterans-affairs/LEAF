@@ -42,9 +42,16 @@ export default {
             }
         }
     },
-    template: `<div>
-        <p v-show="isEditingMode">Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
-        <ul v-if="menuItemList.length > 0" id="menu_designer" :class="{editMode: isEditingMode}"
+    template: `<div id="custom_menu_wrapper" :class="{editMode: isEditingMode}">
+        <template v-if="isEditingMode">
+            <h3 style="margin: 0.5rem 0;">Homepage Menu is {{ publishedStatus.homepage === true ? '' : 'not'}} enabled</h3>
+            <button type="button" class="btn-confirm" @click="postEnableTemplate('homepage')"
+                style="width: 150px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
+                {{ publishedStatus.homepage === true ? 'Click to disable' : 'Click to enable'}}
+            </button>
+            <p>Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
+        </template>
+        <ul v-if="menuItemList.length > 0" id="menu" :class="{editMode: isEditingMode}"
             data-effect-allowed="move"
             @drop.stop="onDrop"
             @dragover.prevent>
@@ -61,16 +68,9 @@ export default {
                 </div>
             </li>
         </ul>
-        <div v-show="isEditingMode" style="display:flex; flex-direction: column;">
-            <div style="display:flex; gap: 1rem;">
-                <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
-                <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
-            </div>
-            <h3 style="margin: 0.5rem 0;">Homepage Menu is {{ publishedStatus.homepage === true ? '' : 'not'}} enabled</h3>
-            <button type="button" class="btn-confirm" @click="postEnableTemplate('homepage')"
-                style="width: 150px;" :disabled="isPostingUpdate">
-                {{ publishedStatus.homepage === true ? 'Click to disable' : 'Click to enable'}}
-            </button>
+        <div v-show="isEditingMode" style="display:flex; gap:1rem; justify-content:space-between; margin:1rem 0 2rem 0; width:360px;">
+            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
+            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
         </div>
     </div>`
 }
