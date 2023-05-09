@@ -219,7 +219,7 @@ export default {
         editMenuItemList(menuItem = null, markedForDeletion = false) {
             if (menuItem === null) { //called for drag drop event or when adding starter buttons
                 let itemIDs = []
-                let elList = Array.from(document.querySelectorAll('#menu_designer li'));
+                let elList = Array.from(document.querySelectorAll('ul#menu > li'));
                 elList.forEach(li => itemIDs.push(li.id));
 
                 this.menuItemList.forEach(item => {

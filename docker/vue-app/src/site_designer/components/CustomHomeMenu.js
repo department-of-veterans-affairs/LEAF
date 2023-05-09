@@ -30,7 +30,7 @@ export default {
                 const dataID = event.dataTransfer.getData('text');
                 const elUl = event.currentTarget;
 
-                const listItems = Array.from(document.querySelectorAll('#menu_designer li'));
+                const listItems = Array.from(document.querySelectorAll('ul#menu > li'));
                 const elLiToMove = document.getElementById(dataID);
                 const elOtherLi = listItems.filter(item => item.id !== dataID);
 
