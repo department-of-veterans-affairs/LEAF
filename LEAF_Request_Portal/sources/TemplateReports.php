@@ -280,12 +280,8 @@ class TemplateReports
 
         $list = $this->getReportTemplateList();
         $time = date("Y-m-d h:i:s");
-        $templateID = uniqid();
 
-        // Generate a new random number if the previous one is already being used
-        while (file_exists("../templates_history/leaf_programmer/{$templateID}.'_'.{$template}")) {
-            $templateID = uniqid();
-        }
+        $templateID = time();
 
         if (array_search($template, $list) !== false) {
             $fileData = $_POST['file'];

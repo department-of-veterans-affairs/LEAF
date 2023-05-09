@@ -170,12 +170,8 @@ class TemplateFileHistory
 
         $list = $this->getTemplateList();
         $time = date("Y-m-d h:i:s");
-        $templateID = uniqid();
+        $templateID = time();
 
-        // Generate a new random number if the previous one is already being used
-        while (file_exists("../templates_history/template_editor/{$templateID}_{$templateFileHistory}")) {
-            $templateID = uniqid();
-        }
 
         if (array_search($templateFileHistory, $list) !== false) {
             $fileData = $_POST['file'];
