@@ -15,11 +15,12 @@
                     {{isEditingMode ? 'Preview ' : 'Edit '}}this page
                 </button>
             </div>
+            <hr />
             <router-view></router-view>
         </section>
     </main>
     <!-- DIALOGS -->
-    <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>
+    <leaf-form-dialog v-if="showFormDialog">
         <template #dialog-content-slot>
             <component :is="dialogFormContent" :ref="dialogFormContent"></component>
         </template>
@@ -28,8 +29,10 @@
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
+    const orgchartPath = '<!--{$orgchartPath}-->';
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
+    const userID = '<!--{$userID}-->';
 </script>
 
 <script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer.js" defer></script>

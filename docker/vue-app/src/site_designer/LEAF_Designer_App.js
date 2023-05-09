@@ -12,6 +12,8 @@ export default {
             APIroot: APIroot,
             rootPath: '../',
             libsPath: libsPath,
+            orgchartPath: orgchartPath,
+            userID: userID,
             customizableTemplates: ['homepage', 'search'], //NOTE: only homepage is tech a view
             views: ['homepage'],
             custom_page_select: 'homepage',
@@ -112,6 +114,8 @@ export default {
             APIroot: this.APIroot,
             libsPath: this.libsPath,
             rootPath: this.rootPath,
+            orgchartPath: this.orgchartPath,
+            userID: this.userID,
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             editMenuItemList: this.editMenuItemList,

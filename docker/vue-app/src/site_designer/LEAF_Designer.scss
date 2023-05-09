@@ -17,14 +17,60 @@ body {
         color: black;
     }
 
+    #searchContainer {
+        margin-top: 1rem;
+        table.leaf_grid {
+            border: 1px solid black;
+            border-collapse: collapse;
+            margin: 2px;
+            width: auto;
+        }
+        td {
+            vertical-align: middle;
+            word-break: break-word;
+            white-space: normal;
+            background-color: white;
+            width: auto;
+            &:hover, &:focus, &:active {
+                background-color: $LtNavy;
+            }
+            span {
+                color: inherit;
+            }
+        }
+        th {
+            background-color: #D1DFFF;
+        }
+        .chosen-container a.chosen-single span {
+            min-width: 120px;
+            max-width: 175px;
+            color: Black;
+        }
+        .buttonNorm {
+            background-color: #e8f2ff;
+            border: 1px solid black;
+            margin: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            white-space: nowrap;
+            &:hover, &:focus, &:active {
+                background-color: $LtNavy;
+            }
+        }
+    }
+
+
     ul#menu_designer {
         @include fit;
-        margin: 1rem 0;
-        padding: 0.75rem;
+        margin: 1rem 1rem 1rem 0;
         background-color: white;
-        border: 1px solid #aab;
         display: flex;
         flex-direction: column;
+        &.editMode {
+            padding: 0.75rem;
+            border: 1px solid #aab;
+        }
 
         li {
             margin: 0.5rem 0;

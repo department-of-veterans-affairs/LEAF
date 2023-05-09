@@ -521,7 +521,12 @@ switch ($action) {
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
+        if (isset($settings['search_enabled']) && $settings['search_enabled'] == 1) {
+            //$t_form->assign('chosenHeaders', json_encode($settings['chosenHeaders']));
+            $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
+        } else {
+            $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
+        }
 
         $inbox = new Portal\Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()

@@ -7,13 +7,15 @@ export default {
     },
     inject: [
         'isPostingUpdate',
+        'publishedStatus',
         'isEditingMode',
         'menuItemList',
         'allBuiltinsPresent',
         'addStarterButtons',
         'editMenuItemList',
         'postMenuItemList',
-        'setMenuItem'
+        'setMenuItem',
+        'postEnableTemplate'
     ],
     methods: {
         onDragStart(event = {}) {
@@ -41,8 +43,8 @@ export default {
         }
     },
     template: `<div>
-        <p>Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
-        <ul v-if="menuItemList.length > 0" id="menu_designer"
+        <p v-show="isEditingMode">Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
+        <ul v-if="menuItemList.length > 0" id="menu_designer" :class="{editMode: isEditingMode}"
             data-effect-allowed="move"
             @drop.stop="onDrop"
             @dragover.prevent>
@@ -59,9 +61,16 @@ export default {
                 </div>
             </li>
         </ul>
-        <div style="display:flex; justify-content: space-between; width: 368px;">
-            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
-            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
+        <div v-show="isEditingMode" style="display:flex; flex-direction: column;">
+            <div style="display:flex; gap: 1rem;">
+                <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
+                <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
+            </div>
+            <h3 style="margin: 0.5rem 0;">Homepage Menu is {{ publishedStatus.homepage === true ? '' : 'not'}} enabled</h3>
+            <button type="button" class="btn-confirm" @click="postEnableTemplate('homepage')"
+                style="width: 150px;" :disabled="isPostingUpdate">
+                {{ publishedStatus.homepage === true ? 'Click to disable' : 'Click to enable'}}
+            </button>
         </div>
     </div>`
 }
