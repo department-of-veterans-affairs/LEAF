@@ -10,6 +10,7 @@ export default {
         'publishedStatus',
         'isEditingMode',
         'menuItemList',
+        'menuDirection',
         'allBuiltinsPresent',
         'addStarterButtons',
         'editMenuItemList',
@@ -17,6 +18,28 @@ export default {
         'setMenuItem',
         'postEnableTemplate'
     ],
+    computed: {
+        wrapperStyles() {
+            return this.isEditingMode ?
+            {
+                maxWidth: '450px',
+                marginRight: '5rem'
+            } : {}
+        },
+        ulStyles() {
+            return this.menuDirection === 'vertical' || this.isEditingMode ?
+                {
+                    flexDirection: 'column',
+                } :
+                { 
+                    flexWrap: 'wrap'
+                }
+        },
+        menuItemListDisplay() {
+            return this.isEditingMode ?
+                this.menuItemList : this.menuItemList.filter(item => +item.enabled === 1);
+        }
+    },
     methods: {
         onDragStart(event = {}) {
             if(!this.isPostingUpdate && event?.dataTransfer) {
@@ -26,23 +49,20 @@ export default {
             }
         },
         onDrop(event = {}) {
-            if(!this.isPostingUpdate && event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
+            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 const dataID = event.dataTransfer.getData('text');
                 const elUl = event.currentTarget;
-
                 const listItems = Array.from(document.querySelectorAll('ul#menu > li'));
                 const elLiToMove = document.getElementById(dataID);
                 const elOtherLi = listItems.filter(item => item.id !== dataID);
-
-                const closest = elOtherLi.find(item => event.clientY <= item.offsetTop + item.offsetHeight / 2);
-
-                elUl.insertBefore(elLiToMove,closest);
+                const closest = elOtherLi.find(item => window.scrollY + event.clientY <= item.offsetTop + item.offsetHeight/2);
+                elUl.insertBefore(elLiToMove, closest);
                 this.editMenuItemList();
                 this.postMenuItemList();
             }
         }
     },
-    template: `<div id="custom_menu_wrapper" :class="{editMode: isEditingMode}">
+    template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
         <template v-if="isEditingMode">
             <h3 style="margin: 0.5rem 0;">Homepage Menu is {{ publishedStatus.homepage === true ? '' : 'not'}} enabled</h3>
             <button type="button" class="btn-confirm" @click="postEnableTemplate('homepage')"
@@ -51,11 +71,12 @@ export default {
             </button>
             <p>Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
         </template>
-        <ul v-if="menuItemList.length > 0" id="menu" :class="{editMode: isEditingMode}"
+        <ul v-if="menuItemListDisplay.length > 0" id="menu"
+            :class="{editMode: isEditingMode}" :style="ulStyles"
             data-effect-allowed="move"
             @drop.stop="onDrop"
             @dragover.prevent>
-            <li v-for="m in menuItemList" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
+            <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
                 :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is not enabled'"
                 :draggable="isEditingMode ? true : false"
                 @dragstart.stop="onDragStart">
@@ -64,7 +85,7 @@ export default {
                     <button type="button" @click="setMenuItem(m)" title="edit this card" class="edit_menu_card btn-general">
                         <span role="img" aria="">☰</span>
                     </button>
-                    <div class="notify_disabled">{{+m.enabled === 1 ? 'enabled' : 'hidden'}}</div>
+                    <div class="notify_status" :class="{hidden: +m.enabled !== 1}">{{+m.enabled === 1 ? 'enabled' : 'hidden'}}</div>
                 </div>
             </li>
         </ul>

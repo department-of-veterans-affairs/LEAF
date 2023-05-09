@@ -25,6 +25,7 @@ export default {
             },
             iconList: [],
             menuItemList: [],
+            menuDirection: 'vertical',
             menuItem: null,
             tagsToRemove: ['script', 'img', 'a', 'link', 'br'],
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
@@ -100,6 +101,7 @@ export default {
             isPostingUpdate: computed(() => this.isPostingUpdate),
             isEditingMode: computed(() => this.isEditingMode),
             menuItemList: computed(() => this.menuItemList),
+            menuDirection: computed(()=> this.menuDirection),
             allBuiltinsPresent: computed(() => this.allBuiltinsPresent),
             menuItem: computed(() => this.menuItem),
             formSaveFunction: computed(() => this.formSaveFunction),
@@ -245,7 +247,8 @@ export default {
                 url: `${this.APIroot}site/settings/home_menu_json`,
                 data: {
                     CSRFToken: this.CSRFToken,
-                    home_menu_list: this.menuItemList
+                    home_menu_list: this.menuItemList,
+                    menu_direction: this.menuDirection
                 },
                 success: (res) => {
                     if(+res !== 1) {
