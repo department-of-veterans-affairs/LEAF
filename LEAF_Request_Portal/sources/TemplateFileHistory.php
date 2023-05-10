@@ -170,16 +170,12 @@ class TemplateFileHistory
 
         $list = $this->getTemplateList();
         $time = date("Y-m-d h:i:s");
-        $random_number = rand(1, 100);
+        $templateID = time();
 
-        // Generate a new random number if the previous one is already being used
-        while (file_exists("../templates_history/template_editor/{$random_number}_{$templateFileHistory}")) {
-            $random_number = rand(1, 100);
-        }
 
         if (array_search($templateFileHistory, $list) !== false) {
             $fileData = $_POST['file'];
-            $fileName = $random_number . "_" . $templateFileHistory;
+            $fileName = $templateID . "_" . $templateFileHistory;
             $filePath = "../templates_history/template_editor/{$fileName}";
             file_put_contents($filePath, $fileData);
 
