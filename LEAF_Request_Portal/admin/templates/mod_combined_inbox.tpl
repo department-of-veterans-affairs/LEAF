@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css">
+<link rel="stylesheet" href="../../libs/css/leaf.css">
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <style>
     .col-header {
@@ -86,6 +86,8 @@
     let sites = [];
     let dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 
+    const allColumns = 'service,title,status,dateInitiated,days_since_last_action';
+
     const slist = (target, order) => {
         target.classList.add("slist");
         let items = target.getElementsByTagName("li"), current = null;
@@ -137,21 +139,41 @@
                     } else {
                         i.parentNode.insertBefore(current, i);
                     }
-                    // update site columns in new order
-                    sites[order].columns = Object.values(items).map(item => item.textContent.toLowerCase()).join(',');
 
-                    // reload static elements
-                    Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites), saveMapSites]);
+                    updateColumns(sites, items);
                 }
             };
         }
     }
 
-    const shiftColumns = (site) => new Promise((resolve, reject) => {
-        console.log(site);
-        
+    const updateColumns = (sites, items) => new Promise((resolve, reject) => {
+        // update site columns in new order
+        sites[order].columns = Object.values(items).map(item => item.textContent.toLowerCase()).join(',');
+
+        // reload static elements
+        Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites), saveMapSites]);
+    });
+
+    const shiftColumns = (site) => new Promise((resolve, reject) => {        
         dialog.setTitle(site.name);
+        dialog.setContent(`<ul id="column-list-${site.order}"></ul>`);
         dialog.show();
+
+        const compColumns = site.columns.split(',');
+        allColumns.split(',').forEach((column) => {
+            document.getElementById(`column-list-${site.order}`).innerHTML += `<li id="${site.order}-${column}"><input id="${site.order}-${column}-input" type="checkbox" /> ${column}</li>`;
+            document.getElementById(`${site.order}-${column}-input`).onclick = () => {
+                this.parentElement.checked = !this.parentElement.checked;
+
+            };
+            if (compColumns.includes(column)) {
+                // console.log(column, `${site.order}-${column}`);
+                document.getElementById(`${site.order}-${column}`).checked = true;
+                $(`#${site.order}-${column}-input`).attr("checked", true);
+            }
+        });
+
+        slist(document.getElementById(`column-list-${site.order}`), site.order);
     });
 
     const loadColumnList = new Promise((resolve, reject) => {});
@@ -190,14 +212,12 @@
     });
 
     const saveMapSites = new Promise((resolve, reject) => {
-        console.log(JSON.stringify(sites));
         $.ajax({
             type: 'POST',
             url: '../api/site/settings/sitemap_json',
             data: {CSRFToken: CSRFToken},
             sitemap_json: JSON.stringify(sites),
             success: (res) => {
-                // console.log(`Site inbox columns have been successfully updated.`);
                 resolve();
             },
             fail: (err) => {
@@ -266,7 +286,7 @@
         });
     });
 
-    const updateColumns = new Promise((resolve, reject) => {
+    const updateSettings = new Promise((resolve, reject) => {
         $.ajax({
             type: 'POST',
             url: '../api/site/settings/sitemap_json',

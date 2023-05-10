@@ -33,9 +33,6 @@ LEAF_Nexus/config-bk.php
 LEAF_Nexus/globals-bk.php
 LEAF_Request_Portal/globals-bk.php
 
-LEAF_Second_Portal/*
-LEAF_Third_Portal/*
-
 libs/dynicons/cache/*.svg
 libs/qrcode/cache/*.png
 
