@@ -1,5 +1,5 @@
 <style>
-    #bodyarea {
+    #no_code_home {
         margin: 1rem;
         font-size: 14px;
         font-family: Verdana, sans-serif;
@@ -24,10 +24,12 @@
         padding: 6px 8px;
         text-decoration: none;
         border: 2px solid transparent;
-        box-shadow: 0 0 6px rgba(0,0,25,0.4);
+        box-shadow: 0 0 6px rgba(0,0,25,0.3);
+        transition: all 0.3s ease;
     }
     a.custom_menu_card:hover, a.custom_menu_card:focus, a.custom_menu_card:active {
         border: 2px solid white;
+        box-shadow: 0 0 8px rgba(0,0,25,0.6);
     }
     a.custom_menu_card h2 {
         margin: 0;
@@ -35,7 +37,6 @@
     .card_text {
         font-family: Verdana, sans-serif;
         display: flex;
-        gap: 2px;
         flex-direction: column;
         justify-content: center;
         align-self: stretch;
@@ -48,13 +49,10 @@
         width: 50px;
         height: 50px;
     }
-    #searchContainer td > a {
-        color: #004b76;
-    }
 </style>
 
 <main>
-    <div style="display: flex; flex-wrap: wrap;">
+    <div id="no_code_home" style="display: flex; flex-wrap: wrap;">
         <div id="custom_menu_wrapper"></div>
         <!--{include file=$tpl_search is_service_chief=$is_service_chief is_admin=$is_admin empUID=$empUID userID=$userID}-->
     </div>
@@ -81,8 +79,8 @@
             buffer += `<img v-if="menuItem.icon" src="${dyniconsPath}${item.icon}" alt="" class="icon_choice "/>`
         }
         buffer += `<div class="card_text">
-            <h2 style="color:${item.titleColor}">${title}</h2>
-            <div style="color:${item.subtitleColor}">${subtitle}</div>
+            <h2 style="color:${item.titleColor};">${title}</h2>
+            <div style="color:${item.subtitleColor};">${subtitle}</div>
         </div></a></li>`
     });
     buffer += `</ul>`

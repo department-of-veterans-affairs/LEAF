@@ -2,8 +2,8 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            chosenHeaders: ['date', 'title', 'service', 'status'],
-            gridSearch: {}
+            chosenHeaders: ['date', 'initiatorName', 'title', 'service', 'status'], //NOTE: hardcoded test
+            potentialJoins: ['service', 'status', 'categoryName', 'initiatorName'],
         }
     },
     mounted() {
@@ -107,6 +107,14 @@ export default {
                         if(blob[data.recordID].userID == this.userID) {
                             document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
                         }
+                    }
+                },
+                initiatorName: {
+                    name: 'Initiator',
+                    indicatorID: 'initiator',
+                    editable: false,
+                    callback: function(data, blob) {
+                        $('#'+data.cellContainerID).html(blob[data.recordID].firstName + " " + blob[data.recordID].lastName);
                     }
                 }
             };
@@ -245,9 +253,12 @@ export default {
                 }
     
                 query.setLimit(batchSize);
-                query.join('service');
-                query.join('status');
                 query.join('categoryName');
+                this.potentialJoins.forEach(j => {
+                    if (this.chosenHeaders.includes(j)) {
+                        query.join(j);
+                    }
+                });
                 query.sort('date', 'DESC');
                 return query.execute();
             });

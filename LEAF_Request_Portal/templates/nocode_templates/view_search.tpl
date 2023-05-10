@@ -1,3 +1,15 @@
+<style>
+    #bodyarea {
+        font-size: 14px;
+    }
+    #searchContainer {
+        margin-top: 0.25rem;
+    }
+    legend {
+        color: black;
+    }
+</style>
+
 <section style="display: flex; flex-direction: column; width: fit-content;">
     <div id="searchContainer"></div>
     <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
@@ -6,7 +18,7 @@
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
 
-    function renderResult(leafSearch, res) {
+    function renderResult(leafSearch, res, chosenHeaders) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         const headers = {
             date: {
@@ -98,9 +110,16 @@
                         document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
                     }
                 }
+            },
+            initiatorName: {
+                name: 'Initiator',
+                indicatorID: 'initiator',
+                editable: false,
+                callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html(blob[data.recordID].firstName + " " + blob[data.recordID].lastName);
+                }
             }
         };
-        const chosenHeaders = ['date', 'title', 'service', 'status'];//NOTE: hardcode test
         const searchHeaders = chosenHeaders.map(h => ({ ...headers[h]}));
 
         let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
@@ -136,6 +155,10 @@
     }
 
     function main() {
+        //NOTE: hardcode tests
+        //const chosenHeaders = ['date', 'title', 'service', 'status'];
+        const chosenHeaders = ['date', 'initiatorName', 'title', 'status', 'service'];
+
         let query = new LeafFormQuery();
         let leafSearch = new LeafFormSearch('searchContainer');
         leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
@@ -185,7 +208,7 @@
                 return;
             }
 
-            renderResult(leafSearch, resultSet);
+            renderResult(leafSearch, resultSet, chosenHeaders);
             window.scrollTo(0, scrollY);
             // UI for "show more results" button
             document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
@@ -242,9 +265,14 @@
             }
 
             query.setLimit(batchSize);
-            query.join('service');
-            query.join('status');
             query.join('categoryName');
+            const joins = ['service', 'status', 'categoryName', 'initiatorName'];
+            joins.forEach(j => {
+                if (chosenHeaders.includes(j)) {
+                    query.join(j);
+                }
+            });
+
             query.sort('date', 'DESC');
             return query.execute();
         });
