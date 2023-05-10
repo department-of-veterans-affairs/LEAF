@@ -555,7 +555,7 @@ class Group
      */
     public function getAllGroups(): array|bool
     {
-        return $this->db->prepared_query('SELECT * FROM groups WHERE groupID > 1 ORDER BY groupID', array());
+        return $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID > 1 ORDER BY groupID', array());
     }
 
     /**
