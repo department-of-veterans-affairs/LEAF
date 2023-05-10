@@ -10,24 +10,24 @@ export default {
         'publishedStatus',
         'isEditingMode',
         'menuItemList',
-        'menuDirection',
-        'allBuiltinsPresent',
+        'builtInIDs',
         'addStarterButtons',
+        'menuDirection',
         'editMenuItemList',
-        'postMenuItemList',
+        'postMenuSettings',
         'setMenuItem',
-        'postEnableTemplate'
+        'postEnableTemplate',
     ],
     computed: {
         wrapperStyles() {
             return this.isEditingMode ?
             {
                 maxWidth: '450px',
-                marginRight: '5rem'
+                marginRight: '4rem'
             } : {}
         },
         ulStyles() {
-            return this.menuDirection === 'vertical' || this.isEditingMode ?
+            return this.menuDirection === 'v' || this.isEditingMode ?
                 {
                     flexDirection: 'column',
                 } :
@@ -38,6 +38,18 @@ export default {
         menuItemListDisplay() {
             return this.isEditingMode ?
                 this.menuItemList : this.menuItemList.filter(item => +item.enabled === 1);
+        },
+        allBuiltinsPresent() {
+            let result = true;
+            this.builtInIDs.forEach(id => {
+                if (!this.menuItemList.some(item => item.id === id)) {
+                    result = false;
+                }
+            });
+            return result;
+        },
+        enabled() {
+            return this.publishedStatus.homepage === true;
         }
     },
     methods: {
@@ -58,18 +70,25 @@ export default {
                 const closest = elOtherLi.find(item => window.scrollY + event.clientY <= item.offsetTop + item.offsetHeight/2);
                 elUl.insertBefore(elLiToMove, closest);
                 this.editMenuItemList();
-                this.postMenuItemList();
+                this.postMenuSettings();
             }
         }
     },
     template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
         <template v-if="isEditingMode">
-            <h3 style="margin: 0.5rem 0;">Homepage Menu is {{ publishedStatus.homepage === true ? '' : 'not'}} enabled</h3>
-            <button type="button" class="btn-confirm" @click="postEnableTemplate('homepage')"
+            <h4 style="margin: 0.5rem 0;">Homepage Menu is {{ enabled ? '' : 'not'}} enabled</h4>
+            <button type="button" @click="postEnableTemplate('homepage')"
+                class="btn-confirm" :class="{enabled: enabled}" 
                 style="width: 150px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
-                {{ publishedStatus.homepage === true ? 'Click to disable' : 'Click to enable'}}
+                {{ enabled ? 'Click to disable' : 'Click to enable'}}
             </button>
-            <p>Drag-Drop cards to change their order.  Use the card menu to edit text and other values.</p>
+            <p style="margin: 0.5rem 0;">Drag-Drop cards to change their order. &nbsp;Use the card menu to edit text and other values.</p>
+            <label for="menu_direction_select">Menu Direction (use preview to view)</label>
+            <select id="menu_direction_select" @change="$emit('updateDirection', $event.target.value)"
+                style="width: 150px;">
+                <option value="v" :selected="menuDirection==='v'">Columns</option>
+                <option value="h" :selected="menuDirection==='h'">Rows</option>
+            </select>
         </template>
         <ul v-if="menuItemListDisplay.length > 0" id="menu"
             :class="{editMode: isEditingMode}" :style="ulStyles"

@@ -15,12 +15,14 @@ export default {
             link: XSSHelpers.stripAllTags(this.menuItem?.link || ''),
             enabled: +this.menuItem?.enabled === 1,
 
-            builtInIDs: ['btn_reports','btn_bookmarks','btn_inbox','btn_new_request'],
             iconPreviewSize: '30px',
             useTitleColor: this.menuItem?.titleColor === this.menuItem?.subtitleColor,
             useAnIcon: this.menuItem?.icon !== '',
             markedForDeletion: false
         }
+    },
+    mounted() {
+        this.setDialogSaveFunction(this.onSave);
     },
     components: {
         CustomMenuItem
@@ -28,10 +30,12 @@ export default {
     inject: [
         'libsPath',
         'menuItem',
+        'builtInIDs',
         'editMenuItemList',
-        'postMenuItemList',
+        'postMenuSettings',
         'iconList',
         'closeFormDialog',
+        'setDialogSaveFunction',
         'setDialogButtonText',
         'tagsToRemove',
     ],
@@ -68,7 +72,7 @@ export default {
         },
         onSave() {
             this.editMenuItemList(this.menuItemOBJ, this.markedForDeletion);
-            this.postMenuItemList();
+            this.postMenuSettings();
             this.closeFormDialog();
         }
     },
@@ -99,7 +103,7 @@ export default {
                      :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
                      :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
                     <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check" />
-                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
+                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'check to enable'}}
                 </label>
                 <label class="checkable leaf_check" for="button_delete"
                     :style="{color: +markedForDeletion === 1 ? '#b00000' : 'inherit'}">

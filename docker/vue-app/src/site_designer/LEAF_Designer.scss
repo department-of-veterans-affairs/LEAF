@@ -16,6 +16,10 @@ body {
         margin: 0;
         color: black;
     }
+    .btn-confirm.enabled {
+        background-color: $attention;
+        border: 2px solid black;
+    }
 
     #searchContainer {
         margin-top: 1rem;
@@ -32,6 +36,9 @@ body {
             background-color: white;
             &:hover, &:focus, &:active {
                 background-color: $LtNavy;
+            }
+            > a {
+                color: #004b76;
             }
             span {
                 color: inherit;
@@ -65,10 +72,11 @@ body {
 
     #custom_menu_wrapper {
         ul#menu {
-            margin: 1rem 1rem 0 0;
+            margin: 0.5rem 1rem 0 0;
             display: flex;
             
             &.editMode {
+                margin-top: 1rem;
                 padding: 0.75rem;
                 border: 1px solid #aab;
                 background-color: white;
@@ -80,13 +88,6 @@ body {
 
                 &.editMode {
                     cursor: grab;
-                }
-
-                a {
-                    border: 2px solid transparent;
-                    &:hover &:active, &:focus  {
-                        border: 2px solid white !important;
-                    }
                 }
 
                 div.edit_card {
@@ -132,7 +133,7 @@ body {
     }
     
 
-    .custom_menu_card {
+    a.custom_menu_card {
         display: flex;
         align-items: center;
         width: 300px;
@@ -140,7 +141,7 @@ body {
         padding: 6px 8px;
         text-decoration: none;
         border: 2px solid transparent;
-        box-shadow: 0 0 6px rgba(0,0,25,0.5);
+        box-shadow: 0 0 6px rgba(0,0,25,0.4);
 
         &:hover, &:focus, &:active {
             border: 2px solid white;

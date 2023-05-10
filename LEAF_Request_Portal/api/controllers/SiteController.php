@@ -50,7 +50,8 @@ class SiteController extends RESTfulResponse
 		});
 		$this->index['POST']->register('site/settings/home_menu_json', function ($args) use ($site) {
             $list = $_POST['home_menu_list'] ?? [];
-			return $site->setHomeMenuJSON($list);
+			$direction = $_POST['menu_direction'] ?? 'v';
+			return $site->setHomeDesignJSON($list, $direction);
 		});
 		$this->index['POST']->register('site/settings/enable_homepage', function ($args) use ($site) {
 			return $site->enableNoCodeHome((int)$_POST['enabled']);

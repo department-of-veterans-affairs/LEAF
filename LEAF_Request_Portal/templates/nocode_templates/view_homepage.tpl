@@ -13,24 +13,23 @@
         box-sizing: border-box;
     }
     ul#menu > li {
-        margin: 1rem 0;
-        box-shadow: 0 0 6px rgba(0,0,25,0.5);
+        margin: 0.5rem 0;
+        display: flex;
     }
-    ul#menu > li:first-child {
-        margin-top: 0.25rem;
-    }
-    .custom_menu_card {
+    a.custom_menu_card {
         display: flex;
         align-items: center;
         width: 300px;
+        min-height: 55px;
         padding: 6px 8px;
         text-decoration: none;
         border: 2px solid transparent;
+        box-shadow: 0 0 6px rgba(0,0,25,0.4);
     }
-    .custom_menu_card:hover, .custom_menu_card:focus, .custom_menu_card:active {
+    a.custom_menu_card:hover, a.custom_menu_card:focus, a.custom_menu_card:active {
         border: 2px solid white;
     }
-    .custom_menu_card h2 {
+    a.custom_menu_card h2 {
         margin: 0;
     }
     .card_text {
@@ -49,6 +48,9 @@
         width: 50px;
         height: 50px;
     }
+    #searchContainer td > a {
+        color: #004b76;
+    }
 </style>
 
 <main>
@@ -60,14 +62,15 @@
 
 <script>
     const dyniconsPath = "../libs/dynicons/svg/";
-
-    let menuItems = JSON.parse('<!--{$menuItems}-->' || "[]");
+    const data = JSON.parse('<!--{$menuItems}-->');
+    let menuItems = data.menuButtons;
     menuItems = menuItems.filter(item => +item?.enabled === 1);
     menuItems = menuItems.sort((a, b) => a.order - b.order);
-    //testing TODO: rework JSON to include and store menu direction
-    const direction = '';//'horizontal';
-    const directionAttr = direction === 'horizontal' ? 'style="display:flex; flex-wrap:wrap;" ' : '';
-    //
+
+    const direction = data.direction;
+    const directionAttr = direction === 'h' ?
+        'style="display:flex; flex-wrap:wrap;" ' : 'style="display:flex; flex-direction: column;"';
+
     let buffer = `<ul ${directionAttr} id="menu">`;
     menuItems.forEach(item => {
         const title = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.title));

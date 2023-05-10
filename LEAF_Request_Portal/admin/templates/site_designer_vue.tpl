@@ -1,10 +1,8 @@
 <!--{if true}-->
 <div id="site-designer-app">
     <main>
-        <h2 style="margin: 1rem;">Site Designer</h2>
-
-        <!-- NOTE: routes -->
         <section>
+            <h2 style="margin: 1rem 0;">Site Designer</h2>
             <div style="display:flex; justify-content: space-between;">
                 <label v-if="views.length > 1" for="custom_page_select">Select a Page&nbsp;
                     <select id="custom_page_select" style="width:150px;" v-model="custom_page_select">
@@ -16,15 +14,10 @@
                 </button>
             </div>
             <hr />
+            <!-- NOTE: routes -->
             <router-view></router-view>
         </section>
     </main>
-    <!-- DIALOGS -->
-    <leaf-form-dialog v-if="showFormDialog">
-        <template #dialog-content-slot>
-            <component :is="dialogFormContent" :ref="dialogFormContent"></component>
-        </template>
-    </leaf-form-dialog>
 </div>
 
 <script>

@@ -18,6 +18,11 @@ export default {
         'publishedStatus',
         'isPostingUpdate'
     ],
+    computed: {
+        enabled() {
+            return this.publishedStatus.search === true;
+        }
+    },
     methods: {
         renderResult(leafSearch, res) {
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -269,10 +274,11 @@ export default {
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
         <template v-if="isEditingMode">
-            <h3 style="margin: 0.5rem 0;">Search section is {{ publishedStatus.search === true ? '' : 'not'}} enabled</h3>
-            <button type="button" class="btn-confirm" @click="postEnableTemplate('search')"
+            <h4 style="margin: 0.5rem 0;">Search section is {{ enabled ? '' : 'not'}} enabled</h4>
+            <button type="button" @click="postEnableTemplate('search')"
+                class="btn-confirm" :class="{enabled: enabled}"
                 style="width: 150px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
-                {{ publishedStatus.search === true ? 'Click to disable' : 'Click to enable'}}
+                {{ enabled ? 'Click to disable' : 'Click to enable'}}
             </button>
             <p style="color:#b00000;">TODO: entry area (multiselect?) for which columns to show / order</p>
         </template>

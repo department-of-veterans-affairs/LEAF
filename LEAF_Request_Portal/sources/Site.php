@@ -43,17 +43,20 @@ class Site
         return 1;
     }
 
-    public function setHomeMenuJSON(array $arrayIn = []): string|int {
+    public function setHomeDesignJSON(array $menuItems = [], string $direction = 'v'): string|int {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
+        } //home_menu_json
+        foreach ($menuItems as $i => $item) {
+            $menuItems[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
+            $menuItems[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
+            $menuItems[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link']));
+            $menuItems[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
         }
-        foreach ($arrayIn as $i => $item) {
-            $arrayIn[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
-            $arrayIn[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
-            $arrayIn[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link']));
-            $arrayIn[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
-        }
-        $home_menu_json = json_encode($arrayIn);
+        $home_design_data = array();
+        $home_design_data['menuButtons'] = $menuItems;
+        $home_design_data['direction'] = $direction === 'v' ? 'v' : 'h';
+        $home_menu_json = json_encode($home_design_data);
 
         $strSQL = 'INSERT INTO settings (setting, `data`)
             VALUES ("home_menu_json", :home_menu_json)
