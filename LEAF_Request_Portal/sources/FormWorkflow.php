@@ -820,7 +820,7 @@ class FormWorkflow
                         LEFT JOIN workflow_steps USING (stepID)
                         LEFT JOIN step_dependencies USING (stepID)
                         WHERE recordID = :recordID';
-                    $res3 = $this->db->prepared_query($strSQL2, $vars2);
+                    $res3 = $this->db->prepared_query($strSQL3, $vars2);
 
                     // iterate through steps
                     if (count($res3) > 1)
