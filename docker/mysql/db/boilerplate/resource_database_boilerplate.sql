@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `events` (
 INSERT INTO `events` (`eventID`, `eventDescription`, `eventType`, `eventData`) VALUES
 ('LeafSecure_Certified', 'Marks site as LEAF Secure', '', ''),
 ('std_email_notify_completed', 'Notify the requestor', 'Email', ''),
-('std_email_notify_next_approver', 'Notify the next approver', '', ''),
+('std_email_notify_next_approver', 'Notify the next approver', 'Email', ''),
 ('LeafSecure_DeveloperConsole', 'Grants developer console access', '', '');
 
 -- --------------------------------------------------------
