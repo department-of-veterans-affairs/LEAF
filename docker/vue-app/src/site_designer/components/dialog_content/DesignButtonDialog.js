@@ -31,8 +31,7 @@ export default {
         'libsPath',
         'menuItem',
         'builtInIDs',
-        'editMenuItemList',
-        'postMenuSettings',
+        'updateMenuItemList',
         'iconList',
         'closeFormDialog',
         'setDialogSaveFunction',
@@ -71,8 +70,7 @@ export default {
             }
         },
         onSave() {
-            this.editMenuItemList(this.menuItemOBJ, this.markedForDeletion);
-            this.postMenuSettings();
+            this.updateMenuItemList(this.menuItemOBJ, this.markedForDeletion);
             this.closeFormDialog();
         }
     },

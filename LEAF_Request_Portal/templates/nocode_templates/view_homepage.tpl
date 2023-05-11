@@ -25,11 +25,12 @@
         text-decoration: none;
         border: 2px solid transparent;
         box-shadow: 0 0 6px rgba(0,0,25,0.3);
-        transition: all 0.3s ease;
+        transition: all 0.35s ease;
     }
     a.custom_menu_card:hover, a.custom_menu_card:focus, a.custom_menu_card:active {
         border: 2px solid white;
         box-shadow: 0 0 8px rgba(0,0,25,0.6);
+        z-index: 10;
     }
     a.custom_menu_card h2 {
         margin: 0;

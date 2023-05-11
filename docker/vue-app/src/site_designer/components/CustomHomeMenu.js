@@ -13,7 +13,8 @@ export default {
         'builtInIDs',
         'addStarterButtons',
         'menuDirection',
-        'editMenuItemList',
+        'updateMenuItemList',
+        'updateMenuDirection',
         'postMenuSettings',
         'setMenuItem',
         'postEnableTemplate',
@@ -23,7 +24,7 @@ export default {
             return this.isEditingMode ?
             {
                 maxWidth: '450px',
-                marginRight: '4rem'
+                marginRight: '3rem'
             } : {}
         },
         ulStyles() {
@@ -69,7 +70,7 @@ export default {
                 const elOtherLi = listItems.filter(item => item.id !== dataID);
                 const closest = elOtherLi.find(item => window.scrollY + event.clientY <= item.offsetTop + item.offsetHeight/2);
                 elUl.insertBefore(elLiToMove, closest);
-                this.editMenuItemList();
+                this.updateMenuItemList();
                 this.postMenuSettings();
             }
         }
@@ -79,13 +80,13 @@ export default {
             <h4 style="margin: 0.5rem 0;">Homepage Menu is {{ enabled ? '' : 'not'}} enabled</h4>
             <button type="button" @click="postEnableTemplate('homepage')"
                 class="btn-confirm" :class="{enabled: enabled}" 
-                style="width: 150px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
-                {{ enabled ? 'Click to disable' : 'Click to enable'}}
+                style="width: 100px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
+                {{ enabled ? 'Disable' : 'Enable'}}
             </button>
             <p style="margin: 0.5rem 0;">Drag-Drop cards to change their order. &nbsp;Use the card menu to edit text and other values.</p>
-            <label for="menu_direction_select">Menu Direction (use preview to view)</label>
-            <select id="menu_direction_select" @change="$emit('updateDirection', $event.target.value)"
-                style="width: 150px;">
+            <label for="menu_direction_select">Menu Direction (use preview to view this effect)</label>
+            <select id="menu_direction_select" @change="updateMenuDirection"
+                style="width: 100px;">
                 <option value="v" :selected="menuDirection==='v'">Columns</option>
                 <option value="h" :selected="menuDirection==='h'">Rows</option>
             </select>
@@ -96,7 +97,7 @@ export default {
             @drop.stop="onDrop"
             @dragover.prevent>
             <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
-                :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is not enabled'"
+                :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is hidden'"
                 :draggable="isEditingMode ? true : false"
                 @dragstart.stop="onDragStart">
                 <custom-menu-item :menuItem="m"></custom-menu-item>
@@ -108,9 +109,9 @@ export default {
                 </div>
             </li>
         </ul>
-        <div v-show="isEditingMode" style="display:flex; gap:1rem; justify-content:space-between; margin:1rem 0 2rem 0; width:360px;">
-            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Menu Item</button>
-            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Buttons</button>
+        <div v-show="isEditingMode" style="display:flex; gap:1rem; margin:1rem 0 2rem 0; width:360px;">
+            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Card</button>
+            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Cards</button>
         </div>
     </div>`
 }

@@ -18,7 +18,7 @@
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
 
-    function renderResult(leafSearch, res, chosenHeaders) {
+    function renderResult(leafSearch, res, { chosenHeaders, sort } = {}) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         const headers = {
             date: {
@@ -149,15 +149,17 @@
             tGridData.push(res[i]);
         }
         grid.setData(tGridData);
-        grid.sort('recordID', 'desc');
+        grid.sort(sort.column, sort.direction);
         grid.renderBody();
         grid.announceResults();
     }
 
     function main() {
         //NOTE: hardcode tests
-        //const chosenHeaders = ['date', 'title', 'service', 'status'];
-        const chosenHeaders = ['date', 'initiatorName', 'title', 'status', 'service'];
+        const inputData = {
+            chosenHeaders: ['date', 'title', 'status', 'service'],
+            sort: { column: 'recordID', direction: 'desc' }
+        }
 
         let query = new LeafFormQuery();
         let leafSearch = new LeafFormSearch('searchContainer');
@@ -208,7 +210,7 @@
                 return;
             }
 
-            renderResult(leafSearch, resultSet, chosenHeaders);
+            renderResult(leafSearch, resultSet, inputData);
             window.scrollTo(0, scrollY);
             // UI for "show more results" button
             document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
@@ -266,9 +268,9 @@
 
             query.setLimit(batchSize);
             query.join('categoryName');
-            const joins = ['service', 'status', 'categoryName', 'initiatorName'];
-            joins.forEach(j => {
-                if (chosenHeaders.includes(j)) {
+            const potentialJoins = ["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
+            potentialJoins.forEach(j => {
+                if (inputData.chosenHeaders.includes(j)) {
                     query.join(j);
                 }
             });

@@ -2,8 +2,15 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            chosenHeaders: ['date', 'initiatorName', 'title', 'service', 'status'], //NOTE: hardcoded test
-            potentialJoins: ['service', 'status', 'categoryName', 'initiatorName'],
+            sort: {column:'recordID', direction: 'desc'},
+            chosenHeaders:['date', 'title', 'service', 'status'],
+            /*NOTE: hardcoded test. TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
+
+            getData: [],
+            hilite: [status === 'approved', date < #,  lastaction > #],
+            hide: []*/
+            //categoryName automatically included
+            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
         }
     },
     mounted() {
@@ -139,7 +146,7 @@ export default {
                 tGridData.push(res[i]);
             }
             grid.setData(tGridData);
-            grid.sort('recordID', 'desc');
+            grid.sort(this.sort.column, this.sort.direction);
             grid.renderBody();
             grid.announceResults();
         },
@@ -288,8 +295,8 @@ export default {
             <h4 style="margin: 0.5rem 0;">Search section is {{ enabled ? '' : 'not'}} enabled</h4>
             <button type="button" @click="postEnableTemplate('search')"
                 class="btn-confirm" :class="{enabled: enabled}"
-                style="width: 150px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
-                {{ enabled ? 'Click to disable' : 'Click to enable'}}
+                style="width: 100px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
+                {{ enabled ? 'Disable' : 'Enable'}}
             </button>
             <p style="color:#b00000;">TODO: entry area (multiselect?) for which columns to show / order</p>
         </template>

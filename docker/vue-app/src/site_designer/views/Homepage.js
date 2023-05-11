@@ -61,12 +61,12 @@ export default {
             ],
             menuDirection: 'v',
             menuItemList: [],
-            menuItem: {}
+            menuItem: {},
         }
     },
     mounted() {
         this.getSettingsData().then(res => {
-            this.setHomeDesignSettings(res?.home_menu_json || "{}");
+            this.getHomeDesignSettings(res?.home_menu_json || "{}");
         });
     },
     inject: [
@@ -90,7 +90,8 @@ export default {
             builtInIDs: this.builtInIDs,
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
-            editMenuItemList: this.editMenuItemList,
+            updateMenuItemList: this.updateMenuItemList,
+            updateMenuDirection: this.updateMenuDirection,
             postMenuSettings: this.postMenuSettings,
         }
     },
@@ -119,7 +120,7 @@ export default {
         buttonIDExists(ID = '') {
             return this.menuItemList.length > 0 ? this.menuItemList.some(button => button?.id === ID) : false;
         },
-        setHomeDesignSettings(homeJSON = "{}") {
+        getHomeDesignSettings(homeJSON = "{}") {
             const data = JSON.parse(homeJSON);
             this.menuDirection = data?.direction || 'v';
 
@@ -144,11 +145,6 @@ export default {
 
             this.openDesignButtonDialog();
         },
-        setMenuDirection(d = 'v') {
-            console.log('listen', d);
-            this.menuDirection = d;
-            this.postMenuSettings();
-        },
         addStarterButtons() {
             let buttonsAdded = 0;
             this.builtInButtons.forEach(b => {
@@ -159,7 +155,7 @@ export default {
                 }
             });
             if(buttonsAdded > 0) {
-                this.editMenuItemList();
+                this.updateMenuItemList();
                 this.postMenuSettings();
             }
         },
@@ -169,7 +165,7 @@ export default {
          * @param {Object|null} menuItem
          * @param {boolean} markedForDeletion
          */
-        editMenuItemList(menuItem = null, markedForDeletion = false) {
+        updateMenuItemList(menuItem = null, markedForDeletion = false) {
             if (menuItem === null) { //called for drag drop event or when adding starter buttons
                 let itemIDs = []
                 let elList = Array.from(document.querySelectorAll('ul#menu > li'));
@@ -186,10 +182,15 @@ export default {
                 let items = this.menuItemList.filter(item => item.id !== menuItem.id);
                 if (markedForDeletion !== true) {
                     items.push(menuItem);
-                    items = items.sort((a,b) => a.order - b.order);
                 }
+                items = items.sort((a,b) => a.order - b.order);
                 this.menuItemList = items;
             }
+            this.postMenuSettings();
+        },
+        updateMenuDirection(event = {}) {
+            this.menuDirection = event.target.value;
+            this.postMenuSettings();
         },
         postMenuSettings() {
             this.setUpdating(true);
@@ -206,7 +207,7 @@ export default {
                         console.log('unexpected value returned:', res);
                     }
                     this.getSettingsData().then(res => {
-                        this.setHomeDesignSettings(res?.home_menu_json || "{}");
+                        this.getHomeDesignSettings(res?.home_menu_json || "{}");
                     }).catch(err => console.log(err));
                 },
                 error: (err) => console.log(err)
@@ -214,10 +215,12 @@ export default {
         },
     },
     template: `<div id="site_designer_hompage">
-        <h3 style="margin: 1rem 0;">{{ isEditingMode ? 'Editing ' : 'Previewing '}} the Homepage</h3>
+        <h3 id="designer_page_header" style="margin: 1rem 0;">
+            {{ isEditingMode ? 'Editing ' : 'Previewing '}} the Homepage
+        </h3>
         <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section</div>
         <div style="display: flex; flex-wrap: wrap;">
-            <custom-home-menu @update-direction="setMenuDirection"></custom-home-menu>
+            <custom-home-menu></custom-home-menu>
             <custom-search></custom-search>
         </div>
         <!-- HOMEPAGE DIALOGS -->
