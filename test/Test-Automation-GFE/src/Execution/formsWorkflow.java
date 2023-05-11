@@ -2,31 +2,18 @@ package Execution;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Parameters;
-import org.testng.AssertJUnit;
-import org.testng.asserts.*;
 
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;			//Select Method
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import Framework.AppVariables;
-import Framework.TestData;
 import Framework.setupFramework;
 import Framework.waitMethods;
 import Framework.highlightElement;
@@ -56,8 +43,7 @@ public class formsWorkflow extends setupFramework {
 		TODO:
 		Search for text on the 'no cert' page
 		Use an if to determine whether to run this
-			
-	*/			
+				*/			
 		
 		try {
 	    	//waitMethods.implicitWait(waitMethods.w500);
@@ -283,7 +269,7 @@ public class formsWorkflow extends setupFramework {
 		/*
 		 * 
 		 * 
-		 * 		NEED TO RECREATE A WORKFLOW -- If it matters??
+		 * 		NEED TO RECREATE A WORKFLOW --
 		 * 
 		 * 
 		 * */
@@ -1123,9 +1109,8 @@ public class formsWorkflow extends setupFramework {
 		
 		@Test(priority = 250) //  add sub-question		//  
 		private void addSubQuestion01S01() {
-			String url = driver.getCurrentUrl();
+			//String url = driver.getCurrentUrl();
 			waitMethods.waiter(waitMethods.w500);       
-			//WebElement ele = driver.findElement(By.xpath("//*[@id=\"PHindicator_32_1\"]/div/span"));
 			WebElement ele = driver.findElement(By.xpath("//*[contains(text(),' Add Sub-question')]"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
@@ -1367,7 +1352,7 @@ public class formsWorkflow extends setupFramework {
 			}
 			
 	
-			@Test(priority = 278) //01S02		//
+			@Test(priority = 278) //01S02		
 			private void inputColumnTitle01() {
 				String url = driver.getCurrentUrl();
 				
@@ -1409,7 +1394,7 @@ public class formsWorkflow extends setupFramework {
 			
 			
 			
-			@Test(priority = 280) //01S02    		//			Resolved? ERR Pre-PROD     
+			@Test(priority = 280) //01S02    		//			Resolved? Apparently     
 			public void selectColumnType01() {         
 				//waitMethods.implicitWait(waitMethods.w500);
 				     
@@ -1429,15 +1414,14 @@ public class formsWorkflow extends setupFramework {
 					ele2.click();			
 				} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
 					waitMethods.waiter(waitMethods.w500);	// 
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[1]/select"));
 					WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div/select"));
 					highlightElement.highLightElement(driver, ele);
 					ele.click();
-					waitMethods.waiter(waitMethods.w500);
+					waitMethods.waiter(waitMethods.w500);	
 					Select select = new Select(driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div/select")));
 					highlightElement.highLightElement(driver, ele);
 					select.selectByValue("text");
-					waitMethods.waiter(waitMethods.w200);
+					waitMethods.waiter(waitMethods.w200);		
 					WebElement ele2 = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div/select"));
 					ele2.click();		
 				}
@@ -1490,9 +1474,6 @@ public class formsWorkflow extends setupFramework {
 		    	System.out.println("Test Question: Sensitive Data = N");
 			}
 			
-/*			
-			///////////	  COMMENT HERE DOWN FOR DEBUGGING    \\\\\\\\\
-*/			
 			
 			@Test(priority = 288) //  Go back to 270
 			private void selectSortValue01S02() {			//
@@ -1514,12 +1495,7 @@ public class formsWorkflow extends setupFramework {
 				waitMethods.waiter(waitMethods.w500);
 		    	System.out.println("Test Question: Save button");
 			}
-	
-			
-			//********* OK to Here for PROD & Pre-Prod  **********
-			/////// HERE: For DEBUGGing, comment here to end \\\\\\\\\\\\\\\\\\\  ERR HERE  (Around here - Grid)
-			
-			
+
 			
 			@Test(priority = 292) //  
 			private void editQuestion01S02() {			//
@@ -1536,67 +1512,113 @@ public class formsWorkflow extends setupFramework {
 		
 				@Test(priority = 294) //  
 				private void addNewColumn02() {			
-					waitMethods.waiter(waitMethods.w500);  //         
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/button"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/button"));
-			    	highlightElement.highLightElement(driver, ele);
-			   		ele.click();
-					waitMethods.waiter(waitMethods.w500);	
-			    	System.out.println("Add Column #2");
+					waitMethods.waiter(waitMethods.w500);  //  findElement(By.xpath("//*[contains(text(), 'Test Q1S02 Sub-question Grid')]"));
+					String url = driver.getCurrentUrl();
+					
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/button"));
+				    	highlightElement.highLightElement(driver, ele);
+				   		ele.click();
+						waitMethods.waiter(waitMethods.w500);	
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						WebElement ele = driver.findElement(By.xpath("//button[contains(text(), 'Add column')]"));
+				    	highlightElement.highLightElement(driver, ele);
+				   		ele.click();
+						waitMethods.waiter(waitMethods.w500);	
+					}
+						System.out.println("Add Column #2");	         
 				}
 				
 						
 			
-				@Test(priority = 296) //
+				@Test(priority = 296) //								
 				private void inputColumnTitle02() {
 					waitMethods.waiter(waitMethods.w500);    //           
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/input"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/input"));
-			    	highlightElement.highLightElement(driver, ele);
+					String url = driver.getCurrentUrl();	
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/input"));
+				    	highlightElement.highLightElement(driver, ele);
+				    	
+				    	String name = "Q-Date";
+				    	ele.clear();
+				    	
+				    	for(int i = 0; i < name.length(); i++) {
+				    		char c = name.charAt(i);
+				    		String s = new StringBuilder().append(c).toString();
+				    		ele.sendKeys(s);
+				    		waitMethods.waiter(waitMethods.w20);
+				    	}
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {					
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/input"));
+				    	highlightElement.highLightElement(driver, ele);
+				    	
+				    	String name = "Q-Date";
+				    	ele.clear();
+				    	
+				    	for(int i = 0; i < name.length(); i++) {
+				    		char c = name.charAt(i);
+				    		String s = new StringBuilder().append(c).toString();
+				    		ele.sendKeys(s);
+				    		waitMethods.waiter(waitMethods.w20);
+				    	}
+					}
 			    	
-			    	String name = "Q-Date";
-			    	ele.clear();
-			    	
-			    	for(int i = 0; i < name.length(); i++) {
-			    		char c = name.charAt(i);
-			    		String s = new StringBuilder().append(c).toString();
-			    		ele.sendKeys(s);
-			    		waitMethods.waiter(waitMethods.w20);
-			    	}
-			    	
-			    	System.out.println("Column Title: Grid Col #2");			
+					System.out.println("Column Title: Grid Col #2");			
 				}
 				
 				
 				
-				@Test(priority = 298) //
+				@Test(priority = 298) //		
 				public void selectColumnType02() {         
 					//waitMethods.implicitWait(waitMethods.w500);
 					waitMethods.waiter(waitMethods.w200);	//        
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
-					highlightElement.highLightElement(driver, ele);
-					ele.click();
-					waitMethods.waiter(waitMethods.w500);
-					Select select = new Select(driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select")));
-					highlightElement.highLightElement(driver, ele);
-					select.selectByValue("date");
-					waitMethods.waiter(waitMethods.w200);
-					WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
-					ele2.click();
-					
+					String url = driver.getCurrentUrl();	
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
+						highlightElement.highLightElement(driver, ele);
+						ele.click();
+						waitMethods.waiter(waitMethods.w500);
+						Select select = new Select(driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select")));
+						highlightElement.highLightElement(driver, ele);
+						select.selectByValue("date");
+						waitMethods.waiter(waitMethods.w200);
+						WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
+						ele2.click();
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
+						highlightElement.highLightElement(driver, ele);
+						ele.click();
+						waitMethods.waiter(waitMethods.w500);
+						Select select = new Select(driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select")));
+						highlightElement.highLightElement(driver, ele);
+						select.selectByValue("date");
+						waitMethods.waiter(waitMethods.w200);
+						WebElement ele2 = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/select"));
+						ele2.click();
+					}
+
 					System.out.println("Test Question: Grid");
 				}
 			
 				
 				@Test(priority = 300) //  
-				private void addNewColumn03() {			//
+				private void addNewColumn03() {	
 					waitMethods.waiter(waitMethods.w500);     //    
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/button"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/button"));
-			    	highlightElement.highLightElement(driver, ele);
-			   		ele.click();
-					waitMethods.waiter(waitMethods.w500);	
+					String url = driver.getCurrentUrl();
+					
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("//button[contains(text(), 'Add column')]"));
+				    	highlightElement.highLightElement(driver, ele);
+				   		ele.click();
+						waitMethods.waiter(waitMethods.w500);	
+					
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						WebElement ele = driver.findElement(By.xpath("//button[contains(text(), 'Add column')]"));
+				    	highlightElement.highLightElement(driver, ele);
+				   		ele.click();
+						waitMethods.waiter(waitMethods.w500);	
+					}
+					
 			    	System.out.println("Add Column #3");
 				}
 				
@@ -1605,49 +1627,77 @@ public class formsWorkflow extends setupFramework {
 				@Test(priority = 302) //
 				private void inputColumnTitle03() {
 					waitMethods.waiter(waitMethods.w500);     //    
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/input"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/input"));
-			    	highlightElement.highLightElement(driver, ele);
-			    	
-			    	String name = "Q-Dropdown";
-			    	ele.clear();
-			    	
-			    	for(int i = 0; i < name.length(); i++) {
-			    		char c = name.charAt(i);
-			    		String s = new StringBuilder().append(c).toString();
-			    		ele.sendKeys(s);
-			    		waitMethods.waiter(waitMethods.w20);
-			    	}
-			    	
+					String url = driver.getCurrentUrl();	
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/input"));
+				    	highlightElement.highLightElement(driver, ele);
+				    	
+				    	String name = "Q-Dropdown";
+				    	ele.clear();
+				    	
+				    	for(int i = 0; i < name.length(); i++) {
+				    		char c = name.charAt(i);
+				    		String s = new StringBuilder().append(c).toString();
+				    		ele.sendKeys(s);
+				    		waitMethods.waiter(waitMethods.w20);
+				    	}
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/input"));
+				    	highlightElement.highLightElement(driver, ele);
+				    	
+				    	String name = "Q-Dropdown";
+				    	ele.clear();
+				    	
+				    	for(int i = 0; i < name.length(); i++) {
+				    		char c = name.charAt(i);
+				    		String s = new StringBuilder().append(c).toString();
+				    		ele.sendKeys(s);
+				    		waitMethods.waiter(waitMethods.w20);
+				    	}
+					}
+					
 			    	System.out.println("Column Title: Grid Col #3");			
 				}
 				
 				
 				
-				@Test(priority = 304) //
+				@Test(priority = 304) //								
 				public void selectColumnType03() {         
-					//waitMethods.implicitWait(waitMethods.w500);
 					waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
-					highlightElement.highLightElement(driver, ele);
-					ele.click();
-					waitMethods.waiter(waitMethods.w500);              //   
-					Select select = new Select(driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select")));
-					highlightElement.highLightElement(driver, ele);
-					select.selectByValue("dropdown");
-					waitMethods.waiter(waitMethods.w200);
-					WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
-					ele2.click();
+					String url = driver.getCurrentUrl();
+					
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
+						highlightElement.highLightElement(driver, ele);
+						ele.click();
+						waitMethods.waiter(waitMethods.w500);              //   
+						Select select = new Select(driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select")));
+						highlightElement.highLightElement(driver, ele);
+						select.selectByValue("dropdown");
+						waitMethods.waiter(waitMethods.w200);
+						WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
+						ele2.click();
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
+						highlightElement.highLightElement(driver, ele);
+						ele.click();
+						waitMethods.waiter(waitMethods.w500);              //   
+						Select select = new Select(driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select")));
+						highlightElement.highLightElement(driver, ele);
+						select.selectByValue("dropdown");
+						waitMethods.waiter(waitMethods.w200);
+						WebElement ele2 = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/select"));
+						ele2.click();
+					}
 					
 					System.out.println("Test Question: Dropdown");
 				}
 	
 	
-						@Test(priority = 306) //  
-						private void populateDDLOptions() {			//populateDDLOptions
+						@Test(priority = 306) //  						ERR HERE - PreProd
+						private void populateDDLOptions() {	//
 							waitMethods.waiter(waitMethods.w500);       
-							WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/span[2]/textarea"));
+							WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/span[2]/textarea"));
 							//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/span[2]/textarea"));
 					    	highlightElement.highLightElement(driver, ele);
 					   		ele.sendKeys("Opt Value #1");
@@ -1666,9 +1716,9 @@ public class formsWorkflow extends setupFramework {
 							
 				
 			@Test(priority = 308) //  
-			private void addNewColumn04() {			//
+			private void addNewColumn04() {	//
 				waitMethods.waiter(waitMethods.w500);       
-				WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/button"));
+				WebElement ele = driver.findElement(By.xpath("//button[contains(text(), 'Add column')]"));
 		    	highlightElement.highLightElement(driver, ele);
 		   		ele.click();
 				waitMethods.waiter(waitMethods.w500);	
@@ -1677,47 +1727,83 @@ public class formsWorkflow extends setupFramework {
 				
 						
 			
-				@Test(priority = 310) //
+				@Test(priority = 310) // 				
 				private void inputColumnTitle04() {
 					waitMethods.waiter(waitMethods.w500);         
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/input"));
-			    	highlightElement.highLightElement(driver, ele);
-			    	
-			    	String name = "Q-Textarea";
-			    	ele.clear();
-			    	
-			    	for(int i = 0; i < name.length(); i++) {
-			    		char c = name.charAt(i);
-			    		String s = new StringBuilder().append(c).toString();
-			    		ele.sendKeys(s);
-			    		waitMethods.waiter(waitMethods.w20);
-			    	}
-			    	
+					String url = driver.getCurrentUrl();	
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/input"));
+				    	highlightElement.highLightElement(driver, ele);
+				    	
+				    	String name = "Q-Textarea";
+				    	ele.clear();
+				    	
+				    	for(int i = 0; i < name.length(); i++) {
+				    		char c = name.charAt(i);
+				    		String s = new StringBuilder().append(c).toString();
+				    		ele.sendKeys(s);
+				    		waitMethods.waiter(waitMethods.w20);
+				    	}
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/input"));
+				    	highlightElement.highLightElement(driver, ele);
+				    	
+				    	String name = "Q-Textarea";
+				    	ele.clear();
+				    	
+				    	for(int i = 0; i < name.length(); i++) {
+				    		char c = name.charAt(i);
+				    		String s = new StringBuilder().append(c).toString();
+				    		ele.sendKeys(s);
+				    		waitMethods.waiter(waitMethods.w20);
+				    	}
+					}
+	
 			    	System.out.println("Column Title: Grid Col #4");			
 				}
 				
 				
 				
-				@Test(priority = 312) //
+				@Test(priority = 312) //							ERR HERE - PreProd
 				public void selectColumnType04() {         
 					//waitMethods.implicitWait(waitMethods.w500);
-					waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
-					//WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
-					highlightElement.highLightElement(driver, ele);
-					ele.click();
-					waitMethods.waiter(waitMethods.w500);				    
-					Select select = new Select(driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select")));
-					highlightElement.highLightElement(driver, ele);
-					select.selectByValue("textarea");
-					waitMethods.waiter(waitMethods.w200);
-					WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
-					ele2.click();
+					String url = driver.getCurrentUrl();	
+					if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+						waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
+						highlightElement.highLightElement(driver, ele);
+						ele.click();
+						waitMethods.waiter(waitMethods.w500);				    
+						Select select = new Select(driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select")));
+						highlightElement.highLightElement(driver, ele);
+						select.selectByValue("textarea");
+						waitMethods.waiter(waitMethods.w200);
+						WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
+						ele2.click();
+					} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+						waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
+						WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
+						highlightElement.highLightElement(driver, ele);
+						ele.click();
+						waitMethods.waiter(waitMethods.w500);				    
+						Select select = new Select(driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[4]/select")));
+						highlightElement.highLightElement(driver, ele);
+						select.selectByValue("textarea");
+						waitMethods.waiter(waitMethods.w200);
+						WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[5]/form/div/main/fieldset[3]/div[3]/div/div[4]/select"));
+						ele2.click();
+					}
 					
 					System.out.println("Test Question: Textarea");
 				}
 	
 				
+				
+		//********* OK to Here for PROD & Pre-Prod  **********
+		/////// HERE: For DEBUGGing, comment here to end \\\\\\\\\\\\\\\\\\\  Grid
+				
+				
+			
 				
 				@Test(priority = 320) //
 				private void selectQuestionSave01S02_02() {			//
@@ -1760,20 +1846,20 @@ public class formsWorkflow extends setupFramework {
 			*/
 				
 				@Test(priority = 324) //  
-				private void moveCol1_3PositionsR() {			//
+				private void moveCol1_3PositionsR() {			//		ERR HERE - PreProd    PICKUP HERE
 					waitMethods.waiter(waitMethods.w500);       
 					
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[1]/img[2]"));
+					WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[1]/img[2]"));
 			    	highlightElement.highLightElement(driver, ele);
 			   		ele.click();
 					waitMethods.waiter(waitMethods.w500);
 					
-			   		WebElement ele2 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/img[2]"));
+			   		WebElement ele2 = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/img[2]"));
 			    	highlightElement.highLightElement(driver, ele2);
 			   		ele2.click();
 					waitMethods.waiter(waitMethods.w500);
 	
-			   		WebElement ele3 = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/img[2]"));
+			   		WebElement ele3 = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[3]/img[2]"));
 			    	highlightElement.highLightElement(driver, ele3);
 			   		ele3.click();
 					waitMethods.waiter(waitMethods.w500);				
@@ -1783,11 +1869,11 @@ public class formsWorkflow extends setupFramework {
 				}	
 				
 				
-				@Test(priority = 332) //  
+				@Test(priority = 332) //  							ERR HERE - PreProd
 				private void moveCol2_1PositionsR() {			//
 					waitMethods.waiter(waitMethods.w500);       
 					
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/img[2]"));
+					WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/img[2]"));
 			    	highlightElement.highLightElement(driver, ele);
 			   		ele.click();
 					
@@ -1796,11 +1882,11 @@ public class formsWorkflow extends setupFramework {
 				}	
 				
 				
-				@Test(priority = 334) //  
+				@Test(priority = 334) //  								ERR HERE - PreProd
 				private void moveCol2_1PositionsL() {			//
 					waitMethods.waiter(waitMethods.w500);       
 					
-					WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/img[1]"));
+					WebElement ele = driver.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/main/fieldset[3]/div[3]/div/div[2]/img[1]"));
 			    	highlightElement.highLightElement(driver, ele);
 			   		ele.click();
 					
@@ -1821,8 +1907,8 @@ public class formsWorkflow extends setupFramework {
 				}
 			
 			
-			@Test(priority = 340) //  
-			private void selectSubSubQuestion01S01S01() {	//
+			@Test(priority = 340) //  										ERR HERE - PreProd
+			private void selectSubSubQuestion01S01S01() {	//	
 				waitMethods.waiter(waitMethods.w500);       
 				WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div[3]/div/div[1]/div/div[1]/span/span[2]"));
 		    	highlightElement.highLightElement(driver, ele);
@@ -1835,7 +1921,7 @@ public class formsWorkflow extends setupFramework {
 			
 			
 			
-				@Test(priority = 342) //
+				@Test(priority = 342) //									ERR HERE - PreProd
 				private void inputFieldName01S01S01() {
 					waitMethods.waiter(waitMethods.w500);       
 					WebElement ele = driver.findElement(By.id("name"));
@@ -1855,7 +1941,7 @@ public class formsWorkflow extends setupFramework {
 				
 		
 				
-				@Test(priority = 344) //
+				@Test(priority = 344) //						ERR HERE - PreProd	
 				private void inputShortLabel01S01S01() {
 					waitMethods.waiter(waitMethods.w500);       
 					WebElement ele = driver.findElement(By.id("description"));
@@ -1875,7 +1961,7 @@ public class formsWorkflow extends setupFramework {
 	
 			
 	
-			@Test(priority = 346) //
+			@Test(priority = 346) //								// ERR HERE - PreProd
 			public void selectNumeric01S01S01() {         
 				//waitMethods.implicitWait(waitMethods.w500);
 				waitMethods.waiter(waitMethods.w200);			//The below opens the DDL
@@ -1894,7 +1980,7 @@ public class formsWorkflow extends setupFramework {
 			
 	
 			
-			@Test(priority = 348) //
+			@Test(priority = 348) //					ERR HERE - PreProd
 			private void inputDefaultAnswer01S01S01() {
 				waitMethods.waiter(waitMethods.w500);       
 				WebElement ele = driver.findElement(By.id("default"));
@@ -1913,7 +1999,7 @@ public class formsWorkflow extends setupFramework {
 			}
 			
 			
-			@Test(priority = 350) //  
+			@Test(priority = 350) //  										ERR HERE - PreProd
 			private void selectFieldRequired01S01S01() {			//
 				waitMethods.waiter(waitMethods.w250);       
 				WebElement ele = driver.findElement(By.id("required"));
@@ -1925,7 +2011,7 @@ public class formsWorkflow extends setupFramework {
 			
 			
 			@Test(priority = 352) //  
-			private void selectFieldSensitiveData01S01S01() {			//
+			private void selectFieldSensitiveData01S01S01() {			//	ERR HERE - PreProd
 				waitMethods.waiter(waitMethods.w500);       
 				WebElement ele = driver.findElement(By.id("sensitive"));
 		    	highlightElement.highLightElement(driver, ele);
@@ -1938,7 +2024,7 @@ public class formsWorkflow extends setupFramework {
 			
 			
 			
-			@Test(priority = 362) //  
+			@Test(priority = 362) //  									ERR HERE - PreProd
 			private void selectSortValue01S01S01() {			//
 				waitMethods.waiter(waitMethods.w250);       
 				WebElement ele = driver.findElement(By.id("sort"));
@@ -1949,7 +2035,7 @@ public class formsWorkflow extends setupFramework {
 			}
 			
 			
-			@Test(priority = 364) //  
+			@Test(priority = 364) //  								ERR HERE - PreProd
 			private void selectQuestionSave01S01S01() {			//
 				waitMethods.waiter(waitMethods.w500);       
 				WebElement ele = driver.findElement(By.id("button_save"));
@@ -2128,8 +2214,7 @@ public class formsWorkflow extends setupFramework {
 
 
 	IF TEMPLATE
-	String url = driver.getCurrentUrl();
-	
+	String url = driver.getCurrentUrl();	
 	if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
 	
 	} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
