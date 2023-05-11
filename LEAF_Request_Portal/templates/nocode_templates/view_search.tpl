@@ -1,5 +1,5 @@
 <style>
-    #bodyarea {
+    #no_code_search {
         font-size: 14px;
     }
     #searchContainer {
@@ -10,15 +10,21 @@
     }
 </style>
 
-<section style="display: flex; flex-direction: column; width: fit-content;">
+<section id="no_code_search" style="display: flex; flex-direction: column; width: fit-content;">
     <div id="searchContainer"></div>
     <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
 </section>
 
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
+            //NOTE: hardcode tests
+    const inputData = {
+        chosenHeaders: ['date', 'title', 'status', 'service'],
+        sort: { column: 'recordID', direction: 'desc' }
+    }
+    const { chosenHeaders, sort } = inputData;
 
-    function renderResult(leafSearch, res, { chosenHeaders, sort } = {}) {
+    function renderResult(leafSearch, res) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         const headers = {
             date: {
@@ -155,12 +161,6 @@
     }
 
     function main() {
-        //NOTE: hardcode tests
-        const inputData = {
-            chosenHeaders: ['date', 'title', 'status', 'service'],
-            sort: { column: 'recordID', direction: 'desc' }
-        }
-
         let query = new LeafFormQuery();
         let leafSearch = new LeafFormSearch('searchContainer');
         leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
@@ -210,7 +210,7 @@
                 return;
             }
 
-            renderResult(leafSearch, resultSet, inputData);
+            renderResult(leafSearch, resultSet);
             window.scrollTo(0, scrollY);
             // UI for "show more results" button
             document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
@@ -270,7 +270,7 @@
             query.join('categoryName');
             const potentialJoins = ["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
             potentialJoins.forEach(j => {
-                if (inputData.chosenHeaders.includes(j)) {
+                if (chosenHeaders.includes(j)) {
                     query.join(j);
                 }
             });

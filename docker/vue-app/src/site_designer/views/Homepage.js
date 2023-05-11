@@ -166,7 +166,7 @@ export default {
          * @param {boolean} markedForDeletion
          */
         updateMenuItemList(menuItem = null, markedForDeletion = false) {
-            if (menuItem === null) { //called for drag drop event or when adding starter buttons
+            if (menuItem === null) { //drag drop, clickToMove or when adding starter buttons
                 let itemIDs = []
                 let elList = Array.from(document.querySelectorAll('ul#menu > li'));
                 elList.forEach(li => itemIDs.push(li.id));

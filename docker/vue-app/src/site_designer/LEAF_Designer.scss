@@ -16,6 +16,12 @@ body {
         margin: 0;
         color: black;
     }
+    h2 {
+        font-size: 26px;
+    }
+    h3 {
+        font-size: 20px;
+    }
     .btn-confirm.enabled {
         background-color: $attention;
         border: 2px solid black;
@@ -95,19 +101,36 @@ body {
                 }
 
                 div.edit_card {
+                    margin-left: 0.75rem;
                     cursor: auto;
                     position: relative;
                     @include flexcenter;
+                    flex-direction: column;
+                    div.click_to_move {
+                        border: 8px solid transparent;
+                        &:hover, &:focus, &:active {
+                            cursor: pointer;
+                        }
+                        &.up {
+                            margin-bottom: 0.25rem;
+                            border-top: 0;
+                            border-bottom: 12px solid $base_navy;
+                        }
+                        &.down {
+                            margin-top: 0.25rem;
+                            border-bottom: 0;
+                            border-top: 12px solid $base_navy;
+                        }
+                    }
                     button.edit_menu_card {
                         padding: 2px 6px 3px 6px;
-                        margin-left: 0.75rem;
                     }
                     .notify_status {
                         cursor: auto;
                         position: absolute;
                         top: 50%;
                         right: 0;
-                        transform: translate(calc(100% + 0.5rem), -50%);
+                        transform: translate(calc(100% + 0.5rem), -60%);
                         color: $base_navy;
                         &.hidden {
                             color: $attention;

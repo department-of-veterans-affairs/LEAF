@@ -296,7 +296,7 @@ export default {
             <button type="button" @click="postEnableTemplate('search')"
                 class="btn-confirm" :class="{enabled: enabled}"
                 style="width: 100px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
-                {{ enabled ? 'Disable' : 'Enable'}}
+                {{ enabled ? 'Disable' : 'Publish'}}
             </button>
             <p style="color:#b00000;">TODO: entry area (multiselect?) for which columns to show / order</p>
         </template>

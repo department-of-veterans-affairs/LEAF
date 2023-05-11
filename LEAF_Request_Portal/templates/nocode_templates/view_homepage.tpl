@@ -1,6 +1,8 @@
 <style>
     #no_code_home {
         margin: 1rem;
+    }
+    #custom_menu_wrapper {
         font-size: 14px;
         font-family: Verdana, sans-serif;
     }
