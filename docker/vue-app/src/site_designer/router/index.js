@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 //these likely won't be big enough to need lazy load
 import Homepage from "../views/Homepage.js";
+import TestView from "../views/TestView.js";
 
 const routes = [
     {
@@ -12,6 +13,11 @@ const routes = [
         path: '/homepage',
         name: 'homepage',
         component: Homepage
+    },
+    {
+        path: '/testview',
+        name: 'testview',
+        component: TestView
     }
 ];
 

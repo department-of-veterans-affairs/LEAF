@@ -11,10 +11,12 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             userID: userID,
+            settingsData: {},
+            settingsDataTest: settingsDataTest,
             customizableTemplates: ['homepage', 'search'], //NOTE: only homepage is actually a view, but they are sep tpls
-            views: ['homepage'],
+            views: ['homepage', 'testview'],
             custom_page_select: 'homepage',
-            isPostingUpdate: false,
+            isPostingUpdate: true,
             isEditingMode: true,
             publishedStatus: {
                 homepage: null,
@@ -37,6 +39,7 @@ export default {
             isPostingUpdate: computed(() => this.isPostingUpdate),
             isEditingMode: computed(() => this.isEditingMode),
             publishedStatus: computed(() => this.publishedStatus),
+            settingsData: computed(() => this.settingsData),
 
             //static
             CSRFToken: this.CSRFToken,
@@ -63,12 +66,12 @@ export default {
             formSaveFunction: computed(() => this.formSaveFunction),
         }
     },
-    mounted() {
+    beforeMount() {
         this.getIconList();
-        this.getSettingsData().then(res => {
-            this.publishedStatus.homepage = +res?.home_enabled === 1;
-            this.publishedStatus.search = +res?.search_enabled === 1;
-        }).catch(err => console.log(err));
+        this.getSettingsData();
+    },
+    mounted() {
+        this.$router.push({name: this.custom_page_select});
     },
     methods: {
         setEditMode(isEditMode = true) {
@@ -107,18 +110,18 @@ export default {
             }
         },
         getSettingsData() {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}system/settings`,
-                    success: (res) => {
-                        this.setUpdating(false);
-                        resolve(res);
-                    },
-                    error: (err) => {
-                        reject(err);
-                    }
-                });
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}system/settings`,
+                success: (res) => {
+                    this.settingsData = res;
+                    this.publishedStatus.homepage = +res?.home_enabled === 1;
+                    this.publishedStatus.search = +res?.search_enabled === 1;
+                    this.setUpdating(false);
+                },
+                error: (err) => {
+                    console.log(err);
+                }
             });
         },
 

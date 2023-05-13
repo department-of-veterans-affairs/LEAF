@@ -59,21 +59,19 @@ export default {
                     enabled: 1
                 },
             ],
-            menuDirection: 'v',
-            menuItemList: [],
+
             menuItem: {},
         }
     },
     mounted() {
-        this.getSettingsData().then(res => {
-            this.getHomeDesignSettings(res?.home_menu_json || "{}");
-        });
+        this.getSettingsData();
     },
     inject: [
         'CSRFToken',
         'APIroot',
         'setUpdating',
         'getSettingsData',
+        'settingsData',
         'isEditingMode',
 
         'showFormDialog',
@@ -84,15 +82,17 @@ export default {
     ],
     provide() {
         return {
+            menuItem: computed(() => this.menuItem),
             menuDirection: computed(() => this.menuDirection),
             menuItemList: computed(() => this.menuItemList),
-            menuItem: computed(() => this.menuItem),
+            chosenHeaders: computed(() => this.chosenHeaders),
+
             builtInIDs: this.builtInIDs,
             addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             updateMenuItemList: this.updateMenuItemList,
-            updateMenuDirection: this.updateMenuDirection,
-            postMenuSettings: this.postMenuSettings,
+            postHomepageSettings: this.postHomepageSettings,
+            postSearchSettings: this.postSearchSettings
         }
     },
     components: {
@@ -100,6 +100,28 @@ export default {
         DesignButtonDialog,
         CustomHomeMenu,
         CustomSearch
+    },
+    computed: {
+        menuItemList() {
+            const homeData = JSON.parse(this.settingsData?.home_design_json || "{}");
+
+            let menuItems = homeData?.menuButtons || [];
+            menuItems.map(item => {
+                item.link = XSSHelpers.decodeHTMLEntities(item.link);
+                item.title = XSSHelpers.decodeHTMLEntities(item.title);
+                item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
+            });
+            return menuItems.sort((a,b) => a.order - b.order);
+        },
+        menuDirection() {
+            const homeData = JSON.parse(this.settingsData?.home_design_json || "{}");
+            return homeData?.direction || 'v';
+        },
+        chosenHeaders() {
+            const searchTemplateJSON = this.settingsData?.search_design_json || "{}";
+            const obj = JSON.parse(searchTemplateJSON);
+            return obj?.chosenHeaders || [];
+        },
     },
     methods: {
         openDesignButtonDialog() {
@@ -118,19 +140,7 @@ export default {
             return result;
         },
         buttonIDExists(ID = '') {
-            return this.menuItemList.length > 0 ? this.menuItemList.some(button => button?.id === ID) : false;
-        },
-        getHomeDesignSettings(homeJSON = "{}") {
-            const data = JSON.parse(homeJSON);
-            this.menuDirection = data?.direction || 'v';
-
-            let menuItems = data?.menuButtons || [];
-            menuItems.map(item => {
-                item.link = XSSHelpers.decodeHTMLEntities(item.link);
-                item.title = XSSHelpers.decodeHTMLEntities(item.title);
-                item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
-            });
-            this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
+            return this.menuItemList.some(button => button?.id === ID);
         },
         /**
          * @param {object|null} menuItem set menuitem for editing
@@ -156,22 +166,26 @@ export default {
             });
             if(buttonsAdded > 0) {
                 this.updateMenuItemList();
-                this.postMenuSettings();
             }
         },
         /**
-         * Updates order value on drop, or filters menu item list using ID of an existing or
-         * new menu item. Adds the new or edited item and re-sorts the list if remove is not true
+         * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
          * @param {Object|null} menuItem
          * @param {boolean} markedForDeletion
          */
         updateMenuItemList(menuItem = null, markedForDeletion = false) {
-            if (menuItem === null) { //drag drop, clickToMove or when adding starter buttons
+            //get a copy of computed menuitems
+            let newItems = [];
+            this.menuItemList.forEach(item => newItems.push({...item}));
+
+            //drag drop, clickToMove or adding starter buttons
+            if (menuItem === null) {
+                //make an array of ids from the menu list elements. the index will be the order
                 let itemIDs = []
                 let elList = Array.from(document.querySelectorAll('ul#menu > li'));
                 elList.forEach(li => itemIDs.push(li.id));
 
-                this.menuItemList.forEach(item => {
+                newItems.forEach(item => {
                     const index = itemIDs.indexOf(item.id);
                     if(index > -1) {
                         item.order = index;
@@ -179,36 +193,46 @@ export default {
                 });
 
             } else { //editing modal - either updating or deleting an item
-                let items = this.menuItemList.filter(item => item.id !== menuItem.id);
+                newItems = this.menuItemList.filter(item => item.id !== menuItem.id);
                 if (markedForDeletion !== true) {
-                    items.push(menuItem);
+                    newItems.push(menuItem);
                 }
-                items = items.sort((a,b) => a.order - b.order);
-                this.menuItemList = items;
             }
-            this.postMenuSettings();
+            this.postHomepageSettings(newItems, this.menuDirection);
         },
-        updateMenuDirection(event = {}) {
-            this.menuDirection = event.target.value;
-            this.postMenuSettings();
-        },
-        postMenuSettings() {
+        postSearchSettings(searchHeaders = []) {
             this.setUpdating(true);
             $.ajax({
-                type: 'POST', //homepage_design_json
-                url: `${this.APIroot}site/settings/home_menu_json`,
+                type: 'POST',
+                url: `${this.APIroot}site/settings/search_design_json`,
                 data: {
                     CSRFToken: this.CSRFToken,
-                    home_menu_list: this.menuItemList,
-                    menu_direction: this.menuDirection
+                    chosen_headers: searchHeaders,
                 },
                 success: (res) => {
                     if(+res !== 1) {
                         console.log('unexpected value returned:', res);
                     }
-                    this.getSettingsData().then(res => {
-                        this.getHomeDesignSettings(res?.home_menu_json || "{}");
-                    }).catch(err => console.log(err));
+                    this.getSettingsData();
+                },
+                error: (err) => console.log(err)
+            });
+        },
+        postHomepageSettings(menuItems = this.menuItemList, direction = this.menuDirection) {
+            this.setUpdating(true);
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}site/settings/home_design_json`,
+                data: {
+                    CSRFToken: this.CSRFToken,
+                    home_menu_list: menuItems,
+                    menu_direction: direction
+                },
+                success: (res) => {
+                    if(+res !== 1) {
+                        console.log('unexpected value returned:', res);
+                    }
+                    this.getSettingsData();
                 },
                 error: (err) => console.log(err)
             });

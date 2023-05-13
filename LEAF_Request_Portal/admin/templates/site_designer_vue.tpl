@@ -6,7 +6,8 @@
                 <h2 style="margin-right: auto;">Site Designer</h2>
                 <label v-if="views.length > 1" for="custom_page_select" style="display:block; margin: 0;">Select a Page&nbsp;
                     <select id="custom_page_select" style="width:150px;" v-model="custom_page_select">
-                        <option value="homepage">homepage</option>
+                        <option v-if="custom_page_select===''" value="">Select a Page</option>
+                        <option v-for="view in views" :key="'view_option_' + view" :value="view">{{ view }}</option>
                     </select>
                 </label>
                 <button type="button" class="btn-general" style="width: 145px; height: 1.75rem;" @click="setEditMode(!isEditingMode)">
@@ -26,6 +27,7 @@
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
     const userID = '<!--{$userID}-->';
+    const settingsDataTest = JSON.parse('<!--{$settingsDataTest}-->');
 </script>
 
 <script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer.js" defer></script>

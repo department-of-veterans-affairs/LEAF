@@ -42,11 +42,11 @@ class Site
 
         return 1;
     }
-
+    //TODO: new table?
     public function setHomeDesignJSON(array $menuItems = [], string $direction = 'v'): string|int {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
-        } //home_menu_json
+        }
         foreach ($menuItems as $i => $item) {
             $menuItems[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
             $menuItems[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
@@ -56,18 +56,34 @@ class Site
         $home_design_data = array();
         $home_design_data['menuButtons'] = $menuItems;
         $home_design_data['direction'] = $direction === 'v' ? 'v' : 'h';
-        $home_menu_json = json_encode($home_design_data);
+        $home_design_json = json_encode($home_design_data);
 
         $strSQL = 'INSERT INTO settings (setting, `data`)
-            VALUES ("home_menu_json", :home_menu_json)
-            ON DUPLICATE KEY UPDATE `data`=:home_menu_json';
-        $vars = array(':home_menu_json' => $home_menu_json);
+            VALUES ("home_design_json", :home_design_json)
+            ON DUPLICATE KEY UPDATE `data`=:home_design_json';
+        $vars = array(':home_design_json' => $home_design_json);
 
         $this->db->prepared_query($strSQL, $vars);
 
         return 1;
     }
-    //TODO: new table?
+    public function setSearchDesignJSON(array $chosenHeaders = []): string|int {
+        if (!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+        $search_design_data = array();
+        $search_design_data['chosenHeaders'] = \Leaf\XSSHelpers::scrubObjectOrArray($chosenHeaders);
+        $search_design_json = json_encode($search_design_data);
+
+        $strSQL = 'INSERT INTO settings (setting, `data`)
+            VALUES ("search_design_json", :search_design_json)
+            ON DUPLICATE KEY UPDATE `data`=:search_design_json';
+        $vars = array(':search_design_json' => $search_design_json);
+
+        $this->db->prepared_query($strSQL, $vars);
+
+        return 1;
+    }
     public function enableNoCodeHome(int $isEnabled = 0): string|int {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';

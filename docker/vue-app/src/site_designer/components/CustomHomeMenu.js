@@ -2,6 +2,11 @@ import CustomMenuItem from "./CustomMenuItem";
 
 export default {
     name: 'custom-home-menu',
+    data() {
+        return {
+            menuDirectionSelection: this.menuDirection,
+        }
+    },
     components: {
         CustomMenuItem
     },
@@ -9,13 +14,12 @@ export default {
         'isPostingUpdate',
         'publishedStatus',
         'isEditingMode',
-        'menuItemList',
         'builtInIDs',
         'addStarterButtons',
+        'menuItemList',
         'menuDirection',
         'updateMenuItemList',
-        'updateMenuDirection',
-        'postMenuSettings',
+        'postHomepageSettings',
         'setMenuItem',
         'postEnableTemplate',
     ],
@@ -28,7 +32,7 @@ export default {
             } : {}
         },
         ulStyles() {
-            return this.menuDirection === 'v' || this.isEditingMode ?
+            return this.menuDirectionSelection === 'v' || this.isEditingMode ?
                 {
                     flexDirection: 'column',
                 } :
@@ -94,12 +98,20 @@ export default {
                     parentEl.appendChild(li);
                 });
                 this.updateMenuItemList();
-                const tar = event.currentTarget;
-                setTimeout(() => {
-                    tar.focus();
-                },300);
             }
         },
+        updateDirection(event = {}) {
+            const d = event?.target?.value || '';
+            if(d !== '' && d !== this.menuDirection) {
+                this.postHomepageSettings(this.menuItemList, this.menuDirectionSelection);
+            }
+        }
+    },
+    watch: {
+        menuDirection(newVal, oldVal) {
+            console.log(newVal, oldVal)
+            this.menuDirectionSelection = newVal;
+        }
     },
     template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
         <template v-if="isEditingMode">
@@ -110,11 +122,11 @@ export default {
                 {{ enabled ? 'Disable' : 'Publish'}}
             </button>
             <p style="margin: 0.5rem 0;">Drag-Drop cards or use the up and down buttons to change their order. &nbsp;Use the card menu to edit text and other values.</p>
-            <label for="menu_direction_select">Menu Direction (use preview to view this effect)</label>
-            <select id="menu_direction_select" @change="updateMenuDirection"
-                style="width: 100px;">
-                <option value="v" :selected="menuDirection==='v'">Columns</option>
-                <option value="h" :selected="menuDirection==='h'">Rows</option>
+            <label for="menu_direction_select">Menu Direction(use preview to view this effect)</label>
+            <select id="menu_direction_select" style="width: 150px;" v-model="menuDirectionSelection" @change="updateDirection">
+                <option v-if="menuDirectionSelection===''" value="">Select an Option</option>
+                <option value="v">Columns</option>
+                <option value="h">Rows</option>
             </select>
         </template>
         <ul v-if="menuItemListDisplay.length > 0" id="menu"

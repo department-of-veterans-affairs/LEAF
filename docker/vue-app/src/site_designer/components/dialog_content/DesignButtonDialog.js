@@ -6,9 +6,9 @@ export default {
         return {
             id: this.menuItem.id,
             order: this.menuItem?.order || 0,
-            title: XSSHelpers.stripTags(this.menuItem?.title || '', this.tagsToRemove),
+            title: XSSHelpers.stripAllTags(this.menuItem?.title || ''),
             titleColor: this.menuItem?.titleColor || '#000000',
-            subtitle: XSSHelpers.stripTags(this.menuItem?.subtitle || '', this.tagsToRemove),
+            subtitle: XSSHelpers.stripAllTags(this.menuItem?.subtitle || ''),
             subtitleColor: this.menuItem?.subtitleColor || '#000000',
             bgColor: this.menuItem?.bgColor || '#ffffff',
             icon: this.menuItem?.icon || '',
@@ -35,8 +35,7 @@ export default {
         'iconList',
         'closeFormDialog',
         'setDialogSaveFunction',
-        'setDialogButtonText',
-        'tagsToRemove',
+        'setDialogButtonText'
     ],
     computed: {
         menuItemOBJ() {
@@ -88,7 +87,7 @@ export default {
             }
         }
     },
-    template: `<div style="max-width: 600px;" id="design_button_modal">
+    template: `<div style="max-width: 600px;" id="design_card_modal">
         <h3>Card Preview</h3>
         <div class="designer_inputs" style="margin-bottom:1rem;">
             <custom-menu-item :menuItem="menuItemOBJ"></custom-menu-item>

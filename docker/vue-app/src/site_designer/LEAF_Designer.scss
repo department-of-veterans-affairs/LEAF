@@ -26,6 +26,15 @@ body {
         background-color: $attention;
         border: 2px solid black;
     }
+    .designer_inputs {
+        display:flex;
+        gap:1rem;
+        margin-bottom:0.5rem;
+        &.wrap {
+            flex-wrap:wrap;
+        }
+    }
+
 
     #searchContainer {
         margin-top: 1rem;
@@ -143,19 +152,11 @@ body {
         }
     }
 
-    #design_button_modal {
-        .designer_inputs {
-            display:flex;
-            gap:1rem;
-            margin-bottom:0.5rem;
-            textarea {
-                width: 300px;
-                height: 60px;
-                resize: none;
-            }
-            &.wrap {
-                flex-wrap:wrap;
-            }
+    #design_card_modal {
+        textarea {
+            width: 300px;
+            height: 60px;
+            resize: none;
         }
     }
     

@@ -522,7 +522,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         if (isset($settings['search_enabled']) && $settings['search_enabled'] == 1) {
-            //$t_form->assign('chosenHeaders', json_encode($settings['chosenHeaders']));
+            $t_form->assign('searchDesignJSON', json_encode($settings['search_design_json']));
             $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
         } else {
             $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
@@ -533,7 +533,7 @@ switch ($action) {
 
         $t_form->assign('inbox_status', 1);
         if (isset($settings['home_enabled']) && $settings['home_enabled'] == 1) {
-            $t_form->assign('menuItems', json_encode($settings['home_menu_json']));
+            $t_form->assign('homeDesignJSON', json_encode($settings['home_design_json']));
             $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));

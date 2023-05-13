@@ -2,38 +2,8 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            sort: {column:'recordID', direction: 'desc'},
-            chosenHeaders:['date', 'title', 'service', 'status'],
-            /*NOTE: hardcoded test. TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
-
-            getData: [],
-            hilite: [status === 'approved', date < #,  lastaction > #],
-            hide: []*/
-            //categoryName automatically included
-            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
-        }
-    },
-    mounted() {
-        this.main();
-    },
-    inject: [
-        'userID',
-        'rootPath',
-        'orgchartPath',
-        'isEditingMode',
-        'postEnableTemplate',
-        'publishedStatus',
-        'isPostingUpdate'
-    ],
-    computed: {
-        enabled() {
-            return this.publishedStatus.search === true;
-        }
-    },
-    methods: {
-        renderResult(leafSearch, res) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-            const adminHeaders = {
+            months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+            adminHeaders: {
                 date: {
                     name: 'Date',
                     indicatorID: 'date',
@@ -42,10 +12,13 @@ export default {
                         let date = new Date(blob[data.recordID].date * 1000);
                         let now = new Date();
                         let year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-                        let formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-                        document.querySelector(`#${data.cellContainerID}`).innerHTML = formattedDate;
-                        if(blob[data.recordID].userID == this.userID) {
-                            document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
+                        let formattedDate = this.months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+                        let elContainer = document.querySelector(`#${data.cellContainerID}`);
+                        if(elContainer !== null) {
+                            elContainer.innerHTML = formattedDate;
+                            if(blob[data.recordID].userID == this.userID) {
+                                elContainer.style.backgroundColor = '#feffd1';
+                            }
                         }
                     }
                 },
@@ -59,19 +32,23 @@ export default {
                                 types += blob[data.recordID].categoryNames[i] + ' | ';
                             }
                         }
-                        types = types.substr(0, types.length - 3);
+                        types = types.slice(0, types.length - 3);
+                        
                         const isEmergency = blob[data.recordID].priority == -10;
                         const priority = isEmergency ? '<span style="color: red"> ( Emergency ) </span>' : '';
                         const priorityStyle = isEmergency ? ' style="background-color: red; color: black"' : '';
-                        document.querySelector(`#${data.cellContainerID}`).innerHTML = 
+                        let elContainer = document.querySelector(`#${data.cellContainerID}`);
+                        if(elContainer !== null) {
+                            elContainer.innerHTML = 
                             `<span class="browsecounter">
                                 <a ${priorityStyle} href="${this.rootPath}index.php?a=printview&recordID=${data.recordID}" tabindex="-1">${data.recordID}</a>
                             </span>
                             <a href="${this.rootPath}index.php?a=printview&recordID=${data.recordID}">${blob[data.recordID].title}</a><br />
                             <span class="browsetypes">${types}</span>${priority}`;
-                        document.querySelector(`#${data.cellContainerID}`).addEventListener('click', () => {
-                            window.location = `${this.rootPath}index.php?a=printview&recordID=${data.recordID}`;
-                        });
+                            elContainer.addEventListener('click', () => {
+                                window.location = `${this.rootPath}index.php?a=printview&recordID=${data.recordID}`;
+                            });
+                        }
                     }
                 },
                 service: {
@@ -79,9 +56,12 @@ export default {
                     indicatorID: 'service',
                     editable: false,
                     callback: (data, blob) => {
-                        document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
-                        if(blob[data.recordID].userID == this.userID) {
-                            document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
+                        let elContainer = document.querySelector(`#${data.cellContainerID}`);
+                        if(elContainer !== null) {
+                            elContainer.innerHTML = blob[data.recordID].service;
+                            if(blob[data.recordID].userID == this.userID) {
+                                elContainer.style.backgroundColor = '#feffd1';
+                            }
                         }
                     }
                 },
@@ -109,10 +89,12 @@ export default {
                         if(blob[data.recordID].deleted > 0) {
                             status += ', Cancelled';
                         }
-    
-                        document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
-                        if(blob[data.recordID].userID == this.userID) {
-                            document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
+                        let elContainer = document.querySelector(`#${data.cellContainerID}`);
+                        if(elContainer !== null) {
+                            elContainer.innerHTML = status;
+                            if(blob[data.recordID].userID == this.userID) {
+                                elContainer.style.backgroundColor = '#feffd1';
+                            }
                         }
                     }
                 },
@@ -121,12 +103,98 @@ export default {
                     indicatorID: 'initiator',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#'+data.cellContainerID).html(blob[data.recordID].firstName + " " + blob[data.recordID].lastName);
+                        let elContainer = document.querySelector(`#${data.cellContainerID}`);
+                        if(elContainer !== null) {
+                            elContainer.innerHTML = blob[data.recordID].firstName + " " + blob[data.recordID].lastName;
+                        }
                     }
                 }
-            };
-            const searchHeaders = this.chosenHeaders.map(h => ({ ...adminHeaders[h]}));
-    
+            },
+            sort: {column:'recordID', direction: 'desc'},
+            headerOptions: ['date', 'title', 'service', 'status', 'initiatorName'],
+            chosenHeadersSelect: [...this.chosenHeaders],
+            choicesSelectID: 'choices_header_select',
+            /*NOTE: hardcoded test. TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
+
+            getData: [],
+            hilite: [status === 'approved', date < #,  lastaction > #],
+            hide: []*/
+            //categoryName automatically included
+            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
+        }
+    },
+    mounted() {
+        console.log('search section mounted');
+        if(!this.isPostingUpdate) {
+            console.log(this.chosenHeadersSelect)
+            this.removeChoices();
+            this.createChoices();
+            this.main();
+        }
+    },
+    beforeUnmount() {
+        this.removeChoices();
+        document.getElementById('searchContainer').innerHTML = '';
+    },
+    inject: [
+        'userID',
+        'rootPath',
+        'orgchartPath',
+        'isEditingMode',
+        'postEnableTemplate',
+        'publishedStatus',
+        'chosenHeaders',
+        'postSearchSettings',
+        'isPostingUpdate',
+        'settingsData'
+    ],
+    computed: {
+        enabled() {
+            return this.publishedStatus.search === true;
+        },
+        chosenHeadersJSON() {
+            return JSON.stringify(this.chosenHeaders);
+        }
+    },
+    methods: {
+        createChoices() {
+            const elSelect = document.getElementById(this.choicesSelectID);
+            if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
+                console.log('called create choices', this.chosenHeadersSelect);
+                //add any saved ones first, so that the order will be retained
+                let options = [...this.chosenHeadersSelect];
+                this.headerOptions.forEach(o => {
+                    if (!options.includes(o)) {
+                        options.push(o);
+                    }
+                });
+                options = options.map(o =>({
+                    value: o,
+                    label: o,
+                    selected: this.chosenHeadersSelect.includes(o)
+                }));
+                const choices = new Choices(elSelect, {
+                    allowHTML: false,
+                    removeItemButton: true,
+                    editItems: true,
+                    shouldSort: false,
+                    choices: options
+                });
+                elSelect.choicesjs = choices;
+            }
+            document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
+                .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
+        },
+        removeChoices() {
+            const elSelect = document.getElementById(this.choicesSelectID);
+            if (elSelect?.choicesjs !== undefined && typeof elSelect.choicesjs?.destroy === 'function') {
+                console.log('rm choices')
+                elSelect.choicesjs.destroy();
+            }
+        },
+        renderResult(leafSearch, res) {
+            const searchHeaders = this.chosenHeaders.map(h => ({ ...this.adminHeaders[h]}));
+            console.log('called render')
             let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
             grid.setRootURL(this.rootPath);
             grid.hideIndex();
@@ -135,7 +203,7 @@ export default {
             grid.setPostProcessDataFunc((data) => {
                 let data2 = [];
                 for(let i in data) {
-                    //site designer is an admin area
+                    //removed admin check bc site designer is an admin area
                     data2.push(data[i]);
                 }
                 return data2;
@@ -151,6 +219,7 @@ export default {
             grid.announceResults();
         },
         main() {
+            console.log('main called')
             let query = new LeafFormQuery();
             query.setRootURL(this.rootPath);
 
@@ -169,6 +238,9 @@ export default {
     
             // On the first visit, if no results are owned by the user, append their results
             query.onSuccess((res, resStatus, resJqXHR) => {
+                const elSearch = document.getElementById('searchContainer');
+                const elMoreResults = document.getElementById('searchContainer_getMoreResults');
+                if (elSearch === null || elMoreResults === null) return;
                 resultSet = Object.assign(resultSet, res);
                 // find records owned by user
                 if(extendedQueryState == 0) {
@@ -224,8 +296,8 @@ export default {
                 } catch(err) {
                     isJSON = false;
                 }
-    
-                txt = txt.trim();
+
+                txt = txt ? txt.trim() : '';
                 if(txt == '') {
                     query.addTerm('title', 'LIKE', '*');
                 } else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
@@ -290,6 +362,20 @@ export default {
             });
         }
     },
+    watch: {
+        chosenHeadersJSON(newVal, oldVal) { //watching JSON bc arrays with same values would be seen as !equal
+            this.chosenHeadersSelect = [...this.chosenHeaders];
+            this.removeChoices();
+            this.createChoices();
+            this.main();
+        },
+        /*
+        isEditingMode(newVal, oldVal) {
+            if(newVal === false) {
+                this.main();
+            }
+        }*/
+    },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
         <template v-if="isEditingMode">
             <h4 style="margin: 0.5rem 0;">Search section is {{ enabled ? '' : 'not'}} enabled</h4>
@@ -298,9 +384,19 @@ export default {
                 style="width: 100px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
                 {{ enabled ? 'Disable' : 'Publish'}}
             </button>
-            <p style="color:#b00000;">TODO: entry area (multiselect?) for which columns to show / order</p>
+            <div class="designer_inputs">
+                <div>
+                    <p :id="choicesSelectID + '_label'">Select headers to display in the order that you would like them to appear</p>
+                    <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
+                </div>
+                <button type="button" class="btn-confirm" style="align-self: flex-end;"
+                    @click="postSearchSettings(chosenHeadersSelect)" :disabled="isPostingUpdate">Apply Selections
+                </button>
+            </div>
         </template>
         <div id="searchContainer"></div>
-        <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
+        <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
+            Show more records
+        </button>
     </section>`
 }

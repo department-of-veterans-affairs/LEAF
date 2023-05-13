@@ -17,12 +17,10 @@
 
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
-            //NOTE: hardcode tests
-    const inputData = {
-        chosenHeaders: ['date', 'title', 'status', 'service'],
-        sort: { column: 'recordID', direction: 'desc' }
-    }
-    const { chosenHeaders, sort } = inputData;
+    const searchData = JSON.parse('<!--{$searchDesignJSON}-->');
+    const chosenHeaders = searchData.chosenHeaders;
+
+    const sort = { column: 'recordID', direction: 'desc' }; //NOTE: prep in case option
 
     function renderResult(leafSearch, res) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
