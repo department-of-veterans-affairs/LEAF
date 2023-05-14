@@ -124,17 +124,10 @@ export default {
         }
     },
     mounted() {
-        console.log('search section mounted');
         if(!this.isPostingUpdate) {
-            console.log(this.chosenHeadersSelect)
-            this.removeChoices();
             this.createChoices();
             this.main();
         }
-    },
-    beforeUnmount() {
-        this.removeChoices();
-        document.getElementById('searchContainer').innerHTML = '';
     },
     inject: [
         'userID',
@@ -160,7 +153,6 @@ export default {
         createChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
             if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
-                console.log('called create choices', this.chosenHeadersSelect);
                 //add any saved ones first, so that the order will be retained
                 let options = [...this.chosenHeadersSelect];
                 this.headerOptions.forEach(o => {
@@ -185,16 +177,9 @@ export default {
             document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
                 .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
         },
-        removeChoices() {
-            const elSelect = document.getElementById(this.choicesSelectID);
-            if (elSelect?.choicesjs !== undefined && typeof elSelect.choicesjs?.destroy === 'function') {
-                console.log('rm choices')
-                elSelect.choicesjs.destroy();
-            }
-        },
         renderResult(leafSearch, res) {
             const searchHeaders = this.chosenHeaders.map(h => ({ ...this.adminHeaders[h]}));
-            console.log('called render')
+
             let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
             grid.setRootURL(this.rootPath);
             grid.hideIndex();
@@ -219,7 +204,6 @@ export default {
             grid.announceResults();
         },
         main() {
-            console.log('main called')
             let query = new LeafFormQuery();
             query.setRootURL(this.rootPath);
 
@@ -281,6 +265,13 @@ export default {
                 document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
             });
             leafSearch.setSearchFunc((txt) => {
+                if(txt === undefined || txt === 'undefined') {
+                    txt = '';
+                    let elInput = document.querySelector('input[id$="_searchtxt"]');
+                    if(elInput !== null) {
+                        elInput.value = '';
+                    }
+                }
                 // prep new search
                 query.clearTerms();
                 resultSet = {};
@@ -363,21 +354,14 @@ export default {
         }
     },
     watch: {
-        chosenHeadersJSON(newVal, oldVal) { //watching JSON bc arrays with same values would be seen as !equal
+        chosenHeadersJSON(newVal, oldVal) { //watching JSON bc arrays with same values would not be seen as equal
             this.chosenHeadersSelect = [...this.chosenHeaders];
-            this.removeChoices();
             this.createChoices();
             this.main();
         },
-        /*
-        isEditingMode(newVal, oldVal) {
-            if(newVal === false) {
-                this.main();
-            }
-        }*/
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
-        <template v-if="isEditingMode">
+        <div v-show="isEditingMode">
             <h4 style="margin: 0.5rem 0;">Search section is {{ enabled ? '' : 'not'}} enabled</h4>
             <button type="button" @click="postEnableTemplate('search')"
                 class="btn-confirm" :class="{enabled: enabled}"
@@ -386,15 +370,15 @@ export default {
             </button>
             <div class="designer_inputs">
                 <div>
-                    <p :id="choicesSelectID + '_label'">Select headers to display in the order that you would like them to appear</p>
+                    <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
                     <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
                 </div>
                 <button type="button" class="btn-confirm" style="align-self: flex-end;"
                     @click="postSearchSettings(chosenHeadersSelect)" :disabled="isPostingUpdate">Apply Selections
                 </button>
             </div>
-        </template>
-        <div id="searchContainer"></div>
+        </div>
+        <div id="searchContainer" style="padding-top:2px;"></div>
         <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
             Show more records
         </button>

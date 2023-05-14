@@ -109,7 +109,6 @@ export default {
     },
     watch: {
         menuDirection(newVal, oldVal) {
-            console.log(newVal, oldVal)
             this.menuDirectionSelection = newVal;
         }
     },
@@ -122,7 +121,7 @@ export default {
                 {{ enabled ? 'Disable' : 'Publish'}}
             </button>
             <p style="margin: 0.5rem 0;">Drag-Drop cards or use the up and down buttons to change their order. &nbsp;Use the card menu to edit text and other values.</p>
-            <label for="menu_direction_select">Menu Direction(use preview to view this effect)</label>
+            <label for="menu_direction_select">Menu Direction. Preview page to view this effect.</label>
             <select id="menu_direction_select" style="width: 150px;" v-model="menuDirectionSelection" @change="updateDirection">
                 <option v-if="menuDirectionSelection===''" value="">Select an Option</option>
                 <option value="v">Columns</option>
