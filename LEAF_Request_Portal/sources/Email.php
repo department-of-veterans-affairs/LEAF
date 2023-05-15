@@ -43,6 +43,8 @@ class Email
 
     private bool $orgchartInitialized = false;
 
+    private int $recordID;
+
     const SEND_BACK = -1;
     const NOTIFY_NEXT = -2;
     const NOTIFY_COMPLETE = -3;
@@ -65,6 +67,26 @@ class Email
         if ($apiEntry !== false) {
             $this->siteRoot = substr($this->siteRoot, 0, $apiEntry + 1);
         }
+    }
+
+    /**
+     * @return string
+     *
+     * Created at: 5/10/2023, 11:11:05 AM (America/New_York)
+     */
+    public function getRecipients(): string
+    {
+        return $this->emailRecipient;
+    }
+
+    /**
+     * @return string
+     *
+     * Created at: 5/10/2023, 11:11:32 AM (America/New_York)
+     */
+    public function getSubject(): string
+    {
+        return $this->emailSubject;
     }
 
     /**
@@ -282,7 +304,7 @@ class Email
      * @return bool
      * @throws Exception
      */
-    public function sendMail(): bool
+    public function sendMail(int $recordID): bool
     {
         $currDir = dirname(__FILE__);
 
@@ -324,7 +346,20 @@ class Email
             exec("php {$currDir}/../mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
 
+        $this->logEmailSent($recordID);
+
         return true;
+    }
+
+    /**
+     * @return void
+     *
+     * Created at: 5/11/2023, 12:13:40 PM (America/New_York)
+     */
+    private function logEmailSent(int $recordID): void
+    {
+        $email_tracker = new EmailTracker($this->portal_db);
+        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $this->emailRecipient, 'Subject: ' . $this->emailSubject);
     }
 
     /**
@@ -540,9 +575,8 @@ class Email
      * @param mixed $loggedInUser
      * @throws Exception
      */
-    function attachApproversAndEmail(int $recordID, int $emailTemplateID, mixed $loggedInUser): void
+    function attachApproversAndEmail(int $recordID, int $emailTemplateID, mixed $loggedInUser): bool
     {
-
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
         $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
@@ -676,7 +710,7 @@ class Email
                         break;
                 }
             }
-            $this->sendMail();
+            $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $vars = array(':recordID' => $recordID);
@@ -706,9 +740,11 @@ class Email
             if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                 $this->addRecipient($tmp[0]['Email']);
             }
-            $this->sendMail();
+            $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID > 1) {
-            $this->sendMail(); // Check for custom event to finalize email on Notify Next
+            $return_value = $this->sendMail($recordID); // Check for custom event to finalize email on Notify Next
         }
+
+        return $return_value;
     }
 }

@@ -28,7 +28,11 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
     <td>
         <span><b><!--{$indicator.description|sanitize}--></b> by <!--{$indicator.userName|sanitize}-->
         <!--{if $indicator.comment != ''}-->
-        <br />Comment: <!--{$indicator.comment|sanitize}--></span>
+            <!--{if $indicator.description != 'Email Sent: '}-->
+                <br />Comment: <!--{$indicator.comment|sanitize}--></span>
+            <!--{else}-->
+                <br /><!--{$indicator.comment|sanitize}--></span>
+            <!--{/if}-->
         <!--{/if}-->
     </td>
 </tr>

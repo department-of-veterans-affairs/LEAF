@@ -223,18 +223,26 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
     .done(function (data) {
       if (thisSearchID === searchID) {
         if (Object.keys(data).length) {
+          let totalCount = 0;
           $.each(data, function (index, value) {
             let displayRecord = true;
             // If this is email reminder list, then compare against give time period
             if (getReminder) {
               // Get if we can show record for time period selected
-              let numberActions = value.action_history.length;
-              let lastActionDate =
-                Number(value.action_history[numberActions - 1].time) * 1000;
+              if (value.action_history !== undefined) {
+                let numberActions = value.action_history.length;
+                let lastActionDate =
+                  Number(value.action_history[numberActions - 1].time) * 1000;
 
-              // Current date minus selected reminder time period
-              let comparisonDate = Date.now() - getReminder * 86400 * 1000;
-              if (lastActionDate >= comparisonDate) {
+                // Current date minus selected reminder time period
+                let comparisonDate = Date.now() - getReminder * 86400 * 1000;
+                if (lastActionDate >= comparisonDate) {
+                  displayRecord = false;
+                }
+
+                totalCount++;
+              } else {
+                console.log("No record to display");
                 displayRecord = false;
               }
             }
@@ -264,6 +272,14 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
               $("table#requests").append(requestsRow);
             }
           });
+
+          if (totalCount == 0) {
+            requestsRow = '<tr class="requestRow">';
+            requestsRow += "<td colspan='5'>No records to display</td>";
+            requestsRow += "</tr>";
+            $("table#requests").append(requestsRow);
+          }
+
           $("#searchResults").show();
         } else {
           $("#errorMessage").html("No Results").show();

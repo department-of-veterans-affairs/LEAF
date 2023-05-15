@@ -71,6 +71,11 @@ class View
                      FROM notes
                      WHERE recordID = :recordID
                      AND deleted IS NULL
+                     UNION
+                     SELECT `timestamp`, "Email Sent", "N/A", "N/A",
+                        "N/A", concat(`recipients`, "<br />", `subject`), "Leaf Emailer"
+                     FROM `email_tracker`
+                     WHERE recordID = :recordID
                      ORDER BY time ASC';
 
             $res = $this->db->prepared_query($sql1, $vars);
@@ -82,9 +87,11 @@ class View
 
                 if (strtolower($tmp['description']) == 'note added') {
                     $packet['description'] = 'Note Added: ';
-                } else if (empty($tmp['description']) && empty($tmp['actionText'])) {
+                } elseif (strtolower($tmp['description']) == 'email sent') {
+                    $packet['description'] = 'Email Sent: ';
+                } elseif (empty($tmp['description']) && empty($tmp['actionText'])) {
                     $packet['description'] = 'Action';
-                } else if(!empty($tmp['stepTitle']) && $tmp['dependencyID'] < 0) {
+                } elseif(!empty($tmp['stepTitle']) && $tmp['dependencyID'] < 0) {
                     $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
                 } else {
                     $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];

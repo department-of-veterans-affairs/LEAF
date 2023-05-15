@@ -2478,6 +2478,10 @@ class Form
                     FROM notes
                     WHERE recordID = :recordID
                     AND deleted IS NULL
+                    UNION
+                    SELECT "Email Sent", concat(`recipients`, `subject`), `timestamp`, "LEAF Emailer"
+                    FROM `email_tracker`
+                    WHERE recordID = :recordID
                     ORDER BY time DESC';
 
             $res = $this->db->prepared_query($sql, $vars);
@@ -3356,6 +3360,11 @@ class Form
                         FROM notes
                         WHERE recordID IN (' . $recordIDs . ')
                         AND deleted IS NULL
+                        UNION
+                        SELECT `recordID`, 0, "LEAF Emailer", `timestamp`, "N/A",
+                            "Email Sent", "LEAF_email", concat(`recipients`, `subject`)
+                        FROM `email_tracker`
+                        WHERE recordID = :recordID
                         ORDER BY time';
 
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
@@ -4107,15 +4116,25 @@ class Form
      * @param $days
      * @throws \SmartyException
      */
-    function sendReminderEmail($recordID, $days) {
+    function sendReminderEmail(int $recordID, $days): void
+    {
+        $email_tracker = new EmailTracker($this->db);
+        $last_email = $email_tracker->getEmailsSentByRecordId($recordID);
 
-        $email = new Email();
-        $email->setSender('leaf.noreply@va.gov');
-        $email->addSmartyVariables(array(
-            "daysSince" => $days
-        ));
+        $day_last_sent = date('j', $last_email['timestamp']);
+        $current_day = date('j', time());
 
-        $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        if (time() - $last_email['timestamp'] > 86400
+            || $day_last_sent !== $current_day
+        ) {
+            $email = new Email();
+            $email->setSender('leaf.noreply@va.gov');
+            $email->addSmartyVariables(array(
+                "daysSince" => $days
+            ));
+
+            $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        }
 
     }
 
