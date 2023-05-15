@@ -11,7 +11,7 @@ CREATE TABLE `email_tracker` (
   KEY `recordID` (`recordID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
- UPDATE `settings` SET `data` = '2023051800' WHERE `settings`.`setting` = 'dbversion';
+ UPDATE `settings` SET `data` = '2023052500' WHERE `settings`.`setting` = 'dbversion';
 
  COMMIT;
 
