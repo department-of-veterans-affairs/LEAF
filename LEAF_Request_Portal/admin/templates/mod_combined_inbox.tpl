@@ -7,7 +7,7 @@
         background-color: #D1DFFF;
         border: 1px solid black;
         padding: 1rem;
-        /* display: table-cell; */
+        /* display: table-cell; */  
     }
 
     .col-header:hover {
@@ -86,13 +86,35 @@
     let sites = [];
     let dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 
-    const allColumns = 'service,title,status,dateInitiated,days_since_last_action';
+    const allColumns = 'service,title,status,dateinitiated,days_since_last_action';
 
-    const slist = (target, order) => {
+    const frontEndColumns = {
+        service: 'Service',
+        title: 'Title',
+        status: 'Status',
+        dateinitiated: 'Date Initiated',
+        days_since_last_action: 'Days Since Last Action'
+    }
+
+    const backEndColumns = {
+        Service: 'service',
+        Title: 'title',
+        Status: 'status',
+        "Date Initiated": 'dateinitiated',
+        "Days Since Last Action": 'days_since_last_action'
+    }
+
+    const slist = (target, id = false, siteCols = false) => {
         target.classList.add("slist");
         let items = target.getElementsByTagName("li"), current = null;
 
         for (let i of items) {
+            if (siteCols) {
+                i.children[0].addEventListener('change', () => {
+                    updateColumns(items, id);
+                });
+            }
+
             i.draggable = true;
 
             i.ondragstart = e => {
@@ -140,69 +162,74 @@
                         i.parentNode.insertBefore(current, i);
                     }
 
-                    updateColumns(sites, items);
+                    return siteCols ? updateColumns(items, id) : updateSiteOrder;
                 }
             };
         }
     }
 
-    const updateColumns = (sites, items) => new Promise((resolve, reject) => {
-        // update site columns in new order
-        sites[order].columns = Object.values(items).map(item => item.textContent.toLowerCase()).join(',');
-
-        // reload static elements
-        Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites), saveMapSites]);
+    const updateSiteOrder = () => new Promise((resolve, reject) => {
+        // get list of site li values
+        const list = Object.values(document.getElementById(`header-sites-list`).getElementsByTagName('li')).map(item => item.getAttribute('value'));
+        // for each value
+        // console.log(list);
+        for(let key in list) {
+            // console.log(key, list[key]);
+            sites[list[key]].order = key;
+        }
+        saveSettings().then(() => loadSiteColPreview(sites));
     });
 
-    const shiftColumns = (site) => new Promise((resolve, reject) => {        
-        dialog.setTitle(site.name);
-        dialog.setContent(`<ul id="column-list-${site.order}"></ul>`);
+    const updateColumns = (items, id) => new Promise((resolve, reject) => {
+        // update site columns in new order
+        let checkedColumns = Object.values(items).filter(item => item.children[0].checked);
+        console.log(backEndColumns);
+        sites[id].columns = checkedColumns.map(item => backEndColumns[item.textContent.trim()]).join(',');
+
+        // reload static elements
+        Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites)]);
+    });
+
+    const shiftColumns = (site) => new Promise((resolve, reject) => {
+        dialog.setTitle(site.title);
+        dialog.setContent(`<ul id="column-list-${site.id}"></ul>`);
+        dialog.setSaveHandler(() => {
+            saveSettings().then(() => {
+                dialog.hide();
+            });
+        });
         dialog.show();
 
         const compColumns = site.columns.split(',');
         allColumns.split(',').forEach((column) => {
-            document.getElementById(`column-list-${site.order}`).innerHTML += `<li id="${site.order}-${column}"><input id="${site.order}-${column}-input" type="checkbox" /> ${column}</li>`;
-            document.getElementById(`${site.order}-${column}-input`).onclick = () => {
-                this.parentElement.checked = !this.parentElement.checked;
-
-            };
+            document.getElementById(`column-list-${site.id}`).innerHTML += `<li id="${site.id}-${column}" value="${column}"><input id="${site.id}-${column}-input" type="checkbox" /> ${frontEndColumns[column]}</li>`;
+            
             if (compColumns.includes(column)) {
-                // console.log(column, `${site.order}-${column}`);
-                document.getElementById(`${site.order}-${column}`).checked = true;
-                $(`#${site.order}-${column}-input`).attr("checked", true);
+                document.getElementById(`${site.id}-${column}`).checked = true;
+                $(`#${site.id}-${column}-input`).attr("checked", true);
             }
         });
 
-        slist(document.getElementById(`column-list-${site.order}`), site.order);
+        slist(document.getElementById(`column-list-${site.id}`), site.id, true);
     });
-
-    const loadColumnList = new Promise((resolve, reject) => {});
 
     const getMapSites = new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
             url: '../api/site/settings/sitemap_json',
             success: (res) => {
-                if (res === 'Admin access required') {
-                    return {};
-                }
-
                 let siteMap = Object.values(JSON.parse(res[0].data))[0];
-                let formattedSiteMap = siteMap.map((site) => {
-                    return {
-                        url: site.target,
-                        name: site.description,
-                        backgroundColor: site.color,
-                        icon: site.icon,
-                        fontColor: site.fontColor,
-                        nonAdmin: true,
-                        columns: site.columns ?? 'service,title,status',
-                        displayColumns: [],
-                        order: site.order,
-                    };
-                }).filter((site) => site.url.includes(window.location.hostname));
-
-                sites.push(...formattedSiteMap);
+                let formattedSiteMap = siteMap.map((site) => ({
+                    ...site,
+                    columns: site.columns ?? 'service,title,status',
+                    show: site.show ?? true
+                })).filter((site) => site.target.includes(window.location.hostname)
+                ).reduce((sites, site) => {
+                    sites[site.id] = site;
+                    return sites;
+                }, []);
+                sites = formattedSiteMap.sort((a, b) => a.order - b.order);
+                console.log(sites);
                 resolve(sites);
             },
             fail: (err) => {
@@ -211,18 +238,28 @@
         });
     });
 
-    const saveMapSites = new Promise((resolve, reject) => {
+    const saveSettings = () => new Promise((resolve, reject) => {
+        // sort the sites by order
+        console.log(sites);
+        let sendObj = {buttons:[]};
+        for (let key in sites) {
+            sendObj.buttons.push(sites[key]);
+        }
+        // console.log(sites, JSON.stringify(sendObj));
+        // resolve();
         $.ajax({
             type: 'POST',
             url: '../api/site/settings/sitemap_json',
-            data: {CSRFToken: CSRFToken},
-            sitemap_json: JSON.stringify(sites),
+            data: {
+                CSRFToken: CSRFToken,
+                sitemap_json: JSON.stringify(sendObj)
+            },
             success: (res) => {
                 resolve();
             },
             fail: (err) => {
                 reject(err);
-            },
+            }
         });
     });
 
@@ -230,21 +267,23 @@
         cols = cols.split(',') ?? defaultCols;
         let headerColumns = [];
         cols.forEach(col => {
-            col = capitalize ? col.charAt(0).toUpperCase() + col.slice(1) : col;
-            headerColumns.push(`${preCon}${col.charAt(0).toUpperCase() + col.slice(1)}${postCon}`);
+            headerColumns.push(`${preCon}${frontEndColumns[col]}${postCon}`);
         });
         return headerColumns;
     };
 
     const loadSiteColPreview = (sites) => new Promise((resolve, reject) => {
         buf = [];
-        sites.forEach(site => {
-            let headerColumns = buildHeaderColumns(`<th class="col-header">`, site.columns, `</th>`);
+        let orderedSites = Object.values(sites).sort((a, b) => a.order - b.order);
+        for (let key in orderedSites) {
+            let site = orderedSites[key];
+
+            let headerColumns = buildHeaderColumns(`<th class="col-header" value="${site.columns}">`, site.columns, `</th>`);
             // build the preview pane and headers
             buf.push(`
-            <div id="site-container-${site.order}" class="site-container" style="border-right: 8px solid ${site.backgroundColor}; border-left: 8px solid ${site.backgroundColor}; border-bottom: 8px solid ${site.backgroundColor};">
-                <div class="site-title" style="background-color: ${site.backgroundColor}; color: ${site.fontColor};">
-                    ${site.name}
+            <div id="site-container-${site.id}" class="site-container" style="border-right: 8px solid ${site.color}; border-left: 8px solid ${site.color}; border-bottom: 8px solid ${site.color};">
+                <div class="site-title" style="background-color: ${site.color}; color: ${site.fontColor};">
+                    ${site.title}
                 </div>
                 <div class="inbox">
                     <table style="width: 100%;" cellspacing=0>
@@ -256,47 +295,45 @@
                     </table>
                 </div>
             </div>`);
-        });
-
+        }
         // assign buffer to id div for display
         $('#inbox-preview').html(buf.join('<br/>'));
 
-        sites.forEach(site => {
-            $(`#site-container-${site.order}`).on("click", () => shiftColumns(site));
-        });
+        for (let key in sites) {
+            let site = sites[key];
+            $(`#site-container-${site.id}`).on("click", () => shiftColumns(site));
+        }
     });
 
-    const loadSiteColMenu = (site) => new Promise((resolve, reject) => {
+    const loadSiteColMenu = (sites) => new Promise((resolve, reject) => {
         buf = [];
-        sites.forEach((site) => {
-            let headerOptions = buildHeaderColumns(`<li><input type="checkbox"></input>`, site.columns, `</li>`, true);
+        let siteCols = [];
+            let orderedSites = Object.values(sites).sort((a, b) => a.order - b.order);
+            for (let key in orderedSites) {
+                console.log(key, orderedSites, orderedSites[key]);
+                let site = orderedSites[key];
+
+                siteCols.push(`<li value="${site.id}">${site.title}</li>`) 
+            }
             buf.push(`
                 <div>
-                    ${site.name}
+                    Site Order
                 </div>
-                <ul id="header-list-${site.order}">
-                    ${headerOptions.join('')}
+                <ul id="header-sites-list">
+                    ${siteCols.join('')}
                 </ul>
             `);
-        });
 
-        $(`#side-bar`).html(buf.join(`<br/>`));
-        sites.forEach((site) => {
-            slist(document.getElementById(`header-list-${site.order}`), site.order);
-        });
-    });
+            buf.push(`<button class="usa-button leaf-btn-med" onclick="updateSiteOrder()">Save Site Order</button>`);
 
-    const updateSettings = new Promise((resolve, reject) => {
-        $.ajax({
-            type: 'POST',
-            url: '../api/site/settings/sitemap_json',
-            success: (res) => {
-                resolve(res);
-            },
-            fail: (err) => {
-                reject(err);
-            }
-        });
+            $(`#side-bar`).html(buf.join(`<br/>`));
+
+            slist(document.getElementById(`header-sites-list`));
+
+        // for (let key in sites) {
+        //     let site = sites[key];
+        //     slist(document.getElementById(`header-list-${site.id}`), site.id);
+        // }
     });
 
     window.onload = () => {
