@@ -124,7 +124,8 @@ export default {
         }
     },
     mounted() {
-        if(!this.isPostingUpdate) {
+        if(!this.appIsUpdating) {
+            console.log('not updating when mounted, init choices and search');
             this.createChoices();
             this.main();
         }
@@ -138,16 +139,13 @@ export default {
         'publishedStatus',
         'chosenHeaders',
         'postSearchSettings',
-        'isPostingUpdate',
+        'appIsUpdating',
         'settingsData'
     ],
     computed: {
         enabled() {
             return this.publishedStatus.search === true;
         },
-        chosenHeadersJSON() {
-            return JSON.stringify(this.chosenHeaders);
-        }
     },
     methods: {
         createChoices() {
@@ -176,6 +174,12 @@ export default {
             }
             document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
                 .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
+        },
+        removeChoices() {
+            const elSelect = document.getElementById(this.choicesSelectID);
+            if (elSelect.choicesjs !== undefined && typeof elSelect.choicesjs.destroy === 'function') {
+                elSelect.choicesjs.destroy();
+            }
         },
         renderResult(leafSearch, res) {
             const searchHeaders = this.chosenHeaders.map(h => ({ ...this.adminHeaders[h]}));
@@ -222,6 +226,7 @@ export default {
     
             // On the first visit, if no results are owned by the user, append their results
             query.onSuccess((res, resStatus, resJqXHR) => {
+                console.log('search res', res);
                 const elSearch = document.getElementById('searchContainer');
                 const elMoreResults = document.getElementById('searchContainer_getMoreResults');
                 if (elSearch === null || elMoreResults === null) return;
@@ -325,7 +330,8 @@ export default {
                 query.setLimit(batchSize);
                 query.join('categoryName');
                 this.potentialJoins.forEach(j => {
-                    if (this.chosenHeaders.includes(j)) {
+                    if (this.chosenHeadersSelect.includes(j)) {
+                        console.log('adding join', j);
                         query.join(j);
                     }
                 });
@@ -354,18 +360,28 @@ export default {
         }
     },
     watch: {
-        chosenHeadersJSON(newVal, oldVal) { //watching JSON bc arrays with same values would not be seen as equal
-            this.chosenHeadersSelect = [...this.chosenHeaders];
-            this.createChoices();
-            this.main();
-        },
+        appIsUpdating(newVal, oldVal) {
+            if(newVal === false) {
+                console.log('was updating when mounted, no longer updating, setup now');
+                console.log('rm old choices and search content if pres, update headers');
+                document.getElementById('searchContainer').innerHTML = '';
+                this.removeChoices();
+                this.chosenHeadersSelect = this.chosenHeaders.length === 0 ?
+                    ['date','title','service','status'] : [...this.chosenHeaders];
+                console.log('selected headers are: ', this.chosenHeadersSelect)
+                this.createChoices();
+                setTimeout(() => { //TODO: another search is being triggered and think that is causing issues
+                    this.main();
+                },150);
+            }
+        }
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
-        <div v-show="isEditingMode">
+        <div v-show="isEditingMode" style="margin-top: 2rem;">
             <h4 style="margin: 0.5rem 0;">Search section is {{ enabled ? '' : 'not'}} enabled</h4>
             <button type="button" @click="postEnableTemplate('search')"
                 class="btn-confirm" :class="{enabled: enabled}"
-                style="width: 100px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
+                style="width: 100px; margin-bottom: 1rem;" :disabled="appIsUpdating">
                 {{ enabled ? 'Disable' : 'Publish'}}
             </button>
             <div class="designer_inputs">
@@ -374,7 +390,7 @@ export default {
                     <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
                 </div>
                 <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                    @click="postSearchSettings(chosenHeadersSelect)" :disabled="isPostingUpdate">Apply Selections
+                    @click="postSearchSettings(chosenHeadersSelect)" :disabled="appIsUpdating">Apply Selections
                 </button>
             </div>
         </div>

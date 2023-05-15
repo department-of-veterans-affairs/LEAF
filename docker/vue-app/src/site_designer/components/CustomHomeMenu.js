@@ -11,7 +11,7 @@ export default {
         CustomMenuItem
     },
     inject: [
-        'isPostingUpdate',
+        'appIsUpdating',
         'publishedStatus',
         'isEditingMode',
         'builtInIDs',
@@ -27,7 +27,7 @@ export default {
         wrapperStyles() {
             return this.isEditingMode ?
             {
-                maxWidth: '450px',
+                maxWidth: '500px',
                 marginRight: '3rem'
             } : {}
         },
@@ -59,7 +59,7 @@ export default {
     },
     methods: {
         onDragStart(event = {}) {
-            if(!this.isPostingUpdate && event?.dataTransfer) {
+            if(!this.appIsUpdating && event?.dataTransfer) {
                 event.dataTransfer.dropEffect = 'move';
                 event.dataTransfer.effectAllowed = 'move';
                 event.dataTransfer.setData('text/plain', event.target.id);
@@ -113,21 +113,15 @@ export default {
         }
     },
     template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
-        <template v-if="isEditingMode">
+        <div v-show="isEditingMode" style="margin-top: 2rem;">
             <h4 style="margin: 0.5rem 0;">Homepage Menu is {{ enabled ? '' : 'not'}} enabled</h4>
             <button type="button" @click="postEnableTemplate('homepage')"
                 class="btn-confirm" :class="{enabled: enabled}" 
-                style="width: 100px; margin-bottom: 1rem;" :disabled="isPostingUpdate">
+                style="width: 100px; margin-bottom: 1rem;" :disabled="appIsUpdating">
                 {{ enabled ? 'Disable' : 'Publish'}}
             </button>
             <p style="margin: 0.5rem 0;">Drag-Drop cards or use the up and down buttons to change their order. &nbsp;Use the card menu to edit text and other values.</p>
-            <label for="menu_direction_select">Menu Direction. Preview page to view this effect.</label>
-            <select id="menu_direction_select" style="width: 150px;" v-model="menuDirectionSelection" @change="updateDirection">
-                <option v-if="menuDirectionSelection===''" value="">Select an Option</option>
-                <option value="v">Columns</option>
-                <option value="h">Rows</option>
-            </select>
-        </template>
+        </div>
         <ul v-if="menuItemListDisplay.length > 0" id="menu"
             :class="{editMode: isEditingMode}" :style="ulStyles"
             data-effect-allowed="move"
@@ -152,9 +146,15 @@ export default {
                 </div>
             </li>
         </ul>
-        <div v-show="isEditingMode" style="display:flex; gap:1rem; margin:1rem 0 2rem 0; width:360px;">
-            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Card</button>
+        <div v-show="isEditingMode" style="display:flex; gap:1rem; margin:1rem 0 1rem 0; width:360px;">
             <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Cards</button>
+            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Card</button>
+            <label for="menu_direction_select" style="align-self: flex-end">
+            <select id="menu_direction_select" style="width: 80px;" v-model="menuDirectionSelection" @change="updateDirection">
+                <option v-if="menuDirectionSelection===''" value="">Select an Option</option>
+                <option value="v">Columns</option>
+                <option value="h">Rows</option>
+            </select>&nbsp;Menu Direction</label>
         </div>
     </div>`
 }

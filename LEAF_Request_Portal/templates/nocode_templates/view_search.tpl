@@ -18,7 +18,7 @@
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
     const searchData = JSON.parse('<!--{$searchDesignJSON}-->');
-    const chosenHeaders = searchData.chosenHeaders;
+    const chosenHeaders = searchData?.chosenHeaders || [];
 
     const sort = { column: 'recordID', direction: 'desc' }; //NOTE: prep in case option
 

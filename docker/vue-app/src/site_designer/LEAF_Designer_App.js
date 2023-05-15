@@ -16,7 +16,7 @@ export default {
             customizableTemplates: ['homepage', 'search'], //NOTE: only homepage is actually a view, but they are sep tpls
             views: ['homepage', 'testview'],
             custom_page_select: 'homepage',
-            isPostingUpdate: true,
+            appIsUpdating: true,
             isEditingMode: true,
             publishedStatus: {
                 homepage: null,
@@ -36,7 +36,7 @@ export default {
     provide() {
         return {
             iconList: computed(() => this.iconList),
-            isPostingUpdate: computed(() => this.isPostingUpdate),
+            appIsUpdating: computed(() => this.appIsUpdating),
             isEditingMode: computed(() => this.isEditingMode),
             publishedStatus: computed(() => this.publishedStatus),
             settingsData: computed(() => this.settingsData),
@@ -78,7 +78,7 @@ export default {
             this.isEditingMode = isEditMode;
         },
         setUpdating(updating = true) {
-            this.isPostingUpdate = updating;
+            this.appIsUpdating = updating;
         },
         getIconList() {
             $.ajax({
@@ -91,7 +91,7 @@ export default {
         postEnableTemplate(templateName = '') {
             if(this.customizableTemplates.includes(templateName)) {
                 const flag = +(!this.publishedStatus[templateName]);
-                this.isPostingUpdate = true;
+                this.appIsUpdating = true;
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}site/settings/enable_${templateName}`,
@@ -102,7 +102,7 @@ export default {
                     success: (res) => {
                         if (+res === 1) {
                             this.publishedStatus[templateName] = !this.publishedStatus[templateName];
-                            this.isPostingUpdate = false;
+                            this.appIsUpdating = false;
                         }
                     },
                     error: (err) => console.log(err)

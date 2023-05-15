@@ -64,11 +64,11 @@
 <script>
     const dyniconsPath = "../libs/dynicons/svg/";
     const data = JSON.parse('<!--{$homeDesignJSON}-->');
-    let menuItems = data.menuButtons;
+    let menuItems = data?.menuButtons || [];
     menuItems = menuItems.filter(item => +item?.enabled === 1);
     menuItems = menuItems.sort((a, b) => a.order - b.order);
 
-    const direction = data.direction;
+    const direction = data?.direction || 'v';
     const directionAttr = direction === 'h' ?
         'style="display:flex; flex-wrap:wrap;" ' : 'style="display:flex; flex-direction: column;"';
 

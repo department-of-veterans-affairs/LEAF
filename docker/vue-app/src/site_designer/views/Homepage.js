@@ -201,6 +201,7 @@ export default {
             this.postHomepageSettings(newItems, this.menuDirection);
         },
         postSearchSettings(searchHeaders = []) {
+            console.log('post called with', searchHeaders)
             this.setUpdating(true);
             $.ajax({
                 type: 'POST',
@@ -239,8 +240,8 @@ export default {
         },
     },
     template: `<div id="site_designer_hompage">
-        <h3 id="designer_page_header" style="margin: 1rem 0;">
-            {{ isEditingMode ? 'Editing ' : 'Previewing '}} the Homepage
+        <h3 id="designer_page_header" :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
+            {{ isEditingMode ? 'Editing the Homepage' : 'Homepage Preview'}}
         </h3>
         <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section</div>
         <div style="display: flex; flex-wrap: wrap;">
