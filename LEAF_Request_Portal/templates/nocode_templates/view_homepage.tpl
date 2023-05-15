@@ -29,6 +29,9 @@
         box-shadow: 0 0 6px rgba(0,0,25,0.3);
         transition: all 0.35s ease;
     }
+    a.disableClick {
+        pointer-events: none;
+    }
     a.custom_menu_card:hover, a.custom_menu_card:focus, a.custom_menu_card:active {
         border: 2px solid white;
         box-shadow: 0 0 8px rgba(0,0,25,0.6);
@@ -76,8 +79,9 @@
     menuItems.forEach(item => {
         const title = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.title));
         const subtitle = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.subtitle));
-        const link = XSSHelpers.stripAllTags(item.link);
-        buffer += `<li><a href="${link}" target="_blank" style="background-color:${item.bgColor};" class="custom_menu_card">`
+        const link = XSSHelpers.stripAllTags(item.link).trim();
+        const linkClasses = link === '' ? 'disableClick custom_menu_card' : 'custom_menu_card'
+        buffer += `<li><a href="${link}" target="_blank" style="background-color:${item.bgColor};" class="${linkClasses}">`
         if (item.icon !== '') {
             buffer += `<img v-if="menuItem.icon" src="${dyniconsPath}${item.icon}" alt="" class="icon_choice "/>`
         }

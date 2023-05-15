@@ -18,10 +18,11 @@ export default {
             custom_page_select: 'homepage',
             appIsUpdating: true,
             isEditingMode: true,
+            /*
             publishedStatus: {
                 homepage: null,
                 search: null
-            },
+            }, */
             iconList: [],
             tagsToRemove: ['script', 'img', 'a', 'link', 'br'],
 
@@ -50,7 +51,7 @@ export default {
             userID: this.userID,
             getSettingsData: this.getSettingsData,
             tagsToRemove: this.tagsToRemove,
-            setUpdating: this.setUpdating,
+            setCustom_page_select: this.setCustom_page_select,
             postEnableTemplate: this.postEnableTemplate,
             /** dialog  */
             openDialog: this.openDialog,
@@ -70,15 +71,20 @@ export default {
         this.getIconList();
         this.getSettingsData();
     },
-    mounted() {
-        this.$router.push({name: this.custom_page_select});
+    computed: {
+        publishedStatus() {
+            let status = {};
+            status.homepage = +this.settingsData?.home_enabled === 1;
+            status.search = +this.settingsData?.search_enabled === 1;
+            return status;
+        }
     },
     methods: {
         setEditMode(isEditMode = true) {
             this.isEditingMode = isEditMode;
         },
-        setUpdating(updating = true) {
-            this.appIsUpdating = updating;
+        setCustom_page_select(view = 'homepage') {
+            this.custom_page_select = view;
         },
         getIconList() {
             $.ajax({
@@ -90,34 +96,32 @@ export default {
         },
         postEnableTemplate(templateName = '') {
             if(this.customizableTemplates.includes(templateName)) {
-                const flag = +(!this.publishedStatus[templateName]);
                 this.appIsUpdating = true;
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}site/settings/enable_${templateName}`,
                     data: {
                         CSRFToken: this.CSRFToken,
-                        enabled: flag,
+                        enabled: +(!this.publishedStatus[templateName]), //1 if true, 0 if false
                     },
                     success: (res) => {
-                        if (+res === 1) {
-                            this.publishedStatus[templateName] = !this.publishedStatus[templateName];
-                            this.appIsUpdating = false;
+                        if (+res !== 1) {
+                            console.log('unexpected return value', res)
                         }
+                        this.getSettingsData();
                     },
                     error: (err) => console.log(err)
                 });
             }
         },
         getSettingsData() {
+            this.appIsUpdating = true;
             $.ajax({
                 type: 'GET',
                 url: `${this.APIroot}system/settings`,
                 success: (res) => {
                     this.settingsData = res;
-                    this.publishedStatus.homepage = +res?.home_enabled === 1;
-                    this.publishedStatus.search = +res?.search_enabled === 1;
-                    this.setUpdating(false);
+                    this.appIsUpdating = false;
                 },
                 error: (err) => {
                     console.log(err);
@@ -153,7 +157,7 @@ export default {
     },
     watch: {
         custom_page_select(newVal, oldVal) {
-            if(newVal !== '') {
+            if(this.views.includes(newVal)) {
                 this.$router.push({name: this.custom_page_select});
             }
         }

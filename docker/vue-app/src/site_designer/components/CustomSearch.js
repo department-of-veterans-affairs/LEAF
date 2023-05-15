@@ -2,6 +2,7 @@ export default {
     name: 'custom-search',
     data() {
         return {
+            searchIsUpdating: this.appIsUpdating,
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
             adminHeaders: {
                 date: {
@@ -124,13 +125,14 @@ export default {
         }
     },
     mounted() {
-        if(!this.appIsUpdating) {
-            console.log('not updating when mounted, init choices and search');
+        if(!this.searchIsUpdating) {
             this.createChoices();
             this.main();
         }
     },
     inject: [
+        'APIroot',
+        'CSRFToken',
         'userID',
         'rootPath',
         'orgchartPath',
@@ -138,9 +140,9 @@ export default {
         'postEnableTemplate',
         'publishedStatus',
         'chosenHeaders',
-        'postSearchSettings',
+
         'appIsUpdating',
-        'settingsData'
+        'getSettingsData'
     ],
     computed: {
         enabled() {
@@ -180,6 +182,24 @@ export default {
             if (elSelect.choicesjs !== undefined && typeof elSelect.choicesjs.destroy === 'function') {
                 elSelect.choicesjs.destroy();
             }
+        },
+        postSearchSettings() {
+            this.searchIsUpdating = true;
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}site/settings/search_design_json`,
+                data: {
+                    CSRFToken: this.CSRFToken,
+                    chosen_headers: this.chosenHeadersSelect,
+                },
+                success: (res) => {
+                    if(+res !== 1) {
+                        console.log('unexpected value returned:', res);
+                    }
+                    this.getSettingsData();
+                },
+                error: (err) => console.log(err)
+            });
         },
         renderResult(leafSearch, res) {
             const searchHeaders = this.chosenHeaders.map(h => ({ ...this.adminHeaders[h]}));
@@ -226,7 +246,6 @@ export default {
     
             // On the first visit, if no results are owned by the user, append their results
             query.onSuccess((res, resStatus, resJqXHR) => {
-                console.log('search res', res);
                 const elSearch = document.getElementById('searchContainer');
                 const elMoreResults = document.getElementById('searchContainer_getMoreResults');
                 if (elSearch === null || elMoreResults === null) return;
@@ -331,7 +350,6 @@ export default {
                 query.join('categoryName');
                 this.potentialJoins.forEach(j => {
                     if (this.chosenHeadersSelect.includes(j)) {
-                        console.log('adding join', j);
                         query.join(j);
                     }
                 });
@@ -361,17 +379,16 @@ export default {
     },
     watch: {
         appIsUpdating(newVal, oldVal) {
-            if(newVal === false) {
-                console.log('was updating when mounted, no longer updating, setup now');
-                console.log('rm old choices and search content if pres, update headers');
+            //app updates are finished and search is true (app was updating at mount, or new search settings posted)
+            if(newVal === false && this.searchIsUpdating === true) {
                 document.getElementById('searchContainer').innerHTML = '';
                 this.removeChoices();
                 this.chosenHeadersSelect = this.chosenHeaders.length === 0 ?
                     ['date','title','service','status'] : [...this.chosenHeaders];
-                console.log('selected headers are: ', this.chosenHeadersSelect)
                 this.createChoices();
                 setTimeout(() => { //TODO: another search is being triggered and think that is causing issues
                     this.main();
+                    this.searchIsUpdating = false;
                 },150);
             }
         }
@@ -390,7 +407,7 @@ export default {
                     <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
                 </div>
                 <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                    @click="postSearchSettings(chosenHeadersSelect)" :disabled="appIsUpdating">Apply Selections
+                    @click="postSearchSettings" :disabled="searchIsUpdating">Apply Selections
                 </button>
             </div>
         </div>

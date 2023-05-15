@@ -5,6 +5,56 @@ export default {
     data() {
         return {
             menuDirectionSelection: this.menuDirection,
+            builtInButtons: [
+                {
+                    id: "btn_reports",
+                    order: -1,
+                    title: "Report Builder",
+                    titleColor: "#ffffff",
+                    subtitle: "View saved links to requests",
+                    subtitleColor: "#ffffff",
+                    bgColor: "#000000",
+                    icon: "x-office-spreadsheet.svg",
+                    link: "?a=reports&v=3",
+                    enabled: 1
+                },
+                {
+                    id: "btn_bookmarks",
+                    order: -2,
+                    title: "Bookmarks",
+                    titleColor: "#000000",
+                    subtitle: "View saved links to requests",
+                    subtitleColor: "#000000",
+                    bgColor: "#7eb2b3",
+                    icon: "bookmark.svg",
+                    link: "?a=bookmarks",
+                    enabled: 1
+                },
+                {
+                    id: "btn_inbox",
+                    order: -3,
+                    title: "Inbox",
+                    titleColor: "#000000",
+                    subtitle: "Review and apply actions to active requests",
+                    subtitleColor: "#000000",
+                    bgColor: "#b6ef6d",
+                    icon: "document-open.svg",
+                    link: "?a=inbox",
+                    enabled: 1
+                },
+                {
+                    id: "btn_new_request",
+                    order: -4,
+                    title: "New Request",
+                    titleColor: "#ffffff",
+                    subtitle: "Start a new request",
+                    subtitleColor: "#ffffff",
+                    bgColor: "#2372b0",
+                    icon: "document-new.svg",
+                    link: "?a=newform",
+                    enabled: 1
+                },
+            ],
         }
     },
     components: {
@@ -15,7 +65,6 @@ export default {
         'publishedStatus',
         'isEditingMode',
         'builtInIDs',
-        'addStarterButtons',
         'menuItemList',
         'menuDirection',
         'updateMenuItemList',
@@ -35,6 +84,7 @@ export default {
             return this.menuDirectionSelection === 'v' || this.isEditingMode ?
                 {
                     flexDirection: 'column',
+                    maxWidth: '430px'
                 } :
                 { 
                     flexWrap: 'wrap'
@@ -47,17 +97,33 @@ export default {
         allBuiltinsPresent() {
             let result = true;
             this.builtInIDs.forEach(id => {
-                if (!this.menuItemList.some(item => item.id === id)) {
+                if (result === true && !this.menuItemList.some(item => item.id === id)) {
                     result = false;
                 }
             });
             return result;
         },
         enabled() {
-            return this.publishedStatus.homepage === true;
+            return this.publishedStatus?.homepage === true;
         }
     },
     methods: {
+        addStarterCards() {
+            let buttonsAdded = 0;
+            let newItems = [];
+            this.menuItemList.forEach(item => newItems.push({...item}));
+
+            this.builtInButtons.forEach(b => {
+                const doNotHaveID = !this.menuItemList.some(item => item.id === b.id);
+                if (doNotHaveID) {
+                    newItems.unshift({...b});
+                    buttonsAdded += 1;
+                }
+            });
+            if(buttonsAdded > 0) {
+                this.postHomepageSettings(newItems, this.menuDirection);
+            }
+        },
         onDragStart(event = {}) {
             if(!this.appIsUpdating && event?.dataTransfer) {
                 event.dataTransfer.dropEffect = 'move';
@@ -101,6 +167,7 @@ export default {
             }
         },
         updateDirection(event = {}) {
+            console.log('direction updated via input')
             const d = event?.target?.value || '';
             if(d !== '' && d !== this.menuDirection) {
                 this.postHomepageSettings(this.menuItemList, this.menuDirectionSelection);
@@ -109,6 +176,7 @@ export default {
     },
     watch: {
         menuDirection(newVal, oldVal) {
+            console.log('menu direction watch triggered', newVal, oldVal)
             this.menuDirectionSelection = newVal;
         }
     },
@@ -147,11 +215,10 @@ export default {
             </li>
         </ul>
         <div v-show="isEditingMode" style="display:flex; gap:1rem; margin:1rem 0 1rem 0; width:360px;">
-            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterButtons()">Add Starter Cards</button>
+            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">Add Starter Cards</button>
             <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Card</button>
             <label for="menu_direction_select" style="align-self: flex-end">
             <select id="menu_direction_select" style="width: 80px;" v-model="menuDirectionSelection" @change="updateDirection">
-                <option v-if="menuDirectionSelection===''" value="">Select an Option</option>
                 <option value="v">Columns</option>
                 <option value="h">Rows</option>
             </select>&nbsp;Menu Direction</label>

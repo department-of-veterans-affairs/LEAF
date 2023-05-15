@@ -9,58 +9,10 @@ export default {
     data() {
         return {
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
-            builtInButtons: [
-                {
-                    id: "btn_reports",
-                    order: -1,
-                    title: "Report Builder",
-                    titleColor: "#ffffff",
-                    subtitle: "View saved links to requests",
-                    subtitleColor: "#ffffff",
-                    bgColor: "#000000",
-                    icon: "x-office-spreadsheet.svg",
-                    link: "?a=reports&v=3",
-                    enabled: 1
-                },
-                {
-                    id: "btn_bookmarks",
-                    order: -2,
-                    title: "Bookmarks",
-                    titleColor: "#000000",
-                    subtitle: "View saved links to requests",
-                    subtitleColor: "#000000",
-                    bgColor: "#7eb2b3",
-                    icon: "bookmark.svg",
-                    link: "?a=bookmarks",
-                    enabled: 1
-                },
-                {
-                    id: "btn_inbox",
-                    order: -3,
-                    title: "Inbox",
-                    titleColor: "#000000",
-                    subtitle: "Review and apply actions to active requests",
-                    subtitleColor: "#000000",
-                    bgColor: "#b6ef6d",
-                    icon: "document-open.svg",
-                    link: "?a=inbox",
-                    enabled: 1
-                },
-                {
-                    id: "btn_new_request",
-                    order: -4,
-                    title: "New Request",
-                    titleColor: "#ffffff",
-                    subtitle: "Start a new request",
-                    subtitleColor: "#ffffff",
-                    bgColor: "#2372b0",
-                    icon: "document-new.svg",
-                    link: "?a=newform",
-                    enabled: 1
-                },
-            ],
 
             menuItem: {},
+            testMenuIsUpdating: this.appIsUpdating,
+            testSearchIsUpdating: this.appIsUpdating,
         }
     },
     mounted() {
@@ -69,7 +21,7 @@ export default {
     inject: [
         'CSRFToken',
         'APIroot',
-        'setUpdating',
+        'appIsUpdating',
         'getSettingsData',
         'settingsData',
         'isEditingMode',
@@ -88,7 +40,6 @@ export default {
             chosenHeaders: computed(() => this.chosenHeaders),
 
             builtInIDs: this.builtInIDs,
-            addStarterButtons: this.addStarterButtons,
             setMenuItem: this.setMenuItem,
             updateMenuItemList: this.updateMenuItemList,
             postHomepageSettings: this.postHomepageSettings,
@@ -155,32 +106,16 @@ export default {
 
             this.openDesignButtonDialog();
         },
-        addStarterButtons() {
-            let buttonsAdded = 0;
-            this.builtInButtons.forEach(b => {
-                const doNotHaveID = !this.menuItemList.some(item => item.id === b.id);
-                if (doNotHaveID) {
-                    this.menuItemList.unshift({...b});
-                    buttonsAdded += 1;
-                }
-            });
-            if(buttonsAdded > 0) {
-                this.updateMenuItemList();
-            }
-        },
         /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
          * @param {Object|null} menuItem
          * @param {boolean} markedForDeletion
          */
         updateMenuItemList(menuItem = null, markedForDeletion = false) {
-            //get a copy of computed menuitems
             let newItems = [];
             this.menuItemList.forEach(item => newItems.push({...item}));
 
-            //drag drop, clickToMove or adding starter buttons
-            if (menuItem === null) {
-                //make an array of ids from the menu list elements. the index will be the order
+            if (menuItem === null) { //update the order after drag drop or clickToMove
                 let itemIDs = []
                 let elList = Array.from(document.querySelectorAll('ul#menu > li'));
                 elList.forEach(li => itemIDs.push(li.id));
@@ -200,27 +135,7 @@ export default {
             }
             this.postHomepageSettings(newItems, this.menuDirection);
         },
-        postSearchSettings(searchHeaders = []) {
-            console.log('post called with', searchHeaders)
-            this.setUpdating(true);
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/search_design_json`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    chosen_headers: searchHeaders,
-                },
-                success: (res) => {
-                    if(+res !== 1) {
-                        console.log('unexpected value returned:', res);
-                    }
-                    this.getSettingsData();
-                },
-                error: (err) => console.log(err)
-            });
-        },
         postHomepageSettings(menuItems = this.menuItemList, direction = this.menuDirection) {
-            this.setUpdating(true);
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}site/settings/home_design_json`,
