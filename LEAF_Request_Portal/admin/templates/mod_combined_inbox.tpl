@@ -110,6 +110,7 @@
 
         for (let i of items) {
             if (siteCols) {
+                // add change event to checkboxes
                 i.children[0].addEventListener('change', () => {
                     updateColumns(items, id);
                 });
@@ -171,19 +172,30 @@
     const updateSiteOrder = () => new Promise((resolve, reject) => {
         // get list of site li values
         const list = Object.values(document.getElementById(`header-sites-list`).getElementsByTagName('li')).map(item => item.getAttribute('value'));
-        // for each value
-        // console.log(list);
         for(let key in list) {
-            // console.log(key, list[key]);
+            // update the order value for each site obj
             sites[list[key]].order = key;
         }
         saveSettings().then(() => loadSiteColPreview(sites));
     });
 
+    // Get site icons and name
+    const getIcon = (icon, name) => {
+        if (icon != '') {
+            if (icon.indexOf('/') != -1) {
+                icon = '<img src="' + icon + '" alt="icon for ' + name +
+                    '" style="vertical-align: middle; width: 76px; height:76px;" />';
+            } else {
+                icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name +
+                    '" style="vertical-align: middle" />';
+            }
+        }
+        return icon;
+    }
+
     const updateColumns = (items, id) => new Promise((resolve, reject) => {
         // update site columns in new order
         let checkedColumns = Object.values(items).filter(item => item.children[0].checked);
-        console.log(backEndColumns);
         sites[id].columns = checkedColumns.map(item => backEndColumns[item.textContent.trim()]).join(',');
 
         // reload static elements
@@ -201,12 +213,14 @@
         dialog.show();
 
         const compColumns = site.columns.split(',');
-        allColumns.split(',').forEach((column) => {
+        compColumns.forEach(column => {
             document.getElementById(`column-list-${site.id}`).innerHTML += `<li id="${site.id}-${column}" value="${column}"><input id="${site.id}-${column}-input" type="checkbox" /> ${frontEndColumns[column]}</li>`;
-            
+        });
+        allColumns.split(',').forEach((column) => {
             if (compColumns.includes(column)) {
-                document.getElementById(`${site.id}-${column}`).checked = true;
                 $(`#${site.id}-${column}-input`).attr("checked", true);
+            } else {
+                document.getElementById(`column-list-${site.id}`).innerHTML += `<li id="${site.id}-${column}" value="${column}"><input id="${site.id}-${column}-input" type="checkbox" /> ${frontEndColumns[column]}</li>`;
             }
         });
 
@@ -229,7 +243,6 @@
                     return sites;
                 }, []);
                 sites = formattedSiteMap.sort((a, b) => a.order - b.order);
-                console.log(sites);
                 resolve(sites);
             },
             fail: (err) => {
@@ -240,13 +253,11 @@
 
     const saveSettings = () => new Promise((resolve, reject) => {
         // sort the sites by order
-        console.log(sites);
         let sendObj = {buttons:[]};
         for (let key in sites) {
             sendObj.buttons.push(sites[key]);
         }
-        // console.log(sites, JSON.stringify(sendObj));
-        // resolve();
+
         $.ajax({
             type: 'POST',
             url: '../api/site/settings/sitemap_json',
@@ -283,7 +294,7 @@
             buf.push(`
             <div id="site-container-${site.id}" class="site-container" style="border-right: 8px solid ${site.color}; border-left: 8px solid ${site.color}; border-bottom: 8px solid ${site.color};">
                 <div class="site-title" style="background-color: ${site.color}; color: ${site.fontColor};">
-                    ${site.title}
+                    ${getIcon(site.icon, site.title)} ${site.title}
                 </div>
                 <div class="inbox">
                     <table style="width: 100%;" cellspacing=0>
@@ -310,7 +321,6 @@
         let siteCols = [];
             let orderedSites = Object.values(sites).sort((a, b) => a.order - b.order);
             for (let key in orderedSites) {
-                console.log(key, orderedSites, orderedSites[key]);
                 let site = orderedSites[key];
 
                 siteCols.push(`<li value="${site.id}">${site.title}</li>`) 
