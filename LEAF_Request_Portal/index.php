@@ -521,21 +521,17 @@ switch ($action) {
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        if (isset($settings['search_enabled']) && $settings['search_enabled'] == 1) {
-            $t_form->assign('searchDesignJSON', json_encode($settings['search_design_json']));
-            $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
-        } else {
-            $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
-        }
-
         $inbox = new Portal\Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
-        if (isset($settings['home_enabled']) && $settings['home_enabled'] == 1) {
-            $t_form->assign('homeDesignJSON', json_encode($settings['home_design_json']));
+        if (isset($settings['homepage_enabled']) && $settings['homepage_enabled'] == 1) {
+            $t_form->assign('homeDesignJSON', json_encode($settings['homepage_design_json']));
+            $t_form->assign('searchDesignJSON', json_encode($settings['search_design_json']));
+            $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
             $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
+            $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
         }
 

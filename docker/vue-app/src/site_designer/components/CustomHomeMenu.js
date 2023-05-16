@@ -61,16 +61,14 @@ export default {
         CustomMenuItem
     },
     inject: [
-        'appIsUpdating',
-        'publishedStatus',
         'isEditingMode',
         'builtInIDs',
         'menuItemList',
         'menuDirection',
+        'menuIsUpdating',
         'updateMenuItemList',
-        'postHomepageSettings',
+        'postHomeMenuSettings',
         'setMenuItem',
-        'postEnableTemplate',
     ],
     computed: {
         wrapperStyles() {
@@ -103,15 +101,11 @@ export default {
             });
             return result;
         },
-        enabled() {
-            return this.publishedStatus?.homepage === true;
-        }
     },
     methods: {
         addStarterCards() {
             let buttonsAdded = 0;
-            let newItems = [];
-            this.menuItemList.forEach(item => newItems.push({...item}));
+            let newItems = this.menuItemList.map(item => ({...item}));
 
             this.builtInButtons.forEach(b => {
                 const doNotHaveID = !this.menuItemList.some(item => item.id === b.id);
@@ -121,11 +115,11 @@ export default {
                 }
             });
             if(buttonsAdded > 0) {
-                this.postHomepageSettings(newItems, this.menuDirection);
+                this.postHomeMenuSettings(newItems, this.menuDirection);
             }
         },
         onDragStart(event = {}) {
-            if(!this.appIsUpdating && event?.dataTransfer) {
+            if(event?.dataTransfer) {
                 event.dataTransfer.dropEffect = 'move';
                 event.dataTransfer.effectAllowed = 'move';
                 event.dataTransfer.setData('text/plain', event.target.id);
@@ -170,24 +164,12 @@ export default {
             console.log('direction updated via input')
             const d = event?.target?.value || '';
             if(d !== '' && d !== this.menuDirection) {
-                this.postHomepageSettings(this.menuItemList, this.menuDirectionSelection);
+                this.postHomeMenuSettings(this.menuItemList, this.menuDirectionSelection);
             }
-        }
-    },
-    watch: {
-        menuDirection(newVal, oldVal) {
-            console.log('menu direction watch triggered', newVal, oldVal)
-            this.menuDirectionSelection = newVal;
         }
     },
     template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
         <div v-show="isEditingMode" style="margin-top: 2rem;">
-            <h4 style="margin: 0.5rem 0;">Homepage Menu is {{ enabled ? '' : 'not'}} enabled</h4>
-            <button type="button" @click="postEnableTemplate('homepage')"
-                class="btn-confirm" :class="{enabled: enabled}" 
-                style="width: 100px; margin-bottom: 1rem;" :disabled="appIsUpdating">
-                {{ enabled ? 'Disable' : 'Publish'}}
-            </button>
             <p style="margin: 0.5rem 0;">Drag-Drop cards or use the up and down buttons to change their order. &nbsp;Use the card menu to edit text and other values.</p>
         </div>
         <ul v-if="menuItemListDisplay.length > 0" id="menu"
@@ -197,7 +179,7 @@ export default {
             @dragover.prevent>
             <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
                 :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is hidden'"
-                :draggable="isEditingMode ? true : false"
+                :draggable="isEditingMode && !menuIsUpdating ? true : false"
                 @dragstart.stop="onDragStart">
                 <custom-menu-item :menuItem="m"></custom-menu-item>
                 <div v-show="isEditingMode" class="edit_card">
@@ -218,7 +200,8 @@ export default {
             <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">Add Starter Cards</button>
             <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Card</button>
             <label for="menu_direction_select" style="align-self: flex-end">
-            <select id="menu_direction_select" style="width: 80px;" v-model="menuDirectionSelection" @change="updateDirection">
+            <select id="menu_direction_select" style="width: 80px;" v-model="menuDirectionSelection"
+                @change="updateDirection" :disabled="menuIsUpdating">
                 <option value="v">Columns</option>
                 <option value="h">Rows</option>
             </select>&nbsp;Menu Direction</label>

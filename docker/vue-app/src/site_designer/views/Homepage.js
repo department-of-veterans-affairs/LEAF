@@ -8,22 +8,27 @@ export default {
     name: 'homepage',
     data() {
         return {
+            menuIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
-
             menuItem: {},
-            testMenuIsUpdating: this.appIsUpdating,
-            testSearchIsUpdating: this.appIsUpdating,
         }
     },
+    created() {
+        console.log('homepage view created, getting design data')
+        this.getDesignData();
+    },
     mounted() {
-        this.getSettingsData();
+        console.log('homepage mounted')
     },
     inject: [
         'CSRFToken',
         'APIroot',
-        'appIsUpdating',
-        'getSettingsData',
-        'settingsData',
+        'appIsGettingData',
+        'appIsPublishing',
+        'toggleEnableTemplate',
+        'updateLocalDesignData',
+        'getDesignData',
+        'designData',
         'isEditingMode',
 
         'showFormDialog',
@@ -38,11 +43,12 @@ export default {
             menuDirection: computed(() => this.menuDirection),
             menuItemList: computed(() => this.menuItemList),
             chosenHeaders: computed(() => this.chosenHeaders),
+            menuIsUpdating: computed(() => this.menuIsUpdating),
 
             builtInIDs: this.builtInIDs,
             setMenuItem: this.setMenuItem,
             updateMenuItemList: this.updateMenuItemList,
-            postHomepageSettings: this.postHomepageSettings,
+            postHomeMenuSettings: this.postHomeMenuSettings,
             postSearchSettings: this.postSearchSettings
         }
     },
@@ -53,25 +59,45 @@ export default {
         CustomSearch
     },
     computed: {
+        enabled() {
+            return parseInt(this.designData?.homepage_enabled) === 1;
+        },
         menuItemList() {
-            const homeData = JSON.parse(this.settingsData?.home_design_json || "{}");
-
-            let menuItems = homeData?.menuButtons || [];
-            menuItems.map(item => {
-                item.link = XSSHelpers.decodeHTMLEntities(item.link);
-                item.title = XSSHelpers.decodeHTMLEntities(item.title);
-                item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
-            });
-            return menuItems.sort((a,b) => a.order - b.order);
+            let returnVal;
+            if (this.appIsGettingData) {
+                returnVal = null;
+            } else {
+                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
+                let menuItems = homeData?.menuCards || [];
+                menuItems.map(item => {
+                    item.link = XSSHelpers.decodeHTMLEntities(item.link);
+                    item.title = XSSHelpers.decodeHTMLEntities(item.title);
+                    item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
+                });
+                returnVal = menuItems.sort((a,b) => a.order - b.order);
+            }
+            return returnVal;
         },
         menuDirection() {
-            const homeData = JSON.parse(this.settingsData?.home_design_json || "{}");
-            return homeData?.direction || 'v';
+            let returnVal;
+            if (this.appIsGettingData) {
+                returnVal = null;
+            } else {
+                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
+                returnVal = homeData?.direction || 'v';
+            }
+            return returnVal;
         },
         chosenHeaders() {
-            const searchTemplateJSON = this.settingsData?.search_design_json || "{}";
-            const obj = JSON.parse(searchTemplateJSON);
-            return obj?.chosenHeaders || [];
+            let returnVal;
+            if (this.appIsGettingData) {
+                returnVal = null;
+            } else {
+                const searchTemplateJSON = this.designData?.search_design_json || "{}";
+                const obj = JSON.parse(searchTemplateJSON);
+                returnVal = obj?.chosenHeaders || ['date','title','service','status'];
+            }
+            return returnVal
         },
     },
     methods: {
@@ -112,8 +138,7 @@ export default {
          * @param {boolean} markedForDeletion
          */
         updateMenuItemList(menuItem = null, markedForDeletion = false) {
-            let newItems = [];
-            this.menuItemList.forEach(item => newItems.push({...item}));
+            let newItems = this.menuItemList.map(item => ({...item}));
 
             if (menuItem === null) { //update the order after drag drop or clickToMove
                 let itemIDs = []
@@ -128,40 +153,54 @@ export default {
                 });
 
             } else { //editing modal - either updating or deleting an item
-                newItems = this.menuItemList.filter(item => item.id !== menuItem.id);
+                newItems = newItems.filter(item => item.id !== menuItem.id);
                 if (markedForDeletion !== true) {
                     newItems.push(menuItem);
                 }
             }
-            this.postHomepageSettings(newItems, this.menuDirection);
+            this.postHomeMenuSettings(newItems, this.menuDirection);
         },
-        postHomepageSettings(menuItems = this.menuItemList, direction = this.menuDirection) {
+        postHomeMenuSettings(menuCards = this.menuItemList, direction = this.menuDirection) {
+            this.menuIsUpdating = true;
             $.ajax({
                 type: 'POST',
-                url: `${this.APIroot}site/settings/home_design_json`,
+                url: `${this.APIroot}site/settings/homepage_design_json`,
                 data: {
                     CSRFToken: this.CSRFToken,
-                    home_menu_list: menuItems,
+                    home_menu_list: menuCards,
                     menu_direction: direction
                 },
                 success: (res) => {
                     if(+res !== 1) {
                         console.log('unexpected value returned:', res);
                     }
-                    this.getSettingsData();
+                    const newJSON = JSON.stringify({menuCards, direction})
+                    this.updateLocalDesignData('homepage', newJSON);
+                    this.menuIsUpdating = false;
                 },
                 error: (err) => console.log(err)
             });
         },
     },
-    template: `<div id="site_designer_hompage">
+    template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
+        font-size: 24px; font-weight: bold; padding: 16px;">
+        Loading... 
+        <img src="../images/largespinner.gif" alt="loading..." />
+    </div>
+    <div v-else id="site_designer_hompage">
         <h3 id="designer_page_header" :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
             {{ isEditingMode ? 'Editing the Homepage' : 'Homepage Preview'}}
         </h3>
+        <h4 style="margin: 0.5rem 0;">This page is {{ enabled ? '' : 'not'}} enabled</h4>
+        <button type="button" @click="toggleEnableTemplate('homepage')"
+            class="btn-confirm" :class="{enabled: enabled}" 
+            style="width: 100px; margin-bottom: 1rem;" :disabled="appIsPublishing">
+            {{ enabled ? 'Disable' : 'Publish'}}
+        </button>
         <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section</div>
         <div style="display: flex; flex-wrap: wrap;">
-            <custom-home-menu></custom-home-menu>
-            <custom-search></custom-search>
+            <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
+            <custom-search v-if="chosenHeaders!==null"></custom-search>
         </div>
         <!-- HOMEPAGE DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">

@@ -27,7 +27,6 @@
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
     const userID = '<!--{$userID}-->';
-    const settingsDataTest = JSON.parse('<!--{$settingsDataTest}-->');
 </script>
 
 <script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer.js" defer></script>

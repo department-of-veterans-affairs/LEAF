@@ -48,7 +48,7 @@ class SiteController extends RESTfulResponse
 		$this->index['POST']->register('site/settings/sitemap_json', function ($args) use ($site) {
 			return $site->setSitemapJSON();
 		});
-        $this->index['POST']->register('site/settings/home_design_json', function ($args) use ($site) {
+        $this->index['POST']->register('site/settings/homepage_design_json', function ($args) use ($site) {
             $list = $_POST['home_menu_list'] ?? [];
             $direction = $_POST['menu_direction'] ?? 'v';
             return $site->setHomeDesignJSON($list, $direction);
@@ -58,10 +58,7 @@ class SiteController extends RESTfulResponse
 			return $site->setSearchDesignJSON($list);
 		});
 		$this->index['POST']->register('site/settings/enable_homepage', function ($args) use ($site) {
-			return $site->enableNoCodeHome((int)$_POST['enabled']);
-		});
-		$this->index['POST']->register('site/settings/enable_search', function ($args) use ($site) {
-			return $site->enableNoCodeSearch((int)$_POST['enabled']);
+			return $site->enableNoCodeHomepage((int)$_POST['enabled']);
 		});
 
 		return $this->index['POST']->runControl($act['key'], $act['args']);

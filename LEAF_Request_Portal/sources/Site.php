@@ -54,14 +54,14 @@ class Site
             $menuItems[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
         }
         $home_design_data = array();
-        $home_design_data['menuButtons'] = $menuItems;
+        $home_design_data['menuCards'] = $menuItems;
         $home_design_data['direction'] = $direction === 'v' ? 'v' : 'h';
-        $home_design_json = json_encode($home_design_data);
+        $homepage_design_json = json_encode($home_design_data);
 
         $strSQL = 'INSERT INTO settings (setting, `data`)
-            VALUES ("home_design_json", :home_design_json)
-            ON DUPLICATE KEY UPDATE `data`=:home_design_json';
-        $vars = array(':home_design_json' => $home_design_json);
+            VALUES ("homepage_design_json", :homepage_design_json)
+            ON DUPLICATE KEY UPDATE `data`=:homepage_design_json';
+        $vars = array(':homepage_design_json' => $homepage_design_json);
 
         $this->db->prepared_query($strSQL, $vars);
 
@@ -84,29 +84,15 @@ class Site
 
         return 1;
     }
-    public function enableNoCodeHome(int $isEnabled = 0): string|int {
+    public function enableNoCodeHomepage(int $isEnabled = 0): string|int {
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
-        $home_enabled = $isEnabled === 1 ? '1' : '0';
+        $homepage_enabled = $isEnabled === 1 ? '1' : '0';
         $strSQL = 'INSERT INTO settings (setting, `data`)
-            VALUES ("home_enabled", :home_enabled)
-            ON DUPLICATE KEY UPDATE `data`=:home_enabled';
-        $vars = array(':home_enabled' => $home_enabled);
-
-        $this->db->prepared_query($strSQL, $vars);
-
-        return 1;
-    }
-    public function enableNoCodeSearch(int $isEnabled = 0): string|int {
-        if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
-        $search_enabled = $isEnabled === 1 ? '1' : '0';
-        $strSQL = 'INSERT INTO settings (setting, `data`)
-            VALUES ("search_enabled", :search_enabled)
-            ON DUPLICATE KEY UPDATE `data`=:search_enabled';
-        $vars = array(':search_enabled' => $search_enabled);
+            VALUES ("homepage_enabled", :homepage_enabled)
+            ON DUPLICATE KEY UPDATE `data`=:homepage_enabled';
+        $vars = array(':homepage_enabled' => $homepage_enabled);
 
         $this->db->prepared_query($strSQL, $vars);
 

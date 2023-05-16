@@ -67,7 +67,7 @@
 <script>
     const dyniconsPath = "../libs/dynicons/svg/";
     const data = JSON.parse('<!--{$homeDesignJSON}-->');
-    let menuItems = data?.menuButtons || [];
+    let menuItems = data?.menuCards || [];
     menuItems = menuItems.filter(item => +item?.enabled === 1);
     menuItems = menuItems.sort((a, b) => a.order - b.order);
 

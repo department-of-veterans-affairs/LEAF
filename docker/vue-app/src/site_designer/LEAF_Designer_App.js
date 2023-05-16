@@ -11,18 +11,14 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             userID: userID,
-            settingsData: {},
-            settingsDataTest: settingsDataTest,
-            customizableTemplates: ['homepage', 'search'], //NOTE: only homepage is actually a view, but they are sep tpls
-            views: ['homepage', 'testview'],
+            designData: {},
+            customizableTemplates: ['homepage'],
+            views: ['homepage', 'testview'], //NOTE: anticipate more templates, keeping for testing
             custom_page_select: 'homepage',
-            appIsUpdating: true,
+            appIsGettingData: true,
+            appIsPublishing: false,
             isEditingMode: true,
-            /*
-            publishedStatus: {
-                homepage: null,
-                search: null
-            }, */
+
             iconList: [],
             tagsToRemove: ['script', 'img', 'a', 'link', 'br'],
 
@@ -37,10 +33,10 @@ export default {
     provide() {
         return {
             iconList: computed(() => this.iconList),
-            appIsUpdating: computed(() => this.appIsUpdating),
+            appIsGettingData: computed(() => this.appIsGettingData),
+            appIsPublishing: computed(() => this.appIsPublishing),
             isEditingMode: computed(() => this.isEditingMode),
-            publishedStatus: computed(() => this.publishedStatus),
-            settingsData: computed(() => this.settingsData),
+            designData: computed(() => this.designData),
 
             //static
             CSRFToken: this.CSRFToken,
@@ -49,10 +45,11 @@ export default {
             libsPath: this.libsPath,
             orgchartPath: this.orgchartPath,
             userID: this.userID,
-            getSettingsData: this.getSettingsData,
+            getDesignData: this.getDesignData,
             tagsToRemove: this.tagsToRemove,
             setCustom_page_select: this.setCustom_page_select,
-            postEnableTemplate: this.postEnableTemplate,
+            toggleEnableTemplate: this.toggleEnableTemplate,
+            updateLocalDesignData: this.updateLocalDesignData,
             /** dialog  */
             openDialog: this.openDialog,
             closeFormDialog: this.closeFormDialog,
@@ -67,17 +64,8 @@ export default {
             formSaveFunction: computed(() => this.formSaveFunction),
         }
     },
-    beforeMount() {
+    created() {
         this.getIconList();
-        this.getSettingsData();
-    },
-    computed: {
-        publishedStatus() {
-            let status = {};
-            status.homepage = +this.settingsData?.home_enabled === 1;
-            status.search = +this.settingsData?.search_enabled === 1;
-            return status;
-        }
     },
     methods: {
         setEditMode(isEditMode = true) {
@@ -94,39 +82,45 @@ export default {
                 error: (err) => console.log(err)
             });
         },
-        postEnableTemplate(templateName = '') {
+        toggleEnableTemplate(templateName = '') {
             if(this.customizableTemplates.includes(templateName)) {
-                this.appIsUpdating = true;
+                const enabled = this.designData[`${templateName}_enabled`];
+                const flag = enabled === undefined || parseInt(enabled) === 0 ? 1 : 0;
+                this.appIsPublishing = true;
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}site/settings/enable_${templateName}`,
                     data: {
                         CSRFToken: this.CSRFToken,
-                        enabled: +(!this.publishedStatus[templateName]), //1 if true, 0 if false
+                        enabled: flag
                     },
                     success: (res) => {
                         if (+res !== 1) {
                             console.log('unexpected return value', res)
                         }
-                        this.getSettingsData();
+                        this.designData[`${templateName}_enabled`] = flag;
+                        this.appIsPublishing = false;
                     },
                     error: (err) => console.log(err)
                 });
             }
         },
-        getSettingsData() {
-            this.appIsUpdating = true;
+        getDesignData() {
+            this.appIsGettingData = true;
             $.ajax({
                 type: 'GET',
                 url: `${this.APIroot}system/settings`,
                 success: (res) => {
-                    this.settingsData = res;
-                    this.appIsUpdating = false;
+                    this.designData = res;
+                    this.appIsGettingData = false;
                 },
                 error: (err) => {
                     console.log(err);
                 }
             });
+        },
+        updateLocalDesignData(templateName = '', json = '{}') {
+            this.designData[`${templateName}_design_json`] = json;
         },
 
         /** basic modal methods.  Use a component name to set the dialog's content.

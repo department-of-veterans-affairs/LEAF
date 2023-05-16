@@ -2,7 +2,7 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            searchIsUpdating: this.appIsUpdating,
+            searchIsUpdating: false,
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
             adminHeaders: {
                 date: {
@@ -125,10 +125,9 @@ export default {
         }
     },
     mounted() {
-        if(!this.searchIsUpdating) {
-            this.createChoices();
-            this.main();
-        }
+        console.log('search mounted, DOM available')
+        this.createChoices();
+        this.main();
     },
     inject: [
         'APIroot',
@@ -137,18 +136,8 @@ export default {
         'rootPath',
         'orgchartPath',
         'isEditingMode',
-        'postEnableTemplate',
-        'publishedStatus',
         'chosenHeaders',
-
-        'appIsUpdating',
-        'getSettingsData'
     ],
-    computed: {
-        enabled() {
-            return this.publishedStatus.search === true;
-        },
-    },
     methods: {
         createChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
@@ -184,25 +173,27 @@ export default {
             }
         },
         postSearchSettings() {
-            this.searchIsUpdating = true;
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/search_design_json`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    chosen_headers: this.chosenHeadersSelect,
-                },
-                success: (res) => {
-                    if(+res !== 1) {
-                        console.log('unexpected value returned:', res);
-                    }
-                    this.getSettingsData();
-                },
-                error: (err) => console.log(err)
-            });
+            if (this.chosenHeadersSelect.length > 0) {
+                this.searchIsUpdating = true;
+                $.ajax({
+                    type: 'POST',
+                    url: `${this.APIroot}site/settings/search_design_json`,
+                    data: {
+                        CSRFToken: this.CSRFToken,
+                        chosen_headers: this.chosenHeadersSelect,
+                    },
+                    success: (res) => {
+                        if(+res !== 1) {
+                            console.log('unexpected value returned:', res);
+                        }
+                        this.searchIsUpdating = false;
+                    },
+                    error: (err) => console.log(err)
+                });
+            }
         },
         renderResult(leafSearch, res) {
-            const searchHeaders = this.chosenHeaders.map(h => ({ ...this.adminHeaders[h]}));
+            const searchHeaders = this.chosenHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
 
             let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
             grid.setRootURL(this.rootPath);
@@ -378,38 +369,28 @@ export default {
         }
     },
     watch: {
-        appIsUpdating(newVal, oldVal) {
+        searchIsUpdating(newVal, oldVal) {
             //app updates are finished and search is true (app was updating at mount, or new search settings posted)
-            if(newVal === false && this.searchIsUpdating === true) {
+            if(newVal === false) {
+                console.log('updating applied headers')
                 document.getElementById('searchContainer').innerHTML = '';
                 this.removeChoices();
-                this.chosenHeadersSelect = this.chosenHeaders.length === 0 ?
-                    ['date','title','service','status'] : [...this.chosenHeaders];
                 this.createChoices();
-                setTimeout(() => { //TODO: another search is being triggered and think that is causing issues
+                setTimeout(() => {
                     this.main();
-                    this.searchIsUpdating = false;
-                },150);
+                }, 100);
             }
         }
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
-        <div v-show="isEditingMode" style="margin-top: 2rem;">
-            <h4 style="margin: 0.5rem 0;">Search section is {{ enabled ? '' : 'not'}} enabled</h4>
-            <button type="button" @click="postEnableTemplate('search')"
-                class="btn-confirm" :class="{enabled: enabled}"
-                style="width: 100px; margin-bottom: 1rem;" :disabled="appIsUpdating">
-                {{ enabled ? 'Disable' : 'Publish'}}
-            </button>
-            <div class="designer_inputs">
-                <div>
-                    <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
-                    <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
-                </div>
-                <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                    @click="postSearchSettings" :disabled="searchIsUpdating">Apply Selections
-                </button>
+        <div v-show="isEditingMode" class="designer_inputs" style="margin-top: 2rem;">
+            <div>
+                <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
+                <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
             </div>
+            <button type="button" class="btn-confirm" style="align-self: flex-end;"
+                @click="postSearchSettings" :disabled="searchIsUpdating">Apply Selections
+            </button>
         </div>
         <div id="searchContainer" style="padding-top:2px;"></div>
         <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
