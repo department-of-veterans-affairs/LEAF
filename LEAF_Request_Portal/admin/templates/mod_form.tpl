@@ -1088,7 +1088,7 @@ function makeGrid(columns) {
                     }
                     $(gridBodyElement + ' > div:eq(' + i + ')').append(`
                         <div class="dropdown_file" style="margin-top: 0.5rem;">
-                            <label for="dropdown_file_select_${i}" style="display: block; text-align: left;">File:</label>
+                            <label for="dropdown_file_select_${i}" style="display: block; text-align: left;">File (csv or txt format):</label>
                             <select id="dropdown_file_select_${i}" style="width: 185px; margin-bottom:0.25rem;">${options}</select>
                             <label for="dropdown_file_header_select_${i}" style="display: block; text-align: left;">Does file contain headers</label>
                             <select id="dropdown_file_header_select_${i}" style="width: 185px;">
@@ -1140,7 +1140,7 @@ function toggleDropDown(type, cell, columnNumber) {
             }
             $(cell).parent().append(`
                 <div class="dropdown_file" style="margin-top: 0.5rem;">
-                    <label for="dropdown_file_select_${columnNumber}" style="display: block; text-align: left;">File:</label>
+                    <label for="dropdown_file_select_${columnNumber}" style="display: block; text-align: left;">File (csv or txt format):</label>
                     <select id="dropdown_file_select_${columnNumber}" style="width: 185px; margin-bottom:0.25rem;">${options}</select>
                     <label for="dropdown_file_header_select_${columnNumber}" style="display: block; text-align: left;">Does file contain headers</label>
                     <select id="dropdown_file_header_select_${columnNumber}" style="width: 185px;">
