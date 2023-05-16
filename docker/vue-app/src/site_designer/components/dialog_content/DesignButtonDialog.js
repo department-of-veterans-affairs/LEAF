@@ -55,6 +55,9 @@ export default {
         isBuiltInCard() {
             return this.builtInIDs.includes(this.id)
         },
+        linkAttentionStyle() {
+            return (+this.enabled === 1 && this.link.indexOf('https://') !== 0) ? 'border: 2px solid #c00000': '';
+        }
     },
     methods: {
         getIconSrc(absolutePath = '') {
@@ -96,7 +99,7 @@ export default {
                 <input type="color" id="bg_color" v-model="bgColor" />
             </div>
             <div style="display: flex; flex-direction:column; margin-left:1.5rem;">
-                <label v-show="menuItemOBJ.link!==''" class="checkable leaf_check" for="button_enabled"
+                <label class="checkable leaf_check" for="button_enabled"
                      :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
                      :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
                     <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check"/>
@@ -137,7 +140,7 @@ export default {
         </div>
         <div v-if="!isBuiltInCard" style="margin-bottom: 1rem;">
             <label for="card_link">Card Link (full URL)</label>
-            <input type="text" id="card_link" style="width: 475px;" v-model="link" />
+            <input type="text" id="card_link" :style="'width: 475px;'+ linkAttentionStyle" v-model="link" />
         </div>
         <div class="designer_inputs">
             <label class="checkable leaf_check" for="use_icon_confirm">
