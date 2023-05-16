@@ -70,7 +70,7 @@ export default {
                 this.indicatorRecord[this.currIndicatorID].options : '',
             //list of options
             multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.indicatorRecord[this.currIndicatorID]?.format) ?
-                this.indicatorRecord[this.currIndicatorID].options?.join('\n') : '',
+                (this.indicatorRecord[this.currIndicatorID].options || []).join('\n') : '',
 
             //used for grid formats
             gridBodyElement: 'div#container_indicatorGrid > div',
