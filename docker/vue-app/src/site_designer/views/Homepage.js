@@ -95,7 +95,7 @@ export default {
             } else {
                 const searchTemplateJSON = this.designData?.search_design_json || "{}";
                 const obj = JSON.parse(searchTemplateJSON);
-                returnVal = obj?.chosenHeaders || ['date','title','service','status'];
+                returnVal = obj?.chosenHeaders || [];
             }
             return returnVal
         },

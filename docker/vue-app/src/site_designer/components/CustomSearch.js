@@ -125,9 +125,14 @@ export default {
         }
     },
     mounted() {
-        console.log('search mounted, DOM available')
-        this.createChoices();
-        this.main();
+        console.log('search mounted, DOM available');
+        if(this.chosenHeadersSelect.length === 0) {
+            this.chosenHeadersSelect = ['date','title','service','status'];
+            this.postSearchSettings();
+        } else {
+            this.createChoices();
+            this.main();
+        }
     },
     inject: [
         'APIroot',
@@ -173,24 +178,22 @@ export default {
             }
         },
         postSearchSettings() {
-            if (this.chosenHeadersSelect.length > 0) {
-                this.searchIsUpdating = true;
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}site/settings/search_design_json`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        chosen_headers: this.chosenHeadersSelect,
-                    },
-                    success: (res) => {
-                        if(+res !== 1) {
-                            console.log('unexpected value returned:', res);
-                        }
-                        this.searchIsUpdating = false;
-                    },
-                    error: (err) => console.log(err)
-                });
-            }
+            this.searchIsUpdating = true;
+            $.ajax({
+                type: 'POST',
+                url: `${this.APIroot}site/settings/search_design_json`,
+                data: {
+                    CSRFToken: this.CSRFToken,
+                    chosen_headers: this.chosenHeadersSelect,
+                },
+                success: (res) => {
+                    if(+res !== 1) {
+                        console.log('unexpected value returned:', res);
+                    }
+                    this.searchIsUpdating = false;
+                },
+                error: (err) => console.log(err)
+            });
         },
         renderResult(leafSearch, res) {
             const searchHeaders = this.chosenHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
@@ -389,7 +392,7 @@ export default {
                 <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
             </div>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="searchIsUpdating">Apply Selections
+                @click="postSearchSettings" :disabled="searchIsUpdating || chosenHeadersSelect.length===0">Apply Selections
             </button>
         </div>
         <div id="searchContainer" style="padding-top:2px;"></div>

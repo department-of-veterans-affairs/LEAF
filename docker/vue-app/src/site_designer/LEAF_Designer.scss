@@ -26,6 +26,9 @@ body {
         background-color: $attention;
         border: 2px solid black;
     }
+    button:disabled {
+        background-color: gray;
+    }
     .designer_inputs {
         display:flex;
         gap:1rem;
