@@ -10,10 +10,10 @@
         /* display: table-cell; */  
     }
 
-    .col-header:hover {
+    /* .col-header:hover {
         background-color: #79a2ff;
         border-color: black;
-    }
+    } */
 
     #editor-container {
         display: grid;
@@ -27,6 +27,11 @@
         box-shadow: 0 2px 3px #a7a9aa;
         border-radius: 4px;
         margin: 0px auto 1.5rem;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .site-container:hover {
+        box-shadow: 0 4px 6px #8a8c8d;
     }
 
     .site-title {
@@ -50,11 +55,6 @@
 
     .inbox {
         margin-bottom: 1rem;
-        /* display: table; */
-    }
-
-    .header-row {
-        /* display: table-row; */
     }
 
     .slist {
@@ -163,7 +163,7 @@
                         i.parentNode.insertBefore(current, i);
                     }
 
-                    return siteCols ? updateColumns(items, id) : updateSiteOrder;
+                    return siteCols ? updateColumns(items, id) : updateSiteOrder();
                 }
             };
         }
@@ -176,7 +176,7 @@
             // update the order value for each site obj
             sites[list[key]].order = key;
         }
-        saveSettings().then(() => loadSiteColPreview(sites));
+        // saveSettings().then(() => loadSiteColPreview(sites));
     });
 
     // Get site icons and name
@@ -198,12 +198,12 @@
         let checkedColumns = Object.values(items).filter(item => item.children[0].checked);
         sites[id].columns = checkedColumns.map(item => backEndColumns[item.textContent.trim()]).join(',');
 
-        // reload static elements
-        Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites)]);
+        // reload elements
+        // Promise.all([loadSiteColPreview(sites), loadSiteColMenu(sites)]);
     });
 
     const shiftColumns = (site) => new Promise((resolve, reject) => {
-        dialog.setTitle(site.title);
+        dialog.setTitle(`${site.title} Column Order`);
         dialog.setContent(`<ul id="column-list-${site.id}"></ul>`);
         dialog.setSaveHandler(() => {
             saveSettings().then(() => {
@@ -266,6 +266,7 @@
                 sitemap_json: JSON.stringify(sendObj)
             },
             success: (res) => {
+                Promise.all([loadSiteColMenu(sites), loadSiteColPreview(sites)]);
                 resolve();
             },
             fail: (err) => {
@@ -334,7 +335,7 @@
                 </ul>
             `);
 
-            buf.push(`<button class="usa-button leaf-btn-med" onclick="updateSiteOrder()">Save Site Order</button>`);
+            buf.push(`<button class="usa-button leaf-btn-med" onclick="saveSettings()">Save Site Order</button>`);
 
             $(`#side-bar`).html(buf.join(`<br/>`));
 
