@@ -232,7 +232,7 @@ class System
                                             FROM category_privs
                                             LEFT JOIN `groups` USING (groupID)
                                             WHERE category_privs.groupID = :groupID
-                                            AND groups.groupID is null;', $vars);
+                                            AND `groups`.groupID is null;', $vars);
         if(count($res) > 0)
         {
             $this->db->prepared_query('DELETE FROM category_privs WHERE groupID=:groupID', $vars);

@@ -30,8 +30,7 @@ export default {
                     cache: false,
                     data: pkg,
                     success: (res) => {
-                        //NOTE: returns true on success, or various messages alerted to user if there were issues.
-                        if(res!==true) {
+                        if(+res !== 1) {
                             alert(res);
                         }
                         this.closeFormDialog();
