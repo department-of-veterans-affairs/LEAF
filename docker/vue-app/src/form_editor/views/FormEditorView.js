@@ -12,7 +12,17 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listTracker: {},  //{indID:{parID, newParID, sort, listindex,},}. for tracking parID and sort changes
-            allowedConditionChildFormats: ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes'],
+            allowedConditionChildFormats: [
+                'dropdown',
+                'text',
+                'multiselect',
+                'radio',
+                'checkboxes',
+                '',
+                'fileupload',
+                'image',
+                'textarea'
+            ],
             showToolbars: true,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
             sortLastUpdated: '',

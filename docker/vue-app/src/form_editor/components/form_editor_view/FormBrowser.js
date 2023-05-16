@@ -9,6 +9,9 @@ export default {
     inject: [
         'appIsLoadingCategoryList',
         'showCertificationStatus',
+        'secureStatusText',
+        'secureBtnText',
+        'secureBtnLink',
         'activeForms',
         'inactiveForms',
         'supplementalForms'
@@ -20,8 +23,8 @@ export default {
     `<template v-if="appIsLoadingCategoryList === false">
         <!-- secure form section -->
         <div v-if="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #a00; margin-bottom:1em;">
-            <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">LEAF-Secure Certified</span>
-            <a id="secureBtn" class="buttonNorm">View Details</a>
+            <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">{{secureStatusText}}</span>
+            <a id="secureBtn" :href="secureBtnLink" target="_blank" class="buttonNorm">{{secureBtnText}}</a>
         </div>
 
         <!-- form browser tables -->
