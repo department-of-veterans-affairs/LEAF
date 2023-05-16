@@ -199,8 +199,6 @@ function submitNote(recordID){
                     dialog_ok.hide();
                 });
                 dialog_ok.show();
-
-                //alert('Alls good <span color="red">No notification</span>');
             },
             error: function(res) {
                 console.log(res);
