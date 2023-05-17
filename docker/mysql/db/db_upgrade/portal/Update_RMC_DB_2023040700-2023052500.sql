@@ -2,7 +2,7 @@ START TRANSACTION;
 
 CREATE TABLE `email_tracker` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) NOT NULL,
+  `recordID` mediumint(8) unsigned NOT NULL,
   `userID` varchar(50) DEFAULT NULL,
   `timestamp` int(10) NOT NULL,
   `recipients` text NOT NULL,
