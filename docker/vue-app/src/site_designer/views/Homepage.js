@@ -1,6 +1,6 @@
 import { computed } from 'vue';
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
-import DesignButtonDialog from "../components/dialog_content/DesignButtonDialog.js";
+import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
 
@@ -54,7 +54,7 @@ export default {
     },
     components: {
         LeafFormDialog,
-        DesignButtonDialog,
+        DesignCardDialog,
         CustomHomeMenu,
         CustomSearch
     },
@@ -103,7 +103,7 @@ export default {
     methods: {
         openDesignButtonDialog() {
             this.setDialogTitleHTML('<h2>Menu Editor</h2>');
-            this.setDialogContent('design-button-dialog');
+            this.setDialogContent('design-card-dialog');
             this.openDialog();
         },
         generateID() {

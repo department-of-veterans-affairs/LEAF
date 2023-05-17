@@ -1,7 +1,7 @@
 import CustomMenuItem from "../CustomMenuItem";
 
 export default {
-    name: 'design-button-dialog',
+    name: 'design-card-dialog',
     data() {
         return {
             id: this.menuItem.id,

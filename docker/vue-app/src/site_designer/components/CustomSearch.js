@@ -114,20 +114,22 @@ export default {
             sort: {column:'recordID', direction: 'desc'},
             headerOptions: ['date', 'title', 'service', 'status', 'initiatorName'],
             chosenHeadersSelect: [...this.chosenHeaders],
+            mostRecentHeaders: '',
             choicesSelectID: 'choices_header_select',
-            /*NOTE: hardcoded test. TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
+            /*TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
 
             getData: [],
             hilite: [status === 'approved', date < #,  lastaction > #],
             hide: []*/
-            //categoryName automatically included
+            //categoryName automatically included in joins because it's needed for the title
             potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
         }
     },
     mounted() {
-        console.log('search mounted, DOM available');
+        //console.log('search mounted, DOM available');
         if(this.chosenHeadersSelect.length === 0) {
             this.chosenHeadersSelect = ['date','title','service','status'];
+            this.createChoices();
             this.postSearchSettings();
         } else {
             this.createChoices();
@@ -156,7 +158,7 @@ export default {
                 });
                 options = options.map(o =>({
                     value: o,
-                    label: o,
+                    label: this.getLabel(o),
                     selected: this.chosenHeadersSelect.includes(o)
                 }));
                 const choices = new Choices(elSelect, {
@@ -171,6 +173,24 @@ export default {
             document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
                 .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
         },
+        getLabel(option) {
+            let label = '';
+            switch(option) {
+                case 'date':
+                case 'title':
+                case 'service':
+                case 'status':
+                    label = option;
+                    break;
+                case 'initiatorName':
+                    label = 'initiator';
+                    break;
+                default:
+                    break;
+
+            }
+            return label;
+        },
         removeChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
             if (elSelect.choicesjs !== undefined && typeof elSelect.choicesjs.destroy === 'function') {
@@ -178,26 +198,32 @@ export default {
             }
         },
         postSearchSettings() {
-            this.searchIsUpdating = true;
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/search_design_json`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    chosen_headers: this.chosenHeadersSelect,
-                },
-                success: (res) => {
-                    if(+res !== 1) {
-                        console.log('unexpected value returned:', res);
-                    }
-                    this.searchIsUpdating = false;
-                },
-                error: (err) => console.log(err)
-            });
+            if (JSON.stringify(this.chosenHeadersSelect) !== this.mostRecentHeaders) {
+                this.searchIsUpdating = true;
+                $.ajax({
+                    type: 'POST',
+                    url: `${this.APIroot}site/settings/search_design_json`,
+                    data: {
+                        CSRFToken: this.CSRFToken,
+                        chosen_headers: this.chosenHeadersSelect,
+                    },
+                    success: (res) => {
+                        if(+res !== 1) {
+                            console.log('unexpected value returned:', res);
+                        }
+                        document.getElementById('searchContainer').innerHTML = '';
+                        setTimeout(() => {
+                            this.main();
+                            this.searchIsUpdating = false;
+                        }, 150);
+                    },
+                    error: (err) => console.log(err)
+                });
+            } else console.log('headers have not changed');
         },
         renderResult(leafSearch, res) {
             const searchHeaders = this.chosenHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
-
+            this.mostRecentHeaders = JSON.stringify(this.chosenHeadersSelect);
             let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
             grid.setRootURL(this.rootPath);
             grid.hideIndex();
@@ -369,20 +395,6 @@ export default {
                 query.setLimit(offset, batchSize);
                 query.execute()
             });
-        }
-    },
-    watch: {
-        searchIsUpdating(newVal, oldVal) {
-            //app updates are finished and search is true (app was updating at mount, or new search settings posted)
-            if(newVal === false) {
-                console.log('updating applied headers')
-                document.getElementById('searchContainer').innerHTML = '';
-                this.removeChoices();
-                this.createChoices();
-                setTimeout(() => {
-                    this.main();
-                }, 100);
-            }
         }
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
