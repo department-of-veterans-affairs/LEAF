@@ -11,10 +11,7 @@
 <script>
 let vueData = {
     formID: 0,
-    formTitle: '',
     indicatorID: 0,
-    required: 0,
-    icons: [],
     updateIndicatorList: false
 }
 
@@ -31,7 +28,8 @@ let portalAPI;                      //@ready
 let columns = 0;                    //number, def @ ~1268
 </script>
 
-<script src="../../libs/js/vue3/vue.global.prod.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!--<script src="../../libs/js/vue3/vue.global.prod.js"></script>-->
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 
@@ -333,13 +331,8 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
-
             vueData.formID = currCategoryID;
-            vueData.formTitle = formTitle;
             vueData.indicatorID = 0;
-            vueData.required = 0;
-            vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         error: function(res) {

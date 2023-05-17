@@ -3,7 +3,7 @@ const ConditionsEditor = Vue.createApp({
     return {
       vueData: vueData, //init {formID: string || 0, indicatorID: number || 0, updateIndicatorList: false}
       windowTop: 0,
-      //indicatorOrg: {},  NOTE: keep
+
       indicators: [],
       selectedParentIndicator: {},
       selectedDisabledParentID: null,
@@ -29,7 +29,7 @@ const ConditionsEditor = Vue.createApp({
       noPrefillFormats: ['', 'fileupload', 'image']
     };
   },
-  beforeMount() {
+  created() {
     this.getAllIndicators();
     this.getFileManagerFiles();
   },
@@ -55,22 +55,13 @@ const ConditionsEditor = Vue.createApp({
         type: "GET",
         url: "../api/form/indicator/list/unabridged",
         success: (res) => {
-          const list = res;
-          const filteredList = list.filter(
-            (ele) =>
-              parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0
-          );
+          const filteredList = res.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
           this.indicators = filteredList;
-
-          /* this.indicators.forEach(i => {
-                        if (i.parentIndicatorID === null){
-                            this.indicatorOrg[i.indicatorID] = {header: i, indicators:{}};
-                        }
-                    }); //NOTE: keep for later use to make object for organization according to header */
-          this.indicators.forEach((i) => {
+          this.indicators.forEach(i => {
             if (i.parentIndicatorID !== null) {
-              //no need to check headers themselves
-              this.crawlParents(i, i);
+              this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
+            } else {
+              i.headerIndicatorID = parseInt(i.indicatorID);
             }
           });
           this.vueData.updateIndicatorList = false;
@@ -296,44 +287,21 @@ const ConditionsEditor = Vue.createApp({
           );
         });
       }
-      $.ajax({
-        type: "GET",
-        url: `../api/form/_${this.vueData.formID}`,
-        success: (res) => {
-          const form = res;
-          form.forEach((formheader, index) => {
-            this.indicators.forEach((ind) => {
-              if (
-                parseInt(ind.headerIndicatorID) ===
-                parseInt(formheader.indicatorID)
-              ) {
-                ind.formPage = index;
-              }
-            });
-          });
-        },
-        error: (err) => {
-          console.log(err);
-        },
-      });
     },
-    crawlParents(indicator = {}, initialIndicator = {}) {
-      //ind to get parentID from,
-      const parentIndicatorID = parseInt(indicator.parentIndicatorID);
-      const parent = this.indicators.find(
-        (i) => parseInt(i.indicatorID) === parentIndicatorID
-      );
-
-      if (!parent || !parent.parentIndicatorID) {
-        //debug this.indicatorOrg[parentIndicatorID].indicators[initialIndicator.indicatorID] = {...initialIndicator, headerIndicatorID: parentIndicatorID};
-        //add information about the headerIndicatorID to the indicators
-        let indToUpdate = this.indicators.find(
-          (i) =>
-            parseInt(i.indicatorID) === parseInt(initialIndicator.indicatorID)
-        );
-        indToUpdate.headerIndicatorID = parentIndicatorID;
+    /**
+     * Recursively searches indicators to add headerIndicatorID to the indicators list.
+     * The headerIndicatorID is used to track which indicators are on the same page.
+     * @param {Number} indID parent ID of indicator at the current depth
+     * @param {Object} initialIndicator reference to the indicator to update
+     */
+    addHeaderIDs(indID = 0, initialIndicator = {}) {
+      const parent = this.indicators.find(i => parseInt(i.indicatorID) === indID);
+      if(parent === undefined) return;
+      //if the parent has a null parentID, then this is the header, update the passed reference
+      if (parent?.parentIndicatorID === null) {
+        initialIndicator.headerIndicatorID = indID;
       } else {
-        this.crawlParents(parent, initialIndicator);
+        this.addHeaderIDs(parseInt(parent.parentIndicatorID), initialIndicator);
       }
     },
     newCondition() {
@@ -567,7 +535,7 @@ const ConditionsEditor = Vue.createApp({
     forceUpdate() {
       this.$forceUpdate();
       if (this.vueData.updateIndicatorList === true) {
-        //set to T in mod_form if new ind or ind edited, then to F after new fetch
+        //set to true in mod_form if new ind or ind edited, then to false after new fetch
         this.getAllIndicators();
       } else {
         this.updateSelectedChildIndicator();
