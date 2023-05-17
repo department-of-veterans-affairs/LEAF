@@ -304,7 +304,7 @@ class Email
      * @return bool
      * @throws Exception
      */
-    public function sendMail(?int $recordID): bool
+    public function sendMail(?int $recordID = null): bool
     {
         $currDir = dirname(__FILE__);
 
