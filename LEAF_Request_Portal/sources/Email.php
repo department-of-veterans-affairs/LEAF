@@ -304,7 +304,7 @@ class Email
      * @return bool
      * @throws Exception
      */
-    public function sendMail(int $recordID): bool
+    public function sendMail(?int $recordID): bool
     {
         $currDir = dirname(__FILE__);
 
@@ -346,7 +346,9 @@ class Email
             exec("php {$currDir}/../mailer/mailer.php {$emailQueueName} > /dev/null &");
         }
 
-        $this->logEmailSent($recordID);
+        if ($recordID !== null) {
+            $this->logEmailSent($recordID);
+        }
 
         return true;
     }
