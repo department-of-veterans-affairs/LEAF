@@ -204,10 +204,9 @@ export default {
          * @returns {string}
          */
         getIndicatorName(id = 0) {
-            let indicatorName = this.indicators.find(
-                    indicator => parseInt(indicator.indicatorID) === id
-                )?.name || '';
-            return this.truncateText(indicatorName, 40);
+            let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
+            indicatorName = XSSHelpers.stripAllTags(this.textValueDisplay(indicatorName));
+            return this.truncateText(indicatorName);
         },
         textValueDisplay(str = '') {
             return $('<div/>').html(str).text();

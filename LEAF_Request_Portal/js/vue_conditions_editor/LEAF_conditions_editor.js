@@ -7,17 +7,16 @@ const ConditionsEditor = Vue.createApp({
 
       indicators: [],
       selectedParentIndicator: {},
-      selectedDisabledParentID: null,
       selectedParentOperators: [],
       selectedOperator: "",
       selectedParentValue: "",
       selectedParentValueOptions: [], //for radio, dropdown
       childIndicator: {},
       selectableParents: [],
-      selectedChildOutcome: "",
+      selectedOutcome: "",
       selectedChildValueOptions: [],
       selectedChildValue: "",
-      showRemoveConditionModal: false,
+      showRemoveModal: false,
       showConditionEditor: false,
       selectedConditionJSON: "",
       enabledParentFormats: ["dropdown", "multiselect", "radio", "checkboxes"],
@@ -79,7 +78,9 @@ const ConditionsEditor = Vue.createApp({
         url: '../api/system/files',
         success: (res) => {
           const files = res || [];
-          this.fileManagerFiles = files.filter(filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
+          this.fileManagerFiles = files.filter(
+            filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1
+          );
         },
         error: (err) => {
           console.log(err);
@@ -94,14 +95,13 @@ const ConditionsEditor = Vue.createApp({
         this.showConditionEditor = false;
       }
       this.selectedParentIndicator = {};
-      this.parentFound = true;
       this.selectedParentOperators = [];
       this.selectedOperator = "";
       this.selectedParentValueOptions = []; //parent values if radio, dropdown, etc
       this.selectedParentValue = "";
       this.childIndicator = {};
       this.selectableParents = [],
-      this.selectedChildOutcome = "";
+      this.selectedOutcome = "";
       this.selectedChildValueOptions = [];
       this.selectedChildValue = "";
       this.crosswalkFile = "";
@@ -110,35 +110,20 @@ const ConditionsEditor = Vue.createApp({
       this.selectedConditionJSON = "";
     },
     /**
-     *
-     * @param {number | string} indicatorID
-     * @returns
+     * @param {number} indicatorID
      */
     updateSelectedParentIndicator(indicatorID = 0) {
+      indicatorID = parseInt(indicatorID);
       //get rid of possible multiselect choices instance and reset parent comparison value
       const elSelectParent = document.getElementById("parent_compValue_entry");
       if (elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
       this.selectedParentValue = "";
 
       const indicator = this.indicators.find(
-        (i) =>
-          indicatorID !== null &&
-          parseInt(i.indicatorID) === parseInt(indicatorID)
+        i => indicatorID !== null && parseInt(i.indicatorID) === indicatorID
       );
-      //handle scenario if a parent is archived/deleted
-      if (indicator === undefined) {
-        this.parentFound = false;
-        this.selectedDisabledParentID =
-          indicatorID === 0
-            ? this.selectedDisabledParentID
-            : parseInt(indicatorID);
-        return;
-      } else {
-        this.parentFound = true;
-        this.selectedDisabledParentID = null;
-      }
 
-      let formatNameAndOptions = indicator.format.split("\n"); //format field has the format name followed by options, separator is \n
+      let formatNameAndOptions = (indicator?.format || "").split("\n"); //format field is format followed by options, separator is \n
       let valueOptions =
         formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
       valueOptions = valueOptions.map((o) => o.trim()); //there are sometimes carriage returns in the array
@@ -203,7 +188,7 @@ const ConditionsEditor = Vue.createApp({
       //get rid of possible multiselect choices instances for child prefill values
       const elSelectChild = document.getElementById("child_prefill_entry");
       if (elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
-      this.selectedChildOutcome = outcome;
+      this.selectedOutcome = outcome;
       this.selectedChildValue = ""; //reset possible prefill and crosswalk data
       this.crosswalkFile = "";
       this.crosswalkHasHeader = false;
@@ -235,7 +220,7 @@ const ConditionsEditor = Vue.createApp({
     },
     updateSelectedChildIndicator() {
       this.clearSelections();
-      this.selectedChildOutcome = "";
+      this.selectedOutcome = "";
       this.selectedChildValue = "";
 
       if (this.vueData.indicatorID !== 0) {
@@ -300,7 +285,7 @@ const ConditionsEditor = Vue.createApp({
       this.selectedOperator = "";
       this.selectedParentValue = "";
       this.selectedParentValueOptions = [];
-      this.selectedChildOutcome = "";
+      this.selectedOutcome = "";
       this.selectedChildValue = "";
       this.crosswalkFile = "";
       this.crosswalkHasHeader = false;
@@ -314,138 +299,59 @@ const ConditionsEditor = Vue.createApp({
       if (document.activeElement instanceof HTMLElement)
         document.activeElement.blur();
     },
-    postCondition() {
-      const { childIndID } = this.conditions;
-      if (this.conditionComplete) {
-        const conditionsJSON = JSON.stringify(this.conditions);
-        let indToUpdate = this.indicators.find(
-          (i) => parseInt(i.indicatorID) === parseInt(childIndID)
-        );
-        let currConditions =
-          indToUpdate.conditions === "" ||
-          indToUpdate.conditions === null ||
-          indToUpdate.conditions === "null"
-            ? []
-            : JSON.parse(indToUpdate.conditions);
-        let newConditions = currConditions.filter(
-          (c) => JSON.stringify(c) !== this.selectedConditionJSON
-        );
+    postConditions(addSelected = true) {
+      if (this.conditionComplete || addSelected === false) {
+        const childID = parseInt(this.conditions.childIndID);
+        let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === childID);
 
-        const isUnique = newConditions.every(
-          (c) => JSON.stringify(c) !== conditionsJSON
-        );
-        if (isUnique) {
-          newConditions.push(this.conditions);
+        //copy of all conditions on child, and filter using stored JSON val
+        let currConditions = [...this.savedConditions];
+        let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
 
-          $.ajax({
-            type: "POST",
-            url: `../api/formEditor/${childIndID}/conditions`,
-            data: {
-              conditions: JSON.stringify(newConditions),
-              CSRFToken: CSRFToken,
-            },
-            success: (res) => {
-              if (res !== "Invalid Token.") {
-                (indToUpdate.conditions = JSON.stringify(newConditions)), //update the indicator in the indicators list
-                  this.clearSelections(true);
-              }
-            },
-            error: (err) => {
-              console.log(err);
-            },
-          });
-        } else {
-          this.clearSelections(true);
+        //clean up some possible data type issues and br tags before saving.
+        newConditions.forEach(c => {
+            c.childIndID = parseInt(c.childIndID);
+            c.parentIndID = parseInt(c.parentIndID);
+            c.selectedChildValue = XSSHelpers.stripAllTags(c.selectedChildValue);
+            c.selectedParentValue = XSSHelpers.stripAllTags(c.selectedParentValue);
+        });
+
+        //if adding, confirm new conditions is unique
+        const newConditionJSON = JSON.stringify(this.conditions);
+        const newConditionIsUnique = newConditions.every(c => JSON.stringify(c) !== newConditionJSON);
+        if (addSelected === true && newConditionIsUnique) {
+            newConditions.push(this.conditions);
         }
+        const newJSON = newConditions.length > 0 ? JSON.stringify(newConditions) : '';
+
+        $.ajax({
+            type: 'POST',
+            url: `../api/formEditor/${childID}/conditions`,
+            data: {
+                conditions: newJSON,
+                CSRFToken: CSRFToken
+            },
+            success: (res)=> {
+                if (res !== 'Invalid Token.') {
+                  indToUpdate.conditions = newJSON;
+                  this.showRemoveModal = false;
+                  this.clearSelections(true);
+                } else { console.log('error adding condition', res) }
+            },
+            error:(err) => console.log(err)
+        });
       }
     },
     /**
-     *
-     * @param {Object} data ({confirmDelete:boolean, condition:Object})
+     * @param {Object} (destructured object {confirmDelete:boolean, condition:Object})
      */
-    removeCondition(data = {}) {
-      this.selectConditionFromList(data.condition);
-
-      if (data.confirmDelete === true) {
-        //if user pressed delete btn on the confirm modal
-        const { childIndID, parentIndID, selectedOutcome, selectedChildValue } =
-          data.condition;
-
-        if (childIndID !== undefined) {
-          const hasActiveParentIndicator = selectedOutcome.toLowerCase() !== 'crosswalk' && this.indicators.some(
-            (ele) => parseInt(ele.indicatorID) === parseInt(parentIndID)
-          );
-          const conditionsJSON = JSON.stringify(data.condition);
-
-          //get all conditions on this child
-          let currConditions =
-            JSON.parse(
-              this.indicators.find(
-                (i) => parseInt(i.indicatorID) === parseInt(childIndID)
-              ).conditions
-            ) || [];
-          //fixes issues due to data type changes after php8.
-          currConditions.forEach((c) => {
-            c.childIndID = parseInt(c.childIndID);
-            c.parentIndID = parseInt(c.parentIndID);
-          });
-
-          //filter out the condition to be rm'd from the indicator's currConditions
-          let newConditions = [];
-          if (hasActiveParentIndicator) {
-            newConditions = currConditions.filter(
-              (c) => JSON.stringify(c) !== conditionsJSON
-            );
-
-          } else {
-            if (selectedOutcome.toLowerCase() !== 'crosswalk') {
-              newConditions = currConditions.filter(
-                (c) =>
-                  !(
-                    c.parentIndID === this.selectedDisabledParentID &&
-                    c.selectedOutcome === selectedOutcome &&
-                    c.selectedChildValue === selectedChildValue
-                  )
-              );
-
-            } else {
-              newConditions = currConditions.filter(
-                c => c.selectedOutcome.toLowerCase() !== 'crosswalk'
-              );
-            }
-          }
-
-          if (newConditions.length === 0) newConditions = null;
-
-          $.ajax({
-            type: "POST",
-            url: `../api/formEditor/${childIndID}/conditions`,
-            data: {
-              conditions:
-                newConditions !== null ? JSON.stringify(newConditions) : "",
-              CSRFToken: CSRFToken,
-            },
-            success: (res) => {
-              if (res !== "Invalid Token.") {
-                let indToUpdate = this.indicators.find(
-                  (i) => parseInt(i.indicatorID) === parseInt(childIndID)
-                );
-                //update conditions on the indicator by reference to the indicators list
-                indToUpdate.conditions =
-                  newConditions !== null ? JSON.stringify(newConditions) : "";
-              }
-            },
-            error: (err) => {
-              console.log(err);
-            },
-          });
+    removeCondition({confirmDelete = false, condition = {}} = {}) {
+        if(confirmDelete === true) { //delete btn confirm modal
+            this.postConditions(false);
+        } else { //X button select from list and open the confirm delete modal
+            this.selectConditionFromList(condition);
+            this.showRemoveModal = true;
         }
-        this.showRemoveConditionModal = false;
-        this.clearSelections(true);
-      } else {
-        //user pressed an X button in a conditions list that opens the confirm delete modal
-        this.showRemoveConditionModal = true;
-      }
     },
     /**
      * @param {Object} conditionObj
@@ -455,20 +361,17 @@ const ConditionsEditor = Vue.createApp({
       this.selectedConditionJSON = JSON.stringify(conditionObj);
       this.showConditionEditor = true;
       if(conditionObj.selectedOutcome.toLowerCase() !== "crosswalk") { //crosswalks do not have parents
-        this.updateSelectedParentIndicator(parseInt(conditionObj?.parentIndID));
+        this.updateSelectedParentIndicator(parseInt(conditionObj?.parentIndID || 0));
       }
-      if (
-        this.parentFound &&
-        this.enabledParentFormats.includes(this.parentFormat)
-      ) {
-        this.selectedOperator = conditionObj?.selectedOp;
-        this.selectedParentValue = conditionObj?.selectedParentValue;
-      }
+
+      this.selectedOperator = conditionObj?.selectedOp || "";
+      this.selectedParentValue = conditionObj?.selectedParentValue || "";
+      
       //rm possible child choicesjs instance associated with prior list item
       const elSelectChild = document.getElementById("child_prefill_entry");
       if (elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
 
-      this.selectedChildOutcome = conditionObj?.selectedOutcome;
+      this.selectedOutcome = conditionObj?.selectedOutcome?.toLowerCase() || '';
       this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue);
       this.crosswalkFile = conditionObj?.crosswalkFile;
       this.crosswalkHasHeader = conditionObj?.crosswalkHasHeader;
@@ -521,6 +424,7 @@ const ConditionsEditor = Vue.createApp({
       }
     },
     forceUpdate() {
+      console.log('update forced by DOM dispatch event')
       this.$forceUpdate();
       if (this.vueData.updateIndicatorList === true) {
         //set to true in mod_form if new ind or ind edited, then to false after new fetch
@@ -529,8 +433,7 @@ const ConditionsEditor = Vue.createApp({
         this.updateSelectedChildIndicator();
       }
     },
-    applyMaxTextLength(text = "") {
-      let maxTextLength = 40;
+    truncateText(text = "", maxTextLength = 40) {
       return text?.length > maxTextLength
         ? text.slice(0, maxTextLength) + "... "
         : text || "";
@@ -540,13 +443,9 @@ const ConditionsEditor = Vue.createApp({
      * @returns {string}
      */
     getIndicatorName(id = 0) {
-      if (id !== 0) {
-        let indicatorName =
-          this.indicators.find(
-            (indicator) => parseInt(indicator.indicatorID) === id
-          )?.name || "";
-        return this.applyMaxTextLength(XSSHelpers.stripAllTags(indicatorName));
-      }
+      let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
+      indicatorName = XSSHelpers.stripAllTags(this.textValueDisplay(indicatorName));
+      return this.truncateText(indicatorName);
     },
     textValueDisplay(str = "") {
       return $("<div/>").html(str).text();
@@ -708,11 +607,11 @@ const ConditionsEditor = Vue.createApp({
   },
   computed: {
     showSetup() {
-      return  !this.showRemoveConditionModal && this.showConditionEditor &&
-          (this.selectedChildOutcome.toLowerCase() === 'crosswalk' || this.selectableParents.length > 0);
+      return  !this.showRemoveModal && this.showConditionEditor &&
+          (this.selectedOutcome.toLowerCase() === 'crosswalk' || this.selectableParents.length > 0);
     },
     showNoOptionsMessage() {
-      return !['', 'crosswalk'].includes(this.selectedChildOutcome.toLowerCase()) && this.selectableParents.length < 1;
+      return !['', 'crosswalk'].includes(this.selectedOutcome.toLowerCase()) && this.selectableParents.length < 1;
     },
     /**
      *
@@ -742,30 +641,30 @@ const ConditionsEditor = Vue.createApp({
      * @returns {Object} current conditions object
      */
     conditions() {
-      const childIndID = this.childIndicator?.indicatorID || 0;
+      /*const childIndID = this.childIndicator?.indicatorID || 0;
       const parentIndID = this.selectedParentIndicator?.indicatorID || 0;
       const selectedOp = this.selectedOperator;
       const selectedParentValue = this.selectedParentValue;
-      const selectedOutcome = this.selectedChildOutcome.toLowerCase();
+      const selectedOutcome = this.selectedOutcome.toLowerCase();
       const crosswalkFile = this.crosswalkFile;
       const crosswalkHasHeader = this.crosswalkHasHeader;
       const level2IndID = this.level2IndID;
       const selectedChildValue = XSSHelpers.stripAllTags(this.selectedChildValue);
 
       const childFormat = this.childFormat;
-      const parentFormat = this.parentFormat;
+      const parentFormat = this.parentFormat; */
       return {
-        childIndID,
-        parentIndID,
-        selectedOp,
-        selectedParentValue,
-        selectedChildValue,
-        selectedOutcome,
-        crosswalkFile,
-        crosswalkHasHeader,
-        level2IndID,
-        childFormat,
-        parentFormat,
+        childIndID: this.childIndicator?.indicatorID || 0,
+        parentIndID: this.selectedParentIndicator?.indicatorID || 0,
+        selectedOp: this.selectedOperator,
+        selectedParentValue: XSSHelpers.stripAllTags(this.selectedParentValue),
+        selectedChildValue: XSSHelpers.stripAllTags(this.selectedChildValue),
+        selectedOutcome: this.selectedOutcome.toLowerCase(),
+        crosswalkFile: this.crosswalkFile,
+        crosswalkHasHeader: this.crosswalkHasHeader,
+        level2IndID: this.level2IndID,
+        childFormat: this.childFormat,
+        parentFormat: this.parentFormat,
       };
     },
     /**
@@ -865,7 +764,7 @@ const ConditionsEditor = Vue.createApp({
                     </span></h3>
                 </div>
                 <div>
-                    <div v-if="savedConditions.length > 0 && !showRemoveConditionModal" id="savedConditionsLists">
+                    <div v-if="savedConditions.length > 0 && !showRemoveModal" id="savedConditionsLists">
                         <!-- NOTE: LISTS BY CONDITION TYPE -->
                         <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
                             <template v-if="typeVal.length > 0">
@@ -895,20 +794,20 @@ const ConditionsEditor = Vue.createApp({
                             </template>
                         </template>
                     </div>
-                    <button v-if="!showRemoveConditionModal" @click="newCondition" class="btnNewCondition">+ New Condition</button>
-                    <div v-if="showRemoveConditionModal">
+                    <button v-if="!showRemoveModal" @click="newCondition" class="btnNewCondition">+ New Condition</button>
+                    <div v-if="showRemoveModal">
                         <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
                         <ul style="display: flex; justify-content: space-between; margin-top: 1em">
                             <li style="width: 30%;">
-                                <button class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: conditions })">Delete</button>
+                                <button class="btn_remove_condition" @click="removeCondition({confirmDelete: true, condition: {}})">Delete</button>
                             </li>
                             <li style="width: 30%;">
-                                <button id="btn_cancel" @click="showRemoveConditionModal=false">Cancel</button>
+                                <button id="btn_cancel" @click="showRemoveModal=false">Cancel</button>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div v-if="!showRemoveConditionModal && showConditionEditor" id="outcome-editor">
+                <div v-if="!showRemoveModal && showConditionEditor" id="outcome-editor">
                     <!-- OUTCOME SELECTION -->
                     <span v-if="conditions.childIndID" class="input-info">Select an outcome</span>
                     <select v-if="conditions.childIndID" title="select outcome"
@@ -967,7 +866,7 @@ const ConditionsEditor = Vue.createApp({
                         <!-- NOTE: PARENT CONTROLLER SELECTION -->
                         <select title="select an indicator"
                                 name="indicator-selector"
-                                @change="updateSelectedParentIndicator($event.target.value)">
+                                @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                             <option v-if="!conditions.parentIndID" value="" selected>Select an Indicator</option>
                             <option v-for="i in selectableParents"
                             :title="i.name"
@@ -1057,11 +956,11 @@ const ConditionsEditor = Vue.createApp({
             </div>
 
             <!--NOTE: save cancel panel  -->
-            <div v-if="!showRemoveConditionModal" id="condition_editor_actions">
+            <div v-if="!showRemoveModal" id="condition_editor_actions">
                 <div>
                     <ul style="display: flex; justify-content: space-between;">
                         <li style="width: 30%;">
-                            <button v-if="conditionComplete" id="btn_add_condition" @click="postCondition">Save</button>
+                            <button v-if="conditionComplete" id="btn_add_condition" @click="postConditions(true)">Save</button>
                         </li>
                         <li style="width: 30%;">
                             <button id="btn_cancel" @click="clearSelections(true)">Cancel</button>
