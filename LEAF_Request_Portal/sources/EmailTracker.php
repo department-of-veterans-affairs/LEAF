@@ -36,7 +36,8 @@ class EmailTracker
         $vars = array(':recordID' => $id);
         $sql = 'SELECT `recordID`, `timestamp`, `recipients`, `subject`
                 FROM `email_tracker`
-                WHERE `recordID` = :recordID';
+                WHERE `recordID` = :recordID
+                ORDER BY `timestamp` DESC';
 
         $return_value = $this->db->prepared_query($sql, $vars);
 

@@ -716,10 +716,12 @@ class Email
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $vars = array(':recordID' => $recordID);
-            $strSQL = "SELECT rec.userID, rec.serviceID, ser.service, rec.title, rec.lastStatus ".
-                "FROM records AS rec ".
-                    "LEFT JOIN services AS ser USING (serviceID) ".
-                "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
+            $strSQL =  "SELECT rec.userID, rec.serviceID, ser.service, rec.title,
+                            rec.lastStatus
+                        FROM records AS rec
+                        LEFT JOIN services AS ser USING (serviceID)
+                        WHERE recordID=:recordID";
+
             $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
@@ -738,7 +740,7 @@ class Email
             $dir = new VAMC_Directory;
 
             // Get user email and send
-            $tmp = $dir->lookupLogin($recordInfo['userID']);
+            $tmp = $dir->lookupLogin($recordInfo[0]['userID']);
             if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                 $this->addRecipient($tmp[0]['Email']);
             }

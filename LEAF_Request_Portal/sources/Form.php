@@ -4124,7 +4124,7 @@ class Form
         $day_last_sent = date('j', $last_email['timestamp']);
         $current_day = date('j', time());
 
-        if (time() - $last_email['timestamp'] > 86400
+        if (time() - $last_email[0]['timestamp'] > 86400
             || $day_last_sent !== $current_day
         ) {
             $email = new Email();
