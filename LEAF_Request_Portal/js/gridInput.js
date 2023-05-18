@@ -1,4 +1,5 @@
 var gridInput = function (gridParameters, indicatorID, series, recordID) {
+  let fileOptions = {};
   function decodeCellHTMLEntities(values, showScriptTags = false) {
     let gridInfo = { ...values };
     if (gridInfo?.cells) {
@@ -25,18 +26,11 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
   }
   function makeDropdown(options, selected, headerName = "") {
     let dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
+    dropdownElement += `<option value="">Select an option</option>`;
     for (let i = 0; i < options.length; i++) {
-      if (selected === options[i]) {
-        dropdownElement +=
-          '<option value="' +
-          options[i] +
-          '" selected="selected">' +
-          options[i] +
-          "</option>";
-      } else {
-        dropdownElement +=
-          '<option value="' + options[i] + '">' + options[i] + "</option>";
-      }
+      const optVal = options[i].replaceAll('\"', '&quot;');
+      const attrSelected = selected === options[i] ? 'selected' : '';
+      dropdownElement += `<option value="${optVal}" ${attrSelected}>${options[i]}</option>`;
     }
     dropdownElement += "</select>";
     return dropdownElement;
@@ -94,16 +88,29 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     );
 
     //populates table
-    for (var i = 0; i < rows; i++) {
+    for (let i = 0; i < rows; i++) {
+      const selectedRowValues = values?.cells[i] || [];
       $(gridBodyElement).append("<tr></tr>");
-
       //generates row layout
-      for (var j = 0; j < columns; j++) {
+      for (let j = 0; j < columns; j++) {
         switch (gridParameters[j].type) {
           case "dropdown":
             element = makeDropdown(
               gridParameters[j].options,
-              null,
+              selectedRowValues[j] || null,
+              gridParameters[j].name
+            );
+            break;
+          case "dropdown_file":
+            const filename = gridParameters[j].file;
+            const hasHeader = gridParameters[j].hasHeader;
+            const loadedOptions = fileOptions[filename]?.options || [];
+            const firstRow =  fileOptions[filename]?.firstRow || '';
+            const options = hasHeader ?
+              loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+            element = makeDropdown(
+              options,
+              selectedRowValues[j] || null,
               gridParameters[j].name
             );
             break;
@@ -120,7 +127,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
             break;
         }
         $(gridBodyElement + " > tr:eq(" + i + ")").append(
-          '<td aria-label="' + gridParameters[j].name + '">' + element + "</td>"
+          `<td aria-label="${gridParameters[j].name}">${element}</td>`
         );
         $('input[data-type="grid-date"]').datepicker();
       }
@@ -285,6 +292,66 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       }
     }
   }
+  function loadFilemanagerFile(fileName, iID) {
+    return new Promise((resolve, reject)=> {
+      const xhttpInds = new XMLHttpRequest();
+      xhttpInds.onreadystatechange = () => {
+        if (xhttpInds.readyState === 4) {
+          switch(xhttpInds.status) {
+            case 200:
+              resolve(xhttpInds.responseText);
+              break;
+            case 404:
+              let content = `The file '${fileName}' for indicator ${iID} was not found.`
+              content += `\nCheck the file in the LEAF file manager or notify an admin.`
+              reject(new Error(content));
+              break;
+            default:
+              reject(new Error(xhttpInds.status));
+              break;
+          }
+        }
+      };
+      xhttpInds.open("GET", `files/${fileName}`, true);
+      xhttpInds.send();
+    });
+  }
+  /**
+   * If grid does not have a 'dropdown_file' cell type, or if the filename already exists as a property of
+   * the instance-scoped variable 'fileOptions', loading is skipped and promise is immediately resolved.
+   * Options are otherwise added to 'fileOptions' under their filename as they are loaded.
+   * @returns {Promise}
+   */
+  function checkForFileOptions() {
+    return new Promise((resolve, reject) => {
+      const loadedDropdowns = gridParameters.filter(p => p.type === 'dropdown_file');
+      const uniqueFiles = Array.from(new Set(loadedDropdowns.map(d => d.file)));
+      if (uniqueFiles.length === 0) {
+        resolve();
+      } else {
+        let count = 0;
+        uniqueFiles.forEach(filename => {
+          if (fileOptions[filename] === undefined) {
+            loadFilemanagerFile(filename, indicatorID)
+            .then(fileContent => {
+              let list = fileContent.split(/\n/).map(line => line.split(",")[0]) || [];
+              list = list.map(o => XSSHelpers.stripAllTags(o.trim()));
+              const firstRow = list[0] || '';
+              list = Array.from(new Set(list)).sort();
+              fileOptions[filename] = {
+                firstRow,
+                options: list
+              };
+              count += 1;
+              if (count === uniqueFiles.length) {
+                resolve();
+              }
+            }).catch(err => reject(err))
+          }
+        })
+      }
+    });
+  }
   function addRow() {
     var gridBodyElement =
       "#grid_" + indicatorID + "_" + series + "_input > tbody";
@@ -293,7 +360,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       .find('[title="Move line down"]')
       .css("display", "inline");
     $(gridBodyElement).append("<tr></tr>");
-    for (var i = 0; i < gridParameters.length; i++) {
+    for (let i = 0; i < gridParameters.length; i++) {
       switch (gridParameters[i].type) {
         case "dropdown":
           $(gridBodyElement + " > tr:last").append(
@@ -301,11 +368,30 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
               gridParameters[i].name +
               '">' +
               makeDropdown(
-                gridParameters[i].options,
+                gridParameters[i].options || [],
                 null,
                 gridParameters[i].name
               ) +
               "</td>"
+          );
+          break;
+        case "dropdown_file":
+          const filename = gridParameters[i].file;
+          const hasHeader = gridParameters[i].hasHeader;
+          const loadedOptions = fileOptions[filename]?.options || [];
+          const firstRow =  fileOptions[filename]?.firstRow || '';
+          const options = hasHeader ?
+            loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+          $(gridBodyElement + " > tr:last").append(
+            '<td aria-label="' +
+            gridParameters[i].name +
+            '">' +
+            makeDropdown(
+              options,
+              null,
+              gridParameters[i].name
+            ) +
+            "</td>"
           );
           break;
         case "textarea":
@@ -581,9 +667,9 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     }
   }
   function printTablePreview() {
-    var previewElement = "#grid" + indicatorID + "_" + series;
+    let previewElement = "#grid" + indicatorID + "_" + series;
 
-    for (var i = 0; i < gridParameters.length; i++) {
+    for (let i = 0; i < gridParameters.length; i++) {
       $(previewElement).append(
         '<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1; order: ' +
           (i + 1) +
@@ -602,6 +688,11 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
             "</li></br>"
         );
       }
+      if (gridParameters[i].type === "dropdown_file" && gridParameters[i].file !== "") {
+        $(previewElement + "> div:eq(" + i + ")").append(
+          `Options loaded from:</br><b>${gridParameters[i].file}</b></br>`
+        );
+      }
     }
   }
   return {
@@ -613,5 +704,6 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     moveUp: moveUp,
     moveDown: moveDown,
     triggerClick: triggerClick,
+    checkForFileOptions: checkForFileOptions
   };
 };
