@@ -11,7 +11,6 @@
 <script>
 const orgchartPath = '<!--{$orgchartPath}-->';
 let vueData = {
-    formID: 0,
     indicatorID: 0,
     updateIndicatorList: false
 }
@@ -332,7 +331,6 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            vueData.formID = currCategoryID;
             vueData.indicatorID = 0;
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },

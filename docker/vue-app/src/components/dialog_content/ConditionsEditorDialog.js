@@ -32,12 +32,15 @@ export default {
         'closeFormDialog',
         'truncateText',
         'stripAndDecodeHTML',
-        'fileManagerTextFiles'
+        'fileManagerTextFiles',
+        'initializeOrgSelector'
     ],
+    created() {
+        this.getAllIndicators();
+    },
     mounted() {
         const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
         if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
-        this.getAllIndicators();
     },
     updated() {
         const outcome = this.conditions.selectedOutcome;
@@ -351,10 +354,8 @@ export default {
          * @returns {string} lower case base format of the parent question if there is one
          */
         parentFormat() {
-            if(this.selectedParentIndicator?.format !== undefined) {
-                const f = this.selectedParentIndicator.format.toLowerCase();
-                return f.split('\n')[0].trim();
-            } else return '';
+            const f = (this.selectedParentIndicator?.format || '').toLowerCase();
+            return f.split('\n')[0].trim();
         },
         /**
          * @returns {string} lower case base format of the child question
@@ -390,12 +391,11 @@ export default {
                     break;
                 case 'dropdown':
                 case 'radio':
+                default:
                     operators = [
                         {val:"==", text: "is"},
                         {val:"!=", text: "is not"}
                     ];
-                    break;
-                default:
                     break;
             }
             return operators;

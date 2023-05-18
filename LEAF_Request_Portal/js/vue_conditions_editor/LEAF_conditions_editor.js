@@ -2,19 +2,15 @@ const ConditionsEditor = Vue.createApp({
   data() {
     return {
       orgchartPath: orgchartPath,
-      vueData: vueData, //init {formID: string || 0, indicatorID: number || 0, updateIndicatorList: false}
+      vueData: vueData, //init {indicatorID: number || 0, updateIndicatorList: false}
+      childIndID: 0,
+      parentIndID: 0,
       windowTop: 0,
 
       indicators: [],
-      selectedParentIndicator: {},
-      selectedParentOperators: [],
       selectedOperator: "",
       selectedParentValue: "",
-      selectedParentValueOptions: [], //for radio, dropdown
-      childIndicator: {},
-      selectableParents: [],
       selectedOutcome: "",
-      selectedChildValueOptions: [],
       selectedChildValue: "",
       showRemoveModal: false,
       showConditionEditor: false,
@@ -25,7 +21,6 @@ const ConditionsEditor = Vue.createApp({
       fileManagerFiles: [],
       crosswalkFile: '',
       crosswalkHasHeader: false,
-      crosswalkLevelTwo: [],
       level2IndID: null,
       noPrefillFormats: ['', 'fileupload', 'image']
     };
@@ -94,15 +89,10 @@ const ConditionsEditor = Vue.createApp({
         this.vueData.indicatorID = 0;
         this.showConditionEditor = false;
       }
-      this.selectedParentIndicator = {};
-      this.selectedParentOperators = [];
+      this.parentIndID = 0;
       this.selectedOperator = "";
-      this.selectedParentValueOptions = []; //parent values if radio, dropdown, etc
       this.selectedParentValue = "";
-      this.childIndicator = {};
-      this.selectableParents = [],
       this.selectedOutcome = "";
-      this.selectedChildValueOptions = [];
       this.selectedChildValue = "";
       this.crosswalkFile = "";
       this.crosswalkHasHeader = false;
@@ -113,72 +103,11 @@ const ConditionsEditor = Vue.createApp({
      * @param {number} indicatorID
      */
     updateSelectedParentIndicator(indicatorID = 0) {
-      indicatorID = parseInt(indicatorID);
+      this.parentIndID = parseInt(indicatorID);
       //get rid of possible multiselect choices instance and reset parent comparison value
       const elSelectParent = document.getElementById("parent_compValue_entry");
       if (elSelectParent?.choicesjs) elSelectParent.choicesjs.destroy();
       this.selectedParentValue = "";
-
-      const indicator = this.indicators.find(
-        i => indicatorID !== null && parseInt(i.indicatorID) === indicatorID
-      );
-
-      let formatNameAndOptions = (indicator?.format || "").split("\n"); //format field is format followed by options, separator is \n
-      let valueOptions =
-        formatNameAndOptions.length > 1 ? formatNameAndOptions.slice(1) : [];
-      valueOptions = valueOptions.map((o) => o.trim()); //there are sometimes carriage returns in the array
-
-      this.selectedParentIndicator = { ...indicator };
-      this.selectedParentValueOptions = valueOptions.filter((vo) => vo !== "");
-
-      switch (this.parentFormat) {
-        case "number":
-        case "currency":
-          this.selectedParentOperators = [
-            { val: "==", text: "is equal to" },
-            { val: "!=", text: "is not equal to" },
-            { val: ">", text: "is greater than" },
-            { val: "<", text: "is less than" },
-          ];
-          break;
-        case "multiselect":
-        case "checkboxes":
-          this.selectedParentOperators = [
-            { val: "==", text: "includes" },
-            { val: "!=", text: "does not include" },
-          ];
-          break;
-        case "dropdown":
-        case "radio":
-          this.selectedParentOperators = [
-            { val: "==", text: "is" },
-            { val: "!=", text: "is not" },
-          ];
-          break;
-        case "checkbox":
-          this.selectedParentOperators = [
-            { val: "==", text: "is checked" },
-            { val: "!=", text: "is not checked" },
-          ];
-          break;
-        case "date":
-          this.selectedParentOperators = [
-            { val: "==", text: "on" },
-            { val: ">=", text: "on and after" },
-            { val: "<=", text: "on and before" },
-          ];
-          break;
-        case "orgchart_employee":
-        case "orgchart_group":
-        case "orgchart_position":
-          break;
-        default:
-          this.selectedParentOperators = [
-            { val: "LIKE", text: "contains" },
-            { val: "NOT LIKE", text: "does not contain" },
-          ];
-          break;
-      }
     },
     /**
     * @param {string} outcome (condition outcome options: Hide, Show, Pre-Fill, crosswalk)
@@ -218,47 +147,15 @@ const ConditionsEditor = Vue.createApp({
           this.selectedChildValue = XSSHelpers.stripAllTags(value);
       }
     },
-    updateSelectedChildIndicator() {
+    selectNewChildIndicator() {
+      this.childIndID = parseInt(this.vueData.indicatorID);
       this.clearSelections();
       this.selectedOutcome = "";
       this.selectedChildValue = "";
-
-      if (this.vueData.indicatorID !== 0) {
+      if (this.childIndID !== 0) {
         this.dragElement(
           document.getElementById("condition_editor_center_panel")
         );
-        const indicator = this.indicators.find(
-          (i) => parseInt(i.indicatorID) === this.vueData.indicatorID
-        );
-        const childValueOptions =
-          indicator.format.indexOf("\n") === -1
-            ? []
-            : indicator.format
-                .slice(indicator.format.indexOf("\n") + 1)
-                .split("\n");
-
-        this.childIndicator = { ...indicator };
-        this.selectedChildValueOptions = childValueOptions.filter(
-          (cvo) => cvo !== ""
-        );
-
-        const headerIndicatorID = parseInt(indicator.headerIndicatorID);
-        this.selectableParents = this.indicators.filter((i) => {
-          const parFormat = i.format?.split("\n")[0].trim().toLowerCase();
-          return (
-            parseInt(i.headerIndicatorID) === headerIndicatorID &&
-            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-            this.enabledParentFormats.includes(parFormat)
-          );
-        });
-        this.crosswalkLevelTwo = this.indicators.filter((i) => {
-          const format = i.format?.split("\n")[0].trim().toLowerCase();
-          return (
-            parseInt(i.headerIndicatorID) === headerIndicatorID &&
-            parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-            ['dropdown', 'multiselect'].includes(format)
-          );
-        });
       }
     },
     /**
@@ -280,11 +177,9 @@ const ConditionsEditor = Vue.createApp({
     newCondition() {
       this.selectedConditionJSON = "";
       this.showConditionEditor = true;
-      this.selectedParentIndicator = {};
-      this.selectedParentOperators = [];
+      this.parentIndID = 0;
       this.selectedOperator = "";
       this.selectedParentValue = "";
-      this.selectedParentValueOptions = [];
       this.selectedOutcome = "";
       this.selectedChildValue = "";
       this.crosswalkFile = "";
@@ -430,7 +325,7 @@ const ConditionsEditor = Vue.createApp({
         //set to true in mod_form if new ind or ind edited, then to false after new fetch
         this.getAllIndicators();
       } else {
-        this.updateSelectedChildIndicator();
+        this.selectNewChildIndicator();
       }
     },
     truncateText(text = "", maxTextLength = 40) {
@@ -511,18 +406,15 @@ const ConditionsEditor = Vue.createApp({
      * @returns {boolean}
      */
     childFormatChangedSinceSave(condition = {}) {
-      const childConditionFormat = condition.childFormat;
-      const currentIndicatorFormat =
-        this.childIndicator?.format?.split("\n")[0];
+      const childConditionFormat = condition.childFormat.toLowerCase();
+      const currentIndicatorFormat = this.childFormat;
       return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
     },
     /**
      * called when the app updates if the outcome is selected.  Creates choicejs combobox instances for multiselect format select boxes
      */
     updateChoicesJS() {
-      const elExistingChoicesChild = document.querySelector(
-        "#outcome-editor > div.choices"
-      );
+      const elExistingChoicesChild = document.querySelector("#outcome-editor > div.choices");
       const elSelectParent = document.getElementById("parent_compValue_entry");
       const elSelectChild = document.getElementById("child_prefill_entry");
       const outcome = this.conditions.selectedOutcome;
@@ -532,11 +424,10 @@ const ConditionsEditor = Vue.createApp({
         elSelectParent !== null &&
         !elSelectParent.choicesjs
       ) {
-        let options = this.selectedParentValueOptions || [];
         let arrValues = this.conditions?.selectedParentValue.split("\n") || [];
         arrValues = arrValues.map((v) => this.textValueDisplay(v).trim());
 
-        options = options.map((o) => ({
+        let options = this.selectedParentValueOptions.map((o) => ({
           value: o.trim(),
           label: o.trim(),
           selected: arrValues.includes(o.trim()),
@@ -556,11 +447,10 @@ const ConditionsEditor = Vue.createApp({
         elSelectChild !== null &&
         elExistingChoicesChild === null
       ) {
-        let options = this.selectedChildValueOptions || [];
         let arrValues = this.conditions?.selectedChildValue.split("\n") || [];
         arrValues = arrValues.map((v) => this.textValueDisplay(v).trim());
 
-        options = options.map((o) => ({
+        let options = this.selectedChildValueOptions.map((o) => ({
           value: o.trim(),
           label: o.trim(),
           selected: arrValues.includes(o.trim()),
@@ -574,7 +464,13 @@ const ConditionsEditor = Vue.createApp({
         elSelectChild.choicesjs = choices;
       }
     },
-    initializeOrgSelector(selType = 'employee', indID = 0, idPrefix = '', initialValue = '', selectCallback = null) {
+    initializeOrgSelector(
+      selType = 'employee',
+      indID = 0,
+      idPrefix = '',
+      initialValue = '',
+      selectCallback = null
+    ) {
       selType = selType.toLowerCase();
       const inputPrefix = selType === 'group' ? 'group#' : '#';
 
@@ -609,51 +505,118 @@ const ConditionsEditor = Vue.createApp({
   computed: {
     showSetup() {
       return  !this.showRemoveModal && this.showConditionEditor &&
-          (this.selectedOutcome.toLowerCase() === 'crosswalk' || this.selectableParents.length > 0);
+          (this.selectedOutcome === 'crosswalk' || this.selectableParents.length > 0);
     },
-    showNoOptionsMessage() {
-      return !['', 'crosswalk'].includes(this.selectedOutcome.toLowerCase()) && this.selectableParents.length < 1;
+    noOptions() {
+      return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
+    },
+    childIndicator() {
+      const indicator = this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);
+      return indicator === undefined ? {} : {...indicator};
     },
     /**
-     *
-     * @returns {string} base format of the parent question (dropdown, multiselect)
-     */
+    * @returns {object} current parent selection
+    */
+    selectedParentIndicator() {
+      const indicator = this.selectableParents.find(
+          i => parseInt(i.indicatorID) === this.parentIndID
+      );
+      return indicator === undefined ? {} : {...indicator};
+    },
+    /**
+    * @returns {string} lower case base format of the parent question if there is one
+    */
     parentFormat() {
-      if (this.selectedParentIndicator?.format) {
-        const f = this.selectedParentIndicator.format;
-        return f.split("\n")[0].trim().toLowerCase();
-      } else return "";
+      const f = (this.selectedParentIndicator?.format || '').toLowerCase();
+      return f.split('\n')[0].trim();
     },
     /**
-     *
-     * @returns {string} base format of the child question (dropdown, multiselect, text)
+     * @returns {string} lower case base format of the child question
      */
     childFormat() {
-      if (this.childIndicator?.format) {
-        const f = this.childIndicator.format;
-        return f.split("\n")[0].trim().toLowerCase();
-      } else return "";
+        const f = (this.childIndicator?.format || '').toLowerCase();
+        return f.split('\n')[0].trim();
+    },
+    /**
+    * @returns list of indicators that are on the same page, enabled as parents, and different than child 
+    */
+    selectableParents() {
+      let selectable = [];
+      const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
+      if (headerIndicatorID !== 0) {
+        selectable = this.indicators.filter(i => {
+          const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
+          return i.headerIndicatorID === headerIndicatorID &&
+              parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+              this.enabledParentFormats.includes(parFormat);
+        });
+      }
+      return selectable;
+    },
+    /**
+    * @returns list of operators and human readable text base on parent format
+    */
+    selectedParentOperators() {
+      let operators = [];
+      switch(this.parentFormat) {
+        case 'multiselect':
+        case 'checkboxes':
+          operators = [
+              {val:"==", text: "includes"},
+              {val:"!=", text: "does not include"}
+          ];
+          break;
+        case 'dropdown':
+        case 'radio':
+        default:
+          operators = [
+              {val:"==", text: "is"},
+              {val:"!=", text: "is not"}
+          ];
+          break;
+      }
+      return operators;
+    },
+    crosswalkLevelTwo() {
+      let levelOptions = [];
+      const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
+      if(headerIndicatorID !== 0) {
+        levelOptions = this.indicators.filter((i) => {
+          const format = i.format?.split("\n")[0].trim().toLowerCase();
+          return (
+              i.headerIndicatorID === headerIndicatorID &&
+              parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+              ['dropdown', 'multiselect'].includes(format)
+          );
+        });
+      }
+      return levelOptions;
+    },
+    /**
+    * @returns list of options for comparison based on parent indicator selection
+    */
+    selectedParentValueOptions() {
+      const fullFormatToArray = (this.selectedParentIndicator?.format || '').split("\n");
+      let options = fullFormatToArray.length > 1 ? fullFormatToArray.slice(1) : [];
+      options = options.map(o => o.trim());
+      return options.filter(o => o !== '');
+    },
+    /**
+    * @returns list of options for prefill outcomes.  Does NOT combine with file loaded options.
+    */
+    selectedChildValueOptions() {
+      const fullFormatToArray = (this.childIndicator?.format || '').split("\n");
+      let options = fullFormatToArray.length > 1 ? fullFormatToArray.slice(1) : [];
+      options = options.map(o => o.trim());
+      return options.filter(o => o !== '');
     },
     canAddCrosswalk() {
       return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
     },
     /**
-     *
      * @returns {Object} current conditions object
      */
     conditions() {
-      /*const childIndID = this.childIndicator?.indicatorID || 0;
-      const parentIndID = this.selectedParentIndicator?.indicatorID || 0;
-      const selectedOp = this.selectedOperator;
-      const selectedParentValue = this.selectedParentValue;
-      const selectedOutcome = this.selectedOutcome.toLowerCase();
-      const crosswalkFile = this.crosswalkFile;
-      const crosswalkHasHeader = this.crosswalkHasHeader;
-      const level2IndID = this.level2IndID;
-      const selectedChildValue = XSSHelpers.stripAllTags(this.selectedChildValue);
-
-      const childFormat = this.childFormat;
-      const parentFormat = this.parentFormat; */
       return {
         childIndID: this.childIndicator?.indicatorID || 0,
         parentIndID: this.selectedParentIndicator?.indicatorID || 0,
@@ -684,28 +647,29 @@ const ConditionsEditor = Vue.createApp({
       } = this.conditions;
 
       let returnValue = false;
-      switch(selectedOutcome.toLowerCase()) {
-        case 'pre-fill':
-          returnValue = parseInt(childIndID) !== 0
-                        && parseInt(parentIndID) !== 0
-                        && selectedOp !== ""
-                        && selectedParentValue !== ""
-                        && selectedChildValue !== "";
-          break;
-        case 'hide':
-        case 'show':
-          returnValue = parseInt(childIndID) !== 0
-                        && parseInt(parentIndID) !== 0
-                        && selectedOp !== ""
-                        && selectedParentValue !== "";
-          break;    
-        case 'crosswalk':
-          returnValue = crosswalkFile !== "";
-          break;
-        default:
-          break;
+      if (!this.showRemoveModal) { //don't bother if showing delete view
+        switch(selectedOutcome.toLowerCase()) {
+          case 'pre-fill':
+            returnValue = parseInt(childIndID) !== 0
+                          && parseInt(parentIndID) !== 0
+                          && selectedOp !== ""
+                          && selectedParentValue !== ""
+                          && selectedChildValue !== "";
+            break;
+          case 'hide':
+          case 'show':
+            returnValue = parseInt(childIndID) !== 0
+                          && parseInt(parentIndID) !== 0
+                          && selectedOp !== ""
+                          && selectedParentValue !== "";
+            break;    
+          case 'crosswalk':
+            returnValue = crosswalkFile !== "";
+            break;
+          default:
+            break;
+        }
       }
-
       return returnValue;
     },
     /**
@@ -759,9 +723,9 @@ const ConditionsEditor = Vue.createApp({
             <!-- NOTE: MAIN EDITOR TEMPLATE -->
             <div id="condition_editor_inputs">
                 <button id="btn-vue-update-trigger" @click="forceUpdate" style="display:none;"></button>
-                <div v-if="vueData.formID!==0" id="condition_editor_center_panel_header" class="editor-card-header">
+                <div id="condition_editor_center_panel_header" class="editor-card-header">
                     <h3 style="color:black;">Conditions For <span style="color: #c00;">
-                    {{getIndicatorName(vueData.indicatorID)}} ({{vueData.indicatorID}})
+                    {{getIndicatorName(childIndID)}} ({{childIndID}})
                     </span></h3>
                 </div>
                 <div>
@@ -824,7 +788,7 @@ const ConditionsEditor = Vue.createApp({
                               value="crosswalk" :selected="conditions.selectedOutcome==='crosswalk'">Load Dropdown or Crosswalk
                             </option>
                     </select>
-                    <template v-if="!showNoOptionsMessage && conditions.selectedOutcome === 'pre-fill'">
+                    <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
                       <span class="input-info" id="prefill_value_entry">Enter a pre-fill value</span>
                       <!-- NOTE: PRE-FILL ENTRY AREA dropdown, radio, multidropdown, checkboxes, text, textarea, orgemp -->
                       <select v-if="childFormat==='dropdown' || childFormat==='radio'"
@@ -919,7 +883,7 @@ const ConditionsEditor = Vue.createApp({
                         <option v-for="f in fileManagerFiles" :key="f" :value="f">{{f}}</option>
                       </select>
                       <label for="select-crosswalk-header">Does&nbsp;the&nbsp;file&nbsp;contain&nbsp;headers?</label>
-                      <select v-model="crosswalkHasHeader" style="margin: 0 0 0 0.25rem; width:45px;" id="select-crosswalk-header">
+                      <select v-model="crosswalkHasHeader" style="margin: 0 0 0 0.25rem; width:65px;" id="select-crosswalk-header">
                         <option :value="false">No</option>
                         <option :value="true">Yes</option>
                       </select>
@@ -939,7 +903,7 @@ const ConditionsEditor = Vue.createApp({
                 </div>
                 <div v-if="conditionComplete">
                   <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                    <h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
+                    <h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(childIndID)}}'
                     <span v-if="conditions.selectedOutcome==='pre-fill'">will
                     <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
                     </span>
@@ -953,7 +917,7 @@ const ConditionsEditor = Vue.createApp({
                     <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
                   </template>
                 </div>
-                <div v-if="showNoOptionsMessage">No options are currently available for this selection</div>
+                <div v-if="noOptions">No options are currently available for this selection</div>
             </div>
 
             <!--NOTE: save cancel panel  -->
