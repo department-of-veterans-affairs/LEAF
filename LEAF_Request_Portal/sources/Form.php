@@ -3364,7 +3364,7 @@ class Form
                         SELECT `recordID`, 0, "LEAF Emailer", `timestamp`, "N/A",
                             "Email Sent", "LEAF_email", concat(`recipients`, `subject`)
                         FROM `email_tracker`
-                        WHERE recordID = :recordID
+                        WHERE recordID IN (' . $recordIDs . ')
                         ORDER BY time';
 
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
