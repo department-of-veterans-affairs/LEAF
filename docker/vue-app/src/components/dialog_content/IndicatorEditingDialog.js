@@ -125,14 +125,18 @@ export default {
         } else {
             document.getElementById(this.initialFocusElID).focus();
         }
-        if (this.orgchartFormats.includes(this.format)){
+        if (this.orgchartFormats.includes(this.format)) {
             const selType = this.format.slice(this.format.indexOf('_') + 1);
-            this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue);
-            document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.addEventListener('change', this.updateDefaultValue);
+            this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue, this.updateDefaultValue);
+            const elInput = document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`);
+            if(elInput !== null) { //needed to remove default value
+                elInput.addEventListener('change', (event) => {
+                    if (event.target.value.trim() === '') {
+                        this.defaultValue = '';
+                    }
+                });
+            }
         }
-    },
-    beforeUnmount() {
-        document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.removeEventListener('change', this.updateDefaultValue);
     },
     computed:{
         shortLabelTriggered() {
@@ -182,8 +186,8 @@ export default {
         }
     },
     methods: {
-        updateDefaultValue(event) {
-            this.defaultValue = event.currentTarget.value;
+        updateDefaultValue(value = '') {
+            this.defaultValue = value;
         },
         toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
@@ -533,12 +537,15 @@ export default {
             this.defaultValue = '';
             if (this.orgchartFormats.includes(newVal)) {
                 const selType = newVal.slice(newVal.indexOf('_') + 1);
-
-                setTimeout(() => {
-                    this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '');
-                    let el = document.getElementById(`modal_orgSel_data${this.currIndicatorID}`);
-                    el.addEventListener('change', this.updateDefaultValue);
-                },10);
+                this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '', this.updateDefaultValue);
+                const elInput = document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`);
+                if(elInput !== null) { //needed to remove default value
+                    elInput.addEventListener('change', (event) => {
+                        if (event.target.value.trim() === '') {
+                            this.defaultValue = '';
+                        }
+                    });
+                }
             }
         }
     },
@@ -612,10 +619,10 @@ export default {
             </div>
             <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
-                <template v-if="orgchartFormats.includes(format)">
-                    <input :id="'modal_orgSel_data' + currIndicatorID" @change="updateDefaultValue" style="display: none; "/>
-                    <div :id="'modal_orgSel_' + currIndicatorID" style="min-height:30px" aria-labelledby="defaultValue"></div>
-                </template>
+                <div v-show="orgchartFormats.includes(format)"
+                    :id="'modal_orgSel_' + currIndicatorID"
+                    style="min-height:30px" aria-labelledby="defaultValue">
+                </div>
                 <textarea v-show="!orgchartFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
         </div>
@@ -674,10 +681,6 @@ export default {
                             </select>
                         </label>
                     </template>
-                    <!--
-                    <label for="sort">Sort Priority
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-left:3px;" />
-                    </label> -->
                 </div>
                 <indicator-privileges></indicator-privileges>
             </template>

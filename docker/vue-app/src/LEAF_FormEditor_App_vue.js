@@ -321,35 +321,41 @@ export default {
                 error: (err) => reject(err)
             });
         },
-        initializeOrgSelector(selType = 'employee', indicatorID = 0, selectorIDPrefix = '', initialValue = '') {
+        initializeOrgSelector(
+            selType = 'employee',
+            indID = 0,
+            idPrefix = '',
+            initialValue = '',
+            selectCallback = null
+        ) {
             selType = selType.toLowerCase();
-            const prefix = selType === 'group' ? 'group#' : '#';
+            const inputPrefix = selType === 'group' ? 'group#' : '#';
 
             let orgSelector = {};
             if (selType === 'group') {
-                orgSelector = new groupSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+                orgSelector = new groupSelector(`${idPrefix}orgSel_${indID}`);
             } else if (selType === 'position') {
-                orgSelector = new positionSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+                orgSelector = new positionSelector(`${idPrefix}orgSel_${indID}`);
             } else {
-                orgSelector = new employeeSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+                orgSelector = new employeeSelector(`${idPrefix}orgSel_${indID}`);
             }
             orgSelector.apiPath = `${this.orgchartPath}/api/`;
             orgSelector.rootPath = `${this.orgchartPath}/`;
             orgSelector.basePath = `${this.orgchartPath}/`;
-
             orgSelector.setSelectHandler(() => {
-                document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`).value = `${prefix}` + orgSelector.selection;
-                const elDefault = document.getElementById(`modal_orgSel_data${indicatorID}`);
-                if(elDefault !== null) {
-                    elDefault.value = orgSelector.selection;
-                    elDefault.dispatchEvent(new Event('change'));
+                const selection = orgSelector.selection;
+                const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+                if(elOrgSelInput !== null) {
+                    elOrgSelInput.value = `${inputPrefix}` + selection;
+                    if(typeof selectCallback === 'function') {
+                        selectCallback(selection);
+                    }
                 }
             });
             orgSelector.initialize();
-
-            const el = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-            if (initialValue !== '' && el !== null) {
-                el.value = `${prefix}` + initialValue;
+            const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+            if (initialValue !== '' && elOrgSelInput !== null) {
+                elOrgSelInput.value = `${inputPrefix}` + initialValue;
             }
         },
         /**
@@ -679,7 +685,7 @@ export default {
             this.showFormDialog = true;
         },
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
-            const name = this.truncateText(XSSHelpers.stripAllTags(indicatorName));
+            const name = this.truncateText(XSSHelpers.stripAllTags(this.stripAndDecodeHTML(indicatorName)));
             this.currIndicatorID = indicatorID;
             this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #a00;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');

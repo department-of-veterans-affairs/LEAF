@@ -89,8 +89,7 @@ export default {
             case 'orgchart_group':
             case 'orgchart_position':
             case 'orgchart_employee':
-                this.initializeOrgSelector(this.selType, this.indicator.indicatorID);
-                this.updateOrgselectorPreview();
+                this.initializeOrgSelector(this.selType, this.indicator.indicatorID, '', this.indicator?.default || '');
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
@@ -112,12 +111,6 @@ export default {
             });
             $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
         },
-        updateOrgselectorPreview() {
-            if (this.indicator?.default) {
-                document.querySelector(`#orgSel_${this.indicator.indicatorID} input`).value = this.selType === 'group' ?
-                    `group#${this.indicator?.default}` : `#${this.indicator?.default}`;
-            }
-        }
     },
     template: `<div class="format-preview">
         <input v-if="baseFormat === 'text'" :id="inputElID" type="text" :value="strippedDefault" class="text_input_preview"/>

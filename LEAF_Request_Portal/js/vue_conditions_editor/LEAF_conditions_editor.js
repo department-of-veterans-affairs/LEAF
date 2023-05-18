@@ -574,16 +574,17 @@ const ConditionsEditor = Vue.createApp({
         elSelectChild.choicesjs = choices;
       }
     },
-    initializeOrgSelector(selType = 'employee', indicatorID = 0, idPrefix = '', initialValue = '', selectCallback = null) {
+    initializeOrgSelector(selType = 'employee', indID = 0, idPrefix = '', initialValue = '', selectCallback = null) {
       selType = selType.toLowerCase();
       const inputPrefix = selType === 'group' ? 'group#' : '#';
+
       let orgSelector = {};
       if (selType === 'group') {
-        orgSelector = new groupSelector(`${idPrefix}orgSel_${indicatorID}`);
+        orgSelector = new groupSelector(`${idPrefix}orgSel_${indID}`);
       } else if (selType === 'position') {
-        orgSelector = new positionSelector(`${idPrefix}orgSel_${indicatorID}`);
+        orgSelector = new positionSelector(`${idPrefix}orgSel_${indID}`);
       } else {
-        orgSelector = new employeeSelector(`${idPrefix}orgSel_${indicatorID}`);
+        orgSelector = new employeeSelector(`${idPrefix}orgSel_${indID}`);
       }
       orgSelector.apiPath = `${this.orgchartPath}/api/`;
       orgSelector.rootPath = `${this.orgchartPath}/`;

@@ -31,6 +31,7 @@ export default {
         'selectNewCategory',
         'closeFormDialog',
         'truncateText',
+        'stripAndDecodeHTML',
         'fileManagerTextFiles'
     ],
     mounted() {
@@ -205,11 +206,8 @@ export default {
          */
         getIndicatorName(id = 0) {
             let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
-            indicatorName = XSSHelpers.stripAllTags(this.textValueDisplay(indicatorName));
+            indicatorName = XSSHelpers.stripAllTags(this.stripAndDecodeHTML(indicatorName));
             return this.truncateText(indicatorName);
-        },
-        textValueDisplay(str = '') {
-            return $('<div/>').html(str).text();
         },
         /**
          * @param {Object} condition 
@@ -287,7 +285,7 @@ export default {
                 !(elSelectParent?.choicesjs?.initialised === true)
             ) {
                 let arrValues = this.conditions.selectedParentValue.split('\n') || [];
-                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+                arrValues = arrValues.map(v => this.stripAndDecodeHTML(v).trim());
 
                 let options = this.selectedParentValueOptions;
                 options = options.map(o =>({
@@ -308,7 +306,7 @@ export default {
                 elSelectChild !== null && elExistingChoicesChild === null
             ) {
                 let arrValues = this.conditions.selectedChildValue.split('\n') || [];
-                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+                arrValues = arrValues.map(v => this.stripAndDecodeHTML(v).trim());
                 
                 let options = this.selectedChildValueOptions;
                 options = options.map(o =>({
@@ -552,7 +550,7 @@ export default {
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                                    {{getOperatorText(c)}} <strong>{{ stripAndDecodeHTML(c.selectedParentValue) }}</strong> 
                                                     then {{c.selectedOutcome}} this question.
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
@@ -594,7 +592,7 @@ export default {
                                 <option v-for="val in selectedChildValueOptions" 
                                     :value="val"
                                     :key="'child_prefill_' + val"
-                                    :selected="textValueDisplay(conditions.selectedChildValue) === val">
+                                    :selected="stripAndDecodeHTML(conditions.selectedChildValue) === val">
                                     {{ val }} 
                                 </option>
                             </select>
@@ -608,7 +606,7 @@ export default {
                             <input v-if="childFormat==='text' || childFormat==='textarea'" 
                                 id="child_prefill_entry_text"
                                 @change="updateSelectedOptionValue($event.target, 'child')"
-                                :value="textValueDisplay(conditions.selectedChildValue)" />
+                                :value="stripAndDecodeHTML(conditions.selectedChildValue)" />
                         </template>
                     </div>
                     <div v-if="showSetup" id="if-then-setup">
@@ -637,7 +635,7 @@ export default {
                                 <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedParentValueOptions"
                                     :key="'parent_val_' + val"
-                                    :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
+                                    :selected="stripAndDecodeHTML(conditions.selectedParentValue) === val"> {{ val }}
                                 </option>
                             </select>
                             <select v-else-if="parentFormat === 'multiselect' || parentFormat==='checkboxes'"
@@ -677,7 +675,7 @@ export default {
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                             <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(formIndicatorID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                            <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+                            <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{stripAndDecodeHTML(conditions.selectedChildValue)}}'</span>
                             </span>
                             <span v-else>will 
                                 <span style="color: #008010; font-weight: bold;">
