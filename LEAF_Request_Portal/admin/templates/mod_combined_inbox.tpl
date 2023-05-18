@@ -7,21 +7,13 @@
         background-color: #D1DFFF;
         border: 1px solid black;
         padding: 1rem;
-        /* display: table-cell; */  
     }
-
-    /* .col-header:hover {
-        background-color: #79a2ff;
-        border-color: black;
-    } */
-
     #editor-container {
         display: grid;
         margin-top: 25px;
         grid-template-columns: min-content 1fr;
         grid-column-gap: 1rem;
     }
-
     .site-container {
         text-align: left;
         box-shadow: 0 2px 3px #a7a9aa;

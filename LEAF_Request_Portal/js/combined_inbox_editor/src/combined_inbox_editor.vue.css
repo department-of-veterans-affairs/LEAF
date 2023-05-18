@@ -1,0 +1,70 @@
+.col-header {
+font-weight: 300;
+    font-size: 100%;
+    background-color: #D1DFFF;
+    border: 1px solid black;
+    padding: 1rem;
+}
+#editor-container {
+    display: grid;
+    margin-top: 25px;
+    grid-template-columns: min-content 1fr;
+    grid-column-gap: 1rem;
+}
+.site-container {
+    text-align: left;
+    box-shadow: 0 2px 3px #a7a9aa;
+    border-radius: 4px;
+    margin: 0px auto 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.site-container:hover {
+    box-shadow: 0 4px 6px #8a8c8d;
+}
+
+.site-title {
+    margin-bottom: 1rem;
+    font-weight: bold;
+    font-size: 200%;
+    line-height: 240%;
+}
+
+#side-bar {
+    text-align: left;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    max-height: 75vh;
+    width: 20vw;
+    background-color: white;
+    border: 1px solid black;
+    padding: 1rem;
+}
+
+.inbox {
+    margin-bottom: 1rem;
+}
+
+.slist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.slist li {
+    margin: 10px;
+    padding: 15px;
+    border: 1px solid #dfdfdf;
+    background: #f5f5f5;
+}
+
+.slist li.hint {
+    border: 1px solid #ffc49a;
+    background: #feffb4;
+}
+
+.slist li.active {
+    border: 1px solid #ffa5a5;
+    background: #ffe7e7;
+}

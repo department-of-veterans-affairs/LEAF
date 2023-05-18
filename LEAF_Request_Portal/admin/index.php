@@ -417,7 +417,8 @@ switch ($action) {
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
+        // $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox_vue.tpl')));
 
         $tabText = 'Combined Inbox Editor';
 
