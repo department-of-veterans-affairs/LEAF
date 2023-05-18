@@ -296,15 +296,19 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     return new Promise((resolve, reject)=> {
       const xhttpInds = new XMLHttpRequest();
       xhttpInds.onreadystatechange = () => {
+        let errContent = `The file '${fileName}' for indicator ${iID} was not found.`
+        errContent += `\nCheck the file in the LEAF file manager or notify an admin.`
         if (xhttpInds.readyState === 4) {
           switch(xhttpInds.status) {
             case 200:
-              resolve(xhttpInds.responseText);
+              if (xhttpInds.responseText !== null && xhttpInds.responseText !== '') {
+                resolve(xhttpInds.responseText);
+              } else {
+                reject(new Error(errContent));
+              }
               break;
             case 404:
-              let content = `The file '${fileName}' for indicator ${iID} was not found.`
-              content += `\nCheck the file in the LEAF file manager or notify an admin.`
-              reject(new Error(content));
+              reject(new Error(errContent));
               break;
             default:
               reject(new Error(xhttpInds.status));
