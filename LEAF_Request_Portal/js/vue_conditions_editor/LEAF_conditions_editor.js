@@ -1,6 +1,7 @@
 const ConditionsEditor = Vue.createApp({
   data() {
     return {
+      orgchartPath: orgchartPath,
       vueData: vueData, //init {formID: string || 0, indicatorID: number || 0, updateIndicatorList: false}
       windowTop: 0,
 
@@ -21,6 +22,7 @@ const ConditionsEditor = Vue.createApp({
       selectedConditionJSON: "",
       enabledParentFormats: ["dropdown", "multiselect", "radio", "checkboxes"],
       multiOptionFormats: ["multiselect", "checkboxes"],
+      orgchartFormats: ["orgchart_employee","orgchart_group","orgchart_position"],
       fileManagerFiles: [],
       crosswalkFile: '',
       crosswalkHasHeader: false,
@@ -194,10 +196,10 @@ const ConditionsEditor = Vue.createApp({
       }
     },
     /**
-     *
-     * @param {string} outcome (condition outcome options: Hide, Show, Pre-Fill, crosswalk)
-     */
+    * @param {string} outcome (condition outcome options: Hide, Show, Pre-Fill, crosswalk)
+    */
     updateSelectedOutcome(outcome = "") {
+      outcome = outcome.toLowerCase();
       //get rid of possible multiselect choices instances for child prefill values
       const elSelectChild = document.getElementById("child_prefill_entry");
       if (elSelectChild?.choicesjs) elSelectChild.choicesjs.destroy();
@@ -208,42 +210,28 @@ const ConditionsEditor = Vue.createApp({
       this.level2IndID = null;
     },
     /**
-     * @param {Object} target (DOM element)
-     */
-    updateSelectedParentValue(target = {}) {
-      const parFormat = this.selectedParentIndicator.format
-        .split("\n")[0]
-        .trim()
-        .toLowerCase();
-      let value = "";
-      if (this.multiOptionFormats.includes(parFormat)) {
-        const arrSelections = Array.from(target.selectedOptions);
-        arrSelections.forEach((sel) => {
-          value += sel.label.replaceAll("\r", "").trim() + "\n";
-        });
-        value = value.trim();
+    * @param {Object} target (DOM element)
+    * @param {string} type parent or child
+    */
+    updateSelectedOptionValue(target = {}, type = 'parent') {
+      type = type.toLowerCase();
+      const format = type === 'parent' ? this.parentFormat : this.childFormat;
+
+      let value = '';
+      if (this.multiOptionFormats.includes(format)) {
+          const arrSelections = Array.from(target.selectedOptions);
+          arrSelections.forEach(sel => {
+              value += sel.label.trim() + '\n';
+          });
+          value = value.trim();
       } else {
-        value = target.value;
+          value = target.value;
       }
-      this.selectedParentValue = value;
-    },
-    /**
-     * @param {Object} target (DOM element)
-     */
-    updateSelectedChildValue(target = {}) {
-      const childFormat = this.childIndicator.format.split("\n")[0].trim();
-      let value = "";
-      if (this.multiOptionFormats.includes(childFormat)) {
-        const arrSelections = Array.from(target.selectedOptions);
-        arrSelections.forEach((sel) => {
-          value += sel.label.replaceAll("\r", "").trim() + "\n";
-        });
-        value = value.trim();
-      } else {
-        value = target.value;
+      if (type === 'parent') {
+          this.selectedParentValue = XSSHelpers.stripAllTags(value);
+      } else if (type === 'child') {
+          this.selectedChildValue = XSSHelpers.stripAllTags(value);
       }
-      value = XSSHelpers.stripAllTags(value);
-      this.selectedChildValue = value;
     },
     updateSelectedChildIndicator() {
       this.clearSelections();
@@ -638,13 +626,10 @@ const ConditionsEditor = Vue.createApp({
       );
       const elSelectParent = document.getElementById("parent_compValue_entry");
       const elSelectChild = document.getElementById("child_prefill_entry");
-
-      const childFormat = this.conditions.childFormat.toLowerCase();
-      const parentFormat = this.conditions.parentFormat.toLowerCase();
-      const outcome = this.conditions.selectedOutcome.toLowerCase();
+      const outcome = this.conditions.selectedOutcome;
 
       if (
-        this.multiOptionFormats.includes(parentFormat) &&
+        this.multiOptionFormats.includes(this.parentFormat) &&
         elSelectParent !== null &&
         !elSelectParent.choicesjs
       ) {
@@ -668,7 +653,7 @@ const ConditionsEditor = Vue.createApp({
 
       if (
         outcome === "pre-fill" &&
-        this.multiOptionFormats.includes(childFormat) &&
+        this.multiOptionFormats.includes(this.childFormat) &&
         elSelectChild !== null &&
         elExistingChoicesChild === null
       ) {
@@ -688,6 +673,36 @@ const ConditionsEditor = Vue.createApp({
           choices: options.filter((o) => o.value !== ""),
         });
         elSelectChild.choicesjs = choices;
+      }
+    },
+    initializeOrgSelector(selType = 'employee', indicatorID = 0, idPrefix = '', initialValue = '', selectCallback = null) {
+      selType = selType.toLowerCase();
+      const inputPrefix = selType === 'group' ? 'group#' : '#';
+      let orgSelector = {};
+      if (selType === 'group') {
+        orgSelector = new groupSelector(`${idPrefix}orgSel_${indicatorID}`);
+      } else if (selType === 'position') {
+        orgSelector = new positionSelector(`${idPrefix}orgSel_${indicatorID}`);
+      } else {
+        orgSelector = new employeeSelector(`${idPrefix}orgSel_${indicatorID}`);
+      }
+      orgSelector.apiPath = `${this.orgchartPath}/api/`;
+      orgSelector.rootPath = `${this.orgchartPath}/`;
+      orgSelector.basePath = `${this.orgchartPath}/`;
+      orgSelector.setSelectHandler(() => {
+        const selection = orgSelector.selection;
+        const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+        if(elOrgSelInput !== null) {
+          elOrgSelInput.value = `${inputPrefix}` + selection;
+          if(typeof selectCallback === 'function') {
+            selectCallback(selection);
+          }
+        }
+      });
+      orgSelector.initialize();
+      const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+      if (initialValue !== '' && elOrgSelInput !== null) {
+        elOrgSelInput.value = `${inputPrefix}` + initialValue;
       }
     },
   },
@@ -823,6 +838,21 @@ const ConditionsEditor = Vue.createApp({
       return { show, hide, prefill, crosswalk };
     },
   },
+  watch: {
+    conditions(newVal, oldVal) {
+      const outcome = newVal.selectedOutcome;
+      if (outcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
+        const childID = this.conditions.childIndID;
+        const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
+        const selectCallback = (v) => this.selectedChildValue = v.toString();
+        setTimeout(() => {
+          this.initializeOrgSelector(
+            selType, childID, 'ifthen_child_', this.selectedChildValue, selectCallback
+          );
+        });
+      }
+    }
+  },
   template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
         <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 15+windowTop+'px' : '15px'}">
 
@@ -885,22 +915,22 @@ const ConditionsEditor = Vue.createApp({
                             name="child-outcome-selector"
                             @change="updateSelectedOutcome($event.target.value)">
                             <option v-if="conditions.selectedOutcome===''" value="" selected>Select an outcome</option>
-                            <option value="Show" :selected="conditions.selectedOutcome.toLowerCase()==='show'">Hide this question except ...</option>
-                            <option value="Hide" :selected="conditions.selectedOutcome.toLowerCase()==='hide'">Show this question except ...</option>
+                            <option value="show" :selected="conditions.selectedOutcome==='show'">Hide this question except ...</option>
+                            <option value="hide" :selected="conditions.selectedOutcome==='hide'">Show this question except ...</option>
                             <option v-if="!noPrefillFormats.includes(childFormat)" 
-                              value="Pre-fill" :selected="conditions.selectedOutcome.toLowerCase()==='pre-fill'">Pre-fill this Question
+                              value="pre-fill" :selected="conditions.selectedOutcome==='pre-fill'">Pre-fill this Question
                             </option>
                             <option v-if="canAddCrosswalk"
-                              value="crosswalk" :selected="conditions.selectedOutcome.toLowerCase()==='crosswalk'">Load Dropdown or Crosswalk
+                              value="crosswalk" :selected="conditions.selectedOutcome==='crosswalk'">Load Dropdown or Crosswalk
                             </option>
                     </select>
                     <template v-if="!showNoOptionsMessage && conditions.selectedOutcome === 'pre-fill'">
-                      <span class="input-info">Enter a pre-fill value</span>
+                      <span class="input-info" id="prefill_value_entry">Enter a pre-fill value</span>
                       <!-- NOTE: PRE-FILL ENTRY AREA dropdown, radio, multidropdown, checkboxes, text, textarea, orgemp -->
                       <select v-if="childFormat==='dropdown' || childFormat==='radio'"
                           name="child-prefill-value-selector"
                           id="child_prefill_entry"
-                          @change="updateSelectedChildValue($event.target)">
+                          @change="updateSelectedOptionValue($event.target, 'child')">
                           <option v-if="conditions.selectedChildValue===''" value="" selected>Select a value</option>
                           <option v-for="val in selectedChildValueOptions"
                               :value="val"
@@ -909,22 +939,29 @@ const ConditionsEditor = Vue.createApp({
                               {{ val }}
                           </option>
                       </select>
-                      <select v-else-if="childFormat==='multiselect' || childFormat==='checkboxes'"
+                      <select v-else-if="multiOptionFormats.includes(childFormat)"
                           placeholder="select some options"
                           multiple="true"
                           id="child_prefill_entry"
                           style="display: none;"
                           name="child-prefill-value-selector"
-                          @change="updateSelectedChildValue($event.target)">
+                          @change="updateSelectedOptionValue($event.target, 'child')">
                       </select>
                       <input v-else-if="childFormat==='text' || childFormat==='textarea'" id="child_prefill_entry"
-                          @change="updateSelectedChildValue($event.target)"
+                          @change="updateSelectedOptionValue($event.target, 'child')"
                           :value="textValueDisplay(conditions.selectedChildValue)" />
-                      <div v-if="childFormat==='orgchart_employee'">TODO</div>
+                      <template v-if="orgchartFormats.includes(childFormat)">
+                      <!--
+                      <input :id="'ifthen_child_orgSel_data' + conditions.childIndID" style="display: none;"
+                        @change="updateSelectedOptionValue($event.target, 'child')"/> -->
+                        <div :id="'ifthen_child_orgSel_' + conditions.childIndID"
+                          style="min-height:30px" aria-labelledby="prefill_value_entry">
+                        </div>
+                      </template>
                     </template>
                 </div>
                 <div v-if="showSetup" class="if-then-setup">
-                  <template v-if="conditions.selectedOutcome.toLowerCase()!=='crosswalk'">
+                  <template v-if="conditions.selectedOutcome!=='crosswalk'">
                     <h4 style="margin: 0;">IF</h4>
                     <div>
                         <!-- NOTE: PARENT CONTROLLER SELECTION -->
@@ -958,7 +995,7 @@ const ConditionsEditor = Vue.createApp({
                         <!-- NOTE: COMPARED VALUE SELECTION (active parent formats: dropdown, multiselect, radio, checkboxes) -->
                         <select v-if="parentFormat==='dropdown' || parentFormat==='radio'"
                             id="parent_compValue_entry"
-                            @change="updateSelectedParentValue($event.target)">
+                            @change="updateSelectedOptionValue($event.target, 'parent')">
                             <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>
                             <option v-for="val in selectedParentValueOptions"
                                 :key="val"
@@ -969,7 +1006,7 @@ const ConditionsEditor = Vue.createApp({
                             id="parent_compValue_entry"
                             placeholder="select some options" multiple="true"
                             style="display: none;"
-                            @change="updateSelectedParentValue($event.target)">
+                            @change="updateSelectedOptionValue($event.target, 'parent')">
                         </select>
                     </div>
                   </template>
@@ -1003,12 +1040,12 @@ const ConditionsEditor = Vue.createApp({
                 <div v-if="conditionComplete">
                   <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                     <h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(vueData.indicatorID)}}'
-                    <span v-if="conditions.selectedOutcome.toLowerCase()==='pre-fill'">will
+                    <span v-if="conditions.selectedOutcome==='pre-fill'">will
                     <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
                     </span>
                     <span v-else>will
                         <span style="color: #00A91C; font-weight: bold;">
-                        be {{conditions.selectedOutcome==="Show" ? 'shown' : 'hidden'}}
+                        be {{conditions.selectedOutcome==="show" ? 'shown' : 'hidden'}}
                         </span>
                     </span>
                   </template>

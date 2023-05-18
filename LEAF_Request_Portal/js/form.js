@@ -78,7 +78,10 @@ var LeafForm = function (containerID) {
       "",
       "fileupload",
       "image",
-      "textarea"
+      "textarea",
+      "orgchart_employee",
+      "orgchart_group",
+      "orgchart_position",
     ];
 
     /** crosswalk variables and functions */
@@ -311,11 +314,11 @@ var LeafForm = function (containerID) {
       });
 
       setTimeout(() => {
-        //some multiselect updates don't work unless the stack is cleared
+        //some multiselect updates don't work unless the stack is cleared, and orgchart selectors need time to load
         for (let childID in conditionsByChild) {
           makeComparisons(childID, conditionsByChild[childID]);
         }
-      }, 0);
+      }, 200);
     };
     /**
      *
@@ -439,7 +442,7 @@ var LeafForm = function (containerID) {
       return val;
     };
 
-    const clearValues = (childFormat = "", childIndID = 0) => {
+    const clearValuesAndHide = (childFormat = "", childIndID = 0) => {
       $("#" + childIndID).val("");
       $(`input[id^="${childIndID}_"]`).prop("checked", false); //this will hit both radio and checkboxes formats
       $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
@@ -462,6 +465,7 @@ var LeafForm = function (containerID) {
      */
     const makeComparisons = (childID = "", arrChildConditions = []) => {
       const multiOptionFormats = ["multiselect", "checkboxes"];
+      const orgchartFormats = ["orgchart_employee", "orgchart_group", "orgchart_position"];
       //childFormat should be the same for all list elements, since formats that don't match the current question format are already removed.
       const childFormat = arrChildConditions[0].childFormat.toLowerCase();
       const chosenShouldUpdate = childFormat === "dropdown";
@@ -631,7 +635,7 @@ var LeafForm = function (containerID) {
         switch (co) {
           case "hide":
             if (hideShowConditionMet === true) {
-              clearValues(childFormat, childID);
+              clearValuesAndHide(childFormat, childID);
             } else {
               $(".blockIndicator_" + childID).show();
             }
@@ -640,7 +644,7 @@ var LeafForm = function (containerID) {
             if (hideShowConditionMet === true) {
               $(".blockIndicator_" + childID).show();
             } else {
-              clearValues(childFormat, childID);
+              clearValuesAndHide(childFormat, childID);
             }
             break;
           case "pre-fill":
@@ -668,6 +672,15 @@ var LeafForm = function (containerID) {
                     elSelectChoices?.setChoiceByValue(arrChoices);
                     elSelectChoices?.disable();
                   }
+
+                } else if (orgchartFormats.includes(childFormat)) {
+                  const inputPrefix = childFormat === 'orgchart_group' ? 'group#' : '#';
+                  let orgSelInput = document.querySelector(`div[id$="Sel_${childID}"] input[id$="_input"]`);
+                  if (orgSelInput !== null) {
+                    orgSelInput.value = inputPrefix + childPrefillValue;
+                    orgSelInput.disabled = true;
+                  }
+
                 } else {
                   const text = $("<div/>")
                     .html(childPrefillValue)
@@ -688,6 +701,10 @@ var LeafForm = function (containerID) {
               elChildInput[0]?.choicesjs?.enable();
               elChildRadioBtns.prop("disabled", false);
               elChildCheckboxes.prop("disabled", false);
+              let orgSelInput = document.querySelector(`div[id$="Sel_${childID}"] input[id$="_input"]`);
+              if (orgSelInput !== null) {
+                orgSelInput.disabled = false;
+              }
             }
             break;
           default:

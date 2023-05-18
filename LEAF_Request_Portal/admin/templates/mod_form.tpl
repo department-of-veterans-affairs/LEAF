@@ -9,6 +9,7 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
+const orgchartPath = '<!--{$orgchartPath}-->';
 let vueData = {
     formID: 0,
     indicatorID: 0,
