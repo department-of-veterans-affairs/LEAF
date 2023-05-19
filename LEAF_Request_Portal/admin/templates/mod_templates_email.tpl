@@ -565,71 +565,56 @@
      */
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
-        let data = '';
-        let subject = '';
-        // If any changes made to emailTo, emailCc, body or subject
-        // then get edits, else get default values
-        if (codeEditor.getValue == undefined) {
-            data = codeEditor.edit.getValue();
-        } else {
-            data = codeEditor.getValue();
-        }
-        if (subjectEditor.getValue == undefined) {
-            subject = subjectEditor.edit.getValue();
-        } else {
-            subject = subjectEditor.getValue();
-        }
 
-        // Check if the content has changed
-        if (data === currentFileContent || data === currentSubjectContent || data === currentEmailToContent || data ===
-            currentEmailCcContent) {
-            alert('There are no changes to save.');
-            return;
-        }
+        const data = (codeEditor.getValue() == undefined) ? codeEditor.edit.getValue() : codeEditor.getValue();
+        const subject = (subjectEditor.getValue() == undefined) ? subjectEditor.edit.getValue() : subjectEditor
+            .getValue();
+        const emailToData = document.getElementById('emailToCode').value;
+        const emailCcData = document.getElementById('emailCcCode').value;
 
-        let emailToData = document.getElementById('emailToCode').value;
-        let emailCcData = document.getElementById('emailCcCode').value;
-        // Send the email template data to the API to process
-        $.ajax({
-            type: 'POST',
-            data: {
-                CSRFToken: '<!--{$CSRFToken}-->',
-                file: data,
-                subjectFile: subject,
-                subjectFileName: currentSubjectFile,
-                emailToFile: emailToData,
-                emailToFileName: currentEmailToFile,
-                emailCcFile: emailCcData,
-                emailCcFileName: currentEmailCcFile
-            },
-            url: '../api/emailTemplates/_' + currentFile,
-            success: function(res) {
-                saveFileHistory();
-                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
-                $('.modifiedTemplate').css('display', 'block');
-                if ($('#btn_compareStop').css('display') != 'none') {
-                    $('#btn_compare').css('display', 'none');
-                }
+        if (emailToData !== currentEmailToContent || emailCcData !== currentEmailCcContent || data !==
+            currentFileContent || subject !== currentSubjectContent) {
 
-                // Show saved time in "Save Changes" button and set current content
-                var time = new Date().toLocaleTimeString();
-                $('#saveStatus').html('<br /> Last saved: ' + time);
-                setTimeout(function() {
-                    $('#saveStatus').fadeOut(1000, function() {
-                        $(this).html('').fadeIn();
-                    });
-                    loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
-                        currentEmailCcFile);
-                }, 3000);
-                currentFileContent = data;
-                currentSubjectContent = subject;
-                currentEmailToContent = emailToData;
-                currentEmailCcContent = emailCcData;
-                if (res != null) {
-                    alert(res);
-                }
+            if (emailCcData !== '' || emailToData !== '' || data !== '' || subject !== '') {
+                // Send the email template data to the API to process
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: data,
+                        subjectFile: subject,
+                        subjectFileName: currentSubjectFile,
+                        emailToFile: emailToData,
+                        emailToFileName: currentEmailToFile,
+                        emailCcFile: emailCcData,
+                        emailCcFileName: currentEmailCcFile
+                    },
+                    url: '../api/emailTemplates/_' + currentFile,
+                    success: function(res) {
+                        console.log('New template has been saved');
+                        saveFileHistory();
+                        $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
+                        $('.modifiedTemplate').css('display', 'block');
+                        if ($('#btn_compareStop').css('display') != 'none') {
+                            $('#btn_compare').css('display', 'none');
+                        }
+
+                        // Show saved time in "Save Changes" button and set current content
+                        var time = new Date().toLocaleTimeString();
+                        $('#saveStatus').html('<br /> Last saved: ' + time);
+                        currentFileContent = data;
+                        currentSubjectContent = subject;
+                        currentEmailToContent = emailToData;
+                        currentEmailCcContent = emailCcData;
+                        if (res != null) {
+                            alert(res);
+                        }
+                    }
+                });
             }
-        });
+        } else {
+            alert('Nothing to save');
+        }
     }
     // Done
     function saveFileHistory() {
