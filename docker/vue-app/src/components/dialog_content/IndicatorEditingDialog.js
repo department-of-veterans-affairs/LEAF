@@ -641,11 +641,6 @@ export default {
                         <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                     </label>
                 </template>
-                <!-- <template v-if="!isEditingModal">
-                    <label for="sort">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px;" />Sort Priority
-                    </label>
-                </template> -->
                 <template v-if="isEditingModal">
                     <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
                         <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
