@@ -329,15 +329,15 @@ export default {
             selectCallback = null
         ) {
             selType = selType.toLowerCase();
+            const hasCallback = typeof selectCallback === 'function';
             const inputPrefix = selType === 'group' ? 'group#' : '#';
-
             let orgSelector = {};
             if (selType === 'group') {
-                orgSelector = new groupSelector(`${idPrefix}orgSel_${indID}`);
+              orgSelector = new groupSelector(`${idPrefix}orgSel_${indID}`);
             } else if (selType === 'position') {
-                orgSelector = new positionSelector(`${idPrefix}orgSel_${indID}`);
+              orgSelector = new positionSelector(`${idPrefix}orgSel_${indID}`);
             } else {
-                orgSelector = new employeeSelector(`${idPrefix}orgSel_${indID}`);
+              orgSelector = new employeeSelector(`${idPrefix}orgSel_${indID}`);
             }
             orgSelector.apiPath = `${this.orgchartPath}/api/`;
             orgSelector.rootPath = `${this.orgchartPath}/`;
@@ -345,17 +345,23 @@ export default {
             orgSelector.setSelectHandler(() => {
                 const selection = orgSelector.selection;
                 const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-                if(elOrgSelInput !== null) {
+                if(elOrgSelInput !== null) { //updating the search input collapses the table to the single selection
                     elOrgSelInput.value = `${inputPrefix}` + selection;
-                    if(typeof selectCallback === 'function') {
-                        selectCallback(selection);
-                    }
+                }
+                if(hasCallback) {
+                    const data = orgSelector.selectionData[selection];
+                    selectCallback(selection, data);
                 }
             });
             orgSelector.initialize();
             const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
             if (initialValue !== '' && elOrgSelInput !== null) {
                 elOrgSelInput.value = `${inputPrefix}` + initialValue;
+                if(hasCallback) {
+                    setTimeout(()=> {
+                        orgSelector.select(initialValue);
+                    }, 1000);
+                }
             }
         },
         /**
@@ -569,9 +575,9 @@ export default {
         },
         /**
          * updates app categories object property value
-         * @param {string} catID 
-         * @param {string} keyName 
-         * @param {string} keyValue 
+         * @param {string} catID
+         * @param {string} keyName
+         * @param {string} keyValue
          */
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             if(this.categories[catID][keyName] !== undefined) {

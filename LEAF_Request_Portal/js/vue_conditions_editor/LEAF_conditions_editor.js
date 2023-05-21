@@ -2,7 +2,7 @@ const ConditionsEditor = Vue.createApp({
   data() {
     return {
       orgchartPath: orgchartPath,
-      vueData: vueData, //init {indicatorID: number || 0, updateIndicatorList: false}
+      vueData: vueData, //{indicatorID: number || 0, updateIndicatorList: false}
       childIndID: 0,
       parentIndID: 0,
       windowTop: 0,
@@ -18,6 +18,7 @@ const ConditionsEditor = Vue.createApp({
       enabledParentFormats: ["dropdown", "multiselect", "radio", "checkboxes"],
       multiOptionFormats: ["multiselect", "checkboxes"],
       orgchartFormats: ["orgchart_employee","orgchart_group","orgchart_position"],
+      orgchartSelectData: {},
       fileManagerFiles: [],
       crosswalkFile: '',
       crosswalkHasHeader: false,
@@ -134,7 +135,7 @@ const ConditionsEditor = Vue.createApp({
           });
           value = value.trim();
       } else {
-          value = target.value;
+          value = target.value.trim();
       }
       if (type === 'parent') {
           this.selectedParentValue = XSSHelpers.stripAllTags(value);
@@ -145,8 +146,6 @@ const ConditionsEditor = Vue.createApp({
     selectNewChildIndicator() {
       this.childIndID = parseInt(this.vueData.indicatorID);
       this.clearSelections();
-      this.selectedOutcome = "";
-      this.selectedChildValue = "";
       if (this.childIndID !== 0) {
         this.dragElement(
           document.getElementById("condition_editor_center_panel")
@@ -184,13 +183,11 @@ const ConditionsEditor = Vue.createApp({
     },
     postConditions(addSelected = true) {
       if (this.conditionComplete || addSelected === false) {
-        const childID = parseInt(this.conditions.childIndID);
+        const childID = this.childIndID;
         let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === childID);
-
         //copy of all conditions on child, and filter using stored JSON val
         let currConditions = [...this.savedConditions];
         let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
-
         //clean up some possible data type issues and br tags before saving.
         newConditions.forEach(c => {
             c.childIndID = parseInt(c.childIndID);
@@ -198,7 +195,6 @@ const ConditionsEditor = Vue.createApp({
             c.selectedChildValue = XSSHelpers.stripAllTags(c.selectedChildValue);
             c.selectedParentValue = XSSHelpers.stripAllTags(c.selectedParentValue);
         });
-
         //if adding, confirm new conditions is unique
         const newConditionJSON = JSON.stringify(this.conditions);
         const newConditionIsUnique = newConditions.every(c => JSON.stringify(c) !== newConditionJSON);
@@ -443,14 +439,16 @@ const ConditionsEditor = Vue.createApp({
     },
     addOrgSelector() {
       if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
-          const childID = this.conditions.childIndID;
-          const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
-          const selectCallback = (v) => this.selectedChildValue = v.toString();
-          setTimeout(() => {
-              this.initializeOrgSelector(
-                  selType, childID, 'ifthen_child_', this.selectedChildValue, selectCallback
-              );
-          });
+        const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
+        const selectCallback = (selection, selectData) => {
+          this.orgchartSelectData = selectData;
+          this.selectedChildValue = selection.toString();
+        }
+        setTimeout(() => {
+            this.initializeOrgSelector(
+                selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, selectCallback
+            );
+        });
       }
     },
     initializeOrgSelector(
@@ -461,8 +459,8 @@ const ConditionsEditor = Vue.createApp({
       selectCallback = null
     ) {
       selType = selType.toLowerCase();
+      const hasCallback = typeof selectCallback === 'function';
       const inputPrefix = selType === 'group' ? 'group#' : '#';
-
       let orgSelector = {};
       if (selType === 'group') {
         orgSelector = new groupSelector(`${idPrefix}orgSel_${indID}`);
@@ -477,17 +475,24 @@ const ConditionsEditor = Vue.createApp({
       orgSelector.setSelectHandler(() => {
         const selection = orgSelector.selection;
         const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-        if(elOrgSelInput !== null) {
+        if(elOrgSelInput !== null) { //updating the search input collapses the table
           elOrgSelInput.value = `${inputPrefix}` + selection;
-          if(typeof selectCallback === 'function') {
-            selectCallback(selection);
-          }
+        }
+        if(hasCallback) {
+          const data = orgSelector.selectionData[selection];
+          selectCallback(selection, data);
         }
       });
       orgSelector.initialize();
+      //handle initial value if there is one and select to update app data if there is a callback
       const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
       if (initialValue !== '' && elOrgSelInput !== null) {
         elOrgSelInput.value = `${inputPrefix}` + initialValue;
+        if(hasCallback) {
+          setTimeout(()=> {
+              orgSelector.select(initialValue);
+          }, 1000);
+        }
       }
     },
   },
@@ -536,7 +541,7 @@ const ConditionsEditor = Vue.createApp({
         selectable = this.indicators.filter(i => {
           const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
           return i.headerIndicatorID === headerIndicatorID &&
-              parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+              parseInt(i.indicatorID) !== this.childIndID &&
               this.enabledParentFormats.includes(parFormat);
         });
       }
@@ -574,7 +579,7 @@ const ConditionsEditor = Vue.createApp({
           const format = i.format?.split("\n")[0].trim().toLowerCase();
           return (
               i.headerIndicatorID === headerIndicatorID &&
-              parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
+              parseInt(i.indicatorID) !== this.childIndID &&
               ['dropdown', 'multiselect'].includes(format)
           );
         });
@@ -602,6 +607,29 @@ const ConditionsEditor = Vue.createApp({
     canAddCrosswalk() {
       return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
     },
+    childPrefillDisplay() {
+      let returnVal = '';
+      switch(this.childFormat) {
+        case 'orgchart_employee':
+            returnVal = ` '${this.orgchartSelectData?.firstName || ''} ${this.orgchartSelectData?.lastName || ''}'`;
+            break;
+        case 'orgchart_group':
+            returnVal = ` '${this.orgchartSelectData?.groupTitle || ''}'`;
+            break;
+        case 'orgchart_position':
+            returnVal = ` '${this.orgchartSelectData?.positionTitle || ''}'`;
+            break;
+        case 'multiselect':
+        case 'checkboxes':
+            const pluralTxt = this.selectedChildValue.split('\n').length > 1 ? 's' : '';
+            returnVal = `${pluralTxt} '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+            break;
+        default:
+            returnVal = ` '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+            break;
+      }
+      return returnVal;
+  },
     /**
      * @returns {Object} current conditions object
      */
@@ -868,7 +896,7 @@ const ConditionsEditor = Vue.createApp({
                   <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                     <h4 style="margin: 0; display:inline-block">THEN</h4> '{{getIndicatorName(childIndID)}}'
                     <span v-if="conditions.selectedOutcome==='pre-fill'">will
-                    <span style="color: #00A91C; font-weight: bold;"> have the value{{childFormat==='multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+                    <span style="color: #00A91C; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                     </span>
                     <span v-else>will
                         <span style="color: #00A91C; font-weight: bold;">

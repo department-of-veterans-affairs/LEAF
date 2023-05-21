@@ -93,7 +93,6 @@ export default {
         'focusedFormTree',
         'selectedNodeIndicatorID',
         'selectNewCategory',
-        'updateCategoriesProperty',
         'newIndicatorParentID',
         'truncateText',
         'stripAndDecodeHTML',
@@ -186,8 +185,8 @@ export default {
         }
     },
     methods: {
-        updateDefaultValue(value = '') {
-            this.defaultValue = value;
+        updateDefaultValue(selection = 0) {
+            this.defaultValue = selection;
         },
         toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
@@ -336,7 +335,9 @@ export default {
                                 CSRFToken: this.CSRFToken
                             },
                             success: () => {
-                                this.updateCategoriesProperty(this.formID, 'needToKnow', 1);
+                                let panelEl = document.querySelector('select#needToKnow');
+                                panelEl.value = 1;
+                                panelEl.dispatchEvent(new Event("change"));
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -396,7 +397,9 @@ export default {
                                 CSRFToken: this.CSRFToken
                             },
                             success: () => {
-                                this.updateCategoriesProperty(this.formID, 'needToKnow', 1);
+                                let panelEl = document.querySelector('select#needToKnow');
+                                panelEl.value = 1;
+                                panelEl.dispatchEvent(new Event("change"));
                             },
                             error: err => console.log('set form need to know post err', err)
                         })

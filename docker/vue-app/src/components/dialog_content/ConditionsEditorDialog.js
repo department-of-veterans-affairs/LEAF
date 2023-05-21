@@ -3,7 +3,7 @@ export default {
     data() {
         return {
             formID: this.focusedFormRecord.categoryID,
-            formIndicatorID: parseInt(this.currIndicatorID),
+            childIndID: parseInt(this.currIndicatorID),
             indicators: [],
             appIsLoadingIndicators: true,
             parentIndID: 0,
@@ -17,6 +17,7 @@ export default {
             enabledParentFormats: ['dropdown', 'multiselect', 'radio', 'checkboxes'],
             multiOptionFormats: ['multiselect', 'checkboxes'],
             orgchartFormats: ["orgchart_employee","orgchart_group","orgchart_position"],
+            orgchartSelectData: {},
             crosswalkFile: '',
             crosswalkHasHeader: false,
             level2IndID: null,
@@ -42,9 +43,6 @@ export default {
     mounted() {
         const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
         if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
-    },
-    updated() {
-        console.log('updated')
     },
     methods: {
         getAllIndicators(){
@@ -161,7 +159,7 @@ export default {
 
                 $.ajax({
                     type: 'POST',
-                    url: `${this.APIroot}formEditor/${this.formIndicatorID}/conditions`,
+                    url: `${this.APIroot}formEditor/${this.childIndID}/conditions`,
                     data: {
                         conditions: newConditions.length > 0 ? JSON.stringify(newConditions) : '',
                         CSRFToken: this.CSRFToken
@@ -332,14 +330,16 @@ export default {
         },
         addOrgSelector() {
             if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
-                const childID = this.conditions.childIndID;
                 const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
-                const selectCallback = (v) => this.selectedChildValue = v.toString();
+                const selectCallback = (selection, selectData) => {
+                    this.orgchartSelectData = {...selectData};
+                    this.selectedChildValue = selection.toString();
+                }
                 setTimeout(() => {
                     this.initializeOrgSelector(
-                        selType, childID, 'ifthen_child_', this.selectedChildValue, selectCallback
+                        selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, selectCallback
                     );
-                });
+                },50);
             }
         },
         onSave() {
@@ -355,7 +355,7 @@ export default {
             return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
         },
         childIndicator() {
-            return this.indicators.find(i => parseInt(i.indicatorID) === this.formIndicatorID);
+            return this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);
         },
         /**
          * @returns {object} current parent selection
@@ -447,6 +447,29 @@ export default {
         },
         canAddCrosswalk() {
             return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
+        },
+        childPrefillDisplay() {
+            let returnVal = '';
+            switch(this.childFormat) {
+                case 'orgchart_employee':
+                    returnVal = ` '${this.orgchartSelectData?.firstName || ''} ${this.orgchartSelectData?.lastName || ''}'`;
+                    break;
+                case 'orgchart_group':
+                    returnVal = ` '${this.orgchartSelectData?.groupTitle || ''}'`;
+                    break;
+                case 'orgchart_position':
+                    returnVal = ` '${this.orgchartSelectData?.positionTitle || ''}'`;
+                    break;
+                case 'multiselect':
+                case 'checkboxes':
+                    const pluralTxt = this.selectedChildValue.split('\n').length > 1 ? 's' : '';
+                    returnVal = `${pluralTxt} '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+                    break;
+                default:
+                    returnVal = ` '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+                    break;
+            }
+            return returnVal;
         },
         /**
          * @returns {Object} current conditions object, properties to lower and tags removed as needed
@@ -698,9 +721,9 @@ export default {
                     </div>
                     <div v-if="conditionComplete">
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                            <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(formIndicatorID)}}'
+                            <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                            <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{stripAndDecodeHTML(conditions.selectedChildValue)}}'</span>
+                            <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
                             <span v-else>will 
                                 <span style="color: #008010; font-weight: bold;">
