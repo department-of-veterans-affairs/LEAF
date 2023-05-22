@@ -1,17 +1,17 @@
 <?php
 
-$curr_dir = '/var/www/html/libs';
+$curr_dir = '/var/www/html';
 
-require_once $curr_dir . '/php-commons/Psr4AutoloaderClass.php';
-require_once $curr_dir . '/smarty/bootstrap.php';
+require_once $curr_dir . '/libs/php-commons/Psr4AutoloaderClass.php';
+require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new \Leaf\Psr4AutoloaderClass;
 $loader->register();
 
-if (is_dir($curr_dir . '/php-commons')) {
-    $loader->addNamespace('Leaf', $curr_dir . '/logger');
-    $loader->addNamespace('Leaf', $curr_dir . '/php-commons');
-    $loader->addNamespace('Leaf', $curr_dir . '/logger/formatters');
+if (is_dir($curr_dir . '/libs/php-commons')) {
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
 
     $file_paths_db = new \Leaf\Db(getenv('DATABASE_HOST'), getenv('DATABASE_USERNAME'), getenv('DATABASE_PASSWORD'), 'national_leaf_launchpad');
 
