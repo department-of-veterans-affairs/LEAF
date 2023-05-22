@@ -939,6 +939,7 @@
     var currentFileContent = '';
 
     function loadContent(file) {
+        console.log(file);
         if (file == undefined) {
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
@@ -1037,16 +1038,31 @@
             type: 'GET',
             url: '../api/templateEditor/',
             success: function(res) {
-                var buffer = '<ul class="leaf-ul">';
-                for (var i in res) {
-                    file = res[i].replace('.tpl <span class=\'custom_override\'>(custom)</span>', '');
-                    filename = res[i].replace(' <span class=\'custom_override\'>(custom)</span>', '');
-                    custom = res[i].replace(filename, '');
-                    buffer += '<li onclick="loadContent(\'' + filename + '\');"><a href="#">' + filename +
-                        '</a> ' + custom + '</li>';
-                }
-                buffer += '</ul>';
-                $('#fileList').html(buffer);
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/templateEditor/custom',
+                    success: function (result) {
+                        var buffer = '<ul class="leaf-ul">';
+                        for (var i in res) {
+                            console.log(result);
+                            if (result.includes(res[i])) {
+                                custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                            } else {
+                                custom = '';
+                            }
+                            file = res[i].replace('.tpl', '');
+
+                            buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
+                                '</a> ' + custom + '</li>';
+                        }
+                        buffer += '</ul>';
+                        $('#fileList').html(buffer);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
             },
             cache: false
         });

@@ -35,13 +35,26 @@ class TemplateEditor
         $out = array();
 
         foreach ($list as $item) {
-            if (file_exists('../templates/custom_override/'. $item)) {
-                $custom = ' <span class=\'custom_override\'>(custom)</span>';
-            } else {
-                $custom = '';
-            }
             if (preg_match('/.tpl$/', $item)) {
-                $out[] = $item . $custom;
+                $out[] = $item;
+            }
+        }
+
+        return $out;
+    }
+
+    public function getCustomTemplateList()
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required';
+        }
+        $list = scandir('../templates/custom_override');
+        $out = array();
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
+                $out[] = $item;
             }
         }
 
@@ -55,6 +68,7 @@ class TemplateEditor
             return 'Admin access required';
         }
         $list = $this->getTemplateList();
+error_log(print_r($list, true));
 
         $data = array();
         if (array_search($template, $list) !== false)
@@ -71,6 +85,7 @@ class TemplateEditor
                 $data['file'] = file_get_contents("../templates/{$template}");
             }
         }
+error_log(print_r($data, true));
 
         return $data;
     }

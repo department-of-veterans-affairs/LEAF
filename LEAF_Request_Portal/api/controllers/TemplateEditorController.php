@@ -36,9 +36,13 @@ class TemplateEditorController extends RESTfulResponse
              return $this->API_VERSION;
          });
 
-         $this->index['GET']->register('templateEditor', function ($args) use ($templateEditor) {
-          return $templateEditor->getTemplateList();
-      });
+        $this->index['GET']->register('templateEditor', function ($args) use ($templateEditor) {
+            return $templateEditor->getTemplateList();
+        });
+
+        $this->index['GET']->register('templateEditor/custom', function ($args) use ($templateEditor) {
+            return $templateEditor->getCustomTemplateList();
+        });
 
       $this->index['GET']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
           return $templateEditor->getTemplate($args[0]);
