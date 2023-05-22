@@ -1039,9 +1039,11 @@
             success: function(res) {
                 var buffer = '<ul class="leaf-ul">';
                 for (var i in res) {
-                    file = res[i].replace('.tpl', '');
-                    buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
-                        '</a></li>';
+                    file = res[i].replace('.tpl <span class=\'custom_override\'>(custom)</span>', '');
+                    filename = res[i].replace(' <span class=\'custom_override\'>(custom)</span>', '');
+                    custom = res[i].replace(filename, '');
+                    buffer += '<li onclick="loadContent(\'' + filename + '\');"><a href="#">' + filename +
+                        '</a> ' + custom + '</li>';
                 }
                 buffer += '</ul>';
                 $('#fileList').html(buffer);

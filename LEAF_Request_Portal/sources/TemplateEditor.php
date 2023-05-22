@@ -33,11 +33,15 @@ class TemplateEditor
         }
         $list = scandir('../templates/');
         $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
-                $out[] = $item;
+
+        foreach ($list as $item) {
+            if (file_exists('../templates/custom_override/'. $item)) {
+                $custom = ' <span class=\'custom_override\'>(custom)</span>';
+            } else {
+                $custom = '';
+            }
+            if (preg_match('/.tpl$/', $item)) {
+                $out[] = $item . $custom;
             }
         }
 
