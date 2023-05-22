@@ -2479,7 +2479,7 @@ class Form
                     WHERE recordID = :recordID
                     AND deleted IS NULL
                     UNION
-                    SELECT "Email Sent", concat(`recipients`, `subject`), `timestamp`, "LEAF Emailer"
+                    SELECT "Email Sent", concat(`recipients`, `subject`), `timestamp`, ""
                     FROM `email_tracker`
                     WHERE recordID = :recordID
                     ORDER BY time DESC';
@@ -3361,7 +3361,7 @@ class Form
                         WHERE recordID IN (' . $recordIDs . ')
                         AND deleted IS NULL
                         UNION
-                        SELECT `recordID`, 0, "LEAF Emailer", `timestamp`, "N/A",
+                        SELECT `recordID`, 0, "", `timestamp`, "N/A",
                             "Email Sent", "LEAF_email", concat(`recipients`, `subject`)
                         FROM `email_tracker`
                         WHERE recordID IN (' . $recordIDs . ')

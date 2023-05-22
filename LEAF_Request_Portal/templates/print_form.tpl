@@ -58,7 +58,7 @@
     <!--{section name=i loop=$comments}-->
         <div class='comment_block'>
             <span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
-            <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
+    <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> <!--{if $comments[i].name != ''}--> by<!--{/if}--><!--{$comments[i].name}--></span>
             <div class="comments_message"><!--{$comments[i].comment|sanitize}--></div>
         </div>
     <!--{/section}-->

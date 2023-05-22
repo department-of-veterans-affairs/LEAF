@@ -232,7 +232,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
             if (thisSearchID === searchID) {
                 if (Object.keys(data).length) {
                     let totalCount = 0;
-                    console.log(totalCount);
+
                     $.each(data, function (index, value) {
                         let displayRecord = true;
                         // If this is email reminder list, then compare against give time period
@@ -251,8 +251,6 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
                                     Date.now() - getReminder * 86400 * 1000;
                                 if (lastActionDate >= comparisonDate) {
                                     displayRecord = false;
-                                } else {
-                                    totalCount++;
                                 }
                             } else {
                                 console.log("No record to display");
@@ -260,6 +258,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
                             }
                         }
                         if (displayRecord) {
+                            totalCount++;
                             requestsRow = '<tr class="requestRow">';
                             requestsRow +=
                                 '<td><a href="index.php?a=printview&amp;recordID=' +

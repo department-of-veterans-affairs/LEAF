@@ -73,7 +73,7 @@ class View
                      AND deleted IS NULL
                      UNION
                      SELECT `timestamp`, "Email Sent", "N/A", "N/A",
-                        "N/A", concat(`recipients`, "<br />", `subject`), "Leaf Emailer"
+                        "N/A", concat(`recipients`, "<br />", `subject`), ""
                      FROM `email_tracker`
                      WHERE recordID = :recordID
                      ORDER BY time ASC';
