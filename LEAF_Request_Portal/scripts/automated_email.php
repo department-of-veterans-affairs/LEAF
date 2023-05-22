@@ -1,7 +1,7 @@
 <?php
 $currDir = dirname(__FILE__);
 require_once $currDir.'/../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
 
@@ -57,7 +57,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        LEFT JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID)
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 0
@@ -80,7 +80,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        LEFT JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID)
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 1
