@@ -2,6 +2,8 @@ const CombinedInboxEditor = Vue.createApp({
     data() {
         return {
             sites: [],
+            choices: [],
+            CSRFToken: CSRFToken,
             dialog: new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange'),
             allColumns: 'service,title,status,dateinitiated,days_since_last_action',
             frontEndColumns: {
@@ -18,76 +20,32 @@ const CombinedInboxEditor = Vue.createApp({
                 "Date Initiated": 'dateinitiated',
                 "Days Since Last Action": 'days_since_last_action'
             },
-            template: ''
         };
     },
-    props: {
-
-    },
     methods: {
-        slist(target, id = false, siteCols = false) {
-            target.classList.add("slist");
-            let items = target.getElementsByTagName("li"), current = null;
-    
-            for (let i of items) {
-                if (siteCols) {
-                    // add change event to checkboxes
-                    i.children[0].addEventListener('change', () => {
-                        this.updateColumns(items, id);
-                    });
+        startDrag(evt, site) {
+            evt.dataTransfer.dropEffect = 'move';
+            evt.dataTransfer.effectAllowed = 'move';
+            evt.dataTransfer.setData('siteID', site.id);
+        },
+
+        onDrop(evt) {
+            const site = this.sites.find((site) => site.id == evt.dataTransfer.getData('siteID'));
+            const target = this.sites.find((site) => site.id == evt.target.attributes.value.value);
+
+            if (site.order < target.order) {
+                for (let i = site.order; i <= target.order; i++) {
+                    this.sites.find((site) => site.order == i).order--;
                 }
-    
-                i.draggable = true;
-    
-                i.ondragstart = e => {
-                    current = i;
-    
-                    for (let it of items) {
-                        if (it != current) { 
-                            it.classList.add("hint"); 
-                        }
-                    }
-                };
-    
-                i.ondragenter = e => {
-                    if (i != current) { 
-                        i.classList.add("active"); 
-                    }
-                };
-    
-                i.ondragleave = () => i.classList.remove("active");
-    
-                i.ondragend = () => { for (let it of items) {
-                    it.classList.remove("hint");
-                    it.classList.remove("active");
-                }};
-    
-                i.ondragover = e => e.preventDefault();
-    
-                i.ondrop = e => {
-                    e.preventDefault();
-                    if (i != current) {
-                        let currentpos = 0, droppedpos = 0;
-    
-                        for (let it=0; it<items.length; it++) {
-                            if (current == items[it]) { 
-                                currentpos = it; 
-                            }
-                            if (i == items[it]) { 
-                                droppedpos = it; 
-                            }
-                        }
-    
-                        if (currentpos < droppedpos) {
-                            i.parentNode.insertBefore(current, i.nextSibling);
-                        } else {
-                            i.parentNode.insertBefore(current, i);
-                        }
-    
-                        return siteCols ? this.updateColumns(items, id) : this.updateSiteOrder();
-                    }
-                };
+                site.order = target.order + 1;
+            } else {
+                for (let i = target.order; i <= site.order; i++) {
+                    this.sites.find((site) => site.order == i).order++;
+                }
+                site.order = target.order - 1;
             }
+            this.sortSites();
+            this.saveSettings();
         },
     
         updateSiteOrder() {
@@ -101,7 +59,6 @@ const CombinedInboxEditor = Vue.createApp({
             })
         },
     
-        // Get site icons and name
         getIcon(icon, name) {
             if (icon != '') {
                 if (icon.indexOf('/') != -1) {
@@ -114,15 +71,7 @@ const CombinedInboxEditor = Vue.createApp({
             }
             return icon;
         },
-    
-        updateColumns(items, id) {
-            return new Promise((resolve, reject) => {
-                // update site columns in new order
-                let checkedColumns = Object.values(items).filter(item => item.children[0].checked);
-                this.sites[id].columns = checkedColumns.map(item => backEndColumns[item.textContent.trim()]).join(',');
-            })
-        },
-    
+        
         shiftColumns(site) {
             return new Promise((resolve, reject) => {
                 this.dialog.setTitle(`${site.title} Column Order`);
@@ -151,7 +100,7 @@ const CombinedInboxEditor = Vue.createApp({
         },
     
         getMapSites() {
-            return new Promise((resolve, reject) => {
+            return new Promise(() => {
                 $.ajax({
                     type: 'GET',
                     url: '../api/site/settings/sitemap_json',
@@ -161,22 +110,24 @@ const CombinedInboxEditor = Vue.createApp({
                             ...site,
                             columns: site.columns ?? 'service,title,status',
                             show: site.show ?? true
-                        })).filter((site) => site.target.includes(window.location.hostname)
-                        ).reduce((sites, site) => {
-                            sites[site.id] = site;
-                            return sites;
-                        }, []);
+                        })).filter((site) => site.target.includes(window.location.hostname));
                         this.sites = formattedSiteMap.sort((a, b) => a.order - b.order);
-                        console.log(this.sites);
-                        resolve(this.sites);
+                        this.sites.forEach((site) => {
+                            this.choices.push({id: site.id, choices: []})
+                            let tmp = [];
+                            site.columns.split(',').forEach((col, index) => {
+                                tmp.push({value: col, label: this.frontEndColumns[col], id: index});
+                            })
+                            this.choices.find((choice) => choice.id == site.id).choices = tmp;
+                        });
                     },
                     fail: (err) => {
-                        reject(err);
+                        console.log(err);
                     }
                 });
             })
         },
-    
+
         saveSettings() { 
             new Promise((resolve, reject) => {
                 // sort the sites by order
@@ -193,7 +144,6 @@ const CombinedInboxEditor = Vue.createApp({
                         sitemap_json: JSON.stringify(sendObj)
                     },
                     success: (res) => {
-                        Promise.all([this.loadSiteColMenu(this.sites), this.loadSiteColPreview(this.sites)]);
                         resolve();
                     },
                     fail: (err) => {
@@ -202,108 +152,83 @@ const CombinedInboxEditor = Vue.createApp({
                 });
             })
         },
-    
-        buildHeaderColumns(preCon, cols, postCon) {
-            cols = cols.split(',') ?? defaultCols;
-            let headerColumns = [];
-            cols.forEach(col => {
-                headerColumns.push(`${preCon}${this.frontEndColumns[col]}${postCon}`);
-            });
-            return headerColumns;
+
+        sortSites() {
+            this.sites.sort((a, b) => a.order - b.order);
         },
-    
-        loadSiteColPreview() {
-           return new Promise(() => {
-                buf = [];
-                let orderedSites = Object.values(this.sites).sort((a, b) => a.order - b.order);
-                for (let key in orderedSites) {
-                    let site = orderedSites[key];
-        
-                    let headerColumns = this.buildHeaderColumns(`<th class="col-header" value="${site.columns}">`, site.columns, `</th>`);
-                    // build the preview pane and headers
-                    buf.push(`
-                    <div id="site-container-${site.id}" class="site-container" style="border-right: 8px solid ${site.color}; border-left: 8px solid ${site.color}; border-bottom: 8px solid ${site.color};">
-                        <div class="site-title" style="background-color: ${site.color}; color: ${site.fontColor};">
-                            ${this.getIcon(site.icon, site.title)} ${site.title}
-                        </div>
-                        <div class="inbox">
-                            <table style="width: 100%;" cellspacing=0>
-                                <tr>
-                                    <th class="col-header">UID</th>
-                                    ${headerColumns.join('')}
-                                    <th class="col-header">Action</th>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>`);
-                }
-                // assign buffer to id div for display
-                $('#inbox-preview').html(buf.join('<br/>'));
-        
-                for (let key in this.sites) {
-                    let site = this.sites[key];
-                    $(`#site-container-${site.id}`).on("click", () => this.shiftColumns(site));
-                }
-            })
-        },
-    
-        loadSiteColMenu() {
-            return new Promise(() => {
-                buf = [];
-                let siteCols = [];
-                    let orderedSites = Object.values(this.sites).sort((a, b) => a.order - b.order);
-                    for (let key in orderedSites) {
-                        let site = orderedSites[key];
-        
-                        siteCols.push(`<li value="${site.id}">${site.title}</li>`) 
-                    }
-                    buf.push(`
-                        <div>
-                            Site Order
-                        </div>
-                        <ul id="header-sites-list">
-                            ${siteCols.join('')}
-                        </ul>
-                    `);
-        
-                    buf.push(`<button class="usa-button leaf-btn-med" onclick="this.saveSettings()">Save Site Order</button>`);
-        
-                    $(`#side-bar`).html(buf.join(`<br/>`));
-        
-                    this.slist(document.getElementById(`header-sites-list`));
-        
-                // for (let key in sites) {
-                //     let site = sites[key];
-                //     slist(document.getElementById(`header-list-${site.id}`), site.id);
-                // }
-            })
-        }
     },
     created() {
-        this.getMapSites()
-            .then(() => {
-                Promise.all([this.loadSiteColPreview(this.sites), this.loadSiteColMenu(this.sites)])
-            });
+        this.getMapSites();
     },
-    // beforeMount() {
-    //     fetch('../js/combined_inbox_editor/src/combined_inbox_editor.vue.html').then((res) => {
-    //             console.log('here', res.text());
-    //             this.template = res.text();
-    //         }).catch((err) => {
-    //             console.warn('Something went wrong.', err);
-    //         });
-    // },
-    computed() {},
+    mounted() {
+        this.sites.forEach((site) => {
+            let selectElement = document.getElementById('choice-' + site.id);
+
+            this.choices.push(new Choices(selectElement, {
+                allowHTML: false,
+                removeItemButton: true,
+                editItems: true,
+                items: site.columns,
+                choices: this.allColumns.split(',').map((col) => ({value: col, label: frontEndColumns[col]}))
+            }));
+            
+            selectElement.addEventListener('change', (event) => {
+                const selectedValue = event.target.value;
+                console.log(selectedValue);
+            });
+        });
+    },
+    computed: {
+    },
     template: `
     <h1 style="margin: 3rem;">Combined Inbox Editor</h1>
 
     <div id="editor-container">
-        <div id="side-bar" class="inbox" style="display: block;">Edit Columns <br/></div>
+        <div id="side-bar" class="inbox" style="display: block;">
+            Edit Columns 
+            <br/>
+            <div @dragover.prevent 
+            @dragenter.prevent
+            style="margin: 1rem 0;">
+                <div
+                class="drag-el"
+                v-for="site in sites"
+                draggable="true"
+                @dragstart="startDrag($event, site)"
+                @drop="onDrop($event, site)"
+                :value="site.id"
+                :key="site.order">
+                    {{site.title}}
+                </div>
+            </div>
+        </div>
         <div id="inbox-preview" style="display: block;">
-            <div v-for "i in sites"
-            :id=""
-            
-            ></div> 
+            <template v-for="site in sites" :key="site.id">
+                <div :id="'site-container-' + site.id" 
+                class="site-container" 
+                :style="{
+                    borderRight: '8px solid' + site.color, 
+                    borderLeft: '8px solid' + site.color, 
+                    borderBottom: '8px solid' + site.color}"
+                >
+                    <div class="site-title" :style="{backgroundColor: site.color, color: site.fontColor}">
+                        <span v-html="getIcon(site.icon, site.title)"></span>
+                        {{site.title}}
+                    </div>
+                    <div class="inbox">
+                        <select :id="'choice-' + site.id" placeholder="select some options" multiple="true"></select>
+                        <table style="width: 100%;" cellspacing=0>
+                            <tr>
+                                <th class="col-header">UID</th>
+                                <template v-for="column in site.columns.split(',')" :key="column">
+                                    <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
+                                </template>
+                                <th class="col-header">Action</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>`
 });

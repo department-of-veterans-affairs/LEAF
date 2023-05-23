@@ -68,3 +68,18 @@ font-weight: 300;
     border: 1px solid #ffa5a5;
     background: #ffe7e7;
 }
+
+.drag-el {
+    background-color: #eee;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    transition: color 0.3s, background-color 0.3s; 
+}
+
+.drag-el:hover {
+    background-color: #eef;
+    color: #00f;
+    border: 1px solid #ccf;
+}
+
