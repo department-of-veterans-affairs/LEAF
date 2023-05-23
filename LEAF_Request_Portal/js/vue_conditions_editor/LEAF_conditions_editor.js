@@ -387,8 +387,8 @@ const ConditionsEditor = Vue.createApp({
     updateChoicesJS() {
       setTimeout(() => {
         const elExistingChoicesChild = document.querySelector("#child_choices_wrapper > div.choices");
-        const elSelectParent = document.getElementById("parent_compValue_entry");
-        const elSelectChild = document.getElementById("child_prefill_entry");
+        const elSelectParent = document.getElementById("parent_compValue_entry_multi");
+        const elSelectChild = document.getElementById("child_prefill_entry_multi");
         const outcome = this.conditions.selectedOutcome;
 
         if (
@@ -791,7 +791,7 @@ const ConditionsEditor = Vue.createApp({
                     </select>
                     <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
                       <span class="input-info" id="prefill_value_entry">Enter a pre-fill value</span>
-                      <!-- NOTE: PRE-FILL ENTRY AREA dropdown, radio, multidropdown, checkboxes, text, textarea, orgemp -->
+                      <!-- NOTE: PRE-FILL ENTRY AREA -->
                       <select v-if="childFormat==='dropdown' || childFormat==='radio'"
                           id="child_prefill_entry"
                           @change="updateSelectedOptionValue($event.target, 'child')">
@@ -807,7 +807,7 @@ const ConditionsEditor = Vue.createApp({
                         id="child_choices_wrapper" :key="'prefill_' + selectedConditionJSON">
                         <select placeholder="select some options"
                             multiple="true"
-                            id="child_prefill_entry"
+                            id="child_prefill_entry_multi"
                             style="display: none;"
                             @change="updateSelectedOptionValue($event.target, 'child')">
                         </select>
@@ -858,7 +858,7 @@ const ConditionsEditor = Vue.createApp({
                     <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"
                       id="parent_choices_wrapper" class="comparison"
                       :key="'comp_' + selectedConditionJSON">
-                      <select id="parent_compValue_entry" class="comparison"
+                      <select id="parent_compValue_entry_multi" class="comparison"
                           placeholder="select some options" multiple="true"
                           style="display: none;"
                           @change="updateSelectedOptionValue($event.target, 'parent')">
