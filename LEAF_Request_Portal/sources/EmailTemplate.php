@@ -126,6 +126,24 @@ class EmailTemplate
         return $out;
     }
 
+    public function getCustomEmailTemplateList()
+    {
+        if (!$this->login->checkGroup(1)) {
+            return 'Admin access required';
+        }
+
+        $list = scandir('../templates/email/custom_override');
+        $out = array();
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
+                $out[] = $item;
+            }
+        }
+
+        return $out;
+    }
+
     public function getLabelFromFileName($fileName)
     {
         $vars = [":body" => $fileName];
