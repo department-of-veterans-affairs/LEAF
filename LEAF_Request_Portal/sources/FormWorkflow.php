@@ -1004,8 +1004,7 @@ class FormWorkflow
             }
 
             $email->setSender($author[0]['Email']);
-
-            $email->sendMail();
+            $email->sendMail($this->recordID);
         }
 
         // Handle Events
@@ -1020,7 +1019,6 @@ class FormWorkflow
             AND actionType = :actionType
             ORDER BY eventID ASC';
         $res = $this->db->prepared_query($strSQL, $varEvents);
-
 
         foreach ($res as $event)
         {
@@ -1090,7 +1088,7 @@ class FormWorkflow
                     $tmp = $dir->lookupLogin($approvers[0]['userID']);
                     $email->addRecipient($tmp[0]['Email']);
 
-                    $email->sendMail();
+                    $email->sendMail($this->recordID);
 
                     break;
                 case $customEvent: // For all custom events
@@ -1155,7 +1153,7 @@ class FormWorkflow
                         $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
 
                     } else {
-                        $email->sendMail();
+                        $email->sendMail($this->recordID);
 
                     }
 
