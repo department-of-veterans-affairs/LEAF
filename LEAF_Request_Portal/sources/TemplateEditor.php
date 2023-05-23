@@ -68,7 +68,6 @@ class TemplateEditor
             return 'Admin access required';
         }
         $list = $this->getTemplateList();
-error_log(print_r($list, true));
 
         $data = array();
         if (array_search($template, $list) !== false)
@@ -85,7 +84,6 @@ error_log(print_r($list, true));
                 $data['file'] = file_get_contents("../templates/{$template}");
             }
         }
-error_log(print_r($data, true));
 
         return $data;
     }
