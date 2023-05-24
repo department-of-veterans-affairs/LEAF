@@ -576,7 +576,6 @@
             data !== currentFileContent ||
             subject !== currentSubjectContent
         ) ? true : false;
-        const isEmailToEmpty = (emailToData === '') ? true : false;
         const isContentUnchanged = (data === currentFileContent || subject === currentSubjectContent) ? true : false;
 
 
@@ -588,9 +587,7 @@
                 saveTemplate();
             }
         } else {
-            if (isEmailToEmpty) {
-                showDialog('Please fill out the Email to section to proceed', 'red');
-            } else if (isContentChanged) {
+            if (isContentChanged) {
                 saveTemplate();
             } else {
                 showDialog('Please make a change to the content in order to save.');
