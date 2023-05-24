@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
 ('dbversion', '2023022300'),
-('heading', ''),
+('heading', 'New LEAF Site'),
 ('leafSecure', '0'),
 ('national_linkedPrimary', ''),
 ('national_linkedSubordinateList', ''),
@@ -249,9 +249,9 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('subHeading', ''),
 ('timeZone', 'America/New_York'),
 ('version', '2240'),
-('adPath', ''),
-('emailBCC', ''),
-('emailCC', ''),
+('adPath', '{}'),
+('emailBCC', '{}'),
+('emailCC', '{}'),
 ('sitemap_json', '{"buttons":[]}'),
 ('emailPrefix', 'Resources: ');
 

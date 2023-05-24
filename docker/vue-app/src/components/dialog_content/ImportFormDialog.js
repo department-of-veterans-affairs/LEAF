@@ -1,4 +1,5 @@
 export default {
+    name: 'import-form-dialog',
     data() {
         return {
             initialFocusElID: 'formPacket',
@@ -29,12 +30,11 @@ export default {
                     cache: false,
                     data: pkg,
                     success: (res) => {
-                        //NOTE: returns true on success, or various messages alerted to user if there were issues.
-                        if(res!==true) {
+                        if(+res !== 1) {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.selectNewCategory(null);
+                        this.selectNewCategory();
                     },
                     error: err => console.log('form import error', err),
                 })

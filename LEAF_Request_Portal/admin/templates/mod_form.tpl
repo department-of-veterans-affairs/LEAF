@@ -671,6 +671,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <option value="orgchart_position">Orgchart Position</option>
                 <option value="orgchart_employee">Orgchart Employee</option>
                 <option value="raw_data">Raw Data (for programmers)</option>
+                <!-- <option value="signature">Signature</option> -->
             </select>
             <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox:<br/>
                 <input type="text" id="indicatorSingleAnswer" />
@@ -726,6 +727,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
             makeGrid(gridCols);
             break;
         case 'checkbox':   //single option entry box
+        case 'signature':
             $('#container_indicatorSingleAnswer').css('display', 'block');
             if (formatOptionsStr !== '') $('#indicatorSingleAnswer').val(formatOptionsStr);
             break;
@@ -920,6 +922,7 @@ function setFormatElementValue() {
         case 'dropdown':
             fullFormat += "\n" + formatIndicatorMultiAnswer($('#indicatorMultiAnswer').val());
             break;
+        case 'signature':
         case 'checkbox':
             fullFormat += "\n" + $('#indicatorSingleAnswer').val();
             break;
@@ -2039,7 +2042,7 @@ function renderSecureFormsInfo(res) {
             // if newIndicator found, look for existing leaf-s request and assign proper next step
             if (newIndicator) {
                 fetchLEAFSRequests(false).then(function(unresolvedLeafSRequests) {
-                    if (unresolvedLeafSRequests.length == 0) { // if no new request, create one
+                    if (Object.keys(unresolvedLeafSRequests).length == 0) { // if no new request, create one
                         $('#secureStatus').text('Forms have been modified.');
                         $('#secureBtn').text('Please Recertify Your Site');
                         $('#secureBtn').attr('href', '../report.php?a=LEAF_start_leaf_secure_certification');

@@ -46,13 +46,6 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
     }
 }
 
-if (class_exists('Portal\DbConfig')) {
-    $db_config = new Portal\DbConfig();
-    $config = new Portal\Config();
-}
-
-$oc_config = new Orgchart\Config();
-
 if (!empty($site_paths['portal_database'])){
     $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 } else {
@@ -61,7 +54,28 @@ if (!empty($site_paths['portal_database'])){
 
 $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
-unset($db_config);
+// get the settings for this portal
+$setting_up = new Leaf\Setting($db);
+$settings = $setting_up->getSettings();
+
+if (class_exists('Portal\DbConfig')) {
+    $db_config = new Portal\DbConfig();
+    $config = new Portal\Config($site_paths, $settings);
+    if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
+}
+
+$vars = array(':site_path' => $site_paths['orgchart_path']);
+$sql = 'SELECT site_uploads
+        FROM sites
+        WHERE site_path= BINARY :site_path';
+
+$oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
+
+$oc_setting_up = new Leaf\Setting($oc_db);
+$oc_settings = $oc_setting_up->getSettings();
+
+$oc_config = new Orgchart\Config($site_paths, $oc_settings);
+if (!defined('ORGCHART_CONFIG')) define('ORGCHART_CONFIG', $oc_config);
 
 ini_set('session.gc_maxlifetime', 2592000);
 
@@ -76,11 +90,7 @@ if (count($_GET) > 0) {
 }
 
 if (session_id() == '') {
-    if(defined('DIRECTORY_HOST')) {
-        $session_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
-    } else {
-        $session_db = $oc_db;
-    }
+    $session_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
 
     if (class_exists('Portal\Session')) {
         $sessionHandler = new \Portal\Session($session_db);
@@ -114,3 +124,11 @@ if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_H
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['orgchart_path']);
 if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['site_path']);
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
+if (!defined('ORGCHART_DB')) define('ORGCHART_DB', $site_paths['orgchart_database']);
+if (!defined('OC_DB')) define('OC_DB', $oc_db);
+
+if (!empty($site_paths['portal_database'])) {
+    if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['portal_database']);
+} else {
+    if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['orgchart_database']);
+}

@@ -47,7 +47,7 @@ $main->assign('hideFooter', false);
 $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 if (isset($settings['timeZone'])) {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
@@ -174,6 +174,7 @@ switch ($action) {
         $recordIDToPrint = (int)$_GET['recordID'];
 
         $form = new Portal\Form($db, $login);
+
         $t_menu->assign('recordID', $recordIDToPrint);
         $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
@@ -187,7 +188,7 @@ switch ($action) {
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
         $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
         $t_form->assign('accessLogs', $form->log);
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
         $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
@@ -420,7 +421,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
@@ -435,7 +436,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('sitemap', json_decode($settings['sitemap_json']));
+        $t_form->assign('sitemap', $settings['sitemap_json']['buttons']);
         $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
@@ -467,7 +468,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', Leaf\XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', Leaf\XSSHelpers::xscrub($_GET['indicators']));
@@ -517,7 +518,7 @@ switch ($action) {
         $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('is_quadrad', (int)$login->isQuadrad() || (int)$login->checkGroup(1));
         $t_form->assign('is_admin', (int)$login->checkGroup(1));
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
@@ -542,7 +543,7 @@ $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure'
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
-$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

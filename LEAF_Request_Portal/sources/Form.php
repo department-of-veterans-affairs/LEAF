@@ -39,11 +39,10 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        $config = new \Orgchart\Config;
-        $oc_db = new \Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
-        $this->oc_dbName = $config->dbName;
+        $this->oc_dbName = \ORGCHART_DB;
 
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
         $this->position = new \Orgchart\Position($oc_db, $oc_login);
@@ -988,6 +987,7 @@ class Form
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series, );
+
         $res = $this->db->prepared_query('SELECT data, format FROM data
                                             LEFT JOIN indicators USING (indicatorID)
                                             WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
@@ -1019,26 +1019,58 @@ class Form
         }
 
         // check write access
-        if (!$this->hasWriteAccess($recordID, 0, $key))
-        {
+        if (!$this->hasWriteAccess($recordID, 0, $key)) {
             return 0;
         }
+
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
-        $res = $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
+
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
                                             VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
 
-        if (!$duplicate)
-        {
-            $res2 = $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+        if (!$duplicate) {
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
         }
+
+        $vars = array(':recordID' => $recordID,
+                      ':indicatorID' => $key,
+                      ':series' => $series, );
+
+        $res = $this->db->prepared_query('SELECT data, format FROM data
+                                            LEFT JOIN indicators USING (indicatorID)
+                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+
+        if (strpos($res[0]['format'], 'signature') == 0) {
+            // $this->writeSignature($recordID);
+        }
         return 1;
+    }
+
+    private function writeSignature(int $recordID): void
+    {
+        $form = json_encode($this->getFullFormDataForSigning($recordID));
+        $workflow = new FormWorkflow($this->db, $this->login, $recordID);
+        $current_step = $workflow->getCurrentSteps();
+
+        if ($current_step === null) {
+            $step_id = -1;
+            $dependency_id = 0;
+        } else {
+            foreach ($current_step as $key => $value) {
+                $step_id = $value['stepID'];
+                $dependency_id = $value['dependencyID'];
+            }
+        }
+
+        $signature = new Signature($this->db, $this->login);
+        $signature->create('place holder, coming from piv card?', $recordID, $step_id, $dependency_id, $form, 'another place holder for signerPublicKey');
     }
 
     /**
@@ -3793,7 +3825,11 @@ class Form
 
             foreach ($res as $field)
             {
-                $idx = $field['indicatorID'];
+                if (isset($_GET['childkeys']) && strtolower($_GET['childkeys']) === 'nonnumeric') {
+                    $idx = "id".$field['indicatorID'];
+                } else {
+                    $idx = $field['indicatorID'];
+                }
 
                 // todo: cleanup required field
                 $required = isset($field['required']) && $field['required'] == 1 ? ' required="true" ' : '';

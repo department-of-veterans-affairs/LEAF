@@ -1083,6 +1083,33 @@ class Workflow
         return true;
     }
 
+    public function renameWorkflow(string $description): string 
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if ($this->workflowID < 0) {
+            return 'Restricted command.';
+        }
+        
+        $vars = array(':workflowID' => $this->workflowID,
+                      ':description' => $description
+                );
+        $strSQL = "UPDATE workflows SET description = :description WHERE workflowID = :workflowID";
+
+        $this->db->prepared_query($strSQL, $vars);
+        
+        $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_NAME, [
+            new \Leaf\LogItem("workflow_name", "description",  $description),
+            new \Leaf\LogItem("workflow_name", "workflowID",  $this->workflowID)
+        ]);
+
+        return $this->workflowID;
+    }
+
     public function newWorkflow($description)
     {
         if (!$this->login->checkGroup(1))
@@ -1360,6 +1387,13 @@ class Workflow
         {
             $alignment = 'left';
         }
+        $sort = (int)strip_tags($_POST['sort'] ?? 0);
+        if ($sort < -128) {
+            $sort = -128;
+        }
+        if ($sort > 127) {
+            $sort = 127;
+        }
 
         $vars = array(
             ':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($actionType)),
@@ -1367,7 +1401,7 @@ class Workflow
             ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
             ':actionIcon' => $_POST['actionIcon'],
             ':actionAlignment' => $alignment,
-            ':sort' => 0,
+            ':sort' => $sort,
             ':fillDependency' => $_POST['fillDependency'],
         );
 
@@ -1377,7 +1411,7 @@ class Workflow
             new \Leaf\LogItem("actions", "actionText",  strip_tags($_POST['actionText'])),
             new \Leaf\LogItem("actions", "actionIcon",  $_POST['actionIcon']),
             new \Leaf\LogItem("actions", "actionAlignment",  $alignment),
-            new \Leaf\LogItem("actions", "sort",  0),
+            new \Leaf\LogItem("actions", "sort",  $sort),
             new \Leaf\LogItem("actions", "fillDependency",  $_POST['fillDependency']),
             new \Leaf\LogItem("actions", "actionTextPasttense",   strip_tags($_POST['actionTextPasttense']))
         ]);

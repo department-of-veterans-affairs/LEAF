@@ -49,8 +49,7 @@ class System
         $this->db->prepared_query('DELETE FROM services WHERE serviceID=:serviceID AND serviceID > 0', $vars);
         //$this->db->prepared_query('DELETE FROM service_chiefs WHERE serviceID=:serviceID AND locallyManaged != 1', $vars); // Skip Local
 
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $group = new \Orgchart\Group($oc_db, $this->login);
         $position = new \Orgchart\Position($oc_db, $this->login);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -163,8 +162,7 @@ class System
         //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
         $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-        $config = new Config();
-        $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $group = new \Orgchart\Group($oc_db, $this->login);
         $position = new \Orgchart\Position($oc_db, $this->login);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -234,7 +232,7 @@ class System
                                             FROM category_privs
                                             LEFT JOIN `groups` USING (groupID)
                                             WHERE category_privs.groupID = :groupID
-                                            AND groups.groupID is null;', $vars);
+                                            AND `groups`.groupID is null;', $vars);
         if(count($res) > 0)
         {
             $this->db->prepared_query('DELETE FROM category_privs WHERE groupID=:groupID', $vars);
@@ -261,8 +259,7 @@ class System
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-            $config = new Config();
-            $oc_db = new \Leaf\Db($config->phonedbHost, $config->phonedbUser, $config->phonedbPass, $config->phonedbName);
+            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $employee = new \Orgchart\Employee($oc_db, $this->login);

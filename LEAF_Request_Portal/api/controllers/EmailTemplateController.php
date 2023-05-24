@@ -36,7 +36,7 @@ class EmailTemplateController extends RESTfulResponse
             return $emailTemplate->getEmailAndSubjectTemplateList();
         });
 
-        $this->index['GET']->register('emailTemplates/[text]', function($args) use ($emailTemplate) {
+        $this->index['GET']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
             return $emailTemplate->getEmailTemplate($args[0]);
         });
 
@@ -49,35 +49,42 @@ class EmailTemplateController extends RESTfulResponse
 
     public function post($act)
     {
-        $db = $this->db;
-        $login = $this->login;
         $emailTemplate = $this->emailTemplate;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['POST'] = new ControllerMap();
 
-        $this->index['POST']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
-            return $emailTemplate->setEmailTemplate($args[0]);
-        });
+            $this->index['POST']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
+                return $emailTemplate->setEmailTemplate($args[0]);
+            });
+            $this->index['POST']->register('emailTemplateFileHistory/[text]', function ($args) use ($emailTemplate) {
+                return $emailTemplate->setHistoryEmailTemplate($args[0]);
+            });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
     }
 
     public function delete($act)
     {
-        $db = $this->db;
-        $login = $this->login;
         $emailTemplate = $this->emailTemplate;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['DELETE'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['DELETE'] = new ControllerMap();
 
-        $this->index['DELETE']->register('emailTemplates/[text]', function ($args) use ($db, $login, $emailTemplate) {
-            return $emailTemplate->removeCustomEmailTemplate($args[0]);
-        });
+            $this->index['DELETE']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
+                return $emailTemplate->removeCustomEmailTemplate($args[0]);
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
     }
 }

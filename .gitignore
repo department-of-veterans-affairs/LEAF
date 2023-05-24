@@ -25,14 +25,7 @@ LEAF_Request_Nexus/templates/custom_override/*
 LEAF_Request_Portal/qrcode/cache/tmp*
 LEAF_Request_Nexus/qrcode/cache/tmp*
 
-db_config.php
-config.php
 LEAF_Request_Portal/sources/DbConfig.php
-LEAF_Request_Portal/db_config-bk.php
-LEAF_Nexus/config-bk.php
-LEAF_Nexus/globals-bk.php
-LEAF_Request_Portal/globals-bk.php
-
 libs/dynicons/cache/*.svg
 libs/qrcode/cache/*.png
 

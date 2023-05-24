@@ -450,7 +450,7 @@ function handlePrintConditionalIndicators(formPrintConditions = {}) {
             const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
             const outcome = conditions[i].selectedOutcome.toLowerCase();
 
-            if (outcome !== 'pre-fill' && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
+            if (['hide', 'show'].includes(outcome) && childFormatIsEnabled && (elParentInd !== null || selectedParentOptionsLI !== null)) {
 
                 if (comparison !== true) { //no need to re-assess if it has already become true
                     const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerText.trim();
@@ -770,17 +770,16 @@ function copyRequest(){
                         if (pickAndChooseValues.includes(resultValue[series].indicatorID)) {
 
                             // uploaded files will need to have a special case done to them to copy them over to the new record
-                            if(resultValue[series].format == 'fileupload' || resultValue[series].format == 'image'){
-                                if(resultValue[series].value.length > 0){
-                                    resultValue[series].value.forEach(function(currentFile){
-                                        let fileDat = {
-                                            fileName: currentFile,
-                                            series: series,
-                                            indicatorID: resultValue[series].indicatorID
-                                        }
-                                        fileData.push(fileDat);
-                                    });
-                                }
+                            if((resultValue[series].format == 'fileupload' || resultValue[series].format == 'image')
+                                && Array.isArray(resultValue[series].value)) {
+                                resultValue[series].value.forEach(function(currentFile){
+                                    let fileDat = {
+                                        fileName: currentFile,
+                                        series: series,
+                                        indicatorID: resultValue[series].indicatorID
+                                    }
+                                    fileData.push(fileDat);
+                                });
                                 // also need to pull this out of an array since it would then move this to an object which breaks everything.
                                 updateData[resultValue[series].indicatorID] = resultValue[series].value.join('\r\n');
                             }

@@ -313,6 +313,18 @@ class FormEditor
         return $result;
     }
 
+    public function setSortBatch(array $batch): array {
+        $updates = array();
+        foreach($batch as $item) {
+            $this->setSort((int)$item['indicatorID'], (int)$item['sort']);
+            $updates[] = array(
+                'indicatorID' => (int)$item['indicatorID'],
+                'sort' => (int)$item['sort']
+            );
+        }
+        return $updates;
+    }
+
     public function setHtml($indicatorID, $input)
     {
         $vars = array(':indicatorID' => $indicatorID,
@@ -579,6 +591,25 @@ class FormEditor
         return $result;
     }
 
+    public function setFormDestructionAge(string $categoryID, int $input): int|null {
+        if ($input === 0) {
+            $input = null;
+        }
+        if ($input === null || ($input >= 1 && $input <=30)) {
+            $vars = array(':categoryID' => $categoryID, ':input' => $input);
+            $strSQL = 'UPDATE categories SET destructionAge=:input WHERE categoryID=:categoryID';
+            $result =  $this->db->prepared_query($strSQL, $vars);
+
+            if(!empty($input)) {
+                $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                    new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                    new \Leaf\LogItem("categories", "destructionAge", $input)
+                ]);
+            }
+        }
+        return $input;
+    }
+
     public function getCategoryPrivileges($categoryID)
     {
         if (!$this->login->checkGroup(1))
@@ -692,9 +723,9 @@ class FormEditor
         }
 
         $res = $this->db->prepared_query(
-            'SELECT indicator_mask.groupID, groups.name AS groupName
+            'SELECT indicator_mask.groupID, `groups`.name AS groupName
 				FROM indicator_mask
-				LEFT JOIN `groups` ON (groups.groupID = indicator_mask.groupID)
+				LEFT JOIN `groups` ON (`groups`.groupID = indicator_mask.groupID)
 				WHERE indicator_mask.indicatorID = :indicatorID ORDER BY indicator_mask.groupID ASC',
             array(':indicatorID' => $indicatorID)
         );

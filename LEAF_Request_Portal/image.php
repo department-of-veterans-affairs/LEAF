@@ -20,7 +20,7 @@ $value = $data[$_GET['id']]['value'];
 
 if (!is_numeric($_GET['file'])
     || $_GET['file'] < 0
-    || $_GET['file'] > count($value) - 1)
+    || !is_countable($value) || $_GET['file'] > count($value) - 1)
 {
     echo 'Invalid file';
     exit();
@@ -30,7 +30,7 @@ $_GET['form'] = (int)$_GET['form'];
 $_GET['id'] = (int)$_GET['id'];
 $_GET['series'] = (int)$_GET['series'];
 
-$uploadDir = isset(Portal\Config::$uploadDir) ? Portal\Config::$uploadDir : UPLOAD_DIR;
+$uploadDir = $site_paths['site_uploads'];
 $filename = $uploadDir . Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_GET['series'], $value[$_GET['file']]);
 
 $filenameParts = explode('.', $filename);

@@ -43,44 +43,67 @@ class TemplateReportsController extends RESTfulResponse
         $this->index['GET']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
             return $templateReports->getReportTemplate($args[0]);
         });
+
+        $this->index['GET']->register('reportTemplates/getHistoryFiles/[text]', function ($args) use ($templateReports) {
+            return $templateReports->getHistoryReportTemplate($args[0]);
+        });
+        $this->index['GET']->register('reportTemplates/getCompareHistoryHistoryFiles/[text]', function ($args) use ($templateReports) {
+            return $templateReports->getCompareHistoryReportTemplate($args[0]);
+        });
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
     public function post($act)
     {
-        $db = $this->db;
-        $login = $this->login;
         $templateReports = $this->templateReports;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['POST'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['POST'] = new ControllerMap();
 
-        $this->index['POST']->register('reportTemplates', function ($args) use ($templateReports) {
-            return $templateReports->newReportTemplate($_POST['filename']);
-        });
+            $this->index['POST']->register('reportTemplates', function () use ($templateReports) {
+                return $templateReports->newReportTemplate($_POST['filename']);
+            });
 
-        $this->index['POST']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
-            return $templateReports->setReportTemplate($args[0]);
-        });
+            $this->index['POST']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
+                return $templateReports->setReportTemplate($args[0]);
+            });
 
-        return $this->index['POST']->runControl($act['key'], $act['args']);
+            $this->index['POST']->register('reportTemplates/fileHistory/[text]', function ($args) use ($templateReports) {
+                return $templateReports->setReportTemplateFileHistory($args[0]);
+            });
+
+            $this->index['POST']->register('reportTemplates/mergeFileHistory/saveReportMergeTemplate/[text]', function ($args) use ($templateReports) {
+                return $templateReports->setReportMergeTemplate($args[0]);
+            });
+
+            return $this->index['POST']->runControl($act['key'], $act['args']);
+        }
     }
 
     public function delete($act)
     {
-        $db = $this->db;
-        $login = $this->login;
         $templateReports = $this->templateReports;
 
-        $this->verifyAdminReferrer();
+        $verified = $this->verifyAdminReferrer();
 
-        $this->index['DELETE'] = new ControllerMap();
+        if ($verified) {
+            echo $verified;
+        } else {
+            $this->index['DELETE'] = new ControllerMap();
 
-        $this->index['DELETE']->register('reportTemplates/[text]', function ($args) use ($db, $login, $templateReports) {
-            return $templateReports->removeReportTemplate($args[0]);
-        });
+            $this->index['DELETE']->register('reportTemplates/[text]', function ($args) use ($templateReports) {
+                return $templateReports->removeReportTemplate($args[0]);
+            });
 
-        return $this->index['DELETE']->runControl($act['key'], $act['args']);
+            $this->index['DELETE']->register('reportTemplates/deleteHistoryFileReport/[text]', function ($args) use ($templateReports) {
+                return $templateReports->removeHistoryReportTemplate($args[0]);
+            });
+
+            return $this->index['DELETE']->runControl($act['key'], $act['args']);
+        }
     }
 }
