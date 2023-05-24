@@ -177,6 +177,15 @@ const CombinedInboxEditor = Vue.createApp({
                     {{site.title}}
                 </div>
             </div>
+            <a class="usa-button 
+                    usa-button--outline 
+                    leaf-marginTopBot-halfRem 
+                    leaf-width100pct"
+                href="../report.php?a=LEAF_inbox_combined" 
+                target="_blank"
+            >
+                View Combined Inbox
+            </a>
         </div>
         <div id="inbox-preview" style="display: block;">
             <template v-for="site in sites" :key="site.id">
