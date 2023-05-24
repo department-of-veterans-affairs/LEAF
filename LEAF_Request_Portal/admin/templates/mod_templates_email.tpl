@@ -565,29 +565,32 @@
      */
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
-
-        const data = (codeEditor.getValue() == undefined) ? codeEditor.edit.getValue() : codeEditor.getValue();
-        const subject = (subjectEditor.getValue() == undefined) ? subjectEditor.edit.getValue() : subjectEditor.getValue();
         const divEmailTo = document.getElementById('divEmailTo');
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
+        const data = (codeEditor.getValue() == undefined) ? codeEditor.edit.getValue() : codeEditor.getValue();
+        const subject = (subjectEditor.getValue() == undefined) ? subjectEditor.edit.getValue() : subjectEditor.getValue();
+        const isContentChanged = (
+            emailToData !== currentEmailToContent ||
+            emailCcData !== currentEmailCcContent ||
+            data !== currentFileContent ||
+            subject !== currentSubjectContent
+        ) ? true : false;
+        const isEmailToEmpty = (emailToData === '') ? true : false;
+        const isContentUnchanged = (data === currentFileContent || subject === currentSubjectContent) ? true : false;
+
 
 
         if (divEmailTo.style.display === 'none') {
-            if (data === currentFileContent || subject === currentSubjectContent) {
+            if (isContentUnchanged) {
                 showDialog('Please make a change to the content in order to save.');
             } else {
                 saveTemplate();
             }
         } else {
-            if (emailToData === '') {
+            if (isEmailToEmpty) {
                 showDialog('Please fill out the Email to section to proceed', 'red');
-            } else if (
-                emailToData !== currentEmailToContent ||
-                emailCcData !== currentEmailCcContent ||
-                data !== currentFileContent ||
-                subject !== currentSubjectContent
-            ) {
+            } else if (isContentChanged) {
                 saveTemplate();
             } else {
                 showDialog('Please make a change to the content in order to save.');
@@ -644,7 +647,7 @@
         }
 
 
-        
+
     }
 
     // Done
