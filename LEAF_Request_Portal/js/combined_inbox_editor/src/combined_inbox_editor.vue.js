@@ -4,7 +4,6 @@ const CombinedInboxEditor = Vue.createApp({
             sites: [],
             choices: [],
             CSRFToken: CSRFToken,
-            dialog: new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange'),
             allColumns: 'service,title,status,dateinitiated,days_since_last_action',
             frontEndColumns: {
                 'service': 'Service',
@@ -30,6 +29,7 @@ const CombinedInboxEditor = Vue.createApp({
         },
 
         onDrop(evt) {
+            console.log(evt);
             const site = this.sites.find((site) => site.id == evt.dataTransfer.getData('siteID'));
             const target = this.sites.find((site) => site.id == evt.target.attributes.value.value);
 
@@ -44,21 +44,11 @@ const CombinedInboxEditor = Vue.createApp({
                 }
                 site.order = target.order - 1;
             }
+
             this.sortSites();
             this.saveSettings();
         },
-    
-        updateSiteOrder() {
-            return new Promise(() => {
-                // get list of site li values
-                const list = Object.values(document.getElementById(`header-sites-list`).getElementsByTagName('li')).map(item => item.getAttribute('value'));
-                for(let key in list) {
-                    // update the order value for each site obj
-                    this.sites[list[key]].order = key;
-                }
-            })
-        },
-    
+        
         getIcon(icon, name) {
             if (icon != '') {
                 if (icon.indexOf('/') != -1) {
@@ -71,36 +61,9 @@ const CombinedInboxEditor = Vue.createApp({
             }
             return icon;
         },
-        
-        shiftColumns(site) {
-            return new Promise((resolve, reject) => {
-                this.dialog.setTitle(`${site.title} Column Order`);
-                this.dialog.setContent(`<ul id="column-list-${site.id}"></ul>`);
-                this.dialog.setSaveHandler(() => {
-                    this.saveSettings().then(() => {
-                        this.dialog.hide();
-                    });
-                });
-                this.dialog.show();
-        
-                const compColumns = site.columns.split(',');
-                compColumns.forEach(column => {
-                    document.getElementById(`column-list-${site.id}`).innerHTML += `<li id="${site.id}-${column}" value="${column}"><input id="${site.id}-${column}-input" type="checkbox" /> ${this.frontEndColumns[column]}</li>`;
-                });
-                allColumns.split(',').forEach((column) => {
-                    if (compColumns.includes(column)) {
-                        $(`#${site.id}-${column}-input`).attr("checked", true);
-                    } else {
-                        document.getElementById(`column-list-${site.id}`).innerHTML += `<li id="${site.id}-${column}" value="${column}"><input id="${site.id}-${column}-input" type="checkbox" /> ${this.frontEndColumns[column]}</li>`;
-                    }
-                });
-        
-                this.slist(document.getElementById(`column-list-${site.id}`), site.id, true);
-            })
-        },
     
         getMapSites() {
-            return new Promise(() => {
+            return new Promise((resolve, reject) => {
                 $.ajax({
                     type: 'GET',
                     url: '../api/site/settings/sitemap_json',
@@ -119,10 +82,11 @@ const CombinedInboxEditor = Vue.createApp({
                                 tmp.push({value: col, label: this.frontEndColumns[col], id: index});
                             })
                             this.choices.find((choice) => choice.id == site.id).choices = tmp;
+                            resolve();
                         });
                     },
                     fail: (err) => {
-                        console.log(err);
+                        reject(err);
                     }
                 });
             })
@@ -156,29 +120,41 @@ const CombinedInboxEditor = Vue.createApp({
         sortSites() {
             this.sites.sort((a, b) => a.order - b.order);
         },
+
+        setupChoices() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    this.sites.forEach((site, index) => {
+                        let selectElement = document.getElementById('choice-' + site.id);
+                        let allCols = this.allColumns.split(',');
+                        let choicejs = new Choices(selectElement, {
+                            allowHTML: false,
+                            removeItemButton: true,
+                            editItems: true,
+                            maxItemCount: 7,
+                            shouldSort: false,
+                            choices: allCols.map((col) => ({
+                                value: col, 
+                                label: this.frontEndColumns[col], 
+                                selected: site.columns.split(',').includes(col)
+                            }))
+                        });
+                        
+                        selectElement.addEventListener('change', (event) => {
+                            let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
+                            site.columns = selectedValue;
+                            this.saveSettings();
+                        });
+                    });    
+                });
+                resolve();
+            });
+        }
     },
     created() {
-        this.getMapSites();
-    },
-    mounted() {
-        this.sites.forEach((site) => {
-            let selectElement = document.getElementById('choice-' + site.id);
-
-            this.choices.push(new Choices(selectElement, {
-                allowHTML: false,
-                removeItemButton: true,
-                editItems: true,
-                items: site.columns,
-                choices: this.allColumns.split(',').map((col) => ({value: col, label: frontEndColumns[col]}))
-            }));
-            
-            selectElement.addEventListener('change', (event) => {
-                const selectedValue = event.target.value;
-                console.log(selectedValue);
-            });
+        this.getMapSites().then(() => {
+            this.setupChoices();
         });
-    },
-    computed: {
     },
     template: `
     <h1 style="margin: 3rem;">Combined Inbox Editor</h1>
@@ -195,7 +171,7 @@ const CombinedInboxEditor = Vue.createApp({
                 v-for="site in sites"
                 draggable="true"
                 @dragstart="startDrag($event, site)"
-                @drop="onDrop($event, site)"
+                @drop="onDrop($event)"
                 :value="site.id"
                 :key="site.order">
                     {{site.title}}
@@ -216,16 +192,16 @@ const CombinedInboxEditor = Vue.createApp({
                         {{site.title}}
                     </div>
                     <div class="inbox">
-                        <select :id="'choice-' + site.id" placeholder="select some options" multiple="true"></select>
                         <table style="width: 100%;" cellspacing=0>
                             <tr>
-                                <th class="col-header">UID</th>
-                                <template v-for="column in site.columns.split(',')" :key="column">
-                                    <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
-                                </template>
-                                <th class="col-header">Action</th>
+                            <th class="col-header">UID</th>
+                            <template v-for="column in site.columns.split(',')" :key="column">
+                            <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
+                            </template>
+                            <th class="col-header">Action</th>
                             </tr>
                         </table>
+                        <select :id="'choice-' + site.id" placeholder="select some options" multiple></select>
                     </div>
                 </div>
             </template>

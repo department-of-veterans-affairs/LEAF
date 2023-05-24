@@ -427,9 +427,7 @@ switch ($action) {
         $main->assign('javascripts', array($libsPath.'js/choicesjs/choices.min.js'));
         $main->assign('stylesheets', array($libsPath.'js/choicesjs/choices.min.css'));
 
-
-        // $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
-        $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox_vue.tpl')));
+        $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
 
         $tabText = 'Combined Inbox Editor';
 
