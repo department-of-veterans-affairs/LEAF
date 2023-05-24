@@ -99,7 +99,7 @@ var LeafForm = function (containerID) {
       });
     }
 
-    function loadCrosswalkFile(fileName, iID) {
+    function loadFilemanagerFile(fileName, iID) {
       return new Promise((resolve, reject)=> {
         const xhttpInds = new XMLHttpRequest();
         xhttpInds.onreadystatechange = () => {
@@ -122,7 +122,7 @@ var LeafForm = function (containerID) {
         xhttpInds.open("GET", `files/${fileName}`, true);
         xhttpInds.send();
       });
-    }  
+    }
 
     function removeSelectOptions(iID) {
       let selectbox = document.getElementById(iID);
@@ -262,7 +262,7 @@ var LeafForm = function (containerID) {
           level2indID: cond.level2IndID
         }
 
-        loadCrosswalkFile(dropdownInfo[indID].fileName, indID).then(fileContents => {
+        loadFilemanagerFile(dropdownInfo[indID].fileName, indID).then(fileContents => {
           dropdownInfo[indID].fileContents = fileContents;  //save for crosswalk listeners
           const optionsAreRemoved = removeSelectOptions(indID);
           if (optionsAreRemoved === true) {

@@ -71,10 +71,15 @@
             <script>
                 var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
                 $(function() {
-                    gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
-                    if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
-                        gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
-                    }
+                    gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.checkForFileOptions()
+                    .finally(() => {
+                        gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
+                        if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
+                            gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
+                        }
+                    }).catch(err => {
+                        alert(err);
+                    });
                 });
 
                 <!--{if $indicator.required == 1}-->
