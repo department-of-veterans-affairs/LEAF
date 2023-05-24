@@ -43,22 +43,29 @@ class TemplateEditor
         return $out;
     }
 
-    public function getCustomTemplateList()
+    /**
+     * @return array
+     *
+     * Created at: 5/24/2023, 10:22:51 AM (America/New_York)
+     */
+    public function getCustomTemplateList(): array
     {
         if (!$this->login->checkGroup(1))
         {
-            return 'Admin access required';
+            $return_value = array('error' => 'Admin access required');
         }
         $list = scandir('../templates/custom_override');
         $out = array();
 
         foreach ($list as $item) {
             if (preg_match('/.tpl$/', $item)) {
-                $out[] = $item;
+                $out['success'][] = $item;
             }
         }
 
-        return $out;
+        $return_value = $out;
+
+        return $return_value;
     }
 
     public function getTemplate($template, $getStandard = false)

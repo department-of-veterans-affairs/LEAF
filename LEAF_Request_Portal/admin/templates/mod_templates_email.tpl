@@ -1202,26 +1202,37 @@
                 $.ajax({
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
+                    dataType: 'json',
                     success: function (result) {
-                        var buffer = '<ul class="leaf-ul">';
-                        for (var i in res) {
-                            if (result.includes(res[i].fileName)) {
-                                custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
-                            } else {
-                                custom = '';
-                            }
+                        let res_array = $.parseJSON(result);
+                        let buffer = '<ul class="leaf-ul">';
 
-                            buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' +
-                                '\'' + res[i].fileName + '\'';
-                            if (res[i].subjectFileName != '') {
-                                buffer += ', \'' + res[i].subjectFileName + '\', ' +
-                                    '\'' + res[i].emailToFileName + '\', ' +
-                                    '\'' + res[i].emailCcFileName + '\'';
-                            } else {
-                                buffer += ', undefined, undefined, undefined';
+                        if (typeof res_array.success !== "undefined") {
+                            for (let i in res) {
+                                if (result.includes(res[i].fileName)) {
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                } else {
+                                    custom = '';
+                                }
+
+                                buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' +
+                                    '\'' + res[i].fileName + '\'';
+                                if (res[i].subjectFileName != '') {
+                                    buffer += ', \'' + res[i].subjectFileName + '\', ' +
+                                        '\'' + res[i].emailToFileName + '\', ' +
+                                        '\'' + res[i].emailCcFileName + '\'';
+                                } else {
+                                    buffer += ', undefined, undefined, undefined';
+                                }
+
+                                buffer += ');"><a href="#">' + res[i].displayName + '</a> ' + custom + ' </li>';
                             }
-                            buffer += ');"><a href="#">' + res[i].displayName + '</a> ' + custom + ' </li>';
+                        } else if (typeof res_array.error !== "undefined") {
+                            buffer += '<li>' + res_array.error + '</li>';
+                        } else {
+                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
+
                         buffer += '</ul>';
                         $('#fileList').html(buffer);
                     },

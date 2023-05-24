@@ -848,7 +848,6 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                console.log(res);
                 loadContent(currentFile);
                 exitExpandScreen();
             },
@@ -939,7 +938,6 @@
     var currentFileContent = '';
 
     function loadContent(file) {
-        console.log(file);
         if (file == undefined) {
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
@@ -1041,20 +1039,30 @@
                 $.ajax({
                     type: 'GET',
                     url: '../api/templateEditor/custom',
+                    dataType: 'json',
                     success: function (result) {
-                        var buffer = '<ul class="leaf-ul">';
-                        for (var i in res) {
-                            console.log(result);
-                            if (result.includes(res[i])) {
-                                custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
-                            } else {
-                                custom = '';
-                            }
-                            file = res[i].replace('.tpl', '');
+                        let res_array = $.parseJSON(result);
+                        let buffer = '<ul class="leaf-ul">';
 
-                            buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
-                                '</a> ' + custom + '</li>';
+                        if (typeof res_array.success !== "undefined") {
+                            for (let i in res) {
+                                if (res_array.success.includes(res[i])) {
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                } else {
+                                    custom = '';
+                                }
+
+                                file = res[i].replace('.tpl', '');
+
+                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
+                                    '</a> ' + custom + '</li>';
+                            }
+                        } else if (typeof res_array.error !== "undefined") {
+                            buffer += '<li>' + res_array.error + '</li>';
+                        } else {
+                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
+
                         buffer += '</ul>';
                         $('#fileList').html(buffer);
                     },

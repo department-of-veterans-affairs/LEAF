@@ -126,10 +126,15 @@ class EmailTemplate
         return $out;
     }
 
-    public function getCustomEmailTemplateList()
+    /**
+     * @return array
+     *
+     * Created at: 5/24/2023, 10:20:30 AM (America/New_York)
+     */
+    public function getCustomEmailTemplateList(): array
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            $return_value = array('error' => 'Admin access required');
         }
 
         $list = scandir('../templates/email/custom_override');
@@ -141,7 +146,9 @@ class EmailTemplate
             }
         }
 
-        return $out;
+        $return_value = $out;
+
+        return $return_value;
     }
 
     public function getLabelFromFileName($fileName)
