@@ -81,15 +81,15 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
             let new_note;
             new_note =
-                '<div class="comment_block"> <span class="comments_time"> ' +
-                response.comment.date +
-                '</span> <span class="comments_name">' +
-                response.comment.responder +
-                " " +
-                response.comment.user_name +
-                '</span> <div class="comments_message">' +
-                response.comment.comment +
-                "</div> </div>";
+              '<div class="comment_block"> <span class="comments_time"> ' +
+              response.comment.date +
+              '</span> <span class="comments_name">' +
+              response.comment.responder +
+              " " +
+              response.comment.user_name +
+              '</span> <div class="comments_message">' +
+              response.comment.comment +
+              "</div> </div>";
 
             if (response.comment.comment != "") {
               $(new_note).insertAfter("#notes");
@@ -143,11 +143,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         console.log(response);
         if (data["dependencyID"] === null) {
           $("#workflowbox_dep" + data["dependencyID"]).html(
-              '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Requirement from current step is missing<br/> Please contact administrator to add requirement to current step</div>'
+            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Requirement from current step is missing<br/> Please contact administrator to add requirement to current step</div>'
           );
         } else {
           $("#workflowbox_dep" + data["dependencyID"]).html(
-              '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>'
+            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>'
           );
         }
       },
@@ -231,12 +231,16 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     );
     // draw buttons
     for (let i in step.dependencyActions) {
-      const icon = step.dependencyActions[i].actionIcon != "" ? 
-      `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
-            alt="${step.dependencyActions[i].actionText}" style="vertical-align: middle" />` : "";
+      const icon =
+        step.dependencyActions[i].actionIcon != ""
+          ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
+            alt="${step.dependencyActions[i].actionText}" style="vertical-align: middle" />`
+          : "";
       const alignment = step.dependencyActions[i].actionAlignment.toLowerCase();
 
-      $(`#form_dep_container${step.dependencyID} .actions_alignment_${alignment}`).append(
+      $(
+        `#form_dep_container${step.dependencyID} .actions_alignment_${alignment}`
+      ).append(
         `<div id="button_container${step.dependencyID}_${step.dependencyActions[i].actionType}">
           <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button">
             ${icon} ${step.dependencyActions[i].actionText}
@@ -244,8 +248,9 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         </div>`
       );
 
-      $(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`)
-        .css({ border: "1px solid black", padding: "6px", margin: "4px" });
+      $(
+        `#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`
+      ).css({ border: "1px solid black", padding: "6px", margin: "4px" });
 
       $(
         "#button_step" +
