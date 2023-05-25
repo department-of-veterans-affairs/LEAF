@@ -171,14 +171,14 @@ $controllerMap->register('template', function () use ($db, $login, $action) {
     echo $TemplateController->handler($action);
 });
 
-$controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+$controllerMap->register('applet', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
-$controllerMap->register('reportTemplates/mergeFileHistory', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+$controllerMap->register('applet/mergeFileHistory', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $login, $action) {
@@ -206,24 +206,24 @@ $controllerMap->register('templateEmailHistoryMergeFile', function () use ($db, 
     echo $TemplateFileHistoryController->handler($action);
 });
 
-$controllerMap->register('reportTemplates/fileHistory', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+$controllerMap->register('applet/fileHistory', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
-$controllerMap->register('reportTemplates/getHistoryFiles', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+$controllerMap->register('applet/getHistoryFiles', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
-$controllerMap->register('reportTemplates/saveReportMergeTemplate', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+$controllerMap->register('applet/saveReportMergeTemplate', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
-$controllerMap->register('reportTemplates/deleteHistoryFileReport', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+$controllerMap->register('applet/deleteHistoryFileReport', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->runControl($key);

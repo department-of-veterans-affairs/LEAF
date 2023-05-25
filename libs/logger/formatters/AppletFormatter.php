@@ -2,7 +2,7 @@
 
 namespace Leaf;
 
-class TemplateReportsFormatter
+class AppletFormatter
 {
     const TEMPLATES = [
         DataActions::MODIFY.'-'.LoggableTypes::TEMPLATE_REPORTS_BODY => [

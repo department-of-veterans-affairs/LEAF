@@ -273,8 +273,8 @@ switch ($action) {
                 $type = new Portal\Template($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
-            case 'templateReports':
-                $type = new Portal\TemplateReports($db, $login);
+            case 'applet':
+                $type = new Portal\Applet($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

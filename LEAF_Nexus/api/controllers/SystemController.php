@@ -50,11 +50,11 @@ class SystemController extends RESTfulResponse
             //return $system->getTemplate($args[0]);
         });
 
-        $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
+        $this->index['GET']->register('system/applet', function ($args) use ($system) {
             return $system->getReportTemplateList();
         });
 
-        $this->index['GET']->register('system/reportTemplates/[text]', function ($args) use ($system) {
+        $this->index['GET']->register('system/applet/[text]', function ($args) use ($system) {
             return $system->getReportTemplate($args[0]);
         });
 
@@ -85,11 +85,11 @@ class SystemController extends RESTfulResponse
             //return $system->setTemplate($args[0]);
         });
 
-        $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
+        $this->index['POST']->register('system/applet', function ($args) use ($system) {
             return $system->newReportTemplate($_POST['filename']);
         });
 
-        $this->index['POST']->register('system/reportTemplates/[text]', function ($args) use ($system) {
+        $this->index['POST']->register('system/applet/[text]', function ($args) use ($system) {
             return $system->setReportTemplate($args[0]);
         });
 
@@ -128,7 +128,7 @@ class SystemController extends RESTfulResponse
             //return $system->removeCustomTemplate($args[0]);
         });
 
-        $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {
+        $this->index['DELETE']->register('system/applet/[text]', function ($args) use ($db, $login, $system) {
             return $system->removeReportTemplate($args[0]);
         });
 
