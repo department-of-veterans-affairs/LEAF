@@ -57,7 +57,7 @@ export default {
             options: this.indicatorRecord[this.currIndicatorID]?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //base format (eg 'radio')
             description: this.indicatorRecord[this.currIndicatorID]?.description || '',
-            defaultValue: this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID]?.default || ''),
+            defaultValue: this.decodeAndStripHTML(this.indicatorRecord[this.currIndicatorID]?.default || ''),
             required: parseInt(this.indicatorRecord[this.currIndicatorID]?.required) === 1 || false,
             is_sensitive: parseInt(this.indicatorRecord[this.currIndicatorID]?.is_sensitive) === 1 || false,
             parentID: this.indicatorRecord[this.currIndicatorID]?.parentID ? 
@@ -95,7 +95,7 @@ export default {
         'selectNewCategory',
         'newIndicatorParentID',
         'truncateText',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'orgchartFormats'
     ],
     provide() {
@@ -126,7 +126,9 @@ export default {
         }
         if (this.orgchartFormats.includes(this.format)) {
             const selType = this.format.slice(this.format.indexOf('_') + 1);
-            this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue, this.updateDefaultValue);
+            this.initializeOrgSelector(
+                selType, this.currIndicatorID, 'modal_', this.defaultValue, this.setOrgSelDefaultValue
+            );
             const elInput = document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`);
             if(elInput !== null) { //needed to remove default value
                 elInput.addEventListener('change', (event) => {
@@ -185,8 +187,10 @@ export default {
         }
     },
     methods: {
-        updateDefaultValue(selection = 0) {
-            this.defaultValue = selection;
+        setOrgSelDefaultValue(orgSelector = {}) {
+            if(orgSelector.selection !== undefined) {
+                this.defaultValue = orgSelector.selection.toString();
+            }
         },
         toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
@@ -231,7 +235,7 @@ export default {
                                 '\n' + this.indicatorRecord[this.currIndicatorID]?.options?.join('\n') : '';
                 const fullFormatChanged = this.fullFormatForPost !== this.indicatorRecord[this.currIndicatorID].format + options;
 
-                const defaultChanged = this.stripAndDecodeHTML(this.defaultValue) !== this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID].default);
+                const defaultChanged = this.decodeAndStripHTML(this.defaultValue) !== this.decodeAndStripHTML(this.indicatorRecord[this.currIndicatorID].default);
                 const requiredChanged = +this.required !== parseInt(this.indicatorRecord[this.currIndicatorID].required);
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.indicatorRecord[this.currIndicatorID].is_sensitive);
                 const parentIDChanged = this.parentID !== this.indicatorRecord[this.currIndicatorID].parentID;
@@ -540,7 +544,7 @@ export default {
             this.defaultValue = '';
             if (this.orgchartFormats.includes(newVal)) {
                 const selType = newVal.slice(newVal.indexOf('_') + 1);
-                this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '', this.updateDefaultValue);
+                this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '', this.setOrgSelDefaultValue);
                 const elInput = document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`);
                 if(elInput !== null) { //needed to remove default value
                     elInput.addEventListener('change', (event) => {

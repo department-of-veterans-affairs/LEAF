@@ -120,7 +120,7 @@ export default {
             orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
-            stripAndDecodeHTML: this.stripAndDecodeHTML,
+            decodeAndStripHTML: this.decodeAndStripHTML,
             showLastUpdate: this.showLastUpdate,
         }
     },
@@ -286,9 +286,9 @@ export default {
         /**
          * 
          * @param {string} content 
-         * @returns string with tags removed and remaining characers decoded
+         * @returns removes encoded chars by passing through div and then strips all tags
          */
-        stripAndDecodeHTML(content = '') {
+        decodeAndStripHTML(content = '') {
             const elDiv = document.createElement('div');
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
@@ -326,10 +326,9 @@ export default {
             indID = 0,
             idPrefix = '',
             initialValue = '',
-            selectCallback = null
+            selectorCallback = null
         ) {
             selType = selType.toLowerCase();
-            const hasCallback = typeof selectCallback === 'function';
             const inputPrefix = selType === 'group' ? 'group#' : '#';
             let orgSelector = {};
             if (selType === 'group') {
@@ -343,25 +342,19 @@ export default {
             orgSelector.rootPath = `${this.orgchartPath}/`;
             orgSelector.basePath = `${this.orgchartPath}/`;
             orgSelector.setSelectHandler(() => {
-                const selection = orgSelector.selection;
                 const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-                if(elOrgSelInput !== null) { //updating the search input collapses the table to the single selection
-                    elOrgSelInput.value = `${inputPrefix}` + selection;
-                }
-                if(hasCallback) {
-                    const data = orgSelector.selectionData[selection];
-                    selectCallback(selection, data);
+                if(elOrgSelInput !== null) {
+                    elOrgSelInput.value = `${inputPrefix}` + orgSelector.selection;
                 }
             });
+            if(typeof selectorCallback === 'function') {
+                orgSelector.setResultHandler(() => selectorCallback(orgSelector));
+            }
             orgSelector.initialize();
+            //input initial value if there is one
             const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
             if (initialValue !== '' && elOrgSelInput !== null) {
                 elOrgSelInput.value = `${inputPrefix}` + initialValue;
-                if(hasCallback) {
-                    setTimeout(()=> {
-                        orgSelector.select(initialValue);
-                    }, 1000);
-                }
             }
         },
         /**
@@ -691,7 +684,7 @@ export default {
             this.showFormDialog = true;
         },
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
-            const name = this.truncateText(XSSHelpers.stripAllTags(this.stripAndDecodeHTML(indicatorName)));
+            const name = this.truncateText(this.decodeAndStripHTML(indicatorName));
             this.currIndicatorID = indicatorID;
             this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #a00;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');

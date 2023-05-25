@@ -6,7 +6,7 @@ export default {
         'libsPath',
         'initializeOrgSelector',
         'orgchartFormats',
-        'stripAndDecodeHTML'
+        'decodeAndStripHTML'
     ],
     computed: {
         truncatedOptions() {
@@ -19,7 +19,7 @@ export default {
             return this.indicator?.default || '';
         },
         strippedDefault() {
-            return this.stripAndDecodeHTML(this.defaultValue);
+            return this.decodeAndStripHTML(this.defaultValue || '');
         },
         inputElID() {
             return `input_preview_${this.indicator.indicatorID}`;

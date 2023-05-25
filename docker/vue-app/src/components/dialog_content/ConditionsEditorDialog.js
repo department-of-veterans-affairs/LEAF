@@ -33,7 +33,7 @@ export default {
         'selectNewCategory',
         'closeFormDialog',
         'truncateText',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'fileManagerTextFiles',
         'initializeOrgSelector'
     ],
@@ -209,7 +209,7 @@ export default {
          */
         getIndicatorName(id = 0) {
             let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
-            indicatorName = XSSHelpers.stripAllTags(this.stripAndDecodeHTML(indicatorName));
+            indicatorName = this.decodeAndStripHTML(indicatorName);
             return this.truncateText(indicatorName);
         },
         /**
@@ -289,7 +289,7 @@ export default {
                     !(elSelectParent?.choicesjs?.initialised === true)
                 ) {
                     let arrValues = this.conditions.selectedParentValue.split('\n') || [];
-                    arrValues = arrValues.map(v => this.stripAndDecodeHTML(v).trim());
+                    arrValues = arrValues.map(v => this.decodeAndStripHTML(v).trim());
 
                     let options = this.selectedParentValueOptions;
                     options = options.map(o =>({
@@ -310,7 +310,7 @@ export default {
                     elSelectChild !== null && elExistingChoicesChild === null
                 ) {
                     let arrValues = this.conditions.selectedChildValue.split('\n') || [];
-                    arrValues = arrValues.map(v => this.stripAndDecodeHTML(v).trim());
+                    arrValues = arrValues.map(v => this.decodeAndStripHTML(v).trim());
 
                     let options = this.selectedChildValueOptions;
                     options = options.map(o =>({
@@ -331,15 +331,17 @@ export default {
         addOrgSelector() {
             if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
                 const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
-                const selectCallback = (selection, selectData) => {
-                    this.orgchartSelectData = {...selectData};
-                    this.selectedChildValue = selection.toString();
-                }
                 setTimeout(() => {
                     this.initializeOrgSelector(
-                        selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, selectCallback
+                        selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, this.setOrgSelChildValue
                     );
-                },50);
+                });
+            }
+        },
+        setOrgSelChildValue(orgSelector = {}) {
+            if(orgSelector.selection !== undefined) {
+                this.orgchartSelectData = orgSelector.selectionData[orgSelector.selection];
+                this.selectedChildValue = orgSelector.selection.toString();
             }
         },
         onSave() {
@@ -463,10 +465,10 @@ export default {
                 case 'multiselect':
                 case 'checkboxes':
                     const pluralTxt = this.selectedChildValue.split('\n').length > 1 ? 's' : '';
-                    returnVal = `${pluralTxt} '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+                    returnVal = `${pluralTxt} '${this.decodeAndStripHTML(this.selectedChildValue)}'`;
                     break;
                 default:
-                    returnVal = ` '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+                    returnVal = ` '${this.decodeAndStripHTML(this.selectedChildValue)}'`;
                     break;
             }
             return returnVal;
@@ -589,7 +591,7 @@ export default {
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ stripAndDecodeHTML(c.selectedParentValue) }}</strong> 
+                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong> 
                                                     then {{c.selectedOutcome}} this question.
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
@@ -631,7 +633,7 @@ export default {
                                 <option v-for="val in selectedChildValueOptions" 
                                     :value="val"
                                     :key="'child_prefill_' + val"
-                                    :selected="stripAndDecodeHTML(conditions.selectedChildValue) === val">
+                                    :selected="decodeAndStripHTML(conditions.selectedChildValue) === val">
                                     {{ val }} 
                                 </option>
                             </select>
@@ -648,7 +650,7 @@ export default {
                             <input v-if="childFormat==='text' || childFormat==='textarea'" 
                                 id="child_prefill_entry_text"
                                 @change="updateSelectedOptionValue($event.target, 'child')"
-                                :value="stripAndDecodeHTML(conditions.selectedChildValue)" />
+                                :value="decodeAndStripHTML(conditions.selectedChildValue)" />
                             <div v-if="orgchartFormats.includes(childFormat)" :id="'ifthen_child_orgSel_' + conditions.childIndID"
                                 style="min-height:30px" aria-labelledby="prefill_value_entry">
                             </div>
@@ -680,7 +682,7 @@ export default {
                                 <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedParentValueOptions"
                                     :key="'parent_val_' + val"
-                                    :selected="stripAndDecodeHTML(conditions.selectedParentValue) === val"> {{ val }}
+                                    :selected="decodeAndStripHTML(conditions.selectedParentValue) === val"> {{ val }}
                                 </option>
                             </select>
                             <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"

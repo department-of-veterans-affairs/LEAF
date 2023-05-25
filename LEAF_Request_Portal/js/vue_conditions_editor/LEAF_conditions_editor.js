@@ -313,11 +313,18 @@ const ConditionsEditor = Vue.createApp({
      */
     getIndicatorName(id = 0) {
       let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
-      indicatorName = XSSHelpers.stripAllTags(this.textValueDisplay(indicatorName));
+      indicatorName = XSSHelpers.stripAllTags(this.decodeAndStripHTML(indicatorName));
       return this.truncateText(indicatorName);
     },
-    textValueDisplay(str = "") {
-      return $("<div/>").html(str).text();
+    /**
+    * removes encoded chars by passing through div and then strips all tags
+    * @param {string} content 
+    * @returns {string}
+    */
+    decodeAndStripHTML(content = '') {
+      const elDiv = document.createElement('div');
+      elDiv.innerHTML = content;
+      return XSSHelpers.stripAllTags(elDiv.innerText);
     },
     /**
     * @param {Object} condition
@@ -397,7 +404,7 @@ const ConditionsEditor = Vue.createApp({
           !elSelectParent.choicesjs
         ) {
           let arrValues = this.conditions?.selectedParentValue.split("\n") || [];
-          arrValues = arrValues.map((v) => this.textValueDisplay(v).trim());
+          arrValues = arrValues.map((v) => this.decodeAndStripHTML(v).trim());
 
           let options = this.selectedParentValueOptions.map((o) => ({
             value: o.trim(),
@@ -420,7 +427,7 @@ const ConditionsEditor = Vue.createApp({
           elExistingChoicesChild === null
         ) {
           let arrValues = this.conditions?.selectedChildValue.split("\n") || [];
-          arrValues = arrValues.map((v) => this.textValueDisplay(v).trim());
+          arrValues = arrValues.map((v) => this.decodeAndStripHTML(v).trim());
 
           let options = this.selectedChildValueOptions.map((o) => ({
             value: o.trim(),
@@ -440,13 +447,9 @@ const ConditionsEditor = Vue.createApp({
     addOrgSelector() {
       if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
         const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
-        const selectCallback = (selection, selectData) => {
-          this.orgchartSelectData = selectData;
-          this.selectedChildValue = selection.toString();
-        }
         setTimeout(() => {
             this.initializeOrgSelector(
-                selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, selectCallback
+                selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, this.setOrgSelChildValue
             );
         });
       }
@@ -456,10 +459,9 @@ const ConditionsEditor = Vue.createApp({
       indID = 0,
       idPrefix = '',
       initialValue = '',
-      selectCallback = null
+      selectorCallback = null
     ) {
       selType = selType.toLowerCase();
-      const hasCallback = typeof selectCallback === 'function';
       const inputPrefix = selType === 'group' ? 'group#' : '#';
       let orgSelector = {};
       if (selType === 'group') {
@@ -473,28 +475,27 @@ const ConditionsEditor = Vue.createApp({
       orgSelector.rootPath = `${this.orgchartPath}/`;
       orgSelector.basePath = `${this.orgchartPath}/`;
       orgSelector.setSelectHandler(() => {
-        const selection = orgSelector.selection;
         const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-        if(elOrgSelInput !== null) { //updating the search input collapses the table
-          elOrgSelInput.value = `${inputPrefix}` + selection;
-        }
-        if(hasCallback) {
-          const data = orgSelector.selectionData[selection];
-          selectCallback(selection, data);
+        if(elOrgSelInput !== null) {
+          elOrgSelInput.value = `${inputPrefix}` + orgSelector.selection;
         }
       });
+      if(typeof selectorCallback === 'function') {
+        orgSelector.setResultHandler(() => selectorCallback(orgSelector));
+      }
       orgSelector.initialize();
-      //handle initial value if there is one and select to update app data if there is a callback
+      //input initial value if there is one
       const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
       if (initialValue !== '' && elOrgSelInput !== null) {
         elOrgSelInput.value = `${inputPrefix}` + initialValue;
-        if(hasCallback) {
-          setTimeout(()=> {
-              orgSelector.select(initialValue);
-          }, 1000);
-        }
       }
     },
+    setOrgSelChildValue(orgSelector = {}) {
+      if(orgSelector.selection !== undefined) {
+        this.orgchartSelectData = orgSelector.selectionData[orgSelector.selection];
+        this.selectedChildValue = orgSelector.selection.toString();
+      }
+    }
   },
   computed: {
     showSetup() {
@@ -622,10 +623,10 @@ const ConditionsEditor = Vue.createApp({
         case 'multiselect':
         case 'checkboxes':
             const pluralTxt = this.selectedChildValue.split('\n').length > 1 ? 's' : '';
-            returnVal = `${pluralTxt} '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+            returnVal = `${pluralTxt} '${this.decodeAndStripHTML(this.selectedChildValue)}'`;
             break;
         default:
-            returnVal = ` '${this.stripAndDecodeHTML(this.selectedChildValue)}'`;
+            returnVal = ` '${this.decodeAndStripHTML(this.selectedChildValue)}'`;
             break;
       }
       return returnVal;
@@ -699,25 +700,16 @@ const ConditionsEditor = Vue.createApp({
         : [];
     },
     /**
-     *
-     * @returns {Object}
+     * @returns {Object} with arrays of conditions by type
      */
     conditionTypes() {
-      const show = this.savedConditions.filter(
-        (i) => i.selectedOutcome.toLowerCase() === "show"
-      );
-      const hide = this.savedConditions.filter(
-        (i) => i.selectedOutcome.toLowerCase() === "hide"
-      );
-      const prefill = this.savedConditions.filter(
-        (i) => i.selectedOutcome.toLowerCase() === "pre-fill"
-      );
-      const crosswalk = this.savedConditions.filter(
-        (i) => i.selectedOutcome.toLowerCase() === "crosswalk"
-      );
-
-      return { show, hide, prefill, crosswalk };
-    },
+      return {
+        show: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "show"),
+        hide: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "hide"),
+        prefill: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "pre-fill"),
+        crosswalk: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "crosswalk"),
+      };
+    }
   },
   template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
         <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 15+windowTop+'px' : '15px'}">
@@ -743,7 +735,7 @@ const ConditionsEditor = Vue.createApp({
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong> 
                                                     then {{c.selectedOutcome}} this question.
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
@@ -799,7 +791,7 @@ const ConditionsEditor = Vue.createApp({
                           <option v-for="val in selectedChildValueOptions"
                               :value="val"
                               :key="val"
-                              :selected="textValueDisplay(conditions.selectedChildValue)===val">
+                              :selected="decodeAndStripHTML(conditions.selectedChildValue)===val">
                               {{ val }}
                           </option>
                       </select>
@@ -814,7 +806,7 @@ const ConditionsEditor = Vue.createApp({
                       </div>
                       <input v-else-if="childFormat==='text' || childFormat==='textarea'" id="child_prefill_entry"
                           @change="updateSelectedOptionValue($event.target, 'child')"
-                          :value="textValueDisplay(conditions.selectedChildValue)" />
+                          :value="decodeAndStripHTML(conditions.selectedChildValue)" />
                       <div v-if="orgchartFormats.includes(childFormat)" :id="'ifthen_child_orgSel_' + conditions.childIndID"
                         style="min-height:30px" aria-labelledby="prefill_value_entry">
                       </div>
@@ -852,7 +844,7 @@ const ConditionsEditor = Vue.createApp({
                         <option v-if="conditions.selectedParentValue===''" value="" selected>Select a value</option>
                         <option v-for="val in selectedParentValueOptions"
                             :key="val"
-                            :selected="textValueDisplay(conditions.selectedParentValue)===val"> {{ val }}
+                            :selected="decodeAndStripHTML(conditions.selectedParentValue)===val"> {{ val }}
                         </option>
                     </select>
                     <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"

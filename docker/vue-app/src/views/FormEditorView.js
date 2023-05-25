@@ -58,7 +58,7 @@ export default {
         'focusedFormTree',
         'openNewFormDialog',
         'currentFormCollection',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'truncateText',
     ],
     mounted() {
@@ -357,14 +357,13 @@ export default {
             }
         },
         /**
-         * //NOTE: uses XSSHelpers.js
          * @param {string} categoryID 
          * @param {number} len 
          * @returns 
          */
         shortFormNameStripped(catID = '', len = 21) {
             const form = this.categories[catID] || '';
-            const name = this.stripAndDecodeHTML(form?.categoryName || '') || 'Untitled';
+            const name = this.decodeAndStripHTML(form?.categoryName || 'Untitled');
             return this.truncateText(name, len).trim();
         },
         layoutBtnIsDisabled(form) {
