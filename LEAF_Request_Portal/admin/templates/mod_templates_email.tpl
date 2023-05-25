@@ -577,17 +577,19 @@
             subject !== currentSubjectContent
         ) ? true : false;
         const isContentUnchanged = (data === currentFileContent || subject === currentSubjectContent) ? true : false;
+        const isNull = emailToData === null || emailCcData === null;
+
 
 
 
         if (divEmailTo.style.display === 'none') {
-            if (isContentUnchanged) {
+            if (isContentUnchanged || isNull) {
                 showDialog('Please make a change to the content in order to save.');
             } else {
                 saveTemplate();
             }
         } else {
-            if (isContentChanged) {
+            if (isContentChanged || isNull) {
                 saveTemplate();
             } else {
                 showDialog('Please make a change to the content in order to save.');
