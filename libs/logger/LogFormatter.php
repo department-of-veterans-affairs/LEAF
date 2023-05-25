@@ -15,7 +15,7 @@ class LogFormatter
         LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,
         LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TEMPLATES,
         LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
-        LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TEMPLATES,
+        LoggableTypes::TEMPLATE_BODY => TemplateFormatter::TEMPLATES,
         LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TEMPLATES,
     );
 

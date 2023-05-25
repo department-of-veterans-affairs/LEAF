@@ -166,9 +166,9 @@ $controllerMap->register('note', function() use ($p_db, $login, $action) {
     echo $NotesController->handler($action);
 });
 
-$controllerMap->register('templateEditor', function () use ($db, $login, $action) {
-    $TemplateEditorController = new Portal\TemplateEditorController($db, $login);
-    echo $TemplateEditorController->handler($action);
+$controllerMap->register('template', function () use ($db, $login, $action) {
+    $TemplateController = new Portal\TemplateController($db, $login);
+    echo $TemplateController->handler($action);
 });
 
 $controllerMap->register('reportTemplates', function () use ($db, $login, $action) {

@@ -9,7 +9,7 @@
 
 namespace Portal;
 
-class TemplateEditor
+class Template
 {
     public $siteRoot = '';
     private $db;
