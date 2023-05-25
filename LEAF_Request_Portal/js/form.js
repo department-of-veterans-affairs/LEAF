@@ -308,15 +308,16 @@ var LeafForm = function (containerID) {
 
       const conditionsByChild = {};
       allConditions.map((c) => {
-        conditionsByChild[c.childIndID]
-          ? conditionsByChild[c.childIndID].push(c)
-          : (conditionsByChild[c.childIndID] = [c]);
+        conditionsByChild[`id${c.childIndID}`]
+          ? conditionsByChild[`id${c.childIndID}`].push(c)
+          : (conditionsByChild[`id${c.childIndID}`] = [c]);
       });
 
       setTimeout(() => {
         //some multiselect updates don't work unless the stack is cleared, and orgchart selectors need time to load
-        for (let childID in conditionsByChild) {
-          makeComparisons(childID, conditionsByChild[childID]);
+        for (let id in conditionsByChild) {
+          const childID = id.slice(2);
+          makeComparisons(childID, conditionsByChild[id]);
         }
       }, 200);
     };
@@ -442,14 +443,13 @@ var LeafForm = function (containerID) {
       return val;
     };
 
-    const clearValuesAndHide = (childFormat = "", childIndID = 0) => {
+    const clearValues = (childFormat = "", childIndID = 0) => {
       $("#" + childIndID).val("");
       $(`input[id^="${childIndID}_"]`).prop("checked", false); //this will hit both radio and checkboxes formats
       $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
       if (childFormat === "multiselect") {
         clearMultiSelectChild($("#" + childIndID), childIndID);
       }
-      $(".blockIndicator_" + childIndID).hide();
       if (
         childRequiredValidators[childIndID].validator !== undefined &&
         dialog !== null
@@ -630,49 +630,57 @@ var LeafForm = function (containerID) {
         }
       });
 
-      //update child states and/or values.  there should be at most 2 types here, a hide OR show, and a prefill
+      //update child states and/or values.
+      let elsChild = $(`.blockIndicator_${childID}`); //label and response divs to hide/show
+      let elChildResponse = document.querySelector(`div.response.blockIndicator_${childID}`);
       conditionOutcomes.forEach((co) => {
         switch (co) {
           case "hide":
             if (hideShowConditionMet === true) {
-              clearValuesAndHide(childFormat, childID);
+              clearValues(childFormat, childID);
+              elChildResponse.classList.add('response-hidden');
+              elsChild.hide();
             } else {
-              $(".blockIndicator_" + childID).show();
+              elChildResponse.classList.remove('response-hidden');
+              elsChild.show();
             }
             break;
           case "show":
             if (hideShowConditionMet === true) {
-              $(".blockIndicator_" + childID).show();
+              elChildResponse.classList.remove('response-hidden');
+              elsChild.show();
             } else {
-              clearValuesAndHide(childFormat, childID);
+              clearValues(childFormat, childID);
+              elChildResponse.classList.add('response-hidden');
+              elsChild.hide();
             }
             break;
           case "pre-fill":
-            let indBlock = $(`div.response.blockIndicator_${childID}`);
-            if (childPrefillValue !== "") {
-              if (indBlock.css("display") !== "none") {
-                //don't continue if the question is in a hidden state because of other conditions
-                if (multiOptionFormats.includes(childFormat)) {
-                  const arrPrefills = childPrefillValue.split("\n");
-                  const arrChoices = arrPrefills.map((item) =>
-                    $("<div/>").html(item).text().trim()
-                  );
-                  $(`input[id^="${childID}_"]`).prop("checked", false); //clear out possible selections
-                  arrChoices.forEach((textVal) =>
-                    $(`input[id^="${childID}_"][value="${textVal}"]`).prop(
-                      "checked",
-                      true
-                    )
-                  );
-                  elChildCheckboxes.prop("disabled", true);
+            const closestHidden = elChildResponse.closest('.response-hidden');
+            const blockIsHidden = elChildResponse.style.display === "none" || closestHidden !== null;
+            if (childPrefillValue !== "" && !blockIsHidden) {
+              //checkboxes and multiselect items
+              if (multiOptionFormats.includes(childFormat)) {
+                const arrPrefills = childPrefillValue.split("\n");
+                const arrChoices = arrPrefills.map((item) =>
+                  $("<div/>").html(item).text().trim()
+                );
+                $(`input[id^="${childID}_"]`).prop("checked", false); //clear out possible selections
+                arrChoices.forEach((textVal) =>
+                  $(`input[id^="${childID}_"][value="${textVal}"]`).prop(
+                    "checked",
+                    true
+                  )
+                );
+                elChildCheckboxes.prop("disabled", true);
 
-                  if (childFormat === "multiselect") {
-                    let elSelectChoices = elChildInput[0].choicesjs;
-                    elSelectChoices?.removeActiveItems();
-                    elSelectChoices?.setChoiceByValue(arrChoices);
-                    elSelectChoices?.disable();
-                  }
-
+                if (childFormat === "multiselect") {
+                  let elSelectChoices = elChildInput[0].choicesjs;
+                  elSelectChoices?.removeActiveItems();
+                  elSelectChoices?.setChoiceByValue(arrChoices);
+                  elSelectChoices?.disable();
+                }
+                //orgchart formats
                 } else if (orgchartFormats.includes(childFormat)) {
                   const inputPrefix = childFormat === 'orgchart_group' ? 'group#' : '#';
                   let orgSelInput = document.querySelector(`div[id$="Sel_${childID}"] input[id$="_input"]`);
@@ -680,12 +688,9 @@ var LeafForm = function (containerID) {
                     orgSelInput.value = inputPrefix + childPrefillValue;
                     orgSelInput.disabled = true;
                   }
-
+                //everything else
                 } else {
-                  const text = $("<div/>")
-                    .html(childPrefillValue)
-                    .text()
-                    .trim();
+                  const text = $("<div/>").html(childPrefillValue).text().trim();
                   elChildInput.val(text); //text, dropd
                   elChildInput.attr("disabled", "disabled");
                   $(`input[id^="${childID}_radio"][value="${text}"]`).prop(
@@ -694,9 +699,12 @@ var LeafForm = function (containerID) {
                   ); //radio
                   elChildRadioBtns.prop("disabled", true);
                 }
-              }
+
             } else {
-              //just re-enable selection/editing.  Can't clear them since that would rm normal entries
+              //only clear if they are hidden, or that would rm normal entries
+              if (blockIsHidden) {
+                clearValues(childFormat, childID);
+              }
               elChildInput.removeAttr("disabled");
               elChildInput[0]?.choicesjs?.enable();
               elChildRadioBtns.prop("disabled", false);
@@ -729,12 +737,12 @@ var LeafForm = function (containerID) {
       if (childStartValue !== childEndValue) {
         elChildInput.trigger("change");
         $(`input[id^="${childID}_"]`).trigger("change"); //radio and checkboxes
-        if (chosenShouldUpdate) {
-          const val = elChildInput.val();
-          elChildInput.chosen().val(val);
-          elChildInput.chosen({ width: "100%" });
-          elChildInput.trigger("chosen:updated");
-        }
+      }
+      if (chosenShouldUpdate) {
+        const val = elChildInput.val();
+        elChildInput.chosen().val(val);
+        elChildInput.chosen({ width: "100%" });
+        elChildInput.trigger("chosen:updated");
       }
     };
 
