@@ -18,7 +18,6 @@ var printer = function () {
     var internalInfo = new Array();
     var homeQR = document.createElement("img");
     var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
-    console.log(portal_path);
     //get QR code of record
     homeQR.setAttribute("class", "print nodisplay");
     homeQR.setAttribute("style", "width: 72px");
@@ -631,6 +630,7 @@ var printer = function () {
                   doc.rect(horizontalShift, verticalShift + 6, 5, 5);
 
                   let selectedVals = toArrayFormat(indicator);
+                  indicator.options = indicator.options.filter((option) => selectedVals.includes(option));
                   if (
                     !blank &&
                     selectedVals.indexOf(indicator.options[i]) > -1
