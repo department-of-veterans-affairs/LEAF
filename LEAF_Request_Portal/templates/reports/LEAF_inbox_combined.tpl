@@ -18,7 +18,7 @@
      * - nonAdmin:        (Optional) Set to true if you want Admins to see only their own info and not all requests
      * - columns:         (Optional) Columns may be customized for each type of form within a site.
      *                    Columns are specified by pairing the category ID with a CSV list of columns.
-     *                    Available columns include: 'UID,service,dateInitiated,title,status,days_since_last_action'
+     *                    Available columns include: 'UID,service,dateinitiated,title,status,days_since_last_action'
      *                    Columns may also include field indicator IDs within a form. Example: 'UID,service,title,123,status'
      *				      If a field indicator ID is used, ensure the field has a Short Label defined to populate headings.
      *   
@@ -140,7 +140,7 @@
         },
         'days_since_last_action': function(site) {
             return {
-                name: 'Days since last action',
+                name: 'Days Since Last Action',
                 indicatorID: 'daysSinceLastAction',
                 editable: false,
                 callback: function(data, blob) {
@@ -312,7 +312,8 @@
         let customColumns = false;
         if (categoryIDs != undefined) {
             categoryIDs.forEach(categoryID => {
-                if (site.columns != undefined &&
+                if (site.columns != undefined && 
+                    Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
                     let customCols = [];
                     site.columns[categoryID].split(',').forEach(col => {
@@ -335,7 +336,7 @@
         }
         let customCols = [];
         if (customColumns == false) {
-            site.columns = 'UID,service,title,status';
+            site.columns = site.columns ?? 'UID,service,title,status';
         }
         site.columns.split(',').forEach(col => {
             customCols.push(headerDefinitions[col](site));
@@ -412,7 +413,7 @@
 
         // get data for any custom fields
         let getData = [];
-        if (site.columns != undefined) {
+        if (site.columns != undefined && Array.isArray(site.columns)) {
             for (let i in site.columns) {
                 let cols = site.columns[i].split(',');
                 for (let j in cols) {
@@ -507,13 +508,14 @@
                 let formattedSiteMap = siteMap.map((site) => {
                     return {
                         url: site.target,
-                        name: site.description,
+                        name: site.title,
                         backgroundColor: site.color,
                         icon: site.icon,
                         fontColor: site.fontColor,
                         cols: site.cols,
                         nonAdmin: true,
                         order: site.order,
+                        columns: 'UID,' + site.columns,
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
