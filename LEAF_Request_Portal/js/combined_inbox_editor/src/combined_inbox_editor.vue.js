@@ -4,19 +4,19 @@ const CombinedInboxEditor = Vue.createApp({
             sites: [],
             choices: [],
             CSRFToken: CSRFToken,
-            allColumns: 'service,title,status,dateinitiated,days_since_last_action',
+            allColumns: 'service,title,status,dateInitiated,days_since_last_action',
             frontEndColumns: {
                 'service': 'Service',
                 'title': 'Title',
                 'status': 'Status',
-                'dateinitiated': 'Date Initiated',
+                'dateInitiated': 'Date Initiated',
                 'days_since_last_action': 'Days Since Last Action'
             },
             backEndColumns: {
                 'Service': 'service',
                 'Title': 'title',
                 'Status': 'status',
-                "Date Initiated": 'dateinitiated',
+                "Date Initiated": 'dateInitiated',
                 "Days Since Last Action": 'days_since_last_action'
             },
         };
@@ -29,17 +29,16 @@ const CombinedInboxEditor = Vue.createApp({
         },
 
         onDrop(evt) {
-            console.log(evt);
             const site = this.sites.find((site) => site.id == evt.dataTransfer.getData('siteID'));
             const target = this.sites.find((site) => site.id == evt.target.attributes.value.value);
-
+            
             if (site.order < target.order) {
                 for (let i = site.order; i <= target.order; i++) {
                     this.sites.find((site) => site.order == i).order--;
                 }
                 site.order = target.order + 1;
-            } else {
-                for (let i = target.order; i <= site.order; i++) {
+            } else if (site.order > target.order) {
+                for (let i = site.order; i >= target.order; i--) {
                     this.sites.find((site) => site.order == i).order++;
                 }
                 site.order = target.order - 1;
@@ -79,8 +78,13 @@ const CombinedInboxEditor = Vue.createApp({
                             this.choices.push({id: site.id, choices: []})
                             let tmp = [];
                             site.columns.split(',').forEach((col, index) => {
-                                tmp.push({value: col, label: this.frontEndColumns[col], id: index});
+                                tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
                             })
+                            this.allColumns.split(',').forEach((col) => {
+                                if (!site.columns.includes(col)) {
+                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: false});
+                                }
+                            });
                             this.choices.find((choice) => choice.id == site.id).choices = tmp;
                             resolve();
                         });
@@ -133,11 +137,7 @@ const CombinedInboxEditor = Vue.createApp({
                             editItems: true,
                             maxItemCount: 7,
                             shouldSort: false,
-                            choices: allCols.map((col) => ({
-                                value: col, 
-                                label: this.frontEndColumns[col], 
-                                selected: site.columns.split(',').includes(col)
-                            }))
+                            choices: this.choices.find((choice) => choice.id == site.id).choices,
                         });
                         
                         selectElement.addEventListener('change', (event) => {
