@@ -3356,7 +3356,6 @@ class Form
                         FROM notes
                         WHERE recordID IN (' . $recordIDs . ')
                         AND deleted IS NULL
-                        UNION
                         ORDER BY time';
 
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
