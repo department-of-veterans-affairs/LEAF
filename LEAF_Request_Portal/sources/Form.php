@@ -2478,10 +2478,6 @@ class Form
                     FROM notes
                     WHERE recordID = :recordID
                     AND deleted IS NULL
-                    UNION
-                    SELECT "Email Sent", concat(`recipients`, `subject`), `timestamp`, ""
-                    FROM `email_tracker`
-                    WHERE recordID = :recordID
                     ORDER BY time DESC';
 
             $res = $this->db->prepared_query($sql, $vars);
@@ -3361,10 +3357,6 @@ class Form
                         WHERE recordID IN (' . $recordIDs . ')
                         AND deleted IS NULL
                         UNION
-                        SELECT `recordID`, 0, "", `timestamp`, "N/A",
-                            "Email Sent", "LEAF_email", concat(`recipients`, `subject`)
-                        FROM `email_tracker`
-                        WHERE recordID IN (' . $recordIDs . ')
                         ORDER BY time';
 
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
