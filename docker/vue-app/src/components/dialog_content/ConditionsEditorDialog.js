@@ -266,13 +266,21 @@ export default {
             return text;
         },
         /**
-         * @param {Object} condition 
-         * @returns {boolean} is current question format different than saved on its condition
+         * @param {Object} condition
+         * @returns {boolean} whether the child or parent format does not match that of the condition
          */
         childFormatChangedSinceSave(condition = {}) {
-            const childConditionFormat = condition.childFormat.toLowerCase();
-            const currentIndicatorFormat = this.childFormat;
-            return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
+            const savedChildFormat = (condition?.childFormat || '').toLowerCase().trim();
+            const savedParentFormat = (condition?.parentFormat || '').toLowerCase().trim();
+            const savedParIndID = parseInt(condition?.parentIndID || 0);
+            const parentInd = this.selectableParents.find(
+                p => parseInt(p.indicatorID) === savedParIndID
+            );
+            const parentIndFormat = (parentInd?.format || '')
+                .toLowerCase()
+                .split('\n')[0].trim();
+
+            return savedChildFormat !== this.childFormat || savedParentFormat !== parentIndFormat;
         },
         /**
          * called to create choicejs combobox instances for multi option formats
@@ -596,7 +604,7 @@ export default {
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
                                                 <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
-                                                    This question's format has changed.  Please review and save to update it
+                                                    Format changes detected.  Please review and save to update this condition.
                                                 </div>
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
