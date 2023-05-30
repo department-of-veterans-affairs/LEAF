@@ -637,7 +637,7 @@ var printer = function () {
                   ) {
                     doc.text("x", horizontalShift + 1.5, verticalShift + 9.5);
                   }
-                  sizeOfOption = indicator.options[i].length * 2.5;
+                  sizeOfOption = (indicator.options[i] ? indicator.options[i].length : 0) * 2.5;
                   doc.setFont("times");
                   splitOption = doc.splitTextToSize(
                     decodeHTMLEntities(indicator.options[i]),
