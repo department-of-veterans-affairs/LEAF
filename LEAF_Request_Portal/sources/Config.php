@@ -22,8 +22,6 @@ class Config
 
     public $descriptionID;     // indicator ID for description field
 
-    public static $emailPrefix;  // Email prefix
-
     public static $emailCC;    // CCed for every email
 
     public static $emailBCC;      // BCCed for every email
@@ -41,7 +39,6 @@ class Config
         self::$orgchartPath = $site_paths['orgchart_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
         $this->descriptionID = $settings['descriptionID'];
-        self::$emailPrefix = $settings['requestLabel'];
         self::$emailCC = $settings['emailCC'];
         self::$emailBCC = $settings['emailBCC'];
         $this->phonedbName = $site_paths['orgchart_database'];
