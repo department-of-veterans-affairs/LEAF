@@ -28,6 +28,8 @@ class Config
 
     public static $emailBCC;      // BCCed for every email
 
+    public static $portalDb;
+
     public $phonedbName;
 
     public $db;
@@ -44,6 +46,7 @@ class Config
         self::$emailPrefix = $settings['requestLabel'];
         self::$emailCC = $settings['emailCC'];
         self::$emailBCC = $settings['emailBCC'];
+        self::$portalDb = $site_paths['portal_database'];
         $this->phonedbName = $site_paths['orgchart_database'];
     }
 }

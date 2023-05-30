@@ -387,8 +387,7 @@ class Email
     function initPortalDB(): void
     {
         // set up org chart assets
-        $db_config = new DbConfig;
-        $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $this->portal_db = Config::$portalDb;
     }
 
     /**
