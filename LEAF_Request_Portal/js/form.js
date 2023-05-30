@@ -614,7 +614,7 @@ var LeafForm = function (containerID) {
       if (arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "show")) outcomes.push("show");
       if (arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "pre-fill")) outcomes.push("pre-fill");
       if (outcomes.length > 1) {
-        console.log("check conditions setup");
+        console.log("check conditions setup for", childID);
       }
 
       //update child states and/or values.
@@ -749,6 +749,7 @@ var LeafForm = function (containerID) {
             confirmedParElsByIndID.push(parseInt(c.parentIndID));
           } else {
             notFoundParElsByIndID.push(parseInt(c.parentIndID));
+            console.log(`Element associated with controller ${c.parentIndID} was not found in the DOM`)
           }
         }
       });
