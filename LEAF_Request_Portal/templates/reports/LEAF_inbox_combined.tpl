@@ -507,7 +507,7 @@
                 let siteMap = Object.values(JSON.parse(res[0].data))[0];
                 let formattedSiteMap = siteMap.map((site) => {
                     return {
-                        url: site.target,
+                        url: site.target.endsWith('/') ? site.target: site.target + '/',
                         name: site.title,
                         backgroundColor: site.color,
                         icon: site.icon,
