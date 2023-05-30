@@ -153,8 +153,7 @@ class Email
      */
     public function setSubject(string $strSubject): void
     {
-        $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
-        $this->emailSubject = $prefix . strip_tags($strSubject);
+        $this->emailSubject = strip_tags($strSubject);
     }
 
     /**
