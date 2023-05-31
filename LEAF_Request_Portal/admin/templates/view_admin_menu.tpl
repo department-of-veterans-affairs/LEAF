@@ -204,6 +204,9 @@
             type: 'GET',
             url: '../scripts/syncSVNrevision.php',
             success: function() {},
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
 
