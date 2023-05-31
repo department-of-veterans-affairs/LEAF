@@ -741,7 +741,7 @@
                 <!--{assign "counter" $counter+1}-->
                 <!--{/foreach}-->
                 <!-- TODO: whenever we can drop support for old browsers IE9, use modern method -->
-                <iframe id="fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="500px"></iframe>
+                <iframe id="fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" style="visibility: hidden; display: none" src="<!--{$sitePath    }-->/ajaxIframe.php?a=getuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="500px"></iframe>
                 <br />
                 <button type="button" id="fileAdditional" class="buttonNorm" onclick="$('#fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').css('display', 'inline'); $('#fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').css('visibility', 'visible'); $('#fileAdditional').css('visibility', 'hidden')"><img src="dynicons/?img=document-open.svg&amp;w=32" /> Attach Additional File</button>
                 <!--{else}-->
@@ -781,7 +781,7 @@
                 <!--{if $indicator.value[0] != ''}-->
                 <!--{assign "counter" 0}-->
                 <!--{foreach from=$indicator.value item=file}-->
-                <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" style="background-color: #b7c5ff; padding: 4px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /> <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
+                <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" style="background-color: #b7c5ff; padding: 4px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /> <a href="<!--{$sitePath}-->/file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
                     <span style="float: right; padding: 4px">
                     [ <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">Delete</button> ]
                     </span>
