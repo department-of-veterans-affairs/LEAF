@@ -288,20 +288,22 @@ var LeafForm = function (containerID) {
       let hideShowCondByChild = {};
       let prefillCondByChild = {};
       for(let childKey in formConditions) {
-        const id = childKey.slice(2); //id<indID>
-        if(formConditions[childKey].conditions.some(
-          cond => parseInt(cond.parentIndID) === parentElID)
-        ) {
-          hideShowCondByChild[id] = [
-            ...formConditions[childKey].conditions.filter(
-              cond => ['hide', 'show'].includes(cond.selectedOutcome.toLowerCase())
-            )
-          ]
-          prefillCondByChild[id] = [
-            ...formConditions[childKey].conditions.filter(
-              cond => cond.selectedOutcome.toLowerCase() === 'pre-fill'
-            )
-          ]
+        if(childKey.indexOf('id') === 0) {
+          const id = childKey.slice(2); //childKey should be 'id' + indID
+          if(formConditions[childKey].conditions.some(
+            cond => parseInt(cond.parentIndID) === parentElID)
+          ) {
+            hideShowCondByChild[id] = [
+              ...formConditions[childKey].conditions.filter(
+                cond => ['hide', 'show'].includes(cond.selectedOutcome.toLowerCase())
+              )
+            ]
+            prefillCondByChild[id] = [
+              ...formConditions[childKey].conditions.filter(
+                cond => cond.selectedOutcome.toLowerCase() === 'pre-fill'
+              )
+            ]
+          }
         }
       }
       //some multiselect combobox updates don't work unless the stack is cleared
@@ -553,7 +555,7 @@ var LeafForm = function (containerID) {
       //update child states and/or values.
       let elsChild = $(`.blockIndicator_${childID}`); //label and response divs to hide/show
       let elChildResponse = document.querySelector(`div.response.blockIndicator_${childID}`);
-      const co = outcomes[0] || '';
+      const co = (outcomes[0] || '').toLowerCase();
       switch (co) {
         case "hide":
           if (hideShowConditionMet === true) {
@@ -691,15 +693,15 @@ var LeafForm = function (containerID) {
     notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
     crosswalks = Array.from(new Set(crosswalks));
 
-    if (notFoundParElsByIndID.length > 0) {
-      //filter out any conditions that have parent IDs of elements not found in the DOM
-      for (let entry in formConditionsByChild) {
-        formConditionsByChild[entry].conditions = formConditionsByChild[
-          entry
-        ].conditions.filter(
-          (c) => !notFoundParElsByIndID.includes(parseInt(c.parentIndID))
-        );
-      }
+    //filter out conditions if current format is not in allowedFormats list or if the parent element was not found in the DOM
+    for (let entry in formConditionsByChild) {
+      const currentFormat = formConditionsByChild[entry].format.toLowerCase();
+      formConditionsByChild[entry].conditions = formConditionsByChild[
+        entry
+      ].conditions.filter(c =>
+        allowedChildFormats.includes(currentFormat) &&
+        !notFoundParElsByIndID.includes(parseInt(c.parentIndID))
+      );
     }
     confirmedParElsByIndID.forEach((id) => {
       checkConditions(null, null, id);

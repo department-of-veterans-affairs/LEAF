@@ -580,6 +580,10 @@ const ConditionsEditor = Vue.createApp({
       }
       return operators;
     },
+    /**
+     * @returns array of indicators that meet the criteria:
+     * on the same page, not the currently selected question, base format is dropdown or multiselect
+     */
     crosswalkLevelTwo() {
       let levelOptions = [];
       const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
@@ -644,8 +648,8 @@ const ConditionsEditor = Vue.createApp({
      */
     conditions() {
       return {
-        childIndID: this.childIndicator?.indicatorID || 0,
-        parentIndID: this.selectedParentIndicator?.indicatorID || 0,
+        childIndID: parseInt(this.childIndicator?.indicatorID || 0),
+        parentIndID: parseInt(this.selectedParentIndicator?.indicatorID || 0),
         selectedOp: this.selectedOperator,
         selectedParentValue: XSSHelpers.stripAllTags(this.selectedParentValue),
         selectedChildValue: XSSHelpers.stripAllTags(this.selectedChildValue),
