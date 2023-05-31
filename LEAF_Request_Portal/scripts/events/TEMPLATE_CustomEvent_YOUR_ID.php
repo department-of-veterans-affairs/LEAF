@@ -74,6 +74,6 @@ class CustomEvent_[YOUR EVENT ID]
         $tmp = $this->dir->lookupLogin($record[0]['userID']);
         $this->email->addRecipient($tmp[0]['Email']);
 
-        $this->email->sendMail();
+        $this->email->sendMail($this->eventInfo['recordID']);
     }
 }

@@ -58,7 +58,7 @@
     <!--{section name=i loop=$comments}-->
         <div class='comment_block'>
             <span class="comments_time"><!--{$comments[i].time|date_format:' %b %e'|escape}--></span>
-            <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> by <!--{$comments[i].name}--></span>
+    <span class="comments_name"><!--{$comments[i].actionTextPasttense|sanitize}--> <!--{if $comments[i].name != ''}--> by<!--{/if}--><!--{$comments[i].name}--></span>
             <div class="comments_message"><!--{$comments[i].comment|sanitize}--></div>
         </div>
     <!--{/section}-->
@@ -112,6 +112,7 @@
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_dialog.tpl"}-->
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
@@ -190,6 +191,14 @@ function submitNote(recordID){
                 $("#note").val('');
 
                 addNote(response);
+
+                dialog_ok.setTitle('Note Posted Successfully');
+                dialog_ok.setContent('Your note has been posted. <b style="color: red">Please keep in mind this does not send notifications.</b>');
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                });
+                dialog_ok.show();
             },
             error: function(res) {
                 console.log(res);
@@ -1194,6 +1203,7 @@ $(function() {
     /* General popup window */
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+    dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     <!--{if $childCategoryID == ''}-->

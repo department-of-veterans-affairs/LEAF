@@ -370,9 +370,9 @@
         let editSelectdatesString = "";
         if (emailChecked.checked) {
             editSelectdatesString +=
-                '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days"> days of inactivity. <br>';
+                '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days" style="width: 53px"> days of inactivity. <br>';
             editSelectdatesString +=
-                '<br>After the initial notification send another reminder every <input aria-label="number of days additional" type="number" min="1" id="reminder_days_additional"> days of inactivity. <br>';
+                '<br>After the initial notification send another reminder every <input aria-label="number of days additional" type="number" min="1" id="reminder_days_additional" style="width: 53px"> days of inactivity. <br>';
             createElement("div", "edit_date_select", "edit_email_container");
             document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
         } else {
