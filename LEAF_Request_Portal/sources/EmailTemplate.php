@@ -134,7 +134,11 @@ class EmailTemplate
     public function getCustomEmailTemplateList(): array
     {
         if (!$this->login->checkGroup(1)) {
-            $return_value = array('error' => 'Admin access required');
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'Admin access required'
+                ));
         }
 
         $list = scandir('../templates/email/custom_override');
@@ -146,7 +150,13 @@ class EmailTemplate
             }
         }
 
-        $return_value = $out;
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $out
+        );
 
         return $return_value;
     }
