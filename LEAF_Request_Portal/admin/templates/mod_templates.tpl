@@ -1046,7 +1046,7 @@
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
-                                if (res_array.success.includes(res[i])) {
+                                if (result.includes(res[i])) {
                                     custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
@@ -1058,7 +1058,7 @@
                                     '</a> ' + custom + '</li>';
                             }
                         } else if (res_array.status['code'] === 4) {
-                            buffer += '<li>' + res_array.error + '</li>';
+                            buffer += '<li>' + res_array.status['message'] + '</li>';
                         } else {
                             buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
