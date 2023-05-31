@@ -693,13 +693,15 @@ var LeafForm = function (containerID) {
     notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
     crosswalks = Array.from(new Set(crosswalks));
 
-    //filter out conditions if current format is not in allowedFormats list or if the parent element was not found in the DOM
+    /*filter: current format is in allowedFormats list, current and saved formats match,
+    and the parentID is not in the list of IDs for elements not found in the DOM */
     for (let entry in formConditionsByChild) {
       const currentFormat = formConditionsByChild[entry].format.toLowerCase();
       formConditionsByChild[entry].conditions = formConditionsByChild[
         entry
       ].conditions.filter(c =>
         allowedChildFormats.includes(currentFormat) &&
+        currentFormat === c.childFormat.toLowerCase() &&
         !notFoundParElsByIndID.includes(parseInt(c.parentIndID))
       );
     }
