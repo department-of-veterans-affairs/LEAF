@@ -284,106 +284,39 @@ var LeafForm = function (containerID) {
       const parentElID =
         event !== null ? parseInt(event.target.id) : parseInt(parID);
 
-      const linkedParentConditions = getConditionsLinkedToParent(parentElID); //get all children directly controlled by this parent, and their ids
-      let uniqueChildIDs = linkedParentConditions.map((c) =>
-        parseInt(c.childIndID)
-      );
-      uniqueChildIDs = Array.from(new Set(uniqueChildIDs));
-
-      let linkedChildConditions = [];
-      uniqueChildIDs.forEach((id) => {
-        linkedChildConditions.push(
-          ...getConditionsLinkedToChild(id, parentElID)
-        ); //get all other possible parents controlling the above children
-      });
-
-      let allConditions = [...linkedParentConditions, ...linkedChildConditions];
-      let hideShowConditions = allConditions.filter((c) =>
-        ["show", "hide"].includes(c.selectedOutcome.toLowerCase())
-      );
-      let prefillConditions = allConditions.filter(
-        c => c.selectedOutcome.toLowerCase() === "pre-fill"
-      );
-
-      const hideShowCondByChild = {};
-      hideShowConditions.map((c) => {
-        hideShowCondByChild[c.childIndID]
-          ? hideShowCondByChild[c.childIndID].push(c)
-          : hideShowCondByChild[c.childIndID] = [c];
-      });
-      const prefillCondByChild = {};
-      prefillConditions.map((c) => {
-        prefillCondByChild[c.childIndID]
-          ? prefillCondByChild[c.childIndID].push(c)
-          : prefillCondByChild[c.childIndID] = [c];
-      });
-      setTimeout(() => {
-        //some multiselect combobox updates don't work unless the stack is cleared
-        for (let childID in hideShowCondByChild) {
-          makeComparisons(childID, hideShowCondByChild[childID]);
-        }
-        for (let childID in prefillCondByChild) {
-          makeComparisons(childID, prefillCondByChild[childID]);
-        }
-      });
-    };
-    /**
-     *
-     * @param {number} parentID
-     * @returns array of conditions that have the given value for their parentIndID, or empty array
-     */
-    const getConditionsLinkedToParent = (parentID = 0) => {
-      let conditionsLinkedToParent = [];
-      if (parentID !== 0) {
-        for (let entry in formConditionsByChild) {
-          const formConditions = formConditionsByChild[entry].conditions || [];
-          formConditions.forEach((c) => {
-            const formatIsEnabled = allowedChildFormats.some(
-              (f) => f === c.childFormat
-            );
-            //do not include conditions if the recorded condition format (condition.childFormat) does not
-            //match the current format, as this would have unpredictable results
-            if (
-              formConditionsByChild[entry].format === c.childFormat &&
-              formatIsEnabled &&
-              parseInt(c.parentIndID) === parseInt(parentID)
-            ) {
-              conditionsLinkedToParent.push({ ...c });
-            }
-          });
+      //get all conditions for children if any of their controllers match parID. sep by hide/show, prefill
+      let hideShowCondByChild = {};
+      let prefillCondByChild = {};
+      for(let childKey in formConditions) {
+        const id = childKey.slice(2); //id<indID>
+        if(formConditions[childKey].conditions.some(
+          cond => parseInt(cond.parentIndID) === parentElID)
+        ) {
+          hideShowCondByChild[id] = [
+            ...formConditions[childKey].conditions.filter(
+              cond => ['hide', 'show'].includes(cond.selectedOutcome.toLowerCase())
+            )
+          ]
+          prefillCondByChild[id] = [
+            ...formConditions[childKey].conditions.filter(
+              cond => cond.selectedOutcome.toLowerCase() === 'pre-fill'
+            )
+          ]
         }
       }
-      return conditionsLinkedToParent;
-    };
-    /**
-     *
-     * @param {number} childID id of a child condition
-     * @param {number} currParentID the id of the controller that was updated
-     * @returns array of all other parents that control the given child, or empty array
-     */
-    const getConditionsLinkedToChild = (childID = 0, currParentID = 0) => {
-      let conditionsLinkedToChild = [];
-      if (childID !== 0 && currParentID !== 0) {
-        for (let entry in formConditionsByChild) {
-          if (parseInt(entry.slice(2)) === parseInt(childID)) {
-            const formConditions =
-              formConditionsByChild[entry].conditions || [];
-            formConditions.map((c) => {
-              const formatIsEnabled = allowedChildFormats.some(
-                (f) => f === c.childFormat
-              );
-              if (
-                formConditionsByChild[entry].format === c.childFormat &&
-                formatIsEnabled &&
-                parseInt(currParentID) !== parseInt(c.parentIndID)
-              ) {
-                conditionsLinkedToChild.push({ ...c });
-              }
-            });
+      //some multiselect combobox updates don't work unless the stack is cleared
+      setTimeout(() => {
+        for (let childID in hideShowCondByChild) {
+          if(hideShowCondByChild[childID].length > 0) {
+            makeComparisons(childID, hideShowCondByChild[childID]);
           }
         }
-      }
-      return conditionsLinkedToChild;
+        for (let childID in prefillCondByChild) {
+          if(prefillCondByChild[childID].length > 0) {
+            makeComparisons(childID, prefillCondByChild[childID]);
+          }
+        }
+      });
     };
 
     /**
