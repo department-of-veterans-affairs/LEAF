@@ -18,7 +18,7 @@
 
         <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
         
-        <div id="fileList" style="background-color: white; margin-left: 160px"></div>
+        <div id="fileList"></div>
 
         <div class="leaf-row-space"></div>
 
@@ -43,12 +43,26 @@ function showFiles() {
         type: 'GET',
         url: '../api/system/files',
         success: function(res) {
-        	var output = '<table class="table">';
-            for(var i in res) {
-            	output += '<tr><td><a href="../files/'+ res[i] +'">../files/'+ res[i] +'</a></td><td><a href="#" onclick="deleteFile(\''+ res[i] +'\')">Delete</a></td></tr>';
+            const files = [...res];
+        	let output = '<table class="table">';
+            output += `<tr style="background-color:#252f3e; color: white;">
+                <th style="width:250px">File Name</th>
+                <th style="width:100px">Action</th>
+                <th style="width:200px">Context</th>
+            </tr>`;
+            for(let i in res) {
+            	output += `<tr>
+                    <td><a href="../files/${res[i]}">../files/${res[i]}</a></td>
+                    <td><a href="#" onclick="deleteFile('${res[i]}')">Delete</a></td>
+                    <td id="${res[i]}_context"></td>
+                </tr>`;
             }
             output += '</table>';
             $('#fileList').html(output);
+            getIndicatorContext();
+        },
+        error: function(err) {
+            console.error(err?.responseText);
         },
         cache: false
     });
@@ -78,6 +92,36 @@ function deleteFile(file) {
     dialog_confirm.show();
 }
 
+function isJSON(input = '') {
+    try {
+        JSON.parse(input);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+function getIndicatorContext() {
+    $.ajax({
+        type: "GET",
+        url: "../api/form/indicator/list/unabridged",
+        success: (res) => {
+            let fileContext = {};
+            res.forEach(i => {
+                const baseFormat = i.format.split('\n')[0].trim();
+                if(isJSON(i.conditions)) {
+                    const conditions = JSON.parse(i.conditions) || [];
+                    console.log(i.indicatorID, baseFormat, conditions);
+                } else {
+                    console.log(i.indicatorID)
+                }
+            });
+        },
+        error: function(err) {
+            console.error(err?.responseText);
+        },
+    });
+}
 
 var dialog, dialog_confirm;
 $(function() {
