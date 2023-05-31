@@ -138,7 +138,8 @@ class EmailTemplate
                 'status' => array(
                     'code' => 4,
                     'message' => 'Admin access required'
-                ));
+                )
+            );
         }
 
         $list = scandir('../templates/email/custom_override');

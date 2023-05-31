@@ -1044,7 +1044,7 @@
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
 
-                        if (typeof res_array.success !== "undefined") {
+                        if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 if (res_array.success.includes(res[i])) {
                                     custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
@@ -1057,7 +1057,7 @@
                                 buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
                                     '</a> ' + custom + '</li>';
                             }
-                        } else if (typeof res_array.error !== "undefined") {
+                        } else if (res_array.status['code'] === 4) {
                             buffer += '<li>' + res_array.error + '</li>';
                         } else {
                             buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
