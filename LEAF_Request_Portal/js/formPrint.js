@@ -186,6 +186,7 @@ var printer = function () {
         var splitTitle = [];
         var splitOption = [];
         var format = indicator.format;
+        console.log(indicator.format);
         if (
           format === "text" &&
           ((indicator.value && indicator.value.length > 30) ||
@@ -389,7 +390,7 @@ var printer = function () {
           doc.setTextColor(0);
           doc.setDrawColor(0);
         }
-
+        
         if (depth > 0) {
           if (subShift) {
             verticalShift += 4;
@@ -987,6 +988,7 @@ var printer = function () {
                   doc.setFont("helvetica");
 
                   let selectedVals = toArrayFormat(indicator);
+                  indicator.options = indicator.options.filter((option) => selectedVals.includes(option));
                   if (
                     !blank &&
                     selectedVals.indexOf(indicator.options[i]) > -1
