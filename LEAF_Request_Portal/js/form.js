@@ -288,34 +288,31 @@ var LeafForm = function (containerID) {
       let hideShowCondByChild = {};
       let prefillCondByChild = {};
       for(let childKey in formConditions) {
-        if(childKey.indexOf('id') === 0) {
-          const id = childKey.slice(2); //childKey should be 'id' + indID
-          if(formConditions[childKey].conditions.some(
-            cond => parseInt(cond.parentIndID) === parentElID)
-          ) {
-            hideShowCondByChild[id] = [
-              ...formConditions[childKey].conditions.filter(
-                cond => ['hide', 'show'].includes(cond.selectedOutcome.toLowerCase())
-              )
-            ]
-            prefillCondByChild[id] = [
-              ...formConditions[childKey].conditions.filter(
-                cond => cond.selectedOutcome.toLowerCase() === 'pre-fill'
-              )
-            ]
-          }
+        if(formConditions[childKey].conditions.some(
+          cond => parseInt(cond.parentIndID) === parentElID)
+        ) {
+          hideShowCondByChild[childKey] = [
+            ...formConditions[childKey].conditions.filter(
+              cond => ['hide', 'show'].includes(cond.selectedOutcome.toLowerCase())
+            )
+          ]
+          prefillCondByChild[childKey] = [
+            ...formConditions[childKey].conditions.filter(
+              cond => cond.selectedOutcome.toLowerCase() === 'pre-fill'
+            )
+          ]
         }
       }
       //some multiselect combobox updates don't work unless the stack is cleared
       setTimeout(() => {
-        for (let childID in hideShowCondByChild) {
-          if(hideShowCondByChild[childID].length > 0) {
-            makeComparisons(childID, hideShowCondByChild[childID]);
+        for (let childKey in hideShowCondByChild) {
+          if(hideShowCondByChild[childKey].length > 0) {
+            makeComparisons(hideShowCondByChild[childKey]);
           }
         }
-        for (let childID in prefillCondByChild) {
-          if(prefillCondByChild[childID].length > 0) {
-            makeComparisons(childID, prefillCondByChild[childID]);
+        for (let childKey in prefillCondByChild) {
+          if(prefillCondByChild[childKey].length > 0) {
+            makeComparisons(prefillCondByChild[childKey]);
           }
         }
       });
@@ -400,14 +397,14 @@ var LeafForm = function (containerID) {
     };
 
     /**
-     *
-     * @param {string} childID indicator ID of the child question, used to select associated DOM elements
-     * @param {array} arrChildConditions array of conditions objects associated with the child question
+     * @param {array} arrChildConditions array of conditions associated with a child question
+     * This method is not called unless the array contains at least one element
      */
-    const makeComparisons = (childID = "", arrChildConditions = []) => {
+    const makeComparisons = (arrChildConditions = []) => {
       const multiOptionFormats = ["multiselect", "checkboxes"];
       const orgchartFormats = ["orgchart_employee", "orgchart_group", "orgchart_position"];
-      //childFormat should be the same for all, since formats that don't match the current question format are already removed.
+      //childID and childFormat same for all
+      const childID = arrChildConditions[0].childIndID;
       const childFormat = arrChildConditions[0].childFormat.toLowerCase();
       const chosenShouldUpdate = childFormat === "dropdown";
 
@@ -636,19 +633,21 @@ var LeafForm = function (containerID) {
           console.log(co);
           break;
       }
+      //clear stack again before checking for hidden elements
+      setTimeout(() => {
+        const closestHidden = elChildResponse.closest('.response-hidden');
+        if (closestHidden !== null) {
+          clearValues(childFormat, childID);
+        }
 
-      const closestHidden = elChildResponse.closest('.response-hidden');
-      if (closestHidden !== null) {
-        clearValues(childFormat, childID);
-      }
-
-      elChildInput.trigger("change");
-      $(`input[id^="${childID}_"]`).trigger("change"); //radio and checkboxes
-      if (chosenShouldUpdate) {
-        elChildInput.chosen().val(elChildInput.val());
-        elChildInput.chosen({ width: "100%" });
-        elChildInput.trigger("chosen:updated");
-      }
+        elChildInput.trigger("change");
+        $(`input[id^="${childID}_"]`).trigger("change"); //radio and checkboxes
+        if (chosenShouldUpdate) {
+          elChildInput.chosen().val(elChildInput.val());
+          elChildInput.chosen({ width: "100%" });
+          elChildInput.trigger("chosen:updated");
+        }
+      });
     };
 
 
