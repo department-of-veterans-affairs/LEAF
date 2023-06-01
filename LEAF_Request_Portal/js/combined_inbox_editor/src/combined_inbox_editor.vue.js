@@ -77,9 +77,11 @@ const CombinedInboxEditor = Vue.createApp({
                         this.sites.forEach((site) => {
                             this.choices.push({id: site.id, choices: []})
                             let tmp = [];
-                            site.columns.split(',').forEach((col, index) => {
-                                tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
-                            })
+                            if (site.columns.split(',')[0] !== '') {
+                                site.columns.split(',').forEach((col, index) => {
+                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
+                                });
+                            }
                             this.allColumns.split(',').forEach((col) => {
                                 if (!site.columns.includes(col)) {
                                     tmp.push({value: col, label: this.frontEndColumns[col], selected: false});
@@ -195,8 +197,10 @@ const CombinedInboxEditor = Vue.createApp({
                         <table style="width: 100%;" cellspacing=0>
                             <tr>
                             <th class="col-header">UID</th>
-                            <template v-for="column in site.columns.split(',')" :key="column">
-                            <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
+                            <template v-if="site.columns.split(',')[0] !== ''">
+                                <template v-for="column in site.columns.split(',')" :key="column">
+                                <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
+                                </template>
                             </template>
                             <th class="col-header">Action</th>
                             </tr>

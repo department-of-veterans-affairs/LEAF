@@ -515,7 +515,7 @@
                         cols: site.cols,
                         nonAdmin: true,
                         order: site.order,
-                        columns: 'UID,' + site.columns,
+                        columns: 'UID' + (site.columns.length > 0 ? ',' + site.columns : ''),
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
