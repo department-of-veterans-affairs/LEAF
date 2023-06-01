@@ -19,6 +19,7 @@
         <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
         
         <div id="fileList"></div>
+        <div id="fileFormContext" style="margin-top: 1rem; display:none;"></div>
 
         <div class="leaf-row-space"></div>
 
@@ -43,23 +44,15 @@ function showFiles() {
         type: 'GET',
         url: '../api/system/files',
         success: function(res) {
-            const files = [...res];
         	let output = '<table class="table">';
-            output += `<tr style="background-color:#252f3e; color: white;">
-                <th style="width:250px">File Name</th>
-                <th style="width:100px">Action</th>
-                <th style="width:200px">Context</th>
-            </tr>`;
             for(let i in res) {
             	output += `<tr>
                     <td><a href="../files/${res[i]}">../files/${res[i]}</a></td>
                     <td><a href="#" onclick="deleteFile('${res[i]}')">Delete</a></td>
-                    <td id="${res[i]}_context"></td>
                 </tr>`;
             }
             output += '</table>';
             $('#fileList').html(output);
-            getIndicatorContext();
         },
         error: function(err) {
             console.error(err?.responseText);
@@ -101,21 +94,76 @@ function isJSON(input = '') {
     return true;
 }
 
-function getIndicatorContext() {
+function addIndicatorContext() {
+    let fileContext = {};
+    const mutateFileContext = (fileKey, formKey, indicatorID ) => {
+        if(fileContext[fileKey] === undefined) {
+            fileContext[fileKey] = {
+                [formKey]: [indicatorID]
+            };
+        } else {
+            fileContext[fileKey][formKey] === undefined ?
+            fileContext[fileKey][formKey] = [indicatorID] :
+            fileContext[fileKey][formKey].push(indicatorID);
+        }
+    }
     $.ajax({
         type: "GET",
         url: "../api/form/indicator/list/unabridged",
         success: (res) => {
-            let fileContext = {};
-            res.forEach(i => {
-                const baseFormat = i.format.split('\n')[0].trim();
-                if(isJSON(i.conditions)) {
-                    const conditions = JSON.parse(i.conditions) || [];
-                    console.log(i.indicatorID, baseFormat, conditions);
-                } else {
-                    console.log(i.indicatorID)
+            const enabledIndicators = res.filter(i => parseInt(i.isDisabled) === 0);
+            enabledIndicators.forEach(i => {
+                const baseFormat = i.format.split('\n')[0].toLowerCase().trim();
+                const formKey = `${i.categoryName} (${i.categoryID})`;
+                //current multiselect and dropdown format option loading
+                if(baseFormat === 'dropdown' || baseFormat === 'multiselect') {
+                    if(isJSON(i.conditions)) {
+                        const conditions = JSON.parse(i.conditions) || [];
+                        const crosswalkConditions = conditions.filter(
+                            c => c.selectedOutcome.toLowerCase() === 'crosswalk'
+                        );
+                        crosswalkConditions.forEach(cond => {
+                            mutateFileContext(cond.crosswalkFile, formKey, i.indicatorID);
+                        });
+
+                    } else {
+                        console.log('unexpected conditions content', i.indicatorID, i.conditions)
+                    }
+                //grid format option loading
+                } else if (baseFormat === 'grid') {
+                    let gridJSON = (i.format.split('\n')[1] || '').trim();
+                    if(isJSON(gridJSON)) {
+                        gridJSON = JSON.parse(gridJSON) || [];
+                        const file_dropdowns = gridJSON.filter(
+                            gridInfo => gridInfo.type === "dropdown_file"
+                        );
+                        file_dropdowns.forEach(dd => {
+                            mutateFileContext(dd.file, formKey, i.indicatorID);
+                        });
+
+                    } else {
+                        console.log('unexpected grid JSON', i.indicatorID)
+                    }
                 }
             });
+            if (Object.keys(fileContext).length > 0) {
+                document.getElementById('fileFormContext').style.display = 'block';
+                let output = `<h3 style="margin: 1.5rem 0 2px 0;">Files used in forms are noted below</h3>`;
+                output += `<table style="margin: 0" class="table">`;
+                output += `<th style="border-right: 1px solid black;">File Name</th><th>Form Info</th>`;
+                for(let file in fileContext) {
+                    output += `<tr><td>${file}</td><td>`
+                    for(let form in fileContext[file]) {
+                        const pl = fileContext[file][form].length > 1 ? 's' : '';
+                        output += `<b>Form</b>: ${form}, <br/>`
+                        output += `<b>Indicator${pl}</b>: ${fileContext[file][form].join(', ')}<br/><br/>`
+                    }
+                    output = output.slice(0,-5); //rm last break
+                    output += `</td></tr>`;
+                }
+                output += '</table>';
+                $('#fileFormContext').html(output);
+            }
         },
         error: function(err) {
             console.error(err?.responseText);
@@ -129,6 +177,7 @@ $(function() {
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     showFiles();
+    addIndicatorContext();
 });
 
 </script>
