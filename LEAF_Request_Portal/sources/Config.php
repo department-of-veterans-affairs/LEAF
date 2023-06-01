@@ -41,7 +41,7 @@ class Config
         $this->adPath = $settings['adPath'];
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
-        self::$sitePath = $site_paths['site_path'];
+        self::$sitePath = 'https://' . HTTP_HOST . $site_paths['site_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
         $this->descriptionID = $settings['descriptionID'];
         self::$emailPrefix = $settings['requestLabel'];
