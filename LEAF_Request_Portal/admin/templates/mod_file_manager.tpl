@@ -16,10 +16,12 @@
     
         <h2>File Manager</h2>
 
-        <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
+        <p style="line-height:1.4;">Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
         
         <div id="fileList"></div>
-        <div id="fileFormContext" style="margin-top: 1rem; display:none;"></div>
+        <div id="fileFormContext" style="margin-top: 1rem;">
+            Loading Form Information... <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
 
         <div class="leaf-row-space"></div>
 
@@ -148,9 +150,16 @@ function addIndicatorContext() {
             });
             if (Object.keys(fileContext).length > 0) {
                 document.getElementById('fileFormContext').style.display = 'block';
-                let output = `<h3 style="margin: 1.5rem 0 2px 0;">Files used in forms are noted below</h3>`;
-                output += `<table style="margin: 0" class="table">`;
-                output += `<th style="border-right: 1px solid black;">File Name</th><th>Form Info</th>`;
+                let output = `<p style="margin-top: 2rem; max-width:650px; line-height:1.4;">
+                    The table below lists files used for loading form options.&nbsp; This includes those
+                    added in the Form Editor with 'ifthen', or Dropdown From File grid format cell types.&nbsp; 
+                    It does not include custom code.</p>`;
+
+                output += `<table style="margin: 0" class="table">
+                    <tr style="background-color:#252f3e;color:white;">
+                        <th>File Name</th>
+                        <th>Form Info</th>
+                    </tr>`;
                 for(let file in fileContext) {
                     output += `<tr><td>${file}</td><td>`
                     for(let form in fileContext[file]) {
@@ -163,6 +172,8 @@ function addIndicatorContext() {
                 }
                 output += '</table>';
                 $('#fileFormContext').html(output);
+            } else {
+                $('#fileFormContext').html('');
             }
         },
         error: function(err) {
