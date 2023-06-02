@@ -47,7 +47,7 @@
 
     .page-main-content {
         display: flex;
-        width: 100%;
+        width: 90%;
         justify-content: space-evenly;
         align-items: flex-start;
         height: 80%;
@@ -67,6 +67,7 @@
     .leaf-left-nav,
     .leaf-right-nav {
         width: 20%;
+        max-width: 200px;
         margin: 0;
         flex: none;
     }
@@ -87,7 +88,7 @@
         display: flex;
         justify-content: space-evenly;
         align-content: flex-start;
-        width: 60%;
+        width: 70%;
         flex: none;
         margin: 0 auto;
         transition: all 1s ease;
@@ -114,12 +115,16 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #e8e4e4;
-        margin: 0 auto;
+        background-color: #fff;
+        margin: 15px auto;
+        padding-top: 20px;
+        border-radius: 5px;
     }
+
 
     .view-history {
         width: 90%;
+        max-width: 200px;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -136,7 +141,11 @@
         background-color: #112e51;
     }
 
-    .accordion-container {
+    .file-history-res {
+        width: 100%;
+    }
+
+    /* .accordion-container {
         display: block;
         margin-top: 10px;
         width: 100%;
@@ -148,22 +157,22 @@
         border-radius: 5px;
         overflow: hidden;
         margin-bottom: 10px;
-        background-color: #eee;
+        background-color: #fff;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         margin: 10px auto;
     }
 
     .accordion-header {
         display: flex;
-        justify-content: center;
-        align-items: center;
+        justify-content: flex-start;
+        align-items: flex-end;
         flex-flow: row;
-        padding: 10px 0;
+        padding: 8px 0;
         background-color: #1a4480;
         color: #fff;
         font-size: 0.75rem;
         font-weight: bold;
-        text-align: center;
+        text-align: left;
         cursor: pointer;
         transition: all 0.3s ease;
     }
@@ -177,28 +186,50 @@
     }
 
     .accordion-date {
-        border-right: 1px solid #fff;
+        width: 80%;
         padding: 0 10px;
+        border-right: 1px solid #fff;
+    }
+
+    .accordion-chevron {
+        width: 20%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+
     }
 
     .accordion-name {
-        padding: 0 10px;
+        padding: 5px 0 0 10px;
     }
 
     .accordion-content {
         display: none;
         padding: 10px 10px;
-        font-size: .8rem;
+        font-size: .75rem;
         line-height: 1.5;
         background-color: #fff;
     }
 
     .accordion-content>ul {
         padding: 0;
+        margin: 0;
     }
 
     .accordion-content>ul>li {
         list-style: none;
+        margin: 5px 0;
+        border-bottom: 2px solid #e4e4e4;
+        padding: 5px 0;
+    }
+
+    .accordion-content>ul>li:last-child {
+        border: none;
+    }
+
+    .accordion-content>ul>li>strong {
+        text-transform: uppercase;
     }
 
     .accordion-content>ul>li>p {
@@ -211,7 +242,162 @@
 
     .accordion-content>ul>li:nth-child(5) {
         list-style: none;
-    }
+    } */
+
+    .accordion-container {
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 200px;
+}
+
+.accordion {
+    width: 90%;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 5px auto;
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #1a4480;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header:hover {
+    background-color: #112e51;
+}
+
+.accordion-date {
+    width: 80%;
+    border-right: 1px solid #fff;
+    padding: 8px;
+    color: #fff;
+}
+
+.accordion-date {
+    width: 100%;
+    color: #fff;
+    text-decoration: none;
+}
+
+.accordion-chevron {
+    width: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    transition: transform 0.3s ease;
+}
+
+.chevron-rotate {
+    transform: rotate(90deg);
+}
+
+.accordion-content {
+    display: none;
+    padding: 10px;
+    font-size: 0.65rem;
+    line-height: 1.5;
+    background-color: #fff;
+}
+
+.accordion-content>ul {
+    padding: 0;
+    margin: 0;
+}
+
+.accordion-content>ul>li {
+    list-style: none;
+    margin: 5px 0;
+    border-bottom: 2px solid #e4e4e4;
+    padding: 5px 0;
+}
+
+.accordion-content>ul>li:last-child {
+    border: none;
+}
+
+.accordion-content>ul>li>strong {
+    text-transform: uppercase;
+}
+
+.accordion-content>ul>li>p {
+    margin: 0;
+    font-size: .65rem;
+}
+
+.file_compare_file_btn {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    background-color: #e99002;
+    color: #fff;
+    font-weight: 700;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    font-size: .75rem;
+}
+
+.file_compare_file_btn:hover {
+    background-color: #c97c00;
+}
+
+.copyIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: .6rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-top: 5px;
+    border: none;
+    transition: .5s ease;
+    -webkit-transition: .5s ease;
+    -moz-transition: .5s ease;
+    -ms-transition: .5s ease;
+    -o-transition: .5s ease;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+}
+
+.copyIcon:hover {
+    background-color: #45a245;
+    color: #fff;
+}
+
+.copyIcon>span {
+    font-size: 1rem;
+    padding: 0 0 0 5px;
+}
+
+.template_link {
+    font-size: .8rem;
+    border: 1px solid #eee;
+    width: 100%;
+    padding: 5px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    overflow: auto;
+    background-color: #ccc;
+}
 
     .file_compare_file_btn {
         width: 100%;
@@ -358,6 +544,7 @@
         justify-items: center;
         align-items: center;
     }
+
     .compared-label-content {
         width: 100%;
         display: none;
@@ -379,6 +566,16 @@
 
     .CodeMirror-merge-pane-label:nth-child(2) {
         color: #083;
+    }
+
+    .chevron-rotate {
+        animation: chevron-rotate .5s forwards;
+    }
+
+    @keyframes chevron-rotate {
+        100% {
+            transform: rotate(90deg);
+        }
     }
 </style>
 
@@ -478,11 +675,13 @@
                         id="btn_history" onclick="viewHistory()">
                         View History
                     </button>
-                    <button class="view-history">View File History</button>
-                </div>
-                <div class="file-history">
+                    <!-- <button class="view-history">View File History</button> -->
                 </div>
             </aside>
+            <div class="file-history">
+                <h3>File History</h3>
+                <div class="file-history-res"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -524,11 +723,6 @@
 
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
-                setTimeout(function() {
-                    $('#saveStatus').fadeOut(1000, function() {
-                        $(this).html('').fadeIn();
-                    });
-                }, 3000);
                 currentFileContent = data;
                 if (res != null) {
                     alert(res);
@@ -681,21 +875,21 @@
     $(document).ready(function() {
         $('#word-wrap-button').css('display', 'none');
         // Hide the accordion container and all accordion content on page load
-        $(".accordion-container").hide();
-        $(".accordion-content").hide();
-        // When the View File History button is clicked, toggle the accordion container
-        $(".view-history").click(function() {
-            $(".accordion-container").slideToggle();
-        });
+        // $(".accordion-container").hide();
+        // $(".accordion-content").hide();
     });
 
-    function displayAccordionContent(element) {
-        var accordionContent = $(element).next(".accordion-content");
-        $(element).toggleClass("accordion-active");
-        accordionContent.slideToggle();
-        $(".accordion-header").not(element).removeClass("accordion-active");
-        $(".accordion-content").not(accordionContent).slideUp();
-    }
+    // function displayAccordionContent(element) {
+    //     var accordionContent = $(element).next(".accordion-content");
+    //     $(element).toggleClass("accordion-active");
+    //     accordionContent.slideToggle();
+
+    //     $(element).toggleClass("chevron-rotate");
+    //     $(".accordion-header").not(element).removeClass("accordion-active");
+    //     $(".accordion-content").not(accordionContent).slideUp();
+    // }
+
+
 
     function getFileHistory(template) {
         $.ajax({
@@ -707,7 +901,7 @@
                     console.log('There are no files in the directory');
                     var contentMessage =
                         '<p class="contentMessage">There are no history files.</p>';
-                    $('.file-history').html(contentMessage);
+                    $('.file-history-res').html(contentMessage);
                     return;
                 }
                 var fileNames = res.map(function(template) {
@@ -727,33 +921,90 @@
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
-                    accordion += '<div class="accordion">';
-                    accordion +=
-                        '<div class="accordion-header" onclick="displayAccordionContent(this)"><span class="accordion-date"><strong style="color:#37beff;">DATE:</strong><br>' +
-                        fileCreated +
-                        '</span><span class="accordion-name"><strong style="color:#37beff;">USER:</strong><br>' +
-                        whoChangedFile +
-                        '</span></div>';
-                    accordion += '<div class="accordion-content">';
-                    accordion += '<ul>';
-                    accordion += '<li><strong>File Name: </strong><br><p>' + fileParentName + '</p></li>';
-                    accordion += '<li><strong>Who Changed File:</strong><br><p>' + whoChangedFile +
-                        '</p></li>';
-                    accordion += '<li><strong>File Size:</strong><br><p>' + formattedFileSize + '</p></li>';
-                    accordion +=
-                        '<li><button class="file_compare_file_btn" onclick="compareHistoryFile(\'' +
-                        fileName + '\')">Compare Current File</button></li>';
-                    accordion += '</ul>';
-                    accordion += '</div>';
-                    accordion += '</div>';
+                    accordion += '<div class="accordion">' +
+                                        '<div class="accordion-header">' +
+                                            '<a href="#" id="scanFolderLink" class="accordion-date"><span><strong style="color:#37beff;">DATE:</strong><br>' + fileCreated + '</span></a>' +
+                                            '<span class="accordion-chevron" onclick="displayAccordionContent(this)">&#62;</span>' +
+                                        '</div>' +
+                                        '<div class="accordion-content">' +
+                                            '<ul>' +
+                                                '<li>' +
+                                                    '<strong>File Name: </strong>' +
+                                                    '<p>' + fileName + '</p>' +
+                                                '</li>' +
+                                                '<li>' +
+                                                    '<strong>Author: </strong>' +
+                                                    '<p>' + whoChangedFile + '</p>' +
+                                                '</li>' +
+                                                '<li>' +
+                                                    '<strong>File Size: </strong>' +
+                                                    '<p>' + formattedFileSize + '</p>' +
+                                                '</li>' +
+                                                '<li>' +
+                                                    '<strong>File URL:</strong>' +
+                                                    '<p class="template_link">' + filePath + '</p>' +
+                                                    '<div class="textContainer">' +
+                                                        '<button class="copyIcon">Copy Link <span>&#10063;</span></button>' +
+                                                    '</div>' +
+                                                '</li>' +
+                                                '<li>' +
+                                                    '<button class="file_compare_file_btn" onclick="compareHistoryFile()">Compare Current File</button>' +
+                                                '</li>' +
+                                            '</ul>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>';
+
                 }
                 accordion += '</div>';
-                $('.file-history').html(accordion);
+                $('.file-history-res').html(accordion);
             },
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
             },
             cache: false
+        });
+    }
+
+    function displayAccordionContent(element) {
+        var accordionContent = $(element).parent().next(".accordion-content");
+        var chevron = $(element);
+
+        chevron.toggleClass("chevron-rotate");
+        accordionContent.slideToggle();
+
+        var accordions = $(".accordion");
+        accordions.each(function () {
+            var currentAccordionContent = $(this).find(".accordion-content");
+            var currentChevron = $(this).find(".accordion-chevron");
+
+            if (
+            !currentAccordionContent.is(accordionContent) &&
+            !currentChevron.is(chevron)
+            ) {
+            currentAccordionContent.slideUp();
+            currentChevron.removeClass("chevron-rotate");
+            }
+        });
+    }
+
+        const copyIcons = document.getElementsByClassName('copyIcon');
+        Array.from(copyIcons).forEach(copyIcon => {
+        copyIcon.addEventListener('click', copyText);
+        });
+
+    function copyText() {
+    const template_link = this.parentNode.previousElementSibling.innerText;
+
+    navigator.clipboard.writeText(template_link)
+        .then(() => {
+        // Success - You can perform additional actions or show a success message
+        console.log('Text copied successfully!');
+        console.log(template_link);
+        })
+        .catch((err) => {
+        // Error - Handle the error or show an error message
+        console.error('Unable to copy text:', err);
         });
     }
 

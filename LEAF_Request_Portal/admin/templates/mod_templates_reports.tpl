@@ -119,6 +119,7 @@
 
     .view-history {
         width: 90%;
+        max-width: 200px;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -491,12 +492,6 @@
             success: function(res) {
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
-                setTimeout(function() {
-                    $('#saveStatus').fadeOut(1000, function() {
-                        $(this).html('').fadeIn();
-                    });
-                    loadContent(currentFile);
-                }, 3000);
                 saveFileHistory();
             },
             error: function() {

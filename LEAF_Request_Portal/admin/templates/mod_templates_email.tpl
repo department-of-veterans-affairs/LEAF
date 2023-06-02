@@ -150,6 +150,7 @@
 
     .view-history {
         width: 90%;
+        max-width: 200px;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -546,9 +547,12 @@
                     </button>
                     <button class="view-history">View File History</button>
                 </div>
-                <div class="file-history">
-                </div>
             </aside>
+        </div>
+
+        <div class="file-history">
+            <h2>File History</h2>
+            <div class="file-history-res"></div>
         </div>
     </div>
 
@@ -614,13 +618,6 @@
                 // Show saved time in "Save Changes" button and set current content
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
-                setTimeout(function() {
-                    $('#saveStatus').fadeOut(1000, function() {
-                        $(this).html('').fadeIn();
-                    });
-                    loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
-                        currentEmailCcFile);
-                }, 3000);
                 currentFileContent = data;
                 currentSubjectContent = subject;
                 currentEmailToContent = emailToData;
