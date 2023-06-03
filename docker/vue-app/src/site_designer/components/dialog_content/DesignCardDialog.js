@@ -55,8 +55,11 @@ export default {
         isBuiltInCard() {
             return this.builtInIDs.includes(this.id)
         },
+        linkNotSet() {
+            return !this.isBuiltInCard && +this.enabled === 1 && this.link.indexOf('https://') !== 0;
+        },
         linkAttentionStyle() {
-            return (+this.enabled === 1 && this.link.indexOf('https://') !== 0) ? 'border: 2px solid #c00000': '';
+            return this.linkNotSet ? 'border: 2px solid #c00000': '';
         }
     },
     methods: {

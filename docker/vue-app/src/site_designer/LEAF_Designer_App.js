@@ -95,10 +95,11 @@ export default {
                         enabled: flag
                     },
                     success: (res) => {
-                        if (+res !== 1) {
-                            console.log('unexpected return value', res)
+                        if(+res?.code !== 1) {
+                            console.log('unexpected response returned:', res)
+                        } else {
+                            this.designData[`${templateName}_enabled`] = flag;
                         }
-                        this.designData[`${templateName}_enabled`] = flag;
                         this.appIsPublishing = false;
                     },
                     error: (err) => console.log(err)

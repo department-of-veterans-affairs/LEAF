@@ -42,10 +42,13 @@ class Site
 
         return 1;
     }
-    //TODO: new table?
-    public function setHomeDesignJSON(array $menuItems = [], string $direction = 'v'): string|int {
+
+    public function setHomeDesignJSON(array $menuItems = [], string $direction = 'v'): array {
+        $status = array();
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            $status['code'] = 0;
+            $status['message'] = "Admin access required";
+            return $status;
         }
         foreach ($menuItems as $i => $item) {
             $menuItems[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
@@ -64,12 +67,16 @@ class Site
         $vars = array(':homepage_design_json' => $homepage_design_json);
 
         $this->db->prepared_query($strSQL, $vars);
-
-        return 1;
+        $status['code'] = 1;
+        $status['message'] = "success";
+        return $status;
     }
-    public function setSearchDesignJSON(array $chosenHeaders = []): string|int {
+    public function setSearchDesignJSON(array $chosenHeaders = []): array {
+        $status = array();
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            $status['code'] = 0;
+            $status['message'] = "Admin access required";
+            return $status;
         }
         $search_design_data = array();
         $search_design_data['chosenHeaders'] = \Leaf\XSSHelpers::scrubObjectOrArray($chosenHeaders);
@@ -82,11 +89,16 @@ class Site
 
         $this->db->prepared_query($strSQL, $vars);
 
-        return 1;
+        $status['code'] = 1;
+        $status['message'] = "";
+        return $status;
     }
-    public function enableNoCodeHomepage(int $isEnabled = 0): string|int {
+    public function enableNoCodeHomepage(int $isEnabled = 0): array {
+        $status = array();
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            $status['code'] = 0;
+            $status['message'] = "Admin access required";
+            return $status;
         }
         $homepage_enabled = $isEnabled === 1 ? '1' : '0';
         $strSQL = 'INSERT INTO settings (setting, `data`)
@@ -96,7 +108,9 @@ class Site
 
         $this->db->prepared_query($strSQL, $vars);
 
-        return 1;
+        $status['code'] = 1;
+        $status['message'] = "success";
+        return $status;
     }
 	public function getSitemapJSON()
 	{

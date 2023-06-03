@@ -208,8 +208,8 @@ export default {
                         chosen_headers: this.chosenHeadersSelect,
                     },
                     success: (res) => {
-                        if(+res !== 1) {
-                            console.log('unexpected value returned:', res);
+                        if(+res?.code !== 1) {
+                            console.log('unexpected response returned:', res);
                         }
                         document.getElementById('searchContainer').innerHTML = '';
                         setTimeout(() => {

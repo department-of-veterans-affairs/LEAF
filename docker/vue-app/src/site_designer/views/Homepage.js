@@ -171,11 +171,12 @@ export default {
                     menu_direction: direction
                 },
                 success: (res) => {
-                    if(+res !== 1) {
-                        console.log('unexpected value returned:', res);
+                    if(+res?.code !== 1) {
+                        console.log('unexpected response returned:', res);
+                    } else {
+                        const newJSON = JSON.stringify({menuCards, direction})
+                        this.updateLocalDesignData('homepage', newJSON);
                     }
-                    const newJSON = JSON.stringify({menuCards, direction})
-                    this.updateLocalDesignData('homepage', newJSON);
                     this.menuIsUpdating = false;
                 },
                 error: (err) => console.log(err)
