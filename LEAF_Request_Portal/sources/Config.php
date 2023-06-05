@@ -18,6 +18,8 @@ class Config
 
     public static $orgchartPath; // HTTP Path to orgchart with no trailing slash
 
+    public static $sitePath; // HTTP Path to site with no trailing slash
+
     public static $orgchartImportTags; // Import org chart groups if they match these tags
 
     public $descriptionID;     // indicator ID for description field
@@ -39,6 +41,7 @@ class Config
         $this->adPath = $settings['adPath'];
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
+        self::$sitePath = 'https://' . HTTP_HOST . $site_paths['site_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
         $this->descriptionID = $settings['descriptionID'];
         self::$emailPrefix = $settings['requestLabel'];

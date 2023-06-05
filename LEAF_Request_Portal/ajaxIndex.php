@@ -74,6 +74,7 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('sitePath', $site_paths['site_path']);
                 $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));

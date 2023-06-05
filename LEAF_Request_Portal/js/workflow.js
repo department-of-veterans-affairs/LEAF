@@ -229,6 +229,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         <div class="actions_alignment_right" style="display:flex; flex-wrap:wrap; justify-content:flex-end"></div>
       </div>`
     );
+    console.log(step);
     // draw buttons
     for (let i in step.dependencyActions) {
       const icon =

@@ -1,4 +1,4 @@
-<form id="record" enctype="multipart/form-data" action="ajaxIndex.php?a=doupload&amp;recordID={$recordID|strip_tags}" method="post">
+<form id="record" enctype="multipart/form-data" action="{$sitePath}/ajaxIndex.php?a=doupload&amp;recordID={$recordID|strip_tags}" method="post">
     <input name="CSRFToken" type="hidden" value="{$CSRFToken}" />
     <input type="hidden" name="series" value="{$series}" />
     <input type="hidden" name="indicatorID" value="{$indicatorID|strip_tags}" />

@@ -62,6 +62,7 @@ switch ($action) {
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('max_filesize', ini_get('upload_max_filesize'));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_iframe->assign('sitePath', $sitePath);
         $main->assign('body', $t_iframe->fetch('file_form.tpl'));
 
         break;
