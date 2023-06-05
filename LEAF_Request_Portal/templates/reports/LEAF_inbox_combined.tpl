@@ -252,6 +252,31 @@
         return icon;
     }
 
+    // waiting for element to update
+    function waitForElm(selector, subSelector = false) {
+        return new Promise(resolve => {
+            if (document.querySelector(selector)) {
+                if (subSelector == false) {
+                    return resolve(document.querySelector(selector));
+                }
+            }
+
+            const observer = new MutationObserver(mutations => {
+                if (document.querySelector(selector)) {
+                    resolve(document.querySelector(selector));
+                    observer.disconnect();
+                }
+            });
+
+            document.querySelector('.ui-dialog-titlebar-close').addEventListener("click", observer.disconnect());
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
+
     // Build forms and grids for the inbox's requests and import to html tags
     function buildDepInbox(res, categoryIDs, categoryName, recordIDs, site) {
         let hash = Sha1.hash(site.url);
@@ -304,6 +329,14 @@
                     depDescription + '</button>');
                 $('#btn_action' + hash + '_' + depID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
+                    waitForElm('iframe').then((el) => {
+                        if (!sites.some(site => el.getAttribute('src').includes(site.url))) {
+                            el.setAttribute('src', site.url + el.getAttribute('src'));
+                            el.addEventListener('load', () => {
+                                el.contentWindow?.document?.querySelector('#record').setAttribute('action', site.url + el.contentWindow?.document?.querySelector('#record').getAttribute('action'));
+                            });
+                        }
+                    });
                 })
             }
         }];
@@ -478,17 +511,20 @@
     }
 
     function loadWorkflow(recordID, prefixID, rootURL) {
-        dialog_message.setTitle('Apply Action to #' + recordID);
-        currRecordID = recordID;
-        dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
-        workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
-        workflow.setRootURL(rootURL);
-        workflow.setActionSuccessCallback(function() {
-            dialog_message.hide();
-            $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);
+        return new Promise((resolve, reject) => {
+            dialog_message.setTitle('Apply Action to #' + recordID);
+            currRecordID = recordID;
+            dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
+            workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
+            workflow.setRootURL(rootURL);
+            workflow.setActionSuccessCallback(function() {
+                dialog_message.hide();
+                $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);
+            });
+            workflow.getWorkflow(recordID);
+            dialog_message.show();
+            resolve(document.querySelector('#workflowcontent'));
         });
-        workflow.getWorkflow(recordID);
-        dialog_message.show();
     }
 
     const getMapSites = new Promise((resolve, reject) => {
