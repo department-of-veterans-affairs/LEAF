@@ -269,6 +269,14 @@ switch ($action) {
                 $type = new Portal\EmailTemplate($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
+            case 'template':
+                $type = new Portal\Template($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'applet':
+                $type = new Portal\Applet($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
             case 'templateEditor':
                 $type = new Portal\TemplateEditor($db, $login);
                 $t_form->assign('titleOverride', ' ');
