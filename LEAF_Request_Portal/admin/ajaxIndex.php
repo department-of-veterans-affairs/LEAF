@@ -269,6 +269,16 @@ switch ($action) {
                 $type = new Portal\EmailTemplate($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
+            case 'templateEditor':
+                // this is depricated and should be removed once it has not been used in over 30 days
+                $type = new Portal\Template($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'TemplateReports':
+                // this is depricated and should be removed once it has not been used in over 30 days
+                $type = new Portal\Applet($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
             case 'template':
                 $type = new Portal\Template($db, $login);
                 $t_form->assign('titleOverride', ' ');
