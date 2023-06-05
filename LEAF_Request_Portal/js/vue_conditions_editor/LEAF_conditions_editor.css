@@ -94,6 +94,10 @@ body {
 #condition_editor_content div.if-then-setup  > .comparison {
   width: 35%;
 }
+div[id^="ifthen_child_orgSel_"] > div[class$="SelectorBorder"] {
+  display: flex;
+  align-items: center;
+}
 
 button {
   cursor: pointer;
