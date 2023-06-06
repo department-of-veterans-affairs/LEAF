@@ -40,6 +40,12 @@ class TemplateController extends RESTfulResponse
           return $template->getTemplateList();
       });
 
+        $this->index['GET']->register('template/custom', function ($args) use ($template) {
+            $return_value = $template->getCustomTemplateList();
+
+            return json_encode($return_value);
+        });
+
       $this->index['GET']->register('template/[text]', function ($args) use ($template) {
           return $template->getTemplate($args[0]);
       });
