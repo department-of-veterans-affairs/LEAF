@@ -18,7 +18,7 @@
      * - nonAdmin:        (Optional) Set to true if you want Admins to see only their own info and not all requests
      * - columns:         (Optional) Columns may be customized for each type of form within a site.
      *                    Columns are specified by pairing the category ID with a CSV list of columns.
-     *                    Available columns include: 'UID,service,dateInitiated,title,status,days_since_last_action'
+     *                    Available columns include: 'UID,service,dateinitiated,title,status,days_since_last_action'
      *                    Columns may also include field indicator IDs within a form. Example: 'UID,service,title,123,status'
      *				      If a field indicator ID is used, ensure the field has a Short Label defined to populate headings.
      *   
@@ -140,7 +140,7 @@
         },
         'days_since_last_action': function(site) {
             return {
-                name: 'Days since last action',
+                name: 'Days Since Last Action',
                 indicatorID: 'daysSinceLastAction',
                 editable: false,
                 callback: function(data, blob) {
@@ -269,7 +269,8 @@
                 .backgroundColor + '; border-right: 8px solid ' + site.backgroundColor +
                 '; border-bottom: 8px solid ' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
                 '<a name="' + hash + '" />' +
-                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
+                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' +
+                site
                 .backgroundColor + '; color: ' + site.fontColor + '; ">' + icon + ' ' + site.name + '</div>' +
                 '</div>');
         }
@@ -311,7 +312,8 @@
         let customColumns = false;
         if (categoryIDs != undefined) {
             categoryIDs.forEach(categoryID => {
-                if (site.columns != undefined &&
+                if (site.columns != undefined && 
+                    Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
                     let customCols = [];
                     site.columns[categoryID].split(',').forEach(col => {
@@ -332,13 +334,15 @@
                 }
             });
         }
+        let customCols = [];
         if (customColumns == false) {
-            let customCols = [];
-            'UID,service,title,status'.split(',').forEach(col => {
-                customCols.push(headerDefinitions[col](site));
-            });
-            headers = customCols.concat(headers);
+            site.columns = site.columns ?? 'UID,service,title,status';
         }
+        site.columns.split(',').forEach(col => {
+            customCols.push(headerDefinitions[col](site));
+        });
+
+        headers = customCols.concat(headers);
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + depID);
         formGrid.setRootURL(site.url);
@@ -409,7 +413,7 @@
 
         // get data for any custom fields
         let getData = [];
-        if (site.columns != undefined) {
+        if (site.columns != undefined && Array.isArray(site.columns)) {
             for (let i in site.columns) {
                 let cols = site.columns[i].split(',');
                 for (let j in cols) {
@@ -503,12 +507,15 @@
                 let siteMap = Object.values(JSON.parse(res[0].data))[0];
                 let formattedSiteMap = siteMap.map((site) => {
                     return {
-                        url: site.target,
-                        name: site.description,
+                        url: site.target.endsWith('/') ? site.target: site.target + '/',
+                        name: site.title,
                         backgroundColor: site.color,
                         icon: site.icon,
                         fontColor: site.fontColor,
-                        nonAdmin: true
+                        cols: site.cols,
+                        nonAdmin: true,
+                        order: site.order,
+                        columns: 'UID' + (site.columns.length > 0 ? ',' + site.columns : ''),
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 

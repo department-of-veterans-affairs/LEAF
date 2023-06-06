@@ -45,11 +45,6 @@ class Site
 
 	public function getSitemapJSON()
 	{
-		if (!$this->login->checkGroup(1))
-		{
-			return 'Admin access required';
-		}
-
         $settings = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);
 
 		return $settings;
