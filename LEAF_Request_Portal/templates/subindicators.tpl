@@ -723,7 +723,7 @@
                     	dialog_confirm.setSaveHandler(function() {
                     	    $.ajax({
                     	        type: 'POST',
-                    	        url: "/ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
+                    	        url: "ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
                     	        data: {recordID: <!--{$recordID|strip_tags}-->,
                     	               indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
                     	               series: <!--{$indicator.series|strip_tags}-->,
