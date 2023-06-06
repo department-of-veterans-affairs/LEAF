@@ -514,7 +514,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: data
             },
-            url: '../api/templateEditor/_' + currentFile,
+            url: '../api/template/_' + currentFile,
             success: function(res) {
                 $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
                 $('.modifiedTemplate').css('display', 'block');
@@ -559,7 +559,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: data
             },
-            url: '../api/templateEditor/_' + currentFile,
+            url: '../api/template/_' + currentFile,
             success: function(res) {
                 $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
                 $('.modifiedTemplate').css('display', 'block');
@@ -611,7 +611,7 @@
         dialog.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/templateEditor/_' + currentFile + '?' +
+                url: '../api/template/_' + currentFile + '?' +
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
                         loadContent(currentFile);
@@ -635,7 +635,7 @@
 
         $.ajax({
             type: 'GET',
-            url: '../api/templateEditor/_' + currentFile + '/standard',
+            url: '../api/template/_' + currentFile + '/standard',
             success: function(standard) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                     mode: "htmlmixed",
@@ -955,7 +955,7 @@
         $('#filename').html(file.replace('.tpl', ''));
         $.ajax({
             type: 'GET',
-            url: '../api/templateEditor/_' + file,
+            url: '../api/template/_' + file,
             success: function(res) {
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
@@ -1007,7 +1007,7 @@
         dialog_message.indicateBusy();
         $.ajax({
             type: 'GET',
-            url: 'ajaxIndex.php?a=gethistory&type=templateEditor&id=' + currentFile,
+            url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,
             dataType: 'text',
             success: function(res) {
                 dialog_message.setContent(res);
@@ -1035,7 +1035,7 @@
 
         $.ajax({
             type: 'GET',
-            url: '../api/templateEditor/',
+            url: '../api/template/',
             success: function(res) {
                 var buffer = '<ul class="leaf-ul">';
                 for (var i in res) {

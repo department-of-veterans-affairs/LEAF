@@ -270,11 +270,21 @@ switch ($action) {
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'templateEditor':
-                $type = new Portal\TemplateEditor($db, $login);
+                // this is depricated and should be removed once it has not been used in over 30 days
+                $type = new Portal\Template($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
-            case 'templateReports':
-                $type = new Portal\TemplateReports($db, $login);
+            case 'TemplateReports':
+                // this is depricated and should be removed once it has not been used in over 30 days
+                $type = new Portal\Applet($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'template':
+                $type = new Portal\Template($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'applet':
+                $type = new Portal\Applet($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

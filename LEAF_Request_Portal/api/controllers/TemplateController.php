@@ -5,13 +5,13 @@
 
 namespace Portal;
 
-class TemplateEditorController extends RESTfulResponse
+class TemplateController extends RESTfulResponse
 {
      public $index = array();
 
      private $API_VERSION = 1;    // Integer
 
-     private $templateEditor;
+     private $template;
 
      private $db;
 
@@ -21,31 +21,31 @@ class TemplateEditorController extends RESTfulResponse
      {
          $this->db = $db;
          $this->login = $login;
-         $this->templateEditor = new TemplateEditor($db, $login);
+         $this->template = new Template($db, $login);
      }
 
      public function get($act)
      {
          $db = $this->db;
          $login = $this->login;
-         $templateEditor = $this->templateEditor;
+         $template = $this->template;
 
          $this->index['GET'] = new ControllerMap();
          $cm = $this->index['GET'];
-         $this->index['GET']->register('templateEditor/version', function () {
+         $this->index['GET']->register('template/version', function () {
              return $this->API_VERSION;
          });
 
-         $this->index['GET']->register('templateEditor', function ($args) use ($templateEditor) {
-          return $templateEditor->getTemplateList();
+         $this->index['GET']->register('template', function ($args) use ($template) {
+          return $template->getTemplateList();
       });
 
-      $this->index['GET']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
-          return $templateEditor->getTemplate($args[0]);
+      $this->index['GET']->register('template/[text]', function ($args) use ($template) {
+          return $template->getTemplate($args[0]);
       });
 
-      $this->index['GET']->register('templateEditor/[text]/standard', function ($args) use ($templateEditor) {
-          return $templateEditor->getTemplate($args[0], true);
+      $this->index['GET']->register('template/[text]/standard', function ($args) use ($template) {
+          return $template->getTemplate($args[0], true);
       });
 
 
@@ -54,7 +54,7 @@ class TemplateEditorController extends RESTfulResponse
 
      public function post($act)
      {
-        $templateEditor = $this->templateEditor;
+        $template = $this->template;
 
         $verified = $this->verifyAdminReferrer();
 
@@ -63,8 +63,8 @@ class TemplateEditorController extends RESTfulResponse
         } else {
             $this->index['POST'] = new ControllerMap();
 
-            $this->index['POST']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
-                return $templateEditor->setTemplate($args[0]);
+            $this->index['POST']->register('template/[text]', function ($args) use ($template) {
+                return $template->setTemplate($args[0]);
             });
 
             return $this->index['POST']->runControl($act['key'], $act['args']);
@@ -73,7 +73,7 @@ class TemplateEditorController extends RESTfulResponse
 
      public function delete($act)
      {
-        $templateEditor = $this->templateEditor;
+        $template = $this->template;
 
         $verified = $this->verifyAdminReferrer();
 
@@ -82,8 +82,8 @@ class TemplateEditorController extends RESTfulResponse
         } else {
             $this->index['DELETE'] = new ControllerMap();
 
-            $this->index['DELETE']->register('templateEditor/[text]', function ($args) use ($templateEditor) {
-                return $templateEditor->removeCustomTemplate($args[0]);
+            $this->index['DELETE']->register('template/[text]', function ($args) use ($template) {
+                return $template->removeCustomTemplate($args[0]);
             });
 
             return $this->index['DELETE']->runControl($act['key'], $act['args']);
