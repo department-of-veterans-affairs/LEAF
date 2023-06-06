@@ -333,7 +333,9 @@
                         if (!sites.some(site => el.getAttribute('src').includes(site.url))) {
                             el.setAttribute('src', site.url + el.getAttribute('src'));
                             el.addEventListener('load', () => {
-                                el.contentWindow?.document?.querySelector('#record').setAttribute('action', site.url + el.contentWindow?.document?.querySelector('#record').getAttribute('action'));
+                                if (!sites.some(site => el.contentWindow?.document?.querySelector('#record').getAttribute('action').includes(site.url))) {
+                                    el.contentWindow?.document?.querySelector('#record').setAttribute('action', site.url + el.contentWindow?.document?.querySelector('#record').getAttribute('action'));
+                                }
                             });
                         }
                     });
