@@ -140,7 +140,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         antiDblClick = 0;
       },
       error: function (response) {
-        console.log(response);
         if (data["dependencyID"] === null) {
           $("#workflowbox_dep" + data["dependencyID"]).html(
             '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Requirement from current step is missing<br/> Please contact administrator to add requirement to current step</div>'
@@ -229,7 +228,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         <div class="actions_alignment_right" style="display:flex; flex-wrap:wrap; justify-content:flex-end"></div>
       </div>`
     );
-    console.log(step);
+    
     // draw buttons
     for (let i in step.dependencyActions) {
       const icon =

@@ -562,7 +562,6 @@
     // Script Start
     $(function() {
         getMapSites.then((value) => {
-            console.log();
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
                 'genericDialogbutton_cancelchange');
