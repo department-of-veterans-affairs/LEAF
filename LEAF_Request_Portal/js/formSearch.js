@@ -662,7 +662,7 @@ var LeafFormSearch = function (containerID) {
             '" style="width: 200px" />'
         );
         if (!jQuery.ui) {
-          $.getScript("js/jquery/jquery-ui.custom.min.js", function () {
+          $.getScript("../libs/js/jquery/jquery-ui.custom.min.js", function () {
             $("#" + prefixID + "widgetMat_" + widgetID).datepicker();
           });
         } else {
