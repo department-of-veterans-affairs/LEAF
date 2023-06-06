@@ -175,14 +175,14 @@ export default {
         },
         getLabel(option) {
             let label = '';
-            switch(option) {
+            switch(option.toLowerCase()) {
                 case 'date':
                 case 'title':
                 case 'service':
                 case 'status':
                     label = option;
                     break;
-                case 'initiatorName':
+                case 'initiatorname':
                     label = 'initiator';
                     break;
                 default:
@@ -229,14 +229,6 @@ export default {
             grid.hideIndex();
             grid.setDataBlob(res);
             grid.setHeaders(searchHeaders);
-            grid.setPostProcessDataFunc((data) => {
-                let data2 = [];
-                for(let i in data) {
-                    //removed admin check bc site designer is an admin area
-                    data2.push(data[i]);
-                }
-                return data2;
-            });
     
             let tGridData = [];
             for(let i in res) {
