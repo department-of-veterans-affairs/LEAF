@@ -176,7 +176,7 @@ const CombinedInboxEditor = Vue.createApp({
                 @drop="onDrop($event)"
                 :value="site.id"
                 :key="site.order">
-                    {{site.title}}
+                    &#x2630; {{site.title}}
                 </div>
             </div>
         </div>
