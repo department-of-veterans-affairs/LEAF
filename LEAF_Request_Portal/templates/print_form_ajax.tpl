@@ -36,7 +36,7 @@
 </div>
 
 <div class="printmainform">
-    <!--{include file="print_subindicators.tpl" form=$form orgchartPath=$orgchartPath sitePath=$sitePath}-->
+    <!--{include file="print_subindicators.tpl" form=$form orgchartPath=$orgchartPath}-->
 </div>
 
 
