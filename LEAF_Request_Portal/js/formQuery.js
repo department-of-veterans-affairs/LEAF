@@ -2,13 +2,15 @@
  * Form Query Helper
  */
 
-var LeafFormQuery = function () {
+const LeafFormQuery = function () {
   let query = {};
   let successCallback = null;
   let progressCallback = null;
   let rootURL = "";
   let useJSONP = false;
   let extraParams = "";
+  let results = {};
+  let batchSize = 500;
 
   clearTerms();
 
@@ -32,7 +34,7 @@ var LeafFormQuery = function () {
    * @param gate - AND or OR gate
    * @memberOf LeafFormQuery
    */
-  function addTerm(id, operator, match, gate = "AND") {
+  function addTerm(id = "title", operator = "=", match = "**", gate = "AND") {
     query.terms.push({id, operator, match, gate});
   }
 
@@ -45,7 +47,7 @@ var LeafFormQuery = function () {
    * @param gate - AND or OR gate
    * @memberOf LeafFormQuery
    */
-  function addDataTerm(id, indicatorID, operator, match, gate = "AND") {
+  function addDataTerm(id = "title", indicatorID = "0", operator = "=", match = "**", gate = "AND") {
     query.terms.push({id, indicatorID, operator, match, gate});
   }
 
@@ -56,18 +58,15 @@ var LeafFormQuery = function () {
    * @memberOf LeafFormQuery
    */
   function importQuery({ terms = [], joins = [], getData: getIndData = [] } = {}) {
-    //console.log('importQ input', 't', terms, 'j', joins, 'gd', getIndData)
     terms.forEach(t => {
       const {id, indicatorID, operator, match, gate} = t;
-      //console.log('id:', id, 'ind:', indicatorID, 'op:', operator, 'm:', match, 'g:', gate)
       const numTermProperties = (Object.keys(t).length);
       switch (numTermProperties) {
         case 3:
           addTerm(id, operator, match);
           break;
         case 4:
-          if (gate === undefined) {
-            console.log('adding 4 param term, gate undef', t)
+          if (gate === undefined) { //pre gate backwards compat, LEAF library
             addDataTerm(id, indicatorID, operator, match);
           } else {
             addTerm(id, operator, match, gate);
@@ -91,8 +90,8 @@ var LeafFormQuery = function () {
    * @param limit (optional)
    * @memberOf LeafFormQuery
    */
-  function setLimit(offset, limit) {
-    if (limit === undefined) {
+  function setLimit(offset = 50, limit = 0) {
+    if (limit === 0) {
       query.limit = offset;
     } else {
       query.limit = limit;
@@ -105,7 +104,7 @@ var LeafFormQuery = function () {
    * @param offset
    * @memberOf LeafFormQuery
    */
-  function setLimitOffset(offset) {
+  function setLimitOffset(offset = 50) {
     query.limitOffset = offset;
   }
 
@@ -114,8 +113,8 @@ var LeafFormQuery = function () {
    * @param tableName
    * @memberOf LeafFormQuery
    */
-  function join(tableName = '') {
-    if (tableName !== '' && query.joins.indexOf(tableName) == -1) {
+  function join(tableName = "") {
+    if (tableName !== "" && query.joins.indexOf(tableName) == -1) {
       query.joins.push(tableName);
     }
   }
@@ -125,8 +124,8 @@ var LeafFormQuery = function () {
    * @param string - indicatorID
    * @memberOf LeafFormQuery
    */
-  function getData(indicatorID) {
-    if (query.getData.indexOf(indicatorID) == -1) {
+  function getData(indicatorID = 0) {
+    if (indicatorID !== 0 && query.getData.indexOf(indicatorID) == -1) {
       query.getData.push(indicatorID);
     }
   }
@@ -136,7 +135,7 @@ var LeafFormQuery = function () {
    * @param
    * @memberOf LeafFormQuery
    */
-  function sort(column, direction) {
+  function sort(column = "date", direction = "DESC") {
     query.sort.column = column;
     query.sort.direction = direction;
   }
@@ -149,7 +148,7 @@ var LeafFormQuery = function () {
    * @param gate - AND or OR gate
    * @memberOf LeafFormQuery
    */
-  function updateTerm(id, operator, match, gate = "AND") {
+  function updateTerm(id = "title", operator = "=", match = "**", gate = "AND") {
     for (let i in query.terms) {
       if (query.terms[i].id == id && query.terms[i].operator == operator) {
         query.terms[i].match = match;
@@ -169,7 +168,7 @@ var LeafFormQuery = function () {
    * @param gate - AND or OR gate
    * @memberOf LeafFormQuery
    */
-  function updateDataTerm(id, indicatorID, operator, match, gate = "AND") {
+  function updateDataTerm(id = "title", indicatorID = "0", operator = "=", match = "**", gate = "AND") {
     for (let i in query.terms) {
       if (
         query.terms[i].id == id &&
@@ -196,7 +195,7 @@ var LeafFormQuery = function () {
    * @param funct - Success callback (see format for jquery ajax success)
    * @memberOf LeafFormQuery
    */
-  function onSuccess(funct) {
+  function onSuccess(funct = {}) {
     successCallback = funct;
   }
 
@@ -205,7 +204,7 @@ var LeafFormQuery = function () {
    * @param funct - funct(int Progress). Progress is the number of records that have been processed
    * @memberOf LeafFormQuery
    */
-  function onProgress(funct) {
+  function onProgress(funct = {}) {
     progressCallback = funct;
   }
 
@@ -215,14 +214,11 @@ var LeafFormQuery = function () {
    * @returns Promise resolving to query response
    * @memberOf LeafFormQuery
    */
-  let results = {};
-  let batchSize = 500;
   function getBulkData(limitOffset = 0) {
-    if (limitOffset == 0) {
+    if (limitOffset === 0) {
       results = {};
     }
     limitOffset = parseInt(limitOffset);
-
     query.limit = batchSize;
     query.limitOffset = limitOffset;
 
@@ -236,13 +232,10 @@ var LeafFormQuery = function () {
       type: "GET",
       url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
       dataType: dataType,
-    }).then(function (res, resStatus, resJqXHR) {
+    }).then((res, resStatus, resJqXHR) => {
       results = Object.assign(results, res);
 
-      if (
-        Object.keys(res).length == batchSize ||
-        resJqXHR.getResponseHeader("leaf-query") == "continue"
-      ) {
+      if (Object.keys(res).length == batchSize || resJqXHR.getResponseHeader("leaf-query") == "continue") {
         let newOffset = limitOffset + batchSize;
         if (typeof progressCallback == "function") {
           progressCallback(newOffset);
