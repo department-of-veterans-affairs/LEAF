@@ -32,7 +32,13 @@
     }
 
     #codeContainer {
-        width: 95% !important;
+        width: 98% !important;
+        box-shadow: none;
+    }
+
+    .CodeMirror-merge,
+    .CodeMirror-merge {
+        height: 60vh !important;
     }
 
     .page-title-container {
@@ -47,7 +53,7 @@
 
     .page-main-content {
         display: flex;
-        width: 90%;
+        width: 98%;
         justify-content: space-evenly;
         align-items: flex-start;
         height: 80%;
@@ -66,16 +72,27 @@
 
     .leaf-left-nav,
     .leaf-right-nav {
-        width: 20%;
-        max-width: 200px;
+        width: 15%;
+        max-width: 300px;
         margin: 0;
-        flex: none;
+        flex: auto;
     }
 
     .sidenav,
     .sidenav-right {
         max-width: none;
         padding: 0;
+        box-shadow: none;
+    }
+
+    .sidenav-right-compare {
+        background-color: #fff;
+        border-radius: 5px;
+    }
+
+    .controls-compare>button {
+        width: 100%;
+        font-size: .9rem;
     }
 
     #fileBrowser {
@@ -84,14 +101,26 @@
         padding: 10px 0;
     }
 
+    #fileBrowser>h3 {
+        width: 100%;
+        text-align: left;
+    }
+
     .main-content {
         display: flex;
         justify-content: space-evenly;
         align-content: flex-start;
-        width: 70%;
+        width: 65%;
         flex: none;
         margin: 0 auto;
         transition: all 1s ease;
+    }
+
+    .sticky {
+        position: sticky;
+        top: 0;
+        padding-top: 10px;
+        transition: all 1s ease-in-out;
     }
 
     #filename {
@@ -117,14 +146,15 @@
         align-items: center;
         background-color: #fff;
         margin: 15px auto;
-        padding-top: 20px;
+        padding: 20px 0;
         border-radius: 5px;
     }
 
 
+
     .view-history {
         width: 90%;
-        max-width: 200px;
+        max-width: 250px;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -142,53 +172,60 @@
     }
 
     .file-history-res {
-        width: 100%;
+        width: 85%;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        flex-direction: column;
     }
 
-    /* .accordion-container {
+    .accordion-container {
         display: block;
         margin-top: 10px;
         width: 100%;
-        font-family: sans-serif;
+        max-width: 250px;
     }
 
     .accordion {
-        width: 90%;
+        width: 93%;
         border-radius: 5px;
         overflow: hidden;
         margin-bottom: 10px;
         background-color: #fff;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin: 10px auto;
+        margin: 5px auto;
     }
 
     .accordion-header {
         display: flex;
         justify-content: flex-start;
-        align-items: flex-end;
-        flex-flow: row;
-        padding: 8px 0;
+        align-items: center;
         background-color: #1a4480;
         color: #fff;
-        font-size: 0.75rem;
+        font-size: 0.70rem;
         font-weight: bold;
         text-align: left;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease;
     }
 
     .accordion-header:hover {
         background-color: #112e51;
     }
 
-    .accordion-header.accordion-active {
-        background-color: #112e51;
-    }
-
     .accordion-date {
         width: 80%;
-        padding: 0 10px;
         border-right: 1px solid #fff;
+        padding: 8px;
+    }
+
+    .accordion-date,
+    .accordion-content a {
+        width: 100%;
+        color: #fff;
+        text-decoration: none;
+        font-weight: normal;
     }
 
     .accordion-chevron {
@@ -196,208 +233,47 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 28px;
-
+        padding: 8px 0;
+        transition: transform 0.3s ease;
     }
 
-    .accordion-name {
-        padding: 5px 0 0 10px;
+    .chevron-rotate {
+        transform: rotate(90deg);
     }
 
     .accordion-content {
         display: none;
-        padding: 10px 10px;
-        font-size: .75rem;
+        padding: 10px;
+        font-size: 0.65rem;
         line-height: 1.5;
         background-color: #fff;
     }
 
-    .accordion-content>ul {
+    .accordion-content ul {
         padding: 0;
         margin: 0;
     }
 
-    .accordion-content>ul>li {
+    .accordion-content ul li {
         list-style: none;
         margin: 5px 0;
         border-bottom: 2px solid #e4e4e4;
         padding: 5px 0;
     }
 
-    .accordion-content>ul>li:last-child {
+    .accordion-content ul li:last-child {
         border: none;
     }
 
-    .accordion-content>ul>li>strong {
+    .accordion-content ul li strong {
         text-transform: uppercase;
     }
 
-    .accordion-content>ul>li>p {
+    .accordion-content ul li p {
         margin: 0;
+        font-size: .65rem;
+        overflow: auto;
     }
-
-    .accordion-content>ul>li:nth-child(4) {
-        list-style: none;
-    }
-
-    .accordion-content>ul>li:nth-child(5) {
-        list-style: none;
-    } */
-
-    .accordion-container {
-    display: block;
-    margin-top: 10px;
-    width: 100%;
-    max-width: 200px;
-}
-
-.accordion {
-    width: 90%;
-    border-radius: 5px;
-    overflow: hidden;
-    margin-bottom: 10px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin: 5px auto;
-}
-
-.accordion-header {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    background-color: #1a4480;
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: bold;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.accordion-header:hover {
-    background-color: #112e51;
-}
-
-.accordion-date {
-    width: 80%;
-    border-right: 1px solid #fff;
-    padding: 8px;
-    color: #fff;
-}
-
-.accordion-date {
-    width: 100%;
-    color: #fff;
-    text-decoration: none;
-}
-
-.accordion-chevron {
-    width: 20%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 0;
-    transition: transform 0.3s ease;
-}
-
-.chevron-rotate {
-    transform: rotate(90deg);
-}
-
-.accordion-content {
-    display: none;
-    padding: 10px;
-    font-size: 0.65rem;
-    line-height: 1.5;
-    background-color: #fff;
-}
-
-.accordion-content>ul {
-    padding: 0;
-    margin: 0;
-}
-
-.accordion-content>ul>li {
-    list-style: none;
-    margin: 5px 0;
-    border-bottom: 2px solid #e4e4e4;
-    padding: 5px 0;
-}
-
-.accordion-content>ul>li:last-child {
-    border: none;
-}
-
-.accordion-content>ul>li>strong {
-    text-transform: uppercase;
-}
-
-.accordion-content>ul>li>p {
-    margin: 0;
-    font-size: .65rem;
-}
-
-.file_compare_file_btn {
-    width: 100%;
-    padding: 10px 0;
-    border: none;
-    background-color: #e99002;
-    color: #fff;
-    font-weight: 700;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    border-radius: 5px;
-    font-size: .75rem;
-}
-
-.file_compare_file_btn:hover {
-    background-color: #c97c00;
-}
-
-.copyIcon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: .6rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    padding: 5px 10px;
-    margin-top: 5px;
-    border: none;
-    transition: .5s ease;
-    -webkit-transition: .5s ease;
-    -moz-transition: .5s ease;
-    -ms-transition: .5s ease;
-    -o-transition: .5s ease;
-    border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    -ms-border-radius: 5px;
-    -o-border-radius: 5px;
-}
-
-.copyIcon:hover {
-    background-color: #45a245;
-    color: #fff;
-}
-
-.copyIcon>span {
-    font-size: 1rem;
-    padding: 0 0 0 5px;
-}
-
-.template_link {
-    font-size: .8rem;
-    border: 1px solid #eee;
-    width: 100%;
-    padding: 5px;
-    border-radius: 5px;
-    box-sizing: border-box;
-    overflow: auto;
-    background-color: #ccc;
-}
 
     .file_compare_file_btn {
         width: 100%;
@@ -408,73 +284,102 @@
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
+        font-size: .75rem;
     }
 
     .file_compare_file_btn:hover {
         background-color: #c97c00;
     }
 
+    .copyIcon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: .6rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin-top: 5px;
+        border: none;
+        transition: .5s ease;
+        border-radius: 5px;
+    }
+
+    .copyIcon:hover {
+        background-color: #45a245;
+        color: #fff;
+    }
+
+    .copyIcon span {
+        font-size: 1rem;
+        padding: 0 0 0 5px;
+    }
+
+    .template_link {
+        font-size: .8rem;
+        border: 1px solid #eee;
+        width: 100%;
+        padding: 5px;
+        border-radius: 5px;
+        box-sizing: border-box;
+        overflow: auto;
+        background-color: #ccc;
+    }
+
     .file_replace_file_btn {
         width: 100%;
         padding: 10px 0;
         border: none;
-        background-color: #43ac6a;
+        background-color: #e99002;
         color: #fff;
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
     }
 
     .file_replace_file_btn:hover {
-        background-color: #338451;
+        background-color: #c97c00;
     }
 
+    .file_replace_file_btn,
     .close_expand_mode_screen {
         width: 100%;
         padding: 10px 0;
         border: none;
-        background-color: #ac4343;
         color: #fff;
-        font-size: 1rem;
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
+    }
+
+    .close_expand_mode_screen {
+        background-color: #ac4343;
+        font-size: 1rem;
     }
 
     .close_expand_mode_screen:hover {
         background-color: #862a2a;
     }
 
-    .page-title-container>h2 {
+    .page-title-container h2 {
         width: 100%;
         margin: 10px 0 0 0;
         text-align: center;
     }
 
-    .page-title-container>.file_replace_file_btn {
+    .page-title-container .file_replace_file_btn {
         display: none;
         width: 20%;
     }
 
-    .page-title-container>.close_expand_mode_screen {
+    .page-title-container .close_expand_mode_screen {
         display: none;
         width: 10%;
         min-width: 200px;
@@ -485,6 +390,7 @@
         margin: 10px 0;
     }
 
+
     .word-wrap-button {
         display: inline-block;
         background-color: #ddd;
@@ -494,6 +400,7 @@
         text-align: center;
         text-decoration: none;
         font-size: 16px;
+        font-weight: bold;
         margin: 10px 0 0 0;
         cursor: pointer;
         border-radius: 5px;
@@ -510,15 +417,15 @@
     }
 
     .contentMessage {
-        width: 90%;
+        width: 100%;
         font-size: .8rem;
         padding: 10px 0;
         text-align: center;
     }
 
     .usa-button {
-        width: 90%;
-        max-width: 200px;
+        width: 100%;
+        max-width: 250px;
         margin: 5px auto;
     }
 
@@ -526,17 +433,49 @@
         width: 100%;
         min-height: 300px;
         overflow: auto;
-        padding: 0 10px;
+        padding: 0;
         margin: 10px auto;
     }
 
-    .leaf-ul li {
+    .leaf-ul>li {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
         font-size: .8rem !important;
         line-height: 2;
+        list-style: none;
     }
 
-    #controls {
-        width: 90%;
+    .leaf-ul>li::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+        background-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23000000' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M6.854 6.146a.5.5 0 010 .708L3.707 10l3.147 3.146a.5.5 0 01-.708.708l-3.5-3.5a.5.5 0 010-.708l3.5-3.5a.5.5 0 01.708 0zm6.292 0a.5.5 0 000 .708L16.293 10l-3.147 3.146a.5.5 0 00.708.708l3.5-3.5a.5.5 0 000-.708l-3.5-3.5a.5.5 0 00-.708 0zm-.999-3.124a.5.5 0 01.33.625l-4 13a.5.5 0 11-.955-.294l4-13a.5.5 0 01.625-.33z' clip-rule='evenodd'/></svg>");
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .leaf-ul>li>a {
+        width: 80%;
+        display: block;
+        text-decoration: none;
+        border-bottom: 2px solid #e4e4e4;
+        transition: all 0.3s ease;
+        color: #005ea2;
+    }
+
+    .leaf-ul>li>a:hover {
+        border-bottom: 2px solid #005ea2;
+    }
+
+
+    #controls,
+    .controls-compare {
+        width: 80%;
         margin: 0 auto;
         padding: 10px 0;
         display: flex;
@@ -550,7 +489,11 @@
         display: none;
         justify-content: space-evenly;
         align-items: center;
+    }
 
+    .CodeMirror-scroll {
+        margin-right: 0;
+        height: 60vh;
     }
 
     .CodeMirror-merge-pane-label {
@@ -577,26 +520,70 @@
             transform: rotate(90deg);
         }
     }
+
+    .gg-chevron-right {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        transform: scale(var(--ggs, 1));
+        width: 22px;
+        height: 22px;
+        border: 2px solid transparent;
+        border-radius: 100px
+    }
+
+    .gg-chevron-right::after {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-bottom: 2px solid;
+        border-right: 2px solid;
+        transform: rotate(-45deg);
+        right: 6px;
+        top: 4px
+    }
+
+    @media only screen and (max-width:1280px) {
+
+        .file-history-res,
+        #controls,
+        .controls-compare {
+            width: 90%;
+        }
+
+        .accordion {
+            width: 100%;
+        }
+
+        .accordion-header {
+            font-size: .6rem;
+        }
+
+        .leaf-btn-med,
+        .controls-compare>button {
+            font-size: .75rem;
+        }
+
+        .leaf-ul li {
+            font-size: .7rem !important;
+            line-height: 2;
+        }
+
+    }
 </style>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Template Editor</h2>
-        <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
-        <button class="file_replace_file_btn">Merge to Current File</button>
-        <button id="save_button_compare" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
-            onclick="save_compare();">
-            Save Changes<span id="saveStatusCompared"
-                class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
-        </button>
-        <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Exit</button>
-
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
             <aside class="sidenav">
                 <div id="fileBrowser">
-                    Templates:
+                    <h3>Templates:</h3>
                     <div id="fileList"></div>
                 </div>
             </aside>
@@ -678,11 +665,19 @@
                     <!-- <button class="view-history">View File History</button> -->
                 </div>
             </aside>
+            <aside class="sidenav-right-compare">
+                <div class="controls-compare">
+                    <button class="file_replace_file_btn">Merge</button>
+                    <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
+                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                </div>
+            </aside>
             <div class="file-history">
                 <h3>File History</h3>
                 <div class="file-history-res"></div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -690,8 +685,22 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 
-
 <script>
+    window.addEventListener('scroll', function() {
+        let mainEditorContent = document.querySelector('.main-content');
+        let rightSideNav = document.querySelector('.leaf-right-nav');
+        let code = mainEditorContent.getBoundingClientRect();
+        let buttonsNav = rightSideNav.getBoundingClientRect();
+
+        if (code.top <= 0 || buttonsNav.top <= 0) {
+            mainEditorContent.classList.add('sticky');
+            rightSideNav.classList.add('sticky');
+        } else {
+            mainEditorContent.classList.remove('sticky');
+            rightSideNav.classList.remove('sticky');
+        }
+    });
+
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
         var data = '';
@@ -776,7 +785,6 @@
             }
         });
     }
-
 
     function saveFileHistory() {
         var data = '';
@@ -871,27 +879,9 @@
 
         return bytes.toFixed(2) + ' ' + units[i];
     }
-    // According code
-    $(document).ready(function() {
-        $('#word-wrap-button').css('display', 'none');
-        // Hide the accordion container and all accordion content on page load
-        // $(".accordion-container").hide();
-        // $(".accordion-content").hide();
-    });
-
-    // function displayAccordionContent(element) {
-    //     var accordionContent = $(element).next(".accordion-content");
-    //     $(element).toggleClass("accordion-active");
-    //     accordionContent.slideToggle();
-
-    //     $(element).toggleClass("chevron-rotate");
-    //     $(".accordion-header").not(element).removeClass("accordion-active");
-    //     $(".accordion-content").not(accordionContent).slideUp();
-    // }
-
-
 
     function getFileHistory(template) {
+        
         $.ajax({
             type: 'GET',
             url: '../api/templateFileHistory/_' + template,
@@ -922,38 +912,40 @@
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
                     accordion += '<div class="accordion">' +
-                                        '<div class="accordion-header">' +
-                                            '<a href="#" id="scanFolderLink" class="accordion-date"><span><strong style="color:#37beff;">DATE:</strong><br>' + fileCreated + '</span></a>' +
-                                            '<span class="accordion-chevron" onclick="displayAccordionContent(this)">&#62;</span>' +
-                                        '</div>' +
-                                        '<div class="accordion-content">' +
-                                            '<ul>' +
-                                                '<li>' +
-                                                    '<strong>File Name: </strong>' +
-                                                    '<p>' + fileName + '</p>' +
-                                                '</li>' +
-                                                '<li>' +
-                                                    '<strong>Author: </strong>' +
-                                                    '<p>' + whoChangedFile + '</p>' +
-                                                '</li>' +
-                                                '<li>' +
-                                                    '<strong>File Size: </strong>' +
-                                                    '<p>' + formattedFileSize + '</p>' +
-                                                '</li>' +
-                                                '<li>' +
-                                                    '<strong>File URL:</strong>' +
-                                                    '<p class="template_link">' + filePath + '</p>' +
-                                                    '<div class="textContainer">' +
-                                                        '<button class="copyIcon">Copy Link <span>&#10063;</span></button>' +
-                                                    '</div>' +
-                                                '</li>' +
-                                                '<li>' +
-                                                    '<button class="file_compare_file_btn" onclick="compareHistoryFile()">Compare Current File</button>' +
-                                                '</li>' +
-                                            '</ul>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</div>';
+                        '<div class="accordion-header">' +
+                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
+                        fileName + '\')"><span><strong style="color:#37beff;">DATE:</strong><br>' +
+                        fileCreated + '</span></a>' +
+                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
+                        '</div>' +
+                        '<div class="accordion-content">' +
+                        '<ul>' +
+                        '<li>' +
+                        '<strong>File Name: </strong>' +
+                        '<p>' + fileName + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Author: </strong>' +
+                        '<p>' + whoChangedFile + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>File Size: </strong>' +
+                        '<p>' + formattedFileSize + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>File URL:</strong>' +
+                        '<p class="template_link">' + filePath + '</p>' +
+                        '<div class="textContainer">' +
+                        '<button class="copyIcon">Copy Link <span>&#10063;</span></button>' +
+                        '</div>' +
+                        '</li>' +
+                        '<li>' +
+                        // '<button class="file_compare_file_btn" onclick="compareHistoryFile(\'' + fileName + '\')">Compare Current File</button>' +
+                        '</li>' +
+                        '</ul>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
 
                 }
                 accordion += '</div>';
@@ -974,38 +966,38 @@
         accordionContent.slideToggle();
 
         var accordions = $(".accordion");
-        accordions.each(function () {
+        accordions.each(function() {
             var currentAccordionContent = $(this).find(".accordion-content");
             var currentChevron = $(this).find(".accordion-chevron");
 
             if (
-            !currentAccordionContent.is(accordionContent) &&
-            !currentChevron.is(chevron)
+                !currentAccordionContent.is(accordionContent) &&
+                !currentChevron.is(chevron)
             ) {
-            currentAccordionContent.slideUp();
-            currentChevron.removeClass("chevron-rotate");
+                currentAccordionContent.slideUp();
+                currentChevron.removeClass("chevron-rotate");
             }
         });
     }
 
-        const copyIcons = document.getElementsByClassName('copyIcon');
-        Array.from(copyIcons).forEach(copyIcon => {
+    const copyIcons = document.getElementsByClassName('copyIcon');
+    Array.from(copyIcons).forEach(copyIcon => {
         copyIcon.addEventListener('click', copyText);
-        });
+    });
 
     function copyText() {
-    const template_link = this.parentNode.previousElementSibling.innerText;
+        const template_link = this.parentNode.previousElementSibling.innerText;
 
-    navigator.clipboard.writeText(template_link)
-        .then(() => {
-        // Success - You can perform additional actions or show a success message
-        console.log('Text copied successfully!');
-        console.log(template_link);
-        })
-        .catch((err) => {
-        // Error - Handle the error or show an error message
-        console.error('Unable to copy text:', err);
-        });
+        navigator.clipboard.writeText(template_link)
+            .then(() => {
+                // Success - You can perform additional actions or show a success message
+                console.log('Text copied successfully!');
+                console.log(template_link);
+            })
+            .catch((err) => {
+                // Error - Handle the error or show an error message
+                console.error('Unable to copy text:', err);
+            });
     }
 
     function compareHistoryFile(fileName) {
@@ -1058,7 +1050,7 @@
                                 lineNumbers: true,
                                 mode: 'htmlmixed',
                                 collapseIdentical: true,
-                                lineWrapping: true, // initial value
+                                lineWrapping: false, // initial value
                                 autoFormatOnStart: true,
                                 autoFormatOnMode: true,
                                 leftTitle: "Current File",
@@ -1112,27 +1104,21 @@
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
         $('.page-title-container>.close_expand_mode_screen').show();
+        $('.sidenav-right').hide();
+        $('.sidenav-right-compare').show();
         $('.page-title-container>h2').css({
             'width': '35%',
             'text-align': 'left'
         });
         $('.main-content').css({
-            'width': '100%',
-            'height': '80%',
-            'top': 0,
-            'left': 0,
-            'align-items': 'center',
-            'transition': 'all .5s ease'
+            'width': '80%',
+            'transition': 'all .5s ease',
+            'justify-content': 'flex-start'
         });
         $('.leaf-code-container').css({
             'width': '100% !important'
         });
         $('.usa-table').hide();
-        $('.leaf-right-nav').css({
-            'position': 'fixed',
-            'right': '-100%',
-            'transition': 'all .5s ease'
-        });
         $('.leaf-left-nav').css({
             'position': 'fixed',
             'left': '-100%',
@@ -1149,17 +1135,16 @@
         $('.page-title-container>.file_replace_file_btn').hide();
         $('.page-title-container>.close_expand_mode_screen').hide();
         $('#save_button_compare').css('display', 'none');
+        $('.sidenav-right-compare').hide();
+        $('.sidenav-right').show();
         $('.page-title-container>h2').css({
             'width': '100%',
             'text-align': 'center'
         });
         $('.main-content').css({
-            'width': '60%',
-            'height': '80%',
-            'top': 0,
-            'left': 0,
-            'align-items': 'center',
-            'transition': 'all .5s ease'
+            'width': '65%',
+            'transition': 'all .5s ease',
+            'justify-content': 'center'
         });
         $('#codeContainer').css({
             'display': 'block',
@@ -1167,11 +1152,7 @@
             'width': '90% !important'
         })
         $('.usa-table').show();
-        $('.leaf-right-nav').css({
-            'position': 'relative',
-            'right': '0',
-            'transition': 'all .5s ease'
-        });
+
         $('.leaf-left-nav').css({
             'position': 'relative',
             'left': '0',
@@ -1182,15 +1163,15 @@
         });
 
         $('#save_button').css('display', 'block');
+        $('.leaf-right-nav').addClass('sticky');
         loadContent(currentFile);
     }
-
 
     var currentFile = '';
     var currentFileContent = '';
 
     function loadContent(file) {
-        if (file == undefined) {
+        if (file === undefined) {
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
             return;
@@ -1210,8 +1191,15 @@
             success: function(res) {
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
-                codeEditor.setValue(res.file);
-                if (res.modified == 1) {
+
+                // Check if codeEditor is already defined and has a setValue method
+                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                    codeEditor.setValue(res.file);
+                } else {
+                    console.error('codeEditor is not properly initialized.');
+                }
+
+                if (res.modified === 1) {
                     $('.modifiedTemplate').css('display', 'block');
                 } else {
                     $('.modifiedTemplate').css('display', 'none');
@@ -1219,11 +1207,13 @@
 
                 getFileHistory(file);
             },
+            error: function(xhr, status, error) {
+                console.log('Error loading file: ' + error);
+            },
             cache: false
         });
         $('#saveStatus').html('');
     }
-
 
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 66;
@@ -1274,15 +1264,13 @@
     }
 
     var codeEditor = null;
-    $(function() {
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        $('.sidenav-right-compare').hide();
         dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
 
         initEditor();
-
-        $(window).on('resize', function() {
-            updateEditorSize();
-        });
 
         $.ajax({
             type: 'GET',
