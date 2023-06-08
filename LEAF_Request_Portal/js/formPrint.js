@@ -18,7 +18,6 @@ var printer = function () {
     var internalInfo = new Array();
     var homeQR = document.createElement("img");
     var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
-    console.log(portal_path);
     //get QR code of record
     homeQR.setAttribute("class", "print nodisplay");
     homeQR.setAttribute("style", "width: 72px");
@@ -187,6 +186,7 @@ var printer = function () {
         var splitTitle = [];
         var splitOption = [];
         var format = indicator.format;
+        console.log(indicator.format);
         if (
           format === "text" &&
           ((indicator.value && indicator.value.length > 30) ||
@@ -390,7 +390,7 @@ var printer = function () {
           doc.setTextColor(0);
           doc.setDrawColor(0);
         }
-
+        
         if (depth > 0) {
           if (subShift) {
             verticalShift += 4;
@@ -631,13 +631,14 @@ var printer = function () {
                   doc.rect(horizontalShift, verticalShift + 6, 5, 5);
 
                   let selectedVals = toArrayFormat(indicator);
+                  indicator.options = indicator.options.filter((option) => selectedVals.includes(option));
                   if (
                     !blank &&
                     selectedVals.indexOf(indicator.options[i]) > -1
                   ) {
                     doc.text("x", horizontalShift + 1.5, verticalShift + 9.5);
                   }
-                  sizeOfOption = indicator.options[i].length * 2.5;
+                  sizeOfOption = (indicator.options[i]?.length ?? 0) * 2.5;
                   doc.setFont("times");
                   splitOption = doc.splitTextToSize(
                     decodeHTMLEntities(indicator.options[i]),
@@ -987,6 +988,7 @@ var printer = function () {
                   doc.setFont("helvetica");
 
                   let selectedVals = toArrayFormat(indicator);
+                  indicator.options = indicator.options.filter((option) => selectedVals.includes(option));
                   if (
                     !blank &&
                     selectedVals.indexOf(indicator.options[i]) > -1

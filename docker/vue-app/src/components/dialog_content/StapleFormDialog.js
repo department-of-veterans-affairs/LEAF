@@ -9,7 +9,7 @@ export default {
         'APIroot',
         'CSRFToken',
         'truncateText',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'categories',
         'focusedFormRecord',
         'closeFormDialog',
@@ -88,7 +88,7 @@ export default {
         <div id="mergedForms" style="margin-top: 1rem;">
             <ul style="list-style-type:none; padding: 0; min-height: 50px;">
                 <li v-for="id in currentStapleIDs" :key="'staple_list_' + id">
-                    {{truncateText(stripAndDecodeHTML(categories[id]?.categoryName || 'Untitled')) }}
+                    {{truncateText(decodeAndStripHTML(categories[id]?.categoryName || 'Untitled')) }}
                     <button type="button"
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                         @click="unmergeForm(id)" :title="'remove ' + categories[id]?.categoryName || 'Untitled'">
@@ -104,7 +104,7 @@ export default {
                     <option value="">Select a Form</option>
                     <option v-for="f in mergeableForms" 
                         :value="f.categoryID" 
-                        :key="'merge_'+f.categoryID">{{truncateText(stripAndDecodeHTML(f.categoryName)) || 'Untitled'}}</option>
+                        :key="'merge_'+f.categoryID">{{truncateText(decodeAndStripHTML(f.categoryName)) || 'Untitled'}}</option>
                 </select>
             </template>
             <div v-else>There are no available forms to merge</div>

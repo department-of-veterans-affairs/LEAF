@@ -51,13 +51,22 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['GET']->register('system/reportTemplates', function ($args) use ($system) {
+            // this is depricated and should be removed once it has not been used in over 30 days
             return $system->getReportTemplateList();
         });
 
         $this->index['GET']->register('system/reportTemplates/[text]', function ($args) use ($system) {
+            // this is depricated and should be removed once it has not been used in over 30 days
             return $system->getReportTemplate($args[0]);
         });
 
+        $this->index['GET']->register('system/applet', function ($args) use ($system) {
+            return $system->getReportTemplateList();
+        });
+
+        $this->index['GET']->register('system/applet/[text]', function ($args) use ($system) {
+            return $system->getReportTemplate($args[0]);
+        });
 
         $this->index['GET']->register('system/employee/update/all', function() use ($system) {
             return $system->refreshOrgchartEmployees();
@@ -86,10 +95,20 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['POST']->register('system/reportTemplates', function ($args) use ($system) {
+            // this is depricated and should be removed once it has not been used in over 30 days
             return $system->newReportTemplate($_POST['filename']);
         });
 
         $this->index['POST']->register('system/reportTemplates/[text]', function ($args) use ($system) {
+            // this is depricated and should be removed once it has not been used in over 30 days
+            return $system->setReportTemplate($args[0]);
+        });
+
+        $this->index['POST']->register('system/applet', function ($args) use ($system) {
+            return $system->newReportTemplate($_POST['filename']);
+        });
+
+        $this->index['POST']->register('system/applet/[text]', function ($args) use ($system) {
             return $system->setReportTemplate($args[0]);
         });
 
@@ -129,6 +148,11 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['DELETE']->register('system/reportTemplates/[text]', function ($args) use ($db, $login, $system) {
+            // this is depricated and should be removed once it has not been used in over 30 days
+            return $system->removeReportTemplate($args[0]);
+        });
+
+        $this->index['DELETE']->register('system/applet/[text]', function ($args) use ($db, $login, $system) {
             return $system->removeReportTemplate($args[0]);
         });
 
