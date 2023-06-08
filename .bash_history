@@ -74,3 +74,32 @@ exit
 git status
 git push origin newman
 git pull
+git pull
+ls
+docker compose up -d
+docker compose up -d
+docker compose up -d
+strings 000003.log | grep 'PGP PRIVATE KEY'
+path
+ls
+cd /c
+ls
+grep strings
+grep -r strings
+ls
+ls
+strings 000003.log
+grep 000003.log
+cd /c
+ls
+find . -name strings
+cd ..
+ls
+cd cmd
+ls
+ls -1
+cd ..
+ls -1
+find /bin -name strings
+cd bin
+ls -1
