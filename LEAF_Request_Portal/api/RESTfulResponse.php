@@ -674,7 +674,9 @@ abstract class RESTfulResponse
      */
     private function filterData(array|string|null $data): array|string|null
     {
-        if (isset($_GET['x-filterData'])) {
+        // we need a way to pass status messages if the data is not going to be sent. I cannot really set this in advance
+        if (isset($_GET['x-filterData']) && !in_array('status',array_keys($data))) {
+
             $filter = explode(',', $_GET['x-filterData'], 32);
             $filter = array_flip($filter);
             // add data fields that are implicitly requested
