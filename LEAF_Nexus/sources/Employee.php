@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+use Leaf\Db;
+
 class Employee extends Data
 {
     public $debug = false;
@@ -73,6 +75,460 @@ class Employee extends Data
         $input = preg_replace('/(\*\s\*)+/i', '', $input);
 
         return $input;
+    }
+
+    /**
+     * @param string $user_name
+     *
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:28:22 PM (America/New_York)
+     */
+    public function refresh(string $user_name): array
+    {
+        $user_array = explode(',', htmlspecialchars_decode($user_name, ENT_QUOTES));
+        // get employee data from national db
+        // update employee data locally
+        // if employee is inactive nationally for more than a week make inactive locally
+        $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $national_emp = $this->getEmployeeByUserName($user_array, $global_db);
+
+        if (empty($national_emp)) {
+            $this->disableEmployee($user_name, $this->db);
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'National Employee not found, employee disable locally.'
+                )
+            );
+        } else {
+            $this->updateEmployeeByUserName($user_name, $national_emp[0], $this->db);
+            $local_emp = $this->getEmployeeByUserName($user_array, $this->db);
+            $national_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $national_emp[0]['empUID']), $global_db);
+            $this->updateEmployeeDataByEmpUID($local_emp[0]['empUID'], $national_emp_data, $this->db);
+            $local_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $local_emp[0]['empUID']), $this->db);
+
+            if ($this->isActiveNationally($national_emp)) {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 2,
+                        'message' => ''
+                    ),
+                    'data' => array(
+                        'user' => $local_emp,
+                        'user_data' => $local_emp_data
+                    )
+                );
+            } else {
+                $this->disableEmployee($user_name, $this->db);
+                $return_value = array(
+                    'status' => array(
+                        'code' => 4,
+                        'message' => 'National Employee has been disabled for more than a week, employee has been disabled locally.'
+                    )
+                );
+            }
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:28:32 PM (America/New_York)
+     */
+    public function refreshBatch(): array
+    {
+        $local_employee_list = $this->getAllEmployees($this->db);
+
+        if (count($local_employee_list) == 0) {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'No employees returned.'
+                )
+            );
+        } else {
+            $local_employee_usernames = $this->formatUserNames($local_employee_list);
+
+            $chunk_local_employee = array_chunk($local_employee_usernames, 100);
+
+            $this->processList($chunk_local_employee);
+
+            $return_value = array(
+                'status' => array(
+                    'code' => 2,
+                    'message' => ''
+                )
+            );
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @param array $employee_list
+     *
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:28:40 PM (America/New_York)
+     */
+    private function formatUserNames(array $employee_list): array
+    {
+        $local_employee_usernames = [];
+
+        foreach ($employee_list as $employee) {
+            $local_employee_usernames[] = htmlspecialchars_decode($employee['userName'], ENT_QUOTES);
+        }
+
+        return $local_employee_usernames;
+    }
+
+    /**
+     * @param array $employee_list
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:28:47 PM (America/New_York)
+     */
+    private function processList(array $employee_list): void
+    {
+        foreach ($employee_list as $employee) {
+            $this->updateEmployeeDataBatch($employee);
+        }
+    }
+
+    /**
+     * @param array $local_employees
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:28:56 PM (America/New_York)
+     */
+    private function updateEmployeeDataBatch(array $local_employees): void
+    {
+        $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+
+        $national_employees_list = $this->getEmployeeByUserName($local_employees, $global_db);
+        $local_employees_uid = $this->getEmployeeByUserName($local_employees, $this->db);
+
+        if (!empty($national_employees_list)) {
+            $local_employee_array = $this->userNameUidList($local_employees_uid);
+
+            $national_employee_uids = [];
+            $local_array = [];
+            $local_data_array = [];
+
+            $this->prepareArrays($national_employee_uids, $local_array, $national_employees_list, $local_employee_array);
+
+            $local_deleted_employees = array_diff(array_column($local_employees_uid, 'userName'), array_column($national_employees_list, 'userName'));
+
+            $this->disableEmployees($local_deleted_employees);
+            $this->batchEmployeeUpdate($local_array);
+            $national_employee_data = $this->getEmployeeDataByEmpUID($national_employee_uids, $global_db);
+
+            $this->prepareDataArray($local_data_array, $national_employee_data, $local_employee_array);
+
+            $this->batchEmployeeDataUpdate($local_data_array);
+        }
+    }
+
+    /**
+     * @param array $local_employees_array
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:29:05 PM (America/New_York)
+     */
+    private function batchEmployeeUpdate(array $local_employees_array): void
+    {
+        $vars = array(
+            'lastName',
+            'firstName',
+            'middleName',
+            'phoneticFirstName',
+            'phoneticLastName',
+            'domain',
+            'deleted',
+            'lastUpdated'
+        );
+
+        $this->db->insert_batch('employee', $local_employees_array, $vars);
+    }
+
+    /**
+     * @param array $local_employees_data_array
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:29:12 PM (America/New_York)
+     */
+    private function batchEmployeeDataUpdate(array $local_employees_data_array): void
+    {
+        $vars = array(
+            'indicatorID',
+            'data',
+            'author',
+            'timestamp'
+        );
+
+        $this->db->insert_batch('employee_data', $local_employees_data_array, $vars);
+    }
+
+    /**
+     * @param array $deleted_employees
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:29:19 PM (America/New_York)
+     */
+    private function disableEmployees(array $deleted_employees): void
+    {
+        if (!empty($deleted_employees)) {
+            $sql = "UPDATE employee
+                    SET deleted=UNIX_TIMESTAMP(NOW())
+                    WHERE userName IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
+
+            $this->db->prepared_query($sql, array_values($deleted_employees));
+        }
+    }
+
+    /**
+     * @param array $national_employee_uids
+     * @param array $local_employee_array
+     * @param array $national_list
+     * @param array $local_list
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:30:08 PM (America/New_York)
+     */
+    private function prepareArrays(array &$national_employee_uids, array &$local_employee_array, array $national_list, array $local_list): void
+    {
+        foreach ($national_list as $employee) {
+            $national_employee_uids[] = (int) $employee['empUID'];
+
+            $local_employee_array[] = [
+                'empUID' => (empty($local_list[$employee['userName']]) ? null : $local_list[$employee['userName']]),
+                'userName' => $employee['userName'],
+                'lastName' => $employee['lastName'],
+                'firstName' => $employee['firstName'],
+                'middleName' => $employee['middleName'],
+                'phoneticFirstName' => $employee['phoneticFirstName'],
+                'phoneticLastName' => $employee['phoneticLastName'],
+                'domain' => $employee['domain'],
+                'deleted' => $employee['deleted'],
+                'lastUpdated' => $employee['lastUpdated']
+            ];
+        }
+    }
+
+    /**
+     * @param array $local_data_array
+     * @param array $national_list
+     * @param array $local_list
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:30:17 PM (America/New_York)
+     */
+    private function prepareDataArray(array &$local_data_array, array $national_list, array $local_list): void
+    {
+        foreach ($national_list as $employee) {
+            $local_data_array[] = [
+                'empUID' => (empty($local_list[$employee['userName']]) ? null : $local_list[$employee['userName']]),
+                'indicatorID' => $employee['indicatorID'],
+                'data' => $employee['data'],
+                'author' => $employee['author'],
+                'timestamp' => $employee['timestamp'],
+            ];
+        }
+    }
+
+    /**
+     * @param array $employee_list
+     *
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:30:29 PM (America/New_York)
+     */
+    private function userNameUidList(array $employee_list): array
+    {
+        $return_value = [];
+
+        foreach ($employee_list as $employee) {
+            $return_value[$employee['userName']] = $employee['empUID'];
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @param Db $db
+     *
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:30:36 PM (America/New_York)
+     */
+    private function getAllEmployees(Db $db): array
+    {
+        $vars = array();
+        $sql = 'SELECT userName
+                FROM employee';
+
+        $return_value = $db->prepared_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param array $user
+     *
+     * @return bool
+     *
+     * Created at: 6/9/2023, 2:30:52 PM (America/New_York)
+     */
+    private function isActiveNationally(array $user): bool
+    {
+        $weekOld = $user[0]['lastUpdated'] + 604800;
+
+        if (time() < $weekOld) {
+            $return_value = true;
+        } else {
+            $return_value = false;
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @param array $user_names
+     * @param Db $db
+     *
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:31:07 PM (America/New_York)
+     */
+    private function getEmployeeByUserName(array $user_names, Db $db): array
+    {
+        $sql = "SELECT empUID, userName, lastName, firstName, middleName,
+                    phoneticLastName, phoneticFirstName, domain, deleted,
+                    lastUpdated
+                FROM employee
+                WHERE userName IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
+        $return_value = $db->prepared_query($sql, $user_names);
+
+        return $return_value;
+    }
+
+    /**
+     * @param array $empUID
+     * @param Db $db
+     *
+     * @return array
+     *
+     * Created at: 6/9/2023, 2:31:14 PM (America/New_York)
+     */
+    private function getEmployeeDataByEmpUID(array $empUID, Db $db): array
+    {
+        $vars = array(':PHONEIID' => 5,
+                ':EMAILIID' => 6,
+                ':LOCATIONIID' => 8,
+                ':ADTITLEIID' => 23
+            );
+        $sql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp
+                FROM employee_data
+                LEFT JOIN employee USING (empUID)
+                WHERE empUID IN ('" . implode("','", array_values($empUID)) . "')
+                AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+        $return_value = $db->prepared_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param string $user_name
+     * @param array $national_user
+     * @param Db $db
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:31:54 PM (America/New_York)
+     */
+    private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): void
+    {
+        $vars = array(
+            ':userName' => $user_name,
+            ':lastName' => $national_user['lastName'],
+            ':firstName' => $national_user['firstName'],
+            ':midInit' => $national_user['middleName'],
+            ':phoneticFname' => $national_user['phoneticFirstName'],
+            ':phoneticLname' => $national_user['phoneticLastName'],
+            ':domain' => $national_user['domain'],
+            ':deleted' => $national_user['deleted'],
+            ':lastUpdated' => $national_user['lastUpdated']
+        );
+        $sql = "UPDATE employee
+                SET lastName=:lastName,
+                    firstName=:firstName,
+                    middleName=:midInit,
+                    phoneticFirstName=:phoneticFname,
+                    phoneticLastName=:phoneticLname,
+                    domain=:domain,
+                    deleted=:deleted,
+                    lastUpdated=:lastUpdated
+                WHERE userName=:userName";
+        $db->prepared_query($sql, $vars);
+    }
+
+    /**
+     * @param int $empUID
+     * @param array $national_data
+     * @param Db $db
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:32:12 PM (America/New_York)
+     */
+    private function updateEmployeeDataByEmpUID(int $empUID, array $national_data, Db $db): void
+    {
+        $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+                VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
+                ON DUPLICATE KEY UPDATE data=:data, author=:author,
+                    timestamp=:timestamp";
+        if (!empty($national_data)) {
+            foreach($national_data as $data) {
+                $vars = array(
+                    ':empUID' => $empUID,
+                    ':indicatorID' => $data['indicatorID'],
+                    ':data' => $data['data'],
+                    ':author' => $data['author'],
+                    ':timestamp' => time()
+                );
+                $db->prepared_query($sql, $vars);
+            }
+        }
+    }
+
+    /**
+     * @param string $user_name
+     * @param Db $db
+     *
+     * @return void
+     *
+     * Created at: 6/9/2023, 2:31:38 PM (America/New_York)
+     */
+    private function disableEmployee(string $user_name, Db $db): void
+    {
+        $vars = array(
+                ':userName' => htmlspecialchars_decode($user_name, ENT_QUOTES),
+                ':deleted' => time()
+            );
+        $sql = "UPDATE employee
+                SET deleted=:deleted
+                WHERE userName=:userName";
+        $db->prepared_query($sql, $vars);
     }
 
     /**
