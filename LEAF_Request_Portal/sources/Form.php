@@ -2652,9 +2652,11 @@ class Form
 
             return ['status' => 2, 'errors' => ["The data is being prepared, and you are $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
         } else if (!empty($processQueryCheckRes) && $processQueryCheckRes[0]['lastProcess'] > 0) {
+            // if we have the file we can throw this out to the browser. We are checking the user here do we need the addl file checking?
+
             $currentProcess = current($processQueryCheckRes);
 
-            $directory = __DIR__ . '/../files/processedQuery/';
+            $directory = __DIR__ . '/../files/temp/processedQuery/';
             $currentFileName = $directory . $currentProcess['id'] . '_' . $currentProcess['userID'] . '.json';
 
             if ($currentProcess['lastProcess'] > 0 && is_file($currentFileName)) {
@@ -2675,12 +2677,18 @@ class Form
         }
     }
 
-    public function processQueryData($res,$compactedVariables){
-        if(is_array($compactedVariables)){
-            
+    /**
+     * @param array $res - result coming from the query that we need to pull data in for.
+     * @param array $compactedVariables - this compacts down the variables used, this helps us include variables without a bunch of params
+     * @return array 
+     */
+    public function processQueryData(array $res, array $compactedVariables)
+    {
+        if (is_array($compactedVariables)) {
+
             extract($compactedVariables);
         }
-        
+
         $data = array();
         $recordIDs = '';
         foreach ($res as $item) {
@@ -2898,7 +2906,6 @@ class Form
 
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        $_GET['x-filterData'] = 'status,errors';
 
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
         if ($query == null) {
@@ -2915,7 +2922,6 @@ class Form
                 return $retValue;
             }
         }
-
 
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
@@ -3435,7 +3441,7 @@ class Form
             //$this->storeQueryData($inQuery, $retData);
 
             // this is the directory I have set my eyes on, we will probably want a different directory or maybe some other method of storage
-            $directory = __DIR__ . '/../files/processedQuery/';
+            $directory = __DIR__ . '/../files/temp/processedQuery/';
 
             // make sure the directory exists
             if (!is_dir($directory)) {
@@ -3480,16 +3486,18 @@ class Form
                     $limit = " LIMIT  $offset, $maxlimit";
 
                     $res = $this->db->prepared_query('SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit, $vars);
-                    
+
                     if (!empty($res)) {
-                        $compactedVariables = compact(['joinCategoryID','joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData','joinRecordResolutionBy','joinInitiatorNames','addJoinRecords_Step_Fulfillment_Only','filterActionable',]);
-                        $retData = $this->processQueryData($res,$compactedVariables);
-                        $retData = rtrim(json_encode($retData),'}').',';
-                        fwrite($fp, $retData);
+                        $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
+                        $retData = $this->processQueryData($res, $compactedVariables);
+                        fwrite($fp, json_encode($retData));
                     }
 
+                    // if we are at our limit or no data then we need to close out the file.
                     if ($maxlimit >= $query['limit'] || empty($res)) {
                         fclose($fp);
+                        // this fixes case where we are plopping json strings together.
+                        exec("sed -i 's/}{/,/g' $currentFileName");
                         $alldata = false;
                     }
                 }
@@ -3535,8 +3543,8 @@ class Form
             WHERE ' . $conditions . $sort . $limit, $vars);
 
 
-            $compactedVariables = compact(['joinCategoryID','joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData','joinRecordResolutionBy','joinInitiatorNames','addJoinRecords_Step_Fulfillment_Only','filterActionable',]);
-            $retData = $this->processQueryData($res,$compactedVariables);
+            $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
+            $retData = $this->processQueryData($res, $compactedVariables);
         }
 
         return $retData;
