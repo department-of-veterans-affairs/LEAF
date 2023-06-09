@@ -12,9 +12,8 @@
         content: '\25ba\25ba\25ba';
     }
 
-    .CodeMirror,
-    .cm-s-default {
-        height: auto !important;
+    .CodeMirror-merge-copy {
+        display: none !important;
     }
 
     #subjectCompare .CodeMirror-merge,
@@ -58,7 +57,13 @@
     }
 
     #codeContainer {
-        width: 95% !important;
+        width: 98% !important;
+        box-shadow: none;
+    }
+
+    .CodeMirror-merge,
+    .CodeMirror-merge {
+        height: 60vh !important;
     }
 
     .page-title-container {
@@ -73,7 +78,7 @@
 
     .page-main-content {
         display: flex;
-        width: 100%;
+        width: 98%;
         justify-content: space-evenly;
         align-items: flex-start;
         height: 80%;
@@ -92,15 +97,27 @@
 
     .leaf-left-nav,
     .leaf-right-nav {
-        width: 20%;
+        width: 15%;
+        max-width: 300px;
         margin: 0;
-        flex: none;
+        flex: auto;
     }
 
     .sidenav,
     .sidenav-right {
         max-width: none;
         padding: 0;
+        box-shadow: none;
+    }
+
+    .sidenav-right-compare {
+        background-color: #fff;
+        border-radius: 5px;
+    }
+
+    .controls-compare>button {
+        width: 100%;
+        font-size: .9rem;
     }
 
     #fileBrowser {
@@ -110,7 +127,8 @@
     }
 
     #fileBrowser>h3 {
-        margin: 0;
+        width: 100%;
+        text-align: left;
     }
 
     .main-content {
@@ -121,6 +139,13 @@
         flex: none;
         margin: 0 auto;
         transition: all .5s ease;
+    }
+
+    .sticky {
+        position: sticky;
+        top: 0;
+        padding-top: 10px;
+        transition: all 1s ease-in-out;
     }
 
     #filename {
@@ -144,13 +169,15 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #e8e4e4;
-        margin: 0 auto;
+        background-color: #fff;
+        margin: 15px auto;
+        padding: 20px 0;
+        border-radius: 5px;
     }
 
     .view-history {
         width: 90%;
-        max-width: 200px;
+        max-width: 250px;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -167,36 +194,43 @@
         background-color: #112e51;
     }
 
+    .file-history-res {
+        width: 85%;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
     .accordion-container {
         display: block;
         margin-top: 10px;
-        width: 100%;
-        font-family: sans-serif;
+        width: 90%;
+        max-width: 250px;
     }
 
     .accordion {
-        width: 90%;
+        width: 93%;
         border-radius: 5px;
         overflow: hidden;
         margin-bottom: 10px;
-        background-color: #eee;
+        background-color: #fff;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin: 10px auto;
+        margin: 5px auto;
     }
 
     .accordion-header {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        flex-flow: row;
-        padding: 10px 0;
         background-color: #1a4480;
         color: #fff;
-        font-size: 0.75rem;
+        font-size: 0.70rem;
         font-weight: bold;
-        text-align: center;
+        text-align: left;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease;
     }
 
     .accordion-header:hover {
@@ -208,40 +242,64 @@
     }
 
     .accordion-date {
+        width: 80%;
         border-right: 1px solid #fff;
-        padding: 0 10px;
+        padding: 8px;
     }
 
-    .accordion-name {
-        padding: 0 10px;
+    .accordion-date,
+    .accordion-content a {
+        width: 100%;
+        color: #fff;
+        text-decoration: none;
+        font-weight: normal;
+    }
+
+    .accordion-chevron {
+        width: 20%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 0;
+        transition: transform 0.3s ease;
+    }
+
+    .chevron-rotate {
+        transform: rotate(90deg);
     }
 
     .accordion-content {
         display: none;
         padding: 10px 10px;
-        font-size: .8rem;
+        font-size: .65rem;
         line-height: 1.5;
         background-color: #fff;
     }
 
     .accordion-content>ul {
         padding: 0;
-    }
-
-    .accordion-content>ul>li {
-        list-style: none;
-    }
-
-    .accordion-content>ul>li>p {
         margin: 0;
     }
 
-    .accordion-content>ul>li:nth-child(4) {
+    .accordion-content ul li {
         list-style: none;
+        margin: 5px 0;
+        border-bottom: 2px solid #e4e4e4;
+        padding: 5px 0;
     }
 
-    .accordion-content>ul>li:nth-child(5) {
-        list-style: none;
+    .accordion-content ul li:last-child {
+        border: none;
+    }
+
+    .accordion-content ul li strong {
+        text-transform: uppercase;
+    }
+
+    .accordion-content ul li p {
+        margin: 0;
+        font-size: .65rem;
+        overflow: auto;
     }
 
     .file_compare_file_btn {
@@ -253,55 +311,84 @@
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
+        font-size: .75rem;
     }
 
     .file_compare_file_btn:hover {
         background-color: #c97c00;
     }
 
+    .copyIcon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: .6rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin-top: 5px;
+        border: none;
+        transition: .5s ease;
+        border-radius: 5px;
+    }
+
+    .copyIcon:hover {
+        background-color: #45a245;
+        color: #fff;
+    }
+
+    .copyIcon span {
+        font-size: 1rem;
+        padding: 0 0 0 5px;
+    }
+
+    .template_link {
+        font-size: .8rem;
+        border: 1px solid #eee;
+        width: 100%;
+        padding: 5px;
+        border-radius: 5px;
+        box-sizing: border-box;
+        overflow: auto;
+        background-color: #ccc;
+    }
+
     .file_replace_file_btn {
         width: 100%;
         padding: 10px 0;
         border: none;
-        background-color: #43ac6a;
+        background-color: #e99002;
         color: #fff;
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
     }
 
     .file_replace_file_btn:hover {
-        background-color: #338451;
+        background-color: #c97c00;
     }
 
+    .file_replace_file_btn,
     .close_expand_mode_screen {
         width: 100%;
         padding: 10px 0;
         border: none;
-        background-color: #ac4343;
         color: #fff;
-        font-size: 1rem;
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
+    }
+
+    .close_expand_mode_screen {
+        background-color: #ac4343;
+        font-size: 1rem;
     }
 
     .close_expand_mode_screen:hover {
@@ -317,12 +404,17 @@
     .page-title-container>.file_replace_file_btn {
         display: none;
         width: 20%;
-        min-width: 200px;
     }
 
     .page-title-container>.close_expand_mode_screen {
         display: none;
         width: 10%;
+        min-width: 200px;
+    }
+
+    #save_button_compare {
+        display: none;
+        margin: 10px 0;
     }
 
     .word-wrap-button {
@@ -350,15 +442,15 @@
     }
 
     .contentMessage {
-        width: 90%;
+        width: 100%;
         font-size: .8rem;
         padding: 10px 0;
         text-align: center;
     }
 
     .usa-button {
-        width: 90%;
-        max-width: 200px;
+        width: 100%;
+        max-width: 250px;
         margin: 5px auto;
     }
 
@@ -366,17 +458,49 @@
         width: 100%;
         min-height: 300px;
         overflow: auto;
-        padding: 0 10px;
+        padding: 0;
         margin: 10px auto;
     }
 
     .leaf-ul li {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
         font-size: .8rem !important;
         line-height: 2;
+        list-style: none;
     }
 
-    #controls {
-        width: 90%;
+
+    .leaf-ul>li::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+        background-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23000000' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M6.854 6.146a.5.5 0 010 .708L3.707 10l3.147 3.146a.5.5 0 01-.708.708l-3.5-3.5a.5.5 0 010-.708l3.5-3.5a.5.5 0 01.708 0zm6.292 0a.5.5 0 000 .708L16.293 10l-3.147 3.146a.5.5 0 00.708.708l3.5-3.5a.5.5 0 000-.708l-3.5-3.5a.5.5 0 00-.708 0zm-.999-3.124a.5.5 0 01.33.625l-4 13a.5.5 0 11-.955-.294l4-13a.5.5 0 01.625-.33z' clip-rule='evenodd'/></svg>");
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .leaf-ul>li>a {
+        width: 80%;
+        display: block;
+        text-decoration: none;
+        border-bottom: 2px solid #e4e4e4;
+        transition: all 0.3s ease;
+        color: #005ea2;
+    }
+
+    .leaf-ul>li>a:hover {
+        border-bottom: 2px solid #005ea2;
+    }
+
+    #controls,
+    .controls-compare {
+        width: 80%;
         margin: 0 auto;
         padding: 10px 0;
         display: flex;
@@ -393,6 +517,11 @@
 
     }
 
+    .CodeMirror-scroll {
+        margin-right: 0;
+        height: 60vh;
+    }
+
     .CodeMirror-merge-pane-label {
         width: 45%;
         text-align: center;
@@ -407,21 +536,85 @@
     .CodeMirror-merge-pane-label:nth-child(2) {
         color: #083;
     }
+
+    .chevron-rotate {
+        animation: chevron-rotate .5s forwards;
+    }
+
+    @keyframes chevron-rotate {
+        100% {
+            transform: rotate(90deg);
+        }
+    }
+
+    .gg-chevron-right {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        transform: scale(var(--ggs, 1));
+        width: 22px;
+        height: 22px;
+        border: 2px solid transparent;
+        border-radius: 100px
+    }
+
+    .gg-chevron-right::after {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-bottom: 2px solid;
+        border-right: 2px solid;
+        transform: rotate(-45deg);
+        right: 6px;
+        top: 4px
+    }
+
+    @media only screen and (max-width:1280px) {
+
+        .file-history-res,
+        #controls,
+        .controls-compare {
+            width: 90%;
+        }
+
+        .accordion {
+            width: 100%;
+        }
+
+        .accordion-header {
+            font-size: .6rem;
+        }
+
+        .leaf-btn-med,
+        .controls-compare>button {
+            font-size: .75rem;
+        }
+
+        .leaf-ul li {
+            font-size: .7rem !important;
+            line-height: 2;
+        }
+
+    }
 </style>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
-        <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
-        <button class="file_replace_file_btn">Merge to Current File</button>
-        <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Exit</button>
-
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
             <aside class="sidenav">
                 <div id="fileBrowser">
                     <h3>Email Templates</h3>
+                    <button
+                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                        id="btn_history" onclick="viewHistory()">
+                        View History
+                    </button>
                 </div>
                 <div id="fileList"></div>
             </aside>
@@ -515,7 +708,8 @@
         </main>
         <div class="leaf-right-nav">
             <aside class="sidenav-right">
-                <div id="controls" style="padding-bottom: 4px">
+
+                <div id="controls" style="visibility: hidden">
 
                     <button class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
                         Save Changes<span id="saveStatus"
@@ -534,25 +728,24 @@
                         Stop Comparing
                     </button>
 
-                    <button
+                    <!-- <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
                         id="btn_compare" onclick="compare();">
                         Compare to Original
-                    </button>
-
-                    <button
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        id="btn_history" onclick="viewHistory()">
-                        View History
-                    </button>
-                    <button class="view-history">View File History</button>
+                    </button> -->
                 </div>
             </aside>
-        </div>
-
-        <div class="file-history">
-            <h2>File History</h2>
-            <div class="file-history-res"></div>
+            <aside class="sidenav-right-compare">
+                <div class="controls-compare">
+                    <button class="file_replace_file_btn">Merge</button>
+                    <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
+                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                </div>
+            </aside>
+            <div class="file-history">
+                <h3>File History</h3>
+                <div class="file-history-res"></div>
+            </div>
         </div>
     </div>
 
@@ -563,6 +756,20 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
+    window.addEventListener('scroll', function() {
+        let mainEditorContent = document.querySelector('.main-content');
+        let rightSideNav = document.querySelector('.leaf-right-nav');
+        let code = mainEditorContent.getBoundingClientRect();
+        let buttonsNav = rightSideNav.getBoundingClientRect();
+
+        if (code.top <= 0 || buttonsNav.top <= 0) {
+            mainEditorContent.classList.add('sticky');
+            rightSideNav.classList.add('sticky');
+        } else {
+            mainEditorContent.classList.remove('sticky');
+            rightSideNav.classList.remove('sticky');
+        }
+    });
     /**
      * Function: save
      * Purpose: Save all fields to template files
@@ -695,6 +902,7 @@
                 'emailCcFileName': currentEmailCcFile,
                 'CSRFToken': '<!--{$CSRFToken}-->'}),
                 success: function() {
+                    saveFileHistory();
                     loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
                         currentEmailCcFile);
                 }
@@ -779,166 +987,25 @@
 
         return bytes.toFixed(2) + ' ' + units[i];
     }
-    // According code
-    $(document).ready(function() {
-        $('#word-wrap-button').css('display', 'none');
-        // Hide the accordion container and all accordion content on page load
-        $(".accordion-container").hide();
-        $(".accordion-content").hide();
-        // When the View File History button is clicked, toggle the accordion container
-        $(".view-history").click(function() {
-            $(".accordion-container").slideToggle();
-        });
-    });
 
     function displayAccordionContent(element) {
-        var accordionContent = $(element).next(".accordion-content");
-        $(element).toggleClass("accordion-active");
+        var accordionContent = $(element).parent().next(".accordion-content");
+        var chevron = $(element);
+
+        chevron.toggleClass("chevron-rotate");
         accordionContent.slideToggle();
-        $(".accordion-header").not(element).removeClass("accordion-active");
-        $(".accordion-content").not(accordionContent).slideUp();
-    }
 
-    function getFileHistory(template) {
-        $.ajax({
-            type: 'GET',
-            url: '../api/templateFileHistory/_' + template,
-            dataType: 'json',
-            success: function(res) {
-                if (res.length === 0) {
-                    console.log('There are no files in the directory');
-                    var contentMessage =
-                        '<p class="contentMessage">There are no history files.</p>';
-                    $('.file-history').html(contentMessage);
-                    return;
-                }
-                var fileNames = res.map(function(template) {
-                    return template.file_parent_name;
-                });
-                if (fileNames.indexOf(template) === -1) {
-                    console.log('Template file not found in directory');
-                    return;
-                }
-                var accordion = '<div class="accordion-container">';
-                for (var i = 0; i < res.length; i++) {
-                    var fileId = res[i].file_id;
-                    var fileParentName = res[i].file_parent_name;
-                    var fileName = res[i].file_name;
-                    var filePath = res[i].file_path;
-                    var fileSize = res[i].file_size;
-                    var whoChangedFile = res[i].file_modify_by;
-                    var fileCreated = res[i].file_created;
-                    var formattedFileSize = formatFileSize(fileSize);
-                    accordion += '<div class="accordion">';
-                    accordion +=
-                        '<div class="accordion-header" onclick="displayAccordionContent(this)"><span class="accordion-date"><strong style="color:#37beff;">DATE:</strong><br>' +
-                        fileCreated +
-                        '</span><span class="accordion-name"><strong style="color:#37beff;">USER:</strong><br>' +
-                        whoChangedFile +
-                        '</span></div>';
-                    accordion += '<div class="accordion-content">';
-                    accordion += '<ul>';
-                    accordion
-                        += '<li><strong>File Name: </strong><br><p>' + fileParentName + '</p></li>';
-                    accordion
-                        += '<li><strong>Who Changed File:</strong><br><p>' + whoChangedFile + '</p></li>';
-                    accordion
-                        += '<li><strong>File Size:</strong><br><p>' + formattedFileSize + '</p></li>';
-                    accordion
-                        += '<li><button class="file_compare_file_btn" onclick="compareHistoryFile(\'' +
-                        fileName + ' \')">Compare Current File</button></li>';
-                    accordion += '</ul>';
-                    accordion += '</div>';
-                    accordion += '</div>';
-                }
-                accordion += '</div>';
-                $('.file-history').html(accordion);
-            },
-            error: function(xhr, status, error) {
-                console.log('Error getting file history: ' + error);
-            },
-            cache: false
-        });
-    }
+        var accordions = $(".accordion");
+        accordions.each(function() {
+            var currentAccordionContent = $(this).find(".accordion-content");
+            var currentChevron = $(this).find(".accordion-chevron");
 
-    function compareHistoryFile(fileName) {
-        $('.CodeMirror').remove();
-        $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#save_button').css('display', 'none');
-        $('#btn_compareStop').css('display', 'none');
-        $('#btn_merge').css('display', 'block');
-        $('#word-wrap-button').css('display', 'block');
-        $('#emailLists').hide();
-        $('#subject').hide();
-        var wordWrapEnabled = false; // default to false
-        $('#word-wrap-button').click(function() {
-            wordWrapEnabled = !wordWrapEnabled;
-            if (wordWrapEnabled) {
-                codeEditor.editor().setOption('lineWrapping', true);
-                codeEditor.leftOriginal().setOption('lineWrapping', true);
-                $(this).removeClass('off').addClass('on').text('Word Wrap: On');
-            } else {
-                codeEditor.editor().setOption('lineWrapping', false);
-                codeEditor.leftOriginal().setOption('lineWrapping', false);
-                $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
-            }
-            $('.CodeMirror-linebackground').css({
-                'background-color': '#8ce79b !important'
-            });
-        });
-        $.ajax({
-            type: 'GET',
-            url: '../api/templateCompareFileHistory/_' + fileName,
-            dataType: 'json',
-            cache: false,
-            success: function(res) {
-                $(".compared-label-content").css("display", "flex");
-                var filePath = '';
-                var fileParentFile = '';
-                for (var i = 0; i < res.length; i++) {
-                    filePath = res[i].file_path;
-                    fileParentFile = res[i].file_parent_name;
-                    $.ajax({
-                        type: 'GET',
-                        url: filePath,
-                        dataType: 'text',
-                        cache: false,
-                        success: function(fileContent) {
-                            codeEditor = CodeMirror.MergeView(document.getElementById(
-                                "codeCompare"), {
-                                value: currentFileContent.replace(/\r\n/g, "\n"),
-                                origLeft: fileContent.replace(/\r\n/g, "\n"),
-                                lineNumbers: true,
-                                mode: 'htmlmixed',
-                                collapseIdentical: true,
-                                lineWrapping: true, // initial value
-                                autoFormatOnStart: true,
-                                autoFormatOnMode: true,
-                                leftTitle: "Current File",
-                                rightTitle: "Comparison File"
-                            });
-                            updateEditorSize();
-                            $('.CodeMirror-linebackground').css({
-                                'background-color': '#8ce79b !important'
-                            });
-                            $('.file_replace_file_btn').click(function() {
-                                var changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
-                                    if (mergeLine !== null && mergeLine !== undefined) {
-                                        mergedContent += mergeLine + "\n";
-                                    }
-                                }
-                                saveMergedChangesToFile(fileParentFile, mergedContent);
-                            });
-                        }
-                    });
-                }
-                editorExpandScreen();
+            if (
+                !currentAccordionContent.is(accordionContent) &&
+                !currentChevron.is(chevron)
+            ) {
+                currentAccordionContent.slideUp();
+                currentChevron.removeClass("chevron-rotate");
             }
         });
     }
@@ -966,27 +1033,21 @@
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
         $('.page-title-container>.close_expand_mode_screen').show();
+        $('.sidenav-right').hide();
+        $('.sidenav-right-compare').show();
         $('.page-title-container>h2').css({
             'width': '35%',
             'text-align': 'left'
         });
         $('.main-content').css({
-            'width': '100%',
-            'height': '80%',
-            'top': 0,
-            'left': 0,
-            'align-items': 'center',
-            'transition': 'all .5s ease'
+            'width': '80%',
+            'transition': 'all .5s ease',
+            'justify-content': 'flex-start'
         });
         $('.leaf-code-container').css({
             'width': '100% !important'
         });
         $('.usa-table').hide();
-        $('.leaf-right-nav').css({
-            'position': 'fixed',
-            'right': '-100%',
-            'transition': 'all .5s ease'
-        });
         $('.leaf-left-nav').css({
             'position': 'fixed',
             'left': '-100%',
@@ -995,7 +1056,6 @@
         $('.page-title-container').css({
             'flex-direction': 'coloumn'
         });
-        // exitExpandScreen()
     }
 
     function exitExpandScreen() {
@@ -1003,30 +1063,25 @@
         $('#word-wrap-button').hide();
         $('.page-title-container>.file_replace_file_btn').hide();
         $('.page-title-container>.close_expand_mode_screen').hide();
-        $('#emailLists').show();
-        $('#subject').show();
+        $('#save_button_compare').css('display', 'none');
+        $('.sidenav-right-compare').hide();
+        $('.sidenav-right').show();
         $('.page-title-container>h2').css({
             'width': '100%',
             'text-align': 'center'
         });
         $('.main-content').css({
-            'width': '60%',
-            'height': '80%',
-            'top': 0,
-            'left': 0,
-            'align-items': 'center',
-            'transition': 'all .5s ease'
+            'width': '65%',
+            'transition': 'all .5s ease',
+            'justify-content': 'center'
         });
         $('#codeContainer').css({
+            'display': 'block',
             'height': '95%',
             'width': '90% !important'
         })
         $('.usa-table').show();
-        $('.leaf-right-nav').css({
-            'position': 'relative',
-            'right': '0',
-            'transition': 'all .5s ease'
-        });
+
         $('.leaf-left-nav').css({
             'position': 'relative',
             'left': '0',
@@ -1035,14 +1090,222 @@
         $('.page-title-container').css({
             'flex-direction': 'row'
         });
+
+        $('#save_button').css('display', 'block');
+
         loadContent();
+
+        // Will reset the URL
+        var url = new URL(window.location.href);
+        url.searchParams.delete('fileName');
+        url.searchParams.delete('parentFile');
+        window.history.replaceState(null, null, url.toString());
     }
-    /**
-     * @todo - Convert to object for storing files & content not mulitple variables
-     *  so can handle expanded data fields easily
-     */
-    /**
-     * loadContent Function
+
+    function getFileHistory(template) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/templateFileHistory/_' + template,
+            dataType: 'json',
+            success: function(res) {
+                if (res.length === 0) {
+                    console.log('There are no files in the directory');
+                    var contentMessage = '<p class="contentMessage">There are no history files.</p>';
+                    $('.file-history-res').html(contentMessage);
+                    return;
+                }
+
+                var fileNames = res.map(function(template) {
+                    return template.file_parent_name;
+                });
+
+                if (fileNames.indexOf(template) === -1) {
+                    console.log('Template file not found in directory');
+                    return;
+                }
+
+                var accordion = '<div class="accordion-container">';
+                for (var i = 0; i < res.length; i++) {
+                    var fileId = res[i].file_id;
+                    var fileParentName = res[i].file_parent_name;
+                    var fileName = res[i].file_name;
+                    var filePath = res[i].file_path;
+                    var fileSize = res[i].file_size;
+                    var whoChangedFile = res[i].file_modify_by;
+                    var fileCreated = res[i].file_created;
+                    var formattedFileSize = formatFileSize(fileSize);
+
+                    accordion += '<div class="accordion">' +
+                        '<div class="accordion-header">' +
+                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
+                        fileName + '\', \'' + fileParentName +
+                        '\', true)"><span><strong style="color:#37beff;">DATE:</strong><br>' +
+                        fileCreated + '</span></a>' +
+                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
+                        '</div>' +
+                        '<div class="accordion-content">' +
+                        '<ul>' +
+                        '<li>' +
+                        '<strong>File Name: </strong>' +
+                        '<p>' + fileName + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Author: </strong>' +
+                        '<p>' + whoChangedFile + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>File Size: </strong>' +
+                        '<p>' + formattedFileSize + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Share File URL:</strong>' +
+                        '<div class="textContainer">' +
+                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
+                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
+                        '</div>' +
+                        '</li>' +
+                        '<li>' +
+                        '</li>' +
+                        '</ul>' +
+                        '</div>' +
+                        '</div>';
+                }
+                accordion += '</div>';
+                $('.file-history-res').html(accordion);
+            },
+            error: function(xhr, status, error) {
+                console.log('Error getting file history: ' + error);
+            },
+            cache: false
+        });
+    }
+
+    function getUrlLink(fileName, fileParentName, updateURL) {
+        let currentURL = new URL(window.location.href);
+        currentURL.searchParams.set('fileName', fileName);
+        currentURL.searchParams.set('parentFile', fileParentName);
+
+        let textField = document.createElement('textarea');
+        textField.value = currentURL.href;
+        document.body.appendChild(textField);
+        textField.select();
+        document.execCommand('copy');
+        textField.remove();
+        console.log('URL copied: ' + currentURL.href);
+    }
+
+    function compareHistoryFile(fileName, parentFile, updateURL) {
+        loadContent(undefined, parentFile, undefined, undefined, undefined);
+        $('.CodeMirror').remove();
+        $('#codeCompare').empty();
+        $('#btn_compare').css('display', 'none');
+        $('#save_button').css('display', 'none');
+        $('#btn_compareStop').css('display', 'none');
+        $('#btn_merge').css('display', 'block');
+        $('#word-wrap-button').css('display', 'block');
+        $('.save_button').css('display', 'none');
+        var wordWrapEnabled = false; // default to false
+
+        $('#word-wrap-button').click(function() {
+            wordWrapEnabled = !wordWrapEnabled;
+            if (wordWrapEnabled) {
+                codeEditor.editor().setOption('lineWrapping', true);
+                codeEditor.leftOriginal().setOption('lineWrapping', true);
+                $(this).removeClass('off').addClass('on').text('Word Wrap: On');
+            } else {
+                codeEditor.editor().setOption('lineWrapping', false);
+                codeEditor.leftOriginal().setOption('lineWrapping', false);
+                $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
+            }
+            $('.CodeMirror-linebackground').css({
+                'background-color': '#8ce79b !important'
+            });
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '../api/templateCompareFileHistory/_' + fileName,
+            dataType: 'json',
+            cache: false,
+            success: function(res) {
+                $(".compared-label-content").css("display", "flex");
+                var filePath = '';
+                var fileParentFile = '';
+                var requestCount = res.length; // Keep track of completed requests
+                for (var i = 0; i < res.length; i++) {
+                    filePath = res[i].file_path;
+                    fileParentFile = res[i].file_parent_name;
+                    $.ajax({
+                        type: 'GET',
+                        url: filePath,
+                        dataType: 'text',
+                        cache: false,
+                        success: function(fileContent) {
+                            // Assign CodeMirror.MergeView instance to codeEditor
+                            codeEditor = CodeMirror.MergeView(document.getElementById(
+                                "codeCompare"), {
+                                value: currentFileContent.replace(/\r\n/g, "\n"),
+                                origLeft: fileContent.replace(/\r\n/g, "\n"),
+                                lineNumbers: true,
+                                mode: 'htmlmixed',
+                                collapseIdentical: true,
+                                lineWrapping: false, // initial value
+                                autoFormatOnStart: true,
+                                autoFormatOnMode: true,
+                                leftTitle: "Current File",
+                                rightTitle: "Comparison File"
+                            });
+
+                            updateEditorSize();
+                            $('.CodeMirror-linebackground').css({
+                                'background-color': '#8ce79b !important'
+                            });
+                            $('.file_replace_file_btn').click(function() {
+                                var changedLines = codeEditor.leftOriginal()
+                                    .lineCount();
+                                var mergedContent = "";
+                                for (var i = 0; i < changedLines; i++) {
+                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
+                                    if (mergeLine !== null && mergeLine !== undefined) {
+                                        mergedContent += mergeLine + "\n";
+                                    }
+                                }
+                                saveMergedChangesToFile(fileParentFile, mergedContent);
+                            });
+
+                            requestCount--; // Decrement the request count
+                            if (requestCount === 0) {
+                                // All requests have completed
+                                editorExpandScreen();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        if (updateURL) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('fileName', fileName);
+            url.searchParams.set('parentFile', parentFile);
+            window.history.replaceState(null, null, url.toString());
+        }
+    }
+
+    function initializePage() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var fileName = urlParams.get('fileName');
+        var parentFile = urlParams.get('parentFile');
+
+        if (fileName && parentFile) {
+            compareHistoryFile(fileName, parentFile, false);
+        } else {
+            loadContent('Default Email Template', 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
+        }
+    }
+
+    /* loadContent Function
      * Purpose: Takes body and subject files and loads them with content
      *  either from default template or changed ones
      * @param file
@@ -1103,20 +1366,7 @@
         });
         $('#saveStatus').html('');
     }
-    /**
-     * updateEditorSize Function
-     * Purpose: Upon any refresh or change in template fields, the editor's
-     *  container will resize according to layout of page and fire refresh of all
-     *  CodeMirror JS code within the template field
-     */
-    function updateEditorSize() {
-        codeWidth = $('#codeArea').width() - 30;
-        $('#codeContainer').css('width', codeWidth + 'px');
-        // Refresh CodeMirror
-        $('.CodeMirror').each(function(i, el) {
-            el.CodeMirror.refresh();
-        });
-    }
+
     /**
      * initEditor Function
      * Purpose: Initiate the CodeMirror editor functions for the body and subject fields
@@ -1157,6 +1407,20 @@
         });
         updateEditorSize();
     }
+    /**
+     * updateEditorSize Function
+     * Purpose: Upon any refresh or change in template fields, the editor's
+     *  container will resize according to layout of page and fire refresh of all
+     *  CodeMirror JS code within the template field
+     */
+    function updateEditorSize() {
+        codeWidth = $('#codeArea').width() - 30;
+        $('#codeContainer').css('width', codeWidth + 'px');
+        // Refresh CodeMirror
+        $('.CodeMirror').each(function(i, el) {
+            el.CodeMirror.refresh();
+        });
+    }
 
     function viewHistory() {
         dialog_message.setContent('');
@@ -1179,12 +1443,12 @@
             cache: false
         });
     }
-    /**
-     * Actual start of page execution
-     */
+
     var codeEditor = null;
     var subjectEditor = null;
-    $(function() {
+    $(document).ready(function() {
+        $('.currentUrlLink').hide();
+        $('.sidenav-right-compare').hide();
         dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
         initEditor();
@@ -1215,7 +1479,7 @@
             cache: false
         });
         // Load content from those templates to the current main template
-        loadContent('Default Email Template', 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
+        initializePage();
         // Refresh CodeMirror
         $('.CodeMirror').each(function(i, el) {
             el.CodeMirror.refresh();

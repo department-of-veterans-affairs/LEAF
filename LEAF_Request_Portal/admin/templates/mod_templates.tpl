@@ -12,6 +12,10 @@
         content: '\25ba\25ba\25ba';
     }
 
+    .CodeMirror-merge-copy {
+        display: none !important;
+    }
+
     .CodeMirror,
     .cm-s-default {
         height: auto !important;
@@ -211,6 +215,10 @@
     }
 
     .accordion-header:hover {
+        background-color: #112e51;
+    }
+
+    .accordion-header.accordion-active {
         background-color: #112e51;
     }
 
@@ -584,6 +592,11 @@
             <aside class="sidenav">
                 <div id="fileBrowser">
                     <h3>Templates:</h3>
+                    <button
+                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                        id="btn_history" onclick="viewHistory()">
+                        View History
+                    </button>
                     <div id="fileList"></div>
                 </div>
             </aside>
@@ -645,22 +658,16 @@
                         Stop Comparing
                     </button>
 
-                    <button
+                    <!-- <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         id="btn_compare" onclick="compare();">
                         Compare to Original
-                    </button>
+                    </button> -->
 
                     <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         target="_blank">
                         <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php">Icon Library</a>
-                    </button>
-
-                    <button
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        id="btn_history" onclick="viewHistory()">
-                        View History
                     </button>
                     <!-- <button class="view-history">View File History</button> -->
                 </div>
@@ -816,6 +823,7 @@
                 url: '../api/templateEditor/_' + currentFile + '?' +
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
+                        saveFileHistory();
                         loadContent(currentFile);
                     }
             });
@@ -1192,51 +1200,6 @@
     var currentFile = '';
     var currentFileContent = '';
 
-    function loadContent(file) {
-        if (file === undefined) {
-            console.error('No file specified. File cannot be loaded.');
-            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
-            return;
-        }
-        $('.CodeMirror').remove();
-        $('#codeCompare').empty();
-        $('#btn_compareStop').css('display', 'none');
-
-        initEditor();
-        currentFile = file;
-        $('#codeContainer').css('display', 'none');
-        $('#controls').css('visibility', 'visible');
-        $('#filename').html(file.replace('.tpl', ''));
-        $.ajax({
-            type: 'GET',
-            url: '../api/templateEditor/_' + file,
-            success: function(res) {
-                currentFileContent = res.file;
-                $('#codeContainer').fadeIn();
-
-                // Check if codeEditor is already defined and has a setValue method
-                if (codeEditor && typeof codeEditor.setValue === 'function') {
-                    codeEditor.setValue(res.file);
-                } else {
-                    console.error('codeEditor is not properly initialized.');
-                }
-
-                if (res.modified === 1) {
-                    $('.modifiedTemplate').css('display', 'block');
-                } else {
-                    $('.modifiedTemplate').css('display', 'none');
-                }
-
-                getFileHistory(file);
-            },
-            error: function(xhr, status, error) {
-                console.log('Error loading file: ' + error);
-            },
-            cache: false
-        });
-        $('#saveStatus').html('');
-    }
-
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 66;
         $('#codeContainer').css('width', codeWidth + 'px');
@@ -1286,7 +1249,86 @@
     }
 
     var codeEditor = null;
-    document.addEventListener("DOMContentLoaded", function() {
+    var unsavedChanges = false;
+
+    function loadContent(file) {
+        if (file === undefined) {
+            console.error('No file specified. File cannot be loaded.');
+            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            return;
+        }
+
+        // Check if there are unsaved changes in the current file
+        if (unsavedChanges && currentFileContent !== codeEditor.getValue()) {
+            if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
+                return;
+            }
+        }
+
+        $('.CodeMirror').remove();
+        $('#codeCompare').empty();
+        $('#btn_compareStop').css('display', 'none');
+
+        initEditor();
+        currentFile = file;
+        $('#codeContainer').css('display', 'none');
+        $('#controls').css('visibility', 'visible');
+        $('#filename').html(file.replace('.tpl', ''));
+        $.ajax({
+            type: 'GET',
+            url: '../api/templateEditor/_' + file,
+            success: function(res) {
+                currentFileContent = res.file;
+                $('#codeContainer').fadeIn();
+
+                // Check if codeEditor is already defined and has a setValue method
+                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                    codeEditor.setValue(res.file);
+                } else {
+                    console.error('codeEditor is not properly initialized.');
+                }
+
+                if (res.modified === 1) {
+                    $('.modifiedTemplate').css('display', 'block');
+                    unsavedChanges = true;
+                } else {
+                    $('.modifiedTemplate').css('display', 'none');
+                    unsavedChanges = false;
+                }
+
+                getFileHistory(file);
+            },
+            error: function(xhr, status, error) {
+                console.log('Error loading file: ' + error);
+            },
+            cache: false
+        });
+        $('#saveStatus').html('');
+
+        // Bind event handlers to warn users of unsaved changes
+        $(window).on('beforeunload', function() {
+            if (unsavedChanges) {
+                return 'You have unsaved changes. Are you sure you want to leave this page?';
+            }
+        });
+
+        $(window).on('unload', function() {
+            if (unsavedChanges) {}
+        });
+
+        codeEditor.on('change', function() {
+            unsavedChanges = true;
+        });
+
+        // Add word wrap functionality using Ctrl + W keyboard shortcut
+        codeEditor.setOption('extraKeys', {
+            'Ctrl-W': function(cm) {
+                cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
+            }
+        });
+    }
+
+    $(document).ready(function() {
         $('.currentUrlLink').hide();
         $('.sidenav-right-compare').hide();
         dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
