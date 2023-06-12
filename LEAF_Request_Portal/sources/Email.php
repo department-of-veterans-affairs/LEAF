@@ -571,6 +571,29 @@ class Email
     }
 
     /**
+     * Retrieves field values by record ID.
+     * @param int $recordID
+     * @return array
+     */
+    function getFieldValue(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL = "SELECT `indicatorID`, `data` FROM `data`".
+            "WHERE recordID = :recordID";
+        $data = $this->portal_db->prepared_query($strSQL, $vars);
+
+        $formattedData = array();
+
+        foreach ($data as $field) {
+            $formattedData[] = array(
+                $field['indicatorID'] => $field['data']
+            );
+        }
+
+        return $data;
+    }
+
+    /**
      * Purpose: Add approvers to email from given record ID*
      * @param int $recordID
      * @param int $emailTemplateID
@@ -587,8 +610,11 @@ class Email
             "LEFT JOIN dependency_privs USING (dependencyID) ".
             "LEFT JOIN users USING (groupID) ".
             "LEFT JOIN services AS ser USING (serviceID) ".
+            "LEFT JOIN data USING (recordID)".
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
+
+        $fieldVals = getFieldValue($recordID);
 
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
@@ -600,7 +626,8 @@ class Email
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fieldVals
             ));
 
             if ($emailTemplateID < 2) {

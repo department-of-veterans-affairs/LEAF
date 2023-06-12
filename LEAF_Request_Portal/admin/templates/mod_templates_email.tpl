@@ -493,6 +493,10 @@
                                 <td><b>{{$siteRoot}}</b></td>
                                 <td>The root URL of the LEAF site</td>
                             </tr>
+                            <tr>
+                                <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
+                                <td>The value of the field by ID</td>
+                            </tr>
                         </table>
                 </div>
                 <div>
