@@ -230,6 +230,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
       type: "GET",
       url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
       dataType: dataType,
+      error: (err) => console.log(err)
     }).then((res, resStatus, resJqXHR) => {
       results = Object.assign(results, res);
 
@@ -272,6 +273,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
       url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
       dataType: dataType,
       success: successCallback,
+      error: (err) => console.log(err)
     });
   }
 
