@@ -347,9 +347,9 @@ class Employee extends Data
     private function disableEmployees(array $deleted_employees): array
     {
         if (!empty($deleted_employees)) {
-            $sql = "UPDATE employee
-                    SET deleted=UNIX_TIMESTAMP(NOW())
-                    WHERE userName IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
+            $sql = "UPDATE `employee`
+                    SET `deleted` = UNIX_TIMESTAMP(NOW())
+                    WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
 
             $return_value = $this->db->prepared_query($sql, array_values($deleted_employees));
         } else {
@@ -444,8 +444,8 @@ class Employee extends Data
     private function getAllEmployees(Db $db): array
     {
         $vars = array();
-        $sql = 'SELECT userName
-                FROM employee';
+        $sql = 'SELECT `userName`
+                FROM `employee`';
 
         $return_value = $db->prepared_query($sql, $vars);
 
@@ -482,11 +482,11 @@ class Employee extends Data
      */
     private function getEmployeeByUserName(array $user_names, Db $db): array
     {
-        $sql = "SELECT empUID, userName, lastName, firstName, middleName,
-                    phoneticLastName, phoneticFirstName, domain, deleted,
-                    lastUpdated
-                FROM employee
-                WHERE userName IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
+        $sql = "SELECT `empUID`, `userName`, `lastName`, `firstName`, `middleName`,
+                    `phoneticLastName`, `phoneticFirstName`, `domain`, `deleted`,
+                    `lastUpdated`
+                FROM `employee`
+                WHERE `userName` IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
         $return_value = $db->prepared_query($sql, $user_names);
 
         return $return_value;
@@ -507,11 +507,12 @@ class Employee extends Data
                 ':LOCATIONIID' => 8,
                 ':ADTITLEIID' => 23
             );
-        $sql = "SELECT empUID, employee.userName, indicatorID, data, author, timestamp
-                FROM employee_data
-                LEFT JOIN employee USING (empUID)
-                WHERE empUID IN ('" . implode("','", array_values($empUID)) . "')
-                AND indicatorID IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
+        $sql = "SELECT `empUID`, `employee`.`userName`, `indicatorID`, `data`,
+                    `author`, `timestamp`
+                FROM `employee_data`
+                LEFT JOIN `employee` USING (`empUID`)
+                WHERE `empUID` IN ('" . implode("','", array_values($empUID)) . "')
+                AND `indicatorID` IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
         $return_value = $db->prepared_query($sql, $vars);
 
         return $return_value;
@@ -522,11 +523,11 @@ class Employee extends Data
      * @param array $national_user
      * @param Db $db
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:31:54 PM (America/New_York)
      */
-    private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): void
+    private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): array
     {
         $vars = array(
             ':userName' => $user_name,
@@ -539,17 +540,19 @@ class Employee extends Data
             ':deleted' => $national_user['deleted'],
             ':lastUpdated' => $national_user['lastUpdated']
         );
-        $sql = "UPDATE employee
-                SET lastName=:lastName,
-                    firstName=:firstName,
-                    middleName=:midInit,
-                    phoneticFirstName=:phoneticFname,
-                    phoneticLastName=:phoneticLname,
-                    domain=:domain,
-                    deleted=:deleted,
-                    lastUpdated=:lastUpdated
-                WHERE userName=:userName";
-        $db->prepared_query($sql, $vars);
+        $sql = "UPDATE `employee`
+                SET `lastName` = :lastName,
+                    `firstName` = :firstName,
+                    `middleName` = :midInit,
+                    `phoneticFirstName` = :phoneticFname,
+                    `phoneticLastName` = :phoneticLname,
+                    `domain` = :domain,
+                    `deleted` = :deleted,
+                    `lastUpdated` = :lastUpdated
+                WHERE `userName` = :userName";
+        $return_value = $db->prepared_query($sql, $vars);
+
+        return $return_value;
     }
 
     /**
@@ -557,16 +560,25 @@ class Employee extends Data
      * @param array $national_data
      * @param Db $db
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:32:12 PM (America/New_York)
      */
-    private function updateEmployeeDataByEmpUID(int $empUID, array $national_data, Db $db): void
+    private function updateEmployeeDataByEmpUID(int $empUID, array $national_data, Db $db): array
     {
-        $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+        $sql = "INSERT INTO `employee_data` (`empUID`, `indicatorID`, `data`,
+                    `author`, `timestamp`)
                 VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
-                ON DUPLICATE KEY UPDATE data=:data, author=:author,
-                    timestamp=:timestamp";
+                ON DUPLICATE KEY UPDATE `data` = :data, `author` = :author,
+                    `timestamp` = :timestamp";
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            )
+        );
+
         if (!empty($national_data)) {
             foreach($national_data as $data) {
                 $vars = array(
@@ -576,9 +588,18 @@ class Employee extends Data
                     ':author' => $data['author'],
                     ':timestamp' => time()
                 );
-                $db->prepared_query($sql, $vars);
+                $return_value['data'][] = $db->prepared_query($sql, $vars);
             }
+        } else {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'There are no employees to delete.'
+                )
+            );
         }
+
+        return $return_value;
     }
 
     /**
