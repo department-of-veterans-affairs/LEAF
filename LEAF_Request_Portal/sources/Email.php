@@ -153,8 +153,7 @@ class Email
      */
     public function setSubject(string $strSubject): void
     {
-        $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
-        $this->emailSubject = $prefix . strip_tags($strSubject);
+        $this->emailSubject = strip_tags($strSubject);
     }
 
     /**
@@ -387,8 +386,7 @@ class Email
     function initPortalDB(): void
     {
         // set up org chart assets
-        $db_config = new DbConfig;
-        $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $this->portal_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, Config::$portalDb);
     }
 
     /**

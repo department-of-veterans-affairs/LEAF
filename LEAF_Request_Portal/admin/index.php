@@ -416,6 +416,22 @@ switch ($action) {
         $tabText = 'Upload File';
 
         break;
+    case 'mod_combined_inbox':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $libsPath = '../../libs/';
+
+        $main->assign('useUI', true);
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $main->assign('javascripts', array($libsPath.'js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array($libsPath.'js/choicesjs/choices.min.css'));
+
+        $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
+
+        $tabText = 'Combined Inbox Editor';
+
+        break;
     case 'mod_system':
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';

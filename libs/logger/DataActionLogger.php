@@ -214,8 +214,8 @@ class DataActionLogger
             LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TABLE,
             LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TABLE,
             LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TABLE,
-            LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TABLE,
-            LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TABLE,
+            LoggableTypes::TEMPLATE_BODY => TemplateFormatter::TABLE,
+            LoggableTypes::TEMPLATE_REPORTS_BODY => AppletFormatter::TABLE,
         );
 
         $formatters = array(
@@ -229,8 +229,8 @@ class DataActionLogger
             LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,
             LoggableTypes::EMAIL_TEMPLATE_SUBJECT => EmailTemplateFormatter::TEMPLATES,
             LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
-            LoggableTypes::TEMPLATE_BODY => TemplateEditorFormatter::TEMPLATES,
-            LoggableTypes::TEMPLATE_REPORTS_BODY => TemplateReportsFormatter::TEMPLATES,
+            LoggableTypes::TEMPLATE_BODY => TemplateFormatter::TEMPLATES,
+            LoggableTypes::TEMPLATE_REPORTS_BODY => AppletFormatter::TEMPLATES,
         );
 
         $targetTable = $tables[$logType];

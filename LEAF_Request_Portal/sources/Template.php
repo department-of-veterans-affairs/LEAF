@@ -9,7 +9,7 @@
 
 namespace Portal;
 
-class TemplateEditor
+class Template
 {
     public $siteRoot = '';
     private $db;
@@ -33,14 +33,51 @@ class TemplateEditor
         }
         $list = scandir('../templates/');
         $out = array();
-
-        foreach ($list as $item) {
-            if (preg_match('/.tpl$/', $item)) {
+        foreach ($list as $item)
+        {
+            if (preg_match('/.tpl$/', $item))
+            {
                 $out[] = $item;
             }
         }
 
         return $out;
+    }
+
+    /**
+     * @return array
+     *
+     * Created at: 5/24/2023, 10:22:51 AM (America/New_York)
+     */
+    public function getCustomTemplateList(): array
+    {
+        if (!$this->login->checkGroup(1))
+        {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'Admin access required'
+                )
+            );
+        }
+        $list = scandir('../templates/custom_override');
+        $out = array();
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
+                $out['success'][] = $item;
+            }
+        }
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $out
+        );
+
+        return $return_value;
     }
 
     public function getTemplate($template, $getStandard = false)

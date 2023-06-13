@@ -789,10 +789,6 @@ div#form_content_view {
         .indicator-name-preview {
             padding: 2px;
             width: 100%;
-            /* text editor can insert p tags when used.  this keeps them from disrupting icons in the indicator name display */
-            > p {
-                display: inline;
-            }
             .input-required-sensitive {
                 color: $attention;
                 margin-left: 0.4em;

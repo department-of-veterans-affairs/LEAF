@@ -167,18 +167,36 @@ $controllerMap->register('note', function() use ($p_db, $login, $action) {
 });
 
 $controllerMap->register('templateEditor', function () use ($db, $login, $action) {
-    $TemplateEditorController = new Portal\TemplateEditorController($db, $login);
-    echo $TemplateEditorController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $TemplateController = new Portal\TemplateController($db, $login);
+    echo $TemplateController->handler($action);
+});
+
+$controllerMap->register('template', function () use ($db, $login, $action) {
+    $TemplateController = new Portal\TemplateController($db, $login);
+    echo $TemplateController->handler($action);
 });
 
 $controllerMap->register('reportTemplates', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('reportTemplates/mergeFileHistory', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
+});
+
+$controllerMap->register('applet', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
+});
+
+$controllerMap->register('applet/mergeFileHistory', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('emailTemplateFileHistory', function () use ($p_db, $login, $action) {
@@ -207,23 +225,47 @@ $controllerMap->register('templateEmailHistoryMergeFile', function () use ($db, 
 });
 
 $controllerMap->register('reportTemplates/fileHistory', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('reportTemplates/getHistoryFiles', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('reportTemplates/saveReportMergeTemplate', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->register('reportTemplates/deleteHistoryFileReport', function () use ($db, $login, $action) {
-    $TemplateReportsController = new Portal\TemplateReportsController($db, $login);
-    echo $TemplateReportsController->handler($action);
+    // this is depricated and should be removed once it has not been used in over 30 days
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
+});
+
+$controllerMap->register('applet/fileHistory', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
+});
+
+$controllerMap->register('applet/getHistoryFiles', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
+});
+
+$controllerMap->register('applet/saveReportMergeTemplate', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
+});
+
+$controllerMap->register('applet/deleteHistoryFileReport', function () use ($db, $login, $action) {
+    $AppletController = new Portal\AppletController($db, $login);
+    echo $AppletController->handler($action);
 });
 
 $controllerMap->runControl($key);

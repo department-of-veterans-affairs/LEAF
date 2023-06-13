@@ -10,7 +10,7 @@ export default {
         'libsPath',
         'categories',
         'updateCategoriesProperty',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'allStapledFormCatIDs',
     ],
     computed: {
@@ -33,15 +33,14 @@ export default {
             return this.allStapledFormCatIDs.includes(this.categoriesRecord.categoryID);
         },
         /**
-         * NOTE: uses LEAF XSSHelpers.js
-         * @returns {string} truncated category name for card title
+         * @returns {string} form name / description
          */
         categoryName() {
             return this.categoriesRecord.categoryName === '' ? 
-                'Untitled' : this.stripAndDecodeHTML(this.categoriesRecord.categoryName);
+                'Untitled' : this.decodeAndStripHTML(this.categoriesRecord.categoryName);
         },
         formDescription() {
-            return this.stripAndDecodeHTML(this.categoriesRecord.categoryDescription);
+            return this.decodeAndStripHTML(this.categoriesRecord.categoryDescription);
         },
         /**
          * 

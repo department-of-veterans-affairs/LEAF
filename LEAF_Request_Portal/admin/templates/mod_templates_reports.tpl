@@ -487,7 +487,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: data
             },
-            url: '../api/reportTemplates/_' + currentFile,
+            url: '../api/applet/_' + currentFile,
             success: function(res) {
                 var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
@@ -514,7 +514,7 @@
                 data: {CSRFToken: '<!--{$CSRFToken}-->',
                 file: codeEditor.getValue()
             },
-            url: '../api/reportTemplates/fileHistory/_' + currentFile,
+            url: '../api/applet/fileHistory/_' + currentFile,
             success: function(res) {
                 console.log("File history has been saved.");
                 getFileHistory(currentFile);
@@ -558,7 +558,7 @@
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
-            url: '../api/reportTemplates/getHistoryFiles/_' + template,
+            url: '../api/applet/getHistoryFiles/_' + template,
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {
@@ -642,7 +642,7 @@
         });
         $.ajax({
             type: 'GET',
-            url: '../api/reportTemplates/getCompareHistoryHistoryFiles/_' + fileName,
+            url: '../api/applet/getCompareHistoryHistoryFiles/_' + fileName,
             dataType: 'json',
             cache: false,
             success: function(res) {
@@ -699,7 +699,7 @@
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
                 type: 'POST',
-                url: '../api/reportTemplates/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
+                url: '../api/applet/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
                 data: {CSRFToken: '<!--{$CSRFToken}-->',
                 file: mergedContent
             },
@@ -795,7 +795,7 @@
                 var file = $('#newFilename').val();
                 $.ajax({
                         type: 'POST',
-                        url: '../api/reportTemplates',
+                        url: '../api/applet',
                         data: {CSRFToken: '<!--{$CSRFToken}-->',
                         filename: file
                     },
@@ -824,7 +824,7 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/reportTemplates/_' + currentFile + '?' +
+                url: '../api/applet/_' + currentFile + '?' +
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
                         location.reload();
@@ -840,7 +840,7 @@
     function deleteHistoryFileReport(templateFile) {
         $.ajax({
             type: 'DELETE',
-            url: '../api/reportTemplates/deleteHistoryFileReport/_' + templateFile + '?' +
+            url: '../api/applet/deleteHistoryFileReport/_' + templateFile + '?' +
                 $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                 success: function() {
                     console.log(templateFile + ', was deleted');
@@ -880,7 +880,7 @@
         $('#filename').html('<strong>File Name:</strong> ' + file.replace('.tpl', ''));
         $.ajax({
             type: 'GET',
-            url: `../api/reportTemplates/_${file}`,
+            url: `../api/applet/_${file}`,
             success: function(res) {
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
@@ -924,7 +924,7 @@
     function updateFileList() {
         $.ajax({
             type: 'GET',
-            url: '../api/reportTemplates',
+            url: '../api/applet',
             success: function(res) {
                 var buffer = '<ul class="leaf-ul">';
                 var bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
@@ -955,7 +955,7 @@
         dialog_message.indicateBusy();
         $.ajax({
             type: 'GET',
-            url: 'ajaxIndex.php?a=gethistory&type=templateReports&id=' + currentFile,
+            url: 'ajaxIndex.php?a=gethistory&type=applet&id=' + currentFile,
             dataType: 'text',
             success: function(res) {
                 dialog_message.setContent(res);

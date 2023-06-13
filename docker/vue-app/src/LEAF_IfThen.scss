@@ -31,7 +31,7 @@ $BG-DarkNavy: #162e51;
         align-items: center;
         padding-bottom: 0;
 
-        > select {
+        > select, #parent_choices_wrapper {
             width: 30%;
             margin: 0;
         }
