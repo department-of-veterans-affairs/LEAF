@@ -2,7 +2,7 @@ export default {
     inject: [
         'APIroot',
         'truncateText',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'selectNewCategory',
         'categories',
         'focusedFormRecord',
@@ -100,7 +100,7 @@ export default {
          */
         shortFormNameStripped(catID = '', len = 21) {
             const form = this.categories[catID] || '';
-            const name = this.stripAndDecodeHTML(form?.categoryName) || 'Untitled';
+            const name = this.decodeAndStripHTML(form?.categoryName || 'Untitled');
             return this.truncateText(name, len).trim();
         },
     },

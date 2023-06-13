@@ -9,7 +9,7 @@
 
 namespace Portal;
 
-class TemplateReports
+class Applet
 {
     public $siteRoot = '';
     private $db;

@@ -21,7 +21,10 @@ export default {
                 '',
                 'fileupload',
                 'image',
-                'textarea'
+                'textarea',
+                'orgchart_employee',
+                'orgchart_group',
+                'orgchart_position'
             ],
             showToolbars: true,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
@@ -55,7 +58,7 @@ export default {
         'focusedFormTree',
         'openNewFormDialog',
         'currentFormCollection',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'truncateText',
     ],
     mounted() {
@@ -354,14 +357,13 @@ export default {
             }
         },
         /**
-         * //NOTE: uses XSSHelpers.js
          * @param {string} categoryID 
          * @param {number} len 
          * @returns 
          */
         shortFormNameStripped(catID = '', len = 21) {
             const form = this.categories[catID] || '';
-            const name = this.stripAndDecodeHTML(form?.categoryName || '') || 'Untitled';
+            const name = this.decodeAndStripHTML(form?.categoryName || 'Untitled');
             return this.truncateText(name, len).trim();
         },
         layoutBtnIsDisabled(form) {

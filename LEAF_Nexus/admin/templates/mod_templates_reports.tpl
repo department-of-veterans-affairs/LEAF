@@ -27,7 +27,7 @@ function save() {
 		type: 'POST',
 		data: {CSRFToken: '<!--{$CSRFToken}-->',
 			   file: codeEditor.getValue()},
-		url: '../api/system/reportTemplates/_' + currentFile,
+		url: '../api/system/applet/_' + currentFile,
 		success: function(res) {
 			$('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
 			$('.modifiedTemplate').css('display', 'block');
@@ -47,7 +47,7 @@ function newReport() {
     	var file = $('#newFilename').val();
         $.ajax({
             type: 'POST',
-            url: '../api/system/reportTemplates',
+            url: '../api/system/applet',
             data: {CSRFToken: '<!--{$CSRFToken}-->',
             	filename: file},
             success: function(res) {
@@ -72,7 +72,7 @@ function deleteReport() {
 	dialog_confirm.setSaveHandler(function() {
         $.ajax({
             type: 'DELETE',
-            url: '../api/system/reportTemplates/_' + currentFile + '?' +
+            url: '../api/system/applet/_' + currentFile + '?' +
                 $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
             success: function() {
                 location.reload();
@@ -100,7 +100,7 @@ function loadContent(file) {
 	$('#filename').html(file.replace('.tpl', ''));
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/reportTemplates/_' + file,
+		url: '../api/system/applet/_' + file,
 		success: function(res) {
 			$('#codeContainer').fadeIn();
 			codeEditor.setValue(res.file);
@@ -138,7 +138,7 @@ $(function() {
 
 	$.ajax({
 		type: 'GET',
-		url: '../api/system/reportTemplates',
+		url: '../api/system/applet',
 		success: function(res) {
 			var buffer = '<ul>';
 			for(var i in res) {

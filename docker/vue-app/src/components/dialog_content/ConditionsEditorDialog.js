@@ -3,10 +3,10 @@ export default {
     data() {
         return {
             formID: this.focusedFormRecord.categoryID,
-            formIndicatorID: parseInt(this.currIndicatorID),
+            childIndID: parseInt(this.currIndicatorID),
             indicators: [],
             appIsLoadingIndicators: true,
-            parentIndicatorID: 0,
+            parentIndID: 0,
             selectedOperator: '',
             selectedParentValue: '',
             selectedOutcome: '',
@@ -16,6 +16,8 @@ export default {
             selectedConditionJSON: '',
             enabledParentFormats: ['dropdown', 'multiselect', 'radio', 'checkboxes'],
             multiOptionFormats: ['multiselect', 'checkboxes'],
+            orgchartFormats: ["orgchart_employee","orgchart_group","orgchart_position"],
+            orgchartSelectData: {},
             crosswalkFile: '',
             crosswalkHasHeader: false,
             level2IndID: null,
@@ -31,18 +33,16 @@ export default {
         'selectNewCategory',
         'closeFormDialog',
         'truncateText',
-        'fileManagerTextFiles'
+        'decodeAndStripHTML',
+        'fileManagerTextFiles',
+        'initializeOrgSelector'
     ],
+    created() {
+        this.getAllIndicators();
+    },
     mounted() {
         const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
         if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
-        this.getAllIndicators();
-    },
-    updated() {
-        const outcome = this.conditions.selectedOutcome;
-        if(["pre-fill", "show", "hide"].includes(outcome)) {
-            this.updateChoicesJS();
-        }
     },
     methods: {
         getAllIndicators(){
@@ -65,15 +65,28 @@ export default {
             });
         },
         /**
+        * @param {number} indicatorID
+        */
+        updateSelectedParentIndicator(indicatorID = 0) {
+            this.parentIndID = indicatorID;
+            if(!this.selectedParentValueOptions.includes(this.selectedParentValue)) {
+                this.selectedParentValue = "";
+            }
+            this.updateChoicesJS();
+        },
+        /**
          * @param {string} outcome (condition outcome options: Hide, Show, Pre-Fill)
          */
         updateSelectedOutcome(outcome = '') {
-            this.removeChoicesjsMultibox();
             this.selectedOutcome = outcome.toLowerCase();
             this.selectedChildValue = "";
             this.crosswalkFile = "";
             this.crosswalkHasHeader = false;
             this.level2IndID = null;
+            if(this.selectedOutcome === 'pre-fill') {
+                this.updateChoicesJS();
+                this.addOrgSelector();
+            }
         },
         /**
          * @param {Object} target (DOM element)
@@ -119,11 +132,10 @@ export default {
             this.selectedConditionJSON = '';
             this.showConditionEditor = true;
             this.selectedOperator = '';
-            this.parentIndicatorID = 0;
+            this.parentIndID = 0;
             this.selectedParentValue = '';
             this.selectedOutcome = '';
             this.selectedChildValue = '';
-            this.removeChoicesjsMultibox();
         },
         postConditions(addSelected = true) {
             if (this.conditionComplete || addSelected === false) {
@@ -147,7 +159,7 @@ export default {
 
                 $.ajax({
                     type: 'POST',
-                    url: `${this.APIroot}formEditor/${this.formIndicatorID}/conditions`,
+                    url: `${this.APIroot}formEditor/${this.childIndID}/conditions`,
                     data: {
                         conditions: newConditions.length > 0 ? JSON.stringify(newConditions) : '',
                         CSRFToken: this.CSRFToken
@@ -174,43 +186,31 @@ export default {
             }
         },
         /**
-         * clear out potential choices multibox instances by calling its destroy method
-         */
-        removeChoicesjsMultibox() {
-            const elSelectChild = document.getElementById('child_prefill_entry_multi');
-            if(elSelectChild?.choicesjs && typeof elSelectChild.choicesjs?.destroy === 'function') elSelectChild.choicesjs.destroy();
-            const elSelectParent = document.getElementById('parent_compValue_entry_multi');
-            if(elSelectParent?.choicesjs && typeof elSelectParent.choicesjs?.destroy === 'function') elSelectParent.choicesjs.destroy();
-        },
-        /**
          * store the selected condition in a string and update associated app values
          * @param {Object} conditionObj 
          */
         selectConditionFromList(conditionObj = {}) {
             this.selectedConditionJSON = JSON.stringify(conditionObj);
-            this.parentIndicatorID = conditionObj?.parentIndID || 0;
+            this.parentIndID = parseInt(conditionObj?.parentIndID || 0);
             this.selectedOperator = conditionObj?.selectedOp || '';
-            this.selectedOutcome = conditionObj?.selectedOutcome || '';
+            this.selectedOutcome = (conditionObj?.selectedOutcome || '').toLowerCase();
             this.selectedParentValue = conditionObj?.selectedParentValue || '';
             this.selectedChildValue = conditionObj?.selectedChildValue || '';
             this.crosswalkFile = conditionObj?.crosswalkFile || '';
             this.crosswalkHasHeader = conditionObj?.crosswalkHasHeader || false;
             this.level2IndID = conditionObj?.level2IndID || null;
-            this.removeChoicesjsMultibox();
             this.showConditionEditor = true;
+            this.updateChoicesJS();
+            this.addOrgSelector();
         },
         /**
          * @param {number} id 
          * @returns {string}
          */
         getIndicatorName(id = 0) {
-            let indicatorName = this.indicators.find(
-                    indicator => parseInt(indicator.indicatorID) === id
-                )?.name || '';
-            return this.truncateText(indicatorName, 40);
-        },
-        textValueDisplay(str = '') {
-            return $('<div/>').html(str).text();
+            let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
+            indicatorName = this.decodeAndStripHTML(indicatorName);
+            return this.truncateText(indicatorName);
         },
         /**
          * @param {Object} condition 
@@ -266,64 +266,90 @@ export default {
             return text;
         },
         /**
-         * @param {Object} condition 
-         * @returns {boolean} is current question format different than saved on its condition
+         * @param {Object} condition
+         * @returns {boolean} whether the child or parent format does not match that of the condition
          */
         childFormatChangedSinceSave(condition = {}) {
-            const childConditionFormat = condition.childFormat.toLowerCase();
-            const currentIndicatorFormat = this.childFormat;
-            return childConditionFormat?.trim() !== currentIndicatorFormat?.trim();
+            const savedChildFormat = (condition?.childFormat || '').toLowerCase().trim();
+            const savedParentFormat = (condition?.parentFormat || '').toLowerCase().trim();
+            const savedParIndID = parseInt(condition?.parentIndID || 0);
+            const parentInd = this.selectableParents.find(
+                p => parseInt(p.indicatorID) === savedParIndID
+            );
+            const parentIndFormat = (parentInd?.format || '')
+                .toLowerCase()
+                .split('\n')[0].trim();
+
+            return savedChildFormat !== this.childFormat || savedParentFormat !== parentIndFormat;
         },
         /**
-         * called if the app updates to create choicejs combobox instances for multi option formats if needed
+         * called to create choicejs combobox instances for multi option formats
          */
         updateChoicesJS() {
-            const elExistingChoicesChild = document.querySelector('#outcome-editor > div.choices');
-            const elSelectParent = document.getElementById('parent_compValue_entry_multi');
-            const elSelectChild = document.getElementById('child_prefill_entry_multi');
-            const outcome = this.conditions.selectedOutcome;
+            setTimeout(() => {
+                const elExistingChoicesChild = document.querySelector('#child_choices_wrapper > div.choices');
+                const elSelectParent = document.getElementById('parent_compValue_entry_multi');
+                const elSelectChild = document.getElementById('child_prefill_entry_multi');
+                const outcome = this.conditions.selectedOutcome;
 
-            if(this.multiOptionFormats.includes(this.parentFormat) &&
-                elSelectParent !== null &&
-                !(elSelectParent?.choicesjs?.initialised === true)
-            ) {
-                let arrValues = this.conditions.selectedParentValue.split('\n') || [];
-                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
+                if(this.multiOptionFormats.includes(this.parentFormat) &&
+                    elSelectParent !== null &&
+                    !(elSelectParent?.choicesjs?.initialised === true)
+                ) {
+                    let arrValues = this.conditions.selectedParentValue.split('\n') || [];
+                    arrValues = arrValues.map(v => this.decodeAndStripHTML(v).trim());
 
-                let options = this.selectedParentValueOptions;
-                options = options.map(o =>({
-                    value: o.trim(),
-                    label: o.trim(),
-                    selected: arrValues.includes(o.trim())
-                }));
-                const choices = new Choices(elSelectParent, {
-                    allowHTML: false,
-                    removeItemButton: true,
-                    editItems: true,
-                    choices: options.filter(o => o.value !== "")
+                    let options = this.selectedParentValueOptions;
+                    options = options.map(o =>({
+                        value: o.trim(),
+                        label: o.trim(),
+                        selected: arrValues.includes(o.trim())
+                    }));
+                    const choices = new Choices(elSelectParent, {
+                        allowHTML: false,
+                        removeItemButton: true,
+                        editItems: true,
+                        choices: options.filter(o => o.value !== "")
+                    });
+                    elSelectParent.choicesjs = choices;
+                }
+
+                if(outcome === 'pre-fill' && this.multiOptionFormats.includes(this.childFormat) &&
+                    elSelectChild !== null && elExistingChoicesChild === null
+                ) {
+                    let arrValues = this.conditions.selectedChildValue.split('\n') || [];
+                    arrValues = arrValues.map(v => this.decodeAndStripHTML(v).trim());
+
+                    let options = this.selectedChildValueOptions;
+                    options = options.map(o =>({
+                        value: o.trim(),
+                        label: o.trim(),
+                        selected: arrValues.includes(o.trim())
+                    }));
+                    const choices = new Choices(elSelectChild, {
+                        allowHTML: false,
+                        removeItemButton: true,
+                        editItems: true,
+                        choices: options.filter(o => o.value !== "")
+                    });
+                    elSelectChild.choicesjs = choices;
+                }
+            });
+        },
+        addOrgSelector() {
+            if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
+                const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
+                setTimeout(() => {
+                    this.initializeOrgSelector(
+                        selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, this.setOrgSelChildValue
+                    );
                 });
-                elSelectParent.choicesjs = choices;
             }
-
-            if(outcome === 'pre-fill' && this.multiOptionFormats.includes(this.childFormat) &&
-                elSelectChild !== null && elExistingChoicesChild === null
-            ) {
-                let arrValues = this.conditions.selectedChildValue.split('\n') || [];
-                arrValues = arrValues.map(v => this.textValueDisplay(v).trim());
-                
-                let options = this.selectedChildValueOptions;
-                options = options.map(o =>({
-                    value: o.trim(),
-                    label: o.trim(),
-                    selected: arrValues.includes(o.trim())
-                }));
-                const choices = new Choices(elSelectChild, {
-                    allowHTML: false,
-                    removeItemButton: true,
-                    editItems: true,
-                    choices: options.filter(o => o.value !== "")
-                });
-                elSelectChild.choicesjs = choices;
+        },
+        setOrgSelChildValue(orgSelector = {}) {
+            if(orgSelector.selection !== undefined) {
+                this.orgchartSelectData = orgSelector.selectionData[orgSelector.selection];
+                this.selectedChildValue = orgSelector.selection.toString();
             }
         },
         onSave() {
@@ -339,14 +365,14 @@ export default {
             return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
         },
         childIndicator() {
-            return this.indicators.find(i => parseInt(i.indicatorID) === this.formIndicatorID);
+            return this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);
         },
         /**
          * @returns {object} current parent selection
          */
         selectedParentIndicator() {
             const indicator = this.selectableParents.find(
-                i => parseInt(i.indicatorID) === parseInt(this.parentIndicatorID)
+                i => parseInt(i.indicatorID) === parseInt(this.parentIndID)
             );
             return indicator === undefined ? {} : {...indicator};
         },
@@ -354,23 +380,21 @@ export default {
          * @returns {string} lower case base format of the parent question if there is one
          */
         parentFormat() {
-            if(this.selectedParentIndicator?.format !== undefined) {
-                const f = this.selectedParentIndicator.format.toLowerCase();
-                return f.split('\n')[0].trim();
-            } else return '';
+            const f = (this.selectedParentIndicator?.format || '').toLowerCase();
+            return f.split('\n')[0].trim();
         },
         /**
          * @returns {string} lower case base format of the child question
          */
         childFormat() {
-            const f = this.childIndicator.format.toLowerCase();
+            const f = (this.childIndicator?.format || '').toLowerCase();
             return f.split('\n')[0].trim();
         },
         /**
          * @returns list of indicators that are on the same page, enabled as parents, and different than child 
          */
         selectableParents() {
-            const headerIndicatorID = this.childIndicator.headerIndicatorID;
+            const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
             return this.indicators.filter(i => {
                 const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
                 return i.headerIndicatorID === headerIndicatorID &&
@@ -393,12 +417,11 @@ export default {
                     break;
                 case 'dropdown':
                 case 'radio':
+                default:
                     operators = [
                         {val:"==", text: "is"},
                         {val:"!=", text: "is not"}
                     ];
-                    break;
-                default:
                     break;
             }
             return operators;
@@ -434,6 +457,29 @@ export default {
         },
         canAddCrosswalk() {
             return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
+        },
+        childPrefillDisplay() {
+            let returnVal = '';
+            switch(this.childFormat) {
+                case 'orgchart_employee':
+                    returnVal = ` '${this.orgchartSelectData?.firstName || ''} ${this.orgchartSelectData?.lastName || ''}'`;
+                    break;
+                case 'orgchart_group':
+                    returnVal = ` '${this.orgchartSelectData?.groupTitle || ''}'`;
+                    break;
+                case 'orgchart_position':
+                    returnVal = ` '${this.orgchartSelectData?.positionTitle || ''}'`;
+                    break;
+                case 'multiselect':
+                case 'checkboxes':
+                    const pluralTxt = this.selectedChildValue.split('\n').length > 1 ? 's' : '';
+                    returnVal = `${pluralTxt} '${this.decodeAndStripHTML(this.selectedChildValue)}'`;
+                    break;
+                default:
+                    returnVal = ` '${this.decodeAndStripHTML(this.selectedChildValue)}'`;
+                    break;
+            }
+            return returnVal;
         },
         /**
          * @returns {Object} current conditions object, properties to lower and tags removed as needed
@@ -521,7 +567,7 @@ export default {
             }
         }
     },
-    template: `<div id="condition_editor_center_panel">
+    template: `<div v-if="!appIsLoadingIndicators" id="condition_editor_center_panel">
             <!-- LOADING SPINNER -->
             <div v-if="appIsLoadingIndicators" id="loader_spinner">
                 Loading... <img src="../images/largespinner.gif" alt="loading..." />
@@ -553,12 +599,12 @@ export default {
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ textValueDisplay(c.selectedParentValue) }}</strong> 
+                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong> 
                                                     then {{c.selectedOutcome}} this question.
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
                                                 <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
-                                                    This question's format has changed.  Please review and save to update it
+                                                    Format changes detected.  Please review and save to update this condition.
                                                 </div>
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
@@ -595,28 +641,34 @@ export default {
                                 <option v-for="val in selectedChildValueOptions" 
                                     :value="val"
                                     :key="'child_prefill_' + val"
-                                    :selected="textValueDisplay(conditions.selectedChildValue) === val">
+                                    :selected="decodeAndStripHTML(conditions.selectedChildValue) === val">
                                     {{ val }} 
                                 </option>
                             </select>
-                            <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
-                                placeholder="select some options"
-                                multiple="true"
-                                id="child_prefill_entry_multi"
-                                style="display: none;"
-                                @change="updateSelectedOptionValue($event.target, 'child')">
-                            </select>
+                            <div v-else-if="multiOptionFormats.includes(childFormat)"
+                                id="child_choices_wrapper" :key="'prefill_' + selectedConditionJSON">
+                                <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
+                                    placeholder="select some options"
+                                    multiple="true"
+                                    id="child_prefill_entry_multi"
+                                    style="display: none;"
+                                    @change="updateSelectedOptionValue($event.target, 'child')">
+                                </select>
+                            </div>
                             <input v-if="childFormat==='text' || childFormat==='textarea'" 
                                 id="child_prefill_entry_text"
                                 @change="updateSelectedOptionValue($event.target, 'child')"
-                                :value="textValueDisplay(conditions.selectedChildValue)" />
+                                :value="decodeAndStripHTML(conditions.selectedChildValue)" />
+                            <div v-if="orgchartFormats.includes(childFormat)" :id="'ifthen_child_orgSel_' + conditions.childIndID"
+                                style="min-height:30px" aria-labelledby="prefill_value_entry">
+                            </div>
                         </template>
                     </div>
                     <div v-if="showSetup" id="if-then-setup">
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                             <h3 style="margin: 0;">IF</h3>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
-                            <select title="select an indicator" v-model.number="parentIndicatorID">
+                            <select title="select an indicator" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                                 <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
                                 <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
                                 :title="i.name"
@@ -638,15 +690,18 @@ export default {
                                 <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedParentValueOptions"
                                     :key="'parent_val_' + val"
-                                    :selected="textValueDisplay(conditions.selectedParentValue) === val"> {{ val }}
+                                    :selected="decodeAndStripHTML(conditions.selectedParentValue) === val"> {{ val }}
                                 </option>
                             </select>
-                            <select v-else-if="parentFormat === 'multiselect' || parentFormat==='checkboxes'"
-                                id="parent_compValue_entry_multi"
-                                placeholder="select some options" multiple="true"
-                                style="display: none;"
-                                @change="updateSelectedOptionValue($event.target, 'parent')">
-                            </select>
+                            <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"
+                                id="parent_choices_wrapper" class="comparison"
+                                :key="'comp_' + selectedConditionJSON">
+                                <select id="parent_compValue_entry_multi"
+                                    placeholder="select some options" multiple="true"
+                                    style="display: none;"
+                                    @change="updateSelectedOptionValue($event.target, 'parent')">
+                                </select>
+                            </div>
                         </template>
                         <!-- NOTE: LOADED DROPDOWNS AND CROSSWALKS -->
                         <div v-else class="crosswalks">
@@ -676,9 +731,9 @@ export default {
                     </div>
                     <div v-if="conditionComplete">
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                            <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(formIndicatorID)}}'
+                            <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                            <span style="color: #008010; font-weight: bold;"> have the value{{childFormat === 'multiselect' ? '(s)':''}} '{{textValueDisplay(conditions.selectedChildValue)}}'</span>
+                            <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
                             <span v-else>will 
                                 <span style="color: #008010; font-weight: bold;">

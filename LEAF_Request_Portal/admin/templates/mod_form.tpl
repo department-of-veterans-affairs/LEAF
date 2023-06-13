@@ -9,12 +9,9 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
+const orgchartPath = '<!--{$orgchartPath}-->';
 let vueData = {
-    formID: 0,
-    formTitle: '',
     indicatorID: 0,
-    required: 0,
-    icons: [],
     updateIndicatorList: false
 }
 
@@ -333,13 +330,7 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
-
-            vueData.formID = currCategoryID;
-            vueData.formTitle = formTitle;
             vueData.indicatorID = 0;
-            vueData.required = 0;
-            vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         error: function(res) {
