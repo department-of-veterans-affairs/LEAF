@@ -126,6 +126,42 @@ class EmailTemplate
         return $out;
     }
 
+    /**
+     * @return array
+     *
+     * Created at: 6/6/2023, 1:40:09 PM (America/New_York)
+     */
+    public function getCustomEmailTemplateList(): array
+    {
+        if (!$this->login->checkGroup(1)) {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'Admin access required'
+                )
+            );
+        }
+
+        $list = scandir('../templates/email/custom_override');
+        $out = array();
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
+                $out[] = $item;
+            }
+        }
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $out
+        );
+
+        return $return_value;
+    }
+
     public function getLabelFromFileName($fileName)
     {
         $vars = [":body" => $fileName];

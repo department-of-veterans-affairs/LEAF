@@ -120,7 +120,7 @@ export default {
             orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
-            stripAndDecodeHTML: this.stripAndDecodeHTML,
+            decodeAndStripHTML: this.decodeAndStripHTML,
             showLastUpdate: this.showLastUpdate,
         }
     },
@@ -286,9 +286,9 @@ export default {
         /**
          * 
          * @param {string} content 
-         * @returns string with tags removed and remaining characers decoded
+         * @returns removes encoded chars by passing through div and then strips all tags
          */
-        stripAndDecodeHTML(content = '') {
+        decodeAndStripHTML(content = '') {
             const elDiv = document.createElement('div');
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
@@ -321,35 +321,40 @@ export default {
                 error: (err) => reject(err)
             });
         },
-        initializeOrgSelector(selType = 'employee', indicatorID = 0, selectorIDPrefix = '', initialValue = '') {
+        initializeOrgSelector(
+            selType = 'employee',
+            indID = 0,
+            idPrefix = '',
+            initialValue = '',
+            selectorCallback = null
+        ) {
             selType = selType.toLowerCase();
-            const prefix = selType === 'group' ? 'group#' : '#';
-
+            const inputPrefix = selType === 'group' ? 'group#' : '#';
             let orgSelector = {};
             if (selType === 'group') {
-                orgSelector = new groupSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+              orgSelector = new groupSelector(`${idPrefix}orgSel_${indID}`);
             } else if (selType === 'position') {
-                orgSelector = new positionSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+              orgSelector = new positionSelector(`${idPrefix}orgSel_${indID}`);
             } else {
-                orgSelector = new employeeSelector(`${selectorIDPrefix}orgSel_${indicatorID}`);
+              orgSelector = new employeeSelector(`${idPrefix}orgSel_${indID}`);
             }
             orgSelector.apiPath = `${this.orgchartPath}/api/`;
             orgSelector.rootPath = `${this.orgchartPath}/`;
             orgSelector.basePath = `${this.orgchartPath}/`;
-
             orgSelector.setSelectHandler(() => {
-                document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`).value = `${prefix}` + orgSelector.selection;
-                const elDefault = document.getElementById(`modal_orgSel_data${indicatorID}`);
-                if(elDefault !== null) {
-                    elDefault.value = orgSelector.selection;
-                    elDefault.dispatchEvent(new Event('change'));
+                const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+                if(elOrgSelInput !== null) {
+                    elOrgSelInput.value = `${inputPrefix}` + orgSelector.selection;
                 }
             });
+            if(typeof selectorCallback === 'function') {
+                orgSelector.setResultHandler(() => selectorCallback(orgSelector));
+            }
             orgSelector.initialize();
-
-            const el = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
-            if (initialValue !== '' && el !== null) {
-                el.value = `${prefix}` + initialValue;
+            //input initial value if there is one
+            const elOrgSelInput = document.querySelector(`#${orgSelector.containerID} input.${selType}SelectorInput`);
+            if (initialValue !== '' && elOrgSelInput !== null) {
+                elOrgSelInput.value = `${inputPrefix}` + initialValue;
             }
         },
         /**
@@ -563,9 +568,9 @@ export default {
         },
         /**
          * updates app categories object property value
-         * @param {string} catID 
-         * @param {string} keyName 
-         * @param {string} keyValue 
+         * @param {string} catID
+         * @param {string} keyName
+         * @param {string} keyValue
          */
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             if(this.categories[catID][keyName] !== undefined) {
@@ -679,7 +684,7 @@ export default {
             this.showFormDialog = true;
         },
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
-            const name = this.truncateText(XSSHelpers.stripAllTags(indicatorName));
+            const name = this.truncateText(this.decodeAndStripHTML(indicatorName));
             this.currIndicatorID = indicatorID;
             this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #a00;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');

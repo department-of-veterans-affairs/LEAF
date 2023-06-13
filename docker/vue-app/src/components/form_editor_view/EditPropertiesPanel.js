@@ -1,8 +1,8 @@
 export default {
     data() {
         return {
-            categoryName: this.stripAndDecodeHTML(this.focusedFormRecord?.categoryName) || 'Untitled',
-            categoryDescription: this.stripAndDecodeHTML(this.focusedFormRecord?.categoryDescription) || '',
+            categoryName: this.decodeAndStripHTML(this.focusedFormRecord?.categoryName || 'Untitled'),
+            categoryDescription: this.decodeAndStripHTML(this.focusedFormRecord?.categoryDescription || ''),
             workflowID: parseInt(this.focusedFormRecord?.workflowID) || 0,
             needToKnow: parseInt(this.focusedFormRecord?.needToKnow) || 0,
             visible: parseInt(this.focusedFormRecord?.visible) || 0,
@@ -25,7 +25,7 @@ export default {
         'openFormHistoryDialog',
         'showLastUpdate',
         'truncateText',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
 	],
     computed: {
         workflowDescription() {

@@ -36,6 +36,12 @@ class EmailTemplateController extends RESTfulResponse
             return $emailTemplate->getEmailAndSubjectTemplateList();
         });
 
+        $this->index['GET']->register('emailTemplates/custom', function ($args) use ($emailTemplate) {
+            $return_value = $emailTemplate->getCustomEmailTemplateList();
+
+            return json_encode($return_value);
+        });
+
         $this->index['GET']->register('emailTemplates/[text]', function ($args) use ($emailTemplate) {
             return $emailTemplate->getEmailTemplate($args[0]);
         });
