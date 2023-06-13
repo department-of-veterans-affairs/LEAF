@@ -3,6 +3,7 @@
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
     /* Glyph to improve usability of code compare */
+
     .CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy {
         visibility: hidden;
     }
@@ -71,7 +72,8 @@
     }
 
     .keyboard_shortcuts>table {
-        width: 50%;
+        width: 100%;
+        max-width: 700px;
     }
 
     .leaf-left-nav,
@@ -149,7 +151,7 @@
         flex-direction: column;
         align-items: center;
         background-color: #fff;
-        margin: 15px auto;
+        margin: 10px auto;
         padding: 20px 0;
         border-radius: 5px;
     }
@@ -211,7 +213,7 @@
         font-weight: bold;
         text-align: left;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .accordion-header:hover {
@@ -292,7 +294,7 @@
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
         border-radius: 5px;
         font-size: .75rem;
     }
@@ -580,6 +582,11 @@
             line-height: 2;
         }
 
+
+        .usa-table {
+            font-size: .8rem;
+        }
+
     }
 </style>
 
@@ -621,6 +628,10 @@
                         <tr>
                             <td>Save</td>
                             <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Undo</td>
+                            <td>Ctrl + Z</td>
                         </tr>
                         <tr>
                             <td>Fullscreen</td>
@@ -693,6 +704,7 @@
 
 
 <script>
+    // browser listens when scrolling to scroll components
     window.addEventListener('scroll', function() {
         let mainEditorContent = document.querySelector('.main-content');
         let rightSideNav = document.querySelector('.leaf-right-nav');
@@ -707,7 +719,7 @@
             rightSideNav.classList.remove('sticky');
         }
     });
-
+    // saves current file content changes
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
         var data = '';
@@ -751,7 +763,7 @@
     function save_compare() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
         var data = '';
-        if (codeEditor.getValue == undefined) {
+        if (codeEditor.getValue() == undefined) {
             data = codeEditor.edit.getValue();
         } else {
             data = codeEditor.getValue();
@@ -792,7 +804,7 @@
             }
         });
     }
-
+    // creates a copy of the current file content 
     function saveFileHistory() {
         var data = '';
         if (codeEditor.getValue == undefined) {
@@ -812,7 +824,7 @@
             }
         })
     }
-
+    // restores file to default
     function restore() {
         dialog.setTitle('Are you sure?');
         dialog.setContent('This will restore the template to the original version.');
@@ -834,7 +846,7 @@
     }
 
     var dv;
-
+    // compares the default with the new template
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -871,11 +883,11 @@
             cache: false
         });
     }
-
+    // stops comparing the default with the new template
     function stop_comparing() {
         loadContent(currentFile);
     }
-
+    // format size of file inside getFileHistory()
     function formatFileSize(bytes, threshold = 1024) {
         const units = ['bytes', 'KB', 'MB', 'GB'];
         let i = 0;
@@ -887,7 +899,7 @@
 
         return bytes.toFixed(2) + ' ' + units[i];
     }
-
+    // accordion content inside getFileHistory()
     function displayAccordionContent(element) {
         var accordionContent = $(element).parent().next(".accordion-content");
         var chevron = $(element);
@@ -909,7 +921,7 @@
             }
         });
     }
-
+    // overrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
                 type: 'POST',
@@ -920,16 +932,15 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                console.log(res);
-                loadContent(currentFile);
                 exitExpandScreen();
+                loadContent(currentFile);
             },
             error: function(xhr, status, error) {
                 console.log(xhr.responseText);
             }
         });
     }
-
+    // Expands the current and history file to compare both files
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
         $('.page-title-container>.close_expand_mode_screen').show();
@@ -957,7 +968,7 @@
             'flex-direction': 'coloumn'
         });
     }
-
+    // exits the current and history comparison
     function exitExpandScreen() {
         $(".compared-label-content").css("display", "none");
         $('#word-wrap-button').hide();
@@ -993,15 +1004,15 @@
 
         $('#save_button').css('display', 'block');
 
-        loadContent(currentFile);
-
         // Will reset the URL
         var url = new URL(window.location.href);
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
-    }
 
+        loadContent(currentFile);
+    }
+    // request's copies of the current file content in an accordion layout
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
@@ -1079,7 +1090,7 @@
             cache: false
         });
     }
-
+    // Copy URL when clicking the copy button
     function getUrlLink(fileName, fileParentName, updateURL) {
         let currentURL = new URL(window.location.href);
         currentURL.searchParams.set('fileName', fileName);
@@ -1093,7 +1104,8 @@
         textField.remove();
         console.log('URL copied: ' + currentURL.href);
     }
-
+    var codeEditor = null;
+    // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
         loadContent(parentFile);
         $('.CodeMirror').remove();
@@ -1184,7 +1196,7 @@
             window.history.replaceState(null, null, url.toString());
         }
     }
-
+    // Retreave URL to display comparison of files
     function initializePage() {
         var urlParams = new URLSearchParams(window.location.search);
         var fileName = urlParams.get('fileName');
@@ -1198,59 +1210,9 @@
     }
 
     var currentFile = '';
-    var currentFileContent = '';
-
-    function updateEditorSize() {
-        codeWidth = $('#codeArea').width() - 66;
-        $('#codeContainer').css('width', codeWidth + 'px');
-        $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
-    }
-
-    function initEditor() {
-        codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            mode: "htmlmixed",
-            lineNumbers: true,
-            indentUnit: 4,
-            extraKeys: {
-                "F11": function(cm) {
-                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                },
-                "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                },
-                "Ctrl-S": function(cm) {
-                    save();
-                }
-            }
-        });
-        updateEditorSize();
-    }
-
-    function viewHistory() {
-        dialog_message.setContent('');
-        dialog_message.setTitle('Access Template History');
-        dialog_message.show();
-        dialog_message.indicateBusy();
-        $.ajax({
-            type: 'GET',
-            url: 'ajaxIndex.php?a=gethistory&type=templateEditor&id=' + currentFile,
-            dataType: 'text',
-            success: function(res) {
-                dialog_message.setContent(res);
-                dialog_message.indicateIdle();
-                dialog_message.show();
-            },
-            fail: function() {
-                dialog_message.setContent('Loading failed.');
-                dialog_message.show();
-            },
-            cache: false
-        });
-    }
-
-    var codeEditor = null;
     var unsavedChanges = false;
-
+    var currentFileContent = "";
+    // loads all files and retreave's them
     function loadContent(file) {
         if (file === undefined) {
             console.error('No file specified. File cannot be loaded.');
@@ -1259,7 +1221,7 @@
         }
 
         // Check if there are unsaved changes in the current file
-        if (unsavedChanges && currentFileContent !== codeEditor.getValue()) {
+        if (unsavedChanges && currentFileContent !== codeEditor.getValue) {
             if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
                 return;
             }
@@ -1274,10 +1236,12 @@
         $('#codeContainer').css('display', 'none');
         $('#controls').css('visibility', 'visible');
         $('#filename').html(file.replace('.tpl', ''));
+
         $.ajax({
             type: 'GET',
             url: '../api/templateEditor/_' + file,
             success: function(res) {
+
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
 
@@ -1305,29 +1269,83 @@
         });
         $('#saveStatus').html('');
 
-        // Bind event handlers to warn users of unsaved changes
+        // Bind event handler to warn users of unsaved changes
         $(window).on('beforeunload', function() {
             if (unsavedChanges) {
                 return 'You have unsaved changes. Are you sure you want to leave this page?';
             }
         });
 
-        $(window).on('unload', function() {
-            if (unsavedChanges) {}
-        });
-
+        // Add event listener to track code editor changes
         codeEditor.on('change', function() {
             unsavedChanges = true;
         });
 
-        // Add word wrap functionality using Ctrl + W keyboard shortcut
+        // Add key bindings for undo, save, and full screen functionality
         codeEditor.setOption('extraKeys', {
+            'Ctrl-Z': function(cm) {
+                cm.undo();
+            },
+            'Ctrl-S': function(cm) {
+                save();
+            },
             'Ctrl-W': function(cm) {
                 cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
+            },
+            'F11': function(cm) {
+                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
             }
         });
     }
 
+    function updateEditorSize() {
+        codeWidth = $('#codeArea').width() - 66;
+        $('#codeContainer').css('width', codeWidth + 'px');
+        $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
+    }
+    // initiates  the loadContent()
+    function initEditor() {
+        codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            mode: "htmlmixed",
+            lineNumbers: true,
+            indentUnit: 4,
+            extraKeys: {
+                "F11": function(cm) {
+                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Esc": function(cm) {
+                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                },
+                "Ctrl-S": function(cm) {
+                    save();
+                }
+            }
+        });
+        updateEditorSize();
+    }
+    // Displays  user's history when creating, merge, and so on
+    function viewHistory() {
+        dialog_message.setContent('');
+        dialog_message.setTitle('Access Template History');
+        dialog_message.show();
+        dialog_message.indicateBusy();
+        $.ajax({
+            type: 'GET',
+            url: 'ajaxIndex.php?a=gethistory&type=templateEditor&id=' + currentFile,
+            dataType: 'text',
+            success: function(res) {
+                dialog_message.setContent(res);
+                dialog_message.indicateIdle();
+                dialog_message.show();
+            },
+            fail: function() {
+                dialog_message.setContent('Loading failed.');
+                dialog_message.show();
+            },
+            cache: false
+        });
+    }
+    // loads components when the document loads
     $(document).ready(function() {
         $('.currentUrlLink').hide();
         $('.sidenav-right-compare').hide();

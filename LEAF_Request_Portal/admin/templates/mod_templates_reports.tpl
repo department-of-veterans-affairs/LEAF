@@ -3,6 +3,12 @@
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
     /* Glyph to improve usability of code compare */
+    .usa-prose>table,
+    .usa-table {
+        width: 100%;
+        max-width: 700px;
+    }
+
     .CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy {
         visibility: hidden;
     }
@@ -10,6 +16,15 @@
     .CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy::before {
         visibility: visible;
         content: '\25ba\25ba\25ba';
+    }
+
+    .CodeMirror-merge-copy {
+        display: none !important;
+    }
+
+    .CodeMirror,
+    .cm-s-default {
+        height: auto !important;
     }
 
     #reportURL {
@@ -33,7 +48,13 @@
     }
 
     #codeContainer {
-        width: 95% !important;
+        width: 98% !important;
+        box-shadow: none;
+    }
+
+    .CodeMirror-merge,
+    .CodeMirror-merge {
+        height: 60vh !important;
     }
 
     .page-title-container {
@@ -48,7 +69,7 @@
 
     .page-main-content {
         display: flex;
-        width: 100%;
+        width: 98%;
         justify-content: space-evenly;
         align-items: flex-start;
         height: 80%;
@@ -67,34 +88,55 @@
 
     .leaf-left-nav,
     .leaf-right-nav {
-        width: 20%;
+        width: 15%;
+        max-width: 300px;
         margin: 0;
-        flex: none;
+        flex: auto;
     }
 
     .sidenav,
     .sidenav-right {
         max-width: none;
         padding: 0;
+        box-shadow: none;
+    }
+
+    .sidenav-right-compare {
+        background-color: #fff;
+        border-radius: 5px;
+        width: 100%;
+        margin: 0 auto;
     }
 
     #fileBrowser {
         display: flex;
         justify-items: center;
         flex-direction: column;
-        width: 90%;
+        width: 100%;
         margin: 0 auto;
         padding: 10px 0;
+    }
+
+    #fileBrowser>h3 {
+        width: 100%;
+        text-align: left;
     }
 
     .main-content {
         display: flex;
         justify-content: space-evenly;
         align-content: flex-start;
-        width: 60%;
+        width: 65%;
         flex: none;
         margin: 0 auto;
-        transition: all .5s ease;
+        transition: all 1s ease;
+    }
+
+    .sticky {
+        position: sticky;
+        top: 0;
+        padding-top: 10px;
+        transition: all 1s ease-in-out;
     }
 
     #filename {
@@ -105,21 +147,27 @@
         text-align: center;
     }
 
+    .leaf-btn-med {
+        margin: 10px 0 0 0;
+    }
+
     .file-history {
-        width: 90%;
+        width: 100%;
         max-height: 600px;
         overflow: auto;
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #e8e4e4;
-        margin: 0 auto;
+        background-color: #fff;
+        margin: 10px auto;
+        padding: 20px 0;
+        border-radius: 5px;
     }
 
     .view-history {
         width: 90%;
-        max-width: 200px;
+        max-width: 250px;
         padding: 10px 0;
         background-color: #005EA2;
         color: #fff;
@@ -129,41 +177,48 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 5px;
+        margin-top: 10px;
     }
 
     .view-history:hover {
         background-color: #112e51;
     }
 
+    .file-history-res {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
     .accordion-container {
         display: block;
         margin-top: 10px;
         width: 100%;
-        font-family: sans-serif;
+        max-width: 250px;
     }
 
     .accordion {
-        width: 90%;
+        width: 97%;
         border-radius: 5px;
         overflow: hidden;
         margin-bottom: 10px;
-        background-color: #eee;
+        background-color: #fff;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin: 10px auto;
+        margin: 5px auto;
     }
 
     .accordion-header {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        flex-flow: row;
-        padding: 10px 0;
         background-color: #1a4480;
         color: #fff;
-        font-size: 0.75rem;
-        /* font-weight: bold; */
-        text-align: center;
+        font-size: 0.70rem;
+        font-weight: bold;
+        text-align: left;
         cursor: pointer;
         transition: all 0.3s ease;
     }
@@ -177,12 +232,34 @@
     }
 
     .accordion-date {
+        width: 80%;
         border-right: 1px solid #fff;
-        padding: 0 10px;
+        padding: 8px;
     }
 
     .accordion-name {
         padding: 0 10px;
+    }
+
+    .accordion-date,
+    .accordion-content a {
+        width: 100%;
+        color: #fff;
+        text-decoration: none;
+        font-weight: normal;
+    }
+
+    .accordion-chevron {
+        width: 20%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 0;
+        transition: transform 0.3s ease;
+    }
+
+    .chevron-rotate {
+        transform: rotate(90deg);
     }
 
     .accordion-content {
@@ -195,22 +272,28 @@
 
     .accordion-content>ul {
         padding: 0;
-    }
-
-    .accordion-content>ul>li {
-        list-style: none;
-    }
-
-    .accordion-content>ul>li>p {
         margin: 0;
     }
 
-    .accordion-content>ul>li:nth-child(4) {
+    .accordion-content ul li {
         list-style: none;
+        margin: 5px 0;
+        border-bottom: 2px solid #e4e4e4;
+        padding: 5px 0;
     }
 
-    .accordion-content>ul>li:nth-child(5) {
-        list-style: none;
+    .accordion-content ul li:last-child {
+        border: none;
+    }
+
+    .accordion-content ul li strong {
+        text-transform: uppercase;
+    }
+
+    .accordion-content ul li p {
+        margin: 0;
+        font-size: .65rem;
+        overflow: auto;
     }
 
     .file_compare_file_btn {
@@ -224,53 +307,82 @@
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
+        font-size: .75rem;
     }
 
     .file_compare_file_btn:hover {
         background-color: #c97c00;
     }
 
+    .copyIcon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: .6rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin-top: 5px;
+        border: none;
+        transition: .5s ease;
+        border-radius: 5px;
+    }
+
+    .copyIcon:hover {
+        background-color: #45a245;
+        color: #fff;
+    }
+
+    .copyIcon span {
+        font-size: 1rem;
+        padding: 0 0 0 5px;
+    }
+
+    .template_link {
+        font-size: .8rem;
+        border: 1px solid #eee;
+        width: 100%;
+        padding: 5px;
+        border-radius: 5px;
+        box-sizing: border-box;
+        overflow: auto;
+        background-color: #ccc;
+    }
+
     .file_replace_file_btn {
         width: 100%;
         padding: 10px 0;
         border: none;
-        background-color: #43ac6a;
+        background-color: #e99002;
         color: #fff;
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
     }
 
     .file_replace_file_btn:hover {
-        background-color: #338451;
+        background-color: #c97c00;
     }
 
+    .file_replace_file_btn,
     .close_expand_mode_screen {
         width: 100%;
         padding: 10px 0;
         border: none;
-        background-color: #ac4343;
         color: #fff;
-        font-size: 1rem;
         font-weight: 700;
         margin-top: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        -ms-border-radius: 5px;
-        -o-border-radius: 5px;
+    }
+
+    .close_expand_mode_screen {
+        background-color: #ac4343;
+        font-size: 1rem;
     }
 
     .close_expand_mode_screen:hover {
@@ -285,16 +397,22 @@
 
     .page-title-container>.file_replace_file_btn {
         display: none;
-        width: 15%;
-        min-width: 200px;
+        width: 20%;
     }
 
     .page-title-container>.close_expand_mode_screen {
         display: none;
         width: 10%;
+        min-width: 200px;
+    }
+
+    #save_button_compare {
+        display: none;
+        margin: 10px 0;
     }
 
     .word-wrap-button {
+        width: 100%;
         display: inline-block;
         background-color: #ddd;
         border: none;
@@ -303,6 +421,7 @@
         text-align: center;
         text-decoration: none;
         font-size: 16px;
+        font-weight: bold;
         margin: 10px 0 0 0;
         cursor: pointer;
         border-radius: 5px;
@@ -319,7 +438,7 @@
     }
 
     .contentMessage {
-        width: 90%;
+        width: 100%;
         font-size: .8rem;
         padding: 10px 0;
         text-align: center;
@@ -327,7 +446,7 @@
 
     .usa-button {
         width: 90%;
-        max-width: 200px;
+        max-width: 250px;
         margin: 5px auto;
     }
 
@@ -335,17 +454,56 @@
         width: 100%;
         min-height: 300px;
         overflow: auto;
-        padding: 0 10px;
-        margin: 10px auto;
+        /* margin: 10px auto; */
     }
 
-    .leaf-ul li {
+    .leaf-ul>li {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
         font-size: .8rem !important;
         line-height: 2;
+        list-style: none;
+    }
+
+    .leaf-ul>li::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+        background-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23000000' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M6.854 6.146a.5.5 0 010 .708L3.707 10l3.147 3.146a.5.5 0 01-.708.708l-3.5-3.5a.5.5 0 010-.708l3.5-3.5a.5.5 0 01.708 0zm6.292 0a.5.5 0 000 .708L16.293 10l-3.147 3.146a.5.5 0 00.708.708l3.5-3.5a.5.5 0 000-.708l-3.5-3.5a.5.5 0 00-.708 0zm-.999-3.124a.5.5 0 01.33.625l-4 13a.5.5 0 11-.955-.294l4-13a.5.5 0 01.625-.33z' clip-rule='evenodd'/></svg>");
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .leaf-ul>li>a {
+        width: 80%;
+        display: block;
+        text-decoration: none;
+        border-bottom: 2px solid #e4e4e4;
+        transition: all 0.3s ease;
+        color: #005ea2;
+    }
+
+    .leaf-ul>li>a:hover {
+        border-bottom: 2px solid #005ea2;
+    }
+
+    .controls-compare {
+        width: 90%;
+        margin: 0 auto;
+        padding: 10px 0;
+        display: flex;
+        flex-direction: column;
+        justify-items: center;
+        align-items: center;
     }
 
     #controls {
-        width: 90%;
+        width: 100%;
         margin: 0 auto;
         padding: 10px 0;
         display: flex;
@@ -368,6 +526,11 @@
 
     }
 
+    .CodeMirror-scroll {
+        margin-right: 0;
+        height: 60vh;
+    }
+
     .CodeMirror-merge-pane-label {
         width: 45%;
         text-align: center;
@@ -382,14 +545,78 @@
     .CodeMirror-merge-pane-label:nth-child(2) {
         color: #083;
     }
+
+    .chevron-rotate {
+        animation: chevron-rotate .5s forwards;
+    }
+
+    @keyframes chevron-rotate {
+        100% {
+            transform: rotate(90deg);
+        }
+    }
+
+    .gg-chevron-right {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        transform: scale(var(--ggs, 1));
+        width: 22px;
+        height: 22px;
+        border: 2px solid transparent;
+        border-radius: 100px
+    }
+
+    .gg-chevron-right::after {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-bottom: 2px solid;
+        border-right: 2px solid;
+        transform: rotate(-45deg);
+        right: 6px;
+        top: 4px
+    }
+
+    @media only screen and (max-width:1280px) {
+
+        .file-history-res,
+        #controls,
+        .controls-compare {
+            width: 100%;
+        }
+
+        .accordion {
+            width: 90%;
+        }
+
+        .accordion-header {
+            font-size: .6rem;
+        }
+
+        .leaf-btn-med,
+        .controls-compare>button {
+            font-size: .75rem;
+        }
+
+        .leaf-ul li {
+            font-size: .7rem !important;
+            line-height: 2;
+        }
+
+        .usa-table {
+            font-size: .8rem;
+        }
+
+    }
 </style>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>LEAF Programmer</h2>
-        <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
-        <button class="file_replace_file_btn">Merge to Current File</button>
-        <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Exit</button>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
@@ -416,7 +643,7 @@
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
-                <div>
+                <div style="display: flex;justify-content: center;">
                     <table class="usa-table">
                         <tr>
                             <td colspan="2">Keyboard Shortcuts within coding area</td>
@@ -424,6 +651,10 @@
                         <tr>
                             <td>Save</td>
                             <td>Ctrl + S</td>
+                        </tr>
+                        <tr>
+                            <td>Undo</td>
+                            <td>Ctrl + Z</td>
                         </tr>
                         <tr>
                             <td>Fullscreen</td>
@@ -451,11 +682,23 @@
                     class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
                     deleteReport();">Delete File
                 </button>
-
-                <button class="view-history">View File History</button>
-                <div class="file-history">
+                <button
+                    class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                    id="btn_compareStop" style="display: none" onclick="stop_comparing();">
+                    Stop Comparing
+                </button>
+            </aside>
+            <aside class="sidenav-right-compare">
+                <div class="controls-compare">
+                    <button class="file_replace_file_btn">Merge</button>
+                    <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
+                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
+            <div class="file-history">
+                <h3>File History</h3>
+                <div class="file-history-res"></div>
+            </div>
         </div>
     </div>
 
@@ -468,9 +711,24 @@
 
 
 <script>
+    window.addEventListener('scroll', function() {
+        let mainEditorContent = document.querySelector('.main-content');
+        let rightSideNav = document.querySelector('.leaf-right-nav');
+        let code = mainEditorContent.getBoundingClientRect();
+        let buttonsNav = rightSideNav.getBoundingClientRect();
+
+        if (code.top <= 0 || buttonsNav.top <= 0) {
+            mainEditorContent.classList.add('sticky');
+            rightSideNav.classList.add('sticky');
+        } else {
+            mainEditorContent.classList.remove('sticky');
+            rightSideNav.classList.remove('sticky');
+        }
+    });
+    // saves current file content changes
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
-        var data = '';
+        let data = '';
         if (typeof codeEditor.edit !== 'undefined' && typeof codeEditor.edit.getValue === 'function') {
             data = codeEditor.edit.getValue();
         } else if (typeof codeEditor.getValue === 'function') {
@@ -490,7 +748,7 @@
             },
             url: '../api/reportTemplates/_' + currentFile,
             success: function(res) {
-                var time = new Date().toLocaleTimeString();
+                let time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
                 saveFileHistory();
             },
@@ -502,11 +760,12 @@
             }
         });
     }
-
+    // creates a copy of the current file content 
     function saveFileHistory() {
         $.ajax({
-                type: 'POST',
-                data: {CSRFToken: '<!--{$CSRFToken}-->',
+            type: 'POST',
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
                 file: codeEditor.getValue()
             },
             url: '../api/reportTemplates/fileHistory/_' + currentFile,
@@ -516,7 +775,7 @@
             }
         });
     }
-
+    // format size of file inside getFileHistory()
     function formatFileSize(bytes, threshold = 1024) {
         const units = ['bytes', 'KB', 'MB', 'GB'];
         let i = 0;
@@ -528,51 +787,53 @@
 
         return bytes.toFixed(2) + ' ' + units[i];
     }
-
-    // According code
-    $(document).ready(function() {
-        $('#word-wrap-button').css('display', 'none');
-        // Hide the accordion container and all accordion content on page load
-        $(".accordion-container").show();
-        $(".accordion-content").hide();
-        // When the View File History button is clicked, toggle the accordion container
-        $(".view-history").click(function() {
-            $(".accordion-container").slideToggle();
-        });
-
-    });
-
+    // accordion content inside getFileHistory()
     function displayAccordionContent(element) {
-        var accordionContent = $(element).next(".accordion-content");
-        $(element).toggleClass("accordion-active");
-        accordionContent.slideToggle();
-        $(".accordion-header").not(element).removeClass("accordion-active");
-        $(".accordion-content").not(accordionContent).slideUp();
-    }
+        let accordionContent = $(element).parent().next(".accordion-content");
+        let chevron = $(element);
 
+        chevron.toggleClass("chevron-rotate");
+        accordionContent.slideToggle();
+
+        let accordions = $(".accordion");
+        accordions.each(function() {
+            let currentAccordionContent = $(this).find(".accordion-content");
+            let currentChevron = $(this).find(".accordion-chevron");
+
+            if (
+                !currentAccordionContent.is(accordionContent) &&
+                !currentChevron.is(chevron)
+            ) {
+                currentAccordionContent.slideUp();
+                currentChevron.removeClass("chevron-rotate");
+            }
+        });
+    }
+    // request's copies of the current file content in an accordion layout
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
-            url: '../api/reportTemplates/getHistoryFiles/_' + template,
+            url: '../api/templateFileHistory/_' + template,
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {
                     console.log('There are no files in the directory');
-                    var contentMessage =
-                        '<p class="contentMessage">There are no history files.</p>';
-                    $('.file-history').html(contentMessage);
+                    var contentMessage = '<p class="contentMessage">There are no history files.</p>';
+                    $('.file-history-res').html(contentMessage);
                     return;
                 }
+
                 var fileNames = res.map(function(template) {
                     return template.file_parent_name;
                 });
+
                 if (fileNames.indexOf(template) === -1) {
                     console.log('Template file not found in directory');
                     return;
                 }
+
                 var accordion = '<div class="accordion-container">';
                 for (var i = 0; i < res.length; i++) {
-                    historyFile = res[i].file_name;
                     var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
@@ -581,28 +842,44 @@
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
-                    accordion += '<div class="accordion">';
-                    accordion +=
-                        '<div class="accordion-header" onclick="displayAccordionContent(this)"><span class="accordion-date"><strong style="color:#37beff;">DATE:</strong><br>' +
-                        fileCreated +
-                        '</span><span class="accordion-name"><strong style="color:#37beff;">USER:</strong><br>' +
-                        whoChangedFile +
-                        '</span></div>';
-                    accordion += '<div class="accordion-content">';
-                    accordion += '<ul>';
-                    accordion += '<li><strong>File Name: </strong><br><p>' + fileParentName + '</p></li>';
-                    accordion += '<li><strong>Who Changed File:</strong><br><p>' + whoChangedFile +
-                        '</p></li>';
-                    accordion += '<li><strong>File Size:</strong><br><p>' + formattedFileSize + '</p></li>';
-                    accordion +=
-                        '<li><button class="file_compare_file_btn" onclick="compareHistoryFile(\'' +
-                        fileName + '\')">Compare Current File</button></li>';
-                    accordion += '</ul>';
-                    accordion += '</div>';
-                    accordion += '</div>';
+
+                    accordion += '<div class="accordion">' +
+                        '<div class="accordion-header">' +
+                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
+                        fileName + '\', \'' + fileParentName +
+                        '\', true)"><span><strong style="color:#37beff;">DATE:</strong><br>' +
+                        fileCreated + '</span></a>' +
+                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
+                        '</div>' +
+                        '<div class="accordion-content">' +
+                        '<ul>' +
+                        '<li>' +
+                        '<strong>File Name: </strong>' +
+                        '<p>' + fileName + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Author: </strong>' +
+                        '<p>' + whoChangedFile + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>File Size: </strong>' +
+                        '<p>' + formattedFileSize + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Share File URL:</strong>' +
+                        '<div class="textContainer">' +
+                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
+                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
+                        '</div>' +
+                        '</li>' +
+                        '<li>' +
+                        '</li>' +
+                        '</ul>' +
+                        '</div>' +
+                        '</div>';
                 }
                 accordion += '</div>';
-                $('.file-history').html(accordion);
+                $('.file-history-res').html(accordion);
             },
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
@@ -610,8 +887,9 @@
             cache: false
         });
     }
-
-    function compareHistoryFile(fileName) {
+    // compares current file content with history file from getFileHistory()
+    function compareHistoryFile(fileName, parentFile, updateURL) {
+        loadContent(parentFile);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compare').css('display', 'none');
@@ -619,7 +897,9 @@
         $('#btn_compareStop').css('display', 'none');
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
+        $('.save_button').css('display', 'none');
         var wordWrapEnabled = false; // default to false
+
         $('#word-wrap-button').click(function() {
             wordWrapEnabled = !wordWrapEnabled;
             if (wordWrapEnabled) {
@@ -635,9 +915,10 @@
                 'background-color': '#8ce79b !important'
             });
         });
+
         $.ajax({
             type: 'GET',
-            url: '../api/reportTemplates/getCompareHistoryHistoryFiles/_' + fileName,
+            url: '../api/templateCompareFileHistory/_' + fileName,
             dataType: 'json',
             cache: false,
             success: function(res) {
@@ -660,7 +941,7 @@
                                 lineNumbers: true,
                                 mode: 'htmlmixed',
                                 collapseIdentical: true,
-                                lineWrapping: true, // initial value
+                                lineWrapping: false, // initial value
                                 autoFormatOnStart: true,
                                 autoFormatOnMode: true,
                                 leftTitle: "Current File",
@@ -689,13 +970,21 @@
                 editorExpandScreen();
             }
         });
-    }
 
+        if (updateURL) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('fileName', fileName);
+            url.searchParams.set('parentFile', parentFile);
+            window.history.replaceState(null, null, url.toString());
+        }
+    }
+    // overrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
-                type: 'POST',
-                url: '../api/reportTemplates/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
-                data: {CSRFToken: '<!--{$CSRFToken}-->',
+            type: 'POST',
+            url: `../api/reportTemplates/mergeFileHistory/saveReportMergeTemplate/_${fileParentName}`,
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
                 file: mergedContent
             },
             dataType: 'json',
@@ -709,109 +998,139 @@
             }
         });
     }
+    // Copy URL when clicking the copy button
+    function getUrlLink(fileName, fileParentName, updateURL) {
+        var currentURL = new URL(window.location.href);
+        currentURL.searchParams.set('fileName', fileName);
+        currentURL.searchParams.set('parentFile', fileParentName);
 
+        var textField = document.createElement('textarea');
+        textField.value = currentURL.href;
+        document.body.appendChild(textField);
+        textField.select();
+        document.execCommand('copy');
+        textField.remove();
+        console.log('URL copied: ' + currentURL.href);
+    }
+    // Retreave URL to display comparison of files
+    function initializePage() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var fileName = urlParams.get('fileName');
+        var parentFile = urlParams.get('parentFile');
+
+        if (fileName && parentFile) {
+            compareHistoryFile(fileName, parentFile, false);
+        } else {
+            console.log(currentFileContent);
+            loadContent('example');
+        }
+    }
+    // Expands the current and history file to compare both files
     function editorExpandScreen() {
-        $('.page-title-container>.file_replace_file_btn').show();
-        $('.page-title-container>.close_expand_mode_screen').show();
-        $('.page-title-container>h2').css({
-            'width': '50%',
+        $('.page-title-container > .file_replace_file_btn').show();
+        $('.page-title-container > .close_expand_mode_screen').show();
+        $('.sidenav-right').hide();
+        $('.sidenav-right-compare').show();
+        $('.page-title-container > h2').css({
+            width: '35%',
             'text-align': 'left'
         });
         $('.main-content').css({
-            'width': '100%',
-            'height': '80%',
-            'top': 0,
-            'left': 0,
-            'align-items': 'center',
-            'transition': 'all .5s ease'
+            width: '83%',
+            transition: 'all .5s ease',
+            'justify-content': 'flex-start'
         });
         $('.leaf-code-container').css({
-            'width': '100% !important'
+            width: '100% !important'
         });
         $('.usa-table').hide();
-        $('.leaf-right-nav').css({
-            'position': 'fixed',
-            'right': '-100%',
-            'transition': 'all .5s ease'
-        });
         $('.leaf-left-nav').css({
-            'position': 'fixed',
-            'left': '-100%',
-            'transition': 'all .5s ease'
+            position: 'fixed',
+            left: '-100%',
+            transition: 'all .5s ease'
         });
         $('.page-title-container').css({
-            'flex-direction': 'coloumn'
+            'flex-direction': 'column'
         });
     }
-
+    // exits the current and history comparison
     function exitExpandScreen() {
-        $(".compared-label-content").css("display", "none");
+        $('.compared-label-content').css('display', 'none');
         $('#word-wrap-button').hide();
-        $('.page-title-container>.file_replace_file_btn').hide();
-        $('.page-title-container>.close_expand_mode_screen').hide();
-        $('.page-title-container>h2').css({
-            'width': '100%',
+        $('.page-title-container > .file_replace_file_btn').hide();
+        $('.page-title-container > .close_expand_mode_screen').hide();
+        $('#save_button_compare').css('display', 'none');
+        $('.sidenav-right-compare').hide();
+        $('.sidenav-right').show();
+        $('.page-title-container > h2').css({
+            width: '100%',
             'text-align': 'center'
         });
         $('.main-content').css({
-            'width': '60%',
-            'height': '80%',
-            'top': 0,
-            'left': 0,
-            'align-items': 'center',
-            'transition': 'all .5s ease'
+            width: '65%',
+            transition: 'all .5s ease',
+            'justify-content': 'center'
         });
         $('#codeContainer').css({
-            'height': '95%',
+            display: 'block',
+            height: '95%',
             'width': '90% !important'
-        })
-        $('.usa-table').show();
-        $('.leaf-right-nav').css({
-            'position': 'relative',
-            'right': '0',
-            'transition': 'all .5s ease'
         });
+        $('.usa-table').show();
+
         $('.leaf-left-nav').css({
-            'position': 'relative',
-            'left': '0',
-            'transition': 'all .5s ease'
+            position: 'relative',
+            left: '0',
+            transition: 'all .5s ease'
         });
         $('.page-title-container').css({
             'flex-direction': 'row'
         });
+
+        $('#save_button').css('display', 'block');
+
+
+        // Will reset the URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('fileName');
+        url.searchParams.delete('parentFile');
+        window.history.replaceState(null, null, url.toString());
+
         loadContent(currentFile);
     }
-
+    // creates a new report
     function newReport() {
         dialog.setTitle('New File');
         dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
 
         dialog.setSaveHandler(function() {
-                var file = $('#newFilename').val();
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/reportTemplates',
-                        data: {CSRFToken: '<!--{$CSRFToken}-->',
-                        filename: file
-                    },
-                    success: function(res) {
-                        if (res == 'CreateOK') {
-                            updateFileList();
-                            loadContent(file);
-                        } else {
-                            alert(res);
-                        }
+            var file = $('#newFilename').val();
+            $.ajax({
+                type: 'POST',
+                url: '../api/reportTemplates',
+                data: {
+                    CSRFToken: '<!--{$CSRFToken}-->',
+                    filename: file
+                },
+                success: function(res) {
+                    if (res === 'CreateOK') {
+                        updateFileList();
+                        loadContent(file);
+                    } else {
+                        alert(res);
                     }
-                }); dialog.hide();
+                }
+            });
+            dialog.hide();
         });
 
-    $('#newFilename').on('keyup change', function(e) {
-        $('#newFilename').val($('#newFilename').val().replace(/[^a-z0-9\.\/]/gi, '_'));
-    });
+        $('#newFilename').on('keyup change', function(e) {
+            $('#newFilename').val($('#newFilename').val().replace(/[^a-z0-9\.\/]/gi, '_'));
+        });
 
-    dialog.show();
+        dialog.show();
     }
-
+    // deletes the report
     function deleteReport() {
         dialog_confirm.setTitle('Are you sure?');
         dialog_confirm.setContent('This will irreversibly delete this report.');
@@ -819,11 +1138,13 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/reportTemplates/_' + currentFile + '?' +
-                    $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
-                    success: function() {
-                        location.reload();
-                    }
+                url: '../api/reportTemplates/_' + currentFile,
+                data: {
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
+                success: function() {
+                    location.reload();
+                }
             });
             deleteHistoryFileReport(currentFile);
             dialog_confirm.hide();
@@ -831,44 +1152,61 @@
 
         dialog_confirm.show();
     }
-
+    // deletes the history file report when the original report has been deleted
     function deleteHistoryFileReport(templateFile) {
         $.ajax({
             type: 'DELETE',
-            url: '../api/reportTemplates/deleteHistoryFileReport/_' + templateFile + '?' +
-                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
-                success: function() {
-                    console.log(templateFile + ', was deleted');
-                    location.reload();
-                }
+            url: '../api/reportTemplates/deleteHistoryFileReport/_' + templateFile,
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->'
+            },
+            success: function() {
+                console.log(templateFile + ', was deleted');
+                location.reload();
+            }
         });
     }
-
+    // opens the report on a new page
     function runReport() {
         window.open('../report.php?a=' + currentFile);
     }
 
     function isExcludedFile(file) {
-        if (file == 'example' ||
-            file.substr(0, 5) == 'LEAF_'
-        ) {
+        if (file === 'example' || file.substr(0, 5) === 'LEAF_') {
             return true;
         }
         return false;
     }
-
+    // gloabal variables
+    var codeEditor;
     var currentFile = '';
-
+    var unsavedChanges = false;
+    var currentFileContent = '';
+    var dialog, dialog_confirm;
+    //loads all files and retreave's them
     function loadContent(file) {
-        if (file == undefined) {
-            file = currentFile;
+        if (file === undefined) {
+            console.error('No file specified. File cannot be loaded.');
+            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            return;
         }
+
+        // Check if there are unsaved changes in the current file
+        if (unsavedChanges && currentFileContent !== codeEditor.getValue) {
+            if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
+                return;
+            }
+        }
+
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compareStop').css('display', 'none');
-        $('#save_button').css('display', 'block');
+
         initEditor();
         currentFile = file;
+        $('#codeContainer').css('display', 'none');
+        $('#controls').css('visibility', 'visible');
+        $('#filename').html(file.replace('.tpl', ''));
         var reportURL = `${window.location.origin}${window.location.pathname.replace('admin/', '')}report.php?a=${file.replace('.tpl', '')}`;
         $('#reportURL').html(`URL: <a href="${reportURL}" target="_blank">${reportURL}</a>`);
         $('#controls').css('visibility', isExcludedFile(file) ? 'hidden' : 'visible');
@@ -879,14 +1217,63 @@
             success: function(res) {
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
-                codeEditor.setValue(res.file);
+
+                // Check if codeEditor is already defined and has a setValue method
+                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                    codeEditor.setValue(res.file);
+                } else {
+                    console.error('codeEditor is not properly initialized.');
+                }
+
+                if (res.modified === 1) {
+                    $('.modifiedTemplate').css('display', 'block');
+                    unsavedChanges = true;
+                } else {
+                    $('.modifiedTemplate').css('display', 'none');
+                    unsavedChanges = false;
+                }
+
                 getFileHistory(file);
+            },
+            error: function(xhr, status, error) {
+                console.log('Error loading file: ' + error);
             },
             cache: false
         });
         $('#saveStatus').html('');
-    }
 
+        // Bind event handlers to warn users of unsaved changes
+        $(window).on('beforeunload', function() {
+            if (unsavedChanges) {
+                return 'You have unsaved changes. Are you sure you want to leave this page?';
+            }
+        });
+
+        $(window).on('unload', function() {
+            if (unsavedChanges) {}
+        });
+
+        codeEditor.on('change', function() {
+            unsavedChanges = true;
+        });
+
+        // Add key bindings for undo, save, and full screen functionality
+        codeEditor.setOption('extraKeys', {
+            'Ctrl-Z': function(cm) {
+                cm.undo();
+            },
+            'Ctrl-S': function(cm) {
+                save();
+            },
+            'Ctrl-W': function(cm) {
+                cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
+            },
+            'F11': function(cm) {
+                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
+            }
+        });
+    }
+    // initiates  the loadContent()
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: "htmlmixed",
@@ -915,7 +1302,7 @@
         $('#codeContainer').css('width', codeWidth + 'px');
         $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
     }
-
+    // example report templates
     function updateFileList() {
         $.ajax({
             type: 'GET',
@@ -924,14 +1311,14 @@
                 var buffer = '<ul class="leaf-ul">';
                 var bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
                 for (var i in res) {
-                    file = res[i].replace('.tpl', '');
+                    var file = res[i].replace('.tpl', '');
                     if (!isExcludedFile(file)) {
                         buffer += '<li onclick="loadContent(\'' + file +
-                            '\');" style="display: block; width: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#' +
+                            '\');"><a href="#' +
                             file + '">' + file + '</a></li>';
                     } else {
                         bufferExamples += '<li onclick="loadContent(\'' + file +
-                            '\');" style="display: block; width: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><a href="#' +
+                            '\');" "><a href="#' +
                             file + '">' + file + '</a></li>';
                     }
                 }
@@ -942,7 +1329,7 @@
             cache: false
         });
     }
-
+    // Displays  user's history when creating, merge, and so on
     function viewHistory() {
         dialog_message.setContent('');
         dialog_message.setTitle('Access Template History');
@@ -965,39 +1352,18 @@
         });
     }
 
-    var codeEditor = null;
-    var dialog, dialog_confirm;
-    $(function() {
+    // loads components when the document loads
+    $(document).ready(function() {
+        initEditor();
+        $('.currentUrlLink').hide();
+        $('.sidenav-right-compare').hide();
         dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save',
             'button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
-        codeWidth = $(document).width() - 420;
-        $('#codeContainer').css('width', codeWidth + 'px');
-
-        codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            mode: "htmlmixed",
-            lineNumbers: true,
-            indentUnit: 4,
-            extraKeys: {
-                "F11": function(cm) {
-                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                },
-                "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                },
-                "Ctrl-S": function(cm) {
-                    save();
-                }
-            }
-        });
-        updateEditorSize();
-        $(window).on('resize', function() {
-            updateEditorSize();
-        });
-
+        initializePage();
         updateFileList();
-        loadContent('example');
+        // loadContent('example');
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator',
             'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
