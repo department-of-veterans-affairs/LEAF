@@ -94,11 +94,11 @@ class Employee extends Data
         $national_emp = $this->getEmployeeByUserName($user_array, $global_db);
 
         if (empty($national_emp)) {
-            $this->disableEmployee($user_name, $this->db);
+            $this->disableEmployees(explode(',', $user_name));
             $return_value = array(
                 'status' => array(
                     'code' => 4,
-                    'message' => 'National Employee not found, employee disable locally.'
+                    'message' => 'National Employee not found, employee disabled locally.'
                 )
             );
         } else {
@@ -120,7 +120,7 @@ class Employee extends Data
                     )
                 );
             } else {
-                $this->disableEmployee($user_name, $this->db);
+                $this->disableEmployees(explode(',', $user_name));
                 $return_value = array(
                     'status' => array(
                         'code' => 4,
@@ -142,7 +142,7 @@ class Employee extends Data
     {
         $local_employee_list = $this->getAllEmployees($this->db);
 
-        if (count($local_employee_list) == 0) {
+        if (empty($local_employee_list)) {
             $return_value = array(
                 'status' => array(
                     'code' => 4,
@@ -154,14 +154,7 @@ class Employee extends Data
 
             $chunk_local_employee = array_chunk($local_employee_usernames, 100);
 
-            $this->processList($chunk_local_employee);
-
-            $return_value = array(
-                'status' => array(
-                    'code' => 2,
-                    'message' => ''
-                )
-            );
+            $return_value = $this->processList($chunk_local_employee);
         }
 
         return $return_value;
@@ -188,30 +181,36 @@ class Employee extends Data
     /**
      * @param array $employee_list
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:28:47 PM (America/New_York)
      */
-    private function processList(array $employee_list): void
+    private function processList(array $employee_list): array
     {
+        $results = [];
+
         foreach ($employee_list as $employee) {
-            $this->updateEmployeeDataBatch($employee);
+            $results[] = $this->updateEmployeeDataBatch($employee);
         }
+
+        return $results;
     }
 
     /**
      * @param array $local_employees
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:28:56 PM (America/New_York)
      */
-    private function updateEmployeeDataBatch(array $local_employees): void
+    private function updateEmployeeDataBatch(array $local_employees): array
     {
         $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 
         $national_employees_list = $this->getEmployeeByUserName($local_employees, $global_db);
         $local_employees_uid = $this->getEmployeeByUserName($local_employees, $this->db);
+
+        $results = [];
 
         if (!empty($national_employees_list)) {
             $local_employee_array = $this->userNameUidList($local_employees_uid);
@@ -224,24 +223,35 @@ class Employee extends Data
 
             $local_deleted_employees = array_diff(array_column($local_employees_uid, 'userName'), array_column($national_employees_list, 'userName'));
 
-            $this->disableEmployees($local_deleted_employees);
-            $this->batchEmployeeUpdate($local_array);
+            if (!empty($local_deleted_employees)) {
+                $results[] = $this->disableEmployees($local_deleted_employees);
+            }
+
+            if (!empty($local_array)) {
+                $results[] = $this->batchEmployeeUpdate($local_array);
+            }
+
             $national_employee_data = $this->getEmployeeDataByEmpUID($national_employee_uids, $global_db);
 
             $this->prepareDataArray($local_data_array, $national_employee_data, $local_employee_array);
 
-            $this->batchEmployeeDataUpdate($local_data_array);
+            if (!empty($local_data_array)) {
+                $results[] = $this->batchEmployeeDataUpdate($local_data_array);
+            }
+
         }
+
+        return $results;
     }
 
     /**
      * @param array $local_employees_array
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:29:05 PM (America/New_York)
      */
-    private function batchEmployeeUpdate(array $local_employees_array): void
+    private function batchEmployeeUpdate(array $local_employees_array): array
     {
         $vars = array(
             'lastName',
@@ -254,17 +264,42 @@ class Employee extends Data
             'lastUpdated'
         );
 
-        $this->db->insert_batch('employee', $local_employees_array, $vars);
+        if (!empty($local_employees_array)) {
+            if ($this->db->insert_batch('employee', $local_employees_array, $vars)) {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 2,
+                        'message' => ''
+                    )
+                );
+            } else {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 4,
+                        'message' => 'Database error, employees not updated'
+                    )
+                );
+            }
+        } else {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'No employees to update'
+                )
+            );
+        }
+
+        return $return_value;
     }
 
     /**
      * @param array $local_employees_data_array
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:29:12 PM (America/New_York)
      */
-    private function batchEmployeeDataUpdate(array $local_employees_data_array): void
+    private function batchEmployeeDataUpdate(array $local_employees_data_array): array
     {
         $vars = array(
             'indicatorID',
@@ -273,25 +308,60 @@ class Employee extends Data
             'timestamp'
         );
 
-        $this->db->insert_batch('employee_data', $local_employees_data_array, $vars);
+        if (!empty($local_employees_data_array)) {
+
+            if ($this->db->insert_batch('employee_data', $local_employees_data_array, $vars)) {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 2,
+                        'message' => ''
+                    )
+                );
+            } else {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 4,
+                        'message' => 'Database error, employees not updated'
+                    )
+                );
+            }
+        } else {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'No employees to update'
+                )
+            );
+        }
+
+        return $return_value;
     }
 
     /**
      * @param array $deleted_employees
      *
-     * @return void
+     * @return array
      *
      * Created at: 6/9/2023, 2:29:19 PM (America/New_York)
      */
-    private function disableEmployees(array $deleted_employees): void
+    private function disableEmployees(array $deleted_employees): array
     {
         if (!empty($deleted_employees)) {
             $sql = "UPDATE employee
                     SET deleted=UNIX_TIMESTAMP(NOW())
                     WHERE userName IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
 
-            $this->db->prepared_query($sql, array_values($deleted_employees));
+            $return_value = $this->db->prepared_query($sql, array_values($deleted_employees));
+        } else {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'There are no employees to delete.'
+                )
+            );
         }
+
+        return $return_value;
     }
 
     /**
@@ -509,26 +579,6 @@ class Employee extends Data
                 $db->prepared_query($sql, $vars);
             }
         }
-    }
-
-    /**
-     * @param string $user_name
-     * @param Db $db
-     *
-     * @return void
-     *
-     * Created at: 6/9/2023, 2:31:38 PM (America/New_York)
-     */
-    private function disableEmployee(string $user_name, Db $db): void
-    {
-        $vars = array(
-                ':userName' => htmlspecialchars_decode($user_name, ENT_QUOTES),
-                ':deleted' => time()
-            );
-        $sql = "UPDATE employee
-                SET deleted=:deleted
-                WHERE userName=:userName";
-        $db->prepared_query($sql, $vars);
     }
 
     /**
