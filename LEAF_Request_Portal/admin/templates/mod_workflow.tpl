@@ -39,6 +39,14 @@
             newWorkflow();
         }
     });
+    function isJSON(input = '') {
+        try {
+            JSON.parse(input);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
 
     function newWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
@@ -1860,13 +1868,11 @@
                 // draw connector
                 for (let i in res) {
                     var loc = 0.5;
-                    switch (res[i].actionType) {
+                    switch (res[i].actionType.toLowerCase()) {
                         case 'sendback':
                             loc = 0.30;
                             break;
                         case 'approve':
-                            loc = 0.5;
-                            break;
                         case 'concur':
                             loc = 0.5;
                             break;
@@ -2040,7 +2046,7 @@
                     }
 
                     let emailNotificationIcon = '';
-                    if (typeof res[i].stepData == 'string') {
+                    if (typeof res[i].stepData == 'string' && isJSON(res[i].stepData)) {
                         let stepParse = JSON.parse(res[i].stepData);
                         if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
                             let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
