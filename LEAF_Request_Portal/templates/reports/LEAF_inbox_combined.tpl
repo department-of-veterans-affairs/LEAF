@@ -157,7 +157,8 @@
                             daysSinceAction = "Not Submitted";
                         }
                     } else {
-                        daysSinceAction = "Not Submitted";
+                        let dateSubmitted = new Date(recordBlob.submitted * 1000);
+                        daysSinceAction = Math.round((today.getTime() - dateSubmitted.getTime()) / 86400000);
                     }
                     $('#' + data.cellContainerID).html(daysSinceAction);
                 }
@@ -182,7 +183,8 @@
                             daysSinceAction = "Not Submitted";
                         }
                     } else {
-                        daysSinceAction = "Not Submitted";
+                        let dateSubmitted = new Date(recordBlob.submitted * 1000);
+                        daysSinceAction = Math.round((today.getTime() - dateSubmitted.getTime()) / 86400000);
                     }
                     $('#' + data.cellContainerID).html('TBD');
                 }
@@ -515,7 +517,7 @@
                         cols: site.cols,
                         nonAdmin: true,
                         order: site.order,
-                        columns: 'UID' + (site.columns.length > 0 ? ',' + site.columns : ''),
+                        columns: 'UID' + (site.columns?.length > 0 ? ',' + site.columns : ''),
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 

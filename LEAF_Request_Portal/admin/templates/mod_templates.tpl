@@ -848,7 +848,6 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                console.log(res);
                 loadContent(currentFile);
                 exitExpandScreen();
             },
@@ -1037,14 +1036,40 @@
             type: 'GET',
             url: '../api/template/',
             success: function(res) {
-                var buffer = '<ul class="leaf-ul">';
-                for (var i in res) {
-                    file = res[i].replace('.tpl', '');
-                    buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
-                        '</a></li>';
-                }
-                buffer += '</ul>';
-                $('#fileList').html(buffer);
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/template/custom',
+                    dataType: 'json',
+                    success: function (result) {
+                        let res_array = $.parseJSON(result);
+                        let buffer = '<ul class="leaf-ul">';
+
+                        if (res_array.status['code'] === 2) {
+                            for (let i in res) {
+                                if (result.includes(res[i])) {
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                } else {
+                                    custom = '';
+                                }
+
+                                file = res[i].replace('.tpl', '');
+
+                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
+                                    '</a> ' + custom + '</li>';
+                            }
+                        } else if (res_array.status['code'] === 4) {
+                            buffer += '<li>' + res_array.status['message'] + '</li>';
+                        } else {
+                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                        }
+
+                        buffer += '</ul>';
+                        $('#fileList').html(buffer);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
             },
             cache: false
         });
