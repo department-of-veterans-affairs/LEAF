@@ -1112,7 +1112,7 @@ class FormWorkflow
                         "lastStatus" => $approvers[0]['lastStatus'],
                         "comment" => $comment,
                         "siteRoot" => $this->siteRoot,
-                        "field" => $this->fields
+                        "field" => $fields
                     ));
 
                     $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
@@ -1208,9 +1208,7 @@ class FormWorkflow
 
         foreach($fields as $field) 
         {   
-            $formattedFields[] = array(
-                $field['indicatorID'] => $field['data']
-            );
+            $formattedFields[$field['indicatorID']] = $field['data'];
         }
 
         return $formattedFields;
