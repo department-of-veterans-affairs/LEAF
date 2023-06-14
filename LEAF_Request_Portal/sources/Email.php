@@ -441,16 +441,10 @@ class Email
      */
     function getTemplateIDByLabel(string $emailTemplateLabel): int
     {
-        // var_dump($emailTemplateLabel);
-        // exit();
-        // $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
-        $vars = array();
-        $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ";
-
-            // "WHERE `label` = :emailTemplateLabel";
+        $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
+        $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ".
+            "WHERE `label` = :emailTemplateLabel";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
-        var_dump(Config::$portalDb, Config::$uploadDir);
-        exit();
 
         return (int)$res[0]['emailTemplateID'];
     }
@@ -575,29 +569,6 @@ class Email
     }
 
     /**
-     * Retrieves field values by record ID.
-     * @param int $recordID
-     * @return array
-     */
-    function getFieldValue(int $recordID): array
-    {
-        $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT `indicatorID`, `data` FROM `data`".
-            "WHERE recordID = :recordID";
-        $data = $this->portal_db->prepared_query($strSQL, $vars);
-
-        $formattedData = array();
-
-        foreach ($data as $field) {
-            $formattedData[] = array(
-                $field['indicatorID'] => $field['data']
-            );
-        }
-
-        return $data;
-    }
-
-    /**
      * Purpose: Add approvers to email from given record ID*
      * @param int $recordID
      * @param int $emailTemplateID
@@ -618,8 +589,6 @@ class Email
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $fieldVals = getFieldValue($recordID);
-
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
             $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
@@ -630,8 +599,7 @@ class Email
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot,
-                "field" => $fieldVals
+                "siteRoot" => $this->siteRoot
             ));
 
             if ($emailTemplateID < 2) {

@@ -1101,8 +1101,8 @@ class FormWorkflow
                         WHERE recordID = :recordID';
                     $approvers = $this->db->prepared_query($strSQL, $vars);
 
-
                     $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                    $fields = $this->getFields();
 
                     $email->addSmartyVariables(array(
                         "truncatedTitle" => $title,
@@ -1111,7 +1111,8 @@ class FormWorkflow
                         "service" => $approvers[0]['service'],
                         "lastStatus" => $approvers[0]['lastStatus'],
                         "comment" => $comment,
-                        "siteRoot" => $this->siteRoot
+                        "siteRoot" => $this->siteRoot,
+                        "field" => $this->fields
                     ));
 
                     $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
@@ -1191,6 +1192,28 @@ class FormWorkflow
         }
 
         return array('status' => 1, 'errors' => $errors);
+    }
+
+    /**
+     * Get the field values of the current record
+     */
+    private function getFields(): array
+    {
+        $vars = array(':recordID' => $this->recordID);
+        $strSQL = 'SELECT `indicatorID`, `data` FROM `data` WHERE `recordID` = :recordID';
+
+        $fields = $this->db->prepared_query($strSQL, $vars);
+
+        $formattedFields = array();
+
+        foreach($fields as $field) 
+        {   
+            $formattedFields[] = array(
+                $field['indicatorID'] => $field['data']
+            );
+        }
+
+        return $formattedFields;
     }
 
     /**
