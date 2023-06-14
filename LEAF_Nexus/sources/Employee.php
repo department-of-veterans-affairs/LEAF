@@ -351,7 +351,15 @@ class Employee extends Data
                     SET `deleted` = UNIX_TIMESTAMP(NOW())
                     WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
 
-            $return_value = $this->db->prepared_query($sql, array_values($deleted_employees));
+            $result = $this->db->prepared_query($sql, array_values($deleted_employees));
+
+            $return_value = array(
+                'status' => array(
+                    'code' => 2,
+                    'message' => ''
+                ),
+                'data' => $result
+            );
         } else {
             $return_value = array(
                 'status' => array(
@@ -447,7 +455,15 @@ class Employee extends Data
         $sql = 'SELECT `userName`
                 FROM `employee`';
 
-        $return_value = $db->prepared_query($sql, $vars);
+        $result = $db->prepared_query($sql, $vars);
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $result
+        );
 
         return $return_value;
     }
@@ -487,7 +503,15 @@ class Employee extends Data
                     `lastUpdated`
                 FROM `employee`
                 WHERE `userName` IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
-        $return_value = $db->prepared_query($sql, $user_names);
+        $result = $db->prepared_query($sql, $user_names);
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $result
+        );
 
         return $return_value;
     }
@@ -513,7 +537,15 @@ class Employee extends Data
                 LEFT JOIN `employee` USING (`empUID`)
                 WHERE `empUID` IN ('" . implode("','", array_values($empUID)) . "')
                 AND `indicatorID` IN (:PHONEIID,:EMAILIID,:LOCATIONIID,:ADTITLEIID)";
-        $return_value = $db->prepared_query($sql, $vars);
+        $result = $db->prepared_query($sql, $vars);
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $result
+        );
 
         return $return_value;
     }
@@ -550,7 +582,15 @@ class Employee extends Data
                     `deleted` = :deleted,
                     `lastUpdated` = :lastUpdated
                 WHERE `userName` = :userName";
-        $return_value = $db->prepared_query($sql, $vars);
+        $result = $db->prepared_query($sql, $vars);
+
+        $return_value = array(
+            'status' => array(
+                'code' => 2,
+                'message' => ''
+            ),
+            'data' => $result
+        );
 
         return $return_value;
     }
