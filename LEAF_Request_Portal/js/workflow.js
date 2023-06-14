@@ -258,13 +258,12 @@ var LeafWorkflow = function (containerID, CSRFToken) {
           "_" +
           step.dependencyActions[i].actionType
       ).on("click", { step: step, idx: i }, function (e) {
-        var data = new Object();
-        data["comment"] = $("#comment_dep" + e.data.step.dependencyID).val();
-        data["actionType"] =
-          e.data.step.dependencyActions[e.data.idx].actionType;
-        data["dependencyID"] = e.data.step.dependencyID;
-
-        var completeAction = function () {
+        let completeAction = function () {
+          let data = new Object();
+          data["comment"] = $("#comment_dep" + e.data.step.dependencyID).val();
+          data["actionType"] =
+              e.data.step.dependencyActions[e.data.idx].actionType;
+          data["dependencyID"] = e.data.step.dependencyID;
           data["CSRFToken"] = CSRFToken;
           if (e.data.step.dependencyActions[e.data.idx].fillDependency > 0)
             if (
