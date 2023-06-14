@@ -441,10 +441,16 @@ class Email
      */
     function getTemplateIDByLabel(string $emailTemplateLabel): int
     {
-        $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
-        $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ".
-            "WHERE label = :emailTemplateLabel;";
+        // var_dump($emailTemplateLabel);
+        // exit();
+        // $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
+        $vars = array();
+        $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ";
+
+            // "WHERE `label` = :emailTemplateLabel";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
+        var_dump(Config::$portalDb, Config::$uploadDir);
+        exit();
 
         return (int)$res[0]['emailTemplateID'];
     }
