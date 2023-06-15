@@ -88,7 +88,9 @@ function refreshEmp(userName, empUID) {
         url: "./api/employee/refresh/_" + userName + "/" + empUID,
         dataType: "json",
         data: {CSRFToken: CSRFToken},
-        success: function(response) {
+        success: function(res) {
+            let response = $.parseJSON(res);
+
             if (response.status['code'] == 2) {
                 $.each(response.data.user_data, function (index, value) {
                     $('#data_' + value['indicatorID'] + '_1_' + response.data.user[0]['empUID']).html(value['data']);

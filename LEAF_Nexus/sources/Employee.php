@@ -93,7 +93,7 @@ class Employee extends Data
         $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $national_emp = $this->getEmployeeByUserName($user_array, $global_db);
 
-        if (empty($national_emp)) {
+        if (!isset($national_emp['data'])) {
             $this->disableEmployees(explode(',', $user_name));
             $return_value = array(
                 'status' => array(
@@ -102,11 +102,11 @@ class Employee extends Data
                 )
             );
         } else {
-            $this->updateEmployeeByUserName($user_name, $national_emp[0], $this->db);
+            $this->updateEmployeeByUserName($user_name, $national_emp['data'][0], $this->db);
             $local_emp = $this->getEmployeeByUserName($user_array, $this->db);
-            $national_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $national_emp[0]['empUID']), $global_db);
-            $this->updateEmployeeDataByEmpUID($local_emp[0]['empUID'], $national_emp_data, $this->db);
-            $local_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $local_emp[0]['empUID']), $this->db);
+            $national_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $national_emp['data'][0]['empUID']), $global_db);
+            $this->updateEmployeeDataByEmpUID($local_emp['data'][0]['empUID'], $national_emp_data['data'], $this->db);
+            $local_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $local_emp['data'][0]['empUID']), $this->db);
 
             if ($this->isActiveNationally($national_emp)) {
                 $return_value = array(
@@ -115,8 +115,8 @@ class Employee extends Data
                         'message' => ''
                     ),
                     'data' => array(
-                        'user' => $local_emp,
-                        'user_data' => $local_emp_data
+                        'user' => $local_emp['data'],
+                        'user_data' => $local_emp_data['data']
                     )
                 );
             } else {
@@ -477,7 +477,7 @@ class Employee extends Data
      */
     private function isActiveNationally(array $user): bool
     {
-        $weekOld = $user[0]['lastUpdated'] + 604800;
+        $weekOld = $user['data'][0]['lastUpdated'] + 604800;
 
         if (time() < $weekOld) {
             $return_value = true;
