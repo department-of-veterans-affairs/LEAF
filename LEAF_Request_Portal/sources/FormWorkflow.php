@@ -1208,6 +1208,7 @@ class FormWorkflow
 
         foreach($fields as $field) 
         {   
+            // TODO: set up switch case handling irregular format values
             $formattedFields[$field['indicatorID']] = $field['data'];
         }
 
