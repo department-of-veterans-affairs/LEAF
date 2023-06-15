@@ -1462,9 +1462,21 @@
             type: 'GET',
             url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
             success: function(res) {
+                let find_required = $.parseJSON(params.required);
                 let output = '';
+                let required = '';
+
+                if (find_required.required) {
+                    required = 'checked=checked';
+                }
+
                 stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
                 output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+
+                if (params.action == 'sendback') {
+                    output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
+                }
+
                 output += '<br /><div>Triggers these events:<ul>';
                 // the sendback action always notifies the requestor
                 if (params.action == 'sendback') {
@@ -1500,6 +1512,27 @@
             top: evt.pageY + 'px'
         });
         $('#stepInfo_' + stepID).show('slide', null, 200);
+    }
+
+    function switchRequired(element) {
+        let stepID = element.id.split('_');
+        let e = document.getElementById("workflows");
+        let workflowID = e.value;
+
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflowRoute/require',
+            data: {required: element.checked,
+            step_id: stepID[2],
+            workflow_id: workflowID,
+            CSRFToken: CSRFToken},
+            success: function (res) {
+                console.log(res);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
     }
 
     function setDynamicApprover(stepID) {
@@ -1930,7 +1963,8 @@
                                                 location: loc,
                                                 parameters: {'stepID': res[i].stepID,
                                                 'nextStepID': 0,
-                                                'action': res[i].actionType
+                                                'action': res[i].actionType,
+                                                'required': res[i].displayConditional
                                             },
                                             events: {
                                                 click: function(overlay, evt) {
@@ -1956,7 +1990,8 @@
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': res[i].nextStepID,
-                                        'action': res[i].actionType
+                                        'action': res[i].actionType,
+                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {

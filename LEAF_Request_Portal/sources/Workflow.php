@@ -351,11 +351,13 @@ class Workflow
             return 'Restricted command.';
         }
 
+        $required = json_encode(array ('required' => false));
+
         $vars = array(':workflowID' => $this->workflowID,
             ':stepID' => $stepID,
             ':nextStepID' => $nextStepID,
             ':action' => $action,
-            ':displayConditional' => '',
+            ':displayConditional' => $required,
         );
         $res = $this->db->prepared_query('INSERT INTO workflow_routes (workflowID, stepID, nextStepID, actionType, displayConditional)
     										VALUES (:workflowID, :stepID, :nextStepID, :action, :displayConditional)', $vars);
@@ -365,7 +367,7 @@ class Workflow
             new \Leaf\LogItem("workflow_routes", "stepID", $stepID),
             new \Leaf\LogItem("workflow_routes", "nextStepID", $nextStepID),
             new \Leaf\LogItem("workflow_routes", "actionType", $action),
-            new \Leaf\LogItem("workflow_routes", "displayConditional", "")
+            new \Leaf\LogItem("workflow_routes", "displayConditional", $required)
         ]);
 
         return true;
@@ -1083,7 +1085,7 @@ class Workflow
         return true;
     }
 
-    public function renameWorkflow(string $description): string 
+    public function renameWorkflow(string $description): string
     {
         if (!$this->login->checkGroup(1))
         {
@@ -1094,14 +1096,14 @@ class Workflow
         if ($this->workflowID < 0) {
             return 'Restricted command.';
         }
-        
+
         $vars = array(':workflowID' => $this->workflowID,
                       ':description' => $description
                 );
         $strSQL = "UPDATE workflows SET description = :description WHERE workflowID = :workflowID";
 
         $this->db->prepared_query($strSQL, $vars);
-        
+
         $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_NAME, [
             new \Leaf\LogItem("workflow_name", "description",  $description),
             new \Leaf\LogItem("workflow_name", "workflowID",  $this->workflowID)
