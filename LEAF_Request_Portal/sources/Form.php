@@ -4107,15 +4107,25 @@ class Form
      * @param $days
      * @throws \SmartyException
      */
-    function sendReminderEmail($recordID, $days) {
+    function sendReminderEmail(int $recordID, $days): void
+    {
+        $email_tracker = new EmailTracker($this->db);
+        $last_email = $email_tracker->getEmailsSentByRecordId($recordID);
 
-        $email = new Email();
-        $email->setSender('leaf.noreply@va.gov');
-        $email->addSmartyVariables(array(
-            "daysSince" => $days
-        ));
+        $day_last_sent = date('j', $last_email['timestamp']);
+        $current_day = date('j', time());
 
-        $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        if (time() - $last_email[0]['timestamp'] > 86400
+            || $day_last_sent !== $current_day
+        ) {
+            $email = new Email();
+            $email->setSender('leaf.noreply@va.gov');
+            $email->addSmartyVariables(array(
+                "daysSince" => $days
+            ));
+
+            $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        }
 
     }
 

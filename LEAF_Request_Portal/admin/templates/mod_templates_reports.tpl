@@ -746,7 +746,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: data
             },
-            url: '../api/reportTemplates/_' + currentFile,
+            url: '../api/applet/_' + currentFile,
             success: function(res) {
                 let time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
@@ -768,7 +768,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: codeEditor.getValue()
             },
-            url: '../api/reportTemplates/fileHistory/_' + currentFile,
+            url: '../api/applet/fileHistory/_' + currentFile,
             success: function(res) {
                 console.log("File history has been saved.");
                 getFileHistory(currentFile);
@@ -981,10 +981,9 @@
     // overrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
-            type: 'POST',
-            url: `../api/reportTemplates/mergeFileHistory/saveReportMergeTemplate/_${fileParentName}`,
-            data: {
-                CSRFToken: '<!--{$CSRFToken}-->',
+                type: 'POST',
+                url: '../api/applet/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
+                data: {CSRFToken: '<!--{$CSRFToken}-->',
                 file: mergedContent
             },
             dataType: 'json',
@@ -1104,20 +1103,20 @@
         dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
 
         dialog.setSaveHandler(function() {
-            var file = $('#newFilename').val();
-            $.ajax({
-                type: 'POST',
-                url: '../api/reportTemplates',
-                data: {
-                    CSRFToken: '<!--{$CSRFToken}-->',
-                    filename: file
-                },
-                success: function(res) {
-                    if (res === 'CreateOK') {
-                        updateFileList();
-                        loadContent(file);
-                    } else {
-                        alert(res);
+                var file = $('#newFilename').val();
+                $.ajax({
+                        type: 'POST',
+                        url: '../api/applet',
+                        data: {CSRFToken: '<!--{$CSRFToken}-->',
+                        filename: file
+                    },
+                    success: function(res) {
+                        if (res == 'CreateOK') {
+                            updateFileList();
+                            loadContent(file);
+                        } else {
+                            alert(res);
+                        }
                     }
                 }
             });
@@ -1138,13 +1137,11 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/reportTemplates/_' + currentFile,
-                data: {
-                    CSRFToken: '<!--{$CSRFToken}-->'
-                },
-                success: function() {
-                    location.reload();
-                }
+                url: '../api/applet/_' + currentFile + '?' +
+                    $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+                    success: function() {
+                        location.reload();
+                    }
             });
             deleteHistoryFileReport(currentFile);
             dialog_confirm.hide();
@@ -1156,14 +1153,12 @@
     function deleteHistoryFileReport(templateFile) {
         $.ajax({
             type: 'DELETE',
-            url: '../api/reportTemplates/deleteHistoryFileReport/_' + templateFile,
-            data: {
-                CSRFToken: '<!--{$CSRFToken}-->'
-            },
-            success: function() {
-                console.log(templateFile + ', was deleted');
-                location.reload();
-            }
+            url: '../api/applet/deleteHistoryFileReport/_' + templateFile + '?' +
+                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+                success: function() {
+                    console.log(templateFile + ', was deleted');
+                    location.reload();
+                }
         });
     }
     // opens the report on a new page
@@ -1213,7 +1208,7 @@
         $('#filename').html('<strong>File Name:</strong> ' + file.replace('.tpl', ''));
         $.ajax({
             type: 'GET',
-            url: `../api/reportTemplates/_${file}`,
+            url: `../api/applet/_${file}`,
             success: function(res) {
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
@@ -1306,7 +1301,7 @@
     function updateFileList() {
         $.ajax({
             type: 'GET',
-            url: '../api/reportTemplates',
+            url: '../api/applet',
             success: function(res) {
                 var buffer = '<ul class="leaf-ul">';
                 var bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
@@ -1337,7 +1332,7 @@
         dialog_message.indicateBusy();
         $.ajax({
             type: 'GET',
-            url: 'ajaxIndex.php?a=gethistory&type=templateReports&id=' + currentFile,
+            url: 'ajaxIndex.php?a=gethistory&type=applet&id=' + currentFile,
             dataType: 'text',
             success: function(res) {
                 dialog_message.setContent(res);

@@ -741,7 +741,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: data
             },
-            url: '../api/templateEditor/_' + currentFile,
+            url: '../api/template/_' + currentFile,
             success: function(res) {
                 $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
                 $('.modifiedTemplate').css('display', 'block');
@@ -781,7 +781,7 @@
                 CSRFToken: '<!--{$CSRFToken}-->',
                 file: data
             },
-            url: '../api/templateEditor/_' + currentFile,
+            url: '../api/template/_' + currentFile,
             success: function(res) {
                 $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
                 $('.modifiedTemplate').css('display', 'block');
@@ -832,7 +832,7 @@
         dialog.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/templateEditor/_' + currentFile + '?' +
+                url: '../api/template/_' + currentFile + '?' +
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
                         saveFileHistory();
@@ -857,7 +857,7 @@
 
         $.ajax({
             type: 'GET',
-            url: '../api/templateEditor/_' + currentFile + '/standard',
+            url: '../api/template/_' + currentFile + '/standard',
             success: function(standard) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                     mode: "htmlmixed",
@@ -1188,14 +1188,16 @@
                 editorExpandScreen();
             }
         });
-
+        
         if (updateURL) {
             var url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
             window.history.replaceState(null, null, url.toString());
         }
+
     }
+    
     // Retreave URL to display comparison of files
     function initializePage() {
         var urlParams = new URLSearchParams(window.location.search);
@@ -1239,7 +1241,7 @@
 
         $.ajax({
             type: 'GET',
-            url: '../api/templateEditor/_' + file,
+            url: '../api/template/_' + file,
             success: function(res) {
 
                 currentFileContent = res.file;
@@ -1331,7 +1333,7 @@
         dialog_message.indicateBusy();
         $.ajax({
             type: 'GET',
-            url: 'ajaxIndex.php?a=gethistory&type=templateEditor&id=' + currentFile,
+            url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,
             dataType: 'text',
             success: function(res) {
                 dialog_message.setContent(res);
@@ -1356,17 +1358,42 @@
 
         $.ajax({
             type: 'GET',
-            url: '../api/templateEditor/',
+            url: '../api/template/',
             success: function(res) {
-                var buffer = '<ul class="leaf-ul">';
-                for (var i in res) {
-                    file = res[i].replace('.tpl', '');
-                    buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' +
-                        file +
-                        '</a></li>';
-                }
-                buffer += '</ul>';
-                $('#fileList').html(buffer);
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/template/custom',
+                    dataType: 'json',
+                    success: function (result) {
+                        let res_array = $.parseJSON(result);
+                        let buffer = '<ul class="leaf-ul">';
+
+                        if (res_array.status['code'] === 2) {
+                            for (let i in res) {
+                                if (result.includes(res[i])) {
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                } else {
+                                    custom = '';
+                                }
+
+                                file = res[i].replace('.tpl', '');
+
+                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
+                                    '</a> ' + custom + '</li>';
+                            }
+                        } else if (res_array.status['code'] === 4) {
+                            buffer += '<li>' + res_array.status['message'] + '</li>';
+                        } else {
+                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                        }
+
+                        buffer += '</ul>';
+                        $('#fileList').html(buffer);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
             },
             cache: false
         });

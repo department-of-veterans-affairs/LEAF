@@ -2,7 +2,7 @@
 
 namespace Leaf;
 
-class TemplateEditorFormatter
+class TemplateFormatter
 {
     const TEMPLATES = [
         DataActions::MODIFY . '-' . LoggableTypes::TEMPLATE_BODY => [

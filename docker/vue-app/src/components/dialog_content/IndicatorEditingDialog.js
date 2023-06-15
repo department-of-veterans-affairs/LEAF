@@ -57,7 +57,7 @@ export default {
             options: this.indicatorRecord[this.currIndicatorID]?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.indicatorRecord[this.currIndicatorID]?.format || '',  //base format (eg 'radio')
             description: this.indicatorRecord[this.currIndicatorID]?.description || '',
-            defaultValue: this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID]?.default || ''),
+            defaultValue: this.decodeAndStripHTML(this.indicatorRecord[this.currIndicatorID]?.default || ''),
             required: parseInt(this.indicatorRecord[this.currIndicatorID]?.required) === 1 || false,
             is_sensitive: parseInt(this.indicatorRecord[this.currIndicatorID]?.is_sensitive) === 1 || false,
             parentID: this.indicatorRecord[this.currIndicatorID]?.parentID ? 
@@ -93,10 +93,9 @@ export default {
         'focusedFormTree',
         'selectedNodeIndicatorID',
         'selectNewCategory',
-        'updateCategoriesProperty',
         'newIndicatorParentID',
         'truncateText',
-        'stripAndDecodeHTML',
+        'decodeAndStripHTML',
         'orgchartFormats'
     ],
     provide() {
@@ -125,14 +124,20 @@ export default {
         } else {
             document.getElementById(this.initialFocusElID).focus();
         }
-        if (this.orgchartFormats.includes(this.format)){
+        if (this.orgchartFormats.includes(this.format)) {
             const selType = this.format.slice(this.format.indexOf('_') + 1);
-            this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', this.defaultValue);
-            document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.addEventListener('change', this.updateDefaultValue);
+            this.initializeOrgSelector(
+                selType, this.currIndicatorID, 'modal_', this.defaultValue, this.setOrgSelDefaultValue
+            );
+            const elInput = document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`);
+            if(elInput !== null) { //needed to remove default value
+                elInput.addEventListener('change', (event) => {
+                    if (event.target.value.trim() === '') {
+                        this.defaultValue = '';
+                    }
+                });
+            }
         }
-    },
-    beforeUnmount() {
-        document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`)?.removeEventListener('change', this.updateDefaultValue);
     },
     computed:{
         shortLabelTriggered() {
@@ -182,8 +187,10 @@ export default {
         }
     },
     methods: {
-        updateDefaultValue(event) {
-            this.defaultValue = event.currentTarget.value;
+        setOrgSelDefaultValue(orgSelector = {}) {
+            if(orgSelector.selection !== undefined) {
+                this.defaultValue = orgSelector.selection.toString();
+            }
         },
         toggleSelection(event, dataPropertyName = 'showDetailedFormatInfo') {
             if(typeof this[dataPropertyName] === 'boolean') {
@@ -228,7 +235,7 @@ export default {
                                 '\n' + this.indicatorRecord[this.currIndicatorID]?.options?.join('\n') : '';
                 const fullFormatChanged = this.fullFormatForPost !== this.indicatorRecord[this.currIndicatorID].format + options;
 
-                const defaultChanged = this.stripAndDecodeHTML(this.defaultValue) !== this.stripAndDecodeHTML(this.indicatorRecord[this.currIndicatorID].default);
+                const defaultChanged = this.decodeAndStripHTML(this.defaultValue) !== this.decodeAndStripHTML(this.indicatorRecord[this.currIndicatorID].default);
                 const requiredChanged = +this.required !== parseInt(this.indicatorRecord[this.currIndicatorID].required);
                 const sensitiveChanged = +this.is_sensitive !== parseInt(this.indicatorRecord[this.currIndicatorID].is_sensitive);
                 const parentIDChanged = this.parentID !== this.indicatorRecord[this.currIndicatorID].parentID;
@@ -332,7 +339,9 @@ export default {
                                 CSRFToken: this.CSRFToken
                             },
                             success: () => {
-                                this.updateCategoriesProperty(this.formID, 'needToKnow', 1);
+                                let panelEl = document.querySelector('select#needToKnow');
+                                panelEl.value = 1;
+                                panelEl.dispatchEvent(new Event("change"));
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -392,7 +401,9 @@ export default {
                                 CSRFToken: this.CSRFToken
                             },
                             success: () => {
-                                this.updateCategoriesProperty(this.formID, 'needToKnow', 1);
+                                let panelEl = document.querySelector('select#needToKnow');
+                                panelEl.value = 1;
+                                panelEl.dispatchEvent(new Event("change"));
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -533,12 +544,15 @@ export default {
             this.defaultValue = '';
             if (this.orgchartFormats.includes(newVal)) {
                 const selType = newVal.slice(newVal.indexOf('_') + 1);
-
-                setTimeout(() => {
-                    this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '');
-                    let el = document.getElementById(`modal_orgSel_data${this.currIndicatorID}`);
-                    el.addEventListener('change', this.updateDefaultValue);
-                },10);
+                this.initializeOrgSelector(selType, this.currIndicatorID, 'modal_', '', this.setOrgSelDefaultValue);
+                const elInput = document.querySelector(`#modal_orgSel_${this.currIndicatorID} input`);
+                if(elInput !== null) { //needed to remove default value
+                    elInput.addEventListener('change', (event) => {
+                        if (event.target.value.trim() === '') {
+                            this.defaultValue = '';
+                        }
+                    });
+                }
             }
         }
     },
@@ -612,10 +626,10 @@ export default {
             </div>
             <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
-                <template v-if="orgchartFormats.includes(format)">
-                    <input :id="'modal_orgSel_data' + currIndicatorID" @change="updateDefaultValue" style="display: none; "/>
-                    <div :id="'modal_orgSel_' + currIndicatorID" style="min-height:30px" aria-labelledby="defaultValue"></div>
-                </template>
+                <div v-show="orgchartFormats.includes(format)"
+                    :id="'modal_orgSel_' + currIndicatorID"
+                    style="min-height:30px" aria-labelledby="defaultValue">
+                </div>
                 <textarea v-show="!orgchartFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
         </div>
@@ -634,11 +648,6 @@ export default {
                         <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                     </label>
                 </template>
-                <!-- <template v-if="!isEditingModal">
-                    <label for="sort">
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-right:3px;" />Sort Priority
-                    </label>
-                </template> -->
                 <template v-if="isEditingModal">
                     <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
                         <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
@@ -674,10 +683,6 @@ export default {
                             </select>
                         </label>
                     </template>
-                    <!--
-                    <label for="sort">Sort Priority
-                        <input id="sort" v-model.number="sort" name="sort" type="number" style="width: 50px; padding: 0 2px; margin-left:3px;" />
-                    </label> -->
                 </div>
                 <indicator-privileges></indicator-privileges>
             </template>
