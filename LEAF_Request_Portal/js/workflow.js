@@ -127,8 +127,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 $("#notes").css("display", "block");
                             }
                         } else {
-                            var errors = "";
-                            for (var i in response.errors) {
+                            let errors = "";
+                            for (let i in response.errors) {
                                 errors += response.errors[i] + "<br />";
                             }
                             $("#workflowbox_dep" + data["dependencyID"]).html(
@@ -181,7 +181,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     var modulesLoaded = {};
     function drawWorkflow(step) {
         // draw frame and header
-        var stepDescription =
+        let stepDescription =
             step.description == null
                 ? "Your workflow is missing a requirement. Please check your workflow."
                 : step.description;
@@ -295,7 +295,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 data["require_comment"] = require_comment;
                 data["index"] = e.data.idx;
 
-                var completeAction = function () {
+                let completeAction = function () {
                     data["CSRFToken"] = CSRFToken;
                     if (
                         e.data.step.dependencyActions[e.data.idx]
@@ -314,8 +314,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             typeof workflowStepModule[e.data.step.stepID] !==
                             "undefined"
                         ) {
-                            var actionTriggered = false;
-                            for (var i in workflowStepModule[
+                            let actionTriggered = false;
+                            for (let i in workflowStepModule[
                                 e.data.step.stepID
                             ]) {
                                 if (
@@ -372,7 +372,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             });
         }
         if (step.stepModules != undefined) {
-            for (var x in step.stepModules) {
+            for (let x in step.stepModules) {
                 if (
                     modulesLoaded[
                         step.stepModules[x].moduleName + "_" + step.stepID
@@ -417,7 +417,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         }
 
         // legacy workflow modules based on dependencyIDs
-        for (var u in step.jsSrcList) {
+        for (let u in step.jsSrcList) {
             $.ajax({
                 type: "GET",
                 url: rootURL + step.jsSrcList[u],
@@ -568,7 +568,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     response.stepBorder == null
                         ? "1px solid black"
                         : response.stepBorder;
-                var label =
+                let label =
                     response.dependencyID == 5
                         ? response.categoryName
                         : response.description;
@@ -583,9 +583,9 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         });
                     }
 
-                    var date = new Date(response.time * 1000);
+                    let date = new Date(response.time * 1000);
 
-                    var text = "";
+                    let text = "";
                     if (
                         response.description != null &&
                         response.actionText != null
@@ -642,9 +642,9 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     });
                     $("#workflowbox_lastAction").addClass("workflowbox");
 
-                    var date = new Date(response.time * 1000);
+                    let date = new Date(response.time * 1000);
 
-                    var text = "";
+                    let text = "";
                     if (
                         response.description != null &&
                         response.actionText != null
@@ -693,13 +693,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     $("#workflowcontent").append(
                         '<div id="workflowSignatureContainer" style="margin-top: 8px"></div>'
                     );
-                    for (var i in lastActionSummary.signatures) {
-                        var sigTime = new Date(
+                    for (let i in lastActionSummary.signatures) {
+                        let sigTime = new Date(
                             lastActionSummary.signatures[i].timestamp * 1000
                         );
-                        var month = sigTime.getMonth() + 1;
-                        var date = sigTime.getDate();
-                        var year = sigTime.getFullYear();
+                        let month = sigTime.getMonth() + 1;
+                        let date = sigTime.getDate();
+                        let year = sigTime.getFullYear();
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: #d1ffcc; border: 1px solid black; text-align: center">' +
                                 lastActionSummary.signatures[i].stepTitle +
@@ -720,7 +720,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 "</span></div>"
                         );
                     }
-                    for (var i in lastActionSummary.stepsPendingSignature) {
+                    for (let i in lastActionSummary.stepsPendingSignature) {
                         $("#workflowSignatureContainer").append(
                             '<div style="float: left; width: 30%; margin: 0 4px 4px 0; padding: 8px; background-color: white; border: 1px dashed black; text-align: center">' +
                                 lastActionSummary.stepsPendingSignature[i] +
@@ -746,7 +746,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         antiDblClick = 0;
         currRecordID = recordID;
 
-        var masquerade = "";
+        let masquerade = "";
         if (window.location.href.indexOf("masquerade=nonAdmin") != -1) {
             masquerade = "?masquerade=nonAdmin";
         }
@@ -761,7 +761,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 masquerade,
             dataType: "json",
             success: function (res) {
-                for (var i in res) {
+                for (let i in res) {
                     if (res[i].hasAccess == 1) {
                         drawWorkflow(res[i]);
                     } else {
