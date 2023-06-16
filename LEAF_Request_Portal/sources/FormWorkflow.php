@@ -1213,23 +1213,18 @@ class FormWorkflow
 
         foreach($fields as $field) 
         {   
-            // TODO: set up switch case handling array format values
             $format = $field["format"];
             $data = $field["data"];
-
-            if (str_starts_with($format, "grid") != false) {
-                $data = $this->buildGrid(unserialize($data));
-            }
 
             switch(true) {
                 case (str_starts_with($format, "grid") != false):
                     $data = $this->buildGrid(unserialize($data));
                     break;
-                case (str_starts_with($format, "radio") != false):
                 case (str_starts_with($format, "checkboxes") != false):
                 case (str_starts_with($format, "multiselect") != false):
                     $data = $this->buildMultiselect(unserialize($data));
                     break;
+                case (str_starts_with($format, "radio") != false):
                 case (str_starts_with($format, "checkbox") != false):
                     if ($data == "no") {
                         $data = "";
@@ -1331,7 +1326,11 @@ class FormWorkflow
 
     private function getOrgchartEmployee(int $data): string
     {
-        return $data;
+        $employee = new \Orgchart\Employee($this->oc_db, $this->login);
+        $employeeData = $employee->lookupEmpUID($data)[0];
+        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
+
+        return $employeeName;
     }
 
     /**
