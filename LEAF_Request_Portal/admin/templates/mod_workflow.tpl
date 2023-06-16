@@ -59,7 +59,7 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function deleteWorkflow() {
@@ -111,9 +111,9 @@
                 fail: function(err) {
                     console.log(err);
                 }
+            });
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     /**
@@ -547,9 +547,9 @@
                         alert(error);
                     }); dialog.hide();
                 });
-        }).fail(function(error) {
-        alert(error);
-    });
+            }).fail(function(error) {
+            alert(error);
+        });
     }
 
     /**
@@ -657,60 +657,60 @@
             $('#eventDesc').attr('maxlength', 40);
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
-                    let eventName = 'CustomEvent_' + $('#eventName').val();
-                    let eventDesc = $('#eventDesc').val();
-                    let eventType = $('#eventType').val();
-                    let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
-                    'Notify Next': $('#notifyNext').prop("checked"),
-                        'Notify Group': $('#groupID option:selected').val()
+                let eventName = 'CustomEvent_' + $('#eventName').val();
+                let eventDesc = $('#eventDesc').val();
+                let eventType = $('#eventType').val();
+                let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                'Notify Next': $('#notifyNext').prop("checked"),
+                    'Notify Group': $('#groupID option:selected').val()
                 };
                 let ajaxData = {newName: eventName,
-                description: eventDesc,
-                type: eventType,
-                data: eventData,
-                CSRFToken: CSRFToken
-            };
-            let eventNameChange = false;
-            $.ajax({
-                type: 'GET',
-                url: '../api/workflow/customEvents',
-                cache: false
-            }).done(function(res) {
-                for (let i in res) {
-                    if (event !== eventName) { // Check if name change
-                        if (res[i].eventID === eventName) {
-                            eventNameChange = true;
+                    description: eventDesc,
+                    type: eventType,
+                    data: eventData,
+                    CSRFToken: CSRFToken
+                };
+                let eventNameChange = false;
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/workflow/customEvents',
+                    cache: false
+                }).done(function(res) {
+                    for (let i in res) {
+                        if (event !== eventName) { // Check if name change
+                            if (res[i].eventID === eventName) {
+                                eventNameChange = true;
+                            }
                         }
                     }
-                }
-                if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc')
-                    .val() !== '') {
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/editEvent/_' + event,
-                        data: ajaxData,
-                        cache: false
-                    }).done(function() {
-                        listEvents();
-                    }).fail(function(error) {
-                        alert(error);
-                    });
-                } else {
-                    if ($('#eventDesc').val() === '') {
-                        alert('Event description cannot be blank.');
-                        listEvents();
+                    if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc')
+                        .val() !== '') {
+                        $.ajax({
+                            type: 'POST',
+                            url: '../api/workflow/editEvent/_' + event,
+                            data: ajaxData,
+                            cache: false
+                        }).done(function() {
+                            listEvents();
+                        }).fail(function(error) {
+                            alert(error);
+                        });
                     } else {
-                        alert('Event name already exists.');
-                        listEvents();
+                        if ($('#eventDesc').val() === '') {
+                            alert('Event description cannot be blank.');
+                            listEvents();
+                        } else {
+                            alert('Event name already exists.');
+                            listEvents();
+                        }
                     }
-                }
-            }).fail(function(error) {
-                alert(error);
+                }).fail(function(error) {
+                    alert(error);
+                });
             });
+        }).fail(function(error) {
+            alert(error);
         });
-    }).fail(function(error) {
-        alert(error);
-    });
     }
 
     /**
@@ -801,7 +801,7 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function editRequirement(dependencyID) {
@@ -825,7 +825,7 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function unlinkDependency(stepID, dependencyID) {
@@ -848,9 +848,9 @@
                 fail: function(err) {
                     console.log(err);
                 }
+            });
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     function linkDependency(stepID, dependencyID) {
@@ -890,9 +890,9 @@
                 fail: function(err) {
                     console.log(err);
                 }
+            });
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     // stepID optional
@@ -953,7 +953,7 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function newDependency(stepID) {
@@ -978,7 +978,7 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function linkDependencyDialog(stepID) {
@@ -1062,23 +1062,23 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function setInitialStep(stepID) {
         $.ajax({
-                type: 'POST',
-                url: '../api/workflow/' + currentWorkflow + '/initialStep',
-                data: {stepID: stepID,
+            type: 'POST',
+            url: '../api/workflow/' + currentWorkflow + '/initialStep',
+            data: {stepID: stepID,
                 CSRFToken: CSRFToken
             },
             success: function() {
                 // ending step
                 if (stepID == 0) {
                     $.ajax({
-                            type: 'POST',
-                            url: '../api/workflow/' + currentWorkflow + '/action',
-                            data: {stepID: -1,
+                        type: 'POST',
+                        url: '../api/workflow/' + currentWorkflow + '/action',
+                        data: {stepID: -1,
                             nextStepID: 0,
                             action: 'submit',
                             CSRFToken: CSRFToken
@@ -1088,24 +1088,24 @@
                             console.log(err);
                         }
                     });
-            }
+                }
 
-            workflows = {}; $.ajax({
-                type: 'GET',
-                url: '../api/workflow',
-                success: function(res) {
-                    for (let i in res) {
-                        workflows[res[i].workflowID] = res[i];
-                    }
-                    loadWorkflow(currentWorkflow);
-                },
-                fail: function(err) {
-                    console.log(err);
-                },
-                cache: false
-            });
-        }
-    });
+                workflows = {}; $.ajax({
+                    type: 'GET',
+                    url: '../api/workflow',
+                    success: function(res) {
+                        for (let i in res) {
+                            workflows[res[i].workflowID] = res[i];
+                        }
+                        loadWorkflow(currentWorkflow);
+                    },
+                    fail: function(err) {
+                        console.log(err);
+                    },
+                    cache: false
+                });
+            }
+        });
     }
 
     //list all action type to edit/delete
@@ -1370,64 +1370,64 @@
                 });
             return;
         }
-    }
-    if (source > 0) {
-        sourceTitle = steps[source].stepTitle;
-    }
-    if (target > 0) {
-        targetTitle = steps[target].stepTitle;
-    }
+        }
+        if (source > 0) {
+            sourceTitle = steps[source].stepTitle;
+        }
+        if (target > 0) {
+            targetTitle = steps[target].stepTitle;
+        }
 
-    dialog.setTitle('Create New Workflow Action');
-    dialog.indicateBusy();
-    dialog.show();
+        dialog.setTitle('Create New Workflow Action');
+        dialog.indicateBusy();
+        dialog.show();
 
-    $.ajax({
-        type: 'GET',
-        url: '../api/workflow/actions',
-        success: function(res) {
-            let buffer = '';
-            buffer = 'Select action for ';
-            buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
-            buffer +=
-                '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
+        $.ajax({
+            type: 'GET',
+            url: '../api/workflow/actions',
+            success: function(res) {
+                let buffer = '';
+                buffer = 'Select action for ';
+                buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
+                buffer +=
+                    '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
 
-            for (let i in res) {
-                buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
-            }
+                for (let i in res) {
+                    buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
+                }
 
-            buffer += '</select>';
-            buffer +=
-                '<br />- OR -<br /><br /><span class="buttonNorm" onclick="newAction();">Create a new Action Type</span>';
+                buffer += '</select>';
+                buffer +=
+                    '<br />- OR -<br /><br /><span class="buttonNorm" onclick="newAction();">Create a new Action Type</span>';
 
-            dialog.indicateIdle();
-            dialog.setContent(buffer);
-            $('#actionType').chosen({disable_search_threshold: 5});
-            // TODO: Figure out why this triggers even when the user clicks save
-            /*
-            dialog.setCancelHandler(function() {
-                loadWorkflow(currentWorkflow);
-            });*/
-            dialog.setSaveHandler(function() {
-                    $.ajax({
-                            type: 'POST',
-                            url: '../api/workflow/' + currentWorkflow + '/action',
-                            data: {stepID: source,
-                            nextStepID: target,
-                            action: $('#actionType').val(),
-                            CSRFToken: CSRFToken
-                        },
-                        success: function() {
-                            loadWorkflow(currentWorkflow);
-                        }
-                    }); dialog.hide();
-            });
-    },
-    fail: function(err) {
-        console.log(err);
-    },
-    cache: false
-    });
+                dialog.indicateIdle();
+                dialog.setContent(buffer);
+                $('#actionType').chosen({disable_search_threshold: 5});
+                // TODO: Figure out why this triggers even when the user clicks save
+                /*
+                dialog.setCancelHandler(function() {
+                    loadWorkflow(currentWorkflow);
+                });*/
+                dialog.setSaveHandler(function() {
+                        $.ajax({
+                                type: 'POST',
+                                url: '../api/workflow/' + currentWorkflow + '/action',
+                                data: {stepID: source,
+                                nextStepID: target,
+                                action: $('#actionType').val(),
+                                CSRFToken: CSRFToken
+                            },
+                            success: function() {
+                                loadWorkflow(currentWorkflow);
+                            }
+                        }); dialog.hide();
+                });
+        },
+        fail: function(err) {
+            console.log(err);
+        },
+        cache: false
+        });
     }
 
     function removeAction(workflowID, stepID, nextStepID, action) {
@@ -1466,7 +1466,7 @@
                 let output = '';
                 let required = '';
 
-                if (find_required.required) {
+                if (find_required.required == 'true') {
                     required = 'checked=checked';
                 }
 
@@ -2035,16 +2035,16 @@
                             }
                         ]]
                 });
-        }
+            }
 
-        // bind connection events
-        jsPlumb.bind("connection", function(info) {
-            createAction(info);
+            // bind connection events
+            jsPlumb.bind("connection", function(info) {
+                createAction(info);
+            });
+            jsPlumb.setSuspendDrawing(false, true);
+        },
+        cache: false
         });
-        jsPlumb.setSuspendDrawing(false, true);
-    },
-    cache: false
-    });
     }
 
     var currentWorkflow = 0;
@@ -2277,7 +2277,7 @@
                     }
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     /*

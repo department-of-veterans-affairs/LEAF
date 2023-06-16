@@ -333,6 +333,7 @@ class Db
                     'message' => 'PDO exception error'
                 )
             );
+            error_log(print_r($e, true));
         }
 
         return $return_value;
@@ -372,6 +373,7 @@ class Db
                     'message' => 'PDO exception error'
                 )
             );
+            error_log(print_r($e, true));
         }
 
         return $return_value;
