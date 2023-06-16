@@ -406,6 +406,19 @@
     .CodeMirror-merge-pane-label:nth-child(2) {
         color: #083;
     }
+
+    #sensitive-warning {
+        color: red;
+        display: none;
+    }
+
+    #form-select, #indicator-select {
+        width: 100%;
+    }
+
+    #indicator-select {
+        display: none;
+    }
 </style>
 
 <div class="leaf-center-content">
@@ -464,40 +477,54 @@
                 <div>
                     <fieldset>
                         <legend>Template Variables</legend><br />
-                        <table class="table">
-                            <tr>
-                                <td><b>{{$recordID}}</b></td>
-                                <td>The ID number of the request</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$fullTitle}}</b></td>
-                                <td>The full title of the request</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$truncatedTitle}}</b></td>
-                                <td>A truncated version of the request title</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$lastStatus}}</b></td>
-                                <td>The last action taken for the request</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$comment}}</b></td>
-                                <td>The last comment associated with the request</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$service}}</b></td>
-                                <td>The service associated with the request</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$siteRoot}}</b></td>
-                                <td>The root URL of the LEAF site</td>
-                            </tr>
-                            <tr>
-                                <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
-                                <td>The value of the field by ID</td>
-                            </tr>
-                        </table>
+                        <div style="width: 50%; float: left;">
+                            <table class="table">
+                                <tr>
+                                    <td><b>{{$recordID}}</b></td>
+                                    <td>The ID number of the request</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$fullTitle}}</b></td>
+                                    <td>The full title of the request</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$truncatedTitle}}</b></td>
+                                    <td>A truncated version of the request title</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$lastStatus}}</b></td>
+                                    <td>The last action taken for the request</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$comment}}</b></td>
+                                    <td>The last comment associated with the request</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$service}}</b></td>
+                                    <td>The service associated with the request</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$siteRoot}}</b></td>
+                                    <td>The root URL of the LEAF site</td>
+                                </tr>
+                                <tr>
+                                    <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
+                                    <td>The value of the field by ID</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="width: 50%; float: right;">
+                            <div id="form-select">
+                                <span>Select Form:</span>
+                                <select id="form-select-dropdown"></select>
+                            </div>
+                            <div id="indicator-select">
+                                <span>Select Question:</span>
+                                <select id="indicator-select-dropdown"></select>
+                            </div>
+                            <span id="indicator-id"></span>
+                            <span id="sensitive-warning">This field is sensitive! It will not show in sent emails.</span>
+                        </div>
                 </div>
                 <div>
                     <table class="table">
@@ -1141,6 +1168,23 @@
         $('.CodeMirror').each(function(i, el) {
             el.CodeMirror.refresh();
         });
+    }
+
+    /**
+     * getForms Function
+     * Purpose: On loading document, get all available forms on the portal for quick search
+     */
+    function getForms() {
+
+    }
+
+    /**
+     * getIndicators Function
+     * Purpose: On selecting a form via the dropdown generated by getForms(), 
+     * get all available indicators that exist in the selected form.
+     */
+    function getIndicators() {
+
     }
     /**
      * initEditor Function
