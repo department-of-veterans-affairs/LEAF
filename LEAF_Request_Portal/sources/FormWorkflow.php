@@ -1203,7 +1203,7 @@ class FormWorkflow
     private function getFields(): array
     {
         $vars = array(':recordID' => $this->recordID);
-        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format` FROM `data`
+        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format`, `indicators`.`default`, `indicators`.`is_sensitive` FROM `data`
             JOIN `indicators` USING (`indicatorID`)
             WHERE `recordID` = :recordID';
 
@@ -1245,7 +1245,7 @@ class FormWorkflow
                     break;
             }
 
-            $formattedFields[$field['indicatorID']] = $data;
+            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
         }
 
         return $formattedFields;
