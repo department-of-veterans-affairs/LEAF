@@ -1107,7 +1107,6 @@
     var codeEditor = null;
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
-        loadContent(parentFile);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compare').css('display', 'none');
@@ -1205,6 +1204,7 @@
         var parentFile = urlParams.get('parentFile');
 
         if (fileName && parentFile) {
+            loadContent(parentFile);
             compareHistoryFile(fileName, parentFile, false);
         } else {
             loadContent('view_homepage.tpl');
@@ -1276,6 +1276,10 @@
             if (unsavedChanges) {
                 return 'You have unsaved changes. Are you sure you want to leave this page?';
             }
+        });
+
+        $(window).on('unload', function() {
+            if (unsavedChanges) {}
         });
 
         // Add event listener to track code editor changes

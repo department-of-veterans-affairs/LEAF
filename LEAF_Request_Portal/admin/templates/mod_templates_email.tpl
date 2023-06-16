@@ -159,7 +159,7 @@
         display: flex;
         justify-content: space-evenly;
         align-content: flex-start;
-        width: 65%;
+        width: 70%;
         flex: none;
         margin: 0 auto;
         transition: all 0.5s ease;
@@ -756,6 +756,7 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
+    var codeEditor;
     // browser listens when scrolling to scroll components
     window.addEventListener('scroll', function() {
         let mainEditorContent = document.querySelector('.main-content');
@@ -778,7 +779,8 @@
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
         const data = (codeEditor.getValue() == undefined) ? codeEditor.edit.getValue() : codeEditor.getValue();
-        const subject = (subjectEditor.getValue() == undefined) ? subjectEditor.edit.getValue() : subjectEditor.getValue();
+        const subject = (subjectEditor.getValue() == undefined) ? subjectEditor.edit.getValue() : subjectEditor
+            .getValue();
         const isContentChanged = (
             emailToData !== currentEmailToContent ||
             emailCcData !== currentEmailCcContent ||
@@ -804,6 +806,7 @@
                 showDialog('Please make a change to the content in order to save.');
             }
         }
+
         function saveTemplate() {
             $.ajax({
                 type: 'POST',
@@ -856,7 +859,7 @@
 
 
     }
-    
+
     // creates a copy of the current file content 
     function saveFileHistory() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
@@ -1002,19 +1005,19 @@
                     accordion += `
                     <div class="accordion">
                         <div class="accordion-header">
-                            <a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile('${fileName}', '${fileParentName}', true)">
-                                <span><strong style="color:#37beff;">DATE:</strong><br>${fileCreated}</span>
+<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile('${fileName}', '${fileParentName}', true)">
+<span><strong style="color:#37beff;">DATE:</strong><br>${fileCreated}</span>
                             </a>
                                 <span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>
                         </div>
                         <div class="accordion-content">
                             <ul>
-                                <li><strong>File Name: </strong><p>${fileName}</p></li>
-                                <li><p>${whoChangedFile}</p></li>
-                                <li><p>${formattedFileSize}</p></li>
+<li><strong>File Name: </strong><p>${fileName}</p></li>
+<li><p>${whoChangedFile}</p></li>
+<li><p>${formattedFileSize}</p></li>
                                 <li><strong>Share File URL:</strong>
                                     <div class="textContainer">
-                                        <button class="copyIcon" onclick="getUrlLink('${fileName}', '${fileParentName}', true)">Copy Link <span>&#10063;</span></button>
+<button class="copyIcon" onclick="getUrlLink('${fileName}', '${fileParentName}', true)">Copy Link <span>&#10063;</span></button>
                                     </div>
                                 </li>
                             </ul>
@@ -1042,12 +1045,12 @@
     var currentSubjectContent;
     var currentEmailToContent;
     var currentEmailCcContent;
-    var codeEditor;
     var subjectEditor;
     var dialog_message;
+    var unsavedChanges = false;
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
-        loadContent(currentName, parentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+        // loadContent(currentName, parentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compare').css('display', 'none');
@@ -1185,6 +1188,7 @@
         const parentFile = urlParams.get('parentFile');
 
         if (fileName && parentFile) {
+            loadContent(currentName, parentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
             compareHistoryFile(fileName, parentFile, false);
         } else {
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
@@ -1250,7 +1254,7 @@
             'text-align': 'left'
         });
         $('.main-content').css({
-            'width': '80%',
+            'width': '85%',
             'transition': 'all .5s ease',
             'justify-content': 'flex-start'
         });
@@ -1281,7 +1285,7 @@
             'text-align': 'center'
         });
         $('.main-content').css({
-            'width': '65%',
+            'width': '70%',
             'transition': 'all .5s ease',
             'justify-content': 'center'
         });
@@ -1321,11 +1325,11 @@
             emailToFile = currentEmailToFile;
             emailCcFile = currentEmailCcFile;
         }
+
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#subjectCompare').empty();
         $('#btn_compareStop').hide();
-        initEditor();
         $('#codeContainer').hide();
         $('#controls').css('visibility', 'visible');
         currentName = name;
@@ -1334,6 +1338,15 @@
         currentEmailToFile = emailToFile;
         currentEmailCcFile = emailCcFile;
         $('#emailTemplateHeader').html(currentName);
+
+        // Check if there are unsaved changes in the current file
+        if (unsavedChanges && currentFileContent !== codeEditor.getValue) {
+            if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
+                return;
+            }
+        }
+
+        initEditor();
         if (typeof subjectFile === 'undefined' || subjectFile === null || subjectFile === '') {
             $('#subject, #emailLists, #emailTo, #emailCc').hide();
             $('#divSubject, #divEmailTo, #divEmailCc').hide().prop('disabled', true);
@@ -1342,6 +1355,7 @@
             $('#subject, #emailLists, #emailTo, #emailCc').show();
             $('#divSubject, #divEmailTo, #divEmailCc').show().prop('disabled', false);
         }
+
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates/_' + file,
@@ -1363,12 +1377,31 @@
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').show();
+                    unsavedChanges = true;
                 } else {
                     $('.modifiedTemplate').hide();
+                    unsavedChanges = false;
                 }
                 getFileHistory(file);
             },
             cache: false
+        });
+        $('#saveStatus').html('');
+
+
+        // Bind event handlers to warn users of unsaved changes
+        $(window).on('beforeunload', function() {
+            if (unsavedChanges) {
+                return 'You have unsaved changes. Are you sure you want to leave this page?';
+            }
+        });
+
+        $(window).on('unload', function() {
+            if (unsavedChanges) {}
+        });
+
+        codeEditor.on('change', function() {
+            unsavedChanges = true;
         });
 
         // Keyboard shortcuts
@@ -1391,7 +1424,6 @@
             }
         });
 
-        $('#saveStatus').html('');
     }
 
     function updateEditorSize() {
@@ -1480,19 +1512,21 @@
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function (result) {
+                    success: function(result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 if (result.includes(res[i].fileName)) {
-                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom =
+                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
                                 }
 
-                                buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' +
+                                buffer += '<li onclick="loadContent(\'' + res[i]
+                                    .displayName + '\', ' +
                                     '\'' + res[i].fileName + '\'';
                                 if (res[i].subjectFileName != '') {
                                     buffer += ', \'' + res[i].subjectFileName + '\', ' +
@@ -1502,18 +1536,20 @@
                                     buffer += ', undefined, undefined, undefined';
                                 }
 
-                                buffer += ');"><a href="#">' + res[i].displayName + '</a> ' + custom + ' </li>';
+                                buffer += ');"><a href="#">' + res[i].displayName +
+                                    '</a> ' + custom + ' </li>';
                             }
                         } else if (res_array.status['code'] === 4) {
                             buffer += '<li>' + res_array.status['message'] + '</li>';
                         } else {
-                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                            buffer +=
+                                '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';
                         $('#fileList').html(buffer);
                     },
-                    error: function (error) {
+                    error: function(error) {
                         console.log(error);
                     }
                 });

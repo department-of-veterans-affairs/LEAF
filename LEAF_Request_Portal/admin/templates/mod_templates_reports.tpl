@@ -889,7 +889,6 @@
     }
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
-        loadContent(parentFile);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compare').css('display', 'none');
@@ -1018,6 +1017,7 @@
         var parentFile = urlParams.get('parentFile');
 
         if (fileName && parentFile) {
+            loadContent(parentFile);
             compareHistoryFile(fileName, parentFile, false);
         } else {
             console.log(currentFileContent);
@@ -1098,37 +1098,39 @@
         loadContent(currentFile);
     }
     // creates a new report
+
     function newReport() {
         dialog.setTitle('New File');
-        dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
+        dialog.setContent('Filename: <input type="text" id="newFilename">');
+
+        $('#newFilename').on('keyup', function(e) {
+            $(this).val($(this).val().replace(/[^a-z0-9\.\/]/gi, '_'));
+        });
 
         dialog.setSaveHandler(function() {
-                var file = $('#newFilename').val();
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/applet',
-                        data: {CSRFToken: '<!--{$CSRFToken}-->',
-                        filename: file
-                    },
-                    success: function(res) {
-                        if (res == 'CreateOK') {
-                            updateFileList();
-                            loadContent(file);
-                        } else {
-                            alert(res);
-                        }
+            var file = $('#newFilename').val();
+            $.ajax({
+                type: 'POST',
+                url: '../api/applet',
+                data: {
+                    CSRFToken: '<!--{$CSRFToken}-->',
+                    filename: file
+                },
+                success: function(res) {
+                    if (res === 'CreateOK') {
+                        updateFileList();
+                        loadContent(file);
+                    } else {
+                        alert(res);
                     }
                 }
             });
             dialog.hide();
         });
 
-        $('#newFilename').on('keyup change', function(e) {
-            $('#newFilename').val($('#newFilename').val().replace(/[^a-z0-9\.\/]/gi, '_'));
-        });
-
         dialog.show();
     }
+
     // deletes the report
     function deleteReport() {
         dialog_confirm.setTitle('Are you sure?');
