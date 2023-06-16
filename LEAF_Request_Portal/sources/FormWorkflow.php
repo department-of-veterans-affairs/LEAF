@@ -1208,11 +1208,16 @@ class FormWorkflow
             WHERE `recordID` = :recordID';
 
         $fields = $this->db->prepared_query($strSQL, $vars);
-
+        
         $formattedFields = array();
 
         foreach($fields as $field) 
         {   
+            if ($field["is_sensitive"] == 1) {
+                $formattedFields[$field['indicatorID']] = "**********";
+                continue;
+            }
+
             $format = $field["format"];
             $data = $field["data"];
 
