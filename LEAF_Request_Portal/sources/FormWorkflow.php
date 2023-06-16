@@ -16,6 +16,8 @@ class FormWorkflow
 
     private $db;
 
+    private $oc_db;
+
     private $login;
 
     private $recordID;
@@ -30,6 +32,7 @@ class FormWorkflow
         $this->db = $db;
         $this->login = $login;
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
+        $this->oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -1237,20 +1240,18 @@ class FormWorkflow
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
                     break;
                 case ($format == "orgchart_group"):
-                    $data == $this->getOrgchartGroup($data);
+                    $data = $this->getOrgchartGroup((int) $data);
                     break;
                 case ($format == "orgchart_position"):
-                    $data = $this->getOrgchartPosition($data);
+                    $data = $this->getOrgchartPosition((int) $data);
                     break;
                 case ($format == "orgchart_employee"):
-                    $data = $this->getOrgchartEmployee($data);
+                    $data = $this->getOrgchartEmployee((int) $data);
                     break;
             }
 
             $formattedFields[$field['indicatorID']] = $data;
         }
-
-        var_dump($formattedFields);
 
         return $formattedFields;
     }
@@ -1258,8 +1259,11 @@ class FormWorkflow
     // method for building grid
     private function buildGrid($data): string
     {
+        // get the grid in the form of array
         $cells = $data['cells'];
         $headers = $data['names'];
+        
+        // build the grid
         $grid = "<table><tr>";
 
         foreach($headers as $header) {
@@ -1271,8 +1275,8 @@ class FormWorkflow
 
         foreach($cells as $row) {
             $grid .= "<tr>";
-            foreach($row as $cell) {
-                $grid .= "<td>{$cell}</td>";
+            foreach($row as $column) {
+                $grid .= "<td>{$column}</td>";
             }
             $grid .= "</tr>";
         }
@@ -1281,7 +1285,7 @@ class FormWorkflow
         return $grid;
     }
 
-    private function buildMultiselect($data): string
+    private function buildMultiselect(array $data): string
     {
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
@@ -1291,32 +1295,41 @@ class FormWorkflow
         return $formattedData;
     }
 
-    private function buildFileLink($data, $id, $series): string
+    private function buildFileLink(string $data, string $id, string $series): string
     {
+        // split the file names out into an array
         $data = explode("\n", $data);
-        $portal = "https://".$_SERVER['HTTP_HOST'].substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], "api/"));
         $buffer = [];
 
+        // parse together the links to each file
         foreach($data as $index => $file) {
-            $buffer[] = "<a href=\"{$portal}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
+            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
         }
 
+        // separate the links by comma
         $formattedData = implode(", ", $buffer);
         return $formattedData;
     }
 
     // method for building orgchart group, position, employee
-    private function getOrgchartGroup($data): string
+    private function getOrgchartGroup(int $data): string
     {
-        return $data;
+        // reference the group by id
+        $group = new Group($this->db, $this->login);
+        $groupName = $group->getGroupName($data);
+        
+        return $groupName;
     }
 
-    private function getOrgchartPosition($data): string
+    private function getOrgchartPosition(int $data): string
     {
-        return $data;
+        $position = new \Orgchart\Position($this->oc_db, $this->login);
+        $positionName = $position->getTitle($data);
+
+        return $positionName;
     }
 
-    private function getOrgchartEmployee($data): string
+    private function getOrgchartEmployee(int $data): string
     {
         return $data;
     }
