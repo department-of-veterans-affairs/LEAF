@@ -1200,7 +1200,9 @@ class FormWorkflow
     private function getFields(): array
     {
         $vars = array(':recordID' => $this->recordID);
-        $strSQL = 'SELECT `indicatorID`, `data` FROM `data` WHERE `recordID` = :recordID';
+        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format` FROM `data`
+            JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID` = :recordID';
 
         $fields = $this->db->prepared_query($strSQL, $vars);
 
@@ -1208,11 +1210,115 @@ class FormWorkflow
 
         foreach($fields as $field) 
         {   
-            // TODO: set up switch case handling irregular format values
-            $formattedFields[$field['indicatorID']] = $field['data'];
+            // TODO: set up switch case handling array format values
+            $format = $field["format"];
+            $data = $field["data"];
+
+            if (str_starts_with($format, "grid") != false) {
+                $data = $this->buildGrid(unserialize($data));
+            }
+
+            switch(true) {
+                case (str_starts_with($format, "grid") != false):
+                    $data = $this->buildGrid(unserialize($data));
+                    break;
+                case (str_starts_with($format, "radio") != false):
+                case (str_starts_with($format, "checkboxes") != false):
+                case (str_starts_with($format, "multiselect") != false):
+                    $data = $this->buildMultiselect(unserialize($data));
+                    break;
+                case (str_starts_with($format, "checkbox") != false):
+                    if ($data == "no") {
+                        $data = "";
+                    }
+                    break;
+                case ($format == "fileupload"):
+                case ($format == "image"):
+                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
+                    break;
+                case ($format == "orgchart_group"):
+                    $data == $this->getOrgchartGroup($data);
+                    break;
+                case ($format == "orgchart_position"):
+                    $data = $this->getOrgchartPosition($data);
+                    break;
+                case ($format == "orgchart_employee"):
+                    $data = $this->getOrgchartEmployee($data);
+                    break;
+            }
+
+            $formattedFields[$field['indicatorID']] = $data;
         }
 
+        var_dump($formattedFields);
+
         return $formattedFields;
+    }
+    
+    // method for building grid
+    private function buildGrid($data): string
+    {
+        $cells = $data['cells'];
+        $headers = $data['names'];
+        $grid = "<table><tr>";
+
+        foreach($headers as $header) {
+            if ($header !== " ") {
+                $grid .= "<th>{$header}</th>";
+            }
+        }
+        $grid .= "</tr>";
+
+        foreach($cells as $row) {
+            $grid .= "<tr>";
+            foreach($row as $cell) {
+                $grid .= "<td>{$cell}</td>";
+            }
+            $grid .= "</tr>";
+        }
+        $grid .= "</table>";
+
+        return $grid;
+    }
+
+    private function buildMultiselect($data): string
+    {
+        // filter out non-selected selections
+        $data = array_filter($data, function($x) { return $x !== "no"; });
+        // comma separate to be readable in email
+        $formattedData = implode(",", $data);
+
+        return $formattedData;
+    }
+
+    private function buildFileLink($data, $id, $series): string
+    {
+        $data = explode("\n", $data);
+        $portal = "https://".$_SERVER['HTTP_HOST'].substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], "api/"));
+        $buffer = [];
+
+        foreach($data as $index => $file) {
+            $buffer[] = "<a href=\"{$portal}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
+        }
+
+        $formattedData = implode(", ", $buffer);
+        return $formattedData;
+    }
+
+    // method for building orgchart group, position, employee
+    private function getOrgchartGroup($data): string
+    {
+        return $data;
+    }
+
+    private function getOrgchartPosition($data): string
+    {
+        return $data;
+    }
+
+    private function getOrgchartEmployee($data): string
+    {
+        return $data;
     }
 
     /**
