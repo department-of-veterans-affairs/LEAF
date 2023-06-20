@@ -369,7 +369,7 @@
 
     .file_replace_file_btn,
     .close_expand_mode_screen {
-        width: 100%;
+        width: 90%;
         padding: 10px 0;
         border: none;
         color: #fff;
@@ -412,7 +412,7 @@
     }
 
     .word-wrap-button {
-        width: 100%;
+        width: 90%;
         display: inline-block;
         background-color: #ddd;
         border: none;
@@ -988,7 +988,7 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                loadContent();
+                loadContent(currentFile);
                 exitExpandScreen();
             },
             error: function(xhr, status, error) {
@@ -1186,13 +1186,6 @@
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
             return;
-        }
-
-        // Check if there are unsaved changes in the current file
-        if (unsavedChanges && currentFileContent !== codeEditor.getValue) {
-            if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
-                return;
-            }
         }
 
         $('.CodeMirror').remove();

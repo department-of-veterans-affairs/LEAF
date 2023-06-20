@@ -498,6 +498,7 @@
 
     #controls,
     .controls-compare {
+        display: none;
         width: 80%;
         margin: 0 auto;
         padding: 10px 0;
@@ -721,7 +722,7 @@
         </main>
         <div class="leaf-right-nav">
             <aside class="sidenav-right">
-                <div id="controls" style="visibility: hidden">
+                <div id="controls">
                     <button class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
                         Save Changes<span id="saveStatus"
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
@@ -855,8 +856,6 @@
             currentEmailToContent = emailToData;
             currentEmailCcContent = emailCcData;
         }
-
-
 
     }
 
@@ -1159,7 +1158,8 @@
             cache: false,
             success: function(res) {
                 console.log(res);
-                loadContent();
+                loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
+                    currentEmailCcFile);
                 exitExpandScreen();
             },
             error: function(xhr, status, error) {
@@ -1338,13 +1338,6 @@
         currentEmailToFile = emailToFile;
         currentEmailCcFile = emailCcFile;
         $('#emailTemplateHeader').html(currentName);
-
-        // Check if there are unsaved changes in the current file
-        if (unsavedChanges && currentFileContent !== codeEditor.getValue) {
-            if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
-                return;
-            }
-        }
 
         initEditor();
         if (typeof subjectFile === 'undefined' || subjectFile === null || subjectFile === '') {

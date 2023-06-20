@@ -1222,13 +1222,6 @@
             return;
         }
 
-        // Check if there are unsaved changes in the current file
-        if (unsavedChanges && currentFileContent !== codeEditor.getValue) {
-            if (!confirm('Loading a new file will discard unsaved changes. Are you sure you want to proceed?')) {
-                return;
-            }
-        }
-
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compareStop').css('display', 'none');
