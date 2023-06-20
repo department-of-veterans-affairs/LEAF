@@ -479,42 +479,40 @@
                 <div>
                     <fieldset>
                         <legend>Template Variables</legend><br />
-                        <div style="width: 50%; float: left;">
-                            <table class="table">
-                                <tr>
-                                    <td><b>{{$recordID}}</b></td>
-                                    <td>The ID number of the request</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$fullTitle}}</b></td>
-                                    <td>The full title of the request</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$truncatedTitle}}</b></td>
-                                    <td>A truncated version of the request title</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$lastStatus}}</b></td>
-                                    <td>The last action taken for the request</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$comment}}</b></td>
-                                    <td>The last comment associated with the request</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$service}}</b></td>
-                                    <td>The service associated with the request</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$siteRoot}}</b></td>
-                                    <td>The root URL of the LEAF site</td>
-                                </tr>
-                                <tr>
-                                    <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
-                                    <td>The value of the field by ID</td>
-                                </tr>
-                            </table>
-                        </div>
+                        <table class="table">
+                            <tr>
+                                <td><b>{{$recordID}}</b></td>
+                                <td>The ID number of the request</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$fullTitle}}</b></td>
+                                <td>The full title of the request</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$truncatedTitle}}</b></td>
+                                <td>A truncated version of the request title</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$lastStatus}}</b></td>
+                                <td>The last action taken for the request</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$comment}}</b></td>
+                                <td>The last comment associated with the request</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$service}}</b></td>
+                                <td>The service associated with the request</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$siteRoot}}</b></td>
+                                <td>The root URL of the LEAF site</td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
+                                <td>The value of the field by ID</td>
+                            </tr>
+                        </table>
                     </div>
                     </fieldset>
                     <fieldset>
@@ -1211,7 +1209,7 @@
         forms.forEach(form => {
             opt = document.createElement('option');
             opt.value = form.categoryID;
-            opt.innerHTML = form.categoryName;
+            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form.categoryName;
             sel.appendChild(opt);
         });
     }
@@ -1255,7 +1253,7 @@
         indicators.forEach(indicator => {
             opt = document.createElement('option');
             opt.value = indicator.indicatorID;
-            opt.innerHTML = indicator.name;
+            opt.innerHTML = indicator.name.length > 50 ? indicator.name.slice(0, 47) + "..." : indicator.name;
             opt.dataset.isSensitive = indicator.is_sensitive;
             sel.appendChild(opt);
         });
