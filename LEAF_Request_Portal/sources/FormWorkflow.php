@@ -1257,7 +1257,7 @@ class FormWorkflow
     }
     
     // method for building grid
-    private function buildGrid($data): string
+    private function buildGrid(array $data): string
     {
         // get the grid in the form of array
         $cells = $data['cells'];
