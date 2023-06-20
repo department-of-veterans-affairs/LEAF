@@ -1218,7 +1218,7 @@ class FormWorkflow
                 continue;
             }
 
-            $format = $field["format"];
+            $format = strtolower($field["format"]);
             $data = $field["data"];
 
             switch(true) {
