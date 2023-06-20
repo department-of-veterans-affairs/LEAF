@@ -26,26 +26,26 @@ var LeafFormGrid = function (containerID, options) {
 
   $("#" + containerID).html(
     '<div id="' +
-      prefixID +
-      'grid"></div><div id="' +
-      prefixID +
-      'form" style="display: none"></div>'
+    prefixID +
+    'grid"></div><div id="' +
+    prefixID +
+    'form" style="display: none"></div>'
   );
 
   $("#" + prefixID + "grid").html(
     '<div style="position: relative"><div id="' +
-      prefixID +
-      'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="' +
-      prefixID +
-      'table_stickyHeader" style="display: none"></div><table id="' +
-      prefixID +
-      'table" class="leaf_grid"><thead id="' +
-      prefixID +
-      'thead" aria-label="Search Results"></thead><tbody id="' +
-      prefixID +
-      'tbody"></tbody><tfoot id="' +
-      prefixID +
-      'tfoot"></tfoot></table>'
+    prefixID +
+    'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="' +
+    prefixID +
+    'table_stickyHeader" style="display: none"></div><table id="' +
+    prefixID +
+    'table" class="leaf_grid"><thead id="' +
+    prefixID +
+    'thead" aria-label="Search Results"></thead><tbody id="' +
+    prefixID +
+    'tbody"></tbody><tfoot id="' +
+    prefixID +
+    'tfoot"></tfoot></table>'
   );
 
   if (options == undefined) {
@@ -259,20 +259,20 @@ var LeafFormGrid = function (containerID, options) {
       var align = headers[i].align != undefined ? headers[i].align : "center";
       $("#" + prefixID + "thead_tr").append(
         '<th id="' +
-          prefixID +
-          "header_" +
-          headers[i].indicatorID +
-          '" tabindex="0"  style="text-align:' +
-          align +
-          '">' +
-          headers[i].name +
-          '<span id="' +
-          prefixID +
-          "header_" +
-          headers[i].indicatorID +
-          '_sort" class="' +
-          prefixID +
-          'sort"></span></th>'
+        prefixID +
+        "header_" +
+        headers[i].indicatorID +
+        '" tabindex="0"  style="text-align:' +
+        align +
+        '">' +
+        headers[i].name +
+        '<span id="' +
+        prefixID +
+        "header_" +
+        headers[i].indicatorID +
+        '_sort" class="' +
+        prefixID +
+        'sort"></span></th>'
       );
       virtualHeader +=
         '<th id="Vheader_' +
@@ -403,9 +403,9 @@ var LeafFormGrid = function (containerID, options) {
       );
       $("#" + prefixID + "header_" + key + "_sort").html(
         '<div style="position: absolute" aria-label="Sorting by ascending ' +
-          key +
-          '"></div>' +
-          " &#9650;"
+        key +
+        '"></div>' +
+        " &#9650;"
       );
       $("#" + prefixID + "header_" + key + "_sort").css(
         "vertical-align",
@@ -419,9 +419,9 @@ var LeafFormGrid = function (containerID, options) {
       );
       $("#" + prefixID + "header_" + key + "_sort").html(
         '<div style="position: absolute" aria-label="Sorting by descending ' +
-          key +
-          '"></div>' +
-          " &#9660;"
+        key +
+        '"></div>' +
+        " &#9660;"
       );
       $("#" + prefixID + "header_" + key + "_sort").css(
         "vertical-align",
@@ -436,6 +436,10 @@ var LeafFormGrid = function (containerID, options) {
     var idKey = "id" + key;
     var tDate;
     for (let i in currentData) {
+      if (typeof currentData[i].recordID == 'undefined') {
+        return false;
+      }
+
       currentData[i].recordID = parseInt(currentData[i].recordID);
       if (currentData[i][key] == undefined) {
         currentData[i][key] = $(
@@ -612,177 +616,204 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function renderBody(startIdx, limit) {
-    isRenderingBody = true;
-    if (preRenderFunc != null) {
-      preRenderFunc();
+    
+    if (typeof dataBlob.status == 'number' && dataBlob?.status == 2) {
+      buffer = "<tbody><tr><td style=\"padding: 10px;\">"+dataBlob.errors[0]+"</td></tr></tbody>";
+      
+      $("#" + prefixID + "table").html(buffer);
     }
+    else {
+      isRenderingBody = true;
+      if (preRenderFunc != null) {
+        preRenderFunc();
+      }
 
-    if (limit == undefined) {
-      limit = defaultLimit;
-    }
-    currLimit = limit;
+      if (limit == undefined) {
+        limit = defaultLimit;
+      }
+      currLimit = limit;
 
-    var fullRender = false;
-    if (startIdx == undefined || startIdx == 0) {
-      startIdx = 0;
-      $("#" + prefixID + "tbody").empty();
-      renderHistory = {};
-      fullRender = true;
-    }
+      var fullRender = false;
+      if (startIdx == undefined || startIdx == 0) {
+        startIdx = 0;
+        $("#" + prefixID + "tbody").empty();
+        renderHistory = {};
+        fullRender = true;
+      }
 
-    var buffer = "";
-    var callbackBuffer = [];
+      var buffer = "";
+      var callbackBuffer = [];
 
-    var colspan = showIndex ? headers.length + 1 : headers.length;
-    if (currentData.length == 0) {
-      $("#" + prefixID + "tbody").append(
-        '<tr><td colspan="' +
+      var colspan = showIndex ? headers.length + 1 : headers.length;
+      if (currentData.length == 0) {
+        $("#" + prefixID + "tbody").append(
+          '<tr><td colspan="' +
           colspan +
           '" style="text-align: center">No Results</td></tr>'
-      );
-    }
-    var counter = 0;
-    var validateHtml = document.createElement("div");
-    for (var i = startIdx; i < currentData.length; i++) {
-      if (counter >= limit) {
-        currentRenderIndex = i;
-        break;
+        );
       }
+      var counter = 0;
+      var validateHtml = document.createElement("div");
+      for (var i = startIdx; i < currentData.length; i++) {
+        if (counter >= limit) {
+          currentRenderIndex = i;
+          break;
+        }
 
-      // Prevent duplicate DOM IDs from being generated
-      if (renderHistory[currentData[i].recordID] != undefined) {
-        continue;
-      }
-
-      renderHistory[currentData[i].recordID] = 1;
-      buffer +=
-        '<tr id="' + prefixID + "tbody_tr" + currentData[i].recordID + '">';
-      if (showIndex) {
-        buffer +=
-          '<td><a href="index.php?a=printview&recordID=' +
-          currentData[i].recordID +
-          '">' +
-          currentData[i].recordID +
-          "</a></td>";
-      }
-      for (var j in headers) {
-        if (headers[j].visible == false) {
+        // Prevent duplicate DOM IDs from being generated
+        if (renderHistory[currentData[i].recordID] != undefined) {
           continue;
         }
-        if (currentData[i] != undefined) {
-          var data = {};
-          data.recordID = currentData[i].recordID;
-          data.indicatorID = headers[j].indicatorID;
-          data.cellContainerID =
-            prefixID + currentData[i].recordID + "_" + headers[j].indicatorID;
-          data.index = i;
-          data.data = "";
-          var editable = false;
 
-          if (
-            headers[j].editable == undefined ||
-            headers[j].editable != false
-          ) {
-            editable = true;
+        renderHistory[currentData[i].recordID] = 1;
+        buffer +=
+          '<tr id="' + prefixID + "tbody_tr" + currentData[i].recordID + '">';
+        if (showIndex) {
+          buffer +=
+            '<td><a href="index.php?a=printview&recordID=' +
+            currentData[i].recordID +
+            '">' +
+            currentData[i].recordID +
+            "</a></td>";
+        }
+        for (var j in headers) {
+
+          if (typeof currentData[i].recordID == 'undefined') {
+            return false;
           }
 
-          if ($.isNumeric(data.indicatorID)) {
-            if (currentData[i].s1 == undefined) {
-              currentData[i].s1 = {};
-            }
-            data.data =
-              currentData[i].s1["id" + headers[j].indicatorID] != undefined
-                ? currentData[i].s1["id" + headers[j].indicatorID]
-                : "";
-            validateHtml.innerHTML = data.data;
-            data.data = validateHtml.innerHTML;
+          if (headers[j].visible == false) {
+            continue;
+          }
+          if (currentData[i] != undefined) {
+            var data = {};
+            data.recordID = currentData[i].recordID;
+            data.indicatorID = headers[j].indicatorID;
+            data.cellContainerID =
+              prefixID + currentData[i].recordID + "_" + headers[j].indicatorID;
+            data.index = i;
+            data.data = "";
+            var editable = false;
+
             if (
-              currentData[i].s1["id" + headers[j].indicatorID + "_htmlPrint"] !=
-              undefined
+              headers[j].editable == undefined ||
+              headers[j].editable != false
             ) {
-              var htmlPrint =
-                '<textarea id="data_' +
-                currentData[i].recordID +
-                "_" +
-                headers[j].indicatorID +
-                '_1" style="display: none">' +
-                data.data +
-                "</textarea>";
-              htmlPrint += currentData[i].s1[
-                "id" + headers[j].indicatorID + "_htmlPrint"
-              ]
-                .replace(
-                  /{{ iID }}/g,
-                  currentData[i].recordID + "_" + headers[j].indicatorID
-                )
-                .replace(/{{ recordID }}/g, currentData[i].recordID);
+              editable = true;
+            }
+
+            if ($.isNumeric(data.indicatorID)) {
+              if (currentData[i].s1 == undefined) {
+                currentData[i].s1 = {};
+              }
+              data.data =
+                currentData[i].s1["id" + headers[j].indicatorID] != undefined
+                  ? currentData[i].s1["id" + headers[j].indicatorID]
+                  : "";
+              validateHtml.innerHTML = data.data;
+              data.data = validateHtml.innerHTML;
+              if (
+                currentData[i].s1["id" + headers[j].indicatorID + "_htmlPrint"] !=
+                undefined
+              ) {
+                var htmlPrint =
+                  '<textarea id="data_' +
+                  currentData[i].recordID +
+                  "_" +
+                  headers[j].indicatorID +
+                  '_1" style="display: none">' +
+                  data.data +
+                  "</textarea>";
+                htmlPrint += currentData[i].s1[
+                  "id" + headers[j].indicatorID + "_htmlPrint"
+                ]
+                  .replace(
+                    /{{ iID }}/g,
+                    currentData[i].recordID + "_" + headers[j].indicatorID
+                  )
+                  .replace(/{{ recordID }}/g, currentData[i].recordID);
+                buffer +=
+                  '<td id="' +
+                  prefixID +
+                  currentData[i].recordID +
+                  "_" +
+                  headers[j].indicatorID +
+                  '" data-editable="' +
+                  editable +
+                  '" data-record-id="' +
+                  currentData[i].recordID +
+                  '" data-indicator-id="' +
+                  headers[j].indicatorID +
+                  '">' +
+                  htmlPrint +
+                  "</td>";
+              } else {
+                if (headers[j].cols !== undefined) {
+                  if (
+                    currentData[i].s1[data.data] !== undefined &&
+                    data.data.search("gridInput") &&
+                    headers[j].cols.length > 0
+                  ) {
+                    data.data = printTableReportBuilder(
+                      currentData[i].s1[data.data],
+                      headers[j].cols
+                    );
+                  }
+                } else {
+                  if (
+                    currentData[i].s1[data.data] !== undefined &&
+                    data.data.search("gridInput")
+                  ) {
+                    data.data = printTableReportBuilder(
+                      currentData[i].s1[data.data],
+                      null
+                    );
+                  }
+                }
+                buffer += `<td id="${prefixID + currentData[i].recordID}_${headers[j].indicatorID
+                  }"
+                                           data-editable="${editable}"
+                                           data-record-id="${currentData[i].recordID
+                  }"
+                                           data-indicator-id="${headers[j].indicatorID
+                  }"
+                                           data-format="${currentData[i].s1[
+                  "id" +
+                  headers[j].indicatorID +
+                  "_format"
+                  ]
+                  }">
+                                            ${data.data}</td>`;
+              }
+            } else if (headers[j].callback != undefined) {
               buffer +=
                 '<td id="' +
                 prefixID +
                 currentData[i].recordID +
                 "_" +
                 headers[j].indicatorID +
-                '" data-editable="' +
+                '" data-clickable="' +
                 editable +
-                '" data-record-id="' +
-                currentData[i].recordID +
-                '" data-indicator-id="' +
-                headers[j].indicatorID +
-                '">' +
-                htmlPrint +
-                "</td>";
+                '"></td>';
             } else {
-              if (headers[j].cols !== undefined) {
-                if (
-                  currentData[i].s1[data.data] !== undefined &&
-                  data.data.search("gridInput") &&
-                  headers[j].cols.length > 0
-                ) {
-                  data.data = printTableReportBuilder(
-                    currentData[i].s1[data.data],
-                    headers[j].cols
-                  );
-                }
-              } else {
-                if (
-                  currentData[i].s1[data.data] !== undefined &&
-                  data.data.search("gridInput")
-                ) {
-                  data.data = printTableReportBuilder(
-                    currentData[i].s1[data.data],
-                    null
-                  );
-                }
-              }
-              buffer += `<td id="${prefixID + currentData[i].recordID}_${
-                headers[j].indicatorID
-              }"
-                                           data-editable="${editable}"
-                                           data-record-id="${
-                                             currentData[i].recordID
-                                           }"
-                                           data-indicator-id="${
-                                             headers[j].indicatorID
-                                           }"
-                                           data-format="${
-                                             currentData[i].s1[
-                                               "id" +
-                                                 headers[j].indicatorID +
-                                                 "_format"
-                                             ]
-                                           }">
-                                            ${data.data}</td>`;
+              buffer +=
+                '<td id="' +
+                prefixID +
+                currentData[i].recordID +
+                "_" +
+                headers[j].indicatorID +
+                '"></td>';
             }
-          } else if (headers[j].callback != undefined) {
-            buffer +=
-              '<td id="' +
-              prefixID +
-              currentData[i].recordID +
-              "_" +
-              headers[j].indicatorID +
-              '" data-clickable="' +
-              editable +
-              '"></td>';
+
+            if (headers[j].callback != undefined) {
+              callbackBuffer.push(
+                (function (funct, data) {
+                  return function () {
+                    funct(data, dataBlob);
+                  };
+                })(headers[j].callback, data)
+              );
+            }
           } else {
             buffer +=
               '<td id="' +
@@ -792,79 +823,61 @@ var LeafFormGrid = function (containerID, options) {
               headers[j].indicatorID +
               '"></td>';
           }
+        }
+        buffer += "</tr>";
+        counter++;
 
-          if (headers[j].callback != undefined) {
-            callbackBuffer.push(
-              (function (funct, data) {
-                return function () {
-                  funct(data, dataBlob);
-                };
-              })(headers[j].callback, data)
-            );
-          }
-        } else {
-          buffer +=
-            '<td id="' +
-            prefixID +
-            currentData[i].recordID +
-            "_" +
-            headers[j].indicatorID +
-            '"></td>';
+        if (fullRender) {
+          currentRenderIndex = i + 1;
         }
       }
-      buffer += "</tr>";
-      counter++;
 
-      if (fullRender) {
-        currentRenderIndex = i + 1;
-      }
-    }
-
-    if (
-      currentRenderIndex + limit >= currentData.length ||
-      limit == undefined
-    ) {
-      $("#" + prefixID + "tfoot").html("");
-    } else {
-      $("#" + prefixID + "tfoot").html(
-        "<tr><td colspan=" +
+      if (
+        currentRenderIndex + limit >= currentData.length ||
+        limit == undefined
+      ) {
+        $("#" + prefixID + "tfoot").html("");
+      } else {
+        $("#" + prefixID + "tfoot").html(
+          "<tr><td colspan=" +
           colspan +
           ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
           rootURL +
           'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>'
-      );
-    }
-
-    $("#" + prefixID + "tbody").append(buffer);
-    $("#" + prefixID + "tbody td[data-editable=true]").addClass(
-      "table_editable"
-    );
-    $("#" + prefixID + "tbody td[data-clickable=true]").addClass(
-      "table_editable"
-    );
-    $("#" + prefixID + "tbody").unbind("click"); //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
-    $("#" + prefixID + "tbody").on(
-      "click",
-      "td[data-editable=true]",
-      function (e) {
-        form.setRecordID($(this).data("record-id"));
-        var indicatorID = $(this).data("indicator-id");
-        form.setPostModifyCallback(function () {
-          getIndicator(indicatorID, 1);
-          form.dialog().hide();
-        });
-        form.getForm(indicatorID, 1);
-        form.dialog().show();
+        );
       }
-    );
-    for (let i in callbackBuffer) {
-      callbackBuffer[i]();
-    }
+      
+      $("#" + prefixID + "tbody").append(buffer);
+      $("#" + prefixID + "tbody td[data-editable=true]").addClass(
+        "table_editable"
+      );
+      $("#" + prefixID + "tbody td[data-clickable=true]").addClass(
+        "table_editable"
+      );
+      $("#" + prefixID + "tbody").unbind("click"); //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
+      $("#" + prefixID + "tbody").on(
+        "click",
+        "td[data-editable=true]",
+        function (e) {
+          form.setRecordID($(this).data("record-id"));
+          var indicatorID = $(this).data("indicator-id");
+          form.setPostModifyCallback(function () {
+            getIndicator(indicatorID, 1);
+            form.dialog().hide();
+          });
+          form.getForm(indicatorID, 1);
+          form.dialog().show();
+        }
+      );
+      for (let i in callbackBuffer) {
+        callbackBuffer[i]();
+      }
 
-    $("#" + prefixID + "table>tbody>tr>td").css({
-      border: "1px solid black",
-      padding: "8px",
-    });
+      $("#" + prefixID + "table>tbody>tr>td").css({
+        border: "1px solid black",
+        padding: "8px",
+      });
+    }
     if (postRenderFunc != null) {
       postRenderFunc();
     }
@@ -894,10 +907,10 @@ var LeafFormGrid = function (containerID, options) {
     var colspan = showIndex ? headers.length + 1 : headers.length;
     $("#" + prefixID + "tbody").html(
       '<tr><td colspan="' +
-        colspan +
-        '" style="text-align: left; padding: 8px">Building report... <img src="' +
-        rootURL +
-        'images/largespinner.gif" alt="loading..." /></td></tr>'
+      colspan +
+      '" style="text-align: left; padding: 8px">Building report... <img src="' +
+      rootURL +
+      'images/largespinner.gif" alt="loading..." /></td></tr>'
     );
 
     var headerIDList = "";
@@ -987,10 +1000,10 @@ var LeafFormGrid = function (containerID, options) {
     $("#" + containerID).css("display", "block");
     $("#" + containerID).html(
       '<br/><button type="button" id="' +
-        prefixID +
-        'getExcel" class="buttonNorm"><img src="' +
-        rootURL +
-        'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
+      prefixID +
+      'getExcel" class="buttonNorm"><img src="' +
+      rootURL +
+      'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
     );
 
     $("#" + prefixID + "getExcel").on("click", function () {
@@ -1028,8 +1041,8 @@ var LeafFormGrid = function (containerID, options) {
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
           line[i] =
             dataFormat !== null &&
-            dataFormat !== "date" &&
-            testDateFormat.test(line[i])
+              dataFormat !== "date" &&
+              testDateFormat.test(line[i])
               ? `="${line[i]}"`
               : line[i];
           if (i == 0 && headers[i] == "UID") {

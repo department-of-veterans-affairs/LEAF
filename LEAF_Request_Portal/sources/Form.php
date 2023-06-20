@@ -56,24 +56,23 @@ class Form
      */
     public function getAllCategories(): array
     {
-        $res = $this->db->prepared_query(
-            'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0 ORDER BY categoryName',
-            array()
-        );
+        $categorySQL = 'SELECT categoryID, categoryName, categoryDescription FROM categories WHERE disabled = 0 ORDER BY categoryName';
+        $categoryRes = $this->db->prepared_query($categorySQL, []);
 
-        return $res;
+        return $categoryRes;
     }
 
     /**
      * New version of getServices
      * @return array
      */
-    public function getServices2()
+    public function getServices2(): array
     {
-        $res = $this->db->prepared_query('SELECT serviceID, service FROM services ORDER BY service ASC', array());
-        $services = array();
+        $serviceSQL = 'SELECT serviceID, service FROM services ORDER BY service ASC';
+        $serviceRes = $this->db->prepared_query($serviceSQL, []);
+        $services = [];
 
-        foreach ($res as $field) {
+        foreach ($serviceRes as $field) {
             $temp['serviceID'] = (int)$field['serviceID'];
             $temp['service'] = $field['service'];
             $services[] = $temp;
@@ -214,16 +213,18 @@ class Form
 
     /**
      * Retrieves a form's workflow based on categoryID
-     * @param int $recordID
+     * @param string $recordID
      * @return array
      */
-    public function getWorkflow($categoryID)
+    public function getWorkflow(string $categoryID): array
     {
-        $vars = array(':categoryID' => $categoryID);
+        $workflowVars = array(':categoryID' => $categoryID);
+        $workflowSQL = 'SELECT workflowID,categoryID,parentID,categoryName, categoryDescription,sort,needToKnow, formLibraryID,`visible`,`disabled`,`type`,destructionAge,lastModified,initialStepID,`description` FROM categories
+            LEFT JOIN workflows USING (workflowID)
+            WHERE categoryID=:categoryID';
+        $workflowRes = $this->db->prepared_query($workflowSQL, $workflowVars);
 
-        return $this->db->prepared_query('SELECT * FROM categories
-    										LEFT JOIN workflows USING (workflowID)
-    										WHERE categoryID=:categoryID', $vars);
+        return $workflowRes;
     }
 
     public function getForm($recordID, $limitCategory = null)
@@ -243,20 +244,23 @@ class Form
 
         if ($limitCategory == null) {
             // pull category counts
-            $vars = array(':recordID' => $recordID);
-            $res2 = $this->db->prepared_query('SELECT * FROM category_count
-                                                    LEFT JOIN categories USING (categoryID)
-                                                    WHERE recordID = :recordID
-                                                        AND count > 0
-                                                    ORDER BY sort', $vars);
+            $categoryCountVars = array(':recordID' => $recordID);
+            $categoryCountSQL = 'SELECT categoryID, recordID, `count`,parentID,categoryName,categoryDescription,workflowID,`sort`,needToKnow,formLibraryID,`visible`, `disabled`,`type`, destructionAge, lastModified FROM category_count
+            LEFT JOIN categories USING (categoryID)
+            WHERE recordID = :recordID
+                AND count > 0
+            ORDER BY sort';
+
+            $categoryRes = $this->db->prepared_query($categoryCountSQL, $categoryCountVars);
         } else {
-            $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($limitCategory));
-            $res2 = $this->db->prepared_query('SELECT * FROM categories
-                                                    WHERE categoryID = :categoryID', $vars);
-            $res2[0]['count'] = 1;
+            $categoryByCatIDVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($limitCategory));
+            $categoryByCatIDSQL = 'SELECT categoryID, parentID,categoryName,categoryDescription,workflowID,`sort`,needToKnow,formLibraryID,`visible`, `disabled`,`type`, destructionAge, lastModified FROM categories
+            WHERE categoryID = :categoryID';
+            $categoryRes = $this->db->prepared_query($categoryByCatIDSQL, $categoryByCatIDVars);
+            $categoryRes[0]['count'] = 1;
         }
 
-        foreach ($res2 as $catType) {
+        foreach ($categoryRes as $catType) {
             for ($i = 1; $i <= $catType['count']; $i++) {
                 $tmp['name'] = $catType['count'] > 1
                     ? $catType['categoryName'] . ' #' . $i
@@ -278,7 +282,7 @@ class Form
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 'Error: Invalid token.';
         }
-        $title = $this->sanitizeInput($_POST['title']);
+        $title = \Leaf\XSSHelpers::sanitizer($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
         $_POST['priority'] = !isset($_POST['priority']) || $_POST['priority'] == '' ? 0 : (int)$_POST['priority'];
@@ -305,15 +309,17 @@ class Form
             return 'Error: No forms selected. Please Select a form and try again.';
         }
 
-        $var = array(':service' => $_POST['service']);
-        $res = null;
+        $serviceVar = array(':service' => $_POST['service']);
+        $serviceRes = null;
         if (is_numeric($_POST['service'])) {
-            $res = $this->db->prepared_query('SELECT serviceID FROM services WHERE serviceID=:service', $var);
+            $serviceByIDSQL = 'SELECT serviceID FROM services WHERE serviceID=:service LIMIT 1';
+            $serviceRes = $this->db->prepared_query($serviceByIDSQL, $serviceVar);
         } else {
-            $res = $this->db->prepared_query('SELECT serviceID FROM services WHERE service=:service', $var);
+            $serviceByNameSQL = 'SELECT serviceID FROM services WHERE service=:service LIMIT 1';
+            $serviceRes = $this->db->prepared_query($serviceByNameSQL, $serviceVar);
         }
 
-        $serviceID = $res[0]['serviceID'];
+        $serviceID = $serviceRes[0]['serviceID'];
         if (!is_numeric($serviceID)) {
             if ($_POST['service'] == 0) {
                 $serviceID = 0;
@@ -322,7 +328,7 @@ class Form
             }
         }
 
-        $vars = array(
+        $recordInserVars = array(
             ':date' => time(),
             ':serviceID' => $serviceID,
             ':userID' => $userID,
@@ -330,8 +336,10 @@ class Form
             ':priority' => $_POST['priority'],
         );
 
-        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
-                                    VALUES (:date, :serviceID, :userID, :title, :priority)', $vars);
+        $recordInsertSQL = 'INSERT INTO records (date, serviceID, userID, title, priority)
+        VALUES (:date, :serviceID, :userID, :title, :priority)';
+
+        $this->db->prepared_query($recordInsertSQL, $recordInserVars);
 
         $recordID = $this->db->getLastInsertID(); // note this doesn't work with all DBs (eg. with transactions, MySQL should be ok)
 
@@ -345,30 +353,33 @@ class Form
 
                     if ($tCount >= 1) {
                         $categoryID = \Leaf\XSSHelpers::xscrub(strtolower(substr($key, 3)));
-                        $vars = array(
-                            ':recordID' => $recordID,
-                            ':categoryID' => $categoryID,
-                            ':count' => $tCount,
-                        );
+
 
                         if ($this->isCategory($categoryID)) {
-                            $res = $this->db->prepared_query('INSERT INTO category_count (recordID, categoryID, count)
-                                                            VALUES (:recordID, :categoryID, :count)
-                                                            ON DUPLICATE KEY UPDATE count=:count', $vars);
+                            $categoryInsertVars = array(
+                                ':recordID' => $recordID,
+                                ':categoryID' => $categoryID,
+                                ':count' => $tCount,
+                            );
+
+                            $categoryInsertSQL = 'INSERT INTO category_count (recordID, categoryID, count)
+                            VALUES (:recordID, :categoryID, :count)
+                            ON DUPLICATE KEY UPDATE count=:count';
+                            $res = $this->db->prepared_query($categoryInsertSQL, $categoryInsertVars);
 
                             // handle stapled (merged) forms
-                            $vars = array(':categoryID' => $categoryID);
-                            $res2 = $this->db->prepared_query('SELECT * FROM category_staples
-                												WHERE categoryID=:categoryID', $vars);
-                            foreach ($res2 as $merged) {
-                                $vars = array(
+                            $categoryStapleVars = array(':categoryID' => $categoryID);
+                            $categoryStapleSQL = 'SELECT  categoryID, stapledCategoryID FROM category_staples
+                            WHERE categoryID=:categoryID';
+                            $categoryStapleRes = $this->db->prepared_query($categoryStapleSQL, $categoryStapleVars);
+
+                            foreach ($categoryStapleRes as $merged) {
+                                $categoryInsertVars = array(
                                     ':recordID' => $recordID,
                                     ':categoryID' => $merged['stapledCategoryID'],
                                     ':count' => $tCount,
                                 );
-                                $res = $this->db->prepared_query('INSERT INTO category_count (recordID, categoryID, count)
-                                                            		VALUES (:recordID, :categoryID, :count)
-                                                            		ON DUPLICATE KEY UPDATE count=:count', $vars);
+                                $this->db->prepared_query($categoryInsertSQL, $categoryInsertVars);
                             }
                         }
                     }
@@ -408,20 +419,25 @@ class Form
             }
         }
 
-        $vars = array(
+        $indicatorDataVars = array(
             ':indicatorID' => $indicatorID,
             ':series' => $series,
             ':recordID' => $recordID,
         );
-        $data = $this->db->prepared_query('SELECT * FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            LEFT JOIN indicator_mask USING (indicatorID)
-                                            WHERE indicatorID=:indicatorID AND series=:series AND recordID=:recordID AND disabled=0', $vars);
+
+        $indicatorDataSQL = 'SELECT indicatorID,recordID,`series`,`data`,`timestamp`,userID,`name`,`format`,`description`,`default`,parentID,categoryID,`conditions`,jsSort,`required`,`sort`,timeAdded,`disabled`,is_sensitive,groupID  
+        FROM `data`
+        LEFT JOIN indicators USING (indicatorID)
+        LEFT JOIN indicator_mask USING (indicatorID)
+        WHERE indicatorID=:indicatorID AND series=:series AND recordID=:recordID AND `disabled`=0';
+        $data = $this->db->prepared_query($indicatorDataSQL, $indicatorDataVars);
         if (!isset($data[0])) {
-            $vars = array(':indicatorID' => $indicatorID);
-            $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+            $indicatorNotDisabledVars = array(':indicatorID' => $indicatorID);
+            $indicatorNotDisabledSQL = 'SELECT indicatorID, `name`,`format`,`description`,`default`,parentID,categoryID,conditions,jsSort,`required`,`sort`,timeAdded,`disabled`,is_sensitive FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0';
+            $data = $this->db->prepared_query($indicatorNotDisabledSQL, $indicatorNotDisabledVars);
         }
 
+        // my ide says this is not used
         $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
 
 
@@ -621,25 +637,26 @@ class Form
         return $res2;
     }
 
-    public function buildFormJSONStructure($categoryID, $series = 1)
+    public function buildFormJSONStructure($categoryID, $series = 1): array
     {
         $categoryID = ($categoryID == null) ? 'general' : \Leaf\XSSHelpers::xscrub($categoryID);
 
         if (!isset($this->cache["categoryID{$categoryID}_indicators"])) {
-            $vars = array(':categoryID' => $categoryID);
-            $res = $this->db->prepared_query('SELECT * FROM indicators
-                                                WHERE categoryID=:categoryID
-                                                    AND parentID IS NULL
-                                                    AND disabled = 0
-                                                ORDER BY sort', $vars);
-            $this->cache["categoryID{$categoryID}_indicators"] = $res;
+            $indicatorsVars = array(':categoryID' => $categoryID);
+            $indicatorsSQL = 'SELECT categoryID, indicatorID, `format`, conditions FROM indicators
+            WHERE categoryID=:categoryID
+                AND parentID IS NULL
+                AND disabled = 0
+            ORDER BY sort';
+            $indicatorsRes = $this->db->prepared_query($indicatorsSQL, $indicatorsVars);
+            $this->cache["categoryID{$categoryID}_indicators"] = $indicatorsRes;
         } else {
-            $res = $this->cache["categoryID{$categoryID}_indicators"];
+            $indicatorsRes = $this->cache["categoryID{$categoryID}_indicators"];
         }
 
-        $indicators = array();
+        $indicators = [];
         $counter = 1;
-        foreach ($res as $ind) {
+        foreach ($indicatorsRes as $ind) {
             $desc = $ind['description'] != '' ? $ind['description'] : $ind['name'];
             $indicator['name'] = "$series.$counter: " . strip_tags($desc);
             $indicator['desc'] = strip_tags($desc);
@@ -672,29 +689,31 @@ class Form
         }
 
         // only allow admins to delete resolved requests
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT recordID, submitted, stepID FROM records
-        									LEFT JOIN records_workflow_state USING (recordID)
-                                            WHERE recordID=:recordID
-        										AND submitted > 0', $vars);
+        $submittedRecordsVars = array(':recordID' => $recordID);
+        $submittedRecordsSQL = 'SELECT recordID, submitted, stepID FROM records
+        LEFT JOIN records_workflow_state USING (recordID)
+        WHERE recordID=:recordID
+            AND submitted > 0';
+        $submittedRecordsRes = $this->db->prepared_query($submittedRecordsSQL, $submittedRecordsVars);
         if (
-            isset($res[0])
-            && $res[0]['stepID'] == null
+            isset($submittedRecordsRes[0])
+            && $submittedRecordsRes[0]['stepID'] == null
             && !$this->login->checkGroup(1)
         ) {
             return 'Cannot cancel resolved request.';
         }
 
-        $vars = array(
+        $deleteVars = array(
             ':recordID' => $recordID,
             ':time' => time(),
         );
-        $res = $this->db->prepared_query('UPDATE records SET
-                                            deleted=:time
-                                            WHERE recordID=:recordID', $vars);
+        $deleteSQL = 'UPDATE records SET
+        deleted=:time
+        WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteSQL, $deleteVars);
 
         // actionID 4 = delete
-        $vars = array(
+        $actionHistoryInsertVars = array(
             ':recordID' => $recordID,
             ':userID' => $this->login->getUserID(),
             ':dependencyID' => 0,
@@ -702,17 +721,19 @@ class Form
             ':actionTypeID' => 4,
             ':time' => time(),
         );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+        $actionHistoryInsertSQL = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
+        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)';
+        $res = $this->db->prepared_query($actionHistoryInsertSQL, $actionHistoryInsertVars);
 
         // delete state
-        $vars = array(':recordID' => $recordID);
-        $this->db->prepared_query('DELETE FROM records_workflow_state
-                                        WHERE recordID=:recordID', $vars);
+        $deleteWorkflowStateVars = array(':recordID' => $recordID);
+        $deleteWorkflowStateSQL = 'DELETE FROM records_workflow_state WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteWorkflowStateSQL, $deleteWorkflowStateVars);
 
         // delete tags
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
+        $deleteTagsVars = array(':recordID' => $recordID);
+        $deleteTagsSQL = 'DELETE FROM tags WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteTagsSQL, $deleteTagsVars);
 
         return 1;
     }
@@ -724,13 +745,12 @@ class Form
             return 0;
         }
 
-        $vars = array(
+        $updateRecordsVars = array(
             ':recordID' => (int)$recordID,
             ':time' => 0,
         );
-        $res = $this->db->prepared_query('UPDATE records SET
-                                            deleted=:time
-                                            WHERE recordID=:recordID', $vars);
+        $updateRecordsSQL = 'UPDATE records SET deleted=:time WHERE recordID=:recordID';
+        $this->db->prepared_query($updateRecordsSQL, $updateRecordsVars);
 
         return true;
     }
@@ -794,23 +814,23 @@ class Form
 
     public function getRecordInfo($recordID)
     {
-        $vars = array(
+        $recordServiceVars = array(
             ':recordID' => (int)$recordID,
             ':bookmarkID' => 'bookmark_' . $this->login->getUserID(),
         );
+        $recordServiceSQL = 'SELECT recordID,serviceID,`date`,userID,title,priority,lastStatus,submitted,deleted,isWritableUser,isWritableGroup,`service`,abbreviatedService,groupID,tag,stepID,blockingStepID,lastNotified,initialNotificationSent FROM records
+                                LEFT JOIN services USING (serviceID)
+                                LEFT JOIN (SELECT recordID, tag FROM tags
+                                            WHERE tag=:bookmarkID) lj1 USING (recordID)
+                                LEFT JOIN records_workflow_state USING (recordID)
+                                WHERE recordID=:recordID';
+        $res = $this->db->prepared_query($recordServiceSQL, $recordServiceVars);
 
-        $res = $this->db->prepared_query('SELECT * FROM records
-                                            LEFT JOIN services USING (serviceID)
-                                            LEFT JOIN (SELECT recordID, tag FROM tags
-                                            			WHERE tag=:bookmarkID) lj1 USING (recordID)
-                                            LEFT JOIN records_workflow_state USING (recordID)
-                                            WHERE recordID=:recordID', $vars);
-
-        $vars = array(':recordID' => (int)$recordID);
-
-        $resCategory = $this->db->prepared_query('SELECT * FROM category_count
-        									LEFT JOIN categories USING (categoryID)
-                                            WHERE recordID=:recordID AND count > 0', $vars);
+        $categoryVars = array(':recordID' => (int)$recordID);
+        $categoryWithCountSQL = 'SELECT categoryID,parentID,categoryName,categoryDescription,workflowID,sort,needToKnow,formLibraryID,`visible`,`disabled`,`type`,destructionAge,lastModified,`count`
+                    FROM category_count
+                    LEFT JOIN categories USING (categoryID) WHERE recordID=:recordID AND count > 0';
+        $resCategory = $this->db->prepared_query($categoryWithCountSQL, $categoryVars);
         $categoryData = array();
         $categoryNames = array();
         foreach ($resCategory as $cat) {
@@ -819,10 +839,11 @@ class Form
         }
 
         //Check for Internal Forms of Main categoryID
-        $vars = array(':parentID' => $resCategory[0]['categoryID']);
+        $categoryVars = array(':parentID' => $resCategory[0]['categoryID']);
 
-        $resInternal = $this->db->prepared_query('SELECT * FROM categories
-                                            WHERE parentID=:parentID', $vars);
+        $categorySQL = 'SELECT categoryID,parentID,categoryName,categoryDescription,workflowID,sort,needToKnow,formLibraryID,`visible`,`disabled`,`type`,destructionAge,lastModified FROM categories
+        WHERE parentID=:parentID';
+        $resInternal = $this->db->prepared_query($categorySQL, $categoryVars);
 
         $count = count($resInternal);
         $internalIDs = array();
@@ -885,10 +906,11 @@ class Form
 
     public function isSubmitted($recordID)
     {
-        $vars = array(':recordID' => (int)$recordID);
-        $res = $this->db->prepared_query('SELECT submitted FROM records WHERE recordID=:recordID', $vars);
+        $recordVars = array(':recordID' => (int)$recordID);
+        $recordSQL = 'SELECT submitted FROM records WHERE recordID=:recordID LIMIT 1';
+        $recordRes = $this->db->prepared_query($recordSQL, $recordVars);
 
-        return $res[0]['submitted'] >= 1 ? true : false;
+        return $recordRes[0]['submitted'] >= 1 ? true : false;
     }
 
     public function getOwnerID($recordID)
@@ -896,21 +918,22 @@ class Form
         if (isset($this->cache['owner_' . $recordID])) {
             return $this->cache['owner_' . $recordID];
         }
-        $vars = array(':recordID' => (int)$recordID);
-        $res = $this->db->prepared_query('SELECT userID FROM records WHERE recordID=:recordID', $vars);
-        $this->cache['owner_' . $recordID] = $res[0]['userID'];
+        $recordVars = array(':recordID' => (int)$recordID);
+        $recordSQL = 'SELECT userID FROM records WHERE recordID=:recordID LIMIT 1';
+        $recordRes = $this->db->prepared_query($recordSQL, $recordVars);
+        $this->cache['owner_' . $recordID] = $recordRes[0]['userID'];
 
-        return $res[0]['userID'];
+        return $recordRes[0]['userID'];
     }
 
     // return last status from cached value
     public function getLastStatus($recordID)
     {
-        $vars = array(':recordID' => (int)$recordID);
-        $res = $this->db->prepared_query('SELECT lastStatus FROM records
-                                            WHERE recordID=:recordID', $vars);
+        $recordVars = array(':recordID' => (int)$recordID);
+        $recordSQL = 'SELECT lastStatus FROM records WHERE recordID=:recordID LIMIT 1';
+        $recordRes = $this->db->prepared_query($recordSQL, $recordVars);
 
-        return $res[0]['lastStatus'];
+        return $recordRes[0]['lastStatus'];
     }
 
     public static function getFileHash($recordID, $indicatorID, $series, $fileName)
@@ -925,9 +948,10 @@ class Form
         if (isset($this->cache['isCategory_' . $categoryID])) {
             return $this->cache['isCategory_' . $categoryID];
         }
-        $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
-        $res = $this->db->prepared_query('SELECT COUNT(*) FROM categories WHERE categoryID=:categoryID', $vars);
-        if ($res[0]['COUNT(*)'] != 0) {
+        $categoryVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
+        $categorySQL = 'SELECT COUNT(*) FROM categories WHERE categoryID=:categoryID';
+        $categoryRes = $this->db->prepared_query($categorySQL, $categoryVars);
+        if ($categoryRes[0]['COUNT(*)'] != 0) {
             $this->cache['isCategory_' . $categoryID] = 1;
 
             return 1;
@@ -954,39 +978,40 @@ class Form
             $_POST[$key] = \Leaf\XSSHelpers::sanitizeHTML($_POST[$key]);
         }
 
-        $vars = array(
+        $indicatorDataVars = array(
             ':recordID' => $recordID,
             ':indicatorID' => $key,
             ':series' => $series,
         );
 
-        $res = $this->db->prepared_query('SELECT data, format FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+        $indicatorDataSQL = 'SELECT data, format FROM data
+        LEFT JOIN indicators USING (indicatorID)
+        WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series';
+        $indicatorDataRes = $this->db->prepared_query($indicatorDataSQL, $indicatorDataVars);
 
         // handle fileupload indicator type
         if (
-            isset($res[0]['format'])
-            && ($res[0]['format'] == 'fileupload'
-                || $res[0]['format'] == 'image')
+            isset($indicatorDataRes[0]['format'])
+            && ($indicatorDataRes[0]['format'] == 'fileupload'
+                || $indicatorDataRes[0]['format'] == 'image')
         ) {
             if (
                 !isset($_POST['overwrite'])
-                && strpos($res[0]['data'], $_POST[$key]) === false
+                && strpos($indicatorDataRes[0]['data'], $_POST[$key]) === false
             ) {
-                $_POST[$key] = trim($res[0]['data'] . "\n" . $_POST[$key]);
+                $_POST[$key] = trim($indicatorDataRes[0]['data'] . "\n" . $_POST[$key]);
             } else {
                 if (
                     !isset($_POST['overwrite'])
-                    && strpos($res[0]['data'], $_POST[$key]) !== false
+                    && strpos($indicatorDataRes[0]['data'], $_POST[$key]) !== false
                 ) {
-                    $_POST[$key] = trim($res[0]['data']);
+                    $_POST[$key] = trim($indicatorDataRes[0]['data']);
                 }
             }
         }
 
         $duplicate = false;
-        if (isset($res[0]['data']) && $res[0]['data'] == trim($_POST[$key])) {
+        if (isset($indicatorDataRes[0]['data']) && $indicatorDataRes[0]['data'] == trim($_POST[$key])) {
             $duplicate = true;
         }
 
@@ -995,7 +1020,7 @@ class Form
             return 0;
         }
 
-        $vars = array(
+        $dataVars = array(
             ':recordID' => $recordID,
             ':indicatorID' => $key,
             ':series' => $series,
@@ -1004,26 +1029,29 @@ class Form
             ':userID' => $this->login->getUserID(),
         );
 
-        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+        $dataInsertSql = 'INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
+        VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
+        ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID';
+        $this->db->prepared_query($dataInsertSql, $dataVars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+            $dataInsertNotDuplicateSql = 'INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)';
+            $this->db->prepared_query($dataInsertNotDuplicateSql, $dataVars);
         }
 
-        $vars = array(
+        $indicatorDataVars = array(
             ':recordID' => $recordID,
             ':indicatorID' => $key,
             ':series' => $series,
         );
 
-        $res = $this->db->prepared_query('SELECT data, format FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+        $indicatorDataSQL = 'SELECT data, format FROM data
+        LEFT JOIN indicators USING (indicatorID)
+        WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series LIMIT 1';
+        $indicatorDataRes = $this->db->prepared_query($indicatorDataSQL, $indicatorDataVars);
 
-        if (strpos($res[0]['format'], 'signature') == 0) {
+        if (strpos($indicatorDataRes[0]['format'], 'signature') == 0) {
             // $this->writeSignature($recordID);
         }
         return 1;
@@ -1108,16 +1136,19 @@ class Form
                     if (!$this->hasWriteAccess($recordID, $categoryID)) {
                         return 0;
                     }
-                    $vars = array(
-                        ':recordID' => (int)$recordID,
-                        ':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
-                        ':count' => $_POST[$key],
-                    );
 
                     if ($this->isCategory($categoryID)) {
-                        $res = $this->db->prepared_query('INSERT INTO category_count (recordID, categoryID, count)
-                                                            VALUES (:recordID, :categoryID, :count)
-                                                            ON DUPLICATE KEY UPDATE count=:count', $vars);
+
+                        $insertCategoryCountVars = array(
+                            ':recordID' => (int)$recordID,
+                            ':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
+                            ':count' => $_POST[$key],
+                        );
+
+                        $insertCategoryCountSQL = 'INSERT INTO category_count (recordID, categoryID, count)
+                        VALUES (:recordID, :categoryID, :count)
+                        ON DUPLICATE KEY UPDATE count=:count';
+                        $this->db->prepared_query($insertCategoryCountSQL, $insertCategoryCountVars);
                     }
                 }
             }
@@ -1125,16 +1156,17 @@ class Form
             $_POST['title'] = ($_POST['title'] != '') ? $_POST['title'] : '- blank -';
 
             $priority = isset($_POST['priority']) ? $_POST['priority'] : 0;
-            $vars = array(
+            $updateRecordVars = array(
                 ':recordID' => (int)$recordID,
-                ':title' => $this->sanitizeInput($_POST['title']),
+                ':title' => \Leaf\XSSHelpers::sanitizer($_POST['title']),
                 ':priority' => (int)$priority,
             );
 
-            $res = $this->db->prepared_query('UPDATE records SET
-                                                title=:title,
-                                                priority=:priority
-                                                WHERE recordID=:recordID', $vars);
+            $updateRecordSQl = 'UPDATE records SET
+            title=:title,
+            priority=:priority
+            WHERE recordID=:recordID';
+            $this->db->prepared_query($updateRecordSQl, $updateRecordVars);
         }
 
         foreach ($keys as $key) {
@@ -1172,9 +1204,9 @@ class Form
     {
         $recordID = (int)$recordID;
 
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT submitted FROM records
-                                        WHERE recordID=:recordID', $vars);
+        $recordVars = array(':recordID' => $recordID);
+        $recordSQL = 'SELECT submitted FROM records WHERE recordID=:recordID';
+        $recordRes = $this->db->prepared_query($recordSQL, $recordVars);
 
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             $return_value = 0;
@@ -1182,7 +1214,7 @@ class Form
             $return_value = 0;
         } else if (!$this->hasWriteAccess($recordID)) {
             $return_value = 0;
-        } else if ($res[0]['submitted'] > 0) {
+        } else if ($recordRes[0]['submitted'] > 0) {
             // make sure request isn't already submitted
             $return_value = $recordID;
         } else {
@@ -1213,12 +1245,12 @@ class Form
                     $res = $this->db->prepared_query($sql, $vars);
 
                     if ($res[0]['workflowID'] == $workflow['workflowID']) {
-                        $vars = array(
+                        $insertRecordsWorkflowStateVars = array(
                             ':recordID' => $recordID,
                             ':stepID' => $workflow['initialStepID'],
                         );
-                        $this->db->prepared_query('INSERT INTO records_workflow_state (recordID, stepID)
-                                                VALUES (:recordID, :stepID)', $vars);
+                        $insertRecordsWorkflowStateSQL = 'INSERT INTO records_workflow_state (recordID, stepID) VALUES (:recordID, :stepID)';
+                        $this->db->prepared_query($insertRecordsWorkflowStateSQL, $insertRecordsWorkflowStateVars);
                         $hasInitialStep = true;
                     }
                 }
@@ -1351,9 +1383,10 @@ class Form
 
         $vars = array(':recordID' => (int)$recordID);
         //get all the catIDs associated with this record and whether the forms are enabled or submitted
-        $resRecordInfoEachForm = $this->db->prepared_query('SELECT recordID, categoryID, `count`, submitted FROM records
-                                                    LEFT JOIN category_count USING (recordID)
-                                                    WHERE recordID=:recordID', $vars);
+        $recordsCategoryCountSQL = 'SELECT recordID, categoryID, `count`, submitted FROM records
+        LEFT JOIN category_count USING (recordID)
+        WHERE recordID=:recordID';
+        $resRecordInfoEachForm = $this->db->prepared_query($recordsCategoryCountSQL, $vars);
         $isSubmitted = false;
         foreach ($resRecordInfoEachForm as $request) {
             if ($request['submitted'] > 0) {
@@ -1365,7 +1398,8 @@ class Form
             $returnValue = 100;
         } else {
             //use recordInfo about forms associated with the recordID to get the total number of required questions on the request
-            $allRequiredIndicators = $this->db->prepared_query("SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0", array());
+            $requiredIndicatorSQL = "SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0";
+            $allRequiredIndicators = $this->db->prepared_query($requiredIndicatorSQL, []);
             $categories = array();
             foreach ($resRecordInfoEachForm as $form) {
                 if ((int)$form['count'] === 1) {
@@ -1384,12 +1418,13 @@ class Form
                 $returnValue = 100;
             } else {
                 //get indicatorID, format, data, and required for all completed questions for non-disabled indicators
-                $resCompleted = $this->db->prepared_query('SELECT indicatorID, `format`, `data`, `required` FROM `data` LEFT JOIN indicators
-                                                                USING (indicatorID)
-                                                                WHERE recordID=:recordID
-                                                                    AND indicators.disabled = 0
-                                                                    AND data != ""
-                                                                    AND data IS NOT NULL', $vars);
+                $dataIndicatorsSQL = 'SELECT indicatorID, `format`, `data`, `required` FROM `data` LEFT JOIN indicators
+                USING (indicatorID)
+                WHERE recordID=:recordID
+                    AND indicators.disabled = 0
+                    AND data != ""
+                    AND data IS NOT NULL';
+                $resCompleted = $this->db->prepared_query($dataIndicatorsSQL, $vars);
 
                 //used to count the number of required completions and organize completed data for possible condition checks
                 $resCountCompletedRequired = 0;
@@ -1528,8 +1563,9 @@ class Form
             $categoryID = $this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"];
         } else {
             if ($indicatorID != 0) {
-                $vars = array(':indicatorID' => (int)$indicatorID);
-                $res = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID', $vars);
+                $indicatorVars = array(':indicatorID' => (int)$indicatorID);
+                $indicatorSQL = 'SELECT indicatorID, `name`,`format`,`description`,`default`,parentID,categoryID,conditions,jsSort,`required`,`sort`,timeAdded,`disabled`,is_sensitive FROM indicators WHERE indicatorID=:indicatorID';
+                $res = $this->db->prepared_query($indicatorSQL, $indicatorVars);
                 if (isset($res[0]['categoryID'])) {
                     $categoryID = $res[0]['categoryID'];
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"] = $categoryID;
@@ -1546,11 +1582,12 @@ class Form
             && $indicatorID == 0
         ) {
             $categoryID = '';
-            $vars = array(':recordID' => (int)$recordID);
-            $res = $this->db->prepared_query('SELECT * FROM category_count
-        										WHERE recordID=:recordID
-        										GROUP BY categoryID', $vars);
-            foreach ($res as $type) {
+            $categoryCountVars = array(':recordID' => (int)$recordID);
+            $categoryCountSQL = 'SELECT recordID,categoryID,`count` FROM category_count
+            WHERE recordID=:recordID
+            GROUP BY categoryID';
+            $categoryCountRes = $this->db->prepared_query($categoryCountSQL, $categoryCountVars);
+            foreach ($categoryCountRes as $type) {
                 $categoryID .= $type['categoryID'];
                 $multipleCategories[] = $type['categoryID'];
             }
@@ -1565,9 +1602,9 @@ class Form
         if (isset($this->cache["resRecords_{$recordID}"])) {
             $resRecords = $this->cache["resRecords_{$recordID}"];
         } else {
-            $vars = array(':recordID' => (int)$recordID);
-            $resRecords = $this->db->prepared_query('SELECT userID, isWritableUser, isWritableGroup FROM records
-                                                WHERE recordID=:recordID', $vars);
+            $recordsVars = array(':recordID' => (int)$recordID);
+            $recordsSQL = 'SELECT userID, isWritableUser, isWritableGroup FROM records WHERE recordID=:recordID';
+            $resRecords = $this->db->prepared_query($recordsSQL, $recordsVars);
             $this->cache["resRecords_{$recordID}"] = $resRecords;
         }
 
@@ -1591,18 +1628,19 @@ class Form
             return 1;
         }
         $this->log["write"]["{$recordID}_{$categoryID}_admin"] = 'You are not an admin.';
-
+        $userCategoryPrivSQL = 'SELECT groupID,categoryID,readable,writable,userID,backupID,primary_admin,locallyManaged,`active` FROM category_privs
+            LEFT JOIN users USING (groupID)
+            WHERE categoryID=:categoryID
+            AND userID=:userID
+            AND writable=1';
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1) {
             $vars = array(
                 ':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
                 ':userID' => $this->login->getUserID(),
             );
-            $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
-                                                        LEFT JOIN users USING (groupID)
-                                                        WHERE categoryID=:categoryID
-                                                            AND userID=:userID
-            												AND writable=1', $vars);
+
+            $resCategoryPrivs = $this->db->prepared_query($userCategoryPrivSQL, $vars);
 
             if (count($resCategoryPrivs) > 0) {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -1617,11 +1655,7 @@ class Form
                     ':categoryID' => $category,
                     ':userID' => $this->login->getUserID(),
                 );
-                $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
-                                                        LEFT JOIN users USING (groupID)
-                                                        WHERE categoryID=:categoryID
-                                                            AND userID=:userID
-            												AND writable=1', $vars);
+                $resCategoryPrivs = $this->db->prepared_query($userCategoryPrivSQL, $vars);
 
                 if (count($resCategoryPrivs) > 0) {
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -1635,13 +1669,14 @@ class Form
 
         // grant permissions to whoever currently "has" the form (whoever is the current approver)
         $vars = array(':recordID' => (int)$recordID);
-        $resRecordPrivs = $this->db->prepared_query('SELECT recordID, groupID, dependencyID, records.userID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records_workflow_state
-        												LEFT JOIN step_dependencies USING (stepID)
-        												LEFT JOIN workflow_steps USING (stepID)
-        												LEFT JOIN dependency_privs USING (dependencyID)
-                                                        LEFT JOIN users USING (groupID)
-        												LEFT JOIN records USING (recordID)
-                                                        WHERE recordID=:recordID', $vars);
+        $recordPrivSQL = 'SELECT recordID, groupID, dependencyID, records.userID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID FROM records_workflow_state
+                            LEFT JOIN step_dependencies USING (stepID)
+                            LEFT JOIN workflow_steps USING (stepID)
+                            LEFT JOIN dependency_privs USING (dependencyID)
+                            LEFT JOIN users USING (groupID)
+                            LEFT JOIN records USING (recordID)
+                            WHERE recordID=:recordID';
+        $resRecordPrivs = $this->db->prepared_query($recordPrivSQL, $vars);
         foreach ($resRecordPrivs as $priv) {
             if ($this->hasDependencyAccess($priv['dependencyID'], $priv)) {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -1706,20 +1741,21 @@ class Form
                 break;
             case 8:
                 $quadGroupIDs = $this->login->getQuadradGroupID();
-                $res3 = array();
+                $selectServiceRes = [];
                 if ($quadGroupIDs != 0) {
                     if (isset($this->cache['checkReadAccess_quadGroupIDs_' . $quadGroupIDs . '_' . $details['serviceID']])) {
-                        $res3 = $this->cache['checkReadAccess_quadGroupIDs_' . $quadGroupIDs . '_' . $details['serviceID']];
+                        $selectServiceRes = $this->cache['checkReadAccess_quadGroupIDs_' . $quadGroupIDs . '_' . $details['serviceID']];
                     } else {
-                        $vars3 = array(':serviceID' => (int)$details['serviceID']);
-                        $res3 = $this->db->prepared_query("SELECT * FROM services
-    							WHERE groupID IN ($quadGroupIDs)
-    							AND serviceID=:serviceID", $vars3);
-                        $this->cache['checkReadAccess_quadGroupIDs_' . $quadGroupIDs . '_' . $details['serviceID']] = $res3;
+                        $selectServiceVars = array(':serviceID' => (int)$details['serviceID']);
+                        $selectServiceSQL = 'SELECT serviceID,`service`,abbreviatedService,groupID FROM services
+                        WHERE groupID IN ($quadGroupIDs)
+                        AND serviceID=:serviceID';
+                        $selectServiceRes = $this->db->prepared_query($selectServiceSQL, $selectServiceVars);
+                        $this->cache['checkReadAccess_quadGroupIDs_' . $quadGroupIDs . '_' . $details['serviceID']] = $selectServiceRes;
                     }
                 }
 
-                if (isset($res3[0])) {
+                if (isset($selectServiceRes[0])) {
                     return true;
                 }
 
@@ -1729,14 +1765,15 @@ class Form
                 if (isset($this->cache['checkReadAccess_assigned_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_empUID']])) {
                     $empUID = $this->cache['checkReadAccess_assigned_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_empUID']];
                 } else {
-                    $vars = array(
+                    $dataRecordsVars = array(
                         ':indicatorID' => (int)$details['indicatorID_for_assigned_empUID'],
                         ':recordID' => (int)$details['recordID'],
                     );
-                    $resEmpUID = $this->db->prepared_query('SELECT * FROM data
-                                                                        WHERE recordID=:recordID
-                                                                            AND indicatorID=:indicatorID
-                                                                            AND series=1', $vars);
+                    $dataRecordsSQL = 'SELECT recordID, indicatorID,series,`data`, `timestamp`,userID FROM `data`
+                    WHERE recordID=:recordID
+                        AND indicatorID=:indicatorID
+                        AND series=1';
+                    $resEmpUID = $this->db->prepared_query($dataRecordsSQL, $dataRecordsVars);
                     if (isset($resEmpUID[0])) {
                         $empUID = $resEmpUID[0]['data'];
                         $this->cache['checkReadAccess_assigned_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_empUID']] = $empUID;
@@ -1749,8 +1786,9 @@ class Form
                     $backupIds = $this->cache['checkReadAccess_relation_employee_backup_' . $empUID];
                 } else {
                     $nexusDB = $this->login->getNexusDB();
-                    $vars4 = array(':empId' => $empUID);
-                    $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
+                    $employeeBackupVars = array(':empId' => $empUID);
+                    $employeeBackupSQL = 'SELECT empUID,backupEmpUID,approved,approverUserName FROM relation_employee_backup WHERE empUID =:empId';
+                    $backupIds = $nexusDB->prepared_query($employeeBackupSQL, $employeeBackupVars);
                     $this->cache['checkReadAccess_relation_employee_backup_' . $empUID] = $backupIds;
                 }
 
@@ -1767,8 +1805,8 @@ class Form
                 break;
             case -2: // dependencyID -2 : requestor followup
                 $varsPerson = array(':recordID' => (int)$details['recordID']);
-                $resPerson = $this->db->prepared_query('SELECT userID FROM records
-                                                               WHERE recordID=:recordID', $varsPerson);
+                $recordsSQL = 'SELECT userID FROM records WHERE recordID=:recordID';
+                $resPerson = $this->db->prepared_query($recordsSQL, $varsPerson);
                 if ($resPerson[0]['userID'] == $this->login->getUserID()) {
                     return true;
                 } else {
@@ -1782,14 +1820,15 @@ class Form
                 if (isset($this->cache['checkReadAccess_assigned_group_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_groupID']])) {
                     $groupID = $this->cache['checkReadAccess_assigned_group_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_groupID']];
                 } else {
-                    $vars = array(
+                    $dataVars = array(
                         ':indicatorID' => (int)$details['indicatorID_for_assigned_groupID'],
                         ':recordID' => (int)$details['recordID'],
                     );
-                    $resGroupID = $this->db->prepared_query('SELECT * FROM data
-                                                                       WHERE recordID=:recordID
-                                                                           AND indicatorID=:indicatorID
-                                                                           AND series=1', $vars);
+                    $dataSQL = 'SELECT recordID, indicatorID,series,`data`, `timestamp`,userID FROM `data`
+                    WHERE recordID=:recordID
+                        AND indicatorID=:indicatorID
+                        AND series=1';
+                    $resGroupID = $this->db->prepared_query($dataSQL, $dataVars);
                     if (isset($resGroupID[0])) {
                         $groupID = $resGroupID[0]['data'];
                         $this->cache['checkReadAccess_assigned_group_indicatorID_' . $details['recordID'] . '_' . $details['indicatorID_for_assigned_groupID']] = $groupID;
@@ -1815,8 +1854,9 @@ class Form
     public function getEmpUID($userName)
     {
         $nexusDB = $this->login->getNexusDB();
-        $vars = array(':userName' => $userName);
-        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
+        $employeeVars = array(':userName' => $userName);
+        $employeeSQL = 'SELECT empUID,userName,lastName,firstName,middleName,phoneticFirstName,phoneticLastName,domain,deleted,lastUpdated,new_empUUID FROM employee WHERE userName =:userName LIMIT 1';
+        $response = $nexusDB->prepared_query($employeeSQL, $employeeVars);
         return $response[0]["empUID"];
     }
 
@@ -1824,8 +1864,9 @@ class Form
     {
 
         $nexusDB = $this->login->getNexusDB();
-        $vars = array(':empId' => $empUID);
-        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
+        $backupVars = array(':empId' => $empUID);
+        $backupSQL = 'SELECT empUID,backupEmpUID,approved,approverUserName FROM relation_employee_backup WHERE empUID =:empId';
+        $backupIds = $nexusDB->prepared_query($backupSQL, $backupVars);
 
         if ($empUID != $this->login->getEmpUID()) {
             foreach ($backupIds as $row) {
@@ -2002,7 +2043,7 @@ class Form
                     }
                 }
 
-                if ($countPurged > 0) {
+                if ($countPurged > 0 && headers_sent() == false) {
                     header('LEAF-Query: continue');
                 }
 
@@ -2023,8 +2064,9 @@ class Form
      */
     public function isMasked($indicatorID, $recordID = null)
     {
-        $vars = array(':indicatorID' => (int)$indicatorID);
-        $res = $this->db->prepared_query('SELECT * FROM indicator_mask WHERE indicatorID = :indicatorID', $vars);
+        $indicatorMaskVars = array(':indicatorID' => (int)$indicatorID);
+        $indicatorMaskSQL = 'SELECT indicatorID,groupID FROM indicator_mask WHERE indicatorID = :indicatorID';
+        $res = $this->db->prepared_query($indicatorMaskSQL, $indicatorMaskVars);
         if (count($res) == 0) {
             return 0;
         }
@@ -2053,20 +2095,22 @@ class Form
         }
 
         if ($recordID == null) {
-            $vars = array();
-            $res = $this->db->prepared_query('SELECT * FROM categories WHERE needToKnow = 1', $vars);
+
+            $categoryNeedToKnowSQL = 'SELECT categoryID,parentID,categoryName,categoryDescription,workflowID,sort,needToKnow,formLibraryID,`visible`,`disabled`,`type`,destructionAge,lastModified FROM categories WHERE needToKnow = 1';
+            $res = $this->db->prepared_query($categoryNeedToKnowSQL, []);
             if (count($res) == 0) {
                 $this->cache['isNeedToKnow_' . $recordID] = false;
 
                 return false;
             }
         } else {
-            $vars = array(':recordID' => (int)$recordID);
-            $res = $this->db->prepared_query('SELECT * FROM category_count
-    											LEFT JOIN categories USING (categoryID)
+            $categoryNeedToKnowByRecordVars = array(':recordID' => (int)$recordID);
+            $categoryNeedToKnowByRecordSQL = 'SELECT categoryID,parentID,categoryName,categoryDescription,workflowID,sort,needToKnow,formLibraryID,`visible`,`disabled`,`type`,destructionAge,lastModified,`count` FROM category_count
+            LEFT JOIN categories USING (categoryID)
     											WHERE recordID=:recordID
     												AND needToKnow = 1
-    												AND count > 0', $vars);
+    												AND count > 0';
+            $res = $this->db->prepared_query($categoryNeedToKnowByRecordSQL, $categoryNeedToKnowByRecordVars);
             if (count($res) == 0) {
                 $this->cache['isNeedToKnow_' . $recordID] = false;
 
@@ -2086,48 +2130,50 @@ class Form
             return 0;
         }
 
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT * FROM records_dependencies
-                                            LEFT JOIN dependencies USING (dependencyID)
-                                            RIGHT JOIN category_count USING (recordID)
+        $recordDependenciesVars = array(':recordID' => $recordID);
+        $recordDependenciesSQL = 'SELECT recordID,categoryID,`count`,dependencyID,filled,`time`,`description` FROM records_dependencies
+        LEFT JOIN dependencies USING (dependencyID)
+        RIGHT JOIN category_count USING (recordID)
                                             WHERE recordID=:recordID
-                                            GROUP BY dependencyID', $vars);
+                                            GROUP BY dependencyID';
+        $recordDependenciesRes = $this->db->prepared_query($recordDependenciesSQL, $recordDependenciesVars);
 
-        return $res;
+        return $recordDependenciesRes;
     }
 
     public function openForEditing($recordID)
     {
-        $vars = array(':recordID' => (int)$recordID);
-        $res = $this->db->prepared_query('UPDATE records SET
-                                            submitted=0, isWritableUser=1, lastStatus="Re-opened for editing"
-                                            WHERE recordID=:recordID', $vars);
-        $res = $this->db->prepared_query('UPDATE records_dependencies SET
-                                            filled=0
-                                            WHERE recordID=:recordID', $vars);
+        $recordVars = array(':recordID' => (int)$recordID);
+        $updateRecordSQL = 'UPDATE records SET submitted=0, isWritableUser=1, lastStatus="Re-opened for editing" WHERE recordID=:recordID';
+        $this->db->prepared_query($updateRecordSQL, $recordVars);
+
+        $updateRecordDependencySQL = 'UPDATE records_dependencies SET filled=0 WHERE recordID=:recordID';
+        $this->db->prepared_query($updateRecordDependencySQL, $recordVars);
+
         // delete state
-        $this->db->prepared_query('DELETE FROM records_workflow_state
-                                        WHERE recordID=:recordID', $vars);
+        $deleteWorkFlowStateSQL = 'DELETE FROM records_workflow_state WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteWorkFlowStateSQL, $recordVars);
     }
 
     public function getChildForms($recordID)
     {
-        $vars = array(':recordID' => (int)$recordID);
-        $res = $this->db->prepared_query('SELECT * FROM category_count
-                                            RIGHT JOIN (
-                                                SELECT categoryID as childCategoryID,
-                                                       categoryName as childCategoryName,
-                                                       categoryDescription as childCategoryDescription,
-                                                       parentID
-                                                       FROM categories
-                                                       WHERE disabled = 0
-                                                ) j1
-                                                ON category_count.categoryID = j1.parentID
-                                            WHERE recordID = :recordID
-                                                AND count > 0
-        									ORDER BY childCategoryName ASC', $vars);
+        $childFormVars = array(':recordID' => (int)$recordID);
+        $childFormSQL = 'SELECT recordID,categoryID,`count`,childCategoryID,childCategoryName,childCategoryDescription,parentID FROM category_count
+        RIGHT JOIN (
+            SELECT categoryID as childCategoryID,
+                   categoryName as childCategoryName,
+                   categoryDescription as childCategoryDescription,
+                   parentID
+                   FROM categories
+                   WHERE disabled = 0
+            ) j1
+            ON category_count.categoryID = j1.parentID
+        WHERE recordID = :recordID
+            AND count > 0
+        ORDER BY childCategoryName ASC';
+        $childFormRes = $this->db->prepared_query($childFormSQL, $childFormVars);
 
-        return $res;
+        return $childFormRes;
     }
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
@@ -2154,8 +2200,9 @@ class Form
         $indicators = array();
         $indicatorDefaults = array();
         if ($indicatorID_list != '') {
-            $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                WHERE indicatorID IN ({$indicatorID_list})", array());
+            $indicatorByIDSQL = "SELECT indicatorID, `name`,`format`,`description`,`default`,parentID,categoryID,conditions,jsSort,`required`,`sort`,timeAdded,`disabled`,is_sensitive FROM indicators
+            WHERE indicatorID IN ({$indicatorID_list})";
+            $res = $this->db->prepared_query($indicatorByIDSQL, []);
             if (count($res) > 0) {
                 foreach ($res as $item) {
                     $indicators[$item['indicatorID']] = $item;
@@ -2198,8 +2245,8 @@ class Form
         }
 
         // already made sure that $indicatorID_list and $recordIDs are comma delimited lists of numbers
-        $res = $this->db->prepared_query("SELECT * FROM indicator_mask
-                                    WHERE indicatorID IN ({$indicatorID_list})", array());
+        $indicatorMaskByIDSQL = "SELECT indicatorID,groupID FROM indicator_mask WHERE indicatorID IN ({$indicatorID_list})";
+        $res = $this->db->prepared_query($indicatorMaskByIDSQL, []);
         $indicatorMasks = array();
         if (count($res) > 0) {
             // if indicator_masks exist, see if the user has access
@@ -2216,8 +2263,7 @@ class Form
 
         // if we do not have record IDs then lets not run go any further with this logic
         if (!empty($recordIDs)) {
-            // updated this from "Select * from to this
-            $strSQL = "SELECT * FROM data
+            $strSQL = "SELECT recordID, indicatorID,series,`data`, `timestamp`,userID FROM `data`
                     WHERE indicatorID IN ({$indicatorID_list})
                     AND recordID IN ({$recordIDs})";
             $res = $this->db->query($strSQL);
@@ -2391,8 +2437,8 @@ class Form
         }
 
         $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT * FROM tags
-                                            WHERE recordID=:recordID', $vars);
+        $tagSQL = 'SELECT recordID,tag,`timestamp`,userID FROM tags WHERE recordID=:recordID';
+        $res = $this->db->prepared_query($tagSQL, $vars);
 
         return $res;
     }
@@ -2408,10 +2454,8 @@ class Form
             ':timestamp' => time(),
             ':userID' => $this->login->getUserID(),
         );
-
-        $res = $this->db->prepared_query('INSERT INTO tags (recordID, tag, timestamp, userID)
-                                            VALUES (:recordID, :tag, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE timestamp=:timestamp', $vars);
+        $insertTagSQL = 'INSERT INTO tags (recordID, tag, timestamp, userID) VALUES (:recordID, :tag, :timestamp, :userID) ON DUPLICATE KEY UPDATE timestamp=:timestamp';
+        $this->db->prepared_query($insertTagSQL, $vars);
     }
 
     public function deleteTag($recordID, $tag)
@@ -2424,8 +2468,8 @@ class Form
             ':tag' => \Leaf\XSSHelpers::xscrub($tag),
             ':userID' => $this->login->getUserID(),
         );
-
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag', $vars);
+        $deleteTagSQL = 'DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag';
+        $this->db->prepared_query($deleteTagSQL, $vars);
     }
 
     // deletes old tags, inserts new ones
@@ -2438,7 +2482,8 @@ class Form
             ':recordID' => (int)$recordID,
             ':userID' => $this->login->getUserID(),
         );
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND userID=:userID', $vars);
+        $deleteTagSQL = 'DELETE FROM tags WHERE recordID=:recordID AND userID=:userID';
+        $this->db->prepared_query($deleteTagSQL, $vars);
 
         $tags = explode(' ', trim($input));
         foreach ($tags as $tag) {
@@ -2450,21 +2495,22 @@ class Form
 
     public function getTagMembers($tag)
     {
-        $vars = array(':tag' => $tag);
-        $res = $this->db->prepared_query('SELECT * FROM tags
-                                            LEFT JOIN records USING (recordID)
-                                            WHERE tag=:tag
-                                                AND deleted=0', $vars);
+        $tagRecordVars = array(':tag' => $tag);
+        $tagRecordSQL = 'SELECT recordID,tag,`timestamp`,userID FROM tags
+        LEFT JOIN records USING (recordID)
+        WHERE tag=:tag
+            AND deleted=0';
+        $res = $this->db->prepared_query($tagRecordSQL, $tagRecordVars);
 
         return $this->checkReadAccess($res);
     }
 
     public function getUniqueTags()
     {
-        $res = $this->db->prepared_query('SELECT tag, COUNT(tag) FROM tags
-                                    GROUP BY tag', array());
+        $uniqueTagSQL = 'SELECT tag, COUNT(tag) FROM tags GROUP BY tag';
+        $uniqueTagRes = $this->db->prepared_query($uniqueTagSQL, []);
 
-        return $res;
+        return $uniqueTagRes;
     }
 
     public function setTitle($recordID, $title)
@@ -2475,13 +2521,12 @@ class Form
         $title = $this->sanitizeInput($title);
 
         if ($this->hasWriteAccess($recordID)) {
-            $vars = array(
+            $updateRecordTitleVars = array(
                 ':recordID' => $recordID,
                 ':title' => $title,
             );
-            $res = $this->db->prepared_query('UPDATE records SET
-                                            title=:title
-                                            WHERE recordID=:recordID', $vars);
+            $updateRecordTitleSQL = 'UPDATE records SET title=:title WHERE recordID=:recordID';
+            $this->db->prepared_query($updateRecordTitleSQL, $updateRecordTitleVars);
 
             return $title;
         }
@@ -2497,13 +2542,12 @@ class Form
         }
 
         if ($this->hasWriteAccess($recordID)) {
-            $vars = array(
+            $updateRecordServiceVars = array(
                 ':recordID' => $recordID,
                 ':serviceID' => $serviceID,
             );
-            $res = $this->db->prepared_query('UPDATE records SET
-                                            	serviceID=:serviceID
-                                            	WHERE recordID=:recordID', $vars);
+            $updateRecordServiceSQL = 'UPDATE records SET serviceID=:serviceID WHERE recordID=:recordID';
+            $this->db->prepared_query($updateRecordServiceSQL, $updateRecordServiceVars);
 
             return $serviceID;
         }
@@ -2516,13 +2560,12 @@ class Form
         }
 
         if ($this->login->checkGroup(1)) {
-            $vars = array(
+            $updateRecordUserVars = array(
                 ':recordID' => (int)$recordID,
                 ':userID' => $userID,
             );
-            $res = $this->db->prepared_query('UPDATE records SET
-                                            	userID=:userID
-                                            	WHERE recordID=:recordID', $vars);
+            $updateRecordUserSQL = 'UPDATE records SET userID=:userID WHERE recordID=:recordID';
+            $this->db->prepared_query($updateRecordUserSQL, $updateRecordUserVars);
 
             // write log entry
             $dir = new VAMC_Directory;
@@ -2531,7 +2574,7 @@ class Form
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
             $comment = "Initiator changed to {$name}";
-            $vars2 = array(
+            $insertActionHistoryVars = array(
                 ':recordID' => (int)$recordID,
                 ':userID' => $this->login->getUserID(),
                 ':dependencyID' => 0,
@@ -2540,8 +2583,9 @@ class Form
                 ':time' => time(),
                 ':comment' => $comment,
             );
-            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+            $insertActionHistorySQL = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+            $this->db->prepared_query($insertActionHistorySQL, $insertActionHistoryVars);
 
             return $userID;
         }
@@ -2555,15 +2599,16 @@ class Form
         }
 
         if ($this->isCategory($category)) {
-            $vars = array(
+            $insertCategoryCountVars = array(
                 ':recordID' => $recordID,
                 ':categoryID' => $category,
                 ':count' => 1,
             );
 
-            $res = $this->db->prepared_query('INSERT INTO category_count (recordID, categoryID, count)
-                                                    VALUES (:recordID, :categoryID, :count)
-                                                    ON DUPLICATE KEY UPDATE count=:count', $vars);
+            $insertCategoryCountSQL = 'INSERT INTO category_count (recordID, categoryID, count)
+            VALUES (:recordID, :categoryID, :count)
+            ON DUPLICATE KEY UPDATE count=:count';
+            $this->db->prepared_query($insertCategoryCountSQL, $insertCategoryCountVars);
         } else {
             return 0;
         }
@@ -2576,9 +2621,9 @@ class Form
             return 0;
         }
 
-        $vars = array(':recordID' => $recordID);
-        $this->db->prepared_query('UPDATE category_count SET count = 0
-    								WHERE recordID=:recordID', $vars);
+        $updateCategoryCountVars = array(':recordID' => $recordID);
+        $updateCategoryCountSQL = 'UPDATE category_count SET count = 0 WHERE recordID=:recordID';
+        $this->db->prepared_query($updateCategoryCountSQL, $updateCategoryCountVars);
 
         foreach ($categories as $category) {
             $this->addFormType($recordID, $category);
@@ -2588,7 +2633,7 @@ class Form
     }
 
     /**
-     * @param string $query - this is the decoded string used for query
+     * @param array $query - this is the decoded string used for query
      * @return bool
      */
     private function isProcessQuery(array $query): bool
@@ -2600,7 +2645,7 @@ class Form
             if ($query['limit'] > 10000) {
                 $externalProcessQuery = true;
                 // limit is <= 10,000 records AND more than 10 indicators are requested
-            } else if ($query['limit'] <= 10000 && count($query['getData']) >= 10) {
+            } else if ($query['limit'] <= 10000 && (!empty($query['getData']) && count($query['getData']) >= 10)) {
                 $externalProcessQuery = true;
             }
         } else {
@@ -2650,8 +2695,31 @@ class Form
 
             // else output the request if we have the proper user?
 
-            return ['status' => 2, 'errors' => ["The data is being prepared, and you are $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
-        } else if (!empty($processQueryCheckRes) && $processQueryCheckRes[0]['lastProcess'] > 0) {
+            $returnData =  ['status' => 2, 'errors' => ["The data is being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
+        } else {
+            $returnData =  ['status' => 2, 'errors' => ["The data is still being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
+        }
+
+        return $returnData;
+    }
+
+    private function outputFile(string $inQuery): void
+    {
+
+        $dir = new VAMC_Directory;
+
+        // look up current user
+        $user = $dir->lookupLogin($_SESSION['userID'], true);
+
+        $processQueryCheckSQL = 'SELECT id, userID, `url`, lastProcess FROM process_query WHERE userID = :userID and  `url` = :url';
+        $vars = [
+            ':userID' => $user[0]['userName'],
+            ':url' => $inQuery
+        ];
+
+        $processQueryCheckRes = $this->db->prepared_query($processQueryCheckSQL, $vars);
+
+        if (!empty($processQueryCheckRes) && $processQueryCheckRes[0]['lastProcess'] > 0) {
             // if we have the file we can throw this out to the browser. We are checking the user here do we need the addl file checking?
 
             $currentProcess = current($processQueryCheckRes);
@@ -2670,10 +2738,6 @@ class Form
                 fpassthru($fp);
                 exit();
             }
-
-            return ['status' => 2, 'errors' => ["There was an error recovering your file"]];
-        } else {
-            return ['status' => 2, 'errors' => ["The data is still being prepared, and you are $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
         }
     }
 
@@ -2682,7 +2746,7 @@ class Form
      * @param array $compactedVariables - this compacts down the variables used, this helps us include variables without a bunch of params
      * @return array 
      */
-    public function processQueryData(array $res, array $compactedVariables)
+    private function processQueryData(array $res, array $compactedVariables)
     {
         if (is_array($compactedVariables)) {
 
@@ -2826,7 +2890,7 @@ class Form
             }
 
             if ($joinRecords_Step_Fulfillment) {
-                $strSQL = 'SELECT * FROM records_step_fulfillment LEFT JOIN workflow_steps USING (stepID) ' .
+                $strSQL = 'SELECT stepID, recordID, fulfillmentTime, workflowID, stepTitle, stepBgColor, stepFontColor, stepBorder, jsSrc, posX, posY, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, requiresDigitalSignature,stepData FROM records_step_fulfillment LEFT JOIN workflow_steps USING (stepID) ' .
                     'WHERE recordID IN (' . $recordIDs . ')';
                 $res2 = $this->db->prepared_query($strSQL, array());
                 foreach ($res2 as $item) {
@@ -2916,6 +2980,9 @@ class Form
         $externalProcessQuery = $this->isProcessQuery($query);
 
         if ($externalProcessQuery === true && $processQuery === false) {
+
+            $this->outputFile($inQuery);
+
             $retValue = $this->storeQueryForProcess($inQuery);
             if (!empty($retValue)) {
 
@@ -3080,11 +3147,11 @@ class Form
                 case 'categoryID':
                     if ($q['operator'] != '!=') {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                        $joins .= "LEFT JOIN (SELECT recordID, categoryID, `count` FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
                         $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
                     } else {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                        $joins .= "LEFT JOIN (SELECT recordID, categoryID, `count` FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
                         $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
                     }
 
@@ -3126,7 +3193,7 @@ class Form
                                 break;
                             default:
                                 if (is_numeric($vars[':stepID' . $count])) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
+                                    $joins .= "LEFT JOIN (SELECT recordID, stepID, blockingStepID, lastNotified, initialNotificationSent FROM records_workflow_state
                 									WHERE stepID=:stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
                                     // Backwards Compatibility
@@ -3173,7 +3240,7 @@ class Form
                                     break;
                                 default:
                                     if (is_numeric($vars[':stepID' . $count])) {
-                                        $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
+                                        $joins .= "LEFT JOIN (SELECT recordID, stepID, blockingStepID, lastNotified, initialNotificationSent FROM records_workflow_state
                 									WHERE stepID != :stepID{$count}) rj_stepID{$count}
                 									USING (recordID) ";
                                         // Backwards Compatibility
@@ -3208,8 +3275,8 @@ class Form
 
                         // need data type hint and default data
                         $tVarTypeHint = array(':indicatorID' => $q['indicatorID']);
-                        $tResTypeHint = $this->db->prepared_query('SELECT format, `default` FROM indicators
-                                                                    WHERE indicatorID=:indicatorID', $tVarTypeHint);
+                        $indicatorSQL = 'SELECT format, `default` FROM indicators WHERE indicatorID=:indicatorID';
+                        $tResTypeHint = $this->db->prepared_query($indicatorSQL, $tVarTypeHint);
 
                         $vars[':indicatorID' . $count] = $q['indicatorID'];
                         $joins .= "LEFT JOIN (SELECT recordID, indicatorID, series, data FROM data
@@ -3313,7 +3380,7 @@ class Form
 
                         break;
                     case 'status':
-                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state) lj_status USING (recordID)
+                        $joins .= 'LEFT JOIN (SELECT recordID, stepID, blockingStepID, lastNotified, initialNotificationSent FROM records_workflow_state) lj_status USING (recordID)
 							   LEFT JOIN (SELECT stepID, stepTitle FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
 
                         break;
@@ -3411,31 +3478,6 @@ class Form
             $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
         }
 
-        if (isset($_GET['debugQuery'])) {
-            if ($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n", "\t", "%0d", "%0a", "%09", "%20", ":", ";", "="], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
-                $debugVars = [];
-                foreach ($vars as $key => $value) {
-                    if (
-                        strpos($key, ':data') !== false
-                        || !is_numeric($value)
-                    ) {
-                        $debugVars[$key] = '"' . $value . '"';
-                    } else {
-                        $debugVars[$key] = $value;
-                    }
-                }
-
-                header('X-LEAF-Query: ' . str_replace(array_keys($debugVars), $debugVars, $debugQuery));
-
-                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
-                                                        ' . $joins . '
-                                                        WHERE ' . $conditions . $sort . $limit, $vars);
-            } else {
-                return \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
-            }
-        }
-
         // are we processing the query this time instead of displaying to browsers?
         if ($processQuery === true) {
             //$this->storeQueryData($inQuery, $retData);
@@ -3466,6 +3508,9 @@ class Form
 
                 $alldata = true;
 
+                // this will be used throughout the loop
+                $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
+
                 while ($alldata) {
 
                     if (empty($maxlimit)) {
@@ -3484,13 +3529,16 @@ class Form
                     }
 
                     $limit = " LIMIT  $offset, $maxlimit";
-
-                    $res = $this->db->prepared_query('SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit, $vars);
+                    $mainDataSQl = 'SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+                    $res = $this->db->prepared_query($mainDataSQl, $vars);
 
                     if (!empty($res)) {
-                        $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
+
                         $retData = $this->processQueryData($res, $compactedVariables);
                         fwrite($fp, json_encode($retData));
+                        // clean up our data
+                        unset($retData);
+                        unset($res);
                     }
 
                     // if we are at our limit or no data then we need to close out the file.
@@ -3516,13 +3564,9 @@ class Form
                         ':lastProcess' => time(),
                         ':url' => $inQuery
                     ];
-                    $processQueryUpdateSQL = 'UPDATE process_query SET
-                lastProcess=:lastProcess
-                WHERE `url`=:url';
-
+                    $processQueryUpdateSQL = 'UPDATE process_query SET lastProcess=:lastProcess WHERE `url`=:url';
                     $this->db->prepared_query($processQueryUpdateSQL, $vars);
                 }
-                exit();
             }
 
             return ['status' => 2, 'errors' => ["Data was processed!"]];
@@ -3538,9 +3582,31 @@ class Form
                 $limit = ' LIMIT ' . $offset . $query['limit'];
             }
 
-            $res = $this->db->prepared_query('SELECT * FROM records
-            ' . $joins . '
-            WHERE ' . $conditions . $sort . $limit, $vars);
+            if (isset($_GET['debugQuery'])) {
+                if ($this->login->checkGroup(1)) {
+                    $debugQuery = str_replace(["\r", "\n", "\t", "%0d", "%0a", "%09", "%20", ":", ";", "="], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                    $debugVars = [];
+                    foreach ($vars as $key => $value) {
+                        if (
+                            strpos($key, ':data') !== false
+                            || !is_numeric($value)
+                        ) {
+                            $debugVars[$key] = '"' . $value . '"';
+                        } else {
+                            $debugVars[$key] = $value;
+                        }
+                    }
+
+                    header('X-LEAF-Query: ' . str_replace(array_keys($debugVars), $debugVars, $debugQuery));
+                    $mainDataExplainSQL = 'EXPLAIN SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+                    return $res = $this->db->prepared_query($mainDataExplainSQL, $vars);
+                } else {
+                    return \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+                }
+            }
+
+            $mainDataSQl = 'SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+            $res = $this->db->prepared_query($mainDataSQl, $vars);
 
 
             $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
@@ -3606,7 +3672,7 @@ class Form
 
                 break;
         }
-        $vars = array();
+
         $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators " .
             "LEFT JOIN categories USING (categoryID) " .
             "WHERE indicators.disabled <= 1 " .
@@ -3626,17 +3692,18 @@ class Form
                 "WHERE indicators.disabled <= 1 " .
                 "AND categories.disabled = 0" . $orderBy;
         }
-        $res = $this->db->prepared_query($strSQL, $vars);
+        $res = $this->db->prepared_query($strSQL, []);
 
         $strSQL = "SELECT *, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators " .
             "LEFT JOIN categories USING (categoryID) " .
             "WHERE indicators.disabled <= 1 " .
             "AND categories.disabled = 0" . $orderBy;
 
-        $resAll = $this->db->prepared_query($strSQL, $vars);
+        $resAll = $this->db->prepared_query($strSQL, []);
 
         $dataStaples = array();
-        $resStaples = $this->db->prepared_query('SELECT stapledCategoryID, category_staples.categoryID as categoryID, categories.categoryID as stapledSubCategoryID, categories.parentID FROM category_staples LEFT JOIN categories ON (stapledCategoryID = categories.parentID)', $vars);
+        $stapleCategorySQL = 'SELECT stapledCategoryID, category_staples.categoryID as categoryID, categories.categoryID as stapledSubCategoryID, categories.parentID FROM category_staples LEFT JOIN categories ON (stapledCategoryID = categories.parentID)';
+        $resStaples = $this->db->prepared_query($stapleCategorySQL, []);
         foreach ($resStaples as $stapled) {
             $dataStaples[$stapled['stapledCategoryID']][] = $stapled['categoryID'];
             $dataStaples[$stapled['stapledSubCategoryID']][] = $stapled['categoryID'];
@@ -3832,8 +3899,9 @@ class Form
     private function buildFormTree($id, $series = null, $recordID = null, $parseTemplate = true)
     {
         if (!isset($this->cache["indicator_parentID{$id}"])) {
-            $var = array(':parentID' => (int)$id);
-            $res = $this->db->prepared_query('SELECT * FROM indicators WHERE parentID=:parentID AND disabled = 0 ORDER BY sort', $var);
+            $indicatorVar = array(':parentID' => (int)$id);
+            $indicatorSQL = 'SELECT indicatorID, `name`,`format`, `description`, parentID, categoryID, required, sort,  timeAdded, disabled, is_sensitive FROM indicators WHERE parentID=:parentID AND disabled = 0 ORDER BY sort';
+            $res = $this->db->prepared_query($indicatorSQL, $indicatorVar);
             $this->cache["indicator_parentID{$id}"] = $res;
         } else {
             $res = $this->cache["indicator_parentID{$id}"];
@@ -3856,9 +3924,10 @@ class Form
                     ':series' => (int)$series,
                     ':recordID' => (int)$recordID,
                 );
-                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID FROM data
-                									LEFT JOIN indicator_mask USING (indicatorID)
-                									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
+                $indicatorMaskSQL = 'SELECT `data`, `timestamp`, indicatorID, groupID FROM `data`
+                LEFT JOIN indicator_mask USING (indicatorID)
+                WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID';
+                $res2 = $this->db->prepared_query($indicatorMaskSQL, $var);
 
                 foreach ($res2 as $resIn) {
                     $idx = $resIn['indicatorID'];
@@ -4066,13 +4135,14 @@ class Form
 
     public function getRecordsByCategory($categoryID)
     {
-        $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
-        $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted
-                                            FROM records
-                                            JOIN category_count USING (recordID)
-                                            WHERE categoryID=:categoryID', $vars);
+        $recordCategoryVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
+        $recordCategorySQL = 'SELECT recordID, title, userID, categoryID, submitted
+        FROM records
+        JOIN category_count USING (recordID)
+        WHERE categoryID=:categoryID';
+        $recordCategoryRes = $this->db->prepared_query($recordCategorySQL, $recordCategoryVars);
 
-        return $data;
+        return $recordCategoryRes;
     }
 
     public function permanentlyDeleteRecord($recordID)
@@ -4081,7 +4151,7 @@ class Form
             return 0;
         }*/
 
-        $vars = array(
+        $updateRecordVars = array(
             ':time' => time(),
             ':date' => '0',
             ':serviceID' => '0',
@@ -4095,7 +4165,7 @@ class Form
             ':recordID' => $recordID
         );
 
-        $res = $this->db->prepared_query('UPDATE records SET
+        $updateRecordSQL = 'UPDATE records SET
         deleted=:time,
         date=:date,
         serviceID=:serviceID,
@@ -4106,13 +4176,15 @@ class Form
         submitted=:submitted,
         isWritableUser=:isWritableUser,
         isWritableGroup=:isWritableGroup
-        WHERE recordID=:recordID', $vars);
+        WHERE recordID=:recordID';
+        $this->db->prepared_query($updateRecordSQL, $updateRecordVars);
 
-        $vars = array(':recordID' => $recordID);
+        $deleteActionHistoryVars = array(':recordID' => $recordID);
 
-        $res = $this->db->prepared_query('DELETE FROM action_history WHERE recordID=:recordID', $vars);
+        $deleteActionHistorySQL = 'DELETE FROM action_history WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteActionHistorySQL, $deleteActionHistoryVars);
 
-        $vars = array(
+        $insertActionHistoryVars = array(
             ':recordID' => $recordID,
             ':userID' => '',
             ':dependencyID' => 0,
@@ -4121,23 +4193,25 @@ class Form
             ':time' => time()
         );
 
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
+        $insertActionHistorySQL = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, `time`)
+        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)';
+        $this->db->prepared_query($insertActionHistorySQL, $insertActionHistoryVars);
 
 
-        $vars = array(':recordID' => $recordID);
+        $deleteRecordWorkflowStateVars = array(':recordID' => $recordID);
 
-        $this->db->prepared_query('DELETE FROM records_workflow_state WHERE recordID=:recordID', $vars);
-
-
-        $vars = array(':recordID' => $recordID);
-
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
+        $deleteRecordWorkflowStateSQL = 'DELETE FROM records_workflow_state WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteRecordWorkflowStateSQL, $deleteRecordWorkflowStateVars);
 
 
-        $vars = array(':recordID' => $recordID);
+        $deleteTagVars = array(':recordID' => $recordID);
+        $deleteTagSQL = 'DELETE FROM tags WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteTagSQL, $deleteTagVars);
 
-        $this->db->prepared_query('DELETE FROM records_dependencies WHERE recordID=:recordID', $vars);
+
+        $deleteRecordDependenciesVars = array(':recordID' => $recordID);
+        $deleteRecordDependenciesSQL = 'DELETE FROM records_dependencies WHERE recordID=:recordID';
+        $this->db->prepared_query($deleteRecordDependenciesSQL, $deleteRecordDependenciesVars);
 
         return 1;
     }

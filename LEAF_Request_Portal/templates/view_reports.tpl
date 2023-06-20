@@ -797,15 +797,58 @@ function openShareDialog() {
     });
 }
 
+function setExportFormat() {
+        if($('#shortenLink').css('display') === 'none') {
+            $('#exportFormat').html('?');
+        }
+        else {
+            $('#exportFormat').html('&');
+        }
+
+        switch($('#format').val()) {
+            case 'json':
+            case 'bulkdatadownload':
+                $('#exportFormat').html('');
+                break;
+            default:
+                $('#exportFormat').append('format=' + $('#format').val());
+                $("#formatStatus").show().text("Format changed to " + $('#format').val());
+                $("#formatStatus").fadeOut(3000);
+                break;
+        }
+}
+
+let maxLimit = 10000;
+
+/**
+ * @param currentQuery
+ * @return currentQuery
+ */
+function setQueryLimit(currentQuery){
+    
+    switch($('#format').val()) {
+        case 'bulkdatadownload':
+            delete currentQuery.limit;
+            delete currentQuery.limitOffset;
+            break;
+        default:
+            currentQuery.limit = maxLimit;
+            currentQuery.limitOffset = 0;
+            break;
+    }
+    return currentQuery;
+}
+
 function showJSONendpoint() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
-    leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
-    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
+    let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    leafSearch.getLeafFormQuery().setLimit(0, maxLimit);
+    let currentQuery = leafSearch.getLeafFormQuery().getQuery();
+    let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(currentQuery);
+    let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
+
 
     dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of '+maxLimit.toLocaleString('en-US')+' records has been preset</b>.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
                            + '<select id="format">'
@@ -815,6 +858,7 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
+                           + '<option value="bulkdatadownload">Bulk Data Download</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
@@ -831,36 +875,20 @@ function showJSONendpoint() {
 
     });
 
-    function setExportFormat() {
-        if($('#shortenLink').css('display') === 'none') {
-            $('#exportFormat').html('?');
-        }
-        else {
-            $('#exportFormat').html('&');
-        }
-
-
-        switch($('#format').val()) {
-            case 'json':
-                $('#exportFormat').html('');
-                break;
-            default:
-                $('#exportFormat').append('format=' + $('#format').val());
-                $("#formatStatus").show().text("Format changed to " + $('#format').val());
-                $("#formatStatus").fadeOut(3000);
-                break;
-        }
-    }
+   
 
     $('#format').on('change', function() {
+        currentQuery = setQueryLimit(currentQuery);
+        $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(currentQuery));
         setExportFormat();
     });
 
     $('#expandLink').on('click', function() {
         $('#expandLink').css('display', 'none');
         $('#shortenLink').css('display', 'inline');
-        $('#exportPath').html(jsonPath);
+        $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(currentQuery));
         $('#exportPath').off();
+        currentQuery = setQueryLimit(currentQuery);
         setExportFormat();
     });
 
@@ -872,7 +900,7 @@ function showJSONendpoint() {
         $.ajax({
             type: 'POST',
             url: './api/open/form/query',
-            data: {data: queryString,
+            data: {data: JSON.stringify(currentQuery),
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
@@ -884,6 +912,7 @@ function showJSONendpoint() {
             else {
                 $('#expandLink').css('display', 'inline');
             }
+            currentQuery = setQueryLimit(currentQuery);
             setExportFormat();
         });
     });
@@ -1215,6 +1244,7 @@ $(function() {
         grid.setHeaders(headers);
 
         function renderGrid(res) {
+            
             grid.setDataBlob(res);
 
             var tGridData = [];
