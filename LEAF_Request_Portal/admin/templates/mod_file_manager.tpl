@@ -98,16 +98,22 @@ function isJSON(input = '') {
 
 function addIndicatorContext() {
     let fileContext = {};
-    const mutateFileContext = (fileKey, formKey, indicatorID ) => {
+    const mutateFileContext = (fileKey, formKey, indicator ) => {
+        const label = indicator.description ?
+            XSSHelpers.stripAllTags(indicator.description) : XSSHelpers.stripAllTags(indicator.name).slice(0, 30);
+        const indInfo = {
+            indicatorID: indicator.indicatorID,
+            description: label
+        };
         if(fileContext[fileKey] === undefined) {
             fileContext[fileKey] = {
-                [formKey]: [indicatorID]
+                [formKey]: [ indInfo ]
             };
         } else {
             fileContext[fileKey][formKey] === undefined ?
-            fileContext[fileKey][formKey] = [indicatorID] :
-            fileContext[fileKey][formKey].push(indicatorID);
+                fileContext[fileKey][formKey] = [ indInfo ] : fileContext[fileKey][formKey].push(indInfo);
         }
+        fileContext[fileKey][formKey] = fileContext[fileKey][formKey].sort((a, b) => b.indicatorID - a.indicatorID);
     }
     $.ajax({
         type: "GET",
@@ -125,7 +131,7 @@ function addIndicatorContext() {
                             c => c.selectedOutcome.toLowerCase() === 'crosswalk'
                         );
                         crosswalkConditions.forEach(cond => {
-                            mutateFileContext(cond.crosswalkFile, formKey, i.indicatorID);
+                            mutateFileContext(cond.crosswalkFile, formKey, i);
                         });
 
                     } else {
@@ -140,7 +146,7 @@ function addIndicatorContext() {
                             gridInfo => gridInfo.type === "dropdown_file"
                         );
                         file_dropdowns.forEach(dd => {
-                            mutateFileContext(dd.file, formKey, i.indicatorID);
+                            mutateFileContext(dd.file, formKey, i);
                         });
 
                     } else {
@@ -155,7 +161,7 @@ function addIndicatorContext() {
                     added in the Form Editor with 'ifthen', or Dropdown From File grid format cell types.&nbsp; 
                     It does not include custom code.</p>`;
 
-                output += `<table style="margin: 0" class="table">
+                output += `<table style="margin: 0; line-height:1.4" class="table">
                     <tr style="background-color:#252f3e;color:white;">
                         <th>File Name</th>
                         <th>Form Info</th>
@@ -164,8 +170,13 @@ function addIndicatorContext() {
                     output += `<tr><td>${file}</td><td>`
                     for(let form in fileContext[file]) {
                         const pl = fileContext[file][form].length > 1 ? 's' : '';
-                        output += `<b>Form</b>: ${form}, <br/>`
-                        output += `<b>Indicator${pl}</b>: ${fileContext[file][form].join(', ')}<br/><br/>`
+                        output += `<div><b>Form</b>: ${form}</div>`;
+                        output += `<div><b>Question${pl}</b>:</div>`;
+                        const indInfo = fileContext[file][form];
+                        indInfo.forEach((ind, index) => {
+                            output += `<div>${ind.description} (#${ind.indicatorID})</div>`;
+                        });
+                        output += '<br/>'
                     }
                     output = output.slice(0,-5); //rm last break
                     output += `</td></tr>`;

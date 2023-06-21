@@ -440,7 +440,7 @@ switch ($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-
+            $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js'));
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
