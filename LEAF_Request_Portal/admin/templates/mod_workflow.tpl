@@ -1197,8 +1197,8 @@
                 <option value="1">Forwards</option>
                 <option value="-1">Backwards</option>
             </select>
-            <div style="margin-top:0.5rem; max-width:600px;">
-                Backwards actions do not advance the workflow and should not be used if the intent is to save form field data.
+            <div id="backwards_action_note" style="margin-top:0.5rem; max-width:600px; display: none;">
+                Note: Backwards actions do not save form field data.
             </div>`
     }
 
@@ -1216,6 +1216,8 @@
                 dialog.indicateIdle();
                 dialog.setContent(renderActionInputModal(res[0]));
                 $('#fillDependency').val(res[0].fillDependency);
+                document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
+                document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
                 dialog.setSaveHandler(function() {
                     let sort = parseInt($('#actionSortNumber').val());
                     sort = Number.isInteger(sort) ? sort : 0;
@@ -1265,6 +1267,10 @@
         dialog_confirm.show();
     }
 
+    function actionDirectionNote() {
+        const val = document.getElementById('fillDependency').value || 0
+        document.getElementById('backwards_action_note').style.display = parseInt(val) < 0 ? 'block': 'none';
+    }
 
     // create a brand new action
     function newAction() {
@@ -1304,6 +1310,7 @@
         });
 
         dialog.setContent(renderActionInputModal());
+        document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
     }
 
     // connect 2 steps with an action
