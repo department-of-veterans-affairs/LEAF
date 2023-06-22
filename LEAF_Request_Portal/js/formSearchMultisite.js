@@ -19,8 +19,8 @@ var LeafFormSearchMultisite = function (containerID) {
   let rootURL = "";
 
   // constants
-  let ALL_DATA_FIELDS = "0";
-  let ALL_OC_EMPLOYEE_DATA_FIELDS = "0.0";
+  const ALL_DATA_FIELDS = "0";
+  const ALL_OC_EMPLOYEE_DATA_FIELDS = "0.0";
 
   function renderUI() {
     $("#" + containerID).html(
