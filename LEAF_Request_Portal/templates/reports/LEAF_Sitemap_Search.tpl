@@ -41,6 +41,7 @@
 const CSRFToken = '<!--{$CSRFToken}-->';
 
 $(document).on("ajaxError", function(e, jqxhr, settings) {
+    $('#body').html('Error retrieving resource, please refresh this page and try again.');
     console.error('Error retrieving resource: ' + settings.url);
 })
 
