@@ -4,23 +4,23 @@
  */
 
 var LeafFormSearchMultisite = function (containerID) {
-  var containerID = containerID;
-  var prefixID = "LeafFormSearchMultisite" + Math.floor(Math.random() * 1000) + "_";
-  var localStorageNamespace = "LeafFormSearchMultisite" + getLocalStorageHash();
-  var orgchartPath = "";
-  var timer = 0;
-  var q = "";
-  var intervalID = null;
-  var currRequest = null;
-  var numResults = 0;
-  var searchFunc = null;
-  var leafFormQuery = new LeafFormQuery();
-  var widgetCounter = 0;
-  var rootURL = "";
+  let containerID = containerID;
+  let prefixID = "LeafFormSearchMultisite" + Math.floor(Math.random() * 1000) + "_";
+  let localStorageNamespace = "LeafFormSearchMultisite" + getLocalStorageHash();
+  let orgchartPath = "";
+  let timer = 0;
+  let q = "";
+  let intervalID = null;
+  let currRequest = null;
+  let numResults = 0;
+  let searchFunc = null;
+  let leafFormQuery = new LeafFormQuery();
+  let widgetCounter = 0;
+  let rootURL = "";
 
   // constants
-  var ALL_DATA_FIELDS = "0";
-  var ALL_OC_EMPLOYEE_DATA_FIELDS = "0.0";
+  let ALL_DATA_FIELDS = "0";
+  let ALL_OC_EMPLOYEE_DATA_FIELDS = "0.0";
 
   function renderUI() {
     $("#" + containerID).html(
@@ -73,7 +73,7 @@ var LeafFormSearchMultisite = function (containerID) {
 		    </div>'
     );
 
-    var searchOrigWidth = 0;
+    let searchOrigWidth = 0;
     $("#" + prefixID + "advancedOptionsClose").on("click", function () {
       localStorage.setItem(localStorageNamespace + ".search", "");
       $("#" + prefixID + "searchtxt").val("");
@@ -91,7 +91,7 @@ var LeafFormSearchMultisite = function (containerID) {
       });
     });
     //added for keyboard navigation and accessibility to close advanced search options
-    var searchOrigWidth = 0;
+
     $("#" + prefixID + "advancedOptionsClose").on("keydown", function (e) {
       if (e.keyCode == 13) {
         localStorage.setItem(localStorageNamespace + ".search", "");
@@ -176,10 +176,10 @@ var LeafFormSearchMultisite = function (containerID) {
     if (getLastSearch() == null) {
       search("*");
     } else {
-      var lastSearch = getLastSearch();
+      let lastSearch = getLastSearch();
 
-      var isJSON = true;
-      var advSearch = {};
+      let isJSON = true;
+      let advSearch = {};
       try {
         advSearch = JSON.parse(lastSearch);
       } catch (err) {
@@ -207,8 +207,8 @@ var LeafFormSearchMultisite = function (containerID) {
    * prevQuery - optional JSON object
    */
   function renderPreviousAdvancedSearch(prevQuery) {
-    var isJSON = true;
-    var advSearch = {};
+    let isJSON = true;
+    let advSearch = {};
     try {
       if (prevQuery != undefined) {
         advSearch = prevQuery;
@@ -219,11 +219,11 @@ var LeafFormSearchMultisite = function (containerID) {
       isJSON = false;
     }
     if (isJSON && advSearch != null && widgetCounter <= advSearch.length) {
-      for (var i = 1; i < advSearch.length; i++) {
+      for (let i = 1; i < advSearch.length; i++) {
         newSearchWidget(advSearch[i].gate);
         firstChild();
       }
-      for (var i = 0; i < advSearch.length; i++) {
+      for (let i = 0; i < advSearch.length; i++) {
         $("#" + prefixID + "widgetTerm_" + i).val(advSearch[i].id);
         $("#" + prefixID + "widgetTerm_" + i).trigger("chosen:updated");
         if (
@@ -280,7 +280,7 @@ var LeafFormSearchMultisite = function (containerID) {
    * From: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
    */
   function getLocalStorageHash() {
-    var hash = 0,
+    let hash = 0,
       i,
       chr,
       len;
@@ -334,7 +334,7 @@ var LeafFormSearchMultisite = function (containerID) {
     }
     timer += timer > 5000 ? 0 : 200;
     if (timer > 400) {
-      var txt = $("#" + prefixID + "searchtxt").val();
+      let txt = $("#" + prefixID + "searchtxt").val();
 
       if (txt != "" && txt != q) {
         q = txt;
@@ -618,13 +618,13 @@ var LeafFormSearchMultisite = function (containerID) {
           url: "./api/system/services",
           dataType: "json",
           success: function (res) {
-            var services =
+            let services =
               '<select id="' +
               prefixID +
               "widgetMat_" +
               widgetID +
               '" class="chosen" aria-label="services" style="width: 250px">';
-            for (var i in res) {
+            for (let i in res) {
               services +=
                 '<option value="' +
                 res[i].groupID +
@@ -686,13 +686,13 @@ var LeafFormSearchMultisite = function (containerID) {
           url: "./api/workflow/categoriesUnabridged",
           dataType: "json",
           success: function (res) {
-            var categories =
+            let categories =
               '<select id="' +
               prefixID +
               "widgetMat_" +
               widgetID +
               '" class="chosen" aria-label="categories" style="width: 250px">';
-            for (var i in res) {
+            for (let i in res) {
               categories +=
                 '<option value="' +
                 res[i].categoryID +
@@ -744,13 +744,13 @@ var LeafFormSearchMultisite = function (containerID) {
           url: "./api/workflow/dependencies",
           dataType: "json",
           success: function (res) {
-            var dependencies =
+            let dependencies =
               '<select id="' +
               prefixID +
               "widgetIndicator_" +
               widgetID +
               '" class="chosen" aria-label="dependencies" style="width: 250px">';
-            for (var i in res) {
+            for (let i in res) {
               dependencies +=
                 '<option value="' +
                 res[i].dependencyID +
@@ -761,7 +761,7 @@ var LeafFormSearchMultisite = function (containerID) {
             dependencies += "</select>";
             $("#" + prefixID + "widgetTerm_" + widgetID).after(dependencies);
 
-            var options =
+            let options =
               '<select id="' +
               prefixID +
               "widgetMat_" +
@@ -797,7 +797,7 @@ var LeafFormSearchMultisite = function (containerID) {
 	            		<option value="!=">IS NOT</option>\
 	            	</select>'
         );
-        var categories =
+        let categories =
             '<select id="' +
             prefixID +
             "widgetMat_" +
@@ -817,7 +817,7 @@ var LeafFormSearchMultisite = function (containerID) {
         }
         break;
       case "data":
-        var indicators =
+        let indicators =
             '<select id="' +
             prefixID +
             "widgetIndicator_" +
@@ -1008,7 +1008,7 @@ var LeafFormSearchMultisite = function (containerID) {
    */
   function generateSearchQuery() {
     leafFormQuery.clearTerms();
-    for (var i = 0; i < widgetCounter; i++) {
+    for (let i = 0; i < widgetCounter; i++) {
       if ($("#" + prefixID + "widgetTerm_" + i).val() != undefined) {
         term = $("#" + prefixID + "widgetTerm_" + i).val();
         if (term != "data" && term != "dependencyID") {

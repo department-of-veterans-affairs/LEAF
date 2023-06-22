@@ -63,7 +63,7 @@ var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
 var filterData = {}; // used to remove unused data returned by query
-let categoryID = 'strCatID';
+var categoryID = 'strCatID';
 
 function parseRootPathAndSiteName(url) {
     let res = {};
@@ -172,7 +172,7 @@ function addHeader(column) {
                 editable: false,
                 callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
-                    var status = d.stepTitle == null ? d.lastStatus : 'Pending ' + d.stepTitle;
+                    let status = d.stepTitle == null ? d.lastStatus : 'Pending ' + d.stepTitle;
                     status = status == null ? 'Not Submitted' : status;
                     if(d.deleted > 0) {
                         status += ', Cancelled';
@@ -198,7 +198,7 @@ function addHeader(column) {
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
                     if(d.deleted > 0) {
-                        var date = new Date(d.deleted * 1000);
+                        let date = new Date(d.deleted * 1000);
                         $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                     }
             }});
@@ -206,7 +206,7 @@ function addHeader(column) {
                 name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
                     if(d.action_history != undefined) {
-                        var cancelData = d.action_history.pop();
+                        let cancelData = d.action_history.pop();
                         if(cancelData != undefined && cancelData.actionType === 'deleted') {
                             $('#'+data.cellContainerID).html(cancelData.approverName);
                         }
@@ -218,7 +218,7 @@ function addHeader(column) {
             headers.push({
                 name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
-                    var date = new Date(d.date * 1000);
+                    let date = new Date(d.date * 1000);
                     $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
@@ -229,7 +229,7 @@ function addHeader(column) {
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
                     if(d.recordResolutionData != undefined) {
-                        var date = new Date(d.recordResolutionData.fulfillmentTime * 1000);
+                        let date = new Date(d.recordResolutionData.fulfillmentTime * 1000);
                         $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                     }
             }});
@@ -278,12 +278,12 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
                     if(d.action_history != null) {
-                        var buffer = '<table style="min-width: 300px">';
-                        var now = new Date();
+                        let buffer = '<table style="min-width: 300px">';
+                        let now = new Date();
 
                         for(let i in d.action_history) {
-                            var date = new Date(d.action_history[i]['time'] * 1000);
-                            var formattedDate = date.toLocaleDateString();
+                            let date = new Date(d.action_history[i]['time'] * 1000);
+                            let formattedDate = date.toLocaleDateString();
                             if(d.action_history[i]['comment'] != '') {
                                 buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
                                 + formattedDate + delim + '</td><td style="padding-left: 4px">' + d.action_history[i]['comment'] + '.</td>'
@@ -308,13 +308,13 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
                     if(d.action_history != null) {
-                        var buffer = '<table class="table" style="min-width: 300px">';
-                        var now = new Date();
+                        let buffer = '<table class="table" style="min-width: 300px">';
+                        let now = new Date();
 
                         for(let i in d.action_history) {
-                            var date = new Date(d.action_history[i]['time'] * 1000);
-                            var formattedDate = date.toLocaleDateString();
-                            var actionDescription = d.action_history[i]['description'] != null ? d.action_history[i]['description'] : '';
+                            let date = new Date(d.action_history[i]['time'] * 1000);
+                            let formattedDate = date.toLocaleDateString();
+                            let actionDescription = d.action_history[i]['description'] != null ? d.action_history[i]['description'] : '';
                             buffer += '<tr><td>'
                                 + formattedDate + delim + '</td>'
                                 + '<td>' + actionDescription + delim  + '</td>'
@@ -393,7 +393,7 @@ function addHeader(column) {
                         let d = grid.getDataByIndex(data.index);
                         if(d.recordsDependencies != undefined
                             && d.recordsDependencies[depID] != undefined) {
-                            var date = new Date(d.recordsDependencies[depID].time * 1000);
+                            let date = new Date(d.recordsDependencies[depID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
@@ -419,7 +419,7 @@ function addHeader(column) {
                         let d = grid.getDataByIndex(data.index);
                         if(d.stepFulfillment != undefined
                             && d.stepFulfillment[stepID] != undefined) {
-                            var date = new Date(d.stepFulfillment[stepID].time * 1000);
+                            let date = new Date(d.stepFulfillment[stepID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
                             if(tStepHeader[stepID] == 0) {
@@ -444,7 +444,7 @@ function loadSearchPrereqs() {
     }
     searchPrereqsLoaded = true;
 
-    var buffer = '';
+    let buffer = '';
 
     // special columns
     buffer += '<div class="col span_1_of_3">';
@@ -540,7 +540,7 @@ function loadSearchPrereqs() {
             $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
 
             if (t_inIndicators[i].cols !== undefined) {
-                for (var j in t_inIndicators[i].cols) {
+                for (let j in t_inIndicators[i].cols) {
                     $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
                 }
             }
@@ -585,24 +585,24 @@ function updateHeaderColors(){
 }
 
 function editLabels_down(id) {
-    var row = $('#sortID_' + id);
+    let row = $('#sortID_' + id);
     row.next().after(row);
 }
 
 function editLabels_up(id) {
-    var row = $('#sortID_' + id);
+    let row = $('#sortID_' + id);
     row.prev().before(row);
 }
 
 function editLabels() {
     dialog.setTitle('Edit Labels');
 
-    var buffer = '<table id="labelSorter">';
+    let buffer = '<table id="labelSorter">';
 
     if (Object.keys(indicatorSort).length !== 0) {
         resSelectList.sort(function(a, b) {
-            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+            let sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            let sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
             if(sortA < sortB) {
                 return -1
@@ -649,11 +649,11 @@ function editLabels() {
 
     dialog.setSaveHandler(function() {
         $('#labelSorter tr').each(function(i) {
-            var curID = this.id.substr(7);
+            let curID = this.id.substr(7);
             indicatorSort[curID] = i + 1;
         });
-        var tmp = document.createElement('div');
-        var temp;
+        let tmp = document.createElement('div');
+        let temp;
         for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
                 temp = $('#id_' + resSelectList[i]).val();
@@ -678,8 +678,8 @@ function editLabels() {
 
 function isSearchingDeleted(searchObj) {
     // check if the user explicitly wants to find deleted requests
-    var t = searchObj.getLeafFormQuery().getQuery();
-    var searchDeleted = false;
+    let t = searchObj.getLeafFormQuery().getQuery();
+    let searchDeleted = false;
     for(let i in t.terms) {
         if(t.terms[i].id === 'stepID'
             && t.terms[i].match === 'deleted'
@@ -704,8 +704,8 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
-    var reportLink = document.URL.substr(document.URL.lastIndexOf('?'));
+    let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    let reportLink = document.URL.substr(document.URL.lastIndexOf('?'));
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
@@ -724,13 +724,13 @@ function openShareDialog() {
 
 function showJSONendpoint() {
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    var jsonPath = ''
+    let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+    let jsonPath = ''
 
     subordinateSites.forEach(site => {
         jsonPath += site + 'api/form/query/?q=' + queryString + "<br />";
     });
-    //var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
+    //let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
@@ -896,7 +896,7 @@ function createRequest(catID) {
 
 
 var url, urlQuery, urlIndicators;
-let urlColorData = 'str';
+var urlColorData = 'str';
 var leafSearch;
 var headers = [];
 var t_inIndicators;
@@ -904,15 +904,15 @@ var isNewQuery = false;
 var dialog, dialog_message, dialog_confirm;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
-let gridColorData = {}; //object updated with id: color
-let tempColorData = {}; //object updated with id: color
-let sortPreference = {}; // store current sorting preference
-let isOneFormType = false;
+var gridColorData = {}; //object updated with id: color
+var tempColorData = {}; //object updated with id: color
+var sortPreference = {}; // store current sorting preference
+var isOneFormType = false;
 
 /**
  * Purpose: Check if only one type of form could logically be returned and,
- * if so, update global variables isOneFormType (bool) and categoryID (string).
- * @param searchQueryTerms - variable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
+ * if so, update global letiables isOneFormType (bool) and categoryID (string).
+ * @param searchQueryTerms - letiable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
  */
 function checkIfOneTypeSearchedAndUpdate(searchQueryTerms) {
     searchQueryTerms = searchQueryTerms || 0;
@@ -1044,9 +1044,9 @@ $(async function() {
 
         // hide data fields that don't match forms selected by the user
         leafSearch.generateQuery();
-        var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
-        var filteredCategories = [];
-        var showOptionCancelled = false;
+        let tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
+        let filteredCategories = [];
+        let showOptionCancelled = false;
 
         for(let i in tTerms) {
             if(tTerms[i].id === 'categoryID'
@@ -1086,7 +1086,7 @@ $(async function() {
     }
 
     // Step 2
-    var selectedIndicators = [];
+    let selectedIndicators = [];
     grid = new LeafFormGrid('results');
     grid.hideIndex();
     grid.enableToolbar();
@@ -1095,7 +1095,7 @@ $(async function() {
         let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
         buildURLComponents(baseURL, true);
     });
-    var extendedToolbar = false;
+    let extendedToolbar = false;
     $('#generateReport').off();
     $('#generateReport').on('click', function() {
         $('#results').fadeIn(700);
@@ -1138,8 +1138,8 @@ $(async function() {
         });
 
         resSelectList.sort(function(a, b) {
-            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+            let sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            let sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
             if(sortA < sortB) {
                 return -1
@@ -1164,7 +1164,7 @@ $(async function() {
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
             temp.editable = false;
-            var tmp = document.createElement('div');
+            let tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
             temp.name = temp.name.replace(/[^\040-\176]/g, '');
@@ -1185,7 +1185,7 @@ $(async function() {
         function renderGrid(res) {
             grid.setDataBlob(res);
 
-            var tGridData = [];
+            let tGridData = [];
             for(let i in res) {
                 tGridData.push(res[i]);
             }
@@ -1240,7 +1240,7 @@ $(async function() {
             });
             tQuery.onSuccess(res => {
                 let tRes = {};
-                for(var i in res) {
+                for(let i in res) {
                     let urlParts = item.split('/');
                     let sitePath = `${urlParts[3]}${urlParts[4]}${urlParts[5]}`
                     tRes[`${sitePath}_${i}`] = res[i];
@@ -1368,7 +1368,7 @@ $(async function() {
 
             inIndicators = [];
             for(let i in t_inIndicators) {
-                var temp = {};
+                let temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     // add selected columns to payload in case of grid indicator
                     if (Array.isArray(t_inIndicators[i].cols)) {
