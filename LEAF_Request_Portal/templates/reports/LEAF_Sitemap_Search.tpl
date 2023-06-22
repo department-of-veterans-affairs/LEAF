@@ -40,6 +40,10 @@
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
+$(document).on("ajaxError", function(e, jqxhr, settings) {
+    console.error('Error retrieving resource: ' + settings.url);
+})
+
 function loadWorkflow(recordID, prefixID) {
     dialog_message.setTitle('Apply Action to #' + recordID);
     currRecordID = recordID;
