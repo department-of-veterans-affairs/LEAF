@@ -1800,7 +1800,7 @@ class Form
      */
     public function hasDependencyAccess(int $dependencyID, array $details): bool
     {
-        switch ($dependencyID) {
+        switch ((int)$dependencyID) {
             case 1:
                 if ($this->login->checkService($details['serviceID'])) {
                     return true;
@@ -3456,7 +3456,7 @@ class Form
                             }
 
                             $dataMatch = ":data{$count}";
-                            switch ($tResTypeHint[0]['format']) {
+                            switch (strtolower($tResTypeHint[0]['format'])) {
                                 case 'number':
                                 case 'currency':
                                     $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";

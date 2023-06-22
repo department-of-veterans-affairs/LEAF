@@ -829,7 +829,7 @@ let LeafFormGrid = function (containerID, options) {
       }
 
       if (
-        currentRenderIndex + limit >= currentData.length ||
+        parseInt(currentRenderIndex) + parseInt(limit) >= currentData.length ||
         typeof limit == 'undefined'
       ) {
         $("#" + prefixID + "tfoot").html("");

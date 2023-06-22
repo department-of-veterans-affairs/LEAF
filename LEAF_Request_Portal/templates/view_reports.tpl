@@ -805,7 +805,7 @@ function setExportFormat() {
             $('#exportFormat').html('&');
         }
 
-        switch($('#format').val()) {
+        switch($('#format').val().toLowerCase()) {
             case 'json':
             case 'bulkdatadownload':
                 $('#exportFormat').html('');
@@ -826,7 +826,7 @@ let maxLimit = 10000;
  */
 function setQueryLimit(currentQuery){
     
-    switch($('#format').val()) {
+    switch($('#format').val().toLowerCase()) {
         case 'bulkdatadownload':
             delete currentQuery.limit;
             delete currentQuery.limitOffset;
