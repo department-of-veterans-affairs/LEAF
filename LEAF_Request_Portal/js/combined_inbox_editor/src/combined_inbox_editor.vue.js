@@ -79,7 +79,9 @@ const CombinedInboxEditor = Vue.createApp({
                             let tmp = [];
                             if (site.columns.split(',')[0] !== '') {
                                 site.columns.split(',').forEach((col, index) => {
-                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
+                                    if (isNaN(col)) {
+                                        tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
+                                    }
                                 });
                             }
                             this.allColumns.split(',').forEach((col) => {
@@ -127,35 +129,56 @@ const CombinedInboxEditor = Vue.createApp({
             this.sites.sort((a, b) => a.order - b.order);
         },
 
-        setupChoices() {
+        setupChoices(site, index) {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
-                    this.sites.forEach((site, index) => {
-                        let selectElement = document.getElementById('choice-' + site.id);
-                        let allCols = this.allColumns.split(',');
-                        let choicejs = new Choices(selectElement, {
-                            allowHTML: false,
-                            removeItemButton: true,
-                            editItems: true,
-                            maxItemCount: 7,
-                            shouldSort: false,
-                            choices: this.choices.find((choice) => choice.id == site.id).choices,
-                        });
-                        
-                        selectElement.addEventListener('change', (event) => {
-                            let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
-                            site.columns = selectedValue;
-                            this.saveSettings();
-                        });
-                    });    
+                    let selectElement = document.getElementById('choice-' + site.id);
+                    let allCols = this.allColumns.split(',');
+                    let choicejs = new Choices(selectElement, {
+                        allowHTML: false,
+                        removeItemButton: true,
+                        editItems: true,
+                        maxItemCount: 7,
+                        shouldSort: false,
+                        choices: this.choices.find((choice) => choice.id == site.id).choices,
+                    });
+                    
+                    selectElement.addEventListener('change', (event) => {
+                        let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
+                        site.columns = selectedValue;
+                        this.saveSettings();
+                    });
                 });
                 resolve();
             });
+        },
+        async getIndicators(site) {
+            if (typeof site == 'undefined' || typeof site.target == 'undefined') {
+                return [];
+            }
+            const indicators = await fetch(site.target + "api/form/indicator/list", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                cache: "no-cache"
+            });
+    
+            return indicators.json();
         }
     },
     created() {
         this.getMapSites().then(() => {
-            this.setupChoices();
+            this.sites.forEach((site, index) => {
+                this.getIndicators(site).then((indicators) => {
+                    this.choices.find((choice) => choice.id == site.id).choices.push(...indicators.map((indicator => ({
+                        label: indicator.name + " (ID: " + indicator.indicatorID + ")",
+                        selected: site.columns.includes(indicator.indicatorID),
+                        value: indicator.indicatorID
+                    }))));
+                }).then(() => {
+                    this.setupChoices(site, index);
+                });
+            });
         });
     },
     template: `

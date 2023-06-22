@@ -324,9 +324,9 @@
                             headerDefinitions[col] != undefined) {
                             customCols.push(headerDefinitions[col](site));
                         } else if (parseInt(col) > 0) { // assign custom data headers
-                            let label = dataDictionary[site.url]?. [col]?.description;
+                            let label = dataDictionary[site.url]?.[col]?.description;
                             if (label == undefined) {
-                                label = dataDictionary[site.url]?. [col]?.name;
+                                label = dataDictionary[site.url]?.[col]?.name;
                             }
                             customCols.push({name: label, indicatorID: parseInt(col), editable: false});
                         }
@@ -341,7 +341,13 @@
             site.columns = site.columns ?? 'UID,service,title,status';
         }
         site.columns.split(',').forEach(col => {
-            customCols.push(headerDefinitions[col](site));
+            if (isNaN(col)) {
+                customCols.push(headerDefinitions[col](site));
+            } else {
+                customCols.push({
+                    name: (dataDictionary[site.url]?.[col]?.name ?? dataDictionary[site.url]?.[col]?.description), indicatorID: parseInt(col), editable: false
+                });
+            }
         });
 
         headers = customCols.concat(headers);
@@ -446,6 +452,7 @@
                             dict[ind.indicatorID] = {name: ind.name, description: ind.description};
                         });
                         dataDictionary[site.url] = dict;
+                        console.log(dataDictionary[site.url]);
                     }
                 })
                 .then(() => query.execute().then(res => {
