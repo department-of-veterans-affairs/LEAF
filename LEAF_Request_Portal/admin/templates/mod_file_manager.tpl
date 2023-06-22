@@ -16,9 +16,12 @@
     
         <h2>File Manager</h2>
 
-        <p>Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
+        <p style="line-height:1.4;">Note: File uploads are intended to be used for custom branding assets. Uploaded files have no access restrictions, and are public.</p>
         
-        <div id="fileList" style="background-color: white; margin-left: 160px"></div>
+        <div id="fileList"></div>
+        <div id="fileFormContext" style="margin-top: 1rem;">
+            Loading Form Information... <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
 
         <div class="leaf-row-space"></div>
 
@@ -43,12 +46,18 @@ function showFiles() {
         type: 'GET',
         url: '../api/system/files',
         success: function(res) {
-        	var output = '<table class="table">';
-            for(var i in res) {
-            	output += '<tr><td><a href="../files/'+ res[i] +'">../files/'+ res[i] +'</a></td><td><a href="#" onclick="deleteFile(\''+ res[i] +'\')">Delete</a></td></tr>';
+        	let output = '<table class="table">';
+            for(let i in res) {
+            	output += `<tr>
+                    <td><a href="../files/${res[i]}">../files/${res[i]}</a></td>
+                    <td><a href="#" onclick="deleteFile('${res[i]}')">Delete</a></td>
+                </tr>`;
             }
             output += '</table>';
             $('#fileList').html(output);
+        },
+        error: function(err) {
+            console.error(err?.responseText);
         },
         cache: false
     });
@@ -78,6 +87,111 @@ function deleteFile(file) {
     dialog_confirm.show();
 }
 
+function isJSON(input = '') {
+    try {
+        JSON.parse(input);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+function addIndicatorContext() {
+    let fileContext = {};
+    const mutateFileContext = (fileKey, formKey, indicator ) => {
+        const label = indicator.description ?
+            XSSHelpers.stripAllTags(indicator.description) : XSSHelpers.stripAllTags(indicator.name).slice(0, 30);
+        const indInfo = {
+            indicatorID: indicator.indicatorID,
+            description: label
+        };
+        if(fileContext[fileKey] === undefined) {
+            fileContext[fileKey] = {
+                [formKey]: [ indInfo ]
+            };
+        } else {
+            fileContext[fileKey][formKey] === undefined ?
+                fileContext[fileKey][formKey] = [ indInfo ] : fileContext[fileKey][formKey].push(indInfo);
+        }
+        fileContext[fileKey][formKey] = fileContext[fileKey][formKey].sort((a, b) => b.indicatorID - a.indicatorID);
+    }
+    $.ajax({
+        type: "GET",
+        url: "../api/form/indicator/list/unabridged",
+        success: (res) => {
+            const enabledIndicators = res.filter(i => parseInt(i.isDisabled) === 0);
+            enabledIndicators.forEach(i => {
+                const baseFormat = i.format.split('\n')[0].toLowerCase().trim();
+                const formKey = `${i.categoryName} (${i.categoryID})`;
+                //current multiselect and dropdown format option loading
+                if(baseFormat === 'dropdown' || baseFormat === 'multiselect') {
+                    if(isJSON(i.conditions)) {
+                        const conditions = JSON.parse(i.conditions) || [];
+                        const crosswalkConditions = conditions.filter(
+                            c => c.selectedOutcome.toLowerCase() === 'crosswalk'
+                        );
+                        crosswalkConditions.forEach(cond => {
+                            mutateFileContext(cond.crosswalkFile, formKey, i);
+                        });
+
+                    } else {
+                        console.log('unexpected conditions content', i.indicatorID, i.conditions)
+                    }
+                //grid format option loading
+                } else if (baseFormat === 'grid') {
+                    let gridJSON = (i.format.split('\n')[1] || '').trim();
+                    if(isJSON(gridJSON)) {
+                        gridJSON = JSON.parse(gridJSON) || [];
+                        const file_dropdowns = gridJSON.filter(
+                            gridInfo => gridInfo.type === "dropdown_file"
+                        );
+                        file_dropdowns.forEach(dd => {
+                            mutateFileContext(dd.file, formKey, i);
+                        });
+
+                    } else {
+                        console.log('unexpected grid JSON', i.indicatorID)
+                    }
+                }
+            });
+            if (Object.keys(fileContext).length > 0) {
+                document.getElementById('fileFormContext').style.display = 'block';
+                let output = `<p style="margin-top: 2rem; max-width:650px; line-height:1.4;">
+                    The table below lists files used for loading form options.&nbsp; This includes those
+                    added in the Form Editor with 'ifthen', or Dropdown From File grid format cell types.&nbsp; 
+                    It does not include custom code.</p>`;
+
+                output += `<table style="margin: 0; line-height:1.4" class="table">
+                    <tr style="background-color:#252f3e;color:white;">
+                        <th>File Name</th>
+                        <th>Form Info</th>
+                    </tr>`;
+                for(let file in fileContext) {
+                    output += `<tr><td>${file}</td><td>`
+                    for(let form in fileContext[file]) {
+                        const pl = fileContext[file][form].length > 1 ? 's' : '';
+                        output += `<div><b>Form</b>: ${form}</div>`;
+                        output += `<div><b>Question${pl}</b>:</div>`;
+                        const indInfo = fileContext[file][form];
+                        indInfo.forEach((ind, index) => {
+                            output += `<div>${ind.description} (#${ind.indicatorID})</div>`;
+                        });
+                        output += '<br/>'
+                    }
+                    output = output.slice(0,-5); //rm last break
+                    output += `</td></tr>`;
+                }
+                output += '</table>';
+                $('#fileFormContext').html(output);
+            } else {
+                $('#fileFormContext').html('');
+            }
+        },
+        error: function(err) {
+            console.error(err?.responseText);
+        },
+    });
+}
 
 var dialog, dialog_confirm;
 $(function() {
@@ -85,6 +199,7 @@ $(function() {
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
     showFiles();
+    addIndicatorContext();
 });
 
 </script>
