@@ -87,7 +87,7 @@ class Form
      * @param string $limitCategory
      * @return array
      */
-    public function getFullForm($recordID, $limitCategory = null)
+    public function getFullForm(int $recordID, string $limitCategory = null): array
     {
         $fullForm = array();
 
@@ -109,7 +109,13 @@ class Form
         return $fullForm;
     }
 
-    public function flattenFullFormData($data, &$output, $parentID = null)
+
+    /**
+     * @param array $data
+     * @param array $output
+     * @param int|null $parentID
+     */
+    public function flattenFullFormData(array $data, array &$output, $parentID = null): void
     {
         foreach ($data as $key => $item) {
             if ($item['child'] == null) {
@@ -130,7 +136,7 @@ class Form
      * @param string $limitCategory
      * @return array
      */
-    public function getFullFormData($recordID, $limitCategory = null)
+    public function getFullFormData(int $recordID, string $limitCategory = null): array
     {
         $fullForm = $this->getFullForm($recordID, $limitCategory);
         $output = array();
@@ -150,7 +156,7 @@ class Form
      *
      * @return array    An array that represents the form ready for signing
      */
-    public function getFullFormDataForSigning($recordID, $limitCategory = null)
+    public function getFullFormDataForSigning(int $recordID, string $limitCategory = null): array
     {
         // This function cannot use getFullFormData() above since that
         // function does not allow access to the $form object.
@@ -193,7 +199,7 @@ class Form
      * @param bool $parseTemplate - see getIndicator()
      * @return array
      */
-    public function getFormByCategory($categoryID, $parseTemplate = true)
+    public function getFormByCategory(int $categoryID, bool $parseTemplate = true): array
     {
         $fullForm = array();
 
@@ -227,7 +233,12 @@ class Form
         return $workflowRes;
     }
 
-    public function getForm($recordID, $limitCategory = null)
+    /**
+     * @param int $recordID
+     * @param string $limitCategory null
+     * @return array
+     */
+    public function getForm(int $recordID, string $limitCategory = null): array
     {
         if ($this->isNeedToKnow($recordID)) {
             $query[$recordID]['recordID'] = $recordID;
@@ -276,8 +287,12 @@ class Form
         return $json;
     }
 
-    // Expects POST input: $_POST['service'], title, priority, num(categoryID)
-    public function newForm($userID)
+    /**
+     * Expects POST input: $_POST['service'], title, priority, num(categoryID)
+     * @param string $userID
+     * @return mixed
+     */
+    public function newForm(string $userID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 'Error: Invalid token.';
@@ -405,7 +420,7 @@ class Form
      * @param bool $parseTemplate - parses html/htmlPrint template variables
      * @return array
      */
-    public function getIndicator($indicatorID, $series, $recordID = null, $parseTemplate = true)
+    public function getIndicator(int $indicatorID, int $series, int $recordID = null, bool $parseTemplate = true): array
     {
         $form = array();
         if (!is_numeric($indicatorID) || !is_numeric($series)) {
@@ -575,7 +590,13 @@ class Form
         return $form;
     }
 
-    public function getIndicatorLog($indicatorID, $series, $recordID)
+    /**
+     * @param int $indicatorID
+     * @param int $series
+     * @param int $recordID
+     * @return array
+     */
+    public function getIndicatorLog(int $indicatorID, int $series, int $recordID): array
     {
         // check needToKnow mode
         if (!$this->hasReadAccess($recordID)) {
@@ -637,6 +658,11 @@ class Form
         return $res2;
     }
 
+    /**
+     * @param string $categoryID
+     * @param int $series
+     * @return array
+     */
     public function buildFormJSONStructure($categoryID, $series = 1): array
     {
         $categoryID = ($categoryID == null) ? 'general' : \Leaf\XSSHelpers::xscrub($categoryID);
@@ -672,14 +698,22 @@ class Form
         return $indicators;
     }
 
-    public function getFormJSON($recordID)
+    /**
+     * @param int $recordID
+     * @return string jsonstring is returned
+     */
+    public function getFormJSON(int $recordID): string
     {
         $json = $this->getForm($recordID);
 
         return json_encode($json);
     }
 
-    public function deleteRecord($recordID)
+    /**
+     * @param int $recordID
+     * @return mixed
+     */
+    public function deleteRecord(int $recordID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
@@ -738,11 +772,16 @@ class Form
         return 1;
     }
 
-    public function restoreRecord($recordID)
+    /**
+     * @param int $recordID
+     * @return bool
+     * 
+     */
+    public function restoreRecord(int $recordID): bool
     {
         // only allow admins to un-delete records
         if (!$this->login->checkGroup(1)) {
-            return 0;
+            return false;
         }
 
         $updateRecordsVars = array(
@@ -812,7 +851,11 @@ class Form
         return $return_value;
     }
 
-    public function getRecordInfo($recordID)
+    /**
+     * @param int $recordID
+     * @return array
+     */
+    public function getRecordInfo(int $recordID): array
     {
         $recordServiceVars = array(
             ':recordID' => (int)$recordID,
@@ -904,7 +947,11 @@ class Form
         return $data;
     }
 
-    public function isSubmitted($recordID)
+    /**
+     * @param int $recordID
+     * @return bool
+     */
+    public function isSubmitted(int $recordID): bool
     {
         $recordVars = array(':recordID' => (int)$recordID);
         $recordSQL = 'SELECT submitted FROM records WHERE recordID=:recordID LIMIT 1';
@@ -913,7 +960,11 @@ class Form
         return $recordRes[0]['submitted'] >= 1 ? true : false;
     }
 
-    public function getOwnerID($recordID)
+    /**
+     * @param int $recordID
+     * @return string
+     */
+    public function getOwnerID(int $recordID): string
     {
         if (isset($this->cache['owner_' . $recordID])) {
             return $this->cache['owner_' . $recordID];
@@ -926,8 +977,12 @@ class Form
         return $recordRes[0]['userID'];
     }
 
-    // return last status from cached value
-    public function getLastStatus($recordID)
+    /**
+     * return last status from cached value
+     * @param int $recordID
+     * @return string|null
+     */
+    public function getLastStatus(int $recordID): string|null
     {
         $recordVars = array(':recordID' => (int)$recordID);
         $recordSQL = 'SELECT lastStatus FROM records WHERE recordID=:recordID LIMIT 1';
@@ -936,14 +991,25 @@ class Form
         return $recordRes[0]['lastStatus'];
     }
 
-    public static function getFileHash($recordID, $indicatorID, $series, $fileName)
+    /**
+     * @param int $recordID
+     * @param int $indicatorID
+     * @param int $series
+     * @param string $fileName
+     * @return string
+     */
+    public static function getFileHash(int $recordID, int $indicatorID, int $series, string $fileName): string
     {
         $fileName = strip_tags($fileName);
 
         return "{$recordID}_{$indicatorID}_{$series}_{$fileName}";
     }
 
-    public function isCategory($categoryID)
+    /**
+     * @param string $categoryID
+     * @return int returns 1 on is and 0 on is not
+     */
+    public function isCategory(string $categoryID): int
     {
         if (isset($this->cache['isCategory_' . $categoryID])) {
             return $this->cache['isCategory_' . $categoryID];
@@ -968,7 +1034,7 @@ class Form
      * @param int $series
      * @return int 1 for success, 0 for error
      */
-    private function writeDataField($recordID, $key, $series)
+    private function writeDataField(int $recordID, int $key, int $series): int
     {
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
@@ -1057,6 +1123,10 @@ class Form
         return 1;
     }
 
+    /**
+     * This shows up as declared but not used.
+     * @param int $recordID
+     */
     private function writeSignature(int $recordID): void
     {
         $form = json_encode($this->getFullFormDataForSigning($recordID));
@@ -1082,7 +1152,7 @@ class Form
      * @param int $recordID
      * @return int 1 for success, 0 for error
      */
-    public function doModify($recordID)
+    public function doModify(int $recordID): int
     {
         if (!is_numeric($recordID)) {
             return 0;
@@ -1116,7 +1186,7 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, \Leaf\XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     } else {
                         return 0;
@@ -1377,7 +1447,7 @@ class Form
      * @param int $recordID
      * @return int Percent completed
      */
-    public function getProgress($recordID)
+    public function getProgress(int $recordID): int
     {
         $returnValue = 0;
 
@@ -1552,11 +1622,11 @@ class Form
      * Checks if the current user has write access
      * Users should have write access if they are in "posession" of a request (they are currently reviewing it)
      * @param int $recordID
-     * @param int $categoryID
+     * @param string $categoryID
      * @param int $indicatorID
      * @return int 1 = has access, 0 = no access
      */
-    public function hasWriteAccess($recordID, $categoryID = 0, $indicatorID = 0)
+    public function hasWriteAccess(int $recordID, string $categoryID = '0', int $indicatorID = 0): int
     {
         // if an indicatorID is specified, find out what the indicator's categoryID is
         if (isset($this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"])) {
@@ -1578,7 +1648,7 @@ class Form
 
         $multipleCategories = array();
         if (
-            $categoryID === 0
+            $categoryID === '0'
             && $indicatorID == 0
         ) {
             $categoryID = '';
@@ -1696,11 +1766,9 @@ class Form
     /**
      * Checks if the current user has read access to a form
      * @param int $recordID
-     * @param int $categoryID
-     * @param int $indicatorID
      * @return int 1 = has access, 0 = no access
      */
-    public function hasReadAccess($recordID)
+    public function hasReadAccess(int $recordID): int
     {
         if (isset($this->cache["hasReadAccess_{$recordID}"])) {
             return $this->cache["hasReadAccess_{$recordID}"];
@@ -1730,7 +1798,7 @@ class Form
      * @param array $details - Associative Array containing dependency-specific details, eg: $details['groupID']
      * @return boolean
      */
-    public function hasDependencyAccess($dependencyID, $details)
+    public function hasDependencyAccess(int $dependencyID, array $details): bool
     {
         switch ($dependencyID) {
             case 1:
@@ -1851,7 +1919,11 @@ class Form
         return false;
     }
 
-    public function getEmpUID($userName)
+    /**
+     * @param string $userName
+     * @return int
+     */
+    public function getEmpUID(string $userName): int
     {
         $nexusDB = $this->login->getNexusDB();
         $employeeVars = array(':userName' => $userName);
@@ -1860,7 +1932,11 @@ class Form
         return $response[0]["empUID"];
     }
 
-    public function checkIfBackup($empUID)
+    /**
+     * @param int $empUID
+     * @return bool
+     */
+    public function checkIfBackup(int $empUID): bool
     {
 
         $nexusDB = $this->login->getNexusDB();
@@ -1887,7 +1963,7 @@ class Form
      * @param array
      * @return array Returns the input array, scrubbing records that the current user doesn't have access to
      */
-    public function checkReadAccess($records)
+    public function checkReadAccess(array $records): array
     {
         if (count($records) > 0) {
 
@@ -2010,7 +2086,7 @@ class Form
                     if (!isset($temp[$dep['recordID']]) || $temp[$dep['recordID']] == 0) {
                         $temp[$dep['recordID']] = 0;
 
-                        $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
+                        $temp[$dep['recordID']] = $this->hasDependencyAccess((int)$dep['dependencyID'], $dep) ? 1 : 0;
 
                         // request initiator
                         if ($dep['userID'] == $this->login->getUserID()) {
@@ -2062,7 +2138,7 @@ class Form
      * @param int $recordID
      * @return int (0 = not masked, 1 = masked)
      */
-    public function isMasked($indicatorID, $recordID = null)
+    public function isMasked(int $indicatorID, int $recordID = null): int
     {
         $indicatorMaskVars = array(':indicatorID' => (int)$indicatorID);
         $indicatorMaskSQL = 'SELECT indicatorID,groupID FROM indicator_mask WHERE indicatorID = :indicatorID';
@@ -2086,9 +2162,9 @@ class Form
     /**
      * Check if need to know mode is enabled for any form, or a specific form
      * @param int $recordID
-     * @return boolean
+     * @return bool
      */
-    public function isNeedToKnow($recordID = null)
+    public function isNeedToKnow(int $recordID = null): bool
     {
         if (isset($this->cache['isNeedToKnow_' . $recordID])) {
             return $this->cache['isNeedToKnow_' . $recordID];
@@ -2123,7 +2199,11 @@ class Form
         return true;
     }
 
-    public function getDependencyStatus($recordID)
+    /**
+     * @param int $recordID
+     * @return int|array
+     */
+    public function getDependencyStatus(int $recordID): int|array
     {
         // check privileges
         if (!$this->hasReadAccess($recordID)) {
@@ -2141,7 +2221,11 @@ class Form
         return $recordDependenciesRes;
     }
 
-    public function openForEditing($recordID)
+    /**
+     * @param int $recordID
+     * @return void
+     */
+    public function openForEditing(int $recordID): void
     {
         $recordVars = array(':recordID' => (int)$recordID);
         $updateRecordSQL = 'UPDATE records SET submitted=0, isWritableUser=1, lastStatus="Re-opened for editing" WHERE recordID=:recordID';
@@ -2155,7 +2239,11 @@ class Form
         $this->db->prepared_query($deleteWorkFlowStateSQL, $recordVars);
     }
 
-    public function getChildForms($recordID)
+    /**
+     * @param int $recordID
+     * @return array
+     */
+    public function getChildForms(int $recordID): array
     {
         $childFormVars = array(':recordID' => (int)$recordID);
         $childFormSQL = 'SELECT recordID,categoryID,`count`,childCategoryID,childCategoryName,childCategoryDescription,parentID FROM category_count
@@ -2176,12 +2264,14 @@ class Form
         return $childFormRes;
     }
 
-    /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
+    /**
+     * getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
-     *
-     * @return array on success | false on malformed input
+     * @param array $recordID_list
+     * @param string|null $indicatorID_list
+     * @return array|bool on success | bool false on malformed input
      */
-    public function getCustomData(array $recordID_list, string|null $indicatorID_list)
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list): array|bool
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
@@ -2387,7 +2477,6 @@ class Form
      * Retrieve workflow comments and record notes to display
      *
      * @param int $recordID
-     *
      * @return array
      *
      * Created at: 10/7/2022, 7:56:06 AM (America/New_York)
@@ -2430,7 +2519,11 @@ class Form
         return (array) $return_value;
     }
 
-    public function getTags($recordID)
+    /**
+     * @param int $recordID
+     * @return array
+     */
+    public function getTags(int $recordID): array
     {
         if (!$this->hasReadAccess($recordID)) {
             return array();
@@ -2443,7 +2536,12 @@ class Form
         return $res;
     }
 
-    public function addTag($recordID, $tag)
+    /**
+     * @param int $recordID
+     * @param string $tag
+     * @return int we will probably want this to be bool in the future?
+     */
+    public function addTag(int $recordID, string $tag): int
     {
         if (!$this->hasReadAccess($recordID)) {
             return 0;
@@ -2456,9 +2554,15 @@ class Form
         );
         $insertTagSQL = 'INSERT INTO tags (recordID, tag, timestamp, userID) VALUES (:recordID, :tag, :timestamp, :userID) ON DUPLICATE KEY UPDATE timestamp=:timestamp';
         $this->db->prepared_query($insertTagSQL, $vars);
+        return 1;
     }
 
-    public function deleteTag($recordID, $tag)
+    /**
+     * @param int $recordID
+     * @param string $tag
+     * @return int we will probably want this to be bool in the future?
+     */
+    public function deleteTag(int $recordID, string $tag): int
     {
         if (!$this->hasReadAccess($recordID)) {
             return 0;
@@ -2470,10 +2574,16 @@ class Form
         );
         $deleteTagSQL = 'DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag';
         $this->db->prepared_query($deleteTagSQL, $vars);
+        return 1;
     }
 
-    // deletes old tags, inserts new ones
-    public function parseTags($recordID, $input)
+    /**
+     * deletes old tags, inserts new ones
+     * @param int $recordID
+     * @param string $input
+     * @return int
+     */
+    public function parseTags($recordID, $input): int
     {
         if (!$this->hasReadAccess($recordID)) {
             return 0;
@@ -2491,9 +2601,14 @@ class Form
                 $this->addTag((int)$recordID, \Leaf\XSSHelpers::xscrub(trim($tag)));
             }
         }
+        return 1;
     }
 
-    public function getTagMembers($tag)
+    /**
+     * @param string $tag
+     * @return array
+     */
+    public function getTagMembers(string $tag): array
     {
         $tagRecordVars = array(':tag' => $tag);
         $tagRecordSQL = 'SELECT recordID,tag,`timestamp`,userID FROM tags
@@ -2505,7 +2620,10 @@ class Form
         return $this->checkReadAccess($res);
     }
 
-    public function getUniqueTags()
+    /**
+     * @return array
+     */
+    public function getUniqueTags(): array
     {
         $uniqueTagSQL = 'SELECT tag, COUNT(tag) FROM tags GROUP BY tag';
         $uniqueTagRes = $this->db->prepared_query($uniqueTagSQL, []);
@@ -2513,12 +2631,17 @@ class Form
         return $uniqueTagRes;
     }
 
-    public function setTitle($recordID, $title)
+    /**
+     * @param int $recordID
+     * @param string $title
+     * @return ?? what would this return... string?
+     */
+    public function setTitle(int $recordID, string $title)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return;
         }
-        $title = $this->sanitizeInput($title);
+        $title = \Leaf\XSSHelpers::sanitizeHTML($title);
 
         if ($this->hasWriteAccess($recordID)) {
             $updateRecordTitleVars = array(
@@ -2532,7 +2655,12 @@ class Form
         }
     }
 
-    public function setService($recordID, $serviceID)
+    /**
+     * @param int $recordID
+     * @param int $serviceID
+     * @return ?? what would this return... string?
+     */
+    public function setService(int $recordID, int $serviceID)
     {
         if (
             $_POST['CSRFToken'] != $_SESSION['CSRFToken']
@@ -2553,7 +2681,12 @@ class Form
         }
     }
 
-    public function setInitiator($recordID, $userID)
+    /**
+     * @param int $recordID
+     * @param string $userID
+     * @return ?? what would this return... string?
+     */
+    public function setInitiator(int $recordID, string $userID)
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return;
@@ -2591,7 +2724,12 @@ class Form
         }
     }
 
-    public function addFormType($recordID, $category)
+    /**
+     * @param int $recordID
+     * @param string $category
+     * @return int
+     */
+    public function addFormType(int $recordID, string $category): int
     {
         // only allow admins
         if (!$this->login->checkGroup(1)) {
@@ -2609,12 +2747,18 @@ class Form
             VALUES (:recordID, :categoryID, :count)
             ON DUPLICATE KEY UPDATE count=:count';
             $this->db->prepared_query($insertCategoryCountSQL, $insertCategoryCountVars);
+            return 1;
         } else {
             return 0;
         }
     }
 
-    public function changeFormType($recordID, $categories)
+    /**
+     * @param int $recordID
+     * @param array $categories
+     * @return int
+     */
+    public function changeFormType(int $recordID, array $categories): int
     {
         // only allow admins
         if (!$this->login->checkGroup(1)) {
@@ -2703,6 +2847,10 @@ class Form
         return $returnData;
     }
 
+    /**
+     * @param string $inQuery
+     * @return void
+     */
     private function outputFile(string $inQuery): void
     {
 
@@ -2746,7 +2894,7 @@ class Form
      * @param array $compactedVariables - this compacts down the variables used, this helps us include variables without a bunch of params
      * @return array 
      */
-    private function processQueryData(array $res, array $compactedVariables)
+    private function processQueryData(array $res, array $compactedVariables): array
     {
         if (is_array($compactedVariables)) {
 
@@ -3502,58 +3650,56 @@ class Form
 
             if (!empty($processQueryCheckRes)) {
 
-                $firstProcessQuery = array_shift($processQueryCheckRes);
-                $currentFileName = $directory . $firstProcessQuery['id'] . '_' . $firstProcessQuery['userID'] . '.json';
-                $fp = fopen($currentFileName, "w");
-
-                $alldata = true;
-
                 // this will be used throughout the loop
                 $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
-
-                while ($alldata) {
-
-                    if (empty($maxlimit)) {
-                        $maxlimit = 100;
-                    } else {
-                        $maxlimit += 100;
-                    }
-
-                    if (empty($offset)) {
-                        $offset = 0;
-                        if (isset($query['limitOffset']) && is_numeric($query['limitOffset'])) {
-                            $offset = $query['limitOffset'];
-                        }
-                    } else {
-                        $offset += $maxlimit;
-                    }
-
-                    $limit = " LIMIT  $offset, $maxlimit";
-                    $mainDataSQl = 'SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
-                    $res = $this->db->prepared_query($mainDataSQl, $vars);
-
-                    if (!empty($res)) {
-
-                        $retData = $this->processQueryData($res, $compactedVariables);
-                        fwrite($fp, json_encode($retData));
-                        // clean up our data
-                        unset($retData);
-                        unset($res);
-                    }
-
-                    // if we are at our limit or no data then we need to close out the file.
-                    if ($maxlimit >= $query['limit'] || empty($res)) {
-                        fclose($fp);
-                        // this fixes case where we are plopping json strings together.
-                        exec("sed -i 's/}{/,/g' $currentFileName");
-                        $alldata = false;
-                    }
-                }
-
-                // copy each file off to other entries that match
                 if (!empty($processQueryCheckRes)) {
                     foreach ($processQueryCheckRes as $processQueryCheckRow) {
-                        copy($currentFileName, $directory . $processQueryCheckRow['id'] . '_' . $processQueryCheckRow['userID'] . '.json');
+                        $currentFileName = $directory . $processQueryCheckRow['id'] . '_' . $processQueryCheckRow['userID'] . '.json';
+                        $fp = fopen($currentFileName, "w");
+                        // update user id, this *could* be something we need to account for.
+                        if (!empty($vars[':userID'])) {
+                            $vars[':userID'] = $processQueryCheckRow['userID'];
+                        }
+
+                        $alldata = true;
+                        while ($alldata) {
+
+                            if (empty($maxlimit)) {
+                                $maxlimit = 100;
+                            } else {
+                                $maxlimit += 100;
+                            }
+
+                            if (empty($offset)) {
+                                $offset = 0;
+                                if (isset($query['limitOffset']) && is_numeric($query['limitOffset'])) {
+                                    $offset = $query['limitOffset'];
+                                }
+                            } else {
+                                $offset += $maxlimit;
+                            }
+
+                            $limit = " LIMIT  $offset, $maxlimit";
+                            $mainDataSQl = 'SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+                            $res = $this->db->prepared_query($mainDataSQl, $vars);
+
+                            if (!empty($res)) {
+
+                                $retData = $this->processQueryData($res, $compactedVariables);
+                                fwrite($fp, json_encode($retData));
+                                // clean up our data
+                                unset($retData);
+                                unset($res);
+                            }
+
+                            // if we are at our limit or no data then we need to close out the file.
+                            if ($maxlimit >= $query['limit'] || empty($res)) {
+                                fclose($fp);
+                                // this fixes case where we are plopping json strings together.
+                                exec("sed -i 's/}{/,/g' $currentFileName");
+                                $alldata = false;
+                            }
+                        }
                     }
                 }
 
@@ -3617,7 +3763,11 @@ class Form
     }
 
 
-    public function getDisabledIndicatorList(int $disabled)
+    /**
+     * @param int $disabled
+     * @return array
+     */
+    public function getDisabledIndicatorList(int $disabled): array
     {
         $vars = array(':disabled' => (int)$disabled);
         $strSQL = "SELECT indicatorID, name, format, description, categories.categoryName, " .
@@ -3654,7 +3804,7 @@ class Form
      * @param boolean $unabridged
      * @return array list of indicators
      */
-    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '', $unabridged = false)
+    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '', $unabridged = false): array
     {
         $forms = [];
         if ($formsFilter != '') {
@@ -3781,7 +3931,7 @@ class Form
      * @param array $formats
      * @return array
      */
-    public function getIndicatorsByRecordAndName($categoryID, $names)
+    public function getIndicatorsByRecordAndName(int $categoryID, array $names): array
     {
         $vars = array(
             ':categoryID' => $categoryID,
@@ -3806,7 +3956,7 @@ class Form
      * @param array $formats
      * @return array
      */
-    public function getIndicatorsByRecordAndFormat($recordID, $formats)
+    public function getIndicatorsByRecordAndFormat(int $recordID, array $formats): array
     {
         $vars = array(
             ':recordID' => $recordID,
@@ -3830,7 +3980,7 @@ class Form
      * @param int $recordID
      * @return array
      */
-    public function getIndicatorsAssociatedWithWorkflow($recordID)
+    public function getIndicatorsAssociatedWithWorkflow(int $recordID): array
     {
         $vars = array(
             ':recordID' => $recordID,
@@ -3877,7 +4027,7 @@ class Form
     }
 
     /**
-     * @deprecated use XSSHelpers::sanitizeHTML() from XSSHelpers.php instead.
+     * @deprecated use XSSHelpers::sanitizeHTML() from XSSHelpers.php instead. I think this is done for this file, there could be other files that could use this there are too many references at this time
      *
      * Clean up html input, allow some tags
      * @param string $in
@@ -3896,7 +4046,7 @@ class Form
      * @param bool $parseTemplate - see getIndicator()
      * @return array
      */
-    private function buildFormTree($id, $series = null, $recordID = null, $parseTemplate = true)
+    private function buildFormTree(int $id, int $series = null, int $recordID = null, bool $parseTemplate = true): array
     {
         if (!isset($this->cache["indicator_parentID{$id}"])) {
             $indicatorVar = array(':parentID' => (int)$id);
@@ -3909,7 +4059,7 @@ class Form
 
         $data = array();
 
-        $child = null;
+        $child = [];
         if (count($res) > 0) {
             $indicatorList = '';
             foreach ($res as $field) {
@@ -4068,7 +4218,7 @@ class Form
      * @param string $data
      * @return array
      */
-    private function fileToArray($data)
+    private function fileToArray(string $data): array
     {
         $data = \Leaf\XSSHelpers::sanitizeHTML($data);
         $data = str_replace('<br />', "\n", $data);
@@ -4084,7 +4234,12 @@ class Form
         return $out;
     }
 
-    private function isIndicatorOrphan($indicator, &$indicatorList)
+    /**
+     * @param array $indicator
+     * @param array $indicatorList
+     * @return int
+     */
+    private function isIndicatorOrphan(array $indicator, array &$indicatorList): int
     {
         if (!isset($indicatorList[$indicator['indicatorID']])) {
             return 1;
@@ -4096,6 +4251,7 @@ class Form
 
         return 0;
     }
+
     /**
      * Copies file attachment from record to new record
      * @param int $indicatorID
@@ -4105,7 +4261,7 @@ class Form
      * @param int $series
      * @return array|int 1 for success, errors for failure
      */
-    public function copyAttachment($indicatorID, $fileName, $recordID, $newRecordID, $series): array|int
+    public function copyAttachment(int $indicatorID, string $fileName, int $recordID, int $newRecordID, int  $series): array|int
     {
         if (!is_numeric($recordID) || !is_numeric($indicatorID) || !is_numeric($series)) {
             $errors = array('type' => 2);
@@ -4133,7 +4289,11 @@ class Form
         return 1;
     }
 
-    public function getRecordsByCategory($categoryID)
+    /**
+     * @param int $categoryID
+     * @return array
+     */
+    public function getRecordsByCategory(int $categoryID): array
     {
         $recordCategoryVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
         $recordCategorySQL = 'SELECT recordID, title, userID, categoryID, submitted
@@ -4145,7 +4305,11 @@ class Form
         return $recordCategoryRes;
     }
 
-    public function permanentlyDeleteRecord($recordID)
+    /**
+     * @param int $recordID 
+     * @return int
+     */
+    public function permanentlyDeleteRecord($recordID): int
     {
         /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
@@ -4218,7 +4382,7 @@ class Form
 
     /**
      * Purpose: Send reminder emails to users depending on current step of record
-     * @param $recordID
+     * @param int $recordID
      * @param $days
      * @throws \SmartyException
      */

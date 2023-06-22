@@ -1,12 +1,16 @@
 START TRANSACTION;
 
 CREATE TABLE `process_query` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `userID` VARCHAR(50) DEFAULT NULL,
-  `url` TEXT DEFAULT NULL,
-  `lastProcess` INT(10) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`userID` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`url` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`lastProcess` INT(10) UNSIGNED NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	FULLTEXT INDEX `url` (`url`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
 
  UPDATE `settings` SET `data` = '2023060500' WHERE `settings`.`setting` = 'dbversion';
 

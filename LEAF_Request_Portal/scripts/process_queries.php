@@ -24,7 +24,7 @@ $vars = [
     ':lastProcess' => time()
 ];
 
-$processQueryTotalSQL = 'SELECT id,userID,`url`,lastProcess FROM process_query WHERE lastProcess <= :lastProcess  group by `url`';
+$processQueryTotalSQL = 'SELECT id,userID,`url`,lastProcess FROM process_query WHERE lastProcess <= :lastProcess';
 $processQueryTotalRes = $db->prepared_query($processQueryTotalSQL, $vars);
 // make sure our memory limit did not get reduced, we need to make sure we are not having scripts take it all up.
 
