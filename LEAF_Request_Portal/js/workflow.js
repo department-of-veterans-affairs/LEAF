@@ -46,7 +46,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             antiDblClick = 1;
         }
 
-        if (typeof data["require_comment"]["required"] === Boolean) {
+        if (typeof data["require_comment"]["required"] === "boolean") {
             required = data["require_comment"]["required"];
         } else {
             if (data["require_comment"]["required"] === "") {
