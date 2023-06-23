@@ -49,8 +49,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         if (typeof data["require_comment"]["required"] === Boolean) {
             required = data["require_comment"]["required"];
         } else {
-            required =
-                data["require_comment"]["required"].toLowerCase() === "true";
+            if (data["require_comment"]["required"] === "") {
+                required = false;
+            } else {
+                required =
+                    data["require_comment"]["required"].toLowerCase() ===
+                    "true";
+            }
         }
 
         if (
