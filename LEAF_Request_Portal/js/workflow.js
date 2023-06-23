@@ -45,7 +45,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         }
 
         if (
-            data["require_comment"]["required"].toLowerCase() === "true" &&
+            data["require_comment"]["required"] &&
             $("#comment_dep-" + data["index"]).val() == ""
         ) {
             dialog_ok.setTitle("Comment Required");
