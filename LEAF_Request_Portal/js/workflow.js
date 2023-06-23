@@ -38,14 +38,23 @@ var LeafWorkflow = function (containerID, CSRFToken) {
      * @memberOf LeafWorkflow
      */
     function applyAction(data) {
+        let required = false;
+
         if (antiDblClick == 1) {
             return 1;
         } else {
             antiDblClick = 1;
         }
 
+        if (typeof data["require_comment"]["required"] === Boolean) {
+            required = data["require_comment"]["required"];
+        } else {
+            required =
+                data["require_comment"]["required"].toLowerCase() === "true";
+        }
+
         if (
-            data["require_comment"]["required"] &&
+            required &&
             ($("#comment_dep-" + data["dependencyID"]).val() == "" ||
                 $("#comment_dep" + data["dependencyID"]).val() == "")
         ) {
@@ -289,11 +298,22 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     "_" +
                     step.dependencyActions[i].actionType
             ).on("click", { step: step, idx: i }, function (e) {
-                let require_comment = $.parseJSON(
+                let require_comment = "";
+
+                if (
                     e.data.step.dependencyActions[e.data.idx][
                         "displayConditional"
                     ]
-                );
+                ) {
+                    require_comment = $.parseJSON(
+                        e.data.step.dependencyActions[e.data.idx][
+                            "displayConditional"
+                        ]
+                    );
+                } else {
+                    require_comment = $.parseJSON('{"required":"false"}');
+                }
+
                 let data = new Object();
                 data["comment"] = $(
                     "#comment_dep" + e.data.step.dependencyID

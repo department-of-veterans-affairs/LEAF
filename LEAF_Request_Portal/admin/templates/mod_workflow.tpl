@@ -1462,7 +1462,15 @@
             type: 'GET',
             url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
             success: function(res) {
-                let find_required = $.parseJSON(params.required);
+                console.log(params);
+                let find_required = '';
+
+                if (params.required === '') {
+                    find_required = $.parseJSON('{"required":"false"}');
+                } else {
+                    find_required = $.parseJSON(params.required);
+                }
+
                 let output = '';
                 let required = '';
 
