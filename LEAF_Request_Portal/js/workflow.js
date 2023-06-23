@@ -69,7 +69,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             dialog_ok.show();
             antiDblClick = 0;
         } else {
-            return 1;
             // Check if CSRFToken has Changed (Timeout Fix)
             $.ajax({
                 type: "GET",
