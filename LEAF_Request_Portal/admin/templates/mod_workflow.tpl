@@ -1462,10 +1462,9 @@
             type: 'GET',
             url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
             success: function(res) {
-                console.log(params);
                 let find_required = '';
-
-                if (params.required === '') {
+console.log(params);
+                if (typeof params.required === undefined || params.required === '') {
                     find_required = $.parseJSON('{"required":"false"}');
                 } else {
                     find_required = $.parseJSON(params.required);
@@ -2032,7 +2031,8 @@
                                     location: loc,
                                     parameters: {'stepID': -1,
                                     'nextStepID': workflows[workflowID].initialStepID,
-                                    'action': 'submit'
+                                    'action': 'submit',
+                                    'required': '{"required":"false"}'
                                 },
                                 events: {
                                     click: function(overlay, evt) {
