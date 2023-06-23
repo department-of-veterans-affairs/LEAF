@@ -46,7 +46,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
         if (
             data["require_comment"]["required"] &&
-            $("#comment_dep-" + data["index"]).val() == ""
+            ($("#comment_dep-" + data["dependencyID"]).val() == "" ||
+                $("#comment_dep" + data["dependencyID"]).val() == "")
         ) {
             dialog_ok.setTitle("Comment Required");
             dialog_ok.setContent(
@@ -55,11 +56,20 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             dialog_ok.setSaveHandler(function () {
                 dialog_ok.clearDialog();
                 dialog_ok.hide();
-                $("#comment_dep-" + data["index"]).focus();
+                if (
+                    document.getElementById(
+                        "comment_dep-" + data["dependencyID"]
+                    )
+                ) {
+                    $("#comment_dep-" + data["dependencyID"]).focus();
+                } else {
+                    $("#comment_dep" + data["dependencyID"]).focus();
+                }
             });
             dialog_ok.show();
             antiDblClick = 0;
         } else {
+            return 1;
             // Check if CSRFToken has Changed (Timeout Fix)
             $.ajax({
                 type: "GET",
