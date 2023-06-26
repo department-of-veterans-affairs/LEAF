@@ -80,13 +80,13 @@ const CombinedInboxEditor = Vue.createApp({
                             if (site.columns.split(',')[0] !== '') {
                                 site.columns.split(',').forEach((col, index) => {
                                     if (isNaN(col)) {
-                                        tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
+                                        tmp.push({value: col, label: this.frontEndColumns[col], selected: true, customProperties: { header: this.frontEndColumns[col] }});
                                     }
                                 });
                             }
                             this.allColumns.split(',').forEach((col) => {
                                 if (!site.columns.includes(col)) {
-                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: false});
+                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: false, customProperties: { header: this.frontEndColumns[col] }});
                                 }
                             });
                             this.choices.find((choice) => choice.id == site.id).choices = tmp;
@@ -129,7 +129,7 @@ const CombinedInboxEditor = Vue.createApp({
             this.sites.sort((a, b) => a.order - b.order);
         },
 
-        setupChoices(site, index) {
+        setupChoices(site) {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     let selectElement = document.getElementById('choice-' + site.id);
@@ -168,15 +168,18 @@ const CombinedInboxEditor = Vue.createApp({
     },
     created() {
         this.getMapSites().then(() => {
-            this.sites.forEach((site, index) => {
+            this.sites.forEach((site) => {
                 this.getIndicators(site).then((indicators) => {
                     this.choices.find((choice) => choice.id == site.id).choices.push(...indicators.map((indicator => ({
                         label: indicator.name + " (ID: " + indicator.indicatorID + ")",
                         selected: site.columns.includes(indicator.indicatorID),
-                        value: indicator.indicatorID
+                        value: indicator.indicatorID,
+                        customProperties: {
+                            header: indicator.name
+                        }
                     }))));
                 }).then(() => {
-                    this.setupChoices(site, index);
+                    this.setupChoices(site);
                 });
             });
         });
@@ -222,7 +225,7 @@ const CombinedInboxEditor = Vue.createApp({
                             <th class="col-header">UID</th>
                             <template v-if="site.columns.split(',')[0] !== ''">
                                 <template v-for="column in site.columns.split(',')" :key="column">
-                                <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
+                                <th class='col-header' value='column'>{{choices.find((choice) => choice.id == site.id)?.choices?.find((choice) => choice.value == column)?.customProperties?.header}}</th>
                                 </template>
                             </template>
                             <th class="col-header">Action</th>

@@ -447,12 +447,11 @@
                     type: 'GET',
                     url: site.url + `api/form/indicator/list?forms=${formList}&x-filterData=indicatorID,name,description`,
                     success: function(res) {
-                        let dict = {};
+                        let dict = [];
                         res.forEach(ind => {
                             dict[ind.indicatorID] = {name: ind.name, description: ind.description};
                         });
                         dataDictionary[site.url] = dict;
-                        console.log(dataDictionary[site.url]);
                     }
                 })
                 .then(() => query.execute().then(res => {
@@ -479,14 +478,19 @@
     }
 
     function buildWorkflowCategoryCache(site) {
-        return $.ajax({
-            type: 'GET',
-            url: site.url + 'api/workflow/categories?x-filterData=categoryID',
-            success: function(res) {
-                res.forEach(w => {
-                    dataWorkflowCategories[w.categoryID] = 1;
-                });
-            }
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'GET',
+                url: site.url + 'api/workflow/categories?x-filterData=categoryID',
+                success: function(res) {
+                    res.forEach((w, idx) => {
+                        dataWorkflowCategories[w.categoryID] = 1;
+                        if (idx === res.length - 1) {
+                            resolve(res);
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -542,7 +546,6 @@
     // Script Start
     $(function() {
         getMapSites.then((value) => {
-            console.log();
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
                 'genericDialogbutton_cancelchange');
