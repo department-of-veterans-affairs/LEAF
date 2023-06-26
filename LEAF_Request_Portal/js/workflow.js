@@ -65,7 +65,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         ) {
             dialog_ok.setTitle("Comment Required");
             dialog_ok.setContent(
-                "A comment is required to send request back to requestor."
+                "Please enter a comment. A comment is required to send this back."
             );
             dialog_ok.setSaveHandler(function () {
                 dialog_ok.clearDialog();
