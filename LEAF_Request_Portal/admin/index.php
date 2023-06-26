@@ -197,6 +197,7 @@ switch ($action) {
                                             $libsPath.'js/codemirror/lib/codemirror.css',
                                             $libsPath.'js/codemirror/addon/display/fullscreen.css',
                                             $libsPath.'js/choicesjs/choices.min.css',
+                                            $libsPath.'js/vue-dest/form_editor/LEAF_FormEditor.css',
                                             $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                             $site_paths['orgchart_path'] . '/css/groupSelector.css',
                                             $site_paths['orgchart_path'] . '/css/positionSelector.css'
@@ -559,7 +560,8 @@ switch ($action) {
         ));
         $main->assign('stylesheets', array(
             $libsPath.'js/jquery/chosen/chosen.min.css',
-            $libsPath.'js/choicesjs/choices.min.css'
+            $libsPath.'js/choicesjs/choices.min.css',
+            $libsPath.'js/vue-dest/site_designer/LEAF_Designer.css'
         ));
 
         if ($login->checkGroup(1)) {
