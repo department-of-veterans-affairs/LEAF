@@ -10,9 +10,16 @@
 <script type="text/javascript">
 
 $(function() {
+    var CSRFToken = '<!--{$CSRFToken}-->';
+
     $.ajax({
-        type: 'GET',
-        url: "../api/system/employee/update/all",
+        type: 'POST',
+        url: "../api/employee/refresh/batch",
+        dataType: "json",
+        data: {CSRFToken: CSRFToken},
+        success: function (res) {
+
+        },
         error: function(response) {
             $('#info_refresh_icon').attr('src', '../dynicons/?img=process-stop.svg&w=64');
             $('#info_refresh_message').text('LEAF obtained the error: ' + response);

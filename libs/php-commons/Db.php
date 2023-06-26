@@ -210,7 +210,8 @@ class Db
      */
     public function insert_batch(string $database = '', array $batchData = [], array $onDuplicateKeyUpdate = []): bool
     {
-
+        // error_log(print_r($batchData, true));
+        /* error_log(print_r($onDuplicateKeyUpdate, true)); */
         if (empty($database) || empty($batchData)) {
             return FALSE;
         }
@@ -249,6 +250,8 @@ class Db
                 $executeData[] = $datum;
             }
         }
+        /* error_log(print_r('execute', true));
+        error_log(print_r($executeData, true)); */
         $statement->execute($executeData);
         return TRUE;
     }
