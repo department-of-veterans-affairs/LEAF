@@ -152,7 +152,7 @@ class Employee extends Data
         } else {
             $local_employee_usernames = $this->formatUserNames($local_employee_list);
 
-            $chunk_local_employee = array_chunk($local_employee_usernames, 10);
+            $chunk_local_employee = array_chunk($local_employee_usernames, 100);
 
             $return_value = $this->processList($chunk_local_employee);
         }
