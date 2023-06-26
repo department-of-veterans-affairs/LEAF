@@ -510,7 +510,7 @@
                             </tr>
                             <tr>
                                 <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
-                                <td>The value of the field by ID</td>
+                                <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may not be included in email templates.</span></td>
                             </tr>
                         </table>
                     </div>
