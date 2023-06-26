@@ -538,6 +538,36 @@ switch ($action) {
         }
 
         break;
+    case 'site_designer':
+        $t_form = new Smarty;
+        $t_form->left_delimiter = '<!--{';
+        $t_form->right_delimiter = '}-->';
+        $libsPath = '../../libs/';
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('APIroot', '../api/');
+        $t_form->assign('libsPath', $libsPath);
+        $t_form->assign('orgchartPath', '../..'.$site_paths['orgchart_path']);
+        $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
+
+        $main->assign('javascripts', array(
+            '../js/form.js', '../js/formGrid.js', '../js/formQuery.js', '../js/formSearch.js',
+            $libsPath.'js/jquery/chosen/chosen.jquery.min.js',
+            $libsPath.'js/choicesjs/choices.min.js',
+            $libsPath.'js/LEAF/XSSHelpers.js',
+            $libsPath.'js/jquery/jquery-ui.custom.min.js',
+            $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
+        ));
+        $main->assign('stylesheets', array(
+            $libsPath.'js/jquery/chosen/chosen.min.css',
+            $libsPath.'js/choicesjs/choices.min.css'
+        ));
+
+        if ($login->checkGroup(1)) {
+            $main->assign('body', $t_form->fetch('site_designer_vue.tpl'));
+        } else {
+            $main->assign('body', 'You require System Administrator level access to view this section.');
+        }
+        break;
     default:
 //        $main->assign('useDojo', false);
         if ($login->isLogin())

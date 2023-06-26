@@ -579,6 +579,7 @@ var LeafFormSearch = function (containerID) {
    * @memberOf LeafFormSearch
    */
   function renderWidget(widgetID, callback) {
+    let url;
     switch ($("#" + prefixID + "widgetTerm_" + widgetID).val()) {
       case "title":
         $("#" + prefixID + "widgetCondition_" + widgetID).html(
@@ -612,9 +613,10 @@ var LeafFormSearch = function (containerID) {
                         <option value="!=">IS NOT</option>\
                     </select>'
         );
+        url = rootURL === '' ? './api/system/services' : rootURL + 'api/system/services';
         $.ajax({
           type: "GET",
-          url: "./api/system/services",
+          url,
           dataType: "json",
           success: function (res) {
             var services =
@@ -680,9 +682,10 @@ var LeafFormSearch = function (containerID) {
 	            		<option value="!=">IS NOT</option>\
 	            	</select>'
         );
+        url = rootURL === '' ? './api/workflow/categoriesUnabridged' : rootURL + 'api/workflow/categoriesUnabridged';
         $.ajax({
           type: "GET",
-          url: "./api/workflow/categoriesUnabridged",
+          url,
           dataType: "json",
           success: function (res) {
             var categories =
@@ -738,9 +741,10 @@ var LeafFormSearch = function (containerID) {
             widgetID +
             '" value="=" /> ='
         );
+        url = rootURL === '' ? './api/workflow/dependencies' : rootURL + 'api/workflow/dependencies';
         $.ajax({
           type: "GET",
-          url: "./api/workflow/dependencies",
+          url,
           dataType: "json",
           success: function (res) {
             var dependencies =
@@ -796,9 +800,10 @@ var LeafFormSearch = function (containerID) {
 	            		<option value="!=">IS NOT</option>\
 	            	</select>'
         );
+        url = rootURL === '' ? './api/workflow/steps' : rootURL + 'api/workflow/steps';
         $.ajax({
           type: "GET",
-          url: "./api/workflow/steps",
+          url,
           dataType: "json",
           success: function (res) {
             var categories =
@@ -833,9 +838,10 @@ var LeafFormSearch = function (containerID) {
         });
         break;
       case "data":
+        url = rootURL === '' ? './api/form/indicator/list' : rootURL + 'api/form/indicator/list';
         $.ajax({
           type: "GET",
-          url: "./api/form/indicator/list",
+          url,
           dataType: "json",
           success: function (res) {
             var indicators =
