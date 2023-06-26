@@ -720,7 +720,7 @@ div#form_content_view {
         gap: 0 1rem;
         align-items: center;
         padding-bottom: 0;
-        > select {
+        > select, #parent_choices_wrapper {
             width: 30%;
             margin: 0;
         }
@@ -814,18 +814,18 @@ div#form_content_view {
     }
 }
 
-@media only screen and (max-width: 550px) {
-    .leaf-vue-dialog {
-        min-width: 350px;
+@media only screen and (max-width: 576px) {
+    #leaf_dialog_content {
+        min-width: 400px;
     }
     #vue-formeditor-app {
-        min-width: 350px;
+        min-width: 400px;
     
         > div {
             flex-direction: column;
         }
 
-        section {
+        main section {
             margin: 0;
         }
         nav#form-editor-nav {
@@ -856,7 +856,7 @@ div#form_content_view {
             }
             
             ul#form-breadcrumb-menu {
-                margin: 1rem 0.25rem 0;
+                margin: 1rem 0 0;
                 flex-direction: column;
                 align-items: flex-start;
                 height: auto;
@@ -896,6 +896,9 @@ div#form_content_view {
                 &.form-header .indicator-name-preview, 
                 &.form-header div[id^="form_editing_toolbar_"] {
                     font-size: 100%;
+                }
+                .format-preview .tableinput {
+                    max-width: 400px;
                 }
             }
         }
