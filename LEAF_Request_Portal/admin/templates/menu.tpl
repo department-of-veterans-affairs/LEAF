@@ -78,6 +78,7 @@
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
                 <li><a href="./?a=mod_account_updater">New Account Updater</a></li>
                 <li><a href="../report.php?a=LEAF_sitemaps_template">Sitemap Editor</a></li>
+                <li><a href="?a=mod_combined_inbox">Combined Inbox Editor</a></li>
                 <li><a href="../report.php?a=LEAF_table_input_report">Grid Splitter</a></li>
                 </ul>
             </li>

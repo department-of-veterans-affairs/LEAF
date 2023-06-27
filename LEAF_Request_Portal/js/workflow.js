@@ -272,12 +272,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         <div class="actions_alignment_left" style="display:flex; flex-wrap:wrap;"></div>
         <div class="actions_alignment_right" style="display:flex; flex-wrap:wrap; justify-content:flex-end"></div>
       </div>`
-        );
-        // draw buttons
-        for (let i in step.dependencyActions) {
-            const icon =
-                step.dependencyActions[i].actionIcon != ""
-                    ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
+    );
+    
+    // draw buttons
+    for (let i in step.dependencyActions) {
+      const icon =
+        step.dependencyActions[i].actionIcon != ""
+          ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
             alt="${step.dependencyActions[i].actionText}" style="vertical-align: middle" />`
                     : "";
             const alignment =
