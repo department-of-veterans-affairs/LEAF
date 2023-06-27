@@ -1451,7 +1451,7 @@
             success: function(res) {
                 let find_required = '';
 console.log(params);
-                if (typeof params.required === undefined || params.required === '') {
+                if (typeof params.required === 'undefined' || params.required === '') {
                     find_required = $.parseJSON('{"required":"false"}');
                 } else {
                     find_required = $.parseJSON(params.required);
@@ -1947,7 +1947,8 @@ console.log(params);
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': 0,
-                                        'action': res[i].actionType
+                                        'action': res[i].actionType,
+                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
