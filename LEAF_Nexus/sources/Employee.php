@@ -254,6 +254,7 @@ class Employee extends Data
     private function batchEmployeeUpdate(array $local_employees_array): array
     {
         $vars = array(
+            'userName',
             'lastName',
             'firstName',
             'middleName',
@@ -562,7 +563,7 @@ class Employee extends Data
     private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): array
     {
         $vars = array(
-            ':userName' => $user_name,
+            ':userName' => $national_user['user_name'],
             ':lastName' => $national_user['lastName'],
             ':firstName' => $national_user['firstName'],
             ':midInit' => $national_user['middleName'],
@@ -570,10 +571,12 @@ class Employee extends Data
             ':phoneticLname' => $national_user['phoneticLastName'],
             ':domain' => $national_user['domain'],
             ':deleted' => $national_user['deleted'],
-            ':lastUpdated' => $national_user['lastUpdated']
+            ':lastUpdated' => $national_user['lastUpdated'],
+            ':localUserName' => $user_name
         );
         $sql = "UPDATE `employee`
-                SET `lastName` = :lastName,
+                SET `userName` = :userName,
+                    `lastName` = :lastName,
                     `firstName` = :firstName,
                     `middleName` = :midInit,
                     `phoneticFirstName` = :phoneticFname,
@@ -581,7 +584,7 @@ class Employee extends Data
                     `domain` = :domain,
                     `deleted` = :deleted,
                     `lastUpdated` = :lastUpdated
-                WHERE `userName` = :userName";
+                WHERE `userName` = :localUserName";
         $result = $db->prepared_query($sql, $vars);
 
         $return_value = array(
