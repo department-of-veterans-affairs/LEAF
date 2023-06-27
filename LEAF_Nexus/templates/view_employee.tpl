@@ -7,9 +7,11 @@
         <div onclick="assignBackup();"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
         <br />
 <!--{if $summary.employee.deleted == 0}-->
-        <div onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
+        <div id="disable_account_<!--{$empUID}-->" class="" onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
+        <div id="enable_account_<!--{$empUID}-->" class="notrequired" onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
 <!--{else}-->
-        <div onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
+        <div id="disable_account_<!--{$empUID}-->" class="notrequired" onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Disable Account" title="Disable Account" /> Disable Account</div>
+        <div id="enable_account_<!--{$empUID}-->" class="" onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="Enable Account" title="Enable Account" /> Enable Account</div>
 <!--{/if}-->
 <!--         <div onclick="alert('Not implemented yet');"><img src="dynicons/?img=emblem-train.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> Request Travel/Training</div>
         <div onclick="alert('Not implemented yet');"><img src="dynicons/?img=car.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Request Govt. Vehicle</div>
@@ -70,6 +72,7 @@
 <div id="orgchartForm"></div>
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -78,12 +81,49 @@
 
 
 function refreshEmp(userName, empUID) {
+    var CSRFToken = '<!--{$CSRFToken}-->';
+
     $.ajax({
-        url: "./scripts/refreshOrgchartEmployees.php?userName=" + userName + "&empUID=" + empUID,
-        dataType: "text",
-        success: function(response, args) {
-            alert("Employee Refreshed");
-            location.reload();
+        type: 'POST',
+        url: "./api/employee/refresh/_" + userName + "/" + empUID,
+        dataType: "json",
+        data: {CSRFToken: CSRFToken},
+        success: function(res) {
+            let response = $.parseJSON(res);
+
+            if (response.status['code'] == 2) {
+                $.each(response.data.user_data, function (index, value) {
+                    $('#data_' + value['indicatorID'] + '_1_' + response.data.user[0]['empUID']).html(value['data']);
+
+                    if (value['indicatorID'] == 23) {
+                        $('#mainblock_' + value['indicatorID'] + '_' + response.data.user[0]['empUID']).removeClass('notrequired');
+                    }
+                });
+                dialog_ok.setTitle('Employee Refreshed');
+                dialog_ok.setContent('The Employee has successfully been updated.');
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                });
+                dialog_ok.show();
+            } else {
+                dialog_ok.setTitle('Employee Disabled');
+                dialog_ok.setContent(response.status['message']);
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                    $("#enable_account_<!--{$empUID}-->").removeClass('notrequired');
+                    $("#disable_account_<!--{$empUID}-->").addClass('notrequired');
+                    $("#disabled_label").removeClass('notrequired');
+                });
+                dialog_ok.show();
+            }
+
+            //alert("Employee Refreshed");
+            //location.reload();
+        },
+        error: function (err) {
+            console.log(err);
         },
         cache: false
     });
@@ -213,9 +253,16 @@ function disableAccount(backupEmpUID) {
             success: function(response) {
                 confirm_dialog.hide();
                 if(response == true) {
+                    $("#enable_account_<!--{$empUID}-->").removeClass('notrequired');
+                    $("#disable_account_<!--{$empUID}-->").addClass('notrequired');
+                    $("#disabled_label").removeClass('notrequired');
                     alert('The account has been disabled.');
-                    window.location.reload();
+
+                    //window.location.reload();
                 }
+            },
+            error: function (err) {
+                console.log(err);
             },
             cache: false
         });
@@ -234,9 +281,15 @@ function enableAccount(backupEmpUID) {
             success: function(response) {
                 confirm_dialog.hide();
                 if(response == true) {
+                    $("#enable_account_<!--{$empUID}-->").addClass('notrequired');
+                    $("#disable_account_<!--{$empUID}-->").removeClass('notrequired');
+                    $("#disabled_label").addClass('notrequired');
                     alert('The account has been enabled.');
-                    window.location.reload();
+                    //window.location.reload();
                 }
+            },
+            error: function (err) {
+                console.log(err);
             },
             cache: false
         });
@@ -255,7 +308,7 @@ $(function() {
         url: "ajaxEmployee.php?a=getForm&empUID=<!--{$empUID}-->",
         success: function(response) {
             if(response != '') {
-                $('#employeeName').html('<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}--> <!--{if $summary.employee.deleted != 0}-->(Disabled account)<!--{/if}-->');
+                $('#employeeName').html('<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}--> <span id="disabled_label" class="<!--{if $summary.employee.deleted == 0}-->notrequired<!--{/if}-->">(Disabled account)</span>');
                 $('#employeeAccount').html("<!--{$summary.employee.userName}-->");
                 $('#employeeBody').html(response);
             }
@@ -288,6 +341,7 @@ $(function() {
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     <!--{include file="site_elements/orgchartForm_updateOutlook.js.tpl"}-->
+    dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
 });
 
 /* ]]> */
