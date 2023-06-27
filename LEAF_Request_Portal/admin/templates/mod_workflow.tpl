@@ -111,6 +111,7 @@
                     loadWorkflow(workflowID);
                     dialog_confirm.hide();
                 },
+
                 error: (err) => console.log(err),
             });
         });
@@ -556,9 +557,9 @@
                         alert(error);
                     }); dialog.hide();
                 });
-        }).fail(function(error) {
-        alert(error);
-    });
+            }).fail(function(error) {
+            alert(error);
+        });
     }
 
     /**
@@ -666,60 +667,60 @@
             $('#eventDesc').attr('maxlength', 40);
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
-                    let eventName = 'CustomEvent_' + $('#eventName').val();
-                    let eventDesc = $('#eventDesc').val();
-                    let eventType = $('#eventType').val();
-                    let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
-                    'Notify Next': $('#notifyNext').prop("checked"),
-                        'Notify Group': $('#groupID option:selected').val()
+                let eventName = 'CustomEvent_' + $('#eventName').val();
+                let eventDesc = $('#eventDesc').val();
+                let eventType = $('#eventType').val();
+                let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                'Notify Next': $('#notifyNext').prop("checked"),
+                    'Notify Group': $('#groupID option:selected').val()
                 };
                 let ajaxData = {newName: eventName,
-                description: eventDesc,
-                type: eventType,
-                data: eventData,
-                CSRFToken: CSRFToken
-            };
-            let eventNameChange = false;
-            $.ajax({
-                type: 'GET',
-                url: '../api/workflow/customEvents',
-                cache: false
-            }).done(function(res) {
-                for (let i in res) {
-                    if (event !== eventName) { // Check if name change
-                        if (res[i].eventID === eventName) {
-                            eventNameChange = true;
+                    description: eventDesc,
+                    type: eventType,
+                    data: eventData,
+                    CSRFToken: CSRFToken
+                };
+                let eventNameChange = false;
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/workflow/customEvents',
+                    cache: false
+                }).done(function(res) {
+                    for (let i in res) {
+                        if (event !== eventName) { // Check if name change
+                            if (res[i].eventID === eventName) {
+                                eventNameChange = true;
+                            }
                         }
                     }
-                }
-                if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc')
-                    .val() !== '') {
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/editEvent/_' + event,
-                        data: ajaxData,
-                        cache: false
-                    }).done(function() {
-                        listEvents();
-                    }).fail(function(error) {
-                        alert(error);
-                    });
-                } else {
-                    if ($('#eventDesc').val() === '') {
-                        alert('Event description cannot be blank.');
-                        listEvents();
+                    if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc')
+                        .val() !== '') {
+                        $.ajax({
+                            type: 'POST',
+                            url: '../api/workflow/editEvent/_' + event,
+                            data: ajaxData,
+                            cache: false
+                        }).done(function() {
+                            listEvents();
+                        }).fail(function(error) {
+                            alert(error);
+                        });
                     } else {
-                        alert('Event name already exists.');
-                        listEvents();
+                        if ($('#eventDesc').val() === '') {
+                            alert('Event description cannot be blank.');
+                            listEvents();
+                        } else {
+                            alert('Event name already exists.');
+                            listEvents();
+                        }
                     }
-                }
-            }).fail(function(error) {
-                alert(error);
+                }).fail(function(error) {
+                    alert(error);
+                });
             });
+        }).fail(function(error) {
+            alert(error);
         });
-    }).fail(function(error) {
-        alert(error);
-    });
     }
 
     /**
@@ -805,7 +806,7 @@
                     error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function editRequirement(dependencyID) {
@@ -827,7 +828,7 @@
                     error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function unlinkDependency(stepID, dependencyID) {
@@ -847,8 +848,7 @@
                 },
                 error: (err) => console.log(err),
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     function linkDependency(stepID, dependencyID) {
@@ -883,8 +883,7 @@
                 },
                 error: (err) => console.log(err),
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     // stepID optional
@@ -941,7 +940,7 @@
                     error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function newDependency(stepID) {
@@ -964,7 +963,7 @@
                     error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function linkDependencyDialog(stepID) {
@@ -1448,9 +1447,28 @@
             type: 'GET',
             url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
             success: function(res) {
+                let find_required = '';
+console.log(params);
+                if (typeof params.required === undefined || params.required === '') {
+                    find_required = $.parseJSON('{"required":"false"}');
+                } else {
+                    find_required = $.parseJSON(params.required);
+                }
+
                 let output = '';
+                let required = '';
+
+                if (find_required.required == 'true') {
+                    required = 'checked=checked';
+                }
+
                 stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
                 output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+
+                if (params.action == 'sendback') {
+                    output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
+                }
+
                 output += '<br /><div>Triggers these events:<ul>';
                 // the sendback action always notifies the requestor
                 if (params.action == 'sendback') {
@@ -1484,6 +1502,27 @@
             top: evt.pageY + 'px'
         });
         $('#stepInfo_' + stepID).show('slide', null, 200);
+    }
+
+    function switchRequired(element) {
+        let stepID = element.id.split('_');
+        let e = document.getElementById("workflows");
+        let workflowID = e.value;
+
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflowRoute/require',
+            data: {required: element.checked,
+            step_id: stepID[2],
+            workflow_id: workflowID,
+            CSRFToken: CSRFToken},
+            success: function (res) {
+                console.log(res);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
     }
 
     function setDynamicApprover(stepID) {
@@ -1932,7 +1971,8 @@
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': res[i].nextStepID,
-                                        'action': res[i].actionType
+                                        'action': res[i].actionType,
+                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
@@ -1965,7 +2005,8 @@
                                     location: loc,
                                     parameters: {'stepID': -1,
                                     'nextStepID': workflows[workflowID].initialStepID,
-                                    'action': 'submit'
+                                    'action': 'submit',
+                                    'required': '{"required":"false"}'
                                 },
                                 events: {
                                     click: function(overlay, evt) {

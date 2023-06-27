@@ -114,6 +114,11 @@ $controllerMap->register('workflow', function () use ($p_db, $login, $action) {
     echo $workflowController->handler($action);
 });
 
+$controllerMap->register('workflowRoute', function () use ($db, $login, $action) {
+    $WorkflowRouteController = new Portal\WorkflowRouteController($db, $login);
+    echo $WorkflowRouteController->handler($action);
+});
+
 $controllerMap->register('FTEdata', function () use ($p_db, $login, $action) {
     $FTEdataController = new Portal\FTEdataController($p_db, $login);
     echo $FTEdataController->handler($action);
