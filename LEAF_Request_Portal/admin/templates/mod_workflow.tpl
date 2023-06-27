@@ -847,8 +847,9 @@
                     dialog_confirm.hide();
                 },
                 error: (err) => console.log(err),
+            });
+            dialog_confirm.show();
         });
-        dialog_confirm.show();
     }
 
     function linkDependency(stepID, dependencyID) {
@@ -882,8 +883,9 @@
                     dialog_confirm.hide();
                 },
                 error: (err) => console.log(err),
+            });
+            dialog_confirm.show();
         });
-        dialog_confirm.show();
     }
 
     // stepID optional
