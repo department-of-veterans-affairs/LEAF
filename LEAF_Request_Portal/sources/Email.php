@@ -443,7 +443,7 @@ class Email
     {
         $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
         $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ".
-            "WHERE label = :emailTemplateLabel;";
+            "WHERE `label` = :emailTemplateLabel";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
         return (int)$res[0]['emailTemplateID'];
@@ -585,6 +585,7 @@ class Email
             "LEFT JOIN dependency_privs USING (dependencyID) ".
             "LEFT JOIN users USING (groupID) ".
             "LEFT JOIN services AS ser USING (serviceID) ".
+            "LEFT JOIN data USING (recordID)".
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
 

@@ -34,6 +34,10 @@ class FormStackController extends RESTfulResponse
         $this->index['GET']->register('formStack', function ($args) use ($formStack) {
         });
 
+        $this->index['GET']->register('formStack/categoryList', function ($args) use ($formStack) {
+            return $formStack->getCategories();
+        });
+
         $this->index['GET']->register('formStack/categoryList/all', function ($args) use ($formStack) {
             return $formStack->getAllCategories();
         });
