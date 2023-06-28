@@ -542,22 +542,6 @@
         color: #083;
     }
 
-
-    #sensitive-warning {
-        color: red;
-        visibility: hidden;
-    }
-
-    #form-select, #indicator-select, #indicator-id-label {
-        width: math(100% - 15px);
-        margin-bottom: 1rem;
-    }
-
-    #indicator-select, #indicator-id-label, #copy-field-id {
-        visibility: hidden;
-    }
-
-
     .chevron-rotate {
         animation: chevron-rotate 0.5s forwards;
     }
@@ -628,7 +612,21 @@
             font-size: 0.8rem;
         }
     }
->>>>>>> LEAF_3709_-Template_Editor_UX
+
+    #sensitive-warning {
+        color: red;
+        visibility: hidden;
+    }
+
+    #form-select, #indicator-select, #indicator-id-label {
+        width: math(100% - 15px);
+        margin-bottom: 1rem;
+    }
+
+    #indicator-select, #indicator-id-label, #copy-field-id {
+        visibility: hidden;
+    }
+
 </style>
 
 <div class="leaf-center-content">
@@ -721,8 +719,8 @@
                                 <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may not be included in email templates.</span></td>
                             </tr>
                         </table>
-                    </div>
                     </fieldset>
+                </div>
                     <fieldset>
                         <legend>Quick Field Search</legend>
                         <div style="width: 50%; float: left;">
@@ -741,30 +739,30 @@
                             <span id="sensitive-warning">*This field is marked as sensitive! The field value will not show in sent emails*</span>
                         </div>
                     </fieldset>
-                </div>
-                <div class="email-keyboard-shortcuts">
-
-                    <table class="table">
-                        <tr>
-                            <td colspan="2">Keyboard Shortcuts within coding area</td>
-                        </tr>
-                        <tr>
-                            <td>Save</td>
-                            <td>Ctrl + S</td>
-                        </tr>
-                        <tr>
-                            <td>Undo</td>
-                            <td>Ctrl-Z</td>
-                        </tr>
-                        <tr>
-                            <td>Word Wrap</td>
-                            <td>Ctrl-W</td>
-                        </tr>
-                        <tr>
-                            <td>Fullscreen</td>
-                            <td>F11</td>
-                        </tr>
-                    </table>
+                <div>
+                    <div class="email-keyboard-shortcuts">
+                        <table class="table">
+                            <tr>
+                                <td colspan="2">Keyboard Shortcuts within coding area</td>
+                            </tr>
+                            <tr>
+                                <td>Save</td>
+                                <td>Ctrl + S</td>
+                            </tr>
+                            <tr>
+                                <td>Undo</td>
+                                <td>Ctrl-Z</td>
+                            </tr>
+                            <tr>
+                                <td>Word Wrap</td>
+                                <td>Ctrl-W</td>
+                            </tr>
+                            <tr>
+                                <td>Fullscreen</td>
+                                <td>F11</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1515,7 +1513,6 @@
         });
     }
 
-
     /**
      * getForms Function
      * Purpose: On loading document, get all available forms on the portal for quick search
@@ -1644,9 +1641,6 @@
      * initEditor Function
      * Purpose: Initiate the CodeMirror editor functions for the body and subject fields
      */
-
-    // initiates  the loadContent()
-
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: "htmlmixed",
@@ -1715,11 +1709,9 @@
         $(window).on('resize', function() {
             updateEditorSize();
         });
-
         // Get forms for quick search
         getForms().then((res) => console.log(res));
         // Get initial email tempates for page from database
-
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates',
