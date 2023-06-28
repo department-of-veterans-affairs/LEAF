@@ -569,6 +569,138 @@ class Email
     }
 
     /**
+     * Get the field values of the current record
+     */
+    private function getFields(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format`, `indicators`.`default`, `indicators`.`is_sensitive` FROM `data`
+            JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID` = :recordID';
+
+        $fields = $this->db->prepared_query($strSQL, $vars);
+        
+        $formattedFields = array();
+
+        foreach($fields as $field) 
+        {   
+            if ($field["is_sensitive"] == 1) {
+                $formattedFields[$field['indicatorID']] = "**********";
+                continue;
+            }
+
+            $format = strtolower($field["format"]);
+            $data = $field["data"];
+
+            switch(true) {
+                case (str_starts_with($format, "grid") != false):
+                    $data = $this->buildGrid(unserialize($data));
+                    break;
+                case (str_starts_with($format, "checkboxes") != false):
+                case (str_starts_with($format, "multiselect") != false):
+                    $data = $this->buildMultiselect(unserialize($data));
+                    break;
+                case (str_starts_with($format, "radio") != false):
+                case (str_starts_with($format, "checkbox") != false):
+                    if ($data == "no") {
+                        $data = "";
+                    }
+                    break;
+                case ($format == "fileupload"):
+                case ($format == "image"):
+                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
+                    break;
+                case ($format == "orgchart_group"):
+                    $data = $this->getOrgchartGroup((int) $data);
+                    break;
+                case ($format == "orgchart_position"):
+                    $data = $this->getOrgchartPosition((int) $data);
+                    break;
+                case ($format == "orgchart_employee"):
+                    $data = $this->getOrgchartEmployee((int) $data);
+                    break;
+            }
+
+            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+        }
+
+        return $formattedFields;
+    }
+    
+    // method for building grid
+    private function buildGrid(array $data): string
+    {
+        // get the grid in the form of array
+        $cells = $data['cells'];
+        $headers = $data['names'];
+        
+        // build the grid
+        $grid = "<table><tr>";
+
+        foreach($headers as $header) {
+            if ($header !== " ") {
+                $grid .= "<th>{$header}</th>";
+            }
+        }
+        $grid .= "</tr>";
+
+        foreach($cells as $row) {
+            $grid .= "<tr>";
+            foreach($row as $column) {
+                $grid .= "<td>{$column}</td>";
+            }
+            $grid .= "</tr>";
+        }
+        $grid .= "</table>";
+
+        return $grid;
+    }
+
+    private function buildMultiselect(array $data): string
+    {
+        // filter out non-selected selections
+        $data = array_filter($data, function($x) { return $x !== "no"; });
+        // comma separate to be readable in email
+        $formattedData = implode(",", $data);
+
+        return $formattedData;
+    }
+
+    private function buildFileLink(string $data, string $id, string $series): string
+    {
+        // split the file names out into an array
+        $data = explode("\n", $data);
+        $buffer = [];
+
+        // parse together the links to each file
+        foreach($data as $index => $file) {
+            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
+        }
+
+        // separate the links by comma
+        $formattedData = implode(", ", $buffer);
+        return $formattedData;
+    }
+
+    // method for building orgchart group, position, employee
+    private function getOrgchartGroup(int $data): string
+    {
+        // reference the group by id
+        $group = new Group($this->db, $this->login);
+        $groupName = $group->getGroupName($data);
+        
+        return $groupName;
+    }
+
+    private function getOrgchartPosition(int $data): string
+    {
+        $position = new \Orgchart\Position($this->oc_db, $this->login);
+        $positionName = $position->getTitle($data);
+
+        return $positionName;
+    }
+
+    /**
      * Purpose: Add approvers to email from given record ID*
      * @param int $recordID
      * @param int $emailTemplateID
@@ -589,6 +721,8 @@ class Email
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
 
+        $fields = $this->getFields($recordID);
+
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
             $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
@@ -599,7 +733,8 @@ class Email
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fields
             ));
 
             if ($emailTemplateID < 2) {
@@ -731,7 +866,8 @@ class Email
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fields
             ));
 
             $this->setTemplateByID($emailTemplateID);
