@@ -415,6 +415,13 @@
         margin: 10px 0;
     }
 
+    #save_button,
+    #btn_history,
+    #restore_original,
+    #icon_library {
+        width: 100%;
+    }
+
     .word-wrap-button {
         display: inline-block;
         background-color: #ddd;
@@ -447,7 +454,7 @@
     }
 
     .usa-button {
-        width: 100%;
+
         max-width: 250px;
         margin: 5px auto;
     }
@@ -723,12 +730,11 @@
         <div class="leaf-right-nav">
             <aside class="sidenav-right">
                 <div id="controls">
-                    <button class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
+                    <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
                         Save Changes<span id="saveStatus"
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    <button
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
+                    <button id="restore_original" class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
                         onclick="restore();">Restore Original</button>
                     <button
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
@@ -774,33 +780,43 @@
         }
     });
     // saves current file content changes
+
+
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
         const divEmailTo = document.getElementById('divEmailTo');
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
-        const data = (codeEditor.getValue() == undefined) ? codeEditor.edit.getValue() : codeEditor.getValue();
-        const subject = (subjectEditor.getValue() == undefined) ? subjectEditor.edit.getValue() : subjectEditor
-            .getValue();
+        const data = (typeof codeEditor !== 'undefined' && codeEditor.getValue() !== undefined) ? codeEditor.getValue() : codeEditor.edit.getValue();
+        const subject = (typeof subjectEditor !== 'undefined' && subjectEditor.getValue() !== undefined) ? subjectEditor.getValue() : subjectEditor.edit.getValue();
         const isContentChanged = (
             emailToData !== currentEmailToContent ||
             emailCcData !== currentEmailCcContent ||
             data !== currentFileContent ||
             subject !== currentSubjectContent
-        ) ? true : false;
-        const isContentUnchanged = (data === currentFileContent || subject === currentSubjectContent) ? true : false;
+        );
+        const isContentUnchanged = (data === currentFileContent);
         const isNull = emailToData === null || emailCcData === null;
 
-
+        // console.log('divEmailTo: ' + divEmailTo);
+        console.log('emailToData: ' + emailToData);
+        console.log('emailCcData: ' + emailCcData);
+        console.log('data: ' + data);
+        console.log('subject: ' + subject);
+        console.log('isContentChanged: ' + isContentChanged);
+        console.log('isContentUnchanged: ' + isContentUnchanged);
+        console.log('isNull: ' + isNull);
 
 
         if (divEmailTo.style.display === 'none') {
+            console.log('divEmailTo is display none');
             if (isContentUnchanged || isNull) {
                 showDialog('Please make a change to the content in order to save.');
             } else {
                 saveTemplate();
             }
         } else {
+            console.log('divEmailTo is display block');
             if (isContentChanged || isNull) {
                 saveTemplate();
             } else {
@@ -823,12 +839,12 @@
                 },
                 url: '../api/emailTemplates/_' + currentFile,
                 success: function(res) {
-                    console.log('New template has been saved');
-                    saveFileHistory();
                     updateUIAfterSave();
                     if (res != null) {
                         alert(res);
                     }
+
+                    saveFileHistory();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log('Error occurred during the save operation:', errorThrown);
@@ -846,7 +862,7 @@
         function updateUIAfterSave() {
             $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
             $('.modifiedTemplate').css('display', 'block');
-            if ($('#btn_compareStop').css('display') != 'none') {
+            if ($('#btn_compareStop').css('display') !== 'none') {
                 $('#btn_compare').css('display', 'none');
             }
             var time = new Date().toLocaleTimeString();
@@ -856,8 +872,8 @@
             currentEmailToContent = emailToData;
             currentEmailCcContent = emailCcData;
         }
-
     }
+
 
     // creates a copy of the current file content 
     function saveFileHistory() {
@@ -1405,7 +1421,7 @@
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').show();
-                    
+
                 } else {
                     $('.modifiedTemplate').hide();
                 }
@@ -1414,6 +1430,8 @@
             cache: false
         });
         $('#saveStatus').html('');
+
+        editorCurrentContent()
 
         // Keyboard shortcuts
         codeEditor.setOption("extraKeys", {

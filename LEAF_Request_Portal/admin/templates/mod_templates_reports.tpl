@@ -411,6 +411,14 @@
         margin: 10px 0;
     }
 
+    #save_button,
+    #btn_history,
+    #restore_original,
+    #open_file_button,
+    #deleteButton {
+        width: 90%;
+    }
+
     .word-wrap-button {
         width: 90%;
         display: inline-block;
@@ -445,7 +453,6 @@
     }
 
     .usa-button {
-        width: 90%;
         max-width: 250px;
         margin: 5px auto;
     }
@@ -671,11 +678,11 @@
 
         <div class="leaf-right-nav">
             <aside class="sidenav-right" id="controls">
-                <button id="saveButton" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem"
+                <button id="save_button" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem"
                     onclick="save();">Save Changes<span id="saveStatus"
                         class="leaf-display-block leaf-font0-5rem"></span>
                 </button>
-                <button
+                <button id="open_file_button"
                     class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
                     runReport();">Open File</button>
                 <button id="deleteButton"
@@ -1094,7 +1101,7 @@
                 }
                 accordion += '</div>';
                 $('.file-history-res').html(accordion);
-                
+
             },
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
@@ -1177,7 +1184,7 @@
                                         mergedContent += mergeLine + "\n";
                                     }
                                 }
-                                
+
                                 saveMergedChangesToFile(fileParentFile, mergedContent);
                             });
                         }
