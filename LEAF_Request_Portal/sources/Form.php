@@ -1612,8 +1612,9 @@ class Form
         }
 
         // give the requestor access if the record explictly gives them write access
-        if ($resRecords[0]['isWritableUser'] == 1
-            && $this->login->getUserID() == $resRecords[0]['userID'])
+        if ($resRecords[0]['isWritableUser'] == 1 &&
+            ($this->login->getUserID() == $resRecords[0]['userID'] || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
+        )
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
             $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
