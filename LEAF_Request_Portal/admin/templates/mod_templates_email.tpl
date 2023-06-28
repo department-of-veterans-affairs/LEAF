@@ -719,8 +719,8 @@
                                 <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may not be included in email templates.</span></td>
                             </tr>
                         </table>
-                    </div>
                     </fieldset>
+                </div>
                     <fieldset>
                         <legend>Quick Field Search</legend>
                         <div style="width: 50%; float: left;">
@@ -740,27 +740,29 @@
                         </div>
                     </fieldset>
                 <div>
-                    <table class="email-keyboard-shortcuts">
-                        <tr>
-                            <td colspan="2">Keyboard Shortcuts within coding area</td>
-                        </tr>
-                        <tr>
-                            <td>Save</td>
-                            <td>Ctrl + S</td>
-                        </tr>
-                        <tr>
-                            <td>Undo</td>
-                            <td>Ctrl-Z</td>
-                        </tr>
-                        <tr>
-                            <td>Word Wrap</td>
-                            <td>Ctrl-W</td>
-                        </tr>
-                        <tr>
-                            <td>Fullscreen</td>
-                            <td>F11</td>
-                        </tr>
-                    </table>
+                    <div class="email-keyboard-shortcuts">
+                        <table class="table">
+                            <tr>
+                                <td colspan="2">Keyboard Shortcuts within coding area</td>
+                            </tr>
+                            <tr>
+                                <td>Save</td>
+                                <td>Ctrl + S</td>
+                            </tr>
+                            <tr>
+                                <td>Undo</td>
+                                <td>Ctrl-Z</td>
+                            </tr>
+                            <tr>
+                                <td>Word Wrap</td>
+                                <td>Ctrl-W</td>
+                            </tr>
+                            <tr>
+                                <td>Fullscreen</td>
+                                <td>F11</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
