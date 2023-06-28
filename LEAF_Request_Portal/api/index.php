@@ -56,6 +56,11 @@ $controllerMap->register('service', function () use ($p_db, $login, $action) {
     echo $serviceController->handler($action);
 });
 
+$controllerMap->register('site', function () use ($p_db, $login, $action) {
+    $siteController = new Portal\SiteController($p_db, $login);
+    echo $siteController->handler($action);
+});
+
 // admin only
 if ($login->checkGroup(1))
 {
@@ -77,11 +82,6 @@ if ($login->checkGroup(1))
     $controllerMap->register('import', function () use ($p_db, $login, $action) {
         $importController = new Portal\ImportController($p_db, $login);
         echo $importController->handler($action);
-    });
-
-    $controllerMap->register('site', function () use ($p_db, $login, $action) {
-        $siteController = new Portal\SiteController($p_db, $login);
-        echo $siteController->handler($action);
     });
 
     $icons_path = LIB_PATH . '/dynicons/svg/';
@@ -112,6 +112,11 @@ $controllerMap->register('formWorkflow', function () use ($p_db, $login, $action
 $controllerMap->register('workflow', function () use ($p_db, $login, $action) {
     $workflowController = new Portal\WorkflowController($p_db, $login);
     echo $workflowController->handler($action);
+});
+
+$controllerMap->register('workflowRoute', function () use ($db, $login, $action) {
+    $WorkflowRouteController = new Portal\WorkflowRouteController($db, $login);
+    echo $WorkflowRouteController->handler($action);
 });
 
 $controllerMap->register('FTEdata', function () use ($p_db, $login, $action) {
