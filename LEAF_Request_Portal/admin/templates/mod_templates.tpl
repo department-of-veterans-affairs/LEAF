@@ -400,6 +400,13 @@
         margin: 10px 0;
     }
 
+    #save_button,
+    #btn_history,
+    #restore_original,
+    #icon_library {
+        width: 100%;
+    }
+
 
     .word-wrap-button {
         display: inline-block;
@@ -434,7 +441,7 @@
     }
 
     .usa-button {
-        width: 100%;
+        /* width: 100%; */
         max-width: 250px;
         margin: 5px auto;
     }
@@ -657,7 +664,7 @@
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
 
-                    <button
+                    <button id="restore_original"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         onclick="restore();">
                         Restore Original
@@ -675,7 +682,7 @@
                         Compare to Original
                     </button> -->
 
-                    <button
+                    <button id="icon_library"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         target="_blank">
                         <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php">Icon Library</a>
@@ -921,25 +928,6 @@
             }
         });
     }
-    // overrites current file content after merge
-    function saveMergedChangesToFile(fileParentName, mergedContent) {
-        $.ajax({
-                type: 'POST',
-                url: '../api/templateHistoryMergeFile/_' + fileParentName,
-                data: {CSRFToken: '<!--{$CSRFToken}-->',
-                file: mergedContent
-            },
-            dataType: 'json',
-            cache: false,
-            success: function(res) {
-                exitExpandScreen();
-                loadContent(currentFile);
-            },
-            error: function(xhr, status, error) {
-                console.log(xhr.responseText);
-            }
-        });
-    }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
@@ -1045,6 +1033,7 @@
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
+                    ignoreUnsavedChanges = false;
 
                     accordion += '<div class="accordion">' +
                         '<div class="accordion-header">' +
@@ -1104,8 +1093,46 @@
         textField.remove();
         console.log('URL copied: ' + currentURL.href);
     }
+    // Retreave URL to display comparison of files
+    function initializePage() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var fileName = urlParams.get('fileName');
+        var parentFile = urlParams.get('parentFile');
+
+        if (fileName && parentFile) {
+            loadContent(parentFile);
+            compareHistoryFile(fileName, parentFile, false);
+        } else {
+            loadContent('view_homepage.tpl');
+        }
+    }
+
     var codeEditor = null;
-    // compares current file content with history file from getFileHistory()
+    var currentFile = '';
+    var unsavedChanges = false;
+    var currentFileContent = "";
+    var ignoreUnsavedChanges = false;
+    var ignorePrompt = true;
+
+    // This function displays a prompt if there are unsaved changes before leaving the page
+    function editorCurrentContent() {
+        $(window).on('beforeunload', function(e) {
+            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
+                let data = '';
+                if (codeEditor.getValue === undefined) {
+                    data = codeEditor.edit.getValue();
+                } else {
+                    data = codeEditor.getValue();
+                }
+                if (currentFileContent !== data) {
+                    var confirmationMessage =
+                        'You have unsaved changes. Are you sure you want to leave this page?';
+                    return confirmationMessage;
+                }
+            }
+        });
+    }
+    // Compare the current file content with the history file obtained from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -1117,6 +1144,7 @@
         $('.save_button').css('display', 'none');
         var wordWrapEnabled = false; // default to false
 
+        // Word Wrap when viewing the merge editor
         $('#word-wrap-button').click(function() {
             wordWrapEnabled = !wordWrapEnabled;
             if (wordWrapEnabled) {
@@ -1145,6 +1173,7 @@
                 for (var i = 0; i < res.length; i++) {
                     filePath = res[i].file_path;
                     fileParentFile = res[i].file_parent_name;
+                    // Get the file dir
                     $.ajax({
                         type: 'GET',
                         url: filePath,
@@ -1164,11 +1193,13 @@
                                 leftTitle: "Current File",
                                 rightTitle: "Comparison File"
                             });
-                            updateEditorSize();
+
                             $('.CodeMirror-linebackground').css({
                                 'background-color': '#8ce79b !important'
                             });
+
                             $('.file_replace_file_btn').click(function() {
+                                ignoreUnsavedChanges = true;
                                 var changedLines = codeEditor.leftOriginal()
                                     .lineCount();
                                 var mergedContent = "";
@@ -1187,39 +1218,48 @@
                 editorExpandScreen();
             }
         });
-        
+
         if (updateURL) {
             var url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
             window.history.replaceState(null, null, url.toString());
         }
-
     }
-    
-    // Retreave URL to display comparison of files
-    function initializePage() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var fileName = urlParams.get('fileName');
-        var parentFile = urlParams.get('parentFile');
-
-        if (fileName && parentFile) {
-            loadContent(parentFile);
-            compareHistoryFile(fileName, parentFile, false);
-        } else {
-            loadContent('view_homepage.tpl');
-        }
+    // overwrites current file content after merge
+    function saveMergedChangesToFile(fileParentName, mergedContent) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/templateHistoryMergeFile/_' + fileParentName,
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
+                file: mergedContent
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(res) {
+                exitExpandScreen();
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr.responseText);
+            }
+        });
     }
-
-    var currentFile = '';
-    var unsavedChanges = false;
-    var currentFileContent = "";
-    // loads all files and retreave's them
+    // Load the content of a file
     function loadContent(file) {
         if (file === undefined) {
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
             return;
+        }
+
+        if (ignorePrompt) {
+            ignorePrompt = false; // Reset ignorePrompt flag
+        } else {
+            if (!ignoreUnsavedChanges && hasUnsavedChanges() && !confirm(
+                    'You have unsaved changes. Are you sure you want to leave this page?')) {
+                return;
+            }
         }
 
         $('.CodeMirror').remove();
@@ -1236,7 +1276,6 @@
             type: 'GET',
             url: '../api/template/_' + file,
             success: function(res) {
-
                 currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
 
@@ -1249,12 +1288,9 @@
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').css('display', 'block');
-                    unsavedChanges = true;
                 } else {
                     $('.modifiedTemplate').css('display', 'none');
-                    unsavedChanges = false;
                 }
-
                 getFileHistory(file);
             },
             error: function(xhr, status, error) {
@@ -1264,21 +1300,7 @@
         });
         $('#saveStatus').html('');
 
-        // Bind event handler to warn users of unsaved changes
-        $(window).on('beforeunload', function() {
-            if (unsavedChanges) {
-                return 'You have unsaved changes. Are you sure you want to leave this page?';
-            }
-        });
-
-        $(window).on('unload', function() {
-            if (unsavedChanges) {}
-        });
-
-        // Add event listener to track code editor changes
-        codeEditor.on('change', function() {
-            unsavedChanges = true;
-        });
+        editorCurrentContent();
 
         // Add key bindings for undo, save, and full screen functionality
         codeEditor.setOption('extraKeys', {
@@ -1295,6 +1317,16 @@
                 cm.setOption('fullScreen', !cm.getOption('fullScreen'));
             }
         });
+
+        function hasUnsavedChanges() {
+            let data = '';
+            if (codeEditor.getValue === undefined) {
+                data = codeEditor.edit.getValue();
+            } else {
+                data = codeEditor.getValue();
+            }
+            return currentFileContent !== data;
+        }
     }
 
     function updateEditorSize() {
@@ -1361,33 +1393,37 @@
                     type: 'GET',
                     url: '../api/template/custom',
                     dataType: 'json',
-                    success: function (result) {
+                    success: function(result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 if (result.includes(res[i])) {
-                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom =
+                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
                                 }
 
                                 file = res[i].replace('.tpl', '');
 
-                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><a href="#">' + file +
+                                buffer += '<li onclick="loadContent(\'' + res[i] +
+                                    '\');"><a href="#">' + file +
                                     '</a> ' + custom + '</li>';
                             }
                         } else if (res_array.status['code'] === 4) {
-                            buffer += '<li>' + res_array.status['message'] + '</li>';
+                            buffer += '<li>' + res_array.status['message'] +
+                                '</li>';
                         } else {
-                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                            buffer +=
+                                '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';
                         $('#fileList').html(buffer);
                     },
-                    error: function (error) {
+                    error: function(error) {
                         console.log(error);
                     }
                 });

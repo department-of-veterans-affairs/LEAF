@@ -1000,28 +1000,31 @@
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
                     var formattedFileSize = formatFileSize(fileSize);
+                    ignoreUnsavedChanges = false;
 
-                    accordion += `
-                    <div class="accordion">
-                        <div class="accordion-header">
-<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile('${fileName}', '${fileParentName}', true)">
-<span><strong style="color:#37beff;">DATE:</strong><br>${fileCreated}</span>
-                            </a>
-                                <span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>
-                        </div>
-                        <div class="accordion-content">
-                            <ul>
-<li><strong>File Name: </strong><p>${fileName}</p></li>
-<li><p>${whoChangedFile}</p></li>
-<li><p>${formattedFileSize}</p></li>
-                                <li><strong>Share File URL:</strong>
-                                    <div class="textContainer">
-<button class="copyIcon" onclick="getUrlLink('${fileName}', '${fileParentName}', true)">Copy Link <span>&#10063;</span></button>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>`;
+                    accordion += '<div class="accordion">' +
+                        '<div class="accordion-header">' +
+                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
+                        fileName + '\', \'' + fileParentName + '\', true)">' +
+                        '<span><strong style="color:#37beff;">DATE:</strong><br>' + fileCreated +
+                        '</span>' +
+                        '</a>' +
+                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
+                        '</div>' +
+                        '<div class="accordion-content">' +
+                        '<ul>' +
+                        '<li><strong>File Name: </strong><p>' + fileName + '</p></li>' +
+                        '<li><p>' + whoChangedFile + '</p></li>' +
+                        '<li><p>' + formattedFileSize + '</p></li>' +
+                        '<li><strong>Share File URL: </strong>' +
+                        '<div class="textContainer">' +
+                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
+                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
+                        '</div>' +
+                        '</li>' +
+                        '</ul>' +
+                        '</div>' +
+                        '</div>';
                 }
                 accordion += '</div>';
                 $('.file-history-res').html(accordion);
@@ -1032,6 +1035,7 @@
             cache: false
         });
     }
+
 
     var dv;
     // Global variables 
@@ -1046,10 +1050,12 @@
     var currentEmailCcContent;
     var subjectEditor;
     var dialog_message;
-    var unsavedChanges = false;
+
+    var ignoreUnsavedChanges = false;
+    var ignorePrompt = true;
+
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
-        // loadContent(currentName, parentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compare').css('display', 'none');
@@ -1114,6 +1120,7 @@
                                 'background-color': '#8ce79b !important'
                             });
                             $('.file_replace_file_btn').click(function() {
+                                ignoreUnsavedChanges = true;
                                 let changedLines = codeEditor.leftOriginal()
                                     .lineCount();
                                 let mergedContent = "";
@@ -1316,6 +1323,25 @@
 
         loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
     }
+
+    // This function displays a prompt if there are unsaved changes before leaving the page
+    function editorCurrentContent() {
+        $(window).on('beforeunload', function(e) {
+            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
+                let data = '';
+                if (codeEditor.getValue === undefined) {
+                    data = codeEditor.edit.getValue();
+                } else {
+                    data = codeEditor.getValue();
+                }
+                if (currentFileContent !== data) {
+                    var confirmationMessage =
+                        'You have unsaved changes. Are you sure you want to leave this page?';
+                    return confirmationMessage;
+                }
+            }
+        });
+    }
     // loads all files and retreave's them
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
         if (file === undefined) {
@@ -1324,6 +1350,15 @@
             subjectFile = currentSubjectFile;
             emailToFile = currentEmailToFile;
             emailCcFile = currentEmailCcFile;
+        }
+
+        if (ignorePrompt) {
+            ignorePrompt = false; // Reset ignorePrompt flag
+        } else {
+            if (!ignoreUnsavedChanges && hasUnsavedChanges() && !confirm(
+                    'You have unsaved changes. Are you sure you want to leave this page?')) {
+                return;
+            }
         }
 
         $('.CodeMirror').remove();
@@ -1370,32 +1405,15 @@
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').show();
-                    unsavedChanges = true;
+                    
                 } else {
                     $('.modifiedTemplate').hide();
-                    unsavedChanges = false;
                 }
                 getFileHistory(file);
             },
             cache: false
         });
         $('#saveStatus').html('');
-
-
-        // Bind event handlers to warn users of unsaved changes
-        $(window).on('beforeunload', function() {
-            if (unsavedChanges) {
-                return 'You have unsaved changes. Are you sure you want to leave this page?';
-            }
-        });
-
-        $(window).on('unload', function() {
-            if (unsavedChanges) {}
-        });
-
-        codeEditor.on('change', function() {
-            unsavedChanges = true;
-        });
 
         // Keyboard shortcuts
         codeEditor.setOption("extraKeys", {
@@ -1416,6 +1434,16 @@
                 toggleFullscreen();
             }
         });
+
+        function hasUnsavedChanges() {
+            let data = '';
+            if (codeEditor.getValue === undefined) {
+                data = codeEditor.edit.getValue();
+            } else {
+                data = codeEditor.getValue();
+            }
+            return currentFileContent !== data;
+        }
 
     }
 

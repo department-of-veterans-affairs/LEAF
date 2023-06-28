@@ -748,8 +748,18 @@
             },
             url: '../api/applet/_' + currentFile,
             success: function(res) {
-                let time = new Date().toLocaleTimeString();
+                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
+                $('.modifiedTemplate').css('display', 'block');
+                if ($('#btn_compareStop').css('display') != 'none') {
+                    $('#btn_compare').css('display', 'none');
+                }
+
+                var time = new Date().toLocaleTimeString();
                 $('#saveStatus').html('<br /> Last saved: ' + time);
+                currentFileContent = data;
+                if (res != null) {
+                    alert(res);
+                }
                 saveFileHistory();
             },
             error: function() {
@@ -772,227 +782,6 @@
             success: function(res) {
                 console.log("File history has been saved.");
                 getFileHistory(currentFile);
-            }
-        });
-    }
-    // format size of file inside getFileHistory()
-    function formatFileSize(bytes, threshold = 1024) {
-        const units = ['bytes', 'KB', 'MB', 'GB'];
-        let i = 0;
-
-        while (bytes >= threshold && i < units.length - 1) {
-            bytes /= threshold;
-            i++;
-        }
-
-        return bytes.toFixed(2) + ' ' + units[i];
-    }
-    // accordion content inside getFileHistory()
-    function displayAccordionContent(element) {
-        let accordionContent = $(element).parent().next(".accordion-content");
-        let chevron = $(element);
-
-        chevron.toggleClass("chevron-rotate");
-        accordionContent.slideToggle();
-
-        let accordions = $(".accordion");
-        accordions.each(function() {
-            let currentAccordionContent = $(this).find(".accordion-content");
-            let currentChevron = $(this).find(".accordion-chevron");
-
-            if (
-                !currentAccordionContent.is(accordionContent) &&
-                !currentChevron.is(chevron)
-            ) {
-                currentAccordionContent.slideUp();
-                currentChevron.removeClass("chevron-rotate");
-            }
-        });
-    }
-    // request's copies of the current file content in an accordion layout
-    function getFileHistory(template) {
-        $.ajax({
-            type: 'GET',
-            url: '../api/templateFileHistory/_' + template,
-            dataType: 'json',
-            success: function(res) {
-                if (res.length === 0) {
-                    console.log('There are no files in the directory');
-                    var contentMessage = '<p class="contentMessage">There are no history files.</p>';
-                    $('.file-history-res').html(contentMessage);
-                    return;
-                }
-
-                var fileNames = res.map(function(template) {
-                    return template.file_parent_name;
-                });
-
-                if (fileNames.indexOf(template) === -1) {
-                    console.log('Template file not found in directory');
-                    return;
-                }
-
-                var accordion = '<div class="accordion-container">';
-                for (var i = 0; i < res.length; i++) {
-                    var fileId = res[i].file_id;
-                    var fileParentName = res[i].file_parent_name;
-                    var fileName = res[i].file_name;
-                    var filePath = res[i].file_path;
-                    var fileSize = res[i].file_size;
-                    var whoChangedFile = res[i].file_modify_by;
-                    var fileCreated = res[i].file_created;
-                    var formattedFileSize = formatFileSize(fileSize);
-
-                    accordion += '<div class="accordion">' +
-                        '<div class="accordion-header">' +
-                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
-                        fileName + '\', \'' + fileParentName +
-                        '\', true)"><span><strong style="color:#37beff;">DATE:</strong><br>' +
-                        fileCreated + '</span></a>' +
-                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
-                        '</div>' +
-                        '<div class="accordion-content">' +
-                        '<ul>' +
-                        '<li>' +
-                        '<strong>File Name: </strong>' +
-                        '<p>' + fileName + '</p>' +
-                        '</li>' +
-                        '<li>' +
-                        '<strong>Author: </strong>' +
-                        '<p>' + whoChangedFile + '</p>' +
-                        '</li>' +
-                        '<li>' +
-                        '<strong>File Size: </strong>' +
-                        '<p>' + formattedFileSize + '</p>' +
-                        '</li>' +
-                        '<li>' +
-                        '<strong>Share File URL:</strong>' +
-                        '<div class="textContainer">' +
-                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
-                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
-                        '</div>' +
-                        '</li>' +
-                        '<li>' +
-                        '</li>' +
-                        '</ul>' +
-                        '</div>' +
-                        '</div>';
-                }
-                accordion += '</div>';
-                $('.file-history-res').html(accordion);
-            },
-            error: function(xhr, status, error) {
-                console.log('Error getting file history: ' + error);
-            },
-            cache: false
-        });
-    }
-    // compares current file content with history file from getFileHistory()
-    function compareHistoryFile(fileName, parentFile, updateURL) {
-        $('.CodeMirror').remove();
-        $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#save_button').css('display', 'none');
-        $('#btn_compareStop').css('display', 'none');
-        $('#btn_merge').css('display', 'block');
-        $('#word-wrap-button').css('display', 'block');
-        $('.save_button').css('display', 'none');
-        var wordWrapEnabled = false; // default to false
-
-        $('#word-wrap-button').click(function() {
-            wordWrapEnabled = !wordWrapEnabled;
-            if (wordWrapEnabled) {
-                codeEditor.editor().setOption('lineWrapping', true);
-                codeEditor.leftOriginal().setOption('lineWrapping', true);
-                $(this).removeClass('off').addClass('on').text('Word Wrap: On');
-            } else {
-                codeEditor.editor().setOption('lineWrapping', false);
-                codeEditor.leftOriginal().setOption('lineWrapping', false);
-                $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
-            }
-            $('.CodeMirror-linebackground').css({
-                'background-color': '#8ce79b !important'
-            });
-        });
-
-        $.ajax({
-            type: 'GET',
-            url: '../api/templateCompareFileHistory/_' + fileName,
-            dataType: 'json',
-            cache: false,
-            success: function(res) {
-                $(".compared-label-content").css("display", "flex");
-                var filePath = '';
-                var fileParentFile = '';
-                for (var i = 0; i < res.length; i++) {
-                    filePath = res[i].file_path;
-                    fileParentFile = res[i].file_parent_name;
-                    $.ajax({
-                        type: 'GET',
-                        url: filePath,
-                        dataType: 'text',
-                        cache: false,
-                        success: function(fileContent) {
-                            codeEditor = CodeMirror.MergeView(document.getElementById(
-                                "codeCompare"), {
-                                value: currentFileContent.replace(/\r\n/g, "\n"),
-                                origLeft: fileContent.replace(/\r\n/g, "\n"),
-                                lineNumbers: true,
-                                mode: 'htmlmixed',
-                                collapseIdentical: true,
-                                lineWrapping: false, // initial value
-                                autoFormatOnStart: true,
-                                autoFormatOnMode: true,
-                                leftTitle: "Current File",
-                                rightTitle: "Comparison File"
-                            });
-                            updateEditorSize();
-                            $('.CodeMirror-linebackground').css({
-                                'background-color': '#8ce79b !important'
-                            });
-                            $('.file_replace_file_btn').click(function() {
-                                var changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
-                                    if (mergeLine !== null && mergeLine !== undefined) {
-                                        mergedContent += mergeLine + "\n";
-                                    }
-                                }
-                                saveMergedChangesToFile(fileParentFile, mergedContent);
-                            });
-                        }
-                    });
-                }
-                editorExpandScreen();
-            }
-        });
-
-        if (updateURL) {
-            var url = new URL(window.location.href);
-            url.searchParams.set('fileName', fileName);
-            url.searchParams.set('parentFile', parentFile);
-            window.history.replaceState(null, null, url.toString());
-        }
-    }
-    // overrites current file content after merge
-    function saveMergedChangesToFile(fileParentName, mergedContent) {
-        $.ajax({
-                type: 'POST',
-                url: '../api/applet/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
-                data: {CSRFToken: '<!--{$CSRFToken}-->',
-                file: mergedContent
-            },
-            dataType: 'json',
-            cache: false,
-            success: function(res) {
-                loadContent(currentFile);
-                exitExpandScreen();
-            },
-            error: function(xhr, status, error) {
-                console.log(xhr.responseText);
             }
         });
     }
@@ -1020,7 +809,6 @@
             loadContent(parentFile);
             compareHistoryFile(fileName, parentFile, false);
         } else {
-            console.log(currentFileContent);
             loadContent('example');
         }
     }
@@ -1098,7 +886,6 @@
         loadContent(currentFile);
     }
     // creates a new report
-
     function newReport() {
         dialog.setTitle('New File');
         dialog.setContent('Filename: <input type="text" id="newFilename">');
@@ -1130,7 +917,6 @@
 
         dialog.show();
     }
-
     // deletes the report
     function deleteReport() {
         dialog_confirm.setTitle('Are you sure?');
@@ -1180,12 +966,267 @@
     var unsavedChanges = false;
     var currentFileContent = '';
     var dialog, dialog_confirm;
+
+    var ignoreUnsavedChanges = false;
+    var ignorePrompt = true;
+
+    // This function displays a prompt if there are unsaved changes before leaving the page
+    function editorCurrentContent() {
+        $(window).on('beforeunload', function(e) {
+            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
+                let data = '';
+                if (codeEditor.getValue === undefined) {
+                    data = codeEditor.edit.getValue();
+                } else {
+                    data = codeEditor.getValue();
+                }
+                if (currentFileContent !== data) {
+                    var confirmationMessage =
+                        'You have unsaved changes. Are you sure you want to leave this page?';
+                    return confirmationMessage;
+                }
+            }
+        });
+    }
+    // format size of file inside getFileHistory()
+    function formatFileSize(bytes, threshold = 1024) {
+        const units = ['bytes', 'KB', 'MB', 'GB'];
+        let i = 0;
+
+        while (bytes >= threshold && i < units.length - 1) {
+            bytes /= threshold;
+            i++;
+        }
+
+        return bytes.toFixed(2) + ' ' + units[i];
+    }
+    // accordion content inside getFileHistory()
+    function displayAccordionContent(element) {
+        let accordionContent = $(element).parent().next(".accordion-content");
+        let chevron = $(element);
+
+        chevron.toggleClass("chevron-rotate");
+        accordionContent.slideToggle();
+
+        let accordions = $(".accordion");
+        accordions.each(function() {
+            let currentAccordionContent = $(this).find(".accordion-content");
+            let currentChevron = $(this).find(".accordion-chevron");
+
+            if (
+                !currentAccordionContent.is(accordionContent) &&
+                !currentChevron.is(chevron)
+            ) {
+                currentAccordionContent.slideUp();
+                currentChevron.removeClass("chevron-rotate");
+            }
+        });
+    }
+    // request's copies of the current file content in an accordion layout
+    function getFileHistory(template) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/templateFileHistory/_' + template,
+            dataType: 'json',
+            success: function(res) {
+                if (res.length === 0) {
+                    console.log('There are no files in the directory');
+                    var contentMessage = '<p class="contentMessage">There are no history files.</p>';
+                    $('.file-history-res').html(contentMessage);
+                    return;
+                }
+
+                var fileNames = res.map(function(template) {
+                    return template.file_parent_name;
+                });
+
+                if (fileNames.indexOf(template) === -1) {
+                    console.log('Template file not found in directory');
+                    return;
+                }
+
+                var accordion = '<div class="accordion-container">';
+                for (var i = 0; i < res.length; i++) {
+                    var fileId = res[i].file_id;
+                    var fileParentName = res[i].file_parent_name;
+                    var fileName = res[i].file_name;
+                    var filePath = res[i].file_path;
+                    var fileSize = res[i].file_size;
+                    var whoChangedFile = res[i].file_modify_by;
+                    var fileCreated = res[i].file_created;
+                    var formattedFileSize = formatFileSize(fileSize);
+                    ignoreUnsavedChanges = false;
+
+                    accordion += '<div class="accordion">' +
+                        '<div class="accordion-header">' +
+                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
+                        fileName + '\', \'' + fileParentName +
+                        '\', true)"><span><strong style="color:#37beff;">DATE:</strong><br>' +
+                        fileCreated + '</span></a>' +
+                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
+                        '</div>' +
+                        '<div class="accordion-content">' +
+                        '<ul>' +
+                        '<li>' +
+                        '<strong>File Name: </strong>' +
+                        '<p>' + fileName + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Author: </strong>' +
+                        '<p>' + whoChangedFile + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>File Size: </strong>' +
+                        '<p>' + formattedFileSize + '</p>' +
+                        '</li>' +
+                        '<li>' +
+                        '<strong>Share File URL:</strong>' +
+                        '<div class="textContainer">' +
+                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
+                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
+                        '</div>' +
+                        '</li>' +
+                        '<li>' +
+                        '</li>' +
+                        '</ul>' +
+                        '</div>' +
+                        '</div>';
+                }
+                accordion += '</div>';
+                $('.file-history-res').html(accordion);
+                
+            },
+            error: function(xhr, status, error) {
+                console.log('Error getting file history: ' + error);
+            },
+            cache: false
+        });
+    }
+    // compares current file content with history file from getFileHistory()
+    function compareHistoryFile(fileName, parentFile, updateURL) {
+        $('.CodeMirror').remove();
+        $('#codeCompare').empty();
+        $('#btn_compare').css('display', 'none');
+        $('#save_button').css('display', 'none');
+        $('#btn_compareStop').css('display', 'none');
+        $('#btn_merge').css('display', 'block');
+        $('#word-wrap-button').css('display', 'block');
+        $('.save_button').css('display', 'none');
+        var wordWrapEnabled = false; // default to false
+
+        $('#word-wrap-button').click(function() {
+            wordWrapEnabled = !wordWrapEnabled;
+            if (wordWrapEnabled) {
+                codeEditor.editor().setOption('lineWrapping', true);
+                codeEditor.leftOriginal().setOption('lineWrapping', true);
+                $(this).removeClass('off').addClass('on').text('Word Wrap: On');
+            } else {
+                codeEditor.editor().setOption('lineWrapping', false);
+                codeEditor.leftOriginal().setOption('lineWrapping', false);
+                $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
+            }
+            $('.CodeMirror-linebackground').css({
+                'background-color': '#8ce79b !important'
+            });
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '../api/templateCompareFileHistory/_' + fileName,
+            dataType: 'json',
+            cache: false,
+            success: function(res) {
+                $(".compared-label-content").css("display", "flex");
+                var filePath = '';
+                var fileParentFile = '';
+                for (var i = 0; i < res.length; i++) {
+                    filePath = res[i].file_path;
+                    fileParentFile = res[i].file_parent_name;
+                    $.ajax({
+                        type: 'GET',
+                        url: filePath,
+                        dataType: 'text',
+                        cache: false,
+                        success: function(fileContent) {
+                            codeEditor = CodeMirror.MergeView(document.getElementById(
+                                "codeCompare"), {
+                                value: currentFileContent.replace(/\r\n/g, "\n"),
+                                origLeft: fileContent.replace(/\r\n/g, "\n"),
+                                lineNumbers: true,
+                                mode: 'htmlmixed',
+                                collapseIdentical: true,
+                                lineWrapping: false, // initial value
+                                autoFormatOnStart: true,
+                                autoFormatOnMode: true,
+                                leftTitle: "Current File",
+                                rightTitle: "Comparison File"
+                            });
+                            updateEditorSize();
+                            $('.CodeMirror-linebackground').css({
+                                'background-color': '#8ce79b !important'
+                            });
+                            $('.file_replace_file_btn').click(function() {
+                                ignoreUnsavedChanges = true;
+                                var changedLines = codeEditor.leftOriginal()
+                                    .lineCount();
+                                var mergedContent = "";
+                                for (var i = 0; i < changedLines; i++) {
+                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
+                                    if (mergeLine !== null && mergeLine !== undefined) {
+                                        mergedContent += mergeLine + "\n";
+                                    }
+                                }
+                                
+                                saveMergedChangesToFile(fileParentFile, mergedContent);
+                            });
+                        }
+                    });
+                }
+                editorExpandScreen();
+            }
+        });
+
+        if (updateURL) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('fileName', fileName);
+            url.searchParams.set('parentFile', parentFile);
+            window.history.replaceState(null, null, url.toString());
+        }
+    }
+    // overrites current file content after merge
+    function saveMergedChangesToFile(fileParentName, mergedContent) {
+        $.ajax({
+                type: 'POST',
+                url: '../api/applet/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
+                data: {CSRFToken: '<!--{$CSRFToken}-->',
+                file: mergedContent
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(res) {
+                exitExpandScreen();
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr.responseText);
+            }
+        });
+    }
     //loads all files and retreave's them
     function loadContent(file) {
         if (file === undefined) {
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
             return;
+        }
+
+        if (ignorePrompt) {
+            ignorePrompt = false; // Reset ignorePrompt flag
+        } else {
+            if (!ignoreUnsavedChanges && hasUnsavedChanges() && !confirm(
+                    'You have unsaved changes. Are you sure you want to leave this page?')) {
+                return;
+            }
         }
 
         $('.CodeMirror').remove();
@@ -1217,10 +1258,8 @@
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').css('display', 'block');
-                    unsavedChanges = true;
                 } else {
                     $('.modifiedTemplate').css('display', 'none');
-                    unsavedChanges = false;
                 }
 
                 getFileHistory(file);
@@ -1232,12 +1271,7 @@
         });
         $('#saveStatus').html('');
 
-        // Bind event handlers to warn users of unsaved changes
-        $(window).on('beforeunload', function() {
-            if (unsavedChanges) {
-                return 'You have unsaved changes. Are you sure you want to leave this page?';
-            }
-        });
+        editorCurrentContent();
 
         $(window).on('unload', function() {
             if (unsavedChanges) {}
@@ -1262,6 +1296,16 @@
                 cm.setOption('fullScreen', !cm.getOption('fullScreen'));
             }
         });
+
+        function hasUnsavedChanges() {
+            let data = '';
+            if (codeEditor.getValue === undefined) {
+                data = codeEditor.edit.getValue();
+            } else {
+                data = codeEditor.getValue();
+            }
+            return currentFileContent !== data;
+        }
     }
     // initiates  the loadContent()
     function initEditor() {
@@ -1353,7 +1397,6 @@
             'confirm_button_save', 'confirm_button_cancelchange');
         initializePage();
         updateFileList();
-        // loadContent('example');
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator',
             'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
