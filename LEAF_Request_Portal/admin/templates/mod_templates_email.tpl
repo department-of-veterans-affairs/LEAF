@@ -1548,6 +1548,10 @@
             opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form.categoryName;
             sel.appendChild(opt);
         });
+
+        if (forms.length === 1) {
+            getIndicators(forms[0].categoryID);
+        }
     }
 
     /**
@@ -1593,6 +1597,10 @@
             opt.dataset.isSensitive = indicator.is_sensitive;
             sel.appendChild(opt);
         });
+
+        if (indicators.length === 1) {
+            showIndicator(indicator[0].indicatorID, indicator[0].isSensitive);
+        }
     }
 
     /**
