@@ -1599,7 +1599,7 @@
         });
 
         if (indicators.length === 1) {
-            showIndicator(indicator[0].indicatorID, indicator[0].isSensitive);
+            showIndicator(indicators[0].indicatorID, indicators[0].isSensitive);
         }
     }
 
