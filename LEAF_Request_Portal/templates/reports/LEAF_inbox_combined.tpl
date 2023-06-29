@@ -5,9 +5,9 @@
 
     /**
      * This script creates a combined inbox of multiple LEAF sites, organized by form type.
-     * 
+     *
      * You may configure the sites that will be loaded in the "sites" variable.
-     * 
+     *
      * Additionally, each site may be configured with the following custom properties:
      * - url:             Define the full url with backslash at end.
      * - name:            Title of the LEAF in the combined inbox.
@@ -21,7 +21,7 @@
      *                    Available columns include: 'UID,service,dateinitiated,title,status,days_since_last_action'
      *                    Columns may also include field indicator IDs within a form. Example: 'UID,service,title,123,status'
      *				      If a field indicator ID is used, ensure the field has a Short Label defined to populate headings.
-     *   
+     *
      */
 
     let sites = [];
@@ -349,7 +349,7 @@
         let customColumns = false;
         if (categoryIDs != undefined) {
             categoryIDs.forEach(categoryID => {
-                if (site.columns != undefined && 
+                if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
                     let customCols = [];
@@ -576,6 +576,7 @@
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
                 'genericDialogbutton_cancelchange');
+            dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
             let progressbar = $('#progressbar').progressbar();
             $('#progressbar').progressbar('option', 'max', Object.keys(sites).length);
             let queue = new intervalQueue();
@@ -624,6 +625,9 @@
         display: none;
     }
 </style>
+
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
+
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>
         <div id="genericDialogbutton_cancelchange" style="display: none"></div>
