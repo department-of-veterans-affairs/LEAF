@@ -2838,9 +2838,10 @@ class Form
 
 
             // else output the request if we have the proper user?
-
+            http_response_code(202);
             $returnData =  ['status' => 2, 'errors' => ["The data is being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
         } else {
+            http_response_code(202);
             $returnData =  ['status' => 2, 'errors' => ["The data is still being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
         }
 

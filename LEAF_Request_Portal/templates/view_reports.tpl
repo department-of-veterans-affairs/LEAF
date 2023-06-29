@@ -848,7 +848,7 @@ function showJSONendpoint() {
 
 
     dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of '+maxLimit.toLocaleString('en-US')+' records has been preset</b>.</p><br />'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
                            + '<select id="format">'
