@@ -884,8 +884,8 @@
                 },
                 error: (err) => console.log(err),
             });
-            dialog_confirm.show();
         });
+        dialog_confirm.show();
     }
 
     // stepID optional
