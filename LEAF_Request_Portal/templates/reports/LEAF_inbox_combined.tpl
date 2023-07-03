@@ -361,6 +361,9 @@
         let tGridData = [];
         let hasServices = false;
         recordIDs.forEach(recordID => {
+            if (recordID == 583) {
+                console.log(res[recordID]);
+            }
             if (res[recordID].service != null) {
                 hasServices = true;
             }
@@ -438,21 +441,17 @@
                 }
             }
         }
-        console.log(getData, offset);
+        
         if (getData.length > 0 && offset == 0) {
             getData.forEach(id => query.getData(id));
-            let formList = getData.join(',');
             return $.ajax({
                     type: 'GET',
-                    url: site.url + `api/form/indicator/list/byid?indicators=${formList}&x-filterData=indicatorID,name,description`,
+                    url: site.url + `api/form/indicator/list?x-filterData=indicatorID,name,description`,
                     success: function(res) {
                         let dict = [];
-                        if (res.length > 0) {
-                            console.log(res);
-                            res.forEach(ind => {
-                                dict[ind.indicatorID] = {name: ind.name, description: ind.description};
-                            });
-                        }
+                        res.forEach(ind => {
+                            dict[ind.indicatorID] = {name: ind.name, description: ind.description};
+                        });
                         dataDictionary[site.url] = dict;
                     }
                 })
