@@ -3537,10 +3537,9 @@ class Form
      * @param boolean $includeHeadings
      * @param string $formsFilter - csv list of forms to search for
      * @param boolean $unabridged
-     * @param string $indicators
      * @return array list of indicators
      */
-    public function getIndicatorList(?string $sort = 'name', ?bool $includeHeadings = false, ?string $formsFilter = '', ?bool $unabridged = false, ?string $indicators = ''): ?array
+    public function getIndicatorList($sort = 'name', $includeHeadings = false, $formsFilter = '', $unabridged = false)
     {
         $forms = [];
         if($formsFilter != '') {
@@ -3571,15 +3570,6 @@ class Form
                         "WHERE indicators.disabled <= 1 ".
                             "AND name != '' ".
                             "AND categories.disabled = 0" . $orderBy;
-        }
-        if ($indicators != '') {
-            $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
-            "LEFT JOIN categories USING (categoryID) ".
-            "WHERE indicators.disabled <= 1 ".
-                "AND format != '' ".
-                "AND name != '' ".
-                "AND indicatorID IN (".$indicators.")".
-                "AND categories.disabled = 0" . $orderBy;
         }
         if($unabridged) {
             $strSQL = "SELECT *, COALESCE(NULLIF(description, ''), name) as name, indicators.parentID as parentIndicatorID, categories.parentID as parentCategoryID, is_sensitive, indicators.disabled as isDisabled FROM indicators ".
