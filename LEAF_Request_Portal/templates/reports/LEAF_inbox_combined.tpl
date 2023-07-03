@@ -441,15 +441,18 @@
         console.log(getData, offset);
         if (getData.length > 0 && offset == 0) {
             getData.forEach(id => query.getData(id));
-            // let formList = Object.keys(site.columns).join(',');
+            let formList = getData.join(',');
             return $.ajax({
                     type: 'GET',
-                    url: site.url + `api/form/indicator/list?forms=${site.columns}&x-filterData=indicatorID,name,description`,
+                    url: site.url + `api/form/indicator/list/byid?indicators=${formList}&x-filterData=indicatorID,name,description`,
                     success: function(res) {
                         let dict = [];
-                        res.forEach(ind => {
-                            dict[ind.indicatorID] = {name: ind.name, description: ind.description};
-                        });
+                        if (res.length > 0) {
+                            console.log(res);
+                            res.forEach(ind => {
+                                dict[ind.indicatorID] = {name: ind.name, description: ind.description};
+                            });
+                        }
                         dataDictionary[site.url] = dict;
                     }
                 })
