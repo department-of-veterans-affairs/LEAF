@@ -361,9 +361,6 @@
         let tGridData = [];
         let hasServices = false;
         recordIDs.forEach(recordID => {
-            if (recordID == 583) {
-                console.log(res[recordID]);
-            }
             if (res[recordID].service != null) {
                 hasServices = true;
             }
