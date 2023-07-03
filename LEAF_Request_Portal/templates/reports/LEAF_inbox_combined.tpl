@@ -476,19 +476,14 @@
     }
 
     function buildWorkflowCategoryCache(site) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: 'GET',
-                url: site.url + 'api/workflow/categories?x-filterData=categoryID',
-                success: function(res) {
-                    res.forEach((w, idx) => {
-                        dataWorkflowCategories[w.categoryID] = 1;
-                        if (idx === res.length - 1) {
-                            resolve(res);
-                        }
-                    });
-                }
-            });
+        return $.ajax({
+            type: 'GET',
+            url: site.url + 'api/workflow/categories?x-filterData=categoryID',
+            success: function(res) {
+                res.forEach(w => {
+                    dataWorkflowCategories[w.categoryID] = 1;
+                });
+            }
         });
     }
 
