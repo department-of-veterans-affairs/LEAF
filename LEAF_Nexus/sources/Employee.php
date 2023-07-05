@@ -933,7 +933,7 @@ class Employee extends Data
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 
-    $strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
+        $strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
 
         if(isset($result[0]) && isset($resEmail[0])) {
@@ -1094,12 +1094,13 @@ class Employee extends Data
 
     public function lookupEmail($email)
     {
-        $sql = "SELECT * FROM {$this->dataTable}
-                    LEFT JOIN {$this->tableName} USING (empUID)
-                    WHERE indicatorID = 6
-                        AND data = :email
-                        AND deleted = 0
-                    {$this->limit}";
+        $sql = "SELECT *
+                FROM {$this->dataTable}
+                LEFT JOIN {$this->tableName} USING (empUID)
+                WHERE indicatorID = 6
+                    AND data = :email
+                    AND deleted = 0
+                {$this->limit}";
 
         $vars = array(':email' => $email);
 
