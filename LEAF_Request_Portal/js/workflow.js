@@ -319,6 +319,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 } else {
                     require_comment = $.parseJSON('{"required":"false"}');
                 }
+
                 let completeAction = function () {
                     let data = new Object();
                     data["comment"] = $(
@@ -375,7 +376,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         applyAction(data);
                     }
                 };
-
+              
                 if (actionPreconditionFunc !== undefined) {
                     actionPreconditionFunc(e.data, completeAction);
                 } else {

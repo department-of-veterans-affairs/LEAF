@@ -5,9 +5,9 @@
 
     /**
      * This script creates a combined inbox of multiple LEAF sites, organized by form type.
-     * 
+     *
      * You may configure the sites that will be loaded in the "sites" variable.
-     * 
+     *
      * Additionally, each site may be configured with the following custom properties:
      * - url:             Define the full url with backslash at end.
      * - name:            Title of the LEAF in the combined inbox.
@@ -21,7 +21,7 @@
      *                    Available columns include: 'UID,service,dateinitiated,title,status,days_since_last_action'
      *                    Columns may also include field indicator IDs within a form. Example: 'UID,service,title,123,status'
      *				      If a field indicator ID is used, ensure the field has a Short Label defined to populate headings.
-     *   
+     *
      */
 
     let sites = [];
@@ -254,6 +254,31 @@
         return icon;
     }
 
+    // waiting for element to update
+    function waitForElm(selector, subSelector = false) {
+        return new Promise(resolve => {
+            if (document.querySelector(selector)) {
+                if (subSelector == false) {
+                    return resolve(document.querySelector(selector));
+                }
+            }
+
+            const observer = new MutationObserver(mutations => {
+                if (document.querySelector(selector)) {
+                    resolve(document.querySelector(selector));
+                    observer.disconnect();
+                }
+            });
+
+            document.querySelector('.ui-dialog-titlebar-close').addEventListener("click", observer.disconnect());
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
+
     // Build forms and grids for the inbox's requests and import to html tags
     function buildDepInbox(res, categoryIDs, categoryName, recordIDs, site) {
         let hash = Sha1.hash(site.url);
@@ -307,6 +332,16 @@
                     depDescription + '</button>');
                 $('#btn_action' + hash + '_' + depID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
+                    waitForElm('iframe').then((el) => {
+                        if (!sites.some(site => el.getAttribute('src').includes(site.url))) {
+                            el.setAttribute('src', site.url + el.getAttribute('src'));
+                            el.addEventListener('load', () => {
+                                if (!sites.some(site => el.contentWindow?.document?.querySelector('#record').getAttribute('action').includes(site.url))) {
+                                    el.contentWindow?.document?.querySelector('#record').setAttribute('action', site.url + el.contentWindow?.document?.querySelector('#record').getAttribute('action'));
+                                }
+                            });
+                        }
+                    });
                 })
             }
         }];
@@ -314,7 +349,7 @@
         let customColumns = false;
         if (categoryIDs != undefined) {
             categoryIDs.forEach(categoryID => {
-                if (site.columns != undefined && 
+                if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
                     let customCols = [];
@@ -484,17 +519,20 @@
     }
 
     function loadWorkflow(recordID, prefixID, rootURL) {
-        dialog_message.setTitle('Apply Action to #' + recordID);
-        currRecordID = recordID;
-        dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
-        workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
-        workflow.setRootURL(rootURL);
-        workflow.setActionSuccessCallback(function() {
-            dialog_message.hide();
-            $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);
+        return new Promise((resolve, reject) => {
+            dialog_message.setTitle('Apply Action to #' + recordID);
+            currRecordID = recordID;
+            dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
+            workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
+            workflow.setRootURL(rootURL);
+            workflow.setActionSuccessCallback(function() {
+                dialog_message.hide();
+                $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);
+            });
+            workflow.getWorkflow(recordID);
+            dialog_message.show();
+            resolve(document.querySelector('#workflowcontent'));
         });
-        workflow.getWorkflow(recordID);
-        dialog_message.show();
     }
 
     const getMapSites = new Promise((resolve, reject) => {
@@ -535,10 +573,10 @@
     // Script Start
     $(function() {
         getMapSites.then((value) => {
-            console.log();
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
                 'genericDialogbutton_cancelchange');
+            dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
             let progressbar = $('#progressbar').progressbar();
             $('#progressbar').progressbar('option', 'max', Object.keys(sites).length);
             let queue = new intervalQueue();
@@ -587,6 +625,9 @@
         display: none;
     }
 </style>
+
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
+
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>
         <div id="genericDialogbutton_cancelchange" style="display: none"></div>
