@@ -20,8 +20,8 @@ $form = new Portal\Form($db, $login);
 
 // last process time
 $vars = [
-    //':lastProcess' => strtotime("30 minutes ago")
-    ':lastProcess' => time()
+    ':lastProcess' => strtotime("30 minutes ago")
+    //':lastProcess' => time()
 ];
 
 $processQueryTotalSQL = 'SELECT id,userID,`url`,lastProcess FROM process_query WHERE lastProcess <= :lastProcess';
