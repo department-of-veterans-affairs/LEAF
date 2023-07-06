@@ -7,6 +7,10 @@
     JSON index for legacy ajax endpoints
     Date Created: August 13, 2009
 
+    This file has been deprecated, as of June 28, 2023 there is nothing in here
+    that is used in the general LEAF application, It is being left until we can
+    verify that it is not used in any custom setups.
+
 */
 
 error_reporting(E_ERROR);
@@ -29,7 +33,7 @@ switch ($action) {
     case 'mod_groups_getMembers':
         $group = new Portal\Group($db, $login);
 
-        echo json_encode($group->getMembers($_GET['groupID']));
+        echo $group->getMembers($_GET['groupID'])['data'];
 
         break;
     case 'directory_lookup':
