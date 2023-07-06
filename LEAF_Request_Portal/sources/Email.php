@@ -573,10 +573,13 @@ class Email
      * @param int $recordID
      * @param int $emailTemplateID
      * @param mixed $loggedInUser
+     * @return bool Return true on success
      * @throws Exception
      */
     function attachApproversAndEmail(int $recordID, int $emailTemplateID, mixed $loggedInUser): bool
     {
+        $return_value = false;
+
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
         $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
