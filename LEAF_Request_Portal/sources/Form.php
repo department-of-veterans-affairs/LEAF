@@ -4233,11 +4233,11 @@ class Form
     }
 
     /**
-     * @param array $indicator
+     * @param array|null $indicator
      * @param array $indicatorList
      * @return int
      */
-    private function isIndicatorOrphan(array $indicator, array &$indicatorList): int
+    private function isIndicatorOrphan(array|null $indicator, array &$indicatorList): int
     {
         if (!isset($indicatorList[$indicator['indicatorID']])) {
             return 1;
