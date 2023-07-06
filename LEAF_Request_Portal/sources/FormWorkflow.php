@@ -1226,7 +1226,7 @@ class FormWorkflow
                     $data = $this->buildGrid(unserialize($data));
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
-                case (str_starts_with($format, "multiselect") != false):
+                case (str_starts_with($format, "multiselect") != false && is_array($data)):
                     $data = $this->buildMultiselect(unserialize($data));
                     break;
                 case (str_starts_with($format, "radio") != false):
