@@ -195,11 +195,11 @@ class Form
 
     /**
      * Retrieves a form based on categoryID
-     * @param int $recordID
+     * @param string $categoryID
      * @param bool $parseTemplate - see getIndicator()
      * @return array
      */
-    public function getFormByCategory(int $categoryID, bool $parseTemplate = true): array
+    public function getFormByCategory(string $categoryID, bool $parseTemplate = true): array
     {
         $fullForm = array();
 
@@ -219,7 +219,7 @@ class Form
 
     /**
      * Retrieves a form's workflow based on categoryID
-     * @param string $recordID
+     * @param string $categoryID
      * @return array
      */
     public function getWorkflow(string $categoryID): array
@@ -1621,12 +1621,12 @@ class Form
     /**
      * Checks if the current user has write access
      * Users should have write access if they are in "posession" of a request (they are currently reviewing it)
-     * @param int $recordID
+     * @param int|null $recordID
      * @param string $categoryID
      * @param int $indicatorID
      * @return int 1 = has access, 0 = no access
      */
-    public function hasWriteAccess(int $recordID, string $categoryID = '0', int $indicatorID = 0): int
+    public function hasWriteAccess(int|null $recordID, string $categoryID = '0', int $indicatorID = 0): int
     {
         // if an indicatorID is specified, find out what the indicator's categoryID is
         if (isset($this->cache["hasWriteAccess_{$recordID}_{$categoryID}_{$indicatorID}"])) {
@@ -3928,11 +3928,11 @@ class Form
     /**
      * Retrieves all indicators associated with categoryID in a given array of names
      * returns array of indicators.indicatorID, indicators.name, indicators.format
-     * @param int $categoryID
+     * @param string $categoryID
      * @param array $formats
      * @return array
      */
-    public function getIndicatorsByRecordAndName(int $categoryID, array $names): array
+    public function getIndicatorsByRecordAndName(string $categoryID, array $names): array
     {
         $vars = array(
             ':categoryID' => $categoryID,
@@ -4291,10 +4291,10 @@ class Form
     }
 
     /**
-     * @param int $categoryID
+     * @param string $categoryID
      * @return array
      */
-    public function getRecordsByCategory(int $categoryID): array
+    public function getRecordsByCategory(string $categoryID): array
     {
         $recordCategoryVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
         $recordCategorySQL = 'SELECT recordID, title, userID, categoryID, submitted
