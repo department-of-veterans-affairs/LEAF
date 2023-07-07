@@ -221,7 +221,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
     $("#errorMessage").hide();
     $("table#requests tr.requestRow").remove();
     $("#iconBusy").show();
-    console.log(queryObj);
+    
     $.ajax({
         type: "GET",
         url: "./api/form/query",
@@ -229,75 +229,84 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
         cache: false,
     })
         .done(function (data) {
-            if (thisSearchID === searchID) {
-                if (Object.keys(data).length) {
-                    let totalCount = 0;
+            
+            if (typeof data.status == 'number' && data?.status == 2) {
+                let buffer = "<tr><td style=\"padding: 10px;\" colspan='5'>" + data.errors[0] + "</td></tr>";
 
-                    $.each(data, function (index, value) {
-                        let displayRecord = true;
-                        // If this is email reminder list, then compare against give time period
-                        if (getReminder) {
-                            // Get if we can show record for time period selected
-                            if (value.action_history !== undefined) {
-                                let numberActions = value.action_history.length;
-                                let lastActionDate =
-                                    Number(
-                                        value.action_history[numberActions - 1]
-                                            .time
-                                    ) * 1000;
+                $("table#requests").html(buffer);
+                $("#searchResults").show();
+            }
+            else {
+                if (thisSearchID === searchID) {
+                    if (Object.keys(data).length) {
+                        let totalCount = 0;
 
-                                // Current date minus selected reminder time period
-                                let comparisonDate =
-                                    Date.now() - getReminder * 86400 * 1000;
-                                if (lastActionDate >= comparisonDate) {
+                        $.each(data, function (index, value) {
+                            let displayRecord = true;
+                            // If this is email reminder list, then compare against give time period
+                            if (getReminder) {
+                                // Get if we can show record for time period selected
+                                if (value.action_history !== undefined) {
+                                    let numberActions = value.action_history.length;
+                                    let lastActionDate =
+                                        Number(
+                                            value.action_history[numberActions - 1]
+                                                .time
+                                        ) * 1000;
+
+                                    // Current date minus selected reminder time period
+                                    let comparisonDate =
+                                        Date.now() - getReminder * 86400 * 1000;
+                                    if (lastActionDate >= comparisonDate) {
+                                        displayRecord = false;
+                                    }
+                                } else {
+                                    console.log("No record to display");
                                     displayRecord = false;
                                 }
-                            } else {
-                                console.log("No record to display");
-                                displayRecord = false;
                             }
-                        }
-                        if (displayRecord) {
-                            totalCount++;
+                            if (displayRecord) {
+                                totalCount++;
+                                requestsRow = '<tr class="requestRow">';
+                                requestsRow +=
+                                    '<td><a href="index.php?a=printview&amp;recordID=' +
+                                    value.recordID +
+                                    '" target="_blank">' +
+                                    value.recordID +
+                                    "</a></td>";
+                                requestsRow +=
+                                    "<td>" +
+                                    (value.categoryNames === undefined ||
+                                        value.categoryNames.length === 0
+                                        ? "non"
+                                        : value.categoryNames[0]) +
+                                    "</td>";
+                                requestsRow +=
+                                    "<td>" +
+                                    (value.service == null ? "" : value.service) +
+                                    "</td>";
+                                requestsRow += "<td>" + value.title + "</td>";
+                                requestsRow +=
+                                    '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
+                                    value.recordID +
+                                    '"></td>';
+                                requestsRow += "</tr>";
+                                $("table#requests").append(requestsRow);
+                            }
+                        });
+
+                        if (totalCount == 0) {
                             requestsRow = '<tr class="requestRow">';
                             requestsRow +=
-                                '<td><a href="index.php?a=printview&amp;recordID=' +
-                                value.recordID +
-                                '" target="_blank">' +
-                                value.recordID +
-                                "</a></td>";
-                            requestsRow +=
-                                "<td>" +
-                                (value.categoryNames === undefined ||
-                                value.categoryNames.length === 0
-                                    ? "non"
-                                    : value.categoryNames[0]) +
-                                "</td>";
-                            requestsRow +=
-                                "<td>" +
-                                (value.service == null ? "" : value.service) +
-                                "</td>";
-                            requestsRow += "<td>" + value.title + "</td>";
-                            requestsRow +=
-                                '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
-                                value.recordID +
-                                '"></td>';
+                                "<td colspan='5'>No records to display</td>";
                             requestsRow += "</tr>";
                             $("table#requests").append(requestsRow);
                         }
-                    });
 
-                    if (totalCount == 0) {
-                        requestsRow = '<tr class="requestRow">';
-                        requestsRow +=
-                            "<td colspan='5'>No records to display</td>";
-                        requestsRow += "</tr>";
-                        $("table#requests").append(requestsRow);
+                        $("#searchResults").show();
+                    } else {
+                        $("#errorMessage").html("No Results").show();
                     }
-
-                    $("#searchResults").show();
-                } else {
-                    $("#errorMessage").html("No Results").show();
                 }
             }
         })
@@ -406,11 +415,11 @@ function updateProgress(recordID, success) {
         doSearch();
         setProgress(
             successfulActionRecordIDs.length +
-                " successes and " +
-                failedActionRecordIDs.length +
-                " failures of " +
-                totalActions +
-                " total."
+            " successes and " +
+            failedActionRecordIDs.length +
+            " failures of " +
+            totalActions +
+            " total."
         );
 
         $("button.takeAction").removeAttr("disabled");
