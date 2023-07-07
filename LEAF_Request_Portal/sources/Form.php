@@ -3120,6 +3120,8 @@ class Form
     public function query(string $inQuery, bool $processQuery = false)
     {
 
+        error_reporting(E_ALL);
+        ini_set('display_errors',1);
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
         if ($query == null) {
             return 'Invalid query';
