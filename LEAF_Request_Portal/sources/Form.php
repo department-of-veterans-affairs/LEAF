@@ -3000,16 +3000,19 @@ class Form
                 $res2 = $this->db->prepared_query($recordResolutionSQL, array());
                 foreach ($res2 as $item) {
                     // resolution data to be checked and updated.
-                    $recordResolutionData = $data[$item['recordID']]['recordResolutionData'];
-                    if (
-                        $recordResolutionData['fulfillmentTime'] == null ||
-                        $recordResolutionData['fulfillmentTime'] < $item['fulfillmentTime']
-                    ) {
-                        $recordResolutionData['lastStatus'] = $item['lastStatus'];
-                        $recordResolutionData['fulfillmentTime'] = $item['fulfillmentTime'];
+                    if (!empty($data[$item['recordID']]['recordResolutionData'])) {
+                        $recordResolutionData = $data[$item['recordID']]['recordResolutionData'];
+                        if (
+                            !empty($recordResolutionData['fulfillmentTime']) &&
+                            ($recordResolutionData['fulfillmentTime'] == null ||
+                                $recordResolutionData['fulfillmentTime'] < $item['fulfillmentTime'])
+                        ) {
+                            $recordResolutionData['lastStatus'] = $item['lastStatus'];
+                            $recordResolutionData['fulfillmentTime'] = $item['fulfillmentTime'];
 
-                        // set our resolution data back to the main array since we have changes.
-                        $data[$item['recordID']]['recordResolutionData'] = $recordResolutionData;
+                            // set our resolution data back to the main array since we have changes.
+                            $data[$item['recordID']]['recordResolutionData'] = $recordResolutionData;
+                        }
                     }
                 }
             }
