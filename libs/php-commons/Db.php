@@ -210,7 +210,6 @@ class Db
      */
     public function insert_batch(string $database = '', array $batchData = [], array $onDuplicateKeyUpdate = []): bool
     {
-
         if (empty($database) || empty($batchData)) {
             return FALSE;
         }
@@ -249,6 +248,7 @@ class Db
                 $executeData[] = $datum;
             }
         }
+
         $statement->execute($executeData);
         return TRUE;
     }
