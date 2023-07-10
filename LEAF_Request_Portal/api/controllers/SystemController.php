@@ -40,6 +40,14 @@ class SystemController extends RESTfulResponse
             return $system->getDatabaseVersion();
         });
 
+        $this->index['GET']->register('system/getDestructionFlag', function () use ($system) {
+            return $system->getDestructionFlag();
+        });
+
+        $this->index['GET']->register('system/getMarkedDestruction', function () use ($system) {
+            return $system->getMarkedDestruction();
+        });
+
         $this->index['GET']->register('system/updateService/[digit]', function ($args) use ($system) {
             return $system->updateService($args[0]);
         });
@@ -92,8 +100,8 @@ class SystemController extends RESTfulResponse
                 return $system->addAction();
             });
 
-            $this->index['POST']->register('system/setDestruction', function () use ($system) {
-                return $system->setDestructionFlag();
+            $this->index['POST']->register('system/setDestructionFlag/[digit]', function ($args) use ($system) {
+                return $system->setDestructionFlag((int)$args[0]);
             });
 
             $this->index['POST']->register('system/markDestruction', function () use ($system) {

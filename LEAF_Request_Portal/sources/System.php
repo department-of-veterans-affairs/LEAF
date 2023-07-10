@@ -1186,6 +1186,21 @@ class System
     }
 
     /**
+     * Get Completed Records Marked for Destruction
+     *
+     * @return array|null
+     */
+    public function getMarkedDestruction(): array|null
+    {
+        $strSQL = 'SELECT recordID, destructionGraceTime FROM records
+            WHERE submitted > 0
+            AND deleted = 0
+            AND destructionGraceTime > 0';
+
+        return $this->db->query($strSQL);
+    }
+
+    /**
      * Delete Marked Records for Destruction that are past grace period
      *
      * @return array|null
