@@ -131,7 +131,6 @@ jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
 });
 
 function searchGroups() {
-
     let srchInput = document.getElementById('userGroupSearch').value;
     $('.groupName, .groupUser').removeClass('leaf-search-hilite');
     $('.groupBlockWhite, .groupBlock, .groupName, .groupUserFirst, .groupHeaders').show();
@@ -307,7 +306,7 @@ function populateMembers(groupID, members) {
     let memberCt = -1;
     let adminCt = (members.length - 1);
     for(let i in members) {
-        if(members[i].active == 1 && members[i].backupID == null) {
+        if(members[i].active == 1 && members[i].backupID == "") {
             memberCt++;
         }
     }
@@ -315,7 +314,7 @@ function populateMembers(groupID, members) {
     let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     let countAdminTxt = (adminCt > 0) ? (' + ' + adminCt + ' others') : '';
     for(let i in members) {
-        if (members[i].active == 1 && members[i].backupID == null && groupID != 1) {
+        if (members[i].active == 1 && members[i].backupID == "" && groupID != 1) {
             if (j == 0) {
                 $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
@@ -477,6 +476,7 @@ function getGroupList() {
                             type: 'GET',
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
+                                console.log(res);
                                 dialog.clear();
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(
@@ -488,7 +488,7 @@ function getGroupList() {
                                 let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
                                 let counter = 0;
                                 for(let i in res) {
-                                    if (res[i].backupID == null) {
+                                    if (res[i].backupID == '') {
                                         let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
                                         let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                                         let backups = `<td style="font-size: 0.8em">`;
@@ -539,7 +539,7 @@ function getGroupList() {
                                 // add functionality to action buttons after table generation
                                 counter = 0;
                                 for (let i in res) {
-                                    if (res[i].backupID == null) {
+                                    if (res[i].backupID == "") {
                                         if (res[i].active === 1) {
                                             $('#removeMember_' + counter).on('click', function () {
                                                 dialog_confirm.setContent('Are you sure you want to remove this member?');

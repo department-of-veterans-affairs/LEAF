@@ -116,8 +116,8 @@ class System
             {
                 $vars = array(':userID' => $chief['userID'],
                               ':groupID' => $quadID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-	                                   		 VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+	                                   		 VALUES (:userID, :groupID, "")', $vars);
             }
         }
 
@@ -467,8 +467,8 @@ class System
         if (!empty($emp['userName'])) {
             $vars = array(':userID' => $emp['userName'],
                     ':groupID' => $groupID, );
-            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `active`)
-                    VALUES (:userID, :groupID, 0)
+            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`, `active`)
+                    VALUES (:userID, :groupID, "", 0)
                     ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
 
             $return_value = $this->db->pdo_insert_query($sql, $vars);
@@ -496,7 +496,7 @@ class System
         $vars = array(':groupID' => $groupID);
         $sql = 'DELETE
                 FROM `users`
-                WHERE `backupID` IS NOT NULL
+                WHERE `backupID` <> ""
                 AND `groupID` = :groupID';
 
         $return_value = $this->db->pdo_delete_query($sql , $vars);
@@ -602,8 +602,8 @@ class System
                     $vars = array(':userID' => $emp['userName'],
                         ':groupID' => $groupID,);
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                        VALUES (:userID, :groupID)
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                        VALUES (:userID, :groupID, "")
                                                         ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
                     // include the backups of employees
@@ -1297,6 +1297,12 @@ class System
                 // user does not exist add them now
                 //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
                 //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
+                error_log(print_r($user, true));
+                if ($user['backupID'] == null) {
+                    $user['backupID'] = '';
+                }
+                error_log(print_r($user, true));
+
                 $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
             }
         }
