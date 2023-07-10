@@ -721,8 +721,6 @@ class Email
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $fields = $this->getFields($recordID);
-
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
             $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
@@ -733,8 +731,7 @@ class Email
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot,
-                "field" => $fields
+                "siteRoot" => $this->siteRoot
             ));
 
             if ($emailTemplateID < 2) {
