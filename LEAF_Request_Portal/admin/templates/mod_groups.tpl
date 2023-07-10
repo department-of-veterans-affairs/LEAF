@@ -476,7 +476,6 @@ function getGroupList() {
                             type: 'GET',
                             url: '../api/group/' + groupID + '/members',
                             success: function(res) {
-                                console.log(res);
                                 dialog.clear();
                                 let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                 dialog.setContent(

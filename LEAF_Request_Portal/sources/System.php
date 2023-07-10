@@ -1297,11 +1297,9 @@ class System
                 // user does not exist add them now
                 //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
                 //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
-                error_log(print_r($user, true));
                 if ($user['backupID'] == null) {
                     $user['backupID'] = '';
                 }
-                error_log(print_r($user, true));
 
                 $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
             }

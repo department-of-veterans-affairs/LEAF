@@ -368,7 +368,6 @@ class Group
                 ON DUPLICATE KEY UPDATE userID=:userID';
 
         $result = $this->db->pdo_insert_query($sql, $vars);
-        error_log(print_r($result, true));
 
         return (array) $result;
     }
