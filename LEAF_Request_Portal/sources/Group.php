@@ -269,76 +269,67 @@ class Group
      *
      * @return string
      */
-    public function addMember($member, $groupID): array
+    public function addMember(string $member, int $groupID): array
     {
         $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
-        if (is_numeric($groupID)) {
-            $vars = array(':userID' => $member,
-                        ':groupID' => $groupID);
-            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`,
-                        `locallyManaged`, `active`)
-                    VALUES (:userID, :groupID, "", 1, 1)
-                    ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID,
-                        `backupID` = "", `locallyManaged` = 1, `active` = 1';
+        $vars = array(':userID' => $member,
+                    ':groupID' => $groupID);
+        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`,
+                    `locallyManaged`, `active`)
+                VALUES (:userID, :groupID, "", 1, 1)
+                ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID,
+                    `backupID` = "", `locallyManaged` = 1, `active` = 1';
 
-            // Update on duplicate keys
-            $res = $this->db->pdo_insert_query($sql, $vars);
+        // Update on duplicate keys
+        $res = $this->db->pdo_insert_query($sql, $vars);
 
-            if ($res['status']['code'] == 2) {
-                $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-                    new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                    new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
-                ]);
+        if ($res['status']['code'] == 2) {
+            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
+                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
 
-                // include the backups of employees
-                $emp = $employee->lookupLogin($member);
-                $backups = $employee->getBackups($emp[0]['empUID']);
-                foreach ($backups as $backup) {
-                    $vars = array(':userID' => $backup['userName'],
-                        ':groupID' => $groupID);
-                    $sql = 'SELECT `locallyManaged`
-                            FROM `users`
-                            WHERE `userID` = :userID
-                            AND `groupID` = :groupID';
+            // include the backups of employees
+            $emp = $employee->lookupLogin($member);
+            $backups = $employee->getBackups($emp[0]['empUID']);
+            foreach ($backups as $backup) {
+                $vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID);
+                $sql = 'SELECT `locallyManaged`
+                        FROM `users`
+                        WHERE `userID` = :userID
+                        AND `groupID` = :groupID';
 
-                    $res = $this->db->pdo_select_query($sql, $vars);
+                $res = $this->db->pdo_select_query($sql, $vars);
 
-                    if ($res['status']['code'] == 2) {
-                        // Check for locallyManaged users
-                        if ($res['data'][0]['locallyManaged'] == 1) {
-                            $vars[':backupID'] = '';
-                        } else {
-                            $vars[':backupID'] = $emp[0]['userName'];
-                        }
-                        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
-                                VALUES (:userID, :groupID, :backupID)
-                                ON DUPLICATE KEY UPDATE `userID = :userID, `groupID` = :groupID,
-                                    `backupID` = :backupID';
-
-                        $return_value = $this->db->pdo_insert_query($sql, $vars);
+                if ($res['status']['code'] == 2) {
+                    // Check for locallyManaged users
+                    if ($res['data'][0]['locallyManaged'] == 1) {
+                        $vars[':backupID'] = '';
                     } else {
-                        $return_value = array (
-                            'status' => array (
-                                'code' => 4,
-                                'message' => 'Backup could not be found'
-                            )
-                        );
-                        break;
+                        $vars[':backupID'] = $emp[0]['userName'];
                     }
+                    $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                            VALUES (:userID, :groupID, :backupID)
+                            ON DUPLICATE KEY UPDATE `userID = :userID, `groupID` = :groupID,
+                                `backupID` = :backupID';
+
+                    $return_value = $this->db->pdo_insert_query($sql, $vars);
+                } else {
+                    $return_value = array (
+                        'status' => array (
+                            'code' => 4,
+                            'message' => 'Backup could not be found'
+                        )
+                    );
+                    break;
                 }
-            } else {
-                // If something happened just send the json response back
-                $return_value = $res;
             }
         } else {
-            $return_value = array (
-                'status' => array (
-                    'code' => 4,
-                    'message' => 'invalid group ID'
-                )
-            );
+            // If something happened just send the db json response back
+            $return_value = $res;
         }
 
         return $return_value;

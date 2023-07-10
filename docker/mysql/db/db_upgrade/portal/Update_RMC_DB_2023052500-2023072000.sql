@@ -4,7 +4,7 @@ UPDATE `users`
 SET `backupID` = ""
 WHERE `backupID` IS NULL;
 
-ALTER TABLE `users` MODIFY `backupID` varchar(50) NOT NULL;
+ALTER TABLE `users` MODIFY `backupID` varchar(50) NOT NULL DEFAULT '';
 
 ALTER TABLE `users` DROP PRIMARY KEY;
 
