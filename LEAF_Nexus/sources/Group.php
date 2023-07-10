@@ -704,7 +704,13 @@ class Group extends Data
             $vars = array(':grpAbbr' => $input);
             $vars = array_merge($vars, $vars_tag);
             $tempResult = $this->db->prepared_query($sql, $vars);
-            $result = array_merge($result, $tempResult);
+            $currGroups = array_column($result, 'groupID');
+            foreach ($tempResult as $tmp) {
+                $tmpGroupID = $tmp["groupID"];
+                if(!in_array($tmpGroupID, $currGroups)) {
+                    $result[] = $tmp;
+                }
+            }
         }
 
         // search by ID number

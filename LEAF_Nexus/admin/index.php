@@ -58,6 +58,8 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
+        $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))
         {

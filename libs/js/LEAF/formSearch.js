@@ -202,7 +202,8 @@ var LeafFormSearch = function (containerID) {
 
   /**
    * @memberOf LeafFormSearch
-   * prevQuery - optional JSON object
+   * renderPreviousAdvancedSearch parses LeafFormQuery.getQuery().terms and renders the resulting UI
+   * prevQuery - optional array from LeafFormQuery.getQuery().terms
    */
   function renderPreviousAdvancedSearch(prevQuery) {
     var isJSON = true;
