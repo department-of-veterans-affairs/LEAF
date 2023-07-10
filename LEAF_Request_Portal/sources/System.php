@@ -11,6 +11,8 @@
 
 namespace Portal;
 
+use PhpOffice\PhpSpreadsheet\Calculation\DateTime;
+
 class System
 {
     public $siteRoot = '';
@@ -1095,5 +1097,125 @@ class System
             }
         }
 
+    }
+
+    /**
+     * Create flag (days) for destruction records
+     *
+     * @param int $flag - number of days to mark a record for destruction
+     *
+     * @return bool
+     */
+    public function setDestructionFlag($flag = null): bool
+    {
+        if ($flag) {
+            $vars = array(':data' => $flag);
+            $strSQL = 'INSERT INTO `settings` (`setting`, `data`)
+            VALUES ("destructionFlag", :data)
+            ON DUPLICATE KEY UPDATE `data`=:data';
+
+            $this->db->prepared_query($strSQL, $vars);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get flag (days) for destruction records
+     *
+     * @return string|null
+     */
+    public function getDestructionFlag(): string|null
+    {
+        $strSQL = 'SELECT `data` FROM `settings` WHERE `settings`.`setting` = destructionFlag';
+        $res = $this->db->query($strSQL);
+
+        if (count($res) > 0 ) {
+            return $res['data'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Mark Completed Records for Destruction that are greater than Destruction Flag
+     *
+     * @param int $flag - number of days to mark a record for destruction
+     *
+     * @return array|null
+     */
+    public function markForDestruction(): array|null
+    {
+        $flag = $this->getDestructionFlag();
+
+        if ($flag) {
+            $destructionTime = date('Y-m-d', strtotime("-${flag} days"));
+            $vars = array(':destructionTime' => $destructionTime);
+            $strSQL = 'SELECT recordID, submitted, MAX(fulfillmentTime) FROM records
+                LEFT JOIN records_step_fulfillment USING (recordID)
+                WHERE submitted > 0
+                AND deleted = 0
+                AND destructionGraceTime = 0
+                AND (fulfillmentTime IS NULL OR fulfillmentTime < :destructionTime)
+                AND recordID NOT IN (SELECT DISTINCT recordID FROM records_workflow_state)
+                GROUP BY recordID';
+
+            $res = $this->db->prepared_query($strSQL, $vars);
+
+            $destructionArray = [];
+
+            if (count($res) > 0) {
+
+                foreach ($res as $record) {
+                    if ($record['fulfillmentTime'] == null) {
+                        $record['fulfillmentTime'] = $record['submitted'];
+                    }
+                    $destructionArray[] = [
+                        'recordID' => $record['recordID'],
+                        'destructionGraceTime' => date('Y-m-d', strtotime("+30 days"))
+                    ];
+                }
+
+                $this->db->insert_batch('records', $destructionArray, ['destructionGraceTime']);
+            }
+
+            return $destructionArray;
+        }
+    }
+
+    /**
+     * Delete Marked Records for Destruction that are past grace period
+     *
+     * @return array|null
+     */
+    public function deleteMarkedDestruction(): array|null
+    {
+        $graceTime = date('Y-m-d', strtotime("-30 days"));
+        $vars = array(':graceTime' => $graceTime);
+        $strSQL = 'SELECT recordID FROM records
+            WHERE submitted > 0
+            AND deleted = 0
+            AND destructionGraceTime > 0
+            AND destructionGraceTime < :graceTime';
+
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        $graceArray = [];
+
+        if (count($res) > 0) {
+
+            foreach ($res as $record) {
+                $graceArray[] = [
+                    'recordID' => $record['recordID'],
+                    'deleted' => time()
+                ];
+            }
+
+            $this->db->insert_batch('records', $graceArray, ['deleted']);
+        }
+
+        return $graceArray;
     }
 }

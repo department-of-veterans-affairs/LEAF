@@ -92,6 +92,14 @@ class SystemController extends RESTfulResponse
                 return $system->addAction();
             });
 
+            $this->index['POST']->register('system/setDestruction', function () use ($system) {
+                return $system->setDestructionFlag();
+            });
+
+            $this->index['POST']->register('system/markDestruction', function () use ($system) {
+                return $system->markForDestruction();
+            });
+
             $this->index['POST']->register('system/settings/heading', function () use ($system) {
                 $_POST['heading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['heading']);
 
@@ -148,6 +156,10 @@ class SystemController extends RESTfulResponse
         } else {
             $this->index['DELETE'] = new ControllerMap();
             $this->index['DELETE']->register('system', function () {
+            });
+
+            $this->index['DELETE']->register('system/deleteDestruction', function () use ($system) {
+                return $system->deleteMarkedDestruction();
             });
 
             $this->index['DELETE']->register('system/files/delete', function () use ($system) {
