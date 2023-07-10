@@ -1206,14 +1206,14 @@ class System
 
         if (count($res) > 0) {
 
+            $form = new Form($this->db, $this->login);
             foreach ($res as $record) {
+                $message = $form->deleteRecord($record['recordID']);
                 $graceArray[] = [
                     'recordID' => $record['recordID'],
-                    'deleted' => time()
+                    'isDeleted' => $message
                 ];
             }
-
-            $this->db->insert_batch('records', $graceArray, ['deleted']);
         }
 
         return $graceArray;
