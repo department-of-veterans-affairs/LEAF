@@ -126,13 +126,27 @@ class Workflow
         return $workflowStep;
     }
 
+    public function getRecordSteps(int $recordID)
+    {
+        $vars = array('recordID' => $recordID);
+        $query = 'SELECT recordID, stepID, description, stepTitle FROM workflow_steps 
+                  LEFT JOIN workflows USING (workflowID)
+                  LEFT JOIN records_step_fulfillment USING (stepID)
+                  WHERE recordID=:recordID
+                  ORDER BY recordID ASC';
+        $res = $this->db->prepared_query($query, $vars);
+        return $res;
+    }
+    
+
     public function getAllSteps()
     {
-        $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM workflow_steps
-    										LEFT JOIN workflows USING (workflowID)
-    										ORDER BY description, stepTitle', $vars);
-
+        $vars = [];
+        $query = 'SELECT * FROM workflow_steps
+                  LEFT JOIN workflows USING (workflowID)
+                  ORDER BY description, stepTitle';
+        $res = $this->db->prepared_query($query, $vars);
+    
         return $res;
     }
 
