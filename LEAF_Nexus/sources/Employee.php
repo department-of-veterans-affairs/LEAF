@@ -171,7 +171,7 @@ class Employee extends Data
     {
         $local_employee_usernames = [];
 
-        foreach ($employee_list as $employee) {
+        foreach ($employee_list['data'] as $employee) {
             $local_employee_usernames[] = htmlspecialchars_decode($employee['userName'], ENT_QUOTES);
         }
 
@@ -254,6 +254,7 @@ class Employee extends Data
     private function batchEmployeeUpdate(array $local_employees_array): array
     {
         $vars = array(
+            'userName',
             'lastName',
             'firstName',
             'middleName',
@@ -309,7 +310,6 @@ class Employee extends Data
         );
 
         if (!empty($local_employees_data_array)) {
-
             if ($this->db->insert_batch('employee_data', $local_employees_data_array, $vars)) {
                 $return_value = array(
                     'status' => array(
@@ -384,7 +384,7 @@ class Employee extends Data
      */
     private function prepareArrays(array &$national_employee_uids, array &$local_employee_array, array $national_list, array $local_list): void
     {
-        foreach ($national_list as $employee) {
+        foreach ($national_list['data'] as $employee) {
             $national_employee_uids[] = (int) $employee['empUID'];
 
             $local_employee_array[] = [
@@ -413,7 +413,7 @@ class Employee extends Data
      */
     private function prepareDataArray(array &$local_data_array, array $national_list, array $local_list): void
     {
-        foreach ($national_list as $employee) {
+        foreach ($national_list['data'] as $employee) {
             $local_data_array[] = [
                 'empUID' => (empty($local_list[$employee['userName']]) ? null : $local_list[$employee['userName']]),
                 'indicatorID' => $employee['indicatorID'],
@@ -435,7 +435,7 @@ class Employee extends Data
     {
         $return_value = [];
 
-        foreach ($employee_list as $employee) {
+        foreach ($employee_list['data'] as $employee) {
             $return_value[$employee['userName']] = $employee['empUID'];
         }
 
