@@ -154,7 +154,7 @@ function doSubmit(recordID) {
         url: "./api/form/" + recordID + "/submit",
         data: {CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(response) {
-            if(response?.errors?.length == 0) {
+            if(response?.errors?.length === 0) {
                 $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
@@ -163,13 +163,10 @@ function doSubmit(recordID) {
                 workflow.getWorkflow(recordID);
             } else {
                 let errors = '';
-                if (Array.isArray(response?.errors)) {
-                    for(let i in response.errors) {
-                        errors += response.errors[i] + '<br />';
-                    }
-                } else {
-                    errors = 'invalid request'
+                for(let i in response.errors) {
+                    errors += response.errors[i] + '<br />';
                 }
+
                 $('#submitControl').empty().html('Error: ' + errors);
                 $('#submitStatus').text('Request can not be submmited');
             }
