@@ -1065,19 +1065,21 @@
                         url: `api/workflow/${currentRecordID}/recordSteps`,
                         dataType: 'json',
                         success: function(res) {
+                            console.log(res.data);
                             let steps = '<select id="newStep" class="chosen" style="width: 250px">';
                             let steps2 = '';
                             let stepCounter = 0;
+                            let recordStepData = res.data;
 
-                            for (let i in res) {
-                                let recordID = res[i].recordID;
+                            for (let i in recordStepData) {
+                                let recordID = recordStepData[i].recordID;
 
                                 if (
                                     Object.keys(workflows).length == 0 ||
-                                    workflows[res[i].workflowID] != undefined ||
+                                    workflows[recordStepData[i].workflowID] != undefined ||
                                     currentRecordID == recordID
                                 ) {
-                                    steps += `<option value="${res[i].stepID}">${res[i].description}: ${res[i].stepTitle}</option>`;
+                                    steps += `<option value="${recordStepData[i].stepID}">${recordStepData[i].description}: ${recordStepData[i].stepTitle}</option>`;
                                     stepCounter++;
                                 }
                             }
@@ -1087,8 +1089,9 @@
                                 url: 'api/workflow/steps',
                                 dataType: 'json',
                                 success: function(res) {
-                                    for (let i in res) {
-                                        steps2 += `<option value="${res[i].stepID}">${res[i].description} - ${res[i].stepTitle}</option>`;
+                                    let allStepsData = res.data;
+                                    for (let i in allStepsData) {
+                                        steps2 += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description} - ${allStepsData[i].stepTitle}</option>`;
                                     }
                                 }
                             });

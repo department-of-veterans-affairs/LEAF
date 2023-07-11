@@ -135,7 +135,7 @@ class Workflow
                   LEFT JOIN `records_step_fulfillment` USING (`stepID`)
                   WHERE `recordID` = :recordID
                   ORDER BY `recordID` ASC';
-        $res = $this->db->prepared_query($query, $vars);
+        $res = $this->db->pdo_select_query($query, $vars);
         return $res;
     }
     
@@ -146,7 +146,7 @@ class Workflow
         $query = 'SELECT * FROM `workflow_steps`
                   LEFT JOIN `workflows` USING (`workflowID`)
                   ORDER BY `description`, `stepTitle`';
-        $res = $this->db->prepared_query($query, $vars);
+        $res = $this->db->pdo_select_query($query, $vars);
     
         return $res;
     }
