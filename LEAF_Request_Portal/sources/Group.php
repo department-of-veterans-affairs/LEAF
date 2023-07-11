@@ -197,39 +197,49 @@ class Group
      */
     public function getMembers($groupID, bool $searchDeleted = false): array|string
     {
-        if (!is_numeric($groupID))
-        {
-            $return_value = "invalid group ID";
+        if (!is_numeric($groupID)) {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'invalid group ID'
+                )
+            );
         } else {
-            $sql_vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
+            $vars = array(':groupID' => $groupID);
+            $sql = 'SELECT `userID`, `groupID`, `backupID`, `primary_admin`,
+                        `locallyManaged`, `active`
+                    FROM `users`
+                    WHERE `groupID` = :groupID
+                    ORDER BY `userID`';
+
+            $res = $this->db->pdo_select_query($sql, $vars);
 
             $members = array();
-            if (count($res) > 0)
-            {
+            if ($res['status']['code'] == 2) {
                 $dir = new VAMC_Directory();
-                foreach ($res as $member)
-                {
+
+                foreach ($res['data'] as $member) {
                     $dirRes = $dir->lookupLogin($member['userID'], false, true, $searchDeleted);
 
-                    if (isset($dirRes[0]))
-                    {
+                    if (isset($dirRes[0])) {
                         $dirRes[0]['regionallyManaged'] = false;
-                        foreach ($dirRes[0]['groups'] as $group)
-                        {
-                            if ($groupID == $group['groupID']){
+
+                        foreach ($dirRes[0]['groups'] as $group) {
+                            if ($groupID == $group['groupID']) {
                                 $dirRes[0]['regionallyManaged'] = true;
                             }
                         }
-                        if($groupID == 1)
-                        {
+
+                        if ($groupID == 1) {
                             $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
-                        if($member['locallyManaged'] == 1) {
+
+                        if ($member['locallyManaged'] == 1) {
                             $dirRes[0]['backupID'] = null;
                         } else {
                             $dirRes[0]['backupID'] = $member['backupID'];
                         }
+
                         $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                         $dirRes[0]['active'] = $member['active'];
 
@@ -241,7 +251,13 @@ class Group
             $col = array_column( $members, "lastName" );
             array_multisort( $col, SORT_ASC, $members );
 
-            $return_value = $members;
+            $return_value = array (
+                'status' => array (
+                    'code' => 2,
+                    'message' => ''
+                ),
+                'data' => $members
+            );
         }
 
         return $return_value;
@@ -448,7 +464,7 @@ class Group
         {
             if ($group['groupID'] > 0)
             {
-                $group['members'] = $this->getMembers($group['groupID'], $searchDeleted);
+                $group['members'] = $this->getMembers($group['groupID'], $searchDeleted)['data'];
                 $list[] = $group;
             }
         }
