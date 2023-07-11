@@ -185,7 +185,7 @@
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        let step = <!--{$stepID|strip_tags}-->;
+        let step = parseInt(<!--{$stepID|strip_tags}-->);
 
         $(window).keydown(function(event) {
             if (event.keyCode == 13 && ($('#note').is(":focus") || $('#add_note').is(":focus"))) {
@@ -516,7 +516,7 @@
         ];
         const multiChoiceFormats = ['multiselect', 'checkboxes'];
 
-        for (c in formPrintConditions) {
+        for (let c in formPrintConditions) {
             const childFormat = formPrintConditions[c].format; //current format of the controlled question
             const childFormatIsEnabled = allowedChildFormats.some(f => f === childFormat);
             const conditions = formPrintConditions[c].conditions;
