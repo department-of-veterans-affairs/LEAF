@@ -218,8 +218,7 @@ class Group
             if ($res['status']['code'] == 2) {
                 $dir = new VAMC_Directory();
 
-                foreach ($res['data'] as $member)
-                {
+               foreach ($res['data'] as $member) {
                     $dirRes = $dir->lookupLogin($member['userID'], false, true, $searchDeleted);
 
                     if (isset($dirRes[0])) {

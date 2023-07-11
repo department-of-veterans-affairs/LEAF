@@ -240,7 +240,7 @@ function updateAndGetMembers(groupID) {
     $.ajax({
         type: 'GET',
         url: '../api/system/updateGroup/' + groupID,
-        success: function() {
+        success: function(res) {
             let response;
 
             getMemberList(groupID, function(data) {
@@ -254,6 +254,9 @@ function updateAndGetMembers(groupID) {
             } else {
                 displayDialogOk(response.status['message']);
             }
+        },
+        error: function (err) {
+            console.log(err);
         },
         cache: false
     });
