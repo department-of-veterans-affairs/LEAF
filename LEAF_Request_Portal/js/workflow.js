@@ -320,17 +320,16 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     require_comment = $.parseJSON('{"required":"false"}');
                 }
 
-                let data = new Object();
-                data["comment"] = $(
-                    "#comment_dep" + e.data.step.dependencyID
-                ).val();
-                data["actionType"] =
-                    e.data.step.dependencyActions[e.data.idx].actionType;
-                data["dependencyID"] = e.data.step.dependencyID;
-                data["require_comment"] = require_comment;
-                data["index"] = e.data.idx;
-
                 let completeAction = function () {
+                    let data = new Object();
+                    data["comment"] = $(
+                        "#comment_dep" + e.data.step.dependencyID
+                    ).val();
+                    data["actionType"] =
+                        e.data.step.dependencyActions[e.data.idx].actionType;
+                    data["dependencyID"] = e.data.step.dependencyID;
+                    data["require_comment"] = require_comment;
+                    data["index"] = e.data.idx;
                     data["CSRFToken"] = CSRFToken;
                     if (
                         e.data.step.dependencyActions[e.data.idx]
@@ -377,7 +376,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         applyAction(data);
                     }
                 };
-
+              
                 if (actionPreconditionFunc !== undefined) {
                     actionPreconditionFunc(e.data, completeAction);
                 } else {
