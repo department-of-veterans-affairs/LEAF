@@ -2,28 +2,16 @@ package Execution;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import org.testng.AssertJUnit;
-import org.testng.asserts.*;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.openqa.selenium.support.ui.Select;			//Select Method
 
 import Framework.AppVariables;
-import Framework.TestData;
 import Framework.setupFramework;
 import Framework.waitMethods;
 import Framework.highlightElement;
@@ -88,10 +76,11 @@ public class formsWorkflowPart2 extends setupFramework {
 	*/
 	
 	
-		@Test(priority = 360) //  
+		@Test(priority = 360) //  								 
 		private void initializePOM() {			//
 			waitMethods.waiter(waitMethods.w300);       
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[1]/div[3]"));
+			WebElement ele = driver.findElement(By.xpath("//*[contains(text(), ' Import Form')]"));
+			//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[1]/div[3]"));
 	    	highlightElement.highLightElement(driver, ele);
 	   		ele.click();
 			waitMethods.waiter(waitMethods.w300);
@@ -102,7 +91,6 @@ public class formsWorkflowPart2 extends setupFramework {
 	
 	
 	
-			// For PreProd      /html/body/div[2]/div/div[1]/div[2]/div[2]/div[1]/div[2]
 		//Select Work-in-progress Form build using formsWorkflow.java
 		@Test(priority = 380)  //Select the form that is in first position (top left)
 		private void selectCurrentFormByXpath() {	
@@ -339,25 +327,32 @@ public class formsWorkflowPart2 extends setupFramework {
 			selectCurrentFormByXpath();
 		}	
 	
-		
-		
+
 		@Test(priority = 430) //  
 		private void addSubQuestionQ2S01() {	//
 			waitMethods.waiter(waitMethods.w300);  
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
-			waitMethods.waiter(waitMethods.w300);
+			String url = driver.getCurrentUrl();
+			
+			if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
+				highlightElement.highLightElement(driver, ele);
+		   		ele.click();
+				waitMethods.waiter(waitMethods.w300);			
+			} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+				// Looks as if it is increasing the 1st and 3rd div.   Add     [1]   to 3rd div
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
+				//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
+				highlightElement.highLightElement(driver, ele);
+		   		ele.click();
+				waitMethods.waiter(waitMethods.w300);
+
+			}
+
 	    	System.out.println("Add Sub-question Q2S01");
 		}
 		
 		
-		
-		
-													//It grabbed the 1st instance, I need second - Note sure how it sorts forms??
-													//CSS:  #PHindicator_148_1 > div > span
-													//XPath:  /html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span
-	
+
 		
 		@Test(priority = 431) //
 		private void inputFieldNameQ2S01() {
@@ -492,15 +487,27 @@ public class formsWorkflowPart2 extends setupFramework {
 		
 		
 //Q2S02
-		
-		//Select add sub-question							//Used XPath for now - TODO
+		// It errs here, which makes it skip the rest of the entire form
+																						// ERR PP	Pickup Here
+		//Select add sub-question					
 		@Test(priority = 446) //  
 		private void addSubQuestionQ2S02() {	//
 			waitMethods.waiter(waitMethods.w300);  
-			WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
-			//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Add Sub-question')]"));
-	    	highlightElement.highLightElement(driver, ele);
-	   		ele.click();
+			String url = driver.getCurrentUrl();
+			
+			if(url.substring(0, 20).equals(AppVariables.PROD_DOMAIN)) {   
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
+				//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Add Sub-question')]"));
+		    	highlightElement.highLightElement(driver, ele);
+		   		ele.click();
+			} else if (url.substring(0, 28).equals(AppVariables.PREPROD_DOMAIN)) {
+				WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div[2]/div[2]/div/div[1]/div[2]/div/div[3]/div/div/div/div[1]/span/span[2]"));
+				//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/div/span"));
+				//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), 'Add Sub-question')]"));
+		    	highlightElement.highLightElement(driver, ele);
+		   		ele.click();
+			}
+			
 			waitMethods.waiter(waitMethods.w300);
 	    	System.out.println("Create sub-question Q2S02");
 		}
