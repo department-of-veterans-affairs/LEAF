@@ -290,7 +290,7 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let daysSinceAction;
                     let recordBlob = blob[data.recordID];
-                    if(recordBlob.action_history != undefined) {
+                    if(recordBlob.action_history != undefined && recordBlob.action_history.length > 0) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
