@@ -1,0 +1,210 @@
+@import '../common/LEAF_Vue_Dialog__Common.scss';
+
+body {
+    background-color: $BG_LightGray;
+}
+
+#site-designer-app {
+    min-height: 100vh;
+    main > section {
+        margin: 1rem;
+    }
+}
+
+#site-designer-app, #leaf_dialog_content {
+    h1, h2, h3, h4, p {
+        margin: 0;
+        color: black;
+    }
+    h2 {
+        font-size: 26px;
+    }
+    h3 {
+        font-size: 20px;
+    }
+    .btn-confirm.enabled {
+        background-color: $attention;
+        border: 2px solid black;
+    }
+    button:disabled {
+        background-color: gray;
+    }
+    .designer_inputs {
+        display:flex;
+        gap:1rem;
+        margin-bottom:0.5rem;
+        &.wrap {
+            flex-wrap:wrap;
+        }
+    }
+
+
+    #searchContainer {
+        margin-top: 1rem;
+        table.leaf_grid {
+            border: 1px solid black;
+            border-collapse: collapse;
+            margin: 2px;
+            width: auto;
+        }
+        td {
+            width: auto;
+            vertical-align: middle;
+            word-break: break-word;
+            white-space: normal;
+            background-color: white;
+            &[data-clickable=true]:hover, &[data-clickable=true]:focus, &[data-clickable=true]:active {
+                background-color: $LtNavy;
+                > a {
+                    color: white;
+                }
+            }
+            > a {
+                color: #004b76;
+            }
+            span {
+                color: inherit;
+                word-break: break-word !important;
+            }
+        }
+        th:not([id^="Vheader_"]) {
+            background-color: #D1DFFF;
+        }
+        .chosen-container a.chosen-single span {
+            min-width: 120px;
+            max-width: 175px;
+            color: Black;
+        }
+    }
+
+    #searchContainer .buttonNorm, #searchContainer_getMoreResults {
+        background-color: #e8f2ff;
+        border: 1px solid black;
+        border-radius: 0;
+        margin: 2px;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 4px;
+        white-space: nowrap;
+        font-weight: normal;
+        &:hover, &:focus, &:active {
+            background-color: $LtNavy;
+        }
+    }
+
+    #custom_menu_wrapper {
+        ul#menu {
+            margin: 0.75rem 1rem 0 0;
+            display: flex;
+            
+            &.editMode {
+                margin-top: 1rem;
+                padding: 0.75rem;
+                border: 1px solid #aab;
+                background-color: white;
+            }
+
+            li {
+                margin: 0.5rem 0;
+                display: flex;
+
+                &.editMode {
+                    cursor: grab;
+                }
+
+                div.edit_card {
+                    margin-left: 0.75rem;
+                    cursor: auto;
+                    position: relative;
+                    @include flexcenter;
+                    flex-direction: column;
+                    div.click_to_move {
+                        border: 8px solid transparent;
+                        &:hover, &:focus, &:active {
+                            cursor: pointer;
+                        }
+                        &.up {
+                            margin-bottom: 0.25rem;
+                            border-top: 0;
+                            border-bottom: 12px solid $base_navy;
+                        }
+                        &.down {
+                            margin-top: 0.25rem;
+                            border-bottom: 0;
+                            border-top: 12px solid $base_navy;
+                        }
+                    }
+                    button.edit_menu_card {
+                        padding: 2px 6px 3px 6px;
+                    }
+                    .notify_status {
+                        cursor: auto;
+                        position: absolute;
+                        top: 50%;
+                        right: 0;
+                        transform: translate(calc(100% + 0.5rem), -60%);
+                        color: $base_navy;
+                        &.hidden {
+                            color: $attention;
+                            font-weight: bold;
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    #design_card_modal {
+        textarea {
+            width: 300px;
+            height: 60px;
+            resize: none;
+        }
+    }
+    
+    a.custom_menu_card {
+        display: flex;
+        align-items: center;
+        width: 300px;
+        min-height: 55px;
+        padding: 6px 8px;
+        text-decoration: none;
+        border: 2px solid transparent;
+        box-shadow: 0 0 6px rgba(0,0,25,0.3);
+        transition: all 0.35s ease;
+        &:hover, &:focus, &:active {
+            border: 2px solid white !important;
+            box-shadow: 0 0 8px rgba(0,0,25,0.6);
+            z-index: 10;
+        }
+
+        .icon_choice {
+            cursor: auto;
+            margin-right: 0.5rem;
+            width: 50px;
+            height: 50px;
+        }
+        .card_text {
+            font-family: Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-self: stretch;
+            width: 100%;
+            min-height: 55px;
+        }
+        div.LEAF_custom * {
+            margin: 0;
+            padding: 0;
+            font-family: inherit;
+            color: inherit; /* prevents override of color choices and interference w other styles*/
+        }
+    }
+    
+    .disableClick {
+        pointer-events: none;
+    }
+
+}
+

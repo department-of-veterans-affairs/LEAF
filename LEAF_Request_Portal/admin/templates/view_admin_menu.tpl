@@ -160,12 +160,21 @@
         <span class="leaf-admin-btndesc">Update records with new account</span>
     </a>
 
+
     <a href="../report.php?a=LEAF_sitemaps_template" role="button"
         class="leaf-admin-button bg-orange-10 lf-trans-orange">
         <i class="leaf-admin-btnicon fas fa-map-signs text-orange-50 leaf-icn-narrow2" title="Sitemap Editor"></i>
         <span class="leaf-admin-btntitle">Sitemap Editor</span>
         <span class="leaf-admin-btndesc">Edit portal Sitemap links</span>
     </a>
+
+    <!--
+    <a href="./?a=site_designer" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+        <i class="leaf-admin-btnicon fas fa-edit text-orange-50 leaf-icn-narrow2" alt="Site Designer" title="Site Designer"></i>
+        <span class="leaf-admin-btntitle">Site Designer</span>
+        <span class="leaf-admin-btndesc">Change the way the site looks (Alpha)</span>
+    </a>
+    -->
 
     <a href="?a=mod_combined_inbox" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
         <i class="leaf-admin-btnicon fas fa-solid fa-inbox text-orange-50 leaf-icn-narrow2" title="Combined Inbox Editor"></i>

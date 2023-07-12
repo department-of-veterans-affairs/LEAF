@@ -1,9 +1,9 @@
 import { computed } from 'vue';
 
-import FormBrowser from '@/components/form_editor_view/FormBrowser.js';
-import FormEditingDisplay from '@/components/form_editor_view/FormEditingDisplay.js';
-import FormIndexListing from '@/components/form_editor_view/FormIndexListing.js';
-import EditPropertiesPanel from '@/components/form_editor_view/EditPropertiesPanel.js';
+import FormBrowser from '../components/form_editor_view/FormBrowser.js';
+import FormEditingDisplay from '../components/form_editor_view/FormEditingDisplay.js';
+import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
+import EditPropertiesPanel from '../components/form_editor_view/EditPropertiesPanel.js';
 
 export default {
     name: 'form-editor-view',
