@@ -149,13 +149,13 @@ function editProperties(isSubForm) {
 
     dialog.setSaveHandler(function() {
         let calls = [];
-        let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
-        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
-        let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
-        let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
-        let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
-        let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-        let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+        let nameChanged = (categories[currCategoryID].categoryName || "") !== $('#name').val();
+        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") !== $('#description').val();
+        let workflowChanged  = +categories[currCategoryID].workflowID !== +$('#workflowID').val();
+        let needToKnowChanged = +categories[currCategoryID].needToKnow !== +$('#needToKnow').val();
+        let sortChanged = +categories[currCategoryID].sort !== +$('#sort').val();
+        let visibleChanged = +categories[currCategoryID].visible !== +$('#visible').val();
+        let typeChanged = (categories[currCategoryID].type || "") !== $('#formType').val();
 
         if(nameChanged){
             calls.push($.ajax({
@@ -244,6 +244,7 @@ function editProperties(isSubForm) {
         }
 
         if(visibleChanged){
+            calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/formEditor/formVisible',
@@ -256,7 +257,7 @@ function editProperties(isSubForm) {
                 error: function(err) {
                     console.error(err?.responseText);
                 }
-            });
+            }));
         }
 
         if(typeChanged){
@@ -1496,10 +1497,10 @@ function getForm(indicatorID, series) {
         let formatChanged = (indicatorEditing.format || "") + options !== $('#format').val();
         let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
-        let requiredChanged = (indicatorEditing.required || "") !== requiredIndicator.toString();
-        let sensitiveChanged = (indicatorEditing.is_sensitive || "") !== sensitiveIndicator.toString();
-        let parentIDChanged = (indicatorEditing.parentID || "") !== $("#parentID").val();
-        let sortChanged = (indicatorEditing.sort || "") !== $("#sort").val();
+        let requiredChanged = +indicatorEditing.required !== +requiredIndicator;
+        let sensitiveChanged = +indicatorEditing.is_sensitive !== +sensitiveIndicator;
+        let parentIDChanged = +indicatorEditing.parentID !== +$("#parentID").val(); //TEST
+        let sortChanged = +indicatorEditing.sort !== +$("#sort").val();
         let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
         let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
 
