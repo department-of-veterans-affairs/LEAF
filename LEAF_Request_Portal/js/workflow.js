@@ -265,6 +265,19 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             padding: "4px",
             resize: "vertical",
         });
+        $("#comment_dep" + step.dependencyID).on('input', function() {
+            let lines = $("#comment_dep" + step.dependencyID).val()?.match(/\n/g);
+            if(lines != null && lines.length > 0) {
+                $("#comment_dep" + step.dependencyID).css({
+                    height: (40 + (lines.length - 1) * 16) + "px"
+                });
+            }
+            else {
+                $("#comment_dep" + step.dependencyID).css({
+                    height: "40px"
+                });
+            }
+        });
 
         //add alignment area for buttons
         $("#form_dep_container" + step.dependencyID).append(
