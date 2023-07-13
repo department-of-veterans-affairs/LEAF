@@ -1,4 +1,4 @@
-import CategoryItem from "@/components/form_editor_view/CategoryItem";
+import CategoryItem from "./CategoryItem";
 
 export default {
     data() {
