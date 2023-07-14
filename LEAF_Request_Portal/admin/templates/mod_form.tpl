@@ -1499,7 +1499,8 @@ function getForm(indicatorID, series) {
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
         let requiredChanged = +indicatorEditing.required !== +requiredIndicator;
         let sensitiveChanged = +indicatorEditing.is_sensitive !== +sensitiveIndicator;
-        let parentIDChanged = +indicatorEditing.parentID !== +$("#parentID").val(); //TEST
+        //+null (possible parentID value) and +'' (empty parentID input value) both eval to 0
+        let parentIDChanged = +indicatorEditing.parentID !== +$("#parentID").val();
         let sortChanged = +indicatorEditing.sort !== +$("#sort").val();
         let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
         let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
