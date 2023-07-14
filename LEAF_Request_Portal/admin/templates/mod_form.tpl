@@ -2289,6 +2289,9 @@ function createForm(parentID) {
                 categories[res].categoryDescription = categoryDescription;
                 categories[res].workflowID = 0;
                 categories[res].parentID = '';
+                categories[res].needToKnow = 0;
+                categories[res].visible = 1;
+                categories[res].sort = 0;
                 if(parentID != '') {
                     categories[res].parentID = parentID;
                     buildMenu(parentID);
