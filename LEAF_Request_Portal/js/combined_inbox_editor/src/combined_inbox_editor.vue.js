@@ -140,6 +140,7 @@ const CombinedInboxEditor = Vue.createApp({
                         editItems: true,
                         maxItemCount: 7,
                         shouldSort: false,
+                        placeholderValue: "Click to search. Limit 7 columns.",
                         choices: this.choices.find((choice) => choice.id == site.id).choices,
                     });
                     
@@ -171,7 +172,7 @@ const CombinedInboxEditor = Vue.createApp({
             this.sites.forEach((site) => {
                 this.getIndicators(site).then((indicators) => {
                     this.choices.find((choice) => choice.id == site.id).choices.push(...indicators.map((indicator => ({
-                        label: indicator.name + " (ID: " + indicator.indicatorID + ")",
+                        label: indicator.categoryName + ' - ' + indicator.name + " (ID: " + indicator.indicatorID + ")",
                         selected: site.columns.includes(indicator.indicatorID),
                         value: indicator.indicatorID,
                         customProperties: {
