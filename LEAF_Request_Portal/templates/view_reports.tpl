@@ -290,11 +290,11 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let daysSinceAction;
                     let recordBlob = blob[data.recordID];
-                    if(recordBlob.action_history != undefined) {
+                    if(recordBlob.action_history != undefined && recordBlob.action_history.length > 0) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
-                        let date = new Date(lastAction.time * 1000);
+                        let date = new Date(lastAction?.time * 1000);
 
                         // We want to get date of last non-comment action so let's roll
                         if (column === 'days_since_last_step_movement') {
@@ -312,7 +312,8 @@ function addHeader(column) {
                             }
                         }
                         daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
-                        if(recordBlob.submitted == 0) {
+                        if(recordBlob.submitted == 0 || !daysSinceAction) {
+                            // if there are no actions then it was never submitted
                             daysSinceAction = "Not Submitted";
                         }
                     }

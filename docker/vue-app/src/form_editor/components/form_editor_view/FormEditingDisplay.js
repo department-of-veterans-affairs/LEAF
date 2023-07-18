@@ -1,4 +1,4 @@
-import FormatPreview from "@/components/form_editor_view/FormatPreview";
+import FormatPreview from "./FormatPreview";
 
 export default {
     name: 'FormEditingDisplay',

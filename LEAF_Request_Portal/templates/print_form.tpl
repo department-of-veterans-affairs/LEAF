@@ -184,6 +184,7 @@
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
 <script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
+
     $(document).ready(function() {
         let step = parseInt(<!--{$stepID|strip_tags}-->);
 
@@ -192,50 +193,49 @@
                 event.preventDefault();
                 submitNote(<!--{$recordID|strip_tags}-->);
                 return false;
-            }
-        });
-
-        if (step > 0) {
-            $('#comments').css({'display': "block"});
-            $('#notes').css({'display': "block"});
-        } else if (step == 0 && $(".comment_block")[0]) {
-            $('#comments').css({'display': "block"});
-            $('#notes').css({'display': "none"});
-        } else {
-            $('#comments').css({'display': "none"});
-            $('#notes').css({'display': "none"});
         }
     });
 
-    let currIndicatorID;
-    let currSeries;
-    var recordID = <!--{$recordID|strip_tags}-->;
-    var serviceID = <!--{$serviceID|strip_tags}-->;
-    let CSRFToken = '<!--{$CSRFToken}-->';
-    let formPrintConditions = {};
+    if (step > 0) {
+        $('#comments').css({'display': "block"});
+        $('#notes').css({'display': "block"});
+    } else if (step == 0 && $(".comment_block")[0]) {
+        $('#comments').css({'display': "block"});
+        $('#notes').css({'display': "none"});
+    } else {
+        $('#comments').css({'display': "none"});
+        $('#notes').css({'display': "none"});
+    }
+});
 
-    function doSubmit(recordID) {
-        $('#submitControl').empty().html('<img alt="Submitting..." src="./images/indicator.gif" />Submitting...');
-        $.ajax({
-            type: 'POST',
-            url: "./api/form/" + recordID + "/submit",
-            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-            success: function(response) {
-                if (response.errors.length == 0) {
-                    $('#submitStatus').text('Request submmited');
-                    $('#submitControl').empty().html('Submitted');
-                    $('#submitContent').hide('blind', 500);
-                    $('#comments').css({'display': "block"});
-                    $('#notes').css({'display': "block"});
-                    workflow.getWorkflow(recordID);
-                } else {
-                    let errors = '';
-                    for (let i in response.errors) {
-                        errors += response.errors[i] + '<br />';
-                    }
+let currIndicatorID;
+let currSeries;
+var recordID = <!--{$recordID|strip_tags}-->;
+var serviceID = <!--{$serviceID|strip_tags}-->;
+let CSRFToken = '<!--{$CSRFToken}-->';
+let formPrintConditions = {};
+function doSubmit(recordID) {
+    $('#submitControl').empty().html('<img alt="Submitting..." src="./images/indicator.gif" />Submitting...');
+    $.ajax({
+        type: 'POST',
+        url: "./api/form/" + recordID + "/submit",
+        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+        success: function(response) {
+            if(response?.errors?.length === 0) {
+                $('#submitStatus').text('Request submmited');
+                $('#submitControl').empty().html('Submitted');
+                $('#submitContent').hide('blind', 500);
+                $('#comments').css({'display': "block"});
+                $('#notes').css({'display': "block"});
+                workflow.getWorkflow(recordID);
+            } else {
+                let errors = '';
+                for(let i in response.errors) {
+                    errors += response.errors[i] + '<br />';
+                }
 
-                    $('#submitControl').empty().html('Error: ' + errors);
-                    $('#submitStatus').text('Request can not be submmited');
+                $('#submitControl').empty().html('Error: ' + errors);
+                $('#submitStatus').text('Request can not be submmited');
                 }
             },
             error: function(res) {

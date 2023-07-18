@@ -79,6 +79,16 @@ const ConditionsEditor = Vue.createApp({
         cache: false
       });
     },
+    updateTooltips(formID = '') {
+      const formIndicators = this.indicators.filter(i => i.categoryID === formID);
+      formIndicators.map(i => {
+        const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ? 'Edit conditions (conditions present)' : 'Edit conditions';
+        let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
+        if(elIcon !== null) {
+          elIcon.title = tooltip;
+        }
+      });
+    },
     clearSelections(resetAll = false) {
       //cleared when either the form or child indicator changes
       if (resetAll) {
@@ -215,6 +225,10 @@ const ConditionsEditor = Vue.createApp({
                   indToUpdate.conditions = newJSON;
                   this.showRemoveModal = false;
                   this.clearSelections(true);
+                  const formID = currCategoryID || null;  //global from mod_form.tpl
+                  if (formID !== null) {
+                    this.updateTooltips(formID);
+                  }
                 } else { console.log('error adding condition', res) }
             },
             error:(err) => console.log(err)
@@ -300,6 +314,10 @@ const ConditionsEditor = Vue.createApp({
         this.getAllIndicators();
       } else {
         this.selectNewChildIndicator();
+        const formID = currCategoryID || null;  //global from mod_form.tpl
+        if (formID !== null && this.childIndID === 0) { //if new form is selected
+          this.updateTooltips(formID)
+        }
       }
     },
     truncateText(text = "", maxTextLength = 40) {
@@ -707,9 +725,8 @@ const ConditionsEditor = Vue.createApp({
      * @returns {Array} of condition objects
      */
     savedConditions() {
-      return this.childIndicator.conditions
-        ? JSON.parse(this.childIndicator.conditions)
-        : [];
+      return typeof this.childIndicator.conditions === 'string' && this.childIndicator.conditions[0] === '[' ?
+        JSON.parse(this.childIndicator.conditions) : [];
     },
     /**
      * @returns {Object} with arrays of conditions by type
