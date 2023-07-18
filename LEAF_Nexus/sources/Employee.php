@@ -496,7 +496,7 @@ class Employee extends Data
      *
      * Created at: 6/9/2023, 2:31:07 PM (America/New_York)
      */
-    private function getEmployeeByUserName(array $user_names, Db $db): array
+    public function getEmployeeByUserName(array $user_names, Db $db): array
     {
         $sql = "SELECT `empUID`, `userName`, `lastName`, `firstName`, `middleName`,
                     `phoneticLastName`, `phoneticFirstName`, `domain`, `deleted`,
@@ -562,7 +562,7 @@ class Employee extends Data
     private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): array
     {
         $vars = array(
-            ':userName' => $user_name,
+            ':userName' => $national_user['user_name'],
             ':lastName' => $national_user['lastName'],
             ':firstName' => $national_user['firstName'],
             ':midInit' => $national_user['middleName'],
@@ -570,10 +570,12 @@ class Employee extends Data
             ':phoneticLname' => $national_user['phoneticLastName'],
             ':domain' => $national_user['domain'],
             ':deleted' => $national_user['deleted'],
-            ':lastUpdated' => $national_user['lastUpdated']
+            ':lastUpdated' => $national_user['lastUpdated'],
+            ':localUserName' => $user_name
         );
         $sql = "UPDATE `employee`
-                SET `lastName` = :lastName,
+                SET `userName` = :userName,
+                    `lastName` = :lastName,
                     `firstName` = :firstName,
                     `middleName` = :midInit,
                     `phoneticFirstName` = :phoneticFname,
@@ -581,7 +583,7 @@ class Employee extends Data
                     `domain` = :domain,
                     `deleted` = :deleted,
                     `lastUpdated` = :lastUpdated
-                WHERE `userName` = :userName";
+                WHERE `userName` = :localUserName";
         $result = $db->prepared_query($sql, $vars);
 
         $return_value = array(
@@ -676,8 +678,8 @@ class Employee extends Data
                       ':phoLastName' => metaphone($this->sanitizeInput($lastName)),
                       ':lastUpdated' => time(), );
         $this->db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, lastUpdated, new_empUUID)
-        							VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated, UUID())
-        							ON DUPLICATE KEY UPDATE deleted=0', $vars);
+                                    VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :lastUpdated, UUID())
+                                    ON DUPLICATE KEY UPDATE deleted=0', $vars);
 
         $empUID = $this->lookupLogin($this->sanitizeInput($userName))[0]['empUID'];
 
@@ -736,8 +738,8 @@ class Employee extends Data
                                   ':timestamp' => time(),
                                   ':author' => 'imported', );
                     $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
-														VALUES (:UID, :indicatorID, :data, :timestamp, :author)
-														ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
+                                                        VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+                                                        ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
                 }
 
                 // Email
@@ -747,8 +749,8 @@ class Employee extends Data
                               ':timestamp' => time(),
                               ':author' => 'imported', );
                 $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
-													VALUES (:UID, :indicatorID, :data, :timestamp, :author)
-													ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
+                                                    VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+                                                    ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
 
                 if ($res[0]['data'][8]['data'] != '')
                 {
@@ -759,8 +761,8 @@ class Employee extends Data
                             ':timestamp' => time(),
                             ':author' => 'imported', );
                     $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
-													VALUES (:UID, :indicatorID, :data, :timestamp, :author)
-													ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
+                                                    VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+                                                    ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
                 }
 
                 if ($res[0]['data'][23]['data'] != '')
@@ -772,8 +774,8 @@ class Employee extends Data
                                   ':timestamp' => time(),
                                   ':author' => 'imported', );
                     $this->db->prepared_query("INSERT INTO {$this->dataTable} ({$this->dataTableUID}, indicatorID, data, timestamp, author)
-													VALUES (:UID, :indicatorID, :data, :timestamp, :author)
-													ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
+                                                    VALUES (:UID, :indicatorID, :data, :timestamp, :author)
+                                                    ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, author=:author", $vars);
                 }
 
                 return $empUID;
@@ -930,7 +932,7 @@ class Employee extends Data
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 
-	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
+        $strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
         $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
 
         if(isset($result[0]) && isset($resEmail[0])) {
@@ -1091,12 +1093,13 @@ class Employee extends Data
 
     public function lookupEmail($email)
     {
-        $sql = "SELECT * FROM {$this->dataTable}
-    				LEFT JOIN {$this->tableName} USING (empUID)
-    				WHERE indicatorID = 6
-    					AND data = :email
-    					AND deleted = 0
-    				{$this->limit}";
+        $sql = "SELECT *
+                FROM {$this->dataTable}
+                LEFT JOIN {$this->tableName} USING (empUID)
+                WHERE indicatorID = 6
+                    AND data = :email
+                    AND deleted = 0
+                {$this->limit}";
 
         $vars = array(':email' => $email);
 
@@ -1106,11 +1109,11 @@ class Employee extends Data
     public function lookupPhone($phone)
     {
         $sql = "SELECT * FROM {$this->dataTable}
-			    	LEFT JOIN {$this->tableName} USING (empUID)
-			    	WHERE indicatorID = 5
-				    	AND data LIKE :phone
-				    	AND deleted = 0
-				    	{$this->limit}";
+                    LEFT JOIN {$this->tableName} USING (empUID)
+                    WHERE indicatorID = 5
+                        AND data LIKE :phone
+                        AND deleted = 0
+                        {$this->limit}";
 
         $vars = array(':phone' => $this->parseWildcard('*' . $phone));
 
@@ -1124,8 +1127,8 @@ class Employee extends Data
         );
 
         $res = $this->db->prepared_query("SELECT * FROM {$this->dataTable}
-    						LEFT JOIN {$this->tableName} USING ({$this->dataTableUID})
-    						WHERE indicatorID = :indicatorID
+                            LEFT JOIN {$this->tableName} USING ({$this->dataTableUID})
+                            WHERE indicatorID = :indicatorID
                                 AND data LIKE :query
                                 AND deleted=0", $vars);
 
@@ -1144,9 +1147,9 @@ class Employee extends Data
         }
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
-    										LEFT JOIN employee ON
-    											relation_employee_backup.backupEmpUID = employee.empUID
-    										WHERE relation_employee_backup.empUID=:empUID', $vars);
+                                            LEFT JOIN employee ON
+                                                relation_employee_backup.backupEmpUID = employee.empUID
+                                            WHERE relation_employee_backup.empUID=:empUID', $vars);
 
         $this->cache["getBackups_{$empUID}"] = $res;
 
@@ -1169,8 +1172,8 @@ class Employee extends Data
         }
         $vars = array(':empUID' => $empUID);
         $res = $this->db->prepared_query('SELECT * FROM relation_employee_backup
-    										LEFT JOIN employee USING (empUID)
-    										WHERE relation_employee_backup.backupEmpUID=:empUID', $vars);
+                                            LEFT JOIN employee USING (empUID)
+                                            WHERE relation_employee_backup.backupEmpUID=:empUID', $vars);
 
         $this->cache["getBackupsFor_{$empUID}"] = $res;
 
@@ -1199,7 +1202,7 @@ class Employee extends Data
                       ':backupEmpUID' => $backupEmpUID,
                       ':approver' => $this->login->getUserID(), );
         $res = $this->db->prepared_query('INSERT INTO relation_employee_backup (empUID, backupEmpUID, approved, approverUserName)
-											VALUES (:empUID, :backupEmpUID, 1, :approver)', $vars);
+                                            VALUES (:empUID, :backupEmpUID, 1, :approver)', $vars);
 
         return true;
     }
@@ -1225,7 +1228,7 @@ class Employee extends Data
         $vars = array(':empUID' => $primaryEmpUID,
                       ':backupEmpUID' => $backupEmpUID, );
         $res = $this->db->prepared_query('DELETE FROM relation_employee_backup
-											WHERE empUID=:empUID AND backupEmpUID=:backupEmpUID', $vars);
+                                            WHERE empUID=:empUID AND backupEmpUID=:backupEmpUID', $vars);
 
         return true;
     }

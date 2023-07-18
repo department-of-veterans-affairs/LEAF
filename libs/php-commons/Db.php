@@ -339,6 +339,46 @@ class Db
         return $return_value;
     }
 
+    public function pdo_insert_query($sql, $vars): array
+    {
+        if ($this->limit != '') {
+            $sql = "{$sql} {$this->limit}";
+            $this->limit = '';
+        }
+
+        $query = null;
+
+        $query = $this->db->prepare($sql);
+
+        try {
+            if ($query->execute($vars)) {
+                $return_value = array (
+                    'status' => array (
+                        'code' => 2,
+                        'message' => 'Insert was successful'
+                    )
+                );
+            } else {
+                $return_value = array (
+                    'status' => array (
+                        'code' => 4,
+                        'message' => 'Query failed to execute'
+                    )
+                );
+            }
+        } catch (\PDOException $e) {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'PDO exception error'
+                )
+            );
+            error_log(print_r($e, true));
+        }
+
+        return $return_value;
+    }
+
     public function pdo_update_query($sql, $vars): array
     {
         if ($this->limit != '') {
@@ -356,6 +396,46 @@ class Db
                     'status' => array (
                         'code' => 2,
                         'message' => 'Update was successful'
+                    )
+                );
+            } else {
+                $return_value = array (
+                    'status' => array (
+                        'code' => 4,
+                        'message' => 'Query failed to execute'
+                    )
+                );
+            }
+        } catch (\PDOException $e) {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'PDO exception error'
+                )
+            );
+            error_log(print_r($e, true));
+        }
+
+        return $return_value;
+    }
+
+    public function pdo_delete_query($sql, $vars): array
+    {
+        if ($this->limit != '') {
+            $sql = "{$sql} {$this->limit}";
+            $this->limit = '';
+        }
+
+        $query = null;
+
+        $query = $this->db->prepare($sql);
+
+        try {
+            if ($query->execute($vars)) {
+                $return_value = array (
+                    'status' => array (
+                        'code' => 2,
+                        'message' => 'Delete was successful'
                     )
                 );
             } else {
