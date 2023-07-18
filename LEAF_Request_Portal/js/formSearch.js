@@ -806,6 +806,7 @@ var LeafFormSearch = function (containerID) {
           url,
           dataType: "json",
           success: function (res) {
+            let allStepsData = res.data;
             var categories =
               '<select id="' +
               prefixID +
@@ -817,14 +818,14 @@ var LeafFormSearch = function (containerID) {
             categories += '<option value="resolved">Resolved</option>';
             categories +=
               '<option value="actionable">Actionable by me</option>';
-            for (var i in res) {
+            for (var i in allStepsData) {
               categories +=
                 '<option value="' +
-                res[i].stepID +
+                allStepsData[i].stepID +
                 '">' +
-                res[i].description +
+                allStepsData[i].description +
                 ": " +
-                res[i].stepTitle +
+                allStepsData[i].stepTitle +
                 "</option>";
             }
             categories += "</select>";
