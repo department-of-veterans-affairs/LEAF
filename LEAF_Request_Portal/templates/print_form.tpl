@@ -148,25 +148,24 @@ var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
 function doSubmit(recordID) {
-	$('#submitControl').empty().html('<img alt="Submitting..." src="./images/indicator.gif" />Submitting...');
-	$.ajax({
-		type: 'POST',
-		url: "./api/form/" + recordID + "/submit",
-		data: {CSRFToken: '<!--{$CSRFToken}-->'},
-		success: function(response) {
-            if(response.errors.length == 0) {
+    $('#submitControl').empty().html('<img alt="Submitting..." src="./images/indicator.gif" />Submitting...');
+    $.ajax({
+        type: 'POST',
+        url: "./api/form/" + recordID + "/submit",
+        data: {CSRFToken: '<!--{$CSRFToken}-->'},
+        success: function(response) {
+            if(response?.errors?.length === 0) {
                 $('#submitStatus').text('Request submmited');
                 $('#submitControl').empty().html('Submitted');
                 $('#submitContent').hide('blind', 500);
                 $('#comments').css({'display': "block"});
                 $('#notes').css({'display': "block"});
                 workflow.getWorkflow(recordID);
-            }
-            else {
+            } else {
                 let errors = '';
-            	for(let i in response.errors) {
-            		errors += response.errors[i] + '<br />';
-            	}
+                for(let i in response.errors) {
+                    errors += response.errors[i] + '<br />';
+                }
 
                 $('#submitControl').empty().html('Error: ' + errors);
                 $('#submitStatus').text('Request can not be submmited');
