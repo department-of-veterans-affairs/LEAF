@@ -79,12 +79,14 @@ const CombinedInboxEditor = Vue.createApp({
                             let tmp = [];
                             if (site.columns.split(',')[0] !== '') {
                                 site.columns.split(',').forEach((col, index) => {
-                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: true});
+                                    if (isNaN(col)) {
+                                        tmp.push({value: col, label: this.frontEndColumns[col], selected: true, customProperties: { header: this.frontEndColumns[col] }});
+                                    }
                                 });
                             }
                             this.allColumns.split(',').forEach((col) => {
                                 if (!site.columns.includes(col)) {
-                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: false});
+                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: false, customProperties: { header: this.frontEndColumns[col] }});
                                 }
                             });
                             this.choices.find((choice) => choice.id == site.id).choices = tmp;
@@ -127,35 +129,60 @@ const CombinedInboxEditor = Vue.createApp({
             this.sites.sort((a, b) => a.order - b.order);
         },
 
-        setupChoices() {
+        setupChoices(site) {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
-                    this.sites.forEach((site, index) => {
-                        let selectElement = document.getElementById('choice-' + site.id);
-                        let allCols = this.allColumns.split(',');
-                        let choicejs = new Choices(selectElement, {
-                            allowHTML: false,
-                            removeItemButton: true,
-                            editItems: true,
-                            maxItemCount: 7,
-                            shouldSort: false,
-                            choices: this.choices.find((choice) => choice.id == site.id).choices,
-                        });
-                        
-                        selectElement.addEventListener('change', (event) => {
-                            let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
-                            site.columns = selectedValue;
-                            this.saveSettings();
-                        });
-                    });    
+                    let selectElement = document.getElementById('choice-' + site.id);
+                    let allCols = this.allColumns.split(',');
+                    let choicejs = new Choices(selectElement, {
+                        allowHTML: false,
+                        removeItemButton: true,
+                        editItems: true,
+                        maxItemCount: 7,
+                        shouldSort: false,
+                        placeholderValue: "Click to search. Limit 7 columns.",
+                        choices: this.choices.find((choice) => choice.id == site.id).choices,
+                    });
+                    
+                    selectElement.addEventListener('change', (event) => {
+                        let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
+                        site.columns = selectedValue;
+                        this.saveSettings();
+                    });
                 });
                 resolve();
             });
+        },
+        async getIndicators(site) {
+            if (typeof site == 'undefined' || typeof site.target == 'undefined') {
+                return [];
+            }
+            const indicators = await fetch(site.target + "api/form/indicator/list", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                cache: "no-cache"
+            });
+    
+            return indicators.json();
         }
     },
     created() {
         this.getMapSites().then(() => {
-            this.setupChoices();
+            this.sites.forEach((site) => {
+                this.getIndicators(site).then((indicators) => {
+                    this.choices.find((choice) => choice.id == site.id).choices.push(...indicators.map((indicator => ({
+                        label: indicator.categoryName + ' - ' + indicator.name + " (ID: " + indicator.indicatorID + ")",
+                        selected: site.columns.includes(indicator.indicatorID),
+                        value: indicator.indicatorID,
+                        customProperties: {
+                            header: indicator.name
+                        }
+                    }))));
+                }).then(() => {
+                    this.setupChoices(site);
+                });
+            });
         });
     },
     template: `
@@ -199,7 +226,7 @@ const CombinedInboxEditor = Vue.createApp({
                             <th class="col-header">UID</th>
                             <template v-if="site.columns.split(',')[0] !== ''">
                                 <template v-for="column in site.columns.split(',')" :key="column">
-                                <th class='col-header' value='column'>{{frontEndColumns[column]}}</th>
+                                <th class='col-header' value='column'>{{choices.find((choice) => choice.id == site.id)?.choices?.find((choice) => choice.value == column)?.customProperties?.header}}</th>
                                 </template>
                             </template>
                             <th class="col-header">Action</th>
