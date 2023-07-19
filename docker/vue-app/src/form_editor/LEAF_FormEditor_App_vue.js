@@ -145,27 +145,6 @@ export default {
         }).catch(err => console.log('error getting category list', err));
         this.getWorkflowRecords();
         this.getFileManagerTextFiles();
-        if (jQuery !== undefined) {
-            //NOTE:prevents console warnings associated with 'chosen' dropdown
-            jQuery.event.special.touchstart = {
-                setup: function( _, ns, handle ){
-                    const noPrevDef = ns.includes("noPreventDefault");
-                    this.addEventListener("touchstart", handle, { passive: !noPrevDef });
-                }
-            };
-            jQuery.event.special.touchmove = {
-                setup: function( _, ns, handle ){
-                    const noPrevDef = ns.includes("noPreventDefault");
-                    this.addEventListener("touchmove", handle, { passive: !noPrevDef });
-                }
-            };
-            jQuery.event.special.mousewheel = {
-                setup: function( _, ns, handle ){
-                    const noPrevDef = ns.includes("noPreventDefault");
-                    this.addEventListener("mousewheel", handle, { passive: !noPrevDef });
-                }
-            };
-        }
     },
     mounted() {
         this.getSiteSettings().then(res => {
