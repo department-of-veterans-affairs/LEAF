@@ -1282,10 +1282,10 @@
         let parentFile = urlParams.get('parentFile');
         let templateFile = urlParams.get('templateFile');
 
-        if (fileName && parentFile) {
+        if (fileName && parentFile != '') {
             loadContent(parentFile);
             compareHistoryFile(fileName, parentFile, false);
-        } else if (templateFile) {
+        } else if (templateFile != '') {
             loadContent(templateFile);
         } else {
             loadContent('view_homepage.tpl');
@@ -1395,11 +1395,10 @@
 
                             function mergeFile() {
                                 ignoreUnsavedChanges = true;
-                                var changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                let changedLines = codeEditor.leftOriginal().lineCount();
+                                let mergedContent = "";
+                                for (let i = 0; i < changedLines; i++) {
+                                    let mergeLine = codeEditor.leftOriginal().getLine(
                                         i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
@@ -1410,12 +1409,10 @@
 
                             $('.file_replace_file_btn').click(function() {
                                 ignoreUnsavedChanges = true;
-                                var changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
+                                let changedLines = codeEditor.leftOriginal().lineCount();
+                                let mergedContent = "";
+                                for (let i = 0; i < changedLines; i++) {
+                                    let mergeLine = codeEditor.leftOriginal().getLine(i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
                                     }
@@ -1424,7 +1421,7 @@
                             });
 
                             function toggleWordWrap() {
-                                var lineWrapping = codeEditor.editor().getOption(
+                                let lineWrapping = codeEditor.editor().getOption(
                                     'lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
                                 codeEditor.leftOriginal().setOption('lineWrapping', !
@@ -1438,7 +1435,7 @@
         });
 
         if (updateURL) {
-            var url = new URL(window.location.href);
+            let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
             window.history.replaceState(null, null, url.toString());
@@ -1577,8 +1574,8 @@
             codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
         }
 
-        if (file) {
-            var url = new URL(window.location.href);
+        if (file != '') {
+            let url = new URL(window.location.href);
             url.searchParams.set('templateFile', file);
             window.history.replaceState(null, null, url.toString());
         }
@@ -1615,7 +1612,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        var windowWidth = $(window).width();
+        let windowWidth = $(window).width();
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');

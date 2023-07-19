@@ -1399,13 +1399,13 @@
                     return;
                 }
 
-                var accordion = '<div id="file_history_container">' +
+                let accordion = '<div id="file_history_container">' +
                     '<div class="file_history_titles">' +
                     '<div class="file_history_date">Date:</div>' +
                     '<div class="file_history_author">Author:</div>' +
                     '</div>' +
                     '<div class="file_history_options_container">';
-                for (var i = 0; i < res.length; i++) {
+                for (let i = 0; i < res.length; i++) {
                     var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
@@ -1559,8 +1559,7 @@
                             });
 
                             function toggleWordWrap() {
-                                var lineWrapping = codeEditor.editor().getOption(
-                                    'lineWrapping');
+                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
                                 codeEditor.leftOriginal().setOption('lineWrapping', !
                                     lineWrapping);
@@ -1732,7 +1731,7 @@
         });
         $('.page-title-container>h2').html('Email Template Editor');
 
-        var windowWidth = $(window).width();
+        let windowWidth = $(window).width();
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
@@ -1924,8 +1923,8 @@
             codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
         }
 
-        if (file) {
-            var url = new URL(window.location.href);
+        if (file != '') {
+            let url = new URL(window.location.href);
             url.searchParams.set('templateFile', file);
             window.history.replaceState(null, null, url.toString());
         }

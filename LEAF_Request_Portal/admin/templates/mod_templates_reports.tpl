@@ -1100,7 +1100,7 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('LEAF Programmer > Compare Code');
-        var windowWidth = $(window).width();
+        let windowWidth = $(window).width();
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
             $('.main-content').css({
@@ -1145,7 +1145,7 @@
         });
         $('.page-title-container>h2').html('LEAF Programmer');
 
-        var windowWidth = $(window).width();
+        let windowWidth = $(window).width();
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
@@ -1462,11 +1462,11 @@
 
                             function mergeFile() {
                                 ignoreUnsavedChanges = true;
-                                var changedLines = codeEditor.leftOriginal()
+                                let changedLines = codeEditor.leftOriginal()
                                     .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                let mergedContent = "";
+                                for (let i = 0; i < changedLines; i++) {
+                                    let mergeLine = codeEditor.leftOriginal().getLine(
                                         i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
@@ -1479,11 +1479,11 @@
 
                             $('.file_replace_file_btn').click(function() {
                                 ignoreUnsavedChanges = true;
-                                var changedLines = codeEditor.leftOriginal()
+                                let changedLines = codeEditor.leftOriginal()
                                     .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                let mergedContent = "";
+                                for (let i = 0; i < changedLines; i++) {
+                                    let mergeLine = codeEditor.leftOriginal().getLine(
                                         i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
@@ -1494,8 +1494,7 @@
                             });
 
                             function toggleWordWrap() {
-                                var lineWrapping = codeEditor.editor().getOption(
-                                    'lineWrapping');
+                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
                                 codeEditor.leftOriginal().setOption('lineWrapping', !
                                     lineWrapping);
@@ -1702,11 +1701,11 @@
             type: 'GET',
             url: '../api/applet',
             success: function(res) {
-                var buffer = '<ul class="leaf-ul">';
-                var bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
+                let buffer = '<ul class="leaf-ul">';
+                let bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
                 let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
-                for (var i in res) {
-                    var file = res[i].replace('.tpl', '');
+                for (let i in res) {
+                    let file = res[i].replace('.tpl', '');
                     if (!isExcludedFile(file)) {
                         buffer += '<li onclick="loadContent(\'' + file +
                             '\');"><a href="#' +
