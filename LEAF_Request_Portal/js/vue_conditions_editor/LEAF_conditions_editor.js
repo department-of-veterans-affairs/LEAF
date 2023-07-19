@@ -707,9 +707,8 @@ const ConditionsEditor = Vue.createApp({
      * @returns {Array} of condition objects
      */
     savedConditions() {
-      return this.childIndicator.conditions
-        ? JSON.parse(this.childIndicator.conditions)
-        : [];
+      return typeof this.childIndicator.conditions === 'string' && this.childIndicator.conditions[0] === '[' ?
+        JSON.parse(this.childIndicator.conditions) : [];
     },
     /**
      * @returns {Object} with arrays of conditions by type

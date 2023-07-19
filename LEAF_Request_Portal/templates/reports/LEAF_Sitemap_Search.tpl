@@ -1,4 +1,12 @@
-<div id="step_1" style="<!--{if $query != '' && $indicators != ''}-->display: none; <!--{/if}-->width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
+<script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script src="js/formSearchMultisite.js"></script>
+<style>
+    @import 'css/report.css';
+    option[value="data"] {
+        display: none;
+    }
+</style>
+<div id="step_1" style="display: none; width: fit-content; width: -moz-fit-content; background-color: white; border: 1px solid black; margin: 2em auto; padding: 0px">
     <div style="background-color: #003a6b; color: white; padding: 4px; font-size: 22px; font-weight: bold">
         Step 1: Develop search filter
     </div>
@@ -14,7 +22,7 @@
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Multi-site Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
     </div>
 </div>
 
@@ -29,31 +37,13 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
-//Object.assign for IE
-if (typeof Object.assign !== 'function') {
-    Object.assign = function(target) {
-        'use strict';
-        if (target == null) {
-            throw new TypeError('Cannot convert undefined or null to object');
-        }
-        target = Object(target);
-        for (let index = 1; index < arguments.length; index++) {
-            let source = arguments[index];
-            if (source != null) {
-                for (let key in source) {
-                    if (Object.prototype.hasOwnProperty.call(source, key)) {
-                        target[key] = source[key];
-                    }
-                }
-            }
-        }
-        return target;
-    };
-}
+$(document).on("ajaxError", function(e, jqxhr, settings) {
+    $('#body').html('Error retrieving resource, please refresh this page and try again.');
+    console.error('Error retrieving resource: ' + settings.url);
+})
 
 function loadWorkflow(recordID, prefixID) {
     dialog_message.setTitle('Apply Action to #' + recordID);
@@ -78,21 +68,71 @@ var delimLF = "\r\n";
 var tDepHeader = [];
 var tStepHeader = [];
 var filterData = {}; // used to remove unused data returned by query
-let categoryID = 'strCatID';
+var categoryID = 'strCatID';
+
+function parseRootPathAndSiteName(url) {
+    let res = {};
+    let parts = url.split('/');
+    res.siteName = parts[parts.length - 2];
+    res.rootPath = '';
+    for(let i = 3; i < parts.length-2; i++) {
+        if(i > 3) {
+            res.rootPath += '/';
+        }
+        res.rootPath += parts[i];
+    }
+
+    if(res.siteName == '') {
+        alert('Warning: Sitemap URL may be missing a slash (/): ' + url);
+    }
+
+    return res;
+}
 
 function addHeader(column) {
     let today = new Date();
     switch(column) {
+        case 'UID':
+            headers.unshift({
+                name: 'UID',
+                indicatorID: 'UID',
+                editable: false,
+                callback: function(data, blob) {
+                    let d = grid.getDataByIndex(data.index);
+                    let url = `${d.site}index.php?a=printview&recordID=${d.UID}`;
+                    $('#'+data.cellContainerID).html(`<a href="${url}" target="_blank">${d.UID}</a>`);
+                }
+            });
+            headers.unshift({
+                name: 'Site Name',
+                indicatorID: 'siteName',
+                editable: false,
+                callback: function(data, blob) {
+                    let url = grid.getDataByIndex(data.index).site;
+                    let path = parseRootPathAndSiteName(url);
+
+                    $('#'+data.cellContainerID).html(path.siteName);
+                }
+            });
+            headers.unshift({
+                name: 'Root Path',
+                indicatorID: 'rootPath',
+                editable: false,
+                callback: function(data, blob) {
+                    let url = grid.getDataByIndex(data.index).site;
+                    let path = parseRootPathAndSiteName(url);
+                    $('#'+data.cellContainerID).html(path.rootPath);
+                }
+            });
+            break;
         case 'title':
             filterData['title'] = 1;
             headers.push({
                 name: 'Title',
                 indicatorID: 'title',
+                editable: false,
                 callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                    $('#'+data.cellContainerID).on('click', function(){
-                        changeTitle(data, $('#'+data.cellContainerID).html());
-                });
+                    $('#'+data.cellContainerID).html(grid.getDataByIndex(data.index).title);
             }});
             break;
         case 'service':
@@ -102,7 +142,10 @@ function addHeader(column) {
                 indicatorID: 'service',
                 editable: false,
                 callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].service);
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.service != null) {
+                        $('#'+data.cellContainerID).html(d.service);
+                    }
             }});
             break;
         case 'type':
@@ -113,12 +156,15 @@ function addHeader(column) {
                 indicatorID: 'type',
                 editable: false,
                 callback: function(data, blob) {
-                     let types = '';
-                     for(let i in blob[data.recordID].categoryNames) {
-                         types += blob[data.recordID].categoryNames[i] + ' | ';
-                     }
-                     types = types.substr(0, types.length - 3);
-                     $('#'+data.cellContainerID).html(types);
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.categoryNames != null) {
+                        let types = '';
+                        for(let i in d.categoryNames) {
+                            types += d.categoryNames[i] + ' | ';
+                        }
+                        types = types.substr(0, types.length - 3);
+                        $('#'+data.cellContainerID).html(types);
+                    }
             }});
             break;
         case 'status':
@@ -130,12 +176,13 @@ function addHeader(column) {
                 indicatorID: 'status',
                 editable: false,
                 callback: function(data, blob) {
-                     var status = blob[data.recordID].stepTitle == null ? blob[data.recordID].lastStatus : 'Pending ' + blob[data.recordID].stepTitle;
-                     status = status == null ? 'Not Submitted' : status;
-                     if(blob[data.recordID].deleted > 0) {
-                         status += ', Cancelled';
-                     }
-                     $('#'+data.cellContainerID).html(status);
+                    let d = grid.getDataByIndex(data.index);
+                    let status = d.stepTitle == null ? d.lastStatus : 'Pending ' + d.stepTitle;
+                    status = status == null ? 'Not Submitted' : status;
+                    if(d.deleted > 0) {
+                        status += ', Cancelled';
+                    }
+                    $('#'+data.cellContainerID).html(status);
             }});
             break;
         case 'initiator':
@@ -144,7 +191,8 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                    let d = grid.getDataByIndex(data.index);
+                    $('#'+data.cellContainerID).html(d.lastName + ', ' + d.firstName);
             }});
             break;
         case 'dateCancelled':
@@ -153,27 +201,30 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].deleted > 0) {
-                    var date = new Date(blob[data.recordID].deleted * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-                }
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.deleted > 0) {
+                        let date = new Date(d.deleted * 1000);
+                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    }
             }});
             headers.push({
                 name: 'Cancelled By', indicatorID: 'cancelledBy', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].action_history != undefined) {
-                    var cancelData = blob[data.recordID].action_history.pop();
-                    if(cancelData != undefined && cancelData.actionType === 'deleted') {
-                        $('#'+data.cellContainerID).html(cancelData.approverName);
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.action_history != undefined) {
+                        let cancelData = d.action_history.pop();
+                        if(cancelData != undefined && cancelData.actionType === 'deleted') {
+                            $('#'+data.cellContainerID).html(cancelData.approverName);
+                        }
                     }
-                }
             }});
             break;
         case 'dateInitiated':
             filterData['date'] = 1;
             headers.push({
                 name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
-                var date = new Date(blob[data.recordID].date * 1000);
-                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    let d = grid.getDataByIndex(data.index);
+                    let date = new Date(d.date * 1000);
+                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
             }});
             break;
         case 'dateResolved':
@@ -181,16 +232,18 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('recordResolutionData');
             headers.push({
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionData != undefined) {
-                    var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
-                }
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.recordResolutionData != undefined) {
+                        let date = new Date(d.recordResolutionData.fulfillmentTime * 1000);
+                        $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    }
             }});
             headers.push({
                 name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionData != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
-                }
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.recordResolutionData != undefined) {
+                        $('#'+data.cellContainerID).html(d.recordResolutionData.lastStatus);
+                    }
             }});
             break;
         case 'resolvedBy':
@@ -198,13 +251,14 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('recordResolutionBy');
             headers.push({
                 name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
-                if(blob[data.recordID].recordResolutionBy != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
-                }
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.recordResolutionBy != undefined) {
+                        $('#'+data.cellContainerID).html(d.recordResolutionBy.resolvedBy);
+                    }
             }});
             break;
         case 'actionButton':
-            headers.unshift({
+            /*headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
                 $('#'+data.cellContainerID).html('<div tabindex="0" class="buttonNorm">Take Action</div>');
                 $('#'+data.cellContainerID).on('keydown', function(e) {
@@ -216,7 +270,7 @@ function addHeader(column) {
                 $('#'+data.cellContainerID).on('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
-            }});
+            }});*/
             break;
         case 'action_history':
             filterData['action_history.time'] = 1;
@@ -227,20 +281,23 @@ function addHeader(column) {
                 indicatorID: 'action_history',
                 editable: false,
                 callback: function(data, blob) {
-                     var buffer = '<table style="min-width: 300px">';
-                     var now = new Date();
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.action_history != null) {
+                        let buffer = '<table style="min-width: 300px">';
+                        let now = new Date();
 
-                     for(let i in blob[data.recordID].action_history) {
-                         var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                         var formattedDate = date.toLocaleDateString();
-                         if(blob[data.recordID].action_history[i]['comment'] != '') {
-                             buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
-                                + formattedDate + delim + '</td><td style="padding-left: 4px">' + blob[data.recordID].action_history[i]['comment'] + '.</td>'
+                        for(let i in d.action_history) {
+                            let date = new Date(d.action_history[i]['time'] * 1000);
+                            let formattedDate = date.toLocaleDateString();
+                            if(d.action_history[i]['comment'] != '') {
+                                buffer += '<tr><td style="border-right: 1px solid black; padding-right: 4px; text-align: right">'
+                                + formattedDate + delim + '</td><td style="padding-left: 4px">' + d.action_history[i]['comment'] + '.</td>'
                                 + delimLF + '</tr>';
-                         }
-                     }
-                     buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                            }
+                        }
+                        buffer += '</table>';
+                        $('#'+data.cellContainerID).html(buffer);
+                    }
             }});
             break;
         case 'approval_history':
@@ -254,22 +311,25 @@ function addHeader(column) {
                 indicatorID: 'approval_history',
                 editable: false,
                 callback: function(data, blob) {
-                     var buffer = '<table class="table" style="min-width: 300px">';
-                     var now = new Date();
+                    let d = grid.getDataByIndex(data.index);
+                    if(d.action_history != null) {
+                        let buffer = '<table class="table" style="min-width: 300px">';
+                        let now = new Date();
 
-                     for(let i in blob[data.recordID].action_history) {
-                         var date = new Date(blob[data.recordID].action_history[i]['time'] * 1000);
-                         var formattedDate = date.toLocaleDateString();
-                         var actionDescription = blob[data.recordID].action_history[i]['description'] != null ? blob[data.recordID].action_history[i]['description'] : '';
-                         buffer += '<tr><td>'
-                               + formattedDate + delim + '</td>'
-                               + '<td>' + actionDescription + delim  + '</td>'
-                               + '<td>' + blob[data.recordID].action_history[i]['actionTextPasttense'] + delim + '</td>'
-                               + '<td>' + blob[data.recordID].action_history[i]['approverName'] + '</td>'
-                               + delimLF + '</tr>';
-                     }
-                     buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                        for(let i in d.action_history) {
+                            let date = new Date(d.action_history[i]['time'] * 1000);
+                            let formattedDate = date.toLocaleDateString();
+                            let actionDescription = d.action_history[i]['description'] != null ? d.action_history[i]['description'] : '';
+                            buffer += '<tr><td>'
+                                + formattedDate + delim + '</td>'
+                                + '<td>' + actionDescription + delim  + '</td>'
+                                + '<td>' + d.action_history[i]['actionTextPasttense'] + delim + '</td>'
+                                + '<td>' + d.action_history[i]['approverName'] + '</td>'
+                                + delimLF + '</tr>';
+                        }
+                        buffer += '</table>';
+                        $('#'+data.cellContainerID).html(buffer);
+                    }
                  }});
             break;
         case 'days_since_last_action':
@@ -289,8 +349,8 @@ function addHeader(column) {
                 editable: false,
                 callback: function(data, blob) {
                     let daysSinceAction;
-                    let recordBlob = blob[data.recordID];
-                    if(recordBlob.action_history != undefined && recordBlob.action_history.length > 0) {
+                    let recordBlob = grid.getDataByIndex(data.index);
+                    if(recordBlob.action_history != undefined) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
@@ -335,14 +395,15 @@ function addHeader(column) {
                     editable: false,
                     callback: function(depID) {
                     return function(data, blob) {
-                        if(blob[data.recordID].recordsDependencies != undefined
-                            && blob[data.recordID].recordsDependencies[depID] != undefined) {
-                            var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
+                        let d = grid.getDataByIndex(data.index);
+                        if(d.recordsDependencies != undefined
+                            && d.recordsDependencies[depID] != undefined) {
+                            let date = new Date(d.recordsDependencies[depID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
-                                $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
+                                $('#' + headerID).html(d.recordsDependencies[depID].description);
+                                $('#Vheader_' + column).html(d.recordsDependencies[depID].description);
                                 tDepHeader[depID] = 1;
                             }
                         }
@@ -360,15 +421,16 @@ function addHeader(column) {
                     editable: false,
                     callback: function(stepID) {
                     return function(data, blob) {
-                        if(blob[data.recordID].stepFulfillment != undefined
-                            && blob[data.recordID].stepFulfillment[stepID] != undefined) {
-                            var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
+                        let d = grid.getDataByIndex(data.index);
+                        if(d.stepFulfillment != undefined
+                            && d.stepFulfillment[stepID] != undefined) {
+                            let date = new Date(d.stepFulfillment[stepID].time * 1000);
                             $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
 
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
-                                $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
+                                $('#' + headerID).html(d.stepFulfillment[stepID].step);
+                                $('#Vheader_' + column).html(d.stepFulfillment[stepID].step);
                                 tStepHeader[stepID] = 1;
                             }
                         }
@@ -386,236 +448,113 @@ function loadSearchPrereqs() {
         return;
     }
     searchPrereqsLoaded = true;
-    $.ajax({
-        type: 'GET',
-        url: './api/form/indicator/list',
-        dataType: 'text json',
-        success: function(res) {
-            var buffer = '';
 
+    let buffer = '';
 
-            // special columns
-            buffer += '<div class="col span_1_of_3">';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_title">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_title" name="indicators[title]" value="title" /><span class="leaf_check"></span> Title of Request</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_service">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_service" name="indicators[service]" value="service" /><span class="leaf_check"></span> Service</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_type">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_type" name="indicators[type]" value="type" /><span class="leaf_check"></span> Type of Request</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_status">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_status" name="indicators[status]" value="status" /><span class="leaf_check"></span> Current Status</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_initiator">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_initiator" name="indicators[initiator]" value="initiator" /><span class="leaf_check"></span> Initiator</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_actionButton">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" /><span class="leaf_check"></span> Action Button</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_action_history">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_action_history" name="indicators[action_history]" value="action_history" /><span class="leaf_check"></span> Comment History</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_approval_history">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" /><span class="leaf_check"></span> Approval History</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_action">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_step_movement">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
-            buffer += '</div>';
+    // special columns
+    buffer += '<div class="col span_1_of_3">';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_title">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_title" name="indicators[title]" value="title" /><span class="leaf_check"></span> Title of Request</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_service">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_service" name="indicators[service]" value="service" /><span class="leaf_check"></span> Service</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_type">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_type" name="indicators[type]" value="type" /><span class="leaf_check"></span> Type of Request</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_status">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_status" name="indicators[status]" value="status" /><span class="leaf_check"></span> Current Status</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_initiator">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_initiator" name="indicators[initiator]" value="initiator" /><span class="leaf_check"></span> Initiator</label></div>';
+    //buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_actionButton">';
+    //buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_actionButton" name="indicators[actionButton]" value="actionButton" /><span class="leaf_check"></span> Action Button</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_action_history">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_action_history" name="indicators[action_history]" value="action_history" /><span class="leaf_check"></span> Comment History</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_approval_history">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_approval_history" name="indicators[approval_history]" value="approval_history" /><span class="leaf_check"></span> Approval History</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_action">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
+    buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_step_movement">';
+    buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
+    buffer += '</div>';
 
-            var groupList = {};
-            var groupNames = [];
-            var groupIDmap = {};
-            var tmp = document.createElement('div');
-            var temp;
-            let grid = {};
+    $('#indicatorList').html(buffer);
 
-            for(let i in res) {
-                temp = res[i].name;
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
+    $('#indicatorList').css('height', $(window).height() - 240);
 
-                resIndicatorList[res[i].indicatorID] = temp;
-
-                if(groupList[res[i].categoryID] == undefined) {
-                    groupList[res[i].categoryID] = [];
-                }
-                groupList[res[i].categoryID].push(res[i].indicatorID);
-                if(groupIDmap[res[i].categoryID] == undefined) {
-                    groupNames.push({
-                        categoryID: res[i].categoryID,
-                        categoryName: res[i].categoryName
-                    });
-                    groupIDmap[res[i].categoryID] = { };
-                    groupIDmap[res[i].categoryID].categoryName = res[i].categoryName;
-                    groupIDmap[res[i].categoryID].categoryID = res[i].categoryID;
-                    groupIDmap[res[i].categoryID].parentCategoryID = res[i].parentCategoryID;
-                    groupIDmap[res[i].categoryID].parentStaples = res[i].parentStaples;
-                }
-            }
-            buffer += '<div class="col span_1_of_3">';
-
-            groupNames.sort(function(a, b) {
-                a = a.categoryName.toLowerCase();
-                b = b.categoryName.toLowerCase();
-                if(a < b) {
-                    return -1;
-                }
-                if(a > b) {
-                    return 1;
-                }
-                return 0;
-            });
-
-            for(let k in groupNames) {
-                var i = groupNames[k].categoryID;
-                var associatedCategories = groupIDmap[i].categoryID;
-                if(groupIDmap[i].parentCategoryID != '') {
-                    associatedCategories += ' ' + groupIDmap[i].parentCategoryID;
-                }
-                if(groupIDmap[i].parentStaples != null) {
-                    for(var j in groupIDmap[i].parentStaples) {
-                        associatedCategories += ' ' + groupIDmap[i].parentStaples[j];
-                    }
-                }
-
-                var categoryLabel = groupNames[k].categoryName;
-                if(groupIDmap[i].parentCategoryID != '' && groupIDmap[groupIDmap[i].parentCategoryID]) {
-                    categoryLabel += "<br />" + groupIDmap[groupIDmap[i].parentCategoryID].categoryName;
-                }
-                buffer += '<div tabindex="0" class="form category '+ associatedCategories +'" style="width: 250px; float: left; min-height: 30px; margin-bottom: 4px"><div class="formLabel buttonNorm"><img src="dynicons/?img=gnome-zoom-in.svg&w=32" alt="Icon to expand section"/> ' + categoryLabel + '</div>';
-                for(let j in groupList[i]) {
-                    const indID = groupList[i][j];
-                    const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
-                    const isArchivedClass = isDisabled > 0 ? ' is-archived' : '';
-                    const isArchivedText = isDisabled > 0 ? ' (Archived)' : '';
-                    buffer += `<div class="indicatorOption${isArchivedClass}" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}${isArchivedText}" alt="indicatorID: ${indID}${isArchivedText}">`;
-                    buffer += `<input type="checkbox" class="icheck leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
-                    buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}${isArchivedText}</label>`;
-                    // sub checklist for case of grid indicator
-                    const format = res.find(i => i.indicatorID === indID)?.format;
-                    if (format && format.indexOf('grid')===0) {
-                        const cols = JSON.parse(format.slice(format.indexOf('\n')));
-                        for (let c in cols) {
-                            const col = cols[c];
-                            buffer += `<div class="subIndicatorOption" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}_columns_${col.id}" title="columnID: ${col.id}\n${col.name}">`;
-                            buffer += `<input type="checkbox" class="icheck leaf_check parent-indicators_${indID}" id="indicators_${indID}_columns_${col.id}" name="indicators[${indID}].columns[${col.name}]" value="${col.id}" gridParent="${indID}" />`;
-                            buffer += `<span class="leaf_check"></span> ${col.name}</label></div>`;
-                        }
-                    }
-                    buffer += '</div>';
-                }
-                buffer += '</div>';
-            }
-            buffer += '</div>';
-
-            $('#indicatorList').html(buffer);
-
-            $('#indicatorList').css('height', $(window).height() - 240);
-
-            //toggle all subcheckboxes with parent indicator checkbox
-            $('.indicatorOption > label > input').on('change', function() {
-                const indicatorIsChecked = this.checked;
-                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
-            });
-            //check parent if any subcheckbox is checked, uncheck if none are checked
-            $('.subIndicatorOption > label > input').on('change', function() {
-                const indicatorID = this.getAttribute('gridparent');
-                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
-                const atLeastOneChecked = siblings.some(sib => sib.checked === true);
-                if(atLeastOneChecked) {
-                    $(`#indicators_${indicatorID}`).prop('checked', true);
-                } else $(`#indicators_${indicatorID}`).prop('checked', false);
-            });
-
-            $('.form').on('keydown', function(event) {
-                if (event.keyCode === 13) {
-                    $(this).children('.formLabel').removeClass('buttonNorm');
-                    $(this).find('.formLabel>img').css('display', 'none');
-                    $(this).css({width: '100%'});
-                    $(this).children('div').css('display', 'block');
-                    $(this).children('div').children('.subIndicatorOption').css('display', 'block');
-                    $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
-                        'font-weight': 'bold'});
-                }
-            });
-
-            $('.form').on('click', function() {
-                $(this).children('.formLabel').removeClass('buttonNorm');
-                $(this).find('.formLabel>img').css('display', 'none');
-                $(this).css({width: '100%'});
-                $(this).children('div').css('display', 'block');
-                $(this).children('div').children('.subIndicatorOption').css('display', 'block');
-                $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
-                    'font-weight': 'bold'});
-            });
-
-            $.ajax({
-                type: 'GET',
-                url: './api/workflow/steps',
-                dataType: 'json',
-                success: function(res) {
-                    buffer = '';
-                    buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
-                    for(let i in res) {
-                        buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'">';
-                        buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />'
-                        buffer += '<span class="leaf_check"></span> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
-                    }
-                    buffer += '<div id="legacyDependencies"></div>'; // backwards compat
-                    buffer += '</div>';
-
-                    $('#indicatorList').append(buffer);
-
-                    $.ajax({
-                        type: 'GET',
-                        url: './api/workflow/dependencies',
-                        dataType: 'json',
-                        success: function(res) {
-                            buffer2 = '';
-                            buffer2 += '<div><br /><br /><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Action Dates (step requirements)</div>';
-
-                            // Option to retrieve Date Request Initiated / Resolved
-                            buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateCancelled" title="Date request Cancelled">';
-                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" /><span class="leaf_check"></span> Date Request Cancelled</label></div>';
-                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateInitiated" title="Date request initiated">';
-                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" /><span class="leaf_check"></span> Date Request Initiated</label></div>';
-                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateResolved" title="Date request resolved">';
-                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
-                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_resolvedBy" title="Resolved By">';
-                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
-
-                            for(let i in res) {
-                                buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_depID_'+ res[i].dependencyID +'">';
-                                buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_depID_'+ res[i].dependencyID +'" name="indicators[depID_'+ res[i].dependencyID +']" value="depID_'+ res[i].dependencyID +'" /><span class="leaf_check"></span> ' + res[i].description +'</label></div>';
-                            }
-                            buffer2 += '</div>';
-
-                            $('#legacyDependencies').append(buffer2);
-
-                            // write buffer and finalize view
-                            //$('#indicatorList').append(buffer);
-
-                            // set user selections
-                            if(t_inIndicators != undefined) {
-                                for(let i in t_inIndicators) {
-                                    $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
-
-                                    if (t_inIndicators[i].cols !== undefined) {
-                                        for (var j in t_inIndicators[i].cols) {
-                                            $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                // pre-select defaults
-                                $('#indicators_title').prop('checked', true);
-                            }
-
-                        }
-                    });
-                }
-            });
-        },
-        cache: false
+    //toggle all subcheckboxes with parent indicator checkbox
+    $('.indicatorOption > label > input').on('change', function() {
+        const indicatorIsChecked = this.checked;
+        $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
     });
+    //check parent if any subcheckbox is checked, uncheck if none are checked
+    $('.subIndicatorOption > label > input').on('change', function() {
+        const indicatorID = this.getAttribute('gridparent');
+        const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+        const atLeastOneChecked = siblings.some(sib => sib.checked === true);
+        if(atLeastOneChecked) {
+            $(`#indicators_${indicatorID}`).prop('checked', true);
+        } else $(`#indicators_${indicatorID}`).prop('checked', false);
+    });
+
+    $('.form').on('keydown', function(event) {
+        if (event.keyCode === 13) {
+            $(this).children('.formLabel').removeClass('buttonNorm');
+            $(this).find('.formLabel>img').css('display', 'none');
+            $(this).css({width: '100%'});
+            $(this).children('div').css('display', 'block');
+            $(this).children('div').children('.subIndicatorOption').css('display', 'block');
+            $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
+                'font-weight': 'bold'});
+        }
+    });
+
+    $('.form').on('click', function() {
+        $(this).children('.formLabel').removeClass('buttonNorm');
+        $(this).find('.formLabel>img').css('display', 'none');
+        $(this).css({width: '100%'});
+        $(this).children('div').css('display', 'block');
+        $(this).children('div').children('.subIndicatorOption').css('display', 'block');
+        $(this).children('.formLabel').css({'border-bottom': '1px solid #e0e0e0',
+            'font-weight': 'bold'});
+    });
+
+    buffer = '';
+    buffer += '<div id="legacyDependencies"></div>'; // backwards compat
+
+    $('#indicatorList').append(buffer);
+
+    buffer2 = '';
+    buffer2 += '<div><br /><br /><div class="formLabel" style="font-weight: bold">Action Dates (step requirements)</div>';
+
+    // Option to retrieve Date Request Initiated / Resolved
+    buffer2 += '<div id="option_dateCancelled" class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateCancelled" title="Date request Cancelled">';
+    buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateCancelled" name="indicators[dateCancelled]" value="dateCancelled" /><span class="leaf_check"></span> Date Request Cancelled</label></div>';
+    buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateInitiated" title="Date request initiated">';
+    buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateInitiated" name="indicators[dateInitiated]" value="dateInitiated" /><span class="leaf_check"></span> Date Request Initiated</label></div>';
+    buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_dateResolved" title="Date request resolved">';
+    buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
+    buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_resolvedBy" title="Resolved By">';
+    buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
+
+    $('#legacyDependencies').append(buffer2);
+
+    // write buffer and finalize view
+    //$('#indicatorList').append(buffer);
+
+    // set user selections
+    if(t_inIndicators != undefined) {
+        for(let i in t_inIndicators) {
+            $('#indicators_' + t_inIndicators[i].indicatorID).prop('checked', true);
+
+            if (t_inIndicators[i].cols !== undefined) {
+                for (let j in t_inIndicators[i].cols) {
+                    $('#indicators_' + t_inIndicators[i].indicatorID + '_columns_' + t_inIndicators[i].cols[j]).prop('checked', true);
+                }
+            }
+        }
+    }
+    else {
+        // pre-select defaults
+        $('#indicators_title').prop('checked', true);
+    }
 }
 
 //loop through headers array, and if its ID exists as a key on
@@ -651,24 +590,24 @@ function updateHeaderColors(){
 }
 
 function editLabels_down(id) {
-    var row = $('#sortID_' + id);
+    let row = $('#sortID_' + id);
     row.next().after(row);
 }
 
 function editLabels_up(id) {
-    var row = $('#sortID_' + id);
+    let row = $('#sortID_' + id);
     row.prev().before(row);
 }
 
 function editLabels() {
     dialog.setTitle('Edit Labels');
 
-    var buffer = '<table id="labelSorter">';
+    let buffer = '<table id="labelSorter">';
 
     if (Object.keys(indicatorSort).length !== 0) {
         resSelectList.sort(function(a, b) {
-            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+            let sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            let sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
             if(sortA < sortB) {
                 return -1
@@ -715,11 +654,11 @@ function editLabels() {
 
     dialog.setSaveHandler(function() {
         $('#labelSorter tr').each(function(i) {
-            var curID = this.id.substr(7);
+            let curID = this.id.substr(7);
             indicatorSort[curID] = i + 1;
         });
-        var tmp = document.createElement('div');
-        var temp;
+        let tmp = document.createElement('div');
+        let temp;
         for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
                 temp = $('#id_' + resSelectList[i]).val();
@@ -744,8 +683,8 @@ function editLabels() {
 
 function isSearchingDeleted(searchObj) {
     // check if the user explicitly wants to find deleted requests
-    var t = searchObj.getLeafFormQuery().getQuery();
-    var searchDeleted = false;
+    let t = searchObj.getLeafFormQuery().getQuery();
+    let searchDeleted = false;
     for(let i in t.terms) {
         if(t.terms[i].id === 'stepID'
             && t.terms[i].match === 'deleted'
@@ -770,8 +709,8 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
-    var reportLink = document.URL.substr(document.URL.lastIndexOf('?') - 1);
+    let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    let reportLink = document.URL.substr(document.URL.lastIndexOf('?'));
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
@@ -786,29 +725,22 @@ function openShareDialog() {
     $('#prepareEmail').on('click', function() {
         prepareEmail($('#reportLink').html());
     });
-
-    $.ajax({
-        type: 'POST',
-        url: './api/open/report',
-        data: {data: reportLink,
-            CSRFToken: CSRFToken}
-    })
-    .then(function(res) {
-        $('#reportLink').html(pwd + 'open.php?report=' + res);
-    });
 }
 
 function showJSONendpoint() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
-    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
+    let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+    let jsonPath = ''
+
+    subordinateSites.forEach(site => {
+        jsonPath += site + 'api/form/query/?q=' + queryString + "<br />";
+    });
+    //let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
-                           + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
-                           + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           //+ '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
+                           //+ '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
                            + '<select id="format">'
                            + '<option value="json">JSON</option>'
                            + '<option value="htmltable">HTML Table</option>'
@@ -819,18 +751,18 @@ function showJSONendpoint() {
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
-                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
-                           + '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all; overflow: auto"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+                           //+ '<a href="./api/form/indicator/list?format=htmltable&sort=indicatorID" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
                            + '<fieldset>'
                            + '<legend>Options</legend>'
-                           + '<input id="msCompatMode" type="checkbox" /><label for="msCompatMode">Use compatibility mode (Excel, Access, etc.)</label>'
+                           //+ '<input id="msCompatMode" type="checkbox" /><label for="msCompatMode">Use compatibility mode (Excel, Access, etc.)</label>'
                            + '</fieldset>');
 
-    $('#msCompatMode').on('click', function() {
+    /*$('#msCompatMode').on('click', function() {
         $('#shortenLink').click();
 
-    });
+    });*/
 
     function setExportFormat() {
         if($('#shortenLink').css('display') === 'none') {
@@ -889,10 +821,6 @@ function showJSONendpoint() {
         });
     });
 
-    // set defaults for IE
-    if (navigator.msSaveOrOpenBlob) {
-        $('#msCompatMode').click();
-    }
     dialog_message.show();
 }
 
@@ -973,7 +901,7 @@ function createRequest(catID) {
 
 
 var url, urlQuery, urlIndicators;
-let urlColorData = 'str';
+var urlColorData = 'str';
 var leafSearch;
 var headers = [];
 var t_inIndicators;
@@ -981,15 +909,15 @@ var isNewQuery = false;
 var dialog, dialog_message, dialog_confirm;
 var indicatorSort = {}; // object = indicatorID : sortID
 var grid;
-let gridColorData = {}; //object updated with id: color
-let tempColorData = {}; //object updated with id: color
-let sortPreference = {}; // store current sorting preference
-let isOneFormType = false;
+var gridColorData = {}; //object updated with id: color
+var tempColorData = {}; //object updated with id: color
+var sortPreference = {}; // store current sorting preference
+var isOneFormType = false;
 
 /**
  * Purpose: Check if only one type of form could logically be returned and,
- * if so, update global variables isOneFormType (bool) and categoryID (string).
- * @param searchQueryTerms - variable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
+ * if so, update global letiables isOneFormType (bool) and categoryID (string).
+ * @param searchQueryTerms - letiable with result of leafSearch.getLeafFormQuery().getQuery().terms (array)
  */
 function checkIfOneTypeSearchedAndUpdate(searchQueryTerms) {
     searchQueryTerms = searchQueryTerms || 0;
@@ -1022,8 +950,6 @@ function checkIfOneTypeSearchedAndUpdate(searchQueryTerms) {
 
 var version = 3;
 /* URL formats
-    * v1 - base64
-    * v2 - lz-string in base64
     * v3 - uses getData() from formQuery.js
 */
 
@@ -1054,14 +980,46 @@ function buildURLComponents(baseURL, update){
     window.history.pushState('', '', url);
 }
 
+async function getSubordinateSites() {
+    return $.ajax({
+        type: 'GET',
+        url: './api/system/settings',
+        cache: false
+    })
+    .then(function(res) {
+        let sites = [];
+		try {
+            let data = JSON.parse(res.sitemap_json);
+
+            data.buttons.forEach(site => {
+                if(site.target.indexOf('leaf.va.gov') != -1
+                    && site.target.indexOf('?') == -1) {
+                    sites.push(site.target);
+                }
+            });
+        }
+        catch(e) {
+            alert('Error parsing Sitemap, please review the Sitemap Editor');
+        }
+
+        return sites;
+    });
+}
+
+function scrubHTML(input) {
+    let t = document.createElement('div');
+    t.innerHTML = input;
+    return t.innerText;
+}
+
 var clicked = false;
 var newRecordID = 0;
-$(function() {
+var subordinateSites = [];
+$(async function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
-    dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
-    leafSearch = new LeafFormSearch('searchContainer');
+    leafSearch = new LeafFormSearchMultisite('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
 
@@ -1075,6 +1033,15 @@ $(function() {
 
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
 
+    // parse URL params
+    let params = new URLSearchParams(document.location.search);
+    for(const key of params.keys()) {
+        params.set(key, scrubHTML(params.get(key)));
+    }
+
+    // get subordinate sites
+    subordinateSites = await getSubordinateSites();
+
     // Step 1
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').on('click', function() {
         $('#step_2').fadeIn(400);
@@ -1082,9 +1049,9 @@ $(function() {
 
         // hide data fields that don't match forms selected by the user
         leafSearch.generateQuery();
-        var tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
-        var filteredCategories = [];
-        var showOptionCancelled = false;
+        let tTerms = leafSearch.getLeafFormQuery().getQuery().terms;
+        let filteredCategories = [];
+        let showOptionCancelled = false;
 
         for(let i in tTerms) {
             if(tTerms[i].id === 'categoryID'
@@ -1117,21 +1084,23 @@ $(function() {
         }
     });
 
-    <!--{if $query == '' || $indicators == ''}-->
-    loadSearchPrereqs();
-    isNewQuery = true;
-    <!--{/if}-->
+    if(params.get('query') == null || params.get('indicators') == null) {
+        $('#step_1').css('display', 'block');
+        loadSearchPrereqs();
+        isNewQuery = true;
+    }
 
     // Step 2
-    var selectedIndicators = [];
+    let selectedIndicators = [];
     grid = new LeafFormGrid('results');
+    grid.hideIndex();
     grid.enableToolbar();
     grid.setPostSortRequestFunc((key, order) => {
         sortPreference = {key: key, order: order};
         let baseURL = window.location.href.substr(0, window.location.href.indexOf('&'));
         buildURLComponents(baseURL, true);
     });
-    var extendedToolbar = false;
+    let extendedToolbar = false;
     $('#generateReport').off();
     $('#generateReport').on('click', function() {
         $('#results').fadeIn(700);
@@ -1174,8 +1143,8 @@ $(function() {
         });
 
         resSelectList.sort(function(a, b) {
-            var sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
-            var sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
+            let sortA = indicatorSort[a] == undefined ? 0 : indicatorSort[a];
+            let sortB = indicatorSort[b] == undefined ? 0 : indicatorSort[b];
 
             if(sortA < sortB) {
                 return -1
@@ -1199,7 +1168,8 @@ $(function() {
             }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
-            var tmp = document.createElement('div');
+            temp.editable = false;
+            let tmp = document.createElement('div');
             tmp.innerHTML = temp.name;
             temp.name = tmp.textContent || tmp.innerText || '';
             temp.name = temp.name.replace(/[^\040-\176]/g, '');
@@ -1214,34 +1184,27 @@ $(function() {
         }
         headers.sort(sortHeaders);
         selectedIndicators.sort(sortHeaders);
+        addHeader('UID');
         grid.setHeaders(headers);
 
         function renderGrid(res) {
             grid.setDataBlob(res);
 
-            var tGridData = [];
+            let tGridData = [];
             for(let i in res) {
                 tGridData.push(res[i]);
             }
 
-            if(<!--{$version}--> >= 3) {
-                grid.setData(tGridData);
-                let sortKey = 'recordID';
-                let sortDirection = 'desc';
-                if(sortPreference.key != undefined && sortPreference.order != undefined) {
-                    sortKey = sortPreference.key;
-                    sortDirection = sortPreference.order;
-                }
-                grid.sort(sortKey, sortDirection);
-                grid.renderBody();
+            grid.setData(tGridData);
+            let sortKey = 'recordID';
+            let sortDirection = 'desc';
+            if(sortPreference.key != undefined && sortPreference.order != undefined) {
+                sortKey = sortPreference.key;
+                sortDirection = sortPreference.order;
             }
-            else {
-                let recordIDs = '';
-                for (let i in res) {
-                    recordIDs += res[i].recordID + ',';
-                }
-                grid.loadData(recordIDs);
-            }
+            grid.sort(sortKey, sortDirection);
+            grid.renderBody();
+
             let gridResults = grid.getCurrentData();
             let filteredGridResults = gridResults.filter(function(r) {
                 return r.categoryID != undefined;
@@ -1267,39 +1230,39 @@ $(function() {
             clicked = false; //global to reduce dblclicks
         }
 
-        let batchSize = 1000;
-        let offset = 0;
         let queryResult = {};
-        let abortLoad = false;
-        leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
-        leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(','));
-
-        leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
-            queryResult = Object.assign(queryResult, res);
-
-            if((Object.keys(res).length == batchSize
-                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
-                && !abortLoad) {
-                $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
-                $('#btn_abort').on('click', function() {
-                    abortLoad = true;
-                });
-                offset += batchSize;
-                leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
-                leafSearch.getLeafFormQuery().execute();
-            }
-            else {
-                let partialLoad = '';
-                if(abortLoad) {
-                    partialLoad = ' (partially loaded)';
-                }
-                $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
-                renderGrid(queryResult);
-            }
-        });
 
         // get data
-        leafSearch.getLeafFormQuery().execute();
+        let queue = new intervalQueue();
+        queue.setQueue(subordinateSites);
+        queue.setWorker(item => {
+            let tQuery = new LeafFormQuery();
+            tQuery.setQuery(leafSearch.getLeafFormQuery().getQuery());
+            tQuery.setRootURL(item);
+            tQuery.setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(','));
+            tQuery.onProgress(progress => {
+                $('#reportStats').html(`Loading ${progress}+ records from ${item}`);
+            });
+            tQuery.onSuccess(res => {
+                let tRes = {};
+                for(let i in res) {
+                    let urlParts = item.split('/');
+                    let sitePath = `${urlParts[3]}${urlParts[4]}${urlParts[5]}`
+                    tRes[`${sitePath}_${i}`] = res[i];
+                    tRes[`${sitePath}_${i}`].UID = res[i].recordID;
+                    tRes[`${sitePath}_${i}`].recordID = `${sitePath}_${i}`;
+                    tRes[`${sitePath}_${i}`].site = item;
+                }
+                Object.assign(queryResult, tRes);
+            });
+            return tQuery.execute().then(function() {
+                $('#reportStats').html(`Loading data from ${queue.getLoaded()} of ${subordinateSites.length} sites`);
+            });
+        });
+        queue.start().then(function() {
+            $('#reportStats').html(`${Object.keys(queryResult).length} records from ${subordinateSites.length} sites`);
+            renderGrid(queryResult);
+        });
 
         // create save link once
         if(!extendedToolbar) {
@@ -1362,13 +1325,12 @@ $(function() {
     });
 
 
-    <!--{if $query != '' && $indicators != ''}-->
     function loadReport() {
         let inQuery;
         let inIndicators;
-        let title = '';
+        let title = params.get('title') == null ? '' : params.get('title');
 
-        title = atob('<!--{$title|escape:"html"}-->');
+        title = atob(title);
         title = title.replace(/[^\040-\176]/g, '');
         title = title.replace(/</g, '&lt;');
         title = title.replace(/>/g, '&gt;');
@@ -1386,37 +1348,32 @@ $(function() {
             });
         });
         try {
-            if(<!--{$version}--> >= 2) {
-                let query = '<!--{$query|escape:"html"}-->';
-                let indicators = '<!--{$indicators|escape:"html"}-->';
-                let colors = '<!--{$colors|escape:"html"}-->';
-                query = query.replace(/ /g, '+');
-                indicators = indicators.replace(/ /g, '+');
-                colors = colors.replace(/ /g, '+');
-                inQuery = JSON.parse(LZString.decompressFromBase64(query));
-                //if refreshed or not a new report
-                checkIfOneTypeSearchedAndUpdate(inQuery.terms);
+            let query = params.get('query');
+            let indicators = params.get('indicators');
+            let colors = params.get('colors') == null ? '' : params.get('colors');
+            query = query.replace(/ /g, '+');
+            indicators = indicators.replace(/ /g, '+');
+            colors = colors.replace(/ /g, '+');
+            inQuery = JSON.parse(LZString.decompressFromBase64(query));
+            //if refreshed or not a new report
+            checkIfOneTypeSearchedAndUpdate(inQuery.terms);
 
-                t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
-                let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
-                if (queryColors !== null) {
-                    gridColorData = queryColors;
-                    updateHeaderColors(gridColorData);
-                }
+            t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
+            let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
+            if (queryColors !== null) {
+                gridColorData = queryColors;
+                updateHeaderColors(gridColorData);
+            }
 
-                let urlParams = new URLSearchParams(window.location.search);
-                urlSortParam = urlParams.get('sort');
-                if(urlSortParam != null) {
-                    sortPreference = JSON.parse(LZString.decompressFromBase64(urlSortParam));
-                }
+            let urlParams = new URLSearchParams(window.location.search);
+            urlSortParam = urlParams.get('sort');
+            if(urlSortParam != null) {
+                sortPreference = JSON.parse(LZString.decompressFromBase64(urlSortParam));
             }
-            else {
-                inQuery = JSON.parse(atob('<!--{$query|escape:"html"}-->'));
-                t_inIndicators = JSON.parse(atob('<!--{$indicators|escape:"html"}-->'));
-            }
+
             inIndicators = [];
             for(let i in t_inIndicators) {
-                var temp = {};
+                let temp = {};
                 if($.isNumeric(t_inIndicators[i].indicatorID)) {
                     // add selected columns to payload in case of grid indicator
                     if (Array.isArray(t_inIndicators[i].cols)) {
@@ -1426,6 +1383,7 @@ $(function() {
                     temp.name = t_inIndicators[i].name.replace(/[^\040-\176]/g, '');
                     temp.name = temp.name.replace(/</g, '&lt;');
                     temp.name = temp.name.replace(/>/g, '&gt;');
+                    temp.editable = false;
                     inIndicators.push(temp);
                 }
                 else {
@@ -1453,9 +1411,12 @@ $(function() {
         }
         catch(err) {
             alert('Invalid report');
+            console.log(err);
         }
     }
-    loadReport();
-    <!--{/if}-->
+
+    if(params.get('query') != null && params.get('indicators')) {
+        loadReport();
+    }
 });
 </script>
