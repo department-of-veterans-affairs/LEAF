@@ -1,4 +1,5 @@
 <link rel=stylesheet href="/libs/js/codemirror/addon/merge/merge.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/theme/lucario.min.css">
 <script src="/libs/js/diff-match-patch/diff-match-patch.js"></script>
 <script src="/libs/js/codemirror/addon/merge/merge.js"></script>
 <style>
@@ -12,11 +13,54 @@
         width: 100%;
     }
 
+    .template_files {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
+        font-size: .8rem !important;
+        line-height: 2;
+        list-style: circle;
+    }
+
+    .template_files>a {
+        /* width: 80%; */
+        display: block;
+        text-decoration: none;
+        border-bottom: 2px solid #e4e4e400;
+        transition: all 0.3s ease;
+        color: #242424;
+    }
+
+    .template_files>a:hover {
+        border-bottom: 2px solid #005ea2;
+        color: #005EA2;
+    }
+
+    .custom_file {
+        margin-left: 10px;
+    }
+
+    fieldset {
+        background-color: #fff;
+        border-radius: 5px;
+    }
+
     .email-template-variables>fieldset {
         width: 100%;
-        /* max-width: 700px; */
         display: flex;
         justify-content: center;
+        background-color: #fff;
+        border-radius: 5px;
+    }
+
+    #quick_field_search_container {
+        border-radius: 5px;
+    }
+
+    #divEmailCc {
+        margin-bottom: 20px;
     }
 
     .email-template-variables>fieldset>table {
@@ -28,6 +72,11 @@
         /* max-width: 700px; */
     }
 
+    .leaf-code-container {
+        background-color: #ffffff00 !important;
+        overflow: initial;
+    }
+
     .CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy {
         visibility: hidden;
     }
@@ -37,19 +86,60 @@
         content: '\25ba\25ba\25ba';
     }
 
+    .CodeMirror-merge-left {
+        border: 4px solid #083;
+        overflow: auto;
+    }
+
     .CodeMirror-merge-copy {
         display: none !important;
+    }
+
+    .CodeMirror,
+    .cm-s-default {
+        height: auto !important;
+        border-radius: 0 0 5px 5px;
+        border: 2px solid #000;
+    }
+
+    .CodeMirror pre {
+        padding: 3px 15px;
+    }
+
+    .CodeMirror-lines {
+        padding: 18px 0;
+    }
+
+    .CodeMirror-linenumber {
+        text-align: center;
+    }
+
+    .CodeMirror-gutters {
+        background-color: #e8e8e8;
     }
 
     #subjectCompare .CodeMirror-merge,
     .CodeMirror-merge .CodeMirror {}
 
     #emailTemplateHeader {
-        margin: 10px;
+        padding: 25px 15px;
+        font-size: 1.2rem;
+        background: #1a4480;
+        color: #fff;
+        text-align: left;
+        border-radius: 5px;
+        margin: 0 0 10px 0;
     }
 
     #emailLists fieldset legend {
         font-size: 1.2em;
+    }
+
+    legend {
+        background-color: #fff;
+        padding: 10px 15px !important;
+        border-radius: 5px 5px 0 0;
+        margin-bottom: 10px;
     }
 
     .emailToCc {
@@ -84,15 +174,20 @@
     #codeContainer {
         width: 98% !important;
         box-shadow: none;
+        padding: 0;
     }
 
     .CodeMirror-merge,
-    .CodeMirror-merge {
+    .CodeMirror-merge .CodeMirror {
         height: 60vh !important;
     }
 
+    .CodeMirror-merge-2pane .CodeMirror-merge-pane {
+        height: 100%;
+    }
+
     .page-title-container {
-        width: 95%;
+        width: 98%;
         display: flex;
         flex-wrap: wrap;
         justify-content: space-evenly;
@@ -110,22 +205,92 @@
         margin-top: 10px;
     }
 
-
-    .keyboard_shortcuts {
+    /*Keyboard Shortcuts*/
+    .keyboard_shortcuts,
+    .keyboard_shortcuts_merge {
+        width: 100%;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        justify-content: space-evenly;
+        background-color: #fff;
+        margin-top: 10px;
+        padding: 20px;
+        border-radius: 5px;
     }
 
-    .keyboard_shortcuts>table {
+    .keyboard_shortcuts,
+    .keyboard_shortcuts_merge {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        background-color: #fff;
+        margin-top: 10px;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .keyboard_shortcuts_section,
+    .keyboard_shortcuts_section_merge {
+        width: 70%;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 8px 0;
+    }
+
+    .keboard_shortcuts_box,
+    .keboard_shortcuts_box_merge {
+        width: 100%;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    .keboard_shortcuts_box:last-child,
+    .keboard_shortcuts_box_merge:last-child {
+        padding-left: 50px;
+    }
+
+    .keyboard_shortcuts_title,
+    .keyboard_shortcut,
+    .keyboard_shortcuts_title_merge,
+    .keyboard_shortcut_merge {
         width: 50%;
+        text-align: left;
+    }
+
+    .keyboard_shortcuts_title>h3,
+    .keyboard_shortcuts_title_merge>h3 {
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: .7rem;
+        margin: 0;
+    }
+
+    .keyboard_shortcut>p,
+    .keyboard_shortcut_merge>p {
+        background-color: #e6e6e6;
+        border-radius: 5px;
+        padding: 8px;
+        text-align: center;
+        font-size: .7rem;
+        margin: 0;
+    }
+
+    .keboard_shortcuts_main_title,
+    .keboard_shortcuts_main_title_merge {
+        width: 100%;
+        margin-bottom: 10px;
     }
 
     .leaf-left-nav,
     .leaf-right-nav {
         width: 15%;
-        max-width: 300px;
+        max-width: 400px;
         margin: 0;
-        flex: 0 auto;
+        flex: auto;
+        transition: all ease-in-out .5s;
     }
 
     .sidenav,
@@ -146,7 +311,7 @@
     }
 
     #fileBrowser {
-        width: 90%;
+        width: 80%;
         margin: 0 auto;
         padding: 10px 0;
     }
@@ -159,7 +324,7 @@
         display: flex;
         justify-content: space-evenly;
         align-content: flex-start;
-        width: 70%;
+        width: 65%;
         flex: none;
         margin: 0 auto;
         transition: all 0.5s ease;
@@ -172,13 +337,16 @@
         transition: all 1s ease-in-out;
     }
 
-    #filename {
-        padding: 10px;
-        margin-bottom: 10px;
+    #filename,
+    #subject {
+        padding: 10px 15px !important;
         font-size: 1.2rem;
-        background: #252f3e;
-        color: #fff;
-        text-align: center;
+        color: #000;
+        text-align: left;
+        border-radius: 5px 5px 0 0;
+        background-color: #fff;
+        font-size: 1.3rem !important;
+        margin-top: 10px;
     }
 
     .leaf-btn-med {
@@ -187,7 +355,7 @@
 
     .file-history {
         width: 100%;
-        max-height: 600px;
+        max-height: 675px;
         overflow: auto;
         position: relative;
         display: flex;
@@ -219,109 +387,7 @@
     }
 
     .file-history-res {
-        width: 85%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-
-
-    .accordion-container {
-        margin-top: 10px;
-        width: 100%;
-        max-width: 250px;
-    }
-
-    .accordion {
-        width: 93%;
-        border-radius: 5px;
-        overflow: hidden;
-        margin-bottom: 10px;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin: 5px auto;
-    }
-
-    .accordion-header {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background-color: #1a4480;
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: bold;
-        text-align: left;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .accordion-header:hover {
-        background-color: #112e51;
-    }
-
-    .accordion-header.accordion-active {
-        background-color: #112e51;
-    }
-
-    .accordion-date {
         width: 80%;
-        border-right: 1px solid #fff;
-        padding: 8px;
-    }
-
-    .accordion-date,
-    .accordion-content a {
-        color: #fff;
-        text-decoration: none;
-        font-weight: normal;
-    }
-
-    .accordion-chevron {
-        width: 20%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 0;
-        transition: transform 0.3s ease;
-    }
-
-    .chevron-rotate {
-        transform: rotate(90deg);
-    }
-
-    .accordion-content {
-        display: none;
-        padding: 10px;
-        font-size: 0.65rem;
-        line-height: 1.5;
-        background-color: #fff;
-    }
-
-    .accordion-content>ul {
-        padding: 0;
-        margin: 0;
-    }
-
-    .accordion-content ul li {
-        list-style: none;
-        margin: 5px 0;
-        border-bottom: 2px solid #e4e4e4;
-        padding: 5px 0;
-    }
-
-    .accordion-content ul li:last-child {
-        border: none;
-    }
-
-    .accordion-content ul li strong {
-        text-transform: uppercase;
-    }
-
-    .accordion-content ul li p {
-        margin: 0;
-        font-size: 0.65rem;
-        overflow: auto;
     }
 
     .file_compare_file_btn,
@@ -338,50 +404,6 @@
         border-radius: 5px;
     }
 
-    .file_compare_file_btn,
-    .file_replace_file_btn {
-        background-color: #e99002;
-    }
-
-    .file_compare_file_btn:hover,
-    .file_replace_file_btn:hover {
-        background-color: #c97c00;
-    }
-
-    .close_expand_mode_screen {
-        background-color: #ac4343;
-        font-size: 1rem;
-    }
-
-    .close_expand_mode_screen:hover {
-        background-color: #862a2a;
-    }
-
-    .copyIcon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 0.6rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        cursor: pointer;
-        padding: 5px 10px;
-        margin-top: 5px;
-        border: none;
-        transition: 0.5s ease;
-        border-radius: 5px;
-    }
-
-    .copyIcon:hover {
-        background-color: #45a245;
-        color: #fff;
-    }
-
-    .copyIcon span {
-        font-size: 1rem;
-        padding-left: 5px;
-    }
-
     .template_link {
         font-size: 0.8rem;
         border: 1px solid #eee;
@@ -393,10 +415,49 @@
         background-color: #ccc;
     }
 
+    .file_replace_file_btn {
+        width: 100%;
+        padding: 10px 0;
+        border: none;
+        background-color: #B50909;
+        color: #fff;
+        font-weight: 700;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 5px;
+    }
+
+    .file_replace_file_btn:hover {
+        background-color: #960707;
+    }
+
+    .file_replace_file_btn,
+    .close_expand_mode_screen {
+        width: 100%;
+        padding: 10px 0;
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 5px;
+    }
+
+    .close_expand_mode_screen {
+        background-color: #1a4480;
+        font-size: 1rem;
+    }
+
+    .close_expand_mode_screen:hover {
+        background-color: #143461;
+    }
+
     .page-title-container>h2 {
         width: 100%;
-        margin: 10px 0 0 0;
-        text-align: center;
+        margin: 15px 0;
+        text-align: left;
     }
 
     .page-title-container>.file_replace_file_btn {
@@ -420,30 +481,11 @@
     #restore_original,
     #icon_library {
         width: 100%;
+        font-weight: 500;
     }
 
-    .word-wrap-button {
-        display: inline-block;
-        background-color: #ddd;
-        border: none;
-        color: black;
-        padding: 10px;
-        text-align: center;
-        text-decoration: none;
-        font-size: 16px;
-        margin: 10px 0 0 0;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-
-    .word-wrap-button.on {
-        background-color: #43ac6a;
-        color: white;
-    }
-
-    .word-wrap-button.off {
-        background-color: #ad4343;
-        color: white;
+    #save_button {
+        background-color: #1a4480;
     }
 
     .contentMessage {
@@ -454,53 +496,42 @@
     }
 
     .usa-button {
-
+        width: 100%;
         max-width: 250px;
         margin: 5px auto;
+        font-weight: 500;
     }
 
 
     .leaf-ul {
         width: 100%;
         min-height: 300px;
-        overflow: auto;
-        padding: 0;
+        max-width: 250px;
+        padding: 0 0 0 12px;
         margin: 10px auto;
+        overflow: auto;
     }
 
     .leaf-ul li {
         width: 100%;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        flex-direction: row;
-        font-size: 0.75rem !important;
         line-height: 2;
-        list-style: none;
+        list-style: disc;
     }
 
-    .leaf-ul>li::before {
-        content: "";
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        margin-right: 5px;
-        background-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23000000' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M6.854 6.146a.5.5 0 010 .708L3.707 10l3.147 3.146a.5.5 0 01-.708.708l-3.5-3.5a.5.5 0 010-.708l3.5-3.5a.5.5 0 01.708 0zm6.292 0a.5.5 0 000 .708L16.293 10l-3.147 3.146a.5.5 0 00.708.708l3.5-3.5a.5.5 0 000-.708l-3.5-3.5a.5.5 0 00-.708 0zm-.999-3.124a.5.5 0 01.33.625l-4 13a.5.5 0 11-.955-.294l4-13a.5.5 0 01.625-.33z' clip-rule='evenodd'/></svg>");
-        background-repeat: no-repeat;
-        background-size: contain;
-    }
 
     .leaf-ul>li>a {
         width: 80%;
         display: block;
         text-decoration: none;
-        border-bottom: 2px solid #e4e4e4;
+        border-bottom: 2px solid #e4e4e400;
         transition: all 0.3s ease;
-        color: #005ea2;
+        font-size: .8rem !important;
+        color: #242424;
     }
 
     .leaf-ul>li>a:hover {
         border-bottom: 2px solid #005ea2;
+        color: #005EA2;
     }
 
     #controls,
@@ -520,61 +551,239 @@
         display: none;
         justify-content: space-evenly;
         align-items: center;
+        background-color: #fff;
+        border-radius: 5px;
+        margin: 15px 0;
+        padding: 5px 0;
     }
 
-    .CodeMirror-scroll {
+    /* .CodeMirror-scroll {
         margin-right: 0;
         height: 60vh;
-    }
+        min-height: 563px;
+    } */
 
     .CodeMirror-merge-pane-label {
-        width: 45%;
+        width: 50%;
         text-align: center;
         font-weight: bold;
         padding: 10px 0;
     }
 
     .CodeMirror-merge-pane-label:nth-child(1) {
-        color: #9f0000;
-    }
-
-    .CodeMirror-merge-pane-label:nth-child(2) {
         color: #083;
     }
 
-    .chevron-rotate {
-        animation: chevron-rotate 0.5s forwards;
+    /*File History Contents*/
+
+    #file_history_container {
+        width: 100%;
+        max-height: 675px;
+        background-color: #fff;
+        margin: 10px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
     }
 
-    @keyframes chevron-rotate {
-        100% {
-            transform: rotate(90deg);
-        }
+    .file_history_titles {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        background-color: #1A4480;
+        color: #fff;
+        padding: 10px 0;
+        /* box-shadow: 0px 3px 3px -1px #01000061; */
+        border-radius: 5px 5px 0 0;
+        -webkit-border-radius: 5px 5px 0 0;
+        -moz-border-radius: 5px 5px 0 0;
+        -ms-border-radius: 5px 5px 0 0;
+        -o-border-radius: 5px 5px 0 0;
     }
 
-    .gg-chevron-right {
-        box-sizing: border-box;
-        position: relative;
-        display: block;
-        transform: scale(var(--ggs, 1));
-        width: 22px;
-        height: 22px;
-        border: 2px solid transparent;
-        border-radius: 100px;
+    .file_history_date,
+    .file_history_author {
+        width: 48%;
+        text-align: center;
+        font-size: .8rem;
     }
 
-    .gg-chevron-right::after {
-        content: "";
-        display: block;
-        box-sizing: border-box;
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-bottom: 2px solid;
-        border-right: 2px solid;
-        transform: rotate(-45deg);
-        right: 6px;
-        top: 4px;
+    .file_history_options_container {
+        width: 100%;
+        height: 100%;
+        max-height: 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        border: 2px solid #112D55;
+        border-top: #ffffff00;
+        overflow: auto;
+        border-radius: 0 0 5px 5px;
+    }
+
+    .file_history_options_wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        border-bottom: 2px solid #112D55;
+        border-top: #ffffff00;
+        cursor: pointer;
+        transition: all ease-in-out .3s;
+        -webkit-transition: all ease-in-out .3s;
+        -moz-transition: all ease-in-out .3s;
+        -ms-transition: all ease-in-out .3s;
+        -o-transition: all ease-in-out .3s;
+    }
+
+    .file_history_options_wrapper:hover {
+        border-bottom: 2px solid #112D55;
+        background-color: #112D55;
+        color: #fff;
+    }
+
+    .file_history_options_wrapper:first-child {
+        border-top: #9f9f9f00;
+    }
+
+    .file_history_options_wrapper:last-child {
+        border-bottom: #ffffff00;
+    }
+
+    .file_history_options_date,
+    .file_history_options_author {
+        width: 50%;
+        font-size: .7rem;
+        text-align: center;
+        padding: 10px 0;
+        overflow: auto;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    .file_history_options_date {
+        border-right: 2px solid #112D55;
+    }
+
+    .filesMobile {
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #fff;
+        padding: 10px 0;
+        margin: 0 0 10px 0;
+    }
+
+    .templateFiles {
+        width: 85%;
+        padding: 10px;
+        font-size: .8rem;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .mobileToolsNav {
+        display: none;
+        justify-content: flex-end;
+        align-items: center;
+        width: 50%;
+    }
+
+    .mobileToolsNavBtn {
+        background-color: none;
+        border: 2px solid #1A4480;
+        padding: 5px;
+        border-radius: 5px;
+
+    }
+
+    #closeMobileToolsNavBtn {
+        display: none;
+        background-color: #0000;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all ease-in-out .5s;
+    }
+
+    #closeMobileToolsNavBtn:hover {
+        color: #B50909;
+    }
+
+    #closeMobileToolsNavBtnContainer {
+        width: 90%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .mobileHistory {
+        display: none;
+    }
+
+    #quick_field_search_container {
+        margin-top: 0;
+    }
+
+    #quick_field_search {
+        width: 100%;
+    }
+
+    #form-select-dropdown,
+    #indicator-select-dropdown,
+    #indicator-id {
+        border: none;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    #indicator-id {
+        padding: 0;
+    }
+
+    #form-select,
+    #indicator-select,
+    #indicator-id-label {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    #form-select>span,
+    #indicator-select>span,
+    #indicator-id-label>span {
+        font-weight: 600;
+    }
+
+    #indicator-id-label {
+        margin: 0;
+    }
+
+    #indicator-select,
+    #indicator-id-label,
+    #copy-field-id {
+        visibility: hidden;
+    }
+
+    #sensitive-warning {
+        color: red;
+        visibility: hidden;
+    }
+
+    #copy-field-id {
+        margin: 15px 0 0 0;
     }
 
     @media only screen and (max-width: 1280px) {
@@ -582,19 +791,7 @@
         .file-history-res,
         #controls,
         .controls-compare {
-            width: 100%;
-        }
-
-        .accordion-container {
             width: 90%;
-        }
-
-        .accordion {
-            width: 100%;
-        }
-
-        .accordion-header {
-            font-size: 0.6rem;
         }
 
         .leaf-btn-med,
@@ -611,33 +808,96 @@
         .usa-table {
             font-size: 0.8rem;
         }
+
+        .keyboard_shortcuts_section {
+            width: 90%;
+        }
     }
 
-    #sensitive-warning {
-        color: red;
-        visibility: hidden;
-    }
 
-    #form-select, #indicator-select, #indicator-id-label {
-        width: math(100% - 15px);
-        margin-bottom: 1rem;
-    }
 
-    #indicator-select, #indicator-id-label, #copy-field-id {
-        visibility: hidden;
-    }
+    @media only screen and (max-width:1024px) {
+        .mobileHistory {
+            display: block;
+        }
 
+        #closeMobileToolsNavBtn {
+            display: block;
+        }
+
+        .page-title-container {
+            width: 90%;
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+
+        .mobileToolsNav {
+            display: flex;
+        }
+
+        .leaf-left-nav {
+            display: none;
+        }
+
+        .filesMobile {
+            display: flex;
+        }
+
+        .main-content {
+            width: 95%;
+        }
+
+        .CodeMirror-code {
+            font-size: .7rem;
+        }
+
+        .leaf-right-nav {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 20px 0;
+            position: fixed;
+            right: -100%;
+            width: 300px;
+            background-color: #fff;
+            height: 100%;
+            z-index: 999;
+            top: 0;
+            box-shadow: 0 0 15px 5px #00000040;
+            align-items: center;
+        }
+
+        .sidenav,
+        .sidenav-right {
+            width: 100%;
+        }
+
+        .sidenav-right-compare {
+            width: 95%;
+        }
+
+        #nav {
+            z-index: 998;
+        }
+
+        .keyboard_shortcuts_section {
+            width: 100%;
+        }
+    }
 </style>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
+        <div class="mobileToolsNav">
+            <button class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+        </div>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
             <aside class="sidenav">
                 <div id="fileBrowser">
-                    <h3>Email Templates</h3>
+
                     <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_history" onclick="viewHistory()">View History</button>
@@ -652,7 +912,6 @@
                 <div id="emailLists">
                     <fieldset>
                         <legend>Email To and CC</legend>
-                        <br />
                         <p>
                             Enter email addresses, one per line. Users will be
                             emailed each time this template is used in any workflow.
@@ -668,15 +927,15 @@
                     </fieldset>
                 </div>
                 <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</div>
-                <div id="divSubject" style="border: 1px solid black">
+                <div id="divSubject">
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
                 <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</div>
-                <div id="divCode" style="border: 1px solid black">
+                <div id="divCode">
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(File being compared)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current file)</div>
+                        <div class="CodeMirror-merge-pane-label">(History Files)</div>
+                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -715,65 +974,150 @@
                                 <td>The root URL of the LEAF site</td>
                             </tr>
                             <tr>
-                                <td><b>{{$field.&lt;fieldID&gt;}}</fieldID></td>
-                                <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may not be included in email templates.</span></td>
+                                <td><b>{{$field.&lt;fieldID&gt;}}</fieldID>
+                                </td>
+                                <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may
+                                        not be included in email templates.</span></td>
                             </tr>
                         </table>
                     </fieldset>
                 </div>
-                    <fieldset>
-                        <legend>Quick Field Search</legend>
-                        <div style="width: 50%; float: left;">
-                            <div id="form-select">
-                                <span>Select Form:</span>
-                                <select id="form-select-dropdown" onchange="getIndicators(this.value)"></select>
-                            </div>
-                            <div id="indicator-select">
-                                <span>Select Question:</span>
-                                <select id="indicator-select-dropdown" onchange="showIndicator(this.value, this.options[this.selectedIndex].dataset.isSensitive)"></select>
-                            </div>
-                            <div id="indicator-id-label">
-                            <span>Your field ID is: </span><span id="indicator-id" style="font-weight: 700; margin-right: 1rem;"></span>
-                            <button id="copy-field-id" style="width: auto; display: inline-block;" class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med"><i class="fas fa-copy"></i> Copy</button>
-                            </div>
-                            <span id="sensitive-warning">*This field is marked as sensitive! The field value will not show in sent emails*</span>
+                <fieldset id="quick_field_search_container">
+                    <legend>Quick Field Search</legend>
+                    <div id="quick_field_search">
+                        <div id="form-select">
+                            <span>Select Form:</span>
+                            <select id="form-select-dropdown" onchange="getIndicators(this.value)"></select>
                         </div>
-                    </fieldset>
-                <div>
-                    <div class="email-keyboard-shortcuts">
-                        <table class="table">
-                            <tr>
-                                <td colspan="2">Keyboard Shortcuts within coding area</td>
-                            </tr>
-                            <tr>
-                                <td>Save</td>
-                                <td>Ctrl + S</td>
-                            </tr>
-                            <tr>
-                                <td>Undo</td>
-                                <td>Ctrl-Z</td>
-                            </tr>
-                            <tr>
-                                <td>Word Wrap</td>
-                                <td>Ctrl-W</td>
-                            </tr>
-                            <tr>
-                                <td>Fullscreen</td>
-                                <td>F11</td>
-                            </tr>
-                        </table>
+                        <div id="indicator-select">
+                            <span>Select Question:</span>
+                            <select id="indicator-select-dropdown"
+                                onchange="showIndicator(this.value, this.options[this.selectedIndex].dataset.isSensitive)"></select>
+                        </div>
+                        <div id="indicator-id-label">
+                            <span>Your field ID is: </span><span id="indicator-id"
+                                style="font-weight: 700; margin-right: 1rem;"></span>
+                            <button id="copy-field-id" style="width: auto; display: inline-block;"
+                                class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med"><i
+                                    class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <span id="sensitive-warning">*This field is marked as sensitive! The field value will not show
+                            in sent emails*</span>
+                    </div>
+                </fieldset>
+
+                <div class="keyboard_shortcuts">
+                    <div class="keboard_shortcuts_main_title">
+                        <h3>Keyboard Shortcuts within the Code Editor:</h3>
+                    </div>
+                    <div class="keyboard_shortcuts_section">
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Save: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + S </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Undo: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + Z </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="keyboard_shortcuts_section">
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Full Screen: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>F11 </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Word Wrap: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + W </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="keyboard_shortcuts_section">
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Dark Mode: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + B </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Default Mode: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + N</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="keyboard_shortcuts_merge">
+                    <div class="keboard_shortcuts_main_title_merge">
+                        <h3>Keyboard Shortcuts For Compare Code:</h3>
+                    </div>
+                    <div class="keyboard_shortcuts_section_merge">
+                        <div class="keboard_shortcuts_box_merge">
+                            <div class="keyboard_shortcuts_title_merge">
+                                <h3>Merge Changes: </h3>
+                            </div>
+                            <div class="keyboard_shortcut_merge">
+                                <p>Ctrl + M </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box_merge">
+                            <div class="keyboard_shortcuts_title_merge">
+                                <h3>Word Wrap: </h3>
+                            </div>
+                            <div class="keyboard_shortcut_merge">
+                                <p>Ctrl + W </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="keyboard_shortcuts_section_merge">
+                        <div class="keboard_shortcuts_box_merge">
+                            <div class="keyboard_shortcuts_title_merge">
+                                <h3>Exit Compare: </h3>
+                            </div>
+                            <div class="keyboard_shortcut_merge">
+                                <p>Ctrl + E </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box_merge">
+
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
         <div class="leaf-right-nav">
+            <div id="closeMobileToolsNavBtnContainer"><button id="closeMobileToolsNavBtn"
+                    onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
+            <aside class="filesMobile">
+            </aside>
             <aside class="sidenav-right">
                 <div id="controls">
-                    <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem" onclick="save();">
+                    <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                        onclick="save();">
                         Save Changes<span id="saveStatus"
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    <button id="restore_original" class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
+                    <button id="restore_original"
+                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
                         onclick="restore();">Restore Original</button>
                     <button
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
@@ -785,7 +1129,6 @@
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
                     <button class="file_replace_file_btn">Merge</button>
-                    <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
                     <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
@@ -802,6 +1145,19 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
+    function openRightNavTools(option) {
+        let nav = $('.' + option + '');
+        nav.css({
+            'right': '0'
+        });
+    }
+
+    function closeRightNavTools(option) {
+        let nav = $('.' + option + '');
+        nav.css({
+            'right': '-100%'
+        });
+    }
     var codeEditor;
     // browser listens when scrolling to scroll components
     window.addEventListener('scroll', function() {
@@ -819,15 +1175,15 @@
         }
     });
     // saves current file content changes
-
-
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
         const divEmailTo = document.getElementById('divEmailTo');
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
-        const data = (typeof codeEditor !== 'undefined' && codeEditor.getValue() !== undefined) ? codeEditor.getValue() : codeEditor.edit.getValue();
-        const subject = (typeof subjectEditor !== 'undefined' && subjectEditor.getValue() !== undefined) ? subjectEditor.getValue() : subjectEditor.edit.getValue();
+        const data = (typeof codeEditor !== 'undefined' && codeEditor.getValue() !== undefined) ? codeEditor
+            .getValue() : codeEditor.edit.getValue();
+        const subject = (typeof subjectEditor !== 'undefined' && subjectEditor.getValue() !== undefined) ? subjectEditor
+            .getValue() : subjectEditor.edit.getValue();
         const isContentChanged = (
             emailToData !== currentEmailToContent ||
             emailCcData !== currentEmailCcContent ||
@@ -912,8 +1268,6 @@
             currentEmailCcContent = emailCcData;
         }
     }
-
-
     // creates a copy of the current file content 
     function saveFileHistory() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
@@ -1045,7 +1399,12 @@
                     return;
                 }
 
-                var accordion = '<div class="accordion-container">';
+                var accordion = '<div id="file_history_container">' +
+                    '<div class="file_history_titles">' +
+                    '<div class="file_history_date">Date:</div>' +
+                    '<div class="file_history_author">Author:</div>' +
+                    '</div>' +
+                    '<div class="file_history_options_container">';
                 for (var i = 0; i < res.length; i++) {
                     var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
@@ -1057,31 +1416,15 @@
                     var formattedFileSize = formatFileSize(fileSize);
                     ignoreUnsavedChanges = false;
 
-                    accordion += '<div class="accordion">' +
-                        '<div class="accordion-header">' +
-                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
+                    accordion +=
+                        '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
                         fileName + '\', \'' + fileParentName + '\', true)">' +
-                        '<span><strong style="color:#37beff;">DATE:</strong><br>' + fileCreated +
-                        '</span>' +
-                        '</a>' +
-                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
-                        '</div>' +
-                        '<div class="accordion-content">' +
-                        '<ul>' +
-                        '<li><strong>File Name: </strong><p>' + fileName + '</p></li>' +
-                        '<li><p>' + whoChangedFile + '</p></li>' +
-                        '<li><p>' + formattedFileSize + '</p></li>' +
-                        '<li><strong>Share File URL: </strong>' +
-                        '<div class="textContainer">' +
-                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
-                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
-                        '</div>' +
-                        '</li>' +
-                        '</ul>' +
-                        '</div>' +
+                        '<div class="file_history_options_date">' + fileCreated + '</div>' +
+                        '<div class="file_history_options_author">' + whoChangedFile + '</div>' +
                         '</div>';
                 }
-                accordion += '</div>';
+                accordion += '</div>' +
+                    '</div>';
                 $('.file-history-res').html(accordion);
             },
             error: function(xhr, status, error) {
@@ -1118,6 +1461,7 @@
         $('#btn_compareStop').css('display', 'none');
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
+        $('.file_replace_file_btn').css('display', 'block');
         let wordWrapEnabled = false; // default to false
 
         $('#word-wrap-button').click(function() {
@@ -1174,6 +1518,31 @@
                             $('.CodeMirror-linebackground').css({
                                 'background-color': '#8ce79b !important'
                             });
+
+                            // Add a shortcut for exit from the merge screen
+                            $(document).on('keydown', function(event) {
+                                if (event.ctrlKey && event.key === 'm') {
+                                    mergeFile();
+                                }
+                                if (event.ctrlKey && event.key === 'w') {
+                                    toggleWordWrap();
+                                }
+                            });
+
+                            function mergeFile() {
+                                ignoreUnsavedChanges = true;
+                                var changedLines = codeEditor.leftOriginal()
+                                    .lineCount();
+                                var mergedContent = "";
+                                for (var i = 0; i < changedLines; i++) {
+                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
+                                    if (mergeLine !== null && mergeLine !== undefined) {
+                                        mergedContent += mergeLine + "\n";
+                                    }
+                                }
+                                saveMergedChangesToFile(fileParentFile, mergedContent);
+                            }
                             $('.file_replace_file_btn').click(function() {
                                 ignoreUnsavedChanges = true;
                                 let changedLines = codeEditor.leftOriginal()
@@ -1188,6 +1557,14 @@
                                 }
                                 saveMergedChangesToFile(fileParentFile, mergedContent);
                             });
+
+                            function toggleWordWrap() {
+                                var lineWrapping = codeEditor.editor().getOption(
+                                    'lineWrapping');
+                                codeEditor.editor().setOption('lineWrapping', !lineWrapping);
+                                codeEditor.leftOriginal().setOption('lineWrapping', !
+                                    lineWrapping);
+                            }
 
                             requestCount--; // Decrement the request count
                             if (requestCount === 0) {
@@ -1207,6 +1584,12 @@
             window.history.replaceState(null, null, url.toString());
         }
     }
+    // Add a shortcut for exit from the merge screen
+    $(document).on('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'e') {
+            exitExpandScreen();
+        }
+    });
     // overrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
@@ -1229,25 +1612,12 @@
             }
         });
     }
-    // Copy URL when clicking the copy button
-    function getUrlLink(fileName, fileParentName, updateURL) {
-        let currentURL = new URL(window.location.href);
-        currentURL.searchParams.set('fileName', fileName);
-        currentURL.searchParams.set('parentFile', fileParentName);
-
-        let textField = document.createElement('textarea');
-        textField.value = currentURL.href;
-        document.body.appendChild(textField);
-        textField.select();
-        document.execCommand('copy');
-        textField.remove();
-        console.log('URL copied: ' + currentURL.href);
-    }
     // Retreave URL to display comparison of files
     function initializePage() {
         const urlParams = new URLSearchParams(window.location.search);
         const fileName = urlParams.get('fileName');
         const parentFile = urlParams.get('parentFile');
+        const templateFile = urlParams.get('templateFile');
 
         if (fileName && parentFile) {
             loadContent(currentName, parentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
@@ -1311,15 +1681,26 @@
         $('.sidenav-right').hide();
         $('#emailLists, #subject, .email-template-variables, .email-keyboard-shortcuts').hide();
         $('.sidenav-right-compare').show();
+        $('#quick_field_search_container').hide();
         $('.page-title-container h2').css({
-            'width': '35%',
             'text-align': 'left'
         });
-        $('.main-content').css({
-            'width': '85%',
-            'transition': 'all .5s ease',
-            'justify-content': 'flex-start'
-        });
+        $('.page-title-container>h2').html('Email Template Editor > Compare Code');
+        var windowWidth = $(window).width();
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+            $('.main-content').css({
+                'width': '95%',
+                'transition': 'all .5s ease',
+                'justify-content': 'flex-start'
+            });
+        } else {
+            $('.main-content').css({
+                'width': '85%',
+                'transition': 'all .5s ease',
+                'justify-content': 'flex-start'
+            });
+        }
         $('.leaf-code-container').css({
             'width': '100% !important'
         });
@@ -1332,6 +1713,8 @@
         $('.page-title-container').css({
             'flex-direction': 'column'
         });
+        $('.keyboard_shortcuts').css('display', 'none');
+        $('.keyboard_shortcuts_merge').show();
     }
     // exits the current and history comparison
     function exitExpandScreen() {
@@ -1342,15 +1725,30 @@
         $('#save_button_compare').hide();
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
+        $('#quick_field_search_container').show();
         $('.page-title-container h2').css({
             'width': '100%',
-            'text-align': 'center'
+            'text-align': 'left'
         });
-        $('.main-content').css({
-            'width': '70%',
-            'transition': 'all .5s ease',
-            'justify-content': 'center'
-        });
+        $('.page-title-container>h2').html('Email Template Editor');
+
+        var windowWidth = $(window).width();
+
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+            $('.main-content').css({
+                'width': '95%',
+                'transition': 'all .5s ease',
+                'justify-content': 'center'
+            });
+        } else {
+            $('.main-content').css({
+                'width': '65%',
+                'transition': 'all .5s ease',
+                'justify-content': 'center'
+            });
+        }
+
         $('#codeContainer').css({
             'display': 'block',
             'height': '95%',
@@ -1369,6 +1767,9 @@
 
         $('#save_button').show();
         $('.email-template-variables, .email-keyboard-shortcuts, #emailLists, #subject').show();
+
+        $('.keyboard_shortcuts').css('display', 'flex');
+        $('.keyboard_shortcuts_merge').hide();
 
         // Will reset the URL
         var url = new URL(window.location.href);
@@ -1422,6 +1823,7 @@
         $('#btn_compareStop').hide();
         $('#codeContainer').hide();
         $('#controls').css('visibility', 'visible');
+        $('.keyboard_shortcuts_merge').hide();
         currentName = name;
         currentFile = file;
         currentSubjectFile = subjectFile;
@@ -1474,21 +1876,23 @@
 
         // Keyboard shortcuts
         codeEditor.setOption("extraKeys", {
-            "Ctrl-S": function() {
-                // Save action
+            'Ctrl-Z': function(cm) {
+                cm.undo();
+            },
+            'Ctrl-S': function(cm) {
                 save();
             },
-            "Ctrl-Z": function() {
-                // Undo action
-                codeEditor.undo();
+            'Ctrl-W': function(cm) {
+                cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
             },
-            "Ctrl-W": function() {
-                // Word wrap action
-                codeEditor.setOption("lineWrapping", !codeEditor.getOption("lineWrapping"));
-            },
-            "F11": function() {
-                // Fullscreen action
-                toggleFullscreen();
+            'F11': function(cm) {
+                if (cm.getOption('fullScreen')) {
+                    cm.setOption('fullScreen', false);
+                    $('.CodeMirror-scroll').css('height', '60vh');
+                } else {
+                    cm.setOption('fullScreen', true);
+                    $('.CodeMirror-scroll').css('height', '100vh');
+                }
             }
         });
 
@@ -1500,6 +1904,30 @@
                 data = codeEditor.getValue();
             }
             return currentFileContent !== data;
+        }
+
+        // A shortcut for changing the theme
+        $(document).on('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'b') {
+                changeThemeToDracula();
+            }
+            if (event.ctrlKey && event.key === 'n') {
+                revertToOriginalTheme();
+            }
+        });
+
+        function changeThemeToDracula() {
+            codeEditor.setOption('theme', 'lucario');
+        }
+
+        function revertToOriginalTheme() {
+            codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
+        }
+
+        if (file) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('templateFile', file);
+            window.history.replaceState(null, null, url.toString());
         }
 
     }
@@ -1545,7 +1973,8 @@
         forms.forEach(form => {
             opt = document.createElement('option');
             opt.value = form.categoryID;
-            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form.categoryName;
+            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form
+                .categoryName;
             sel.appendChild(opt);
         });
 
@@ -1691,6 +2120,13 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
+        var windowWidth = $(window).width();
+
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+        } else {
+            console.log('Please check the width of the window');
+        }
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=emailTemplate&id=' + currentFile,
@@ -1731,6 +2167,8 @@
                     success: function(result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
+                        let filesMobile =
+                            '<h3>Template Files:</h3><select class="templateFiles">';
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
@@ -1740,10 +2178,14 @@
                                 } else {
                                     custom = '';
                                 }
+                                filesMobile += '<option onclick="loadContent(\'' + res[
+                                        i].displayName +
+                                    '\');"><div class="template_files"><a href="#">' +
+                                    res[i].displayName + '</a> ' + custom +
+                                    '</div></option>';
 
-                                buffer += '<li onclick="loadContent(\'' + res[i]
-                                    .displayName + '\', ' +
-                                    '\'' + res[i].fileName + '\'';
+
+                                buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' + '\'' + res[i].fileName + '\'';
                                 if (res[i].subjectFileName != '') {
                                     buffer += ', \'' + res[i].subjectFileName + '\', ' +
                                         '\'' + res[i].emailToFileName + '\', ' +
@@ -1752,18 +2194,23 @@
                                     buffer += ', undefined, undefined, undefined';
                                 }
 
-                                buffer += ');"><a href="#">' + res[i].displayName +
-                                    '</a> ' + custom + ' </li>';
+                                buffer += ');"><div class="template_files"><a href="#">' + res[i].displayName +
+                                    '</a> ' + custom + ' </div></li>';
+
                             }
                         } else if (res_array.status['code'] === 4) {
                             buffer += '<li>' + res_array.status['message'] + '</li>';
+                            filesMobile += '<select><option>' + res_array.status[
+                                'message'] + '</option></select>';
                         } else {
                             buffer +=
                                 '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';
+                        filesMobile += '</select>';
                         $('#fileList').html(buffer);
+                        $('.filesMobile').html(filesMobile);
                     },
                     error: function(error) {
                         console.log(error);
