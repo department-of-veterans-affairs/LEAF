@@ -552,7 +552,7 @@ function loadSearchPrereqs() {
                 url: './api/workflow/steps',
                 dataType: 'json',
                 success: function(res) {
-                    let allStepsData = res.data;
+                    let allStepsData = res;
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
                     for(let i in allStepsData) {
