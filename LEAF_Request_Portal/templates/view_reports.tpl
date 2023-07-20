@@ -1262,10 +1262,6 @@ $(function() {
                 return obj.recordID === newRecordID;
             })
             if (newRecordID !== 0 && clicked === true && !reportHasNewRecord){
-            console.log(newRecordID);
-            console.log(clicked);
-            console.log(reportHasNewRecord);
-            console.log(gridResults);
                 $('#newRecordWarning').css('display', 'block');
             }
             clicked = false; //global to reduce dblclicks
