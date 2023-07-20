@@ -1086,7 +1086,7 @@ function doSubmit(recordID) {
                             // Get all the steps from all the workflows
                             $.ajax({
                                 type: 'GET',
-                                url: 'api/workflow/steps',
+                                url: 'api/workflow/workflowSteps',
                                 dataType: 'json',
                                 success: function(res) {
                                     let allStepsData = res.data;
