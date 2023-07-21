@@ -1,5 +1,5 @@
 <link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/theme/lucario.min.css">
+<link rel="stylesheet" href="../../libs/js/codemirror/theme/lucario.css">
 <link rel="stylesheet" href="./css/mod_templates_reports.css">
 <script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
