@@ -1035,7 +1035,7 @@ function doSubmit(recordID) {
     <!--{if $is_admin}-->
         var currentRecordID = <!--{$recordID|strip_tags}-->;
 
-        function admin_changeStep() {
+        async function admin_changeStep() {
             dialog.setTitle('Change Step');
             dialog.setContent('Set to this step: <br />' +
                 '<div id="changeStep"></div><br /><br />' +
@@ -1050,100 +1050,107 @@ function doSubmit(recordID) {
             dialog.show();
             dialog.indicateBusy();
 
-            $.ajax({
+            // Check the current step
+            let currentStepData = await $.ajax({
                 type: 'GET',
                 url: `api/formWorkflow/${currentRecordID}/currentStep`,
                 dataType: 'json',
+                error: function() {
+                    console.log('There was an error getting the current step!');
+                },
+                cache: false
+            });
+
+            // determine active workflows
+            let workflows = {};
+            for (let i in currentStepData) {
+                workflows[currentStepData[i].workflowID] = 1;
+            }
+
+            // If no workflows, estimate workflow by only checking the previous action
+            if(Object.keys(workflows).length == 0) {
+                let lastAction = await $.ajax({
+                    type: 'GET',
+                    url: `api/formWorkflow/${currentRecordID}/lastAction`,
+                    dataType: 'json',
+                    error: function() {
+                        console.log('There was an error getting the last action!');
+                    },
+                    cache: false
+                });
+                if(lastAction != null) {
+                    workflows[lastAction.workflowID] = 1; // add workflow to the active workflow list
+                }
+            }
+
+            // Get list of all steps
+            $.ajax({
+                type: 'GET',
+                url: 'api/workflow/steps',
+                dataType: 'json',
                 success: function(res) {
-                    let workflows = {};
-                    for (let i in res) {
-                        workflows[res[i].workflowID] = 1;
+                    let steps = '<select id="newStep" class="chosen" style="width: 250px">';
+                    let steps2 = '';
+                    let stepCounter = 0;
+                    let allStepsData = res;
+
+                    for (let i in allStepsData) {
+                        let recordID = allStepsData[i].recordID;
+
+                        if (
+                            Object.keys(workflows).length == 0 ||
+                            workflows[allStepsData[i].workflowID] != undefined
+                        ) {
+                            // keep track of steps that match the current workflow
+                            steps += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description}: ${allStepsData[i].stepTitle}</option>`;
+                            stepCounter++;
+                        }
+                        // keep track of all steps in a different buffer
+                        steps2 += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description} - ${allStepsData[i].stepTitle}</option>`;
                     }
-                    // Get steps by recordID
-                    $.ajax({
-                        type: 'GET',
-                        url: `api/workflow/${currentRecordID}/recordSteps`,
-                        dataType: 'json',
-                        success: function(res) {
-                            console.log(res.data);
-                            let steps = '<select id="newStep" class="chosen" style="width: 250px">';
-                            let steps2 = '';
-                            let stepCounter = 0;
-                            let recordStepData = res.data;
 
-                            for (let i in recordStepData) {
-                                let recordID = recordStepData[i].recordID;
+                    if (stepCounter == 0) {
+                        steps += steps2;
+                    }
+                    steps += '</select>';
+                    $('#changeStep').html(steps);
 
-                                if (
-                                    Object.keys(workflows).length == 0 ||
-                                    workflows[recordStepData[i].workflowID] != undefined ||
-                                    currentRecordID == recordID
-                                ) {
-                                    steps += `<option value="${recordStepData[i].stepID}">${recordStepData[i].description}: ${recordStepData[i].stepTitle}</option>`;
-                                    stepCounter++;
-                                }
+                    // This displays all steps from all the workflows when clicked
+                    $('#showAllSteps').on('click', function() {
+                        let newstep = $('#newStep');
+                        if ($('#showAllSteps').is(':checked')) {
+                            newstep.html(steps2);
+                        } else {
+                            newstep.html(steps);
+                        }
+                        newstep.trigger('chosen:updated');
+                    });
+
+                    $('.chosen').chosen({ disable_search_threshold: 6 });
+                    dialog.indicateIdle();
+                    dialog.setSaveHandler(function() {
+                        $.ajax({
+                            type: 'POST',
+                            url: `api/formWorkflow/${currentRecordID}/step`,
+                            data: {
+                                stepID: $('#newStep').val(),
+                                comment: $('#changeStep_comment').val(),
+                                CSRFToken: CSRFToken
+                            },
+                            success: function() {
+                                window.location.href = `index.php?a=printview&recordID=${currentRecordID}`;
+                            },
+                            error: function() {
+                                console.log(
+                                    'There was an error saving the workflow step!'
+                                );
                             }
-                            // Get all the steps from all the workflows
-                            $.ajax({
-                                type: 'GET',
-                                url: 'api/workflow/workflowSteps',
-                                dataType: 'json',
-                                success: function(res) {
-                                    let allStepsData = res.data;
-                                    for (let i in allStepsData) {
-                                        steps2 += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description} - ${allStepsData[i].stepTitle}</option>`;
-                                    }
-                                }
-                            });
-
-                            if (stepCounter == 0) {
-                                steps += steps2;
-                            }
-                            steps += '</select>';
-                            $('#changeStep').html(steps);
-
-                            // This displays all steps from all the workflows when clicked
-                            $('#showAllSteps').on('click', function() {
-                                let newstep = $('#newStep');
-                                if ($('#showAllSteps').is(':checked')) {
-                                    newstep.html(steps2);
-                                } else {
-                                    newstep.html(steps);
-                                }
-                                newstep.trigger('chosen:updated');
-                            });
-
-                            $('.chosen').chosen({ disable_search_threshold: 6 });
-                            dialog.indicateIdle();
-                            dialog.setSaveHandler(function() {
-                                $.ajax({
-                                    type: 'POST',
-                                    url: `api/formWorkflow/${currentRecordID}/step`,
-                                    data: {
-                                        stepID: $('#newStep').val(),
-                                        comment: $('#changeStep_comment').val(),
-                                        CSRFToken: CSRFToken
-                                    },
-                                    success: function() {
-                                        window.location.href = `index.php?a=printview&recordID=${currentRecordID}`;
-                                    },
-                                    error: function() {
-                                        console.log(
-                                            'There was an error saving the workflow step!'
-                                        );
-                                    }
-                                });
-                                dialog.hide();
-                            });
-                        },
-                        error: function() {
-                            console.log('There was an error getting workflow steps!');
-                        },
-                        cache: false
+                        });
+                        dialog.hide();
                     });
                 },
                 error: function() {
-                    console.log('There was an error getting the current step!');
+                    console.log('There was an error getting workflow steps!');
                 },
                 cache: false
             });

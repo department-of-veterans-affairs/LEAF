@@ -126,20 +126,6 @@ class Workflow
         return $workflowStep;
     }
 
-    public function getRecordSteps(int $recordID): array
-    {
-        $vars = array('recordID' => $recordID);
-        $query = 'SELECT `recordID`, `stepID`, `description`, `stepTitle` 
-                  FROM `workflow_steps` 
-                  LEFT JOIN `workflows` USING (`workflowID`)
-                  LEFT JOIN `records_step_fulfillment` USING (`stepID`)
-                  WHERE `recordID` = :recordID
-                  ORDER BY `recordID` ASC';
-        $res = $this->db->pdo_select_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
-        return $res;
-    }
-    
-
     public function getAllSteps()
     {
         $vars = [];
