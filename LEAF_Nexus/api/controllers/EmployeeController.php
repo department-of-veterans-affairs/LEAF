@@ -69,7 +69,7 @@ class EmployeeController extends RESTfulResponse
         });
 
 
-        $this->index['POST']->register('employee/refresh/[text]/[digit]', function ($args) use ($employee, $national_db) {
+        $this->index['POST']->register('employee/refresh/[text]', function ($args) use ($employee, $national_db) {
             if (!$national_db) {
                 $return_value = $employee->refresh($args[0]);
             } else {
