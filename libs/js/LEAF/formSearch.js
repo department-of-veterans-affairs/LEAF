@@ -764,7 +764,7 @@ var LeafFormSearch = function (containerID) {
           url: "./api/workflow/steps",
           dataType: "json",
           success: function (res) {
-            let allStepsData = res.data;
+            let allStepsData = res;
             var categories =
               '<select id="' +
               prefixID +
