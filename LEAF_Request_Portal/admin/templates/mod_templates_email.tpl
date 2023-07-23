@@ -450,41 +450,7 @@
         });
         dialog.show();
     }
-    // format size of file inside getFileHistory()
-    function formatFileSize(bytes, threshold = 1024) {
-        const units = ['bytes', 'KB', 'MB', 'GB'];
-        let i = 0;
-
-        while (bytes >= threshold && i < units.length - 1) {
-            bytes /= threshold;
-            i++;
-        }
-
-        return bytes.toFixed(2) + ' ' + units[i];
-    }
-    // accordion content inside getFileHistory()
-    function displayAccordionContent(element) {
-        var accordionContent = $(element).parent().next(".accordion-content");
-        var chevron = $(element);
-
-        chevron.toggleClass("chevron-rotate");
-        accordionContent.slideToggle();
-
-        var accordions = $(".accordion");
-        accordions.each(function() {
-            var currentAccordionContent = $(this).find(".accordion-content");
-            var currentChevron = $(this).find(".accordion-chevron");
-
-            if (
-                !currentAccordionContent.is(accordionContent) &&
-                !currentChevron.is(chevron)
-            ) {
-                currentAccordionContent.slideUp();
-                currentChevron.removeClass("chevron-rotate");
-            }
-        });
-    }
-    // request's copies of the current file content in an accordion layout
+    // request's copies of the current file content 
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
@@ -514,14 +480,10 @@
                     '</div>' +
                     '<div class="file_history_options_container">';
                 for (let i = 0; i < res.length; i++) {
-                    var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
-                    var filePath = res[i].file_path;
-                    var fileSize = res[i].file_size;
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
-                    var formattedFileSize = formatFileSize(fileSize);
                     ignoreUnsavedChanges = false;
 
                     accordion +=
@@ -723,18 +685,28 @@
         let urlParams = new URLSearchParams(window.location.search);
         let fileName = urlParams.get('fileName');
         let parentFile = urlParams.get('parentFile');
+
         let templateFile = urlParams.get('templateFile');
+        let templateName = urlParams.get('templateName');
+        let templateSubjectFile = urlParams.get('templateSubjectFile');
+        let templateEmailToFile = urlParams.get('templateEmailToFile');
+        let templateEmailCcFile = urlParams.get('templateEmailCcFile');
 
         if (fileName && parentFile !== null) {
-            loadContent(currentName, parentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+            loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
             compareHistoryFile(fileName, parentFile, false);
-        } else if (templateFile) {
+        } else if (templateFile !== null) {
             console.log(templateFile);
-            loadContent(undefined, templateFile, undefined, undefined, undefined);
+            if (templateSubjectFile !== '') {
+                loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
+            } else {
+                loadContent(undefined, templateFile, undefined, undefined, undefined);
+            }
         } else {
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
     }
+
     // compares the current file to the default file content
     function compare() {
         $('.CodeMirror').remove();
@@ -818,9 +790,6 @@
             'position': 'fixed',
             'left': '-100%',
             'transition': 'all .5s ease'
-        });
-        $('.page-title-container').css({
-            'flex-direction': 'column'
         });
         $('.keyboard_shortcuts').css('display', 'none');
         $('.keyboard_shortcuts_merge').show();
@@ -909,6 +878,7 @@
     }
     // loads all files and retreave's them
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
+        console.log(name, file, subjectFile, emailToFile, emailCcFile);
         if (file === undefined) {
             name = currentName;
             file = currentFile;
@@ -1033,9 +1003,15 @@
             codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
         }
 
+        // (name, file, subjectFile, emailToFile, emailCcFile)
+
         if (file !== null) {
             let url = new URL(window.location.href);
             url.searchParams.set('templateFile', file);
+            url.searchParams.set('templateName', name);
+            url.searchParams.set('templateSubjectFile', subjectFile);
+            url.searchParams.set('templateEmailToFile', emailToFile);
+            url.searchParams.set('templateEmailCcFile', file);
             window.history.replaceState(null, null, url.toString());
         }
 
@@ -1276,40 +1252,38 @@
                     success: function(result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile =
-                            '<h3>Template Files:</h3><select class="templateFiles">';
+                        let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
 
                         if (res_array.status['code'] === 2) {
+
                             for (let i in res) {
                                 if (result.includes(res[i].fileName)) {
-                                    custom =
-                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
                                 }
-                                filesMobile += '<option onclick="loadContent(\'' + res[i].displayName + '\');"><div class="template_files"><a href="#">' + res[i].displayName + '</a> ' + custom + '</div></option>';
-
+                                // This displays the mobile file dropdown
+                                filesMobile += '<option onclick="loadContent(\'' + res[i].displayName + '\' , ' + '\'' + res[i].fileName + '\'';
 
                                 buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' + '\'' + res[i].fileName + '\'';
+
                                 if (res[i].subjectFileName != '') {
-                                    buffer += ', \'' + res[i].subjectFileName + '\', ' +
-                                        '\'' + res[i].emailToFileName + '\', ' +
-                                        '\'' + res[i].emailCcFileName + '\'';
+                                    buffer += ', \'' + res[i].subjectFileName + '\', ' + '\'' + res[i].emailToFileName + '\', ' + '\'' + res[i].emailCcFileName + '\'';
+                                    filesMobile += ', \'' + res[i].subjectFileName + '\', ' + '\'' + res[i].emailToFileName + '\', ' + '\'' + res[i].emailCcFileName + '\'';
                                 } else {
                                     buffer += ', undefined, undefined, undefined';
+                                    filesMobile += ', undefined, undefined, undefined';
                                 }
 
-                                buffer += ');"><div class="template_files"><a href="#">' + res[i].displayName +
-                                    '</a> ' + custom + ' </div></li>';
+                                buffer += ');"><div class="template_files"><a href="#">' + res[i].displayName + '</a> ' + custom + ' </div></li>';
+                                filesMobile += ');"><div class="template_files"><a href="#">' + res[i].displayName + '</a> ' + custom + '</div></option>';
 
                             }
                         } else if (res_array.status['code'] === 4) {
                             buffer += '<li>' + res_array.status['message'] + '</li>';
-                            filesMobile += '<select><option>' + res_array.status[
-                                'message'] + '</option></select>';
+                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
-                            buffer +=
-                                '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';

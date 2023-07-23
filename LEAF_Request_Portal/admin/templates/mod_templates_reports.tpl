@@ -30,7 +30,7 @@
                 <div id="reportURL"></div>
                 <div>
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(History File)</div>
+                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
                         <div class="CodeMirror-merge-pane-label">(Current File)</div>
                     </div>
                     <textarea id="code"></textarea>
@@ -526,14 +526,10 @@
                     '</div>' +
                     '<div class="file_history_options_container">';
                 for (var i = 0; i < res.length; i++) {
-                    var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
-                    var filePath = res[i].file_path;
-                    var fileSize = res[i].file_size;
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
-                    var formattedFileSize = formatFileSize(fileSize);
                     ignoreUnsavedChanges = false;
 
                     accordion +=
@@ -551,7 +547,7 @@
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
             },
-            cache: false
+            cache: false,
         });
     }
     // compares current file content with history file from getFileHistory()
@@ -650,8 +646,7 @@
                             function toggleWordWrap() {
                                 let lineWrapping = codeEditor.editor().getOption('lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
-                                codeEditor.leftOriginal().setOption('lineWrapping', !
-                                    lineWrapping);
+                                codeEditor.leftOriginal().setOption('lineWrapping', !lineWrapping);
                             }
                         }
                     });
@@ -859,9 +854,7 @@
                 for (let i in res) {
                     let file = res[i].replace('.tpl', '');
                     if (!isExcludedFile(file)) {
-                        buffer += '<li onclick="loadContent(\'' + file +
-                            '\');"><a href="#' +
-                            file + '">' + file + '</a></li>';
+                        buffer += '<li onclick="loadContent(\'' + file + '\');"><a href="#">' + file + '</a></li>';
 
                             filesMobile += '<option onclick="loadContent(\'' + file + '\');"><div class="template_files"><a href="#">' + file + '</a></div></option>';
                     } else {
@@ -918,8 +911,8 @@
             'button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
-        initializePage();
         updateFileList();
+        initializePage();
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator',
             'genericDialogbutton_save', 'genericDialogbutton_cancelchange');

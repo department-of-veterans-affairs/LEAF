@@ -537,14 +537,10 @@
                     '</div>' +
                     '<div class="file_history_options_container">';
                 for (var i = 0; i < res.length; i++) {
-                    var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
-                    var filePath = res[i].file_path;
-                    var fileSize = res[i].file_size;
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
-                    var formattedFileSize = formatFileSize(fileSize);
                     ignoreUnsavedChanges = false;
                     accordion +=
                         '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
@@ -864,7 +860,6 @@
         }
 
         if (file !== null) {
-            console.log(file);
             let url = new URL(window.location.href);
             url.searchParams.set('templateFile', file);
             window.history.replaceState(null, null, url.toString());

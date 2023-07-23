@@ -816,6 +816,10 @@ legend {
         width: 90%;
         flex-wrap: nowrap;
         align-items: center;
+        flex-direction: row !important;
+    }
+    .page-title-container > h2 {
+        font-size: 1.3rem;
     }
 
     .mobileToolsNav {

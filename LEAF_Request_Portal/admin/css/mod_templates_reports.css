@@ -1,5 +1,5 @@
 
-.CodeMirror-merge-left {
+.CodeMirror-merge-pane-rightmost {
     border: 4px solid #083;
     overflow: auto;
 }
@@ -526,7 +526,7 @@
     padding: 10px 0;
 }
 
-.CodeMirror-merge-pane-label:nth-child(1) {
+.CodeMirror-merge-pane-label:nth-child(2) {
     color: #083;
 }
 
