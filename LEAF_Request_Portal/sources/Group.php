@@ -190,12 +190,15 @@ class Group
     }
 
     /**
-     * return array of userIDs
      * @param int $groupID
+     * @param bool $searchDeleted
+     * @param bool $all
      *
-     * @return array|string
+     * @return array
+     *
+     * Created at: 7/24/2023, 2:43:20 PM (America/New_York)
      */
-    public function getMembers($groupID, bool $searchDeleted = false): array|string
+    public function getMembers(int $groupID, bool $searchDeleted = false, bool $all = false): array
     {
         if (!is_numeric($groupID)) {
             $return_value = array (
@@ -205,11 +208,18 @@ class Group
                 )
             );
         } else {
+            if ($all) {
+                $groupBy = '';
+            } else {
+                $groupBy = 'GROUP BY `userID`';
+            }
+
             $vars = array(':groupID' => $groupID);
             $sql = 'SELECT `userID`, `groupID`, `backupID`, `primary_admin`,
                         `locallyManaged`, `active`
                     FROM `users`
                     WHERE `groupID` = :groupID
+                    ' . $groupBy . '
                     ORDER BY `userID`';
 
             $res = $this->db->pdo_select_query($sql, $vars);
