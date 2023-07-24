@@ -128,11 +128,21 @@ class Workflow
 
     public function getAllSteps()
     {
-        $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM workflow_steps
-    										LEFT JOIN workflows USING (workflowID)
-    										ORDER BY description, stepTitle', $vars);
+        $vars = [];
+        $query = 'SELECT * FROM `workflow_steps`
+                  LEFT JOIN `workflows` USING (`workflowID`)
+                  ORDER BY `description`, `stepTitle`';
+        $res = $this->db->prepared_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
+        return $res;
+    }
 
+    public function getAllWorkflowSteps()
+    {
+        $vars = [];
+        $query = 'SELECT * FROM `workflow_steps`
+                  LEFT JOIN `workflows` USING (`workflowID`)
+                  ORDER BY `description`, `stepTitle`';
+        $res = $this->db->pdo_select_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
         return $res;
     }
 

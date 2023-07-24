@@ -567,7 +567,7 @@ export default {
             }
         }
     },
-    template: `<div v-if="!appIsLoadingIndicators" id="condition_editor_center_panel">
+    template: `<div id="condition_editor_center_panel">
             <!-- LOADING SPINNER -->
             <div v-if="appIsLoadingIndicators" id="loader_spinner">
                 Loading... <img src="../images/largespinner.gif" alt="loading..." />
