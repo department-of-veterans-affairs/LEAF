@@ -278,6 +278,7 @@ function addHeader(column) {
             filterData['action_history.stepID'] = 1;
             filterData['action_history.actionType'] = 1;
             filterData['stepFulfillmentOnly'] = 1;
+            filterData['submitted'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
 
@@ -312,8 +313,8 @@ function addHeader(column) {
                             }
                         }
                         daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
-                        if(recordBlob.submitted == 0 || !daysSinceAction) {
-                            // if there are no actions then it was never submitted
+                        if(recordBlob.submitted == 0) {
+                            // if there's no submit timestamp, then it's not submitted
                             daysSinceAction = "Not Submitted";
                         }
                     }
