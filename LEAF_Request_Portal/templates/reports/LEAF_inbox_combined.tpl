@@ -359,9 +359,9 @@
                             headerDefinitions[col] != undefined) {
                             customCols.push(headerDefinitions[col](site));
                         } else if (parseInt(col) > 0) { // assign custom data headers
-                            let label = dataDictionary[site.url]?. [col]?.description;
+                            let label = dataDictionary[site.url]?.[col]?.description;
                             if (label == undefined) {
-                                label = dataDictionary[site.url]?. [col]?.name;
+                                label = dataDictionary[site.url]?.[col]?.name;
                             }
                             customCols.push({name: label, indicatorID: parseInt(col), editable: false});
                         }
@@ -376,7 +376,13 @@
             site.columns = site.columns ?? 'UID,service,title,status';
         }
         site.columns.split(',').forEach(col => {
-            customCols.push(headerDefinitions[col](site));
+            if (isNaN(col)) {
+                customCols.push(headerDefinitions[col](site));
+            } else {
+                customCols.push({
+                    name: (dataDictionary[site.url]?.[col]?.name ?? dataDictionary[site.url]?.[col]?.description), indicatorID: parseInt(col), editable: false
+                });
+            }
         });
 
         headers = customCols.concat(headers);
@@ -450,33 +456,31 @@
 
         // get data for any custom fields
         let getData = [];
-        if (site.columns != undefined && Array.isArray(site.columns)) {
-            for (let i in site.columns) {
-                let cols = site.columns[i].split(',');
-                for (let j in cols) {
-                    if (!isNaN(parseInt(cols[j]))) {
-                        getData.push(parseInt(cols[j]));
-                    } else {
-                        switch (cols[j].toLowerCase()) {
-                            case 'days_since_last_action':
-                            case 'email_reminder':
-                                query.join('action_history');
-                                break;
-                            default:
-                                break;
-                        }
+        if (site.columns != undefined && Array.isArray(site.columns.split(','))) {
+            let cols = site.columns.split(',');
+            for (let i in site.columns.split(',')) {
+                if (!isNaN(parseInt(cols[i]))) {
+                    getData.push(parseInt(cols[i]));
+                } else {
+                    switch (cols[i].toLowerCase()) {
+                        case 'days_since_last_action':
+                        case 'email_reminder':
+                            query.join('action_history');
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
         }
+        
         if (getData.length > 0 && offset == 0) {
             getData.forEach(id => query.getData(id));
-            let formList = Object.keys(site.columns).join(',');
             return $.ajax({
                     type: 'GET',
-                    url: site.url + `api/form/indicator/list?forms=${formList}&x-filterData=indicatorID,name,description`,
+                    url: site.url + `api/form/indicator/list?x-filterData=indicatorID,name,description`,
                     success: function(res) {
-                        let dict = {};
+                        let dict = [];
                         res.forEach(ind => {
                             dict[ind.indicatorID] = {name: ind.name, description: ind.description};
                         });

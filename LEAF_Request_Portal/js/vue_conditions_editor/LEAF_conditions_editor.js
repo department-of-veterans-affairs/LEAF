@@ -72,6 +72,16 @@ const ConditionsEditor = Vue.createApp({
         cache: false
       });
     },
+    updateTooltips(formID = '') {
+      const formIndicators = this.indicators.filter(i => i.categoryID === formID);
+      formIndicators.map(i => {
+        const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ? 'Edit conditions (conditions present)' : 'Edit conditions';
+        let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
+        if(elIcon !== null) {
+          elIcon.title = tooltip;
+        }
+      });
+    },
     clearSelections(resetAll = false) {
       //cleared when either the form or child indicator changes
       if (resetAll) {
