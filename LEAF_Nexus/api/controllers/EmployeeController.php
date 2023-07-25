@@ -68,6 +68,21 @@ class EmployeeController extends RESTfulResponse
             return print_r($args, true) . print_r($_GET, true);
         });
 
+        // Deprecated
+        $this->index['POST']->register('employee/refresh/[text]/[digit]', function ($args) use ($employee, $national_db) {
+            if (!$national_db) {
+                $return_value = $employee->refresh($args[0]);
+            } else {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 4,
+                        'message' => 'You can\'t update the national orgchart'
+                    )
+                );
+            }
+
+            return json_encode($return_value);
+        });
 
         $this->index['POST']->register('employee/refresh/[text]', function ($args) use ($employee, $national_db) {
             if (!$national_db) {
