@@ -1032,19 +1032,23 @@ class System
             $serviceEmployee = $nexus_position->getEmployees($leaderGroupID);
 
             foreach($serviceEmployee as $employee){
-                $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
-                $nexus_chiefs[$chief_counter]['userID'] = $employee['userName'];
-                $nexus_chiefs[$chief_counter]['backupID'] = null;
+                if (is_numeric($service['groupID']) && !empty($employee['userName'])) {
+                    $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
+                    $nexus_chiefs[$chief_counter]['userID'] = $employee['userName'];
+                    $nexus_chiefs[$chief_counter]['backupID'] = null;
 
-                $chief_counter++;
+                    $chief_counter++;
+                }
 
                 if (count($employee['backups']) > 0) {
                     foreach ($employee['backups'] as $backup) {
-                        $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
-                        $nexus_chiefs[$chief_counter]['userID'] = $backup['userName'];
-                        $nexus_chiefs[$chief_counter]['backupID'] = $employee['userName'];
+                        if (is_numeric($service['groupID']) && !empty($backup['userName'])) {
+                            $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
+                            $nexus_chiefs[$chief_counter]['userID'] = $backup['userName'];
+                            $nexus_chiefs[$chief_counter]['backupID'] = $employee['userName'];
 
-                        $chief_counter++;
+                            $chief_counter++;
+                        }
                     }
                 }
             }
