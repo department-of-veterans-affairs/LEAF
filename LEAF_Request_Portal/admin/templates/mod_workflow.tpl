@@ -21,7 +21,7 @@
         role="button" tabindex="0"><img src="../dynicons/?img=accessories-text-editor.svg&amp;w=32"
             alt="Rename Workflow" /> Rename
         Workflow</div>
-    <div id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size: 120%; display: none;"
+    <div id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
         role="button" tabindex="0"><img src="../dynicons/?img=edit-copy.svg&amp;w=32"
             alt="Duplicate Workflow" /> Duplicate
         Workflow</div>
