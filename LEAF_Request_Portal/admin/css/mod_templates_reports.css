@@ -46,15 +46,10 @@
 
 #reportURL {
     text-align: left;
-    background-color: #1a4480;
-    padding: 0 0 15px 15px;
+    background-color: white;
+    padding: 15px;
     width: 100%;
-    border-radius: 0 0 5px 5px;
-    color: #fff;
-}
-
-#reportURL>a {
-    color: #fff;
+    border-bottom: 1px solid black;
 }
 
 .leaf-center-content {
@@ -256,7 +251,8 @@
 #filename {
     padding: 15px;
     font-size: 1.2rem;
-    background: #1a4480;
+    font-weight: bold;
+    background: #252f3e;
     color: #fff;
     text-align: left;
     border-radius: 5px 5px 0 0;
