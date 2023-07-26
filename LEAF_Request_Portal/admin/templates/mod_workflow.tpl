@@ -776,7 +776,8 @@
                 dialog_ok.setSaveHandler(function() {
                     dialog_ok.clearDialog();
                     dialog_ok.hide();
-                    $('#description').focus();
+                    dialog.hide();
+                    editRequirement(dependencyID);
                 });
                 dialog_ok.show();
             } else {
