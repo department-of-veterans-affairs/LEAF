@@ -2310,9 +2310,8 @@
             postAction(old_steps[routes[i].stepID], old_steps[routes[i].nextStepID], routes[i].actionType, workflow, function (res) {
                 // check to see if this is a sendback and if the requirement is true
                 if (routes[i].displayConditional) {
-                    console.log('we have a condition');
                     let required = JSON.parse(routes[i].displayConditional);
-                    console.log(required);
+
                     updateRequiredCheckbox(workflow, old_steps[routes[i].stepID], required.required, function (res) {
                         // nothing to do here.
                     })
