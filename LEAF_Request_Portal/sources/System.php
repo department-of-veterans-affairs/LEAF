@@ -1247,7 +1247,8 @@ class System
         // find group records to delete on portal side
         foreach($portal_groups as $group) {
             if ($this->searchArray($nexus_groups, $group, false)) {
-                // group exists do nothing
+                // group exists check in on backups
+                $this->updateGroup($group['groupID']);
             } else {
                 // group does not exist remove from portal db
                 //echo 'The group \'' . $group['name'] . '\' has been removed<br/>';

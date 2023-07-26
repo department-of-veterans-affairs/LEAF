@@ -304,38 +304,47 @@ class Group
             // include the backups of employees
             $emp = $employee->lookupLogin($member);
             $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID);
-                $sql = 'SELECT `locallyManaged`
-                        FROM `users`
-                        WHERE `userID` = :userID
-                        AND `groupID` = :groupID';
+            if (!empty($backups)) {
+                foreach ($backups as $backup) {
+                    $vars = array(':userID' => $backup['userName'],
+                        ':groupID' => $groupID);
+                    $sql = 'SELECT `locallyManaged`
+                            FROM `users`
+                            WHERE `userID` = :userID
+                            AND `groupID` = :groupID';
 
-                $res = $this->db->pdo_select_query($sql, $vars);
+                    $res = $this->db->pdo_select_query($sql, $vars);
 
-                if ($res['status']['code'] == 2) {
-                    // Check for locallyManaged users
-                    if ($res['data'][0]['locallyManaged'] == 1) {
-                        $vars[':backupID'] = '';
+                    if ($res['status']['code'] == 2) {
+                        // Check for locallyManaged users
+                        if ($res['data'][0]['locallyManaged'] == 1) {
+                            $vars[':backupID'] = '';
+                        } else {
+                            $vars[':backupID'] = $emp[0]['userName'];
+                        }
+                        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                                VALUES (:userID, :groupID, :backupID)
+                                ON DUPLICATE KEY UPDATE `userID = :userID, `groupID` = :groupID,
+                                    `backupID` = :backupID';
+
+                        $return_value = $this->db->pdo_insert_query($sql, $vars);
                     } else {
-                        $vars[':backupID'] = $emp[0]['userName'];
+                        $return_value = array (
+                            'status' => array (
+                                'code' => 4,
+                                'message' => 'Backup could not be found'
+                            )
+                        );
+                        break;
                     }
-                    $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
-                            VALUES (:userID, :groupID, :backupID)
-                            ON DUPLICATE KEY UPDATE `userID = :userID, `groupID` = :groupID,
-                                `backupID` = :backupID';
-
-                    $return_value = $this->db->pdo_insert_query($sql, $vars);
-                } else {
-                    $return_value = array (
-                        'status' => array (
-                            'code' => 4,
-                            'message' => 'Backup could not be found'
-                        )
-                    );
-                    break;
                 }
+            } else {
+                $return_value = array (
+                    'status' => array (
+                        'code' => 2,
+                        'message' => 'No backups to add'
+                    )
+                );
             }
         } else {
             // If something happened just send the db json response back
