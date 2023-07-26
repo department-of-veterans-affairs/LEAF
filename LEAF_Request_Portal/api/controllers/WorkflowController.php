@@ -124,6 +124,16 @@ class WorkflowController extends RESTfulResponse
             return $workflow->getEmailReminderData((int)$args[1], \Leaf\XSSHelpers::xscrub($args[2]));
         });
 
+        $this->index['GET']->register('workflow/[digit]/step/routeEvents', function ($args) use ( $workflow) {
+            $workflow->setWorkflowID($args[0]);
+
+            return $workflow->getWorkflowEvents((int) $args[0]);
+        });
+
+        $this->index['GET']->register('workflow/[digit]/stepDependencies', function ($args) use ( $workflow) {
+            return $workflow->getStepDependencies((int) $args[0]);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
@@ -225,6 +235,8 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/[digit]/step/[digit]/[text]/events', function ($args) use ($workflow) {
+            error_log(print_r($args, true));
+            error_log(print_r($_POST, true));
             $workflow->setWorkflowID((int)$args[0]);
             if($_POST['eventID'] == 'automated_email_reminder')
             {
