@@ -1409,19 +1409,8 @@
         let e = document.getElementById("workflows");
         let workflowID = e.value;
 
-        $.ajax({
-            type: 'POST',
-            url: '../api/workflowRoute/require',
-            data: {required: element.checked,
-            step_id: stepID[2],
-            workflow_id: workflowID,
-            CSRFToken: CSRFToken},
-            success: function (res) {
-                console.log(res);
-            },
-            error: function (err) {
-                console.log(err);
-            }
+        updateRequiredCheckbox(workflowID, stepID[2], element.checked, function(res) {
+            console.log(res);
         });
     }
 
@@ -2319,7 +2308,15 @@
     function updateRoutes(workflow, old_steps) {
         for (let i in routes) {
             postAction(old_steps[routes[i].stepID], old_steps[routes[i].nextStepID], routes[i].actionType, workflow, function (res) {
-                // nothing to do here but keep going
+                // check to see if this is a sendback and if the requirement is true
+                if (routes[i].displayConditional) {
+                    console.log('we have a condition');
+                    let required = JSON.parse(routes[i].displayConditional);
+                    console.log(required);
+                    updateRequiredCheckbox(workflow, old_steps[routes[i].stepID], required.required, function (res) {
+                        // nothing to do here.
+                    })
+                }
             });
         }
     }
@@ -2482,6 +2479,23 @@
                 callback(res);
             },
             error: (err) => console.log(err),
+        });
+    }
+
+    function updateRequiredCheckbox(workflow, stepID, checkMark, callback) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflowRoute/require',
+            data: {required: checkMark,
+            step_id: stepID,
+            workflow_id: workflow,
+            CSRFToken: CSRFToken},
+            success: function (res) {
+                callback(res);
+            },
+            error: function (err) {
+                console.log(err);
+            }
         });
     }
 

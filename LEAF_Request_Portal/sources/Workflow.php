@@ -361,7 +361,12 @@ class Workflow
             return 'Restricted command.';
         }
 
-        $required = json_encode(array ('required' => false));
+        if ($action == 'sendback') {
+            $required = json_encode(array ('required' => false));
+        } else {
+            $required = '';
+        }
+
 
         $this->postRoute($this->workflowID, $stepID, $nextStepID, $action, $required);
 
