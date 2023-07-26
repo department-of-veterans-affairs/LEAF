@@ -383,6 +383,7 @@ class Workflow
      * @param string $action
      * @param string $conditional
      *
+     * The db method being used is returning a properly formatted json response
      * @return array
      *
      * Created at: 7/26/2023, 7:59:46 AM (America/New_York)

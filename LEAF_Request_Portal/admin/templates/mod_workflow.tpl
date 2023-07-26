@@ -2134,6 +2134,11 @@
         dialog.show();
     }
 
+    /**
+     * The script to duplicate the currently selected workflow
+     *
+     * Created at: 7/26/2023, 1:08:10 PM (America/New_York)
+     */
     function duplicateWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
 
@@ -2218,6 +2223,13 @@
         dialog.show();
     }
 
+    /**
+     * @param int workflowID
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:13:07 PM (America/New_York)
+     */
     function updateInitialStep(workflowID, stepID, callback) {
         $.ajax({
             async: false,
@@ -2235,6 +2247,15 @@
         });
     }
 
+    /**
+     * This gets a list of dependencies to a particular step and
+     * creates a duplicate for the new workflow
+     *
+     * @param int stepID
+     * @param array old_steps
+     *
+     * Created at: 7/26/2023, 1:14:37 PM (America/New_York)
+     */
     function updateDependencies(stepID, old_steps) {
         let dependency;
 
@@ -2253,6 +2274,16 @@
         });
     }
 
+    /**
+     * This gets a list of route_events to loop through and make
+     * new records for the new workflow being duplicated
+     *
+     * @param int currentWorkflow
+     * @param int workflow
+     * @param array old_steps
+     *
+     * Created at: 7/26/2023, 1:16:18 PM (America/New_York)
+     */
     function updateRouteEvents(currentWorkflow, workflow, old_steps) {
         let workflow_events;
         let listAllEvents;
@@ -2276,6 +2307,15 @@
         }
     }
 
+    /**
+     * This is taking the routes array and looping through it to create
+     * the new routes for the duplicated workflow
+     *
+     * @param int workflow
+     * @param array old_steps
+     *
+     * Created at: 7/26/2023, 1:17:21 PM (America/New_York)
+     */
     function updateRoutes(workflow, old_steps) {
         for (let i in routes) {
             postAction(old_steps[routes[i].stepID], old_steps[routes[i].nextStepID], routes[i].actionType, workflow, function (res) {
@@ -2284,10 +2324,27 @@
         }
     }
 
+    /**
+     * This creates a new module for the newly duplicated workflow
+     *
+     * @param int stepID
+     * @param string indicatorID
+     *
+     * Created at: 7/26/2023, 1:18:37 PM (America/New_York)
+     */
     function updateModules(stepID, indicatorID) {
         postModule(stepID, indicatorID);
     }
 
+    /**
+     * Create the group approver for a duplicated workflow
+     *
+     * @param int indicatorID
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:20:42 PM (America/New_York)
+     */
     function updateGroupApprover(indicatorID, stepID, callback) {
         $.ajax({
             type: 'POST',
@@ -2303,6 +2360,15 @@
         });
     }
 
+    /**
+     * Create the approver for a duplicated workflow
+     *
+     * @param int indicatorID
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:23:08 PM (America/New_York)
+     */
     function updateApprover(indicatorID, stepID, callback) {
         $.ajax({
             type: 'POST',
@@ -2318,6 +2384,13 @@
         });
     }
 
+    /**
+     * @param array data
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:23:50 PM (America/New_York)
+     */
     function updateStepData(data, stepID, callback) {
         $.ajax({
             type: 'POST',
@@ -2333,6 +2406,15 @@
         });
     }
 
+    /**
+     * @param int workflowID
+     * @param string title
+     * @param closure callback
+     *
+     * @return [type]
+     *
+     * Created at: 7/26/2023, 1:25:08 PM (America/New_York)
+     */
     function addStep(workflowID, title, callback) {
         $.ajax({
             async: false,
@@ -2349,6 +2431,16 @@
         });
     }
 
+    /**
+     * This save the position of the step on the screen
+     *
+     * @param int workflowID
+     * @param int stepID
+     * @param int left
+     * @param int top
+     *
+     * Created at: 7/26/2023, 1:25:40 PM (America/New_York)
+     */
     function updatePosition(workflowID, stepID, left, top) {
         $.ajax({
             type: 'POST',
@@ -2367,6 +2459,17 @@
         });
     }
 
+    /**
+     * Updates the requirement label
+     *
+     * @param string title
+     * @param int stepID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:27:49 PM (America/New_York)
+     */
     function updateTitle(title, stepID, callback) {
         $.ajax({
             type: 'POST',
@@ -2382,6 +2485,15 @@
         });
     }
 
+    /**
+     * @param int stepID
+     * @param int dependencyID
+     * @param closure callback
+     *
+     * @return void
+     *
+     * Created at: 7/26/2023, 1:28:44 PM (America/New_York)
+     */
     function postStepDependency(stepID, dependencyID, callback) {
         $.ajax({
                 type: 'POST',
@@ -2396,6 +2508,15 @@
         });
     }
 
+    /**
+     * Create a new workflow
+     *
+     * @param closure callback
+     *
+     * @return int
+     *
+     * Created at: 7/26/2023, 1:29:18 PM (America/New_York)
+     */
     function postWorkflow(callback) {
         $.ajax({
             async: false,
@@ -2412,6 +2533,17 @@
         });
     }
 
+    /**
+     * @param int stepID
+     * @param int nextStepID
+     * @param string action
+     * @param int workflowID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:29:52 PM (America/New_York)
+     */
     function postAction(stepID, nextStepID, action, workflowID, callback) {
         $.ajax({
             type: 'POST',
@@ -2429,6 +2561,17 @@
         });
     }
 
+    /**
+     * @param int stepID
+     * @param string action
+     * @param int workflowID
+     * @param string event
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:31:07 PM (America/New_York)
+     */
     function postEvent(stepID, action, workflowID, event, callback) {
         $.ajax({
             type: 'POST',
@@ -2445,6 +2588,12 @@
         })
     }
 
+    /**
+     * @param int stepID
+     * @param int indicatorID
+     *
+     * Created at: 7/26/2023, 1:31:50 PM (America/New_York)
+     */
     function postModule(stepID, indicatorID) {
         $.ajax({
             type: 'POST',
@@ -2456,6 +2605,16 @@
         });
     }
 
+    /**
+     * Get a specific step
+     *
+     * @param int stepID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:32:32 PM (America/New_York)
+     */
     function getStep(stepID, callback) {
         $.ajax({
             type: 'GET',
@@ -2475,6 +2634,16 @@
         });
     }
 
+    /**
+     * @param int workflowID
+     * @param int stepID
+     * @param string action
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:33:15 PM (America/New_York)
+     */
     function getRouteEvents(workflowID, stepID, action, callback) {
         $.ajax({
             type: 'GET',
@@ -2487,6 +2656,14 @@
         });
     }
 
+    /**
+     * @param int workflowID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:33:56 PM (America/New_York)
+     */
     function getWorkflowEvents(workflowID, callback) {
         $.ajax({
             async: false,
@@ -2500,19 +2677,14 @@
         });
     }
 
-    function getWorkflowEvents(workflowID, callback) {
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: '../api/workflow/' + workflowID + '/step/routeEvents',
-            success: function(res) {
-                callback(res);
-            },
-            error: (err) => console.log(err),
-            cache: false
-        });
-    }
-
+    /**
+     * @param int stepID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:34:49 PM (America/New_York)
+     */
     function getStepDependencies(stepID, callback) {
         $.ajax({
             async: false,
