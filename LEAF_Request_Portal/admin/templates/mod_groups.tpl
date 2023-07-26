@@ -81,6 +81,7 @@
 <!--{include file="../../../libs/smarty/loading_spinner.tpl" title='User Groups'}-->
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/import_dialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
@@ -926,10 +927,12 @@ function importGroup() {
     // reset dialog for regular content
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
-    dialog.setTitle('Import Group');
-    dialog.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
-    dialog.showButtons();
+    dialog_import.setTitle('Import Group');
+    dialog_import.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title or Outlook Group</label><div id="groupSel_container"></div></div>');
+    dialog_import.showButtons();
     let groupSel = new groupSelector('groupSel_container');
+    // let saveButton = document.querySelector('#button_save');
+    // saveButton.innerText = "Import";
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
@@ -950,7 +953,7 @@ function importGroup() {
     });
     groupSel.initialize();
 
-    dialog.setSaveHandler(function() {
+    dialog_import.setSaveHandler(function() {
         if(groupSel.selection != '') {
         	tagAndUpdate(groupSel.selection);
             $.ajax({
@@ -962,7 +965,7 @@ function importGroup() {
             });
         }
     });
-    dialog.show();
+    dialog_import.show();
 }
 
 function createGroup() {
@@ -1038,8 +1041,10 @@ function showAllGroupHistory() {
 let dialog;
 let dialog_simple;
 let dialog_confirm;
+let dialog_import;
 $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
+	dialog_import = new dialogController('import_dialog', 'import_xhr', 'importloadIndicator', 'button_import', 'importbutton_cancelchange');
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
     dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     getGroupList();
