@@ -2700,7 +2700,6 @@
     var workflows = {};
     var steps = {};
     var routes = {};
-    var listAllEvents = {};
     var endpointOptions = {
         isSource: true,
         isTarget: true,

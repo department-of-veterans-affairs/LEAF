@@ -235,8 +235,6 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/[digit]/step/[digit]/[text]/events', function ($args) use ($workflow) {
-            error_log(print_r($args, true));
-            error_log(print_r($_POST, true));
             $workflow->setWorkflowID((int)$args[0]);
             if($_POST['eventID'] == 'automated_email_reminder')
             {

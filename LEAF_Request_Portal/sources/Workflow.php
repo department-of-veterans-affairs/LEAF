@@ -376,7 +376,18 @@ class Workflow
         return true;
     }
 
-    public function postRoute(int $workflowID, int $stepID, int $nextStepID, string $action, string $conditional)
+    /**
+     * @param int $workflowID
+     * @param int $stepID
+     * @param int $nextStepID
+     * @param string $action
+     * @param string $conditional
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 7:59:46 AM (America/New_York)
+     */
+    public function postRoute(int $workflowID, int $stepID, int $nextStepID, string $action, string $conditional): array
     {
         $vars = array(':workflowID' => $workflowID,
             ':stepID' => $stepID,
@@ -403,6 +414,13 @@ class Workflow
         return $res;
     }
 
+    /**
+     * @param int $workflowID
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 8:00:08 AM (America/New_York)
+     */
     public function getWorkflowEvents(int $workflowID): array
     {
         $vars = array(':workflowID' => $workflowID);
