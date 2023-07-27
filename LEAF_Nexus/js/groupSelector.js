@@ -23,6 +23,8 @@ function groupSelector(containerID) {
   this.selectionData = new Object();
   this.inputID = "#" + this.prefixID + "input";
   this.optionNoLimit = 0;
+  this.leafRequest = null;
+  this.adRequest = null;
   this.currRequest = null;
   this.jsonResponse = null;
 
@@ -30,7 +32,7 @@ function groupSelector(containerID) {
 }
 
 groupSelector.prototype.initialize = function () {
-  var t = this;
+  const t = this;
   const id = this.containerID.split("_")[1];
   const labelText = $("[for='" + id + "']")
     .text()
@@ -106,7 +108,7 @@ groupSelector.prototype.select = function (id) {
   )
     return;
   nodes = $("#" + this.containerID + " .groupSelected");
-  for (var i in nodes) {
+  for (let i in nodes) {
     if (nodes[i].id != undefined) {
       $("#" + nodes[i].id).removeClass("groupSelected");
       $("#" + nodes[i].id).addClass("groupSelector");
@@ -165,6 +167,40 @@ groupSelector.prototype.configInputID = function (inputID) {
   this.inputID = inputID;
 };
 
+groupSelector.prototype.adSearch = function () {
+  const ret = new Promise((resolve, reject) => {
+    $.ajax({
+      url: this.apiPath + "ad/search",
+      dataType: "json",
+      data: {q: this.q, tag: this.tag},
+      success: function (response) {
+        resolve(response);
+      },
+      fail: function(error) {
+        reject(error);
+      }
+    })
+  });
+  return ret;
+};
+
+groupSelector.prototype.leafSearch = function () {
+  const ret = new Promise((resolve, reject) => {
+    $.ajax({
+      url: this.apiPath + "group/search",
+      dataType: "json",
+      data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
+      success: function (response) {
+        resolve(response);
+      },
+      fail: function(error) {
+        reject(error);
+      }
+    });
+  });
+  return ret;
+};
+
 groupSelector.prototype.search = function () {
   if (
     $("#" + this.prefixID + "input").val() == undefined ||
@@ -176,8 +212,8 @@ groupSelector.prototype.search = function () {
   this.timer += this.timer > 5000 ? 0 : 200;
 
   if (this.timer > 300) {
-    var skip = 0;
-    var txt = $("#" + this.prefixID + "input")
+    let skip = 0;
+    const txt = $("#" + this.prefixID + "input")
       .val()
       .replace(/<[^>]*>/g, "");
     if (txt == undefined) {
@@ -199,103 +235,100 @@ groupSelector.prototype.search = function () {
         this.currRequest.abort();
       }
 
-      var t = this;
-      this.currRequest = $.ajax({
-        url: this.apiPath + "group/search",
-        dataType: "json",
-        data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
-        success: function (response) {
-          t.currRequest = null;
-          t.selection = "";
-          t.numResults = 0;
-          t.jsonResponse = response;
+      const t = this;
 
-          $("#" + t.prefixID + "result").html("");
-          var buffer =
-            '<table class="groupSelectorTable"><tr><th>Group Title</th></tr><tbody id="' +
-            t.prefixID +
-            'result_table"></tbody></table>';
-          $("#" + t.prefixID + "result").html(
-            buffer + $("#" + t.prefixID + "result").html()
+      this.currRequest = Promise.all([t.leafSearch()])
+      .then((response) => {
+        response = response.flat();
+        t.currRequest = null;
+        t.selection = "";
+        t.numResults = 0;
+        t.jsonResponse = response;
+
+        $("#" + t.prefixID + "result").html("");
+        let buffer =
+          '<table class="groupSelectorTable"><tr><th>Group Title</th></tr><tbody id="' +
+          t.prefixID +
+          'result_table"></tbody></table>';
+        $("#" + t.prefixID + "result").html(
+          buffer + $("#" + t.prefixID + "result").html()
+        );
+
+        if (response.length == 0) {
+          $("#" + t.prefixID + "result_table").append(
+            '<tr id="' +
+              t.prefixID +
+              'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span id="' +
+              t.prefixID +
+              'emp0_message" style="color: red"></span>&quot;</td></tr>'
+          );
+          $("#" + t.prefixID + "emp0_message").text(txt);
+          setTimeout(function () {
+            $("#" + t.prefixID + "status").text(
+              "No results found for term " + txt
+            );
+          }, 2500);
+        } else {
+          setTimeout(function () {
+            $("#" + t.prefixID + "status").text(
+              "Search results found for term " + txt + " listed below"
+            );
+          }, 2500);
+        }
+
+        t.selectionData = new Object();
+        $.each(response, function (key, item) {
+          t.selectionData[item.groupID] = item;
+
+          linkText = item.groupTitle;
+          if (t.selectLink != null) {
+            linkText =
+              '<a href="' +
+              t.selectLink +
+              "&groupID=" +
+              item.groupID +
+              '">' +
+              linkText +
+              "</a>";
+          }
+
+          $("#" + t.prefixID + "result_table").append(
+            '<tr tabindex="0" id="' +
+              t.prefixID +
+              "grp" +
+              item.groupID +
+              '"><td class="groupSelectorTitle" title="' +
+              item.groupID +
+              '">' +
+              linkText +
+              "</td></tr>"
+          );
+          $("#" + t.prefixID + "grp" + item.groupID).addClass(
+            "groupSelector"
           );
 
-          if (response.length == 0) {
-            $("#" + t.prefixID + "result_table").append(
-              '<tr id="' +
-                t.prefixID +
-                'emp0"><td style="font-size: 120%; background-color: white; text-align: center">No results for &quot;<span id="' +
-                t.prefixID +
-                'emp0_message" style="color: red"></span>&quot;</td></tr>'
-            );
-            $("#" + t.prefixID + "emp0_message").text(txt);
-            setTimeout(function () {
-              $("#" + t.prefixID + "status").text(
-                "No results found for term " + txt
-              );
-            }, 2500);
-          } else {
-            setTimeout(function () {
-              $("#" + t.prefixID + "status").text(
-                "Search results found for term " + txt + " listed below"
-              );
-            }, 2500);
-          }
-
-          t.selectionData = new Object();
-          $.each(response, function (key, item) {
-            t.selectionData[item.groupID] = item;
-
-            linkText = item.groupTitle;
-            if (t.selectLink != null) {
-              linkText =
-                '<a href="' +
-                t.selectLink +
-                "&groupID=" +
-                item.groupID +
-                '">' +
-                linkText +
-                "</a>";
-            }
-
-            $("#" + t.prefixID + "result_table").append(
-              '<tr tabindex="0" id="' +
-                t.prefixID +
-                "grp" +
-                item.groupID +
-                '"><td class="groupSelectorTitle" title="' +
-                item.groupID +
-                '">' +
-                linkText +
-                "</td></tr>"
-            );
-            $("#" + t.prefixID + "grp" + item.groupID).addClass(
-              "groupSelector"
-            );
-
-            $("#" + t.prefixID + "grp" + item.groupID).on("click", function () {
-              t.select(item.groupID);
-            });
-            $("#" + t.prefixID + "grp" + item.groupID).on(
-              "keypress",
-              function () {
-                t.select(item.groupID);
-              }
-            );
-            $("#" + t.prefixID + "status").append(" " + linkText + ",");
-            t.numResults++;
+          $("#" + t.prefixID + "grp" + item.groupID).on("click", function () {
+            t.select(item.groupID);
           });
+          $("#" + t.prefixID + "grp" + item.groupID).on(
+            "keypress",
+            function () {
+              t.select(item.groupID);
+            }
+          );
+          $("#" + t.prefixID + "status").append(" " + linkText + ",");
+          t.numResults++;
+        });
 
-          if (t.numResults == 1) {
-            t.selection = response[0].groupID;
-          }
+        if (t.numResults == 1) {
+          t.selection = response[0].groupID;
+        }
 
-          if (t.resultHandler != null) {
-            t.resultHandler();
-          }
+        if (t.resultHandler != null) {
+          t.resultHandler();
+        }
 
-          t.showNotBusy();
-        },
-        cache: false,
+        t.showNotBusy();
       });
     } else if (txt == "") {
       this.q = txt;

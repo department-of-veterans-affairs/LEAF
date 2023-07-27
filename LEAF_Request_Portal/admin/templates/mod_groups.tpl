@@ -928,11 +928,9 @@ function importGroup() {
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
     dialog_import.setTitle('Import Group');
-    dialog_import.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title or Outlook Group</label><div id="groupSel_container"></div></div>');
+    dialog_import.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site or Outlook:</p><div class="leaf-marginTop-1rem"><label>Group Title or Outlook Group</label><div id="groupSel_container"></div></div>');
     dialog_import.showButtons();
     let groupSel = new groupSelector('groupSel_container');
-    // let saveButton = document.querySelector('#button_save');
-    // saveButton.innerText = "Import";
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
     groupSel.basePath = '../';
     groupSel.setResultHandler(function() {
@@ -946,7 +944,7 @@ function importGroup() {
         // prevent services from showing up as search results
         for(let i in groupSel.jsonResponse) {
             $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).attr('tabindex', '0');
-            if(groupSel.jsonResponse[i].tags.service != undefined) {
+            if(groupSel.jsonResponse[i]?.tags?.service != undefined) {
                 $('#' + groupSel.prefixID + 'grp' + groupSel.jsonResponse[i].groupID).css('display', 'none');
             }
         }

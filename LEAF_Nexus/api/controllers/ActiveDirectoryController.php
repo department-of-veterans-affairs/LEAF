@@ -37,5 +37,9 @@ class ActiveDirectoryController extends RESTfulResponse
         $this->index['GET']->register('ad/[digit]/members', function ($args) use ($dir) {
             return $dir->listMembers($args[0]);
         });
+
+        $this->index['GET']->register('ad/search', function ($args) use ($dir) {
+            return $dir->search($_GET['q'], $$dir->sanitizeInput($_GET['tag']));
+        });
     }
 }
