@@ -441,10 +441,16 @@
     var ignoreUnsavedChanges = false;
     var ignorePrompt = true;
 
+
     // This function displays a prompt if there are unsaved changes before leaving the page
     function editorCurrentContent() {
         $(window).on('beforeunload', function(e) {
             if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
+                // Bypass the prompt if the file name contains "LEAF_"
+                if (currentFile && currentFile.includes('LEAF_')) {
+                    return;
+                }
+
                 let data = '';
                 if (codeEditor.getValue === undefined) {
                     data = codeEditor.edit.getValue();
@@ -452,13 +458,13 @@
                     data = codeEditor.getValue();
                 }
                 if (currentFileContent !== data) {
-                    let confirmationMessage =
-                        'You have unsaved changes. Are you sure you want to leave this page?';
+                    let confirmationMessage = 'You have unsaved changes. Are you sure you want to leave this page?';
                     return confirmationMessage;
                 }
             }
         });
     }
+
     // request's copies of the current file content in an accordion layout
     function getFileHistory(template) {
         $.ajax({
@@ -575,8 +581,7 @@
 
                             function mergeFile() {
                                 ignoreUnsavedChanges = true;
-                                let changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
+                                let changedLines = codeEditor.leftOriginal().lineCount();
                                 let mergedContent = "";
                                 for (let i = 0; i < changedLines; i++) {
                                     let mergeLine = codeEditor.leftOriginal().getLine(
@@ -654,127 +659,132 @@
         });
     }
     //loads all files and retreave's them
+
     function loadContent(file) {
-        console.log(file);
-        if (file === undefined) {
-            console.error('No file specified. File cannot be loaded.');
-            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+    if (file === undefined) {
+        console.error('No file specified. File cannot be loaded.');
+        $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+        return;
+    }
+
+    // Check if the file name contains "LEAF_"
+    const isLeafFile = file.includes('LEAF_');
+
+    if (ignorePrompt) {
+        ignorePrompt = false; // Reset ignorePrompt flag
+    } else {
+        // If the file is not a "LEAF_" file, and there are unsaved changes, show the prompt
+        if (!isLeafFile && !ignoreUnsavedChanges && hasUnsavedChanges() && !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
             return;
         }
-
-        if (ignorePrompt) {
-            ignorePrompt = false; // Reset ignorePrompt flag
-        } else {
-            if (!ignoreUnsavedChanges && hasUnsavedChanges() && !confirm(
-                    'You have unsaved changes. Are you sure you want to leave this page?')) {
-                return;
-            }
-        }
-
-        $('.CodeMirror').remove();
-        $('#codeCompare').empty();
-        $('#btn_compareStop').css('display', 'none');
-        $('.keyboard_shortcuts_merge').hide();
-
-        currentFile = file;
-        initEditor();
-        $('#codeContainer').css('display', 'none');
-        $('#controls').css('visibility', 'visible');
-        $('#filename').html(file.replace('.tpl', ''));
-        let reportURL = `${window.location.origin}${window.location.pathname.replace('admin/', '')}report.php?a=${file.replace('.tpl', '')}`;
-        $('#reportURL').html(`URL: <a href="${reportURL}" target="_blank">${reportURL}</a>`);
-        $('#controls').css('visibility', isExcludedFile(file) ? 'hidden' : 'visible');
-        $.ajax({
-            type: 'GET',
-            url: `../api/applet/_${file}`,
-            success: function(res) {
-                currentFileContent = res.file;
-                $('#codeContainer').fadeIn();
-
-                // Check if codeEditor is already defined and has a setValue method
-                if (codeEditor && typeof codeEditor.setValue === 'function') {
-                    codeEditor.setValue(res.file);
-                } else {
-                    console.error('codeEditor is not properly initialized.');
-                }
-
-                if (res.modified === 1) {
-                    $('.modifiedTemplate').css('display', 'block');
-                } else {
-                    $('.modifiedTemplate').css('display', 'none');
-                }
-
-                getFileHistory(file);
-            },
-            error: function(xhr, status, error) {
-                console.log('Error loading file: ' + error);
-            },
-            cache: false
-        });
-        $('#saveStatus').html('');
-
-        editorCurrentContent();
-
-        codeEditor.on('change', function() {
-            unsavedChanges = true;
-        });
-
-        // Shortcuts for undo, save, and full screen functionality
-        codeEditor.setOption('extraKeys', {
-            'Ctrl-Z': function(cm) {
-                cm.undo();
-            },
-            'Ctrl-S': function(cm) {
-                save();
-            },
-            'Ctrl-W': function(cm) {
-                cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
-            },
-            'F11': function(cm) {
-                if (cm.getOption('fullScreen')) {
-                    cm.setOption('fullScreen', false);
-                    $('.CodeMirror-scroll').css('height', '60vh');
-                } else {
-                    cm.setOption('fullScreen', true);
-                    $('.CodeMirror-scroll').css('height', '100vh');
-                }
-            }
-        });
-
-        function hasUnsavedChanges() {
-            let data = '';
-            if (codeEditor.getValue === undefined) {
-                data = codeEditor.edit.getValue();
-            } else {
-                data = codeEditor.getValue();
-            }
-            return currentFileContent !== data;
-        }
-
-        // A shortcut for changing the theme
-        $(document).on('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'b') {
-                changeThemeToDracula();
-            }
-            if (event.ctrlKey && event.key === 'n') {
-                revertToOriginalTheme();
-            }
-        });
-
-        function changeThemeToDracula() {
-            codeEditor.setOption('theme', 'lucario');
-        }
-
-        function revertToOriginalTheme() {
-            codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
-        }
-
-        if (file !== undefined) {
-            let url = new URL(window.location.href);
-            url.searchParams.set('file', file);
-            window.history.replaceState(null, null, url.toString());
-        }
     }
+
+    $('.CodeMirror').remove();
+    $('#codeCompare').empty();
+    $('#btn_compareStop').css('display', 'none');
+    $('.keyboard_shortcuts_merge').hide();
+
+    currentFile = file;
+    initEditor();
+    $('#codeContainer').css('display', 'none');
+    $('#controls').css('visibility', 'visible');
+    $('#filename').html(file.replace('.tpl', ''));
+    let reportURL = `${window.location.origin}${window.location.pathname.replace('admin/', '')}report.php?a=${file.replace('.tpl', '')}`;
+    $('#reportURL').html(`URL: <a href="${reportURL}" target="_blank">${reportURL}</a>`);
+    $('#controls').css('visibility', isExcludedFile(file) ? 'hidden' : 'visible');
+    $.ajax({
+        type: 'GET',
+        url: `../api/applet/_${file}`,
+        success: function(res) {
+            currentFileContent = res.file;
+            $('#codeContainer').fadeIn();
+
+            // Check if codeEditor is already defined and has a setValue method
+            if (codeEditor && typeof codeEditor.setValue === 'function') {
+                codeEditor.setValue(res.file);
+            } else {
+                console.error('codeEditor is not properly initialized.');
+            }
+
+            if (res.modified === 1) {
+                $('.modifiedTemplate').css('display', 'block');
+            } else {
+                $('.modifiedTemplate').css('display', 'none');
+            }
+
+            getFileHistory(file);
+        },
+        error: function(xhr, status, error) {
+            console.log('Error loading file: ' + error);
+        },
+        cache: false
+    });
+    $('#saveStatus').html('');
+
+    editorCurrentContent();
+
+    codeEditor.on('change', function() {
+        unsavedChanges = true;
+    });
+
+    // Shortcuts for undo, save, and full screen functionality
+    codeEditor.setOption('extraKeys', {
+        'Ctrl-Z': function(cm) {
+            cm.undo();
+        },
+        'Ctrl-S': function(cm) {
+            save();
+        },
+        'Ctrl-W': function(cm) {
+            cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
+        },
+        'F11': function(cm) {
+            if (cm.getOption('fullScreen')) {
+                cm.setOption('fullScreen', false);
+                $('.CodeMirror-scroll').css('height', '60vh');
+            } else {
+                cm.setOption('fullScreen', true);
+                $('.CodeMirror-scroll').css('height', '100vh');
+            }
+        }
+    });
+
+    function hasUnsavedChanges() {
+        let data = '';
+        if (codeEditor.getValue === undefined) {
+            data = codeEditor.edit.getValue();
+        } else {
+            data = codeEditor.getValue();
+        }
+        return currentFileContent !== data;
+    }
+
+    // A shortcut for changing the theme
+    $(document).on('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'b') {
+            changeThemeToDracula();
+        }
+        if (event.ctrlKey && event.key === 'n') {
+            revertToOriginalTheme();
+        }
+    });
+
+    function changeThemeToDracula() {
+        codeEditor.setOption('theme', 'lucario');
+    }
+
+    function revertToOriginalTheme() {
+        codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
+    }
+
+    if (!isLeafFile && file !== undefined) {
+        let url = new URL(window.location.href);
+        url.searchParams.set('file', file);
+        window.history.replaceState(null, null, url.toString());
+    }
+}
+
+
 
     // initiates  the loadContent()
     function initEditor() {
