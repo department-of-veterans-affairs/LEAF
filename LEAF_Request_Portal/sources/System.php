@@ -686,8 +686,16 @@ class System
                 ':fillDependency' => $_POST['fillDependency'],
         );
 
-        $this->db->prepared_query('INSERT INTO actions (actionType, actionText, actionTextPasttense, actionIcon, actionAlignment, sort, fillDependency)
-										VALUES (:actionType, :actionText, :actionTextPasttense, :actionIcon, :actionAlignment, :sort, :fillDependency)', $vars);
+        $sql = 'INSERT INTO `actions` (`actionType`, `actionText`,
+                    `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`)
+                VALUES (:actionType, :actionText, :actionTextPasttense, :actionIcon, :actionAlignment, :sort, :fillDependency)
+                ON DUPLICATE KEY UPDATE `actionText` = :actionText,
+                    `actionTextPasttense` = :actionTextPasttense,
+                    `actionIcon` = :actionIcon,
+                    `actionAlignment` = :actionAlignment, `sort` = :sort,
+                    `fillDependency` = :fillDependency, `deleted` = 0';
+
+        $this->db->prepared_query($sql, $vars);
     }
 
     public function setHeading()
