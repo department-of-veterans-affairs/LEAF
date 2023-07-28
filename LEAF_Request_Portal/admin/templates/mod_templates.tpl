@@ -68,32 +68,7 @@
                                 <p>F11 </p>
                             </div>
                         </div>
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Word Wrap: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + W </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section">
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Dark Mode: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + B </p>
-                            </div>
-                        </div>
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Default Mode: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + N</p>
-                            </div>
-                        </div>
+                        <div class="keboard_shortcuts_box"></div>
                     </div>
                 </div>
 
@@ -112,24 +87,11 @@
                         </div>
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
-                                <h3>Word Wrap: </h3>
-                            </div>
-                            <div class="keyboard_shortcut_merge">
-                                <p>Ctrl + W </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section_merge">
-                        <div class="keboard_shortcuts_box_merge">
-                            <div class="keyboard_shortcuts_title_merge">
                                 <h3>Exit Compare: </h3>
                             </div>
                             <div class="keyboard_shortcut_merge">
                                 <p>Ctrl + E </p>
                             </div>
-                        </div>
-                        <div class="keboard_shortcuts_box_merge">
-
                         </div>
                     </div>
                 </div>
@@ -161,11 +123,11 @@
                         Stop Comparing
                     </button>
 
-                    <!--<button
+                    <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         id="btn_compare" onclick="compare();">
                         Compare to Original
-                    </button> -->
+                    </button>
 
                     <button id="icon_library"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
@@ -181,7 +143,12 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Merge New File</button>
+                    <button id="restore_original"
+                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
+                        onclick="restore();">
+                        Restore Original
+                    </button>
+                    <button class="file_replace_file_btn">Use Old File</button>
                     <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
@@ -212,21 +179,7 @@
             'right': '-100%'
         });
     }
-    // browser listens when scrolling to scroll components
-    window.addEventListener('scroll', function() {
-        let mainEditorContent = document.querySelector('.main-content');
-        let rightSideNav = document.querySelector('.leaf-right-nav');
-        let code = mainEditorContent.getBoundingClientRect();
-        let buttonsNav = rightSideNav.getBoundingClientRect();
 
-        if (code.top <= 0 || buttonsNav.top <= 0) {
-            mainEditorContent.classList.add('sticky');
-            rightSideNav.classList.add('sticky');
-        } else {
-            mainEditorContent.classList.remove('sticky');
-            rightSideNav.classList.remove('sticky');
-        }
-    });
     // saves current file content changes
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
@@ -351,6 +304,7 @@
         });
 
         dialog.show();
+        exitExpandScreen();
     }
 
     var dv;
@@ -361,6 +315,7 @@
         $('#btn_compare').css('display', 'none');
         $('#btn_compareStop').css('display', 'block');
         $('#save_button_compare').css('display', 'block');
+        $('.file-history').hide();
 
 
         $.ajax({
@@ -456,6 +411,7 @@
         $('#save_button_compare').css('display', 'none');
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
+        $('.file-history').show();
         $('.page-title-container>h2').css({
             'width': '100%',
             'text-align': 'left'
@@ -565,7 +521,7 @@
         let urlParams = new URLSearchParams(window.location.search);
         let fileName = urlParams.get('fileName');
         let parentFile = urlParams.get('parentFile');
-        let templateFile = urlParams.get('templateFile');
+        let templateFile = urlParams.get('file');
 
         if (fileName && parentFile !== null) {
             loadContent(parentFile);
@@ -694,10 +650,12 @@
 
                             $('.file_replace_file_btn').click(function() {
                                 ignoreUnsavedChanges = true;
-                                let changedLines = codeEditor.leftOriginal().lineCount();
+                                let changedLines = codeEditor.leftOriginal()
+                                    .lineCount();
                                 let mergedContent = "";
                                 for (let i = 0; i < changedLines; i++) {
-                                    let mergeLine = codeEditor.leftOriginal().getLine(i);
+                                    let mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
                                     }
@@ -861,7 +819,7 @@
 
         if (file !== null) {
             let url = new URL(window.location.href);
-            url.searchParams.set('templateFile', file);
+            url.searchParams.set('file', file);
             window.history.replaceState(null, null, url.toString());
         }
     }

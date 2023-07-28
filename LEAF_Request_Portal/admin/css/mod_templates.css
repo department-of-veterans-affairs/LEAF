@@ -1,3 +1,7 @@
+.ui-dialog .ui-dialog-content {
+    box-sizing: border-box;
+}
+
 .leaf-code-container {
     background-color: #ffffff00 !important;
     overflow: initial;
@@ -226,12 +230,13 @@
 }
 
 #filename {
-    padding: 25px 15px;
+    padding: 15px;
     font-size: 1.2rem;
-    background: #1a4480;
+    background: #252f3e;
+    font-weight: bold;
     color: #fff;
     text-align: left;
-    border-radius: 5px;
+    border-radius: 5px 5px 0 0;
 }
 
 .leaf-btn-med {
@@ -356,6 +361,7 @@
 #icon_library {
     width: 100%;
     font-weight: 500;
+    font-size: .9rem;
 }
 
 #save_button {

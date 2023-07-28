@@ -155,32 +155,7 @@
                                 <p>F11 </p>
                             </div>
                         </div>
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Word Wrap: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + W </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section">
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Dark Mode: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + B </p>
-                            </div>
-                        </div>
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Default Mode: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + N</p>
-                            </div>
-                        </div>
+                        <div class="keboard_shortcuts_box"></div>
                     </div>
                 </div>
 
@@ -246,7 +221,7 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Merge</button>
+                    <button class="file_replace_file_btn">Use Old File</button>
                     <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
@@ -277,21 +252,6 @@
         });
     }
     var codeEditor;
-    // browser listens when scrolling to scroll components
-    window.addEventListener('scroll', function() {
-        let mainEditorContent = document.querySelector('.main-content');
-        let rightSideNav = document.querySelector('.leaf-right-nav');
-        let code = mainEditorContent.getBoundingClientRect();
-        let buttonsNav = rightSideNav.getBoundingClientRect();
-
-        if (code.top <= 0 || buttonsNav.top <= 0) {
-            mainEditorContent.classList.add('sticky');
-            rightSideNav.classList.add('sticky');
-        } else {
-            mainEditorContent.classList.remove('sticky');
-            rightSideNav.classList.remove('sticky');
-        }
-    });
     // saves current file content changes
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
@@ -683,26 +643,28 @@
     // Retreave URL to display comparison of files
     function initializePage() {
         let urlParams = new URLSearchParams(window.location.search);
+
         let fileName = urlParams.get('fileName');
         let parentFile = urlParams.get('parentFile');
 
-        let templateFile = urlParams.get('templateFile');
-        let templateName = urlParams.get('templateName');
-        let templateSubjectFile = urlParams.get('templateSubjectFile');
-        let templateEmailToFile = urlParams.get('templateEmailToFile');
-        let templateEmailCcFile = urlParams.get('templateEmailCcFile');
+        let templateFile = urlParams.get('file');
+        let templateName = urlParams.get('name');
+        let templateSubjectFile = urlParams.get('subjectFile');
+        let templateEmailToFile = urlParams.get('emailToFile');
+        let templateEmailCcFile = urlParams.get('emailCcFile');
 
-        if (fileName && parentFile !== null) {
+        if (fileName !== null && parentFile !== null && templateSubjectFile == 'undefined' && templateName == 'undefined') {
+            loadContent(currentName, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+            compareHistoryFile(fileName, parentFile, false);
+        } else if (fileName !== null && parentFile !== null && templateSubjectFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
             compareHistoryFile(fileName, parentFile, false);
+        } else if (templateSubjectFile == 'undefined') {
+            loadContent(currentName, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
         } else if (templateFile !== null) {
-            console.log(templateFile);
-            if (templateSubjectFile !== '') {
-                loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
-            } else {
-                loadContent(undefined, templateFile, undefined, undefined, undefined);
-            }
+            loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
         } else {
+            console.log('else');
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
     }
@@ -878,7 +840,7 @@
     }
     // loads all files and retreave's them
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        console.log(name, file, subjectFile, emailToFile, emailCcFile);
+        // console.log(name, file, subjectFile, emailToFile, emailCcFile);
         if (file === undefined) {
             name = currentName;
             file = currentFile;
@@ -1007,11 +969,11 @@
 
         if (file !== null) {
             let url = new URL(window.location.href);
-            url.searchParams.set('templateFile', file);
-            url.searchParams.set('templateName', name);
-            url.searchParams.set('templateSubjectFile', subjectFile);
-            url.searchParams.set('templateEmailToFile', emailToFile);
-            url.searchParams.set('templateEmailCcFile', file);
+            url.searchParams.set('file', file);
+            url.searchParams.set('name', name);
+            url.searchParams.set('subjectFile', subjectFile);
+            url.searchParams.set('emailToFile', emailToFile);
+            url.searchParams.set('emailCcFile', emailCcFile);
             window.history.replaceState(null, null, url.toString());
         }
 

@@ -1,3 +1,6 @@
+.ui-dialog .ui-dialog-content {
+    box-sizing: border-box;
+}
 
 .CodeMirror-merge-pane-rightmost {
     border: 4px solid #083;
@@ -46,15 +49,10 @@
 
 #reportURL {
     text-align: left;
-    background-color: #1a4480;
-    padding: 0 0 15px 15px;
+    background-color: white;
+    padding: 15px;
     width: 100%;
-    border-radius: 0 0 5px 5px;
-    color: #fff;
-}
-
-#reportURL>a {
-    color: #fff;
+    border-bottom: 1px solid black;
 }
 
 .leaf-center-content {
@@ -227,13 +225,14 @@
 .new-report {
     width: 80%;
     max-width: 250px;
-    font-size: 1rem;
+    font-size: .9rem;
     margin: 0 auto;
     background-color: #1a4480;
     border: none;
     color: #fff;
     padding: 10px 0;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .main-content {
@@ -256,7 +255,8 @@
 #filename {
     padding: 15px;
     font-size: 1.2rem;
-    background: #1a4480;
+    background: #252f3e;
+    font-weight: bold;
     color: #fff;
     text-align: left;
     border-radius: 5px 5px 0 0;
@@ -409,6 +409,7 @@
 #deleteButton {
     width: 80%;
     font-weight: 500;
+    font-size: .9rem;
 }
 
 #save_button {
@@ -516,7 +517,7 @@
 .CodeMirror-scroll {
     margin-right: 0;
     height: 60vh;
-    min-height: 563px;
+    /* min-height: 563px; */
 }
 
 .CodeMirror-merge-pane-label {

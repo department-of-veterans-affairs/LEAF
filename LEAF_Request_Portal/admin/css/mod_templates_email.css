@@ -1,3 +1,7 @@
+.ui-dialog .ui-dialog-content {
+    box-sizing: border-box;
+}
+
 .email-template-variables,
 .email-keyboard-shortcuts {
     display: flex;
@@ -111,17 +115,19 @@ fieldset {
     background-color: #e8e8e8;
 }
 
-#subjectCompare .CodeMirror-merge,
-.CodeMirror-merge .CodeMirror {}
-
 #emailTemplateHeader {
-    padding: 25px 15px;
+    padding: 15px;
     font-size: 1.2rem;
-    background: #1a4480;
+    background: #252f3e;
+    font-weight: bold;
     color: #fff;
     text-align: left;
+    margin: 0;
     border-radius: 5px;
-    margin: 0 0 10px 0;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
 }
 
 #emailLists fieldset legend {
@@ -342,6 +348,8 @@ legend {
     margin-top: 10px;
 }
 
+
+
 .leaf-btn-med {
     margin-top: 10px;
 }
@@ -475,6 +483,7 @@ legend {
 #icon_library {
     width: 100%;
     font-weight: 500;
+    font-size: .9rem;
 }
 
 #save_button {

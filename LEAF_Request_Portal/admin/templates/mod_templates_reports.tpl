@@ -67,32 +67,7 @@
                                 <p>F11 </p>
                             </div>
                         </div>
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Word Wrap: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + W </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section">
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Dark Mode: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + B </p>
-                            </div>
-                        </div>
-                        <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Default Mode: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + N</p>
-                            </div>
-                        </div>
+                        <div class="keboard_shortcuts_box"></div>
                     </div>
                 </div>
 
@@ -165,7 +140,7 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Merge New File</button>
+                    <button class="file_replace_file_btn">Use Old File</button>
                     <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
@@ -198,20 +173,6 @@
             'right': '-100%'
         });
     }
-    window.addEventListener('scroll', function() {
-        let mainEditorContent = document.querySelector('.main-content');
-        let rightSideNav = document.querySelector('.leaf-right-nav');
-        let code = mainEditorContent.getBoundingClientRect();
-        let buttonsNav = rightSideNav.getBoundingClientRect();
-
-        if (code.top <= 0 || buttonsNav.top <= 0) {
-            mainEditorContent.classList.add('sticky');
-            rightSideNav.classList.add('sticky');
-        } else {
-            mainEditorContent.classList.remove('sticky');
-            rightSideNav.classList.remove('sticky');
-        }
-    });
 
     // saves current file content changes
     function save() {
@@ -279,16 +240,14 @@
         let urlParams = new URLSearchParams(window.location.search);
         let fileName = urlParams.get('fileName');
         let parentFile = urlParams.get('parentFile');
-        let templateFile = urlParams.get('templateFile');
+        let templateFile = urlParams.get('file');
 
-
-
-        if (fileName && parentFile !== null) {
-            loadContent(parentFile);
-            compareHistoryFile(fileName, parentFile, false);
-        }else if (templateFile !== null) {
+        if (fileName && parentFile != undefined) {
             loadContent(templateFile);
-        }  else {
+            compareHistoryFile(fileName, parentFile, false);
+        } else if (templateFile != undefined) {
+            loadContent(templateFile);
+        } else {
             loadContent('example');
         }
     }
@@ -444,6 +403,10 @@
         });
 
         dialog_confirm.show();
+        // Will reset the URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('file');
+        window.history.replaceState(null, null, url.toString());
     }
     // deletes the history file report when the original report has been deleted
     function deleteHistoryFileReport(templateFile) {
@@ -644,9 +607,11 @@
                             });
 
                             function toggleWordWrap() {
-                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
+                                let lineWrapping = codeEditor.editor().getOption(
+                                    'lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
-                                codeEditor.leftOriginal().setOption('lineWrapping', !lineWrapping);
+                                codeEditor.leftOriginal().setOption('lineWrapping', !
+                                    lineWrapping);
                             }
                         }
                     });
@@ -690,6 +655,7 @@
     }
     //loads all files and retreave's them
     function loadContent(file) {
+        console.log(file);
         if (file === undefined) {
             console.error('No file specified. File cannot be loaded.');
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
@@ -710,8 +676,8 @@
         $('#btn_compareStop').css('display', 'none');
         $('.keyboard_shortcuts_merge').hide();
 
-        initEditor();
         currentFile = file;
+        initEditor();
         $('#codeContainer').css('display', 'none');
         $('#controls').css('visibility', 'visible');
         $('#filename').html(file.replace('.tpl', ''));
@@ -748,10 +714,6 @@
         $('#saveStatus').html('');
 
         editorCurrentContent();
-
-        $(window).on('unload', function() {
-            if (unsavedChanges) {}
-        });
 
         codeEditor.on('change', function() {
             unsavedChanges = true;
@@ -807,12 +769,13 @@
             codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
         }
 
-        if (file !== null) {
+        if (file !== undefined) {
             let url = new URL(window.location.href);
-            url.searchParams.set('templateFile', file);
+            url.searchParams.set('file', file);
             window.history.replaceState(null, null, url.toString());
         }
     }
+
     // initiates  the loadContent()
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -855,12 +818,9 @@
                     let file = res[i].replace('.tpl', '');
                     if (!isExcludedFile(file)) {
                         buffer += '<li onclick="loadContent(\'' + file + '\');"><a href="#">' + file + '</a></li>';
-
-                            filesMobile += '<option onclick="loadContent(\'' + file + '\');"><div class="template_files"><a href="#">' + file + '</a></div></option>';
+                        filesMobile += '<option onclick="loadContent(\'' + file + '\');"><div class="template_files">' + file + '</div></option>';
                     } else {
-                        bufferExamples += '<li onclick="loadContent(\'' + file +
-                            '\');" "><a href="#' +
-                            file + '">' + file + '</a></li>';
+                        bufferExamples += '<li onclick="loadContent(\'' + file + '\');" ><a href="#">' + file + '</a></li>';
                     }
                 }
                 buffer += '</ul>';
@@ -911,8 +871,9 @@
             'button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
-        updateFileList();
+        
         initializePage();
+        updateFileList();
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator',
             'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
