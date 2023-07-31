@@ -8,6 +8,7 @@ const ConditionsEditor = Vue.createApp({
       windowTop: 0,
 
       indicators: [],
+      currFormIndicators: [],
       selectedOperator: "",
       selectedParentValue: "",
       selectedOutcome: "",
@@ -47,15 +48,7 @@ const ConditionsEditor = Vue.createApp({
         type: "GET",
         url: "../api/form/indicator/list/unabridged",
         success: (res) => {
-          const filteredList = res.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
-          this.indicators = filteredList;
-          this.indicators.forEach(i => {
-            if (i.parentIndicatorID !== null) {
-              this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
-            } else {
-              i.headerIndicatorID = parseInt(i.indicatorID);
-            }
-          });
+          this.indicators = res.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
           this.vueData.updateIndicatorList = false;
         },
         error: (err) => {
@@ -169,7 +162,7 @@ const ConditionsEditor = Vue.createApp({
      * @param {Object} initialIndicator reference to the indicator to update
      */
     addHeaderIDs(indID = 0, initialIndicator = {}) {
-      const parent = this.indicators.find(i => parseInt(i.indicatorID) === indID);
+      const parent = this.currFormIndicators.find(i => parseInt(i.indicatorID) === indID);
       if(parent === undefined) return;
       //if the parent has a null parentID, then this is the header, update the passed reference
       if (parent?.parentIndicatorID === null) {
@@ -194,7 +187,7 @@ const ConditionsEditor = Vue.createApp({
     postConditions(addSelected = true) {
       if (this.conditionComplete || addSelected === false) {
         const childID = this.childIndID;
-        let indToUpdate = this.indicators.find(i => parseInt(i.indicatorID) === childID);
+        let indToUpdate = this.currFormIndicators.find(i => parseInt(i.indicatorID) === childID);
         //copy of all conditions on child, and filter using stored JSON val
         let currConditions = [...this.savedConditions];
         let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
@@ -227,7 +220,7 @@ const ConditionsEditor = Vue.createApp({
                   this.clearSelections(true);
                   const formID = currCategoryID || null;  //global from mod_form.tpl
                   if (formID !== null) {
-                    this.updateTooltips(formID);
+                    this.updateCurrFormIndicators(formID);
                   }
                 } else { console.log('error adding condition', res) }
             },
@@ -308,15 +301,34 @@ const ConditionsEditor = Vue.createApp({
         document.onmousemove = null;
       }
     },
+    updateCurrFormIndicators(formID = '') {
+        this.currFormIndicators = this.indicators.filter(i => i.categoryID === formID);
+        this.currFormIndicators.forEach(i => {
+            //update tooltips for current form
+            const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ?
+                'Edit conditions (conditions present)' : 'Edit conditions';
+
+            let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
+            if(elIcon !== null) {
+              elIcon.title = tooltip;
+            }
+            //add header info to assist filtering
+            if (i.parentIndicatorID !== null) {
+              this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
+            } else {
+              i.headerIndicatorID = parseInt(i.indicatorID);
+            }
+        });
+    },
     forceUpdate() {
-      this.$forceUpdate();
+      this.$forceUpdate(); //needed for some events
       if (this.vueData.updateIndicatorList === true) {
         this.getAllIndicators();
       } else {
         this.selectNewChildIndicator();
         const formID = currCategoryID || null;  //global from mod_form.tpl
         if (formID !== null && this.childIndID === 0) { //if new form is selected
-          this.updateTooltips(formID)
+          this.updateCurrFormIndicators(formID)
         }
       }
     },
@@ -330,7 +342,7 @@ const ConditionsEditor = Vue.createApp({
      * @returns {string}
      */
     getIndicatorName(id = 0) {
-      let indicatorName = this.indicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
+      let indicatorName = this.currFormIndicators.find(i => parseInt(i.indicatorID) === id)?.name || "";
       indicatorName = XSSHelpers.stripAllTags(this.decodeAndStripHTML(indicatorName));
       return this.truncateText(indicatorName);
     },
@@ -532,7 +544,7 @@ const ConditionsEditor = Vue.createApp({
       return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
     },
     childIndicator() {
-      const indicator = this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);
+      const indicator = this.currFormIndicators.find(i => parseInt(i.indicatorID) === this.childIndID);
       return indicator === undefined ? {} : {...indicator};
     },
     /**
@@ -565,7 +577,7 @@ const ConditionsEditor = Vue.createApp({
       let selectable = [];
       const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
       if (headerIndicatorID !== 0) {
-        selectable = this.indicators.filter(i => {
+        selectable = this.currFormIndicators.filter(i => {
           const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
           return i.headerIndicatorID === headerIndicatorID &&
               parseInt(i.indicatorID) !== this.childIndID &&
@@ -606,7 +618,7 @@ const ConditionsEditor = Vue.createApp({
       let levelOptions = [];
       const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
       if(headerIndicatorID !== 0) {
-        levelOptions = this.indicators.filter((i) => {
+        levelOptions = this.currFormIndicators.filter((i) => {
           const format = i.format?.split("\n")[0].trim().toLowerCase();
           return (
               i.headerIndicatorID === headerIndicatorID &&

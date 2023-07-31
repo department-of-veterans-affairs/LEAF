@@ -361,7 +361,12 @@ class Workflow
             return 'Restricted command.';
         }
 
-        $required = json_encode(array ('required' => false));
+        if ($action == 'sendback') {
+            $required = json_encode(array ('required' => false));
+        } else {
+            $required = '';
+        }
+
 
         $this->postRoute($this->workflowID, $stepID, $nextStepID, $action, $required);
 
@@ -383,6 +388,7 @@ class Workflow
      * @param string $action
      * @param string $conditional
      *
+     * The db method being used is returning a properly formatted json response
      * @return array
      *
      * Created at: 7/26/2023, 7:59:46 AM (America/New_York)
