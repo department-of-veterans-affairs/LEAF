@@ -40,10 +40,15 @@ class Config
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
-        $this->descriptionID = $settings['descriptionID'];
         self::$emailCC = $settings['emailCC'];
         self::$emailBCC = $settings['emailBCC'];
         self::$portalDb = $site_paths['portal_database'];
         $this->phonedbName = $site_paths['orgchart_database'];
+
+        if (isset($settings['descriptionID'])) {
+            $this->descriptionID = $settings['descriptionID'];
+        } else {
+            $this->descriptionID = '';
+        }
     }
 }
