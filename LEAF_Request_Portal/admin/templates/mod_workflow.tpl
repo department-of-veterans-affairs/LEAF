@@ -2132,7 +2132,7 @@
         $('.workflowStepInfo').css('display', 'none');
 
         dialog.setTitle('Duplicate current workflow');
-        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/>');
+        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will not be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Fields that show up inline');
         dialog.setSaveHandler(function() {
             let old_steps = {};
             let workflowID;
@@ -2187,10 +2187,6 @@
 
                         // set requireDigitalSignature
                         // this endpoint does not exist in this file at this time.
-
-                        if (typeof steps[i].stepModules != 'undefined') {
-                            updateModules(stepID, steps[i].stepModules[0]['moduleConfig']);
-                        }
 
                         updateDependencies(steps[i].stepID, old_steps);
                     }
@@ -2318,18 +2314,6 @@
                 }
             });
         }
-    }
-
-    /**
-     * This creates a new module for the newly duplicated workflow
-     *
-     * @param int stepID
-     * @param string indicatorID
-     *
-     * Created at: 7/26/2023, 1:18:37 PM (America/New_York)
-     */
-    function updateModules(stepID, indicatorID) {
-        postModule(stepID, indicatorID);
     }
 
     /**
