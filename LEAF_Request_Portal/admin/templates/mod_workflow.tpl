@@ -29,6 +29,7 @@
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
@@ -1210,39 +1211,47 @@
         dialog.setTitle('Edit Action ' + actionType);
         dialog.show();
 
+        getAction(actionType, function (res) {
+            dialog.indicateIdle();
+            dialog.setContent(renderActionInputModal(res[0]));
+
+            $('#fillDependency').val(res[0].fillDependency);
+            document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
+            document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
+
+            dialog.setSaveHandler(function() {
+                let sort = parseInt($('#actionSortNumber').val());
+                sort = Number.isInteger(sort) ? sort : 0;
+                sort = sort < -128 ? -128
+                        : sort > 127 ? 127
+                        : sort;
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/editAction/_' + actionType,
+                    data: {
+                        actionText: $('#actionText').val(),
+                        actionTextPasttense: $('#actionTextPasttense').val(),
+                        actionIcon: $('#actionIcon').val(),
+                        sort: sort,
+                        fillDependency: $('#fillDependency').val(),
+                        CSRFToken: CSRFToken
+                    },
+                    success: function() {
+                        listActionType();
+                    },
+                    error: (err) => console.log(err),
+                });
+                dialog.hide();
+            });
+        });
+    }
+
+    function getAction(actionType, callback) {
         $.ajax({
             type: 'GET',
             url: '../api/workflow/action/_' + actionType,
             success: function(res) {
-                dialog.indicateIdle();
-                dialog.setContent(renderActionInputModal(res[0]));
-                $('#fillDependency').val(res[0].fillDependency);
-                document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
-                document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
-                dialog.setSaveHandler(function() {
-                    let sort = parseInt($('#actionSortNumber').val());
-                    sort = Number.isInteger(sort) ? sort : 0;
-                    sort = sort < -128 ? -128
-                         : sort > 127 ? 127
-                         : sort;
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/editAction/_' + actionType,
-                        data: {
-                            actionText: $('#actionText').val(),
-                            actionTextPasttense: $('#actionTextPasttense').val(),
-                            actionIcon: $('#actionIcon').val(),
-                            sort: sort,
-                            fillDependency: $('#fillDependency').val(),
-                            CSRFToken: CSRFToken
-                        },
-                        success: function() {
-                            listActionType();
-                        },
-                        error: (err) => console.log(err),
-                    });
-                    dialog.hide();
-                });
+                callback(res);
             },
             error: (err) => console.log(err),
             cache: false
@@ -1251,21 +1260,55 @@
 
     //deletes action type
     function deleteActionType(actionType) {
-        dialog_confirm.setTitle('Confirmation required');
-        dialog_confirm.setContent('Are you sure you want to delete this action?');
-        dialog_confirm.setSaveHandler(function() {
-            $.ajax({
-                type: 'DELETE',
-                url: '../api/workflow/action/_' + actionType + '?'
-                    + $.param({'CSRFToken': CSRFToken}),
-                success: function() {
-                    listActionType();
-                },
-                error: (err) => console.log(err),
-            });
-            dialog_confirm.hide();
+        // find out if this action is being used in a workflow currently
+        getUsedActionType(actionType, function (res) {
+            console.log(res);
+            let workflows = '';
+
+            for (let i in res.data) {
+                workflows += res.data[i].description + "<br />";
+            }
+
+            if (res.status.code == 2 && res.data.length) {
+                console.log('something to display');
+                dialog_ok.setTitle('Modify Actions');
+                dialog_ok.setContent("This Action cannot be deleted. It is currently being used in the following workflows:<br /><br />" + workflows);
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                });
+                dialog_ok.show();
+            } else {
+                dialog_confirm.setTitle('Confirmation required');
+                dialog_confirm.setContent('Are you sure you want to delete this action?');
+                dialog_confirm.setSaveHandler(function() {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '../api/workflow/action/_' + actionType + '?'
+                            + $.param({'CSRFToken': CSRFToken}),
+                        success: function() {
+                            listActionType();
+                        },
+                        error: (err) => console.log(err),
+                    });
+                    dialog_confirm.hide();
+                });
+                dialog_confirm.show();
+            }
+        })
+
+    }
+
+    function getUsedActionType(actionType, callback) {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '../api/workflowRoute/action/_' + actionType,
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
         });
-        dialog_confirm.show();
     }
 
     function actionDirectionNote() {
@@ -1291,7 +1334,7 @@
                         : sort;
                 $.ajax({
                     type: 'POST',
-                    url: '../api/system/actions',
+                    url: '../api/system/action',
                     data: {
                         actionText: $('#actionText').val(),
                         actionTextPasttense: $('#actionTextPasttense').val(),
@@ -1300,8 +1343,7 @@
                         fillDependency: $('#fillDependency').val(),
                         CSRFToken: CSRFToken
                     },
-                    success: function() {
-                        alert('Your action type has been created, and is now available as an option.');
+                    success: function(res) {
                         loadWorkflow(currentWorkflow);
                     },
                     error: (err) => console.log(err),
@@ -2479,6 +2521,7 @@ console.log(params);
             'confirm_button_save', 'confirm_button_cancelchange');
         dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator',
             'simplebutton_save', 'simplebutton_cancelchange');
+        dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
         $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
         jsPlumb.Defaults.Container = "workflow";
