@@ -2132,7 +2132,7 @@
         $('.workflowStepInfo').css('display', 'none');
 
         dialog.setTitle('Duplicate current workflow');
-        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Fields that show up inline');
+        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
         dialog.setSaveHandler(function() {
             let old_steps = {};
             let workflowID;
