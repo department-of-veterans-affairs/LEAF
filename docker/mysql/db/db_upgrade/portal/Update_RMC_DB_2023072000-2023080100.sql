@@ -29,6 +29,8 @@ ALTER TABLE data_history ADD CONSTRAINT fk_records_data_history_deletion
     FOREIGN KEY (recordID) REFERENCES records (recordID) ON DELETE CASCADE;
 ALTER TABLE `data` ADD CONSTRAINT fk_records_data_deletion
     FOREIGN KEY (recordID) REFERENCES records (recordID) ON DELETE CASCADE;
+ALTER TABLE category_count ADD CONSTRAINT fk_records_category_count_deletion
+    FOREIGN KEY (recordID) REFERENCES records (recordID) ON DELETE CASCADE;
 ALTER TABLE action_history ADD CONSTRAINT fk_records_action_history_deletion
     FOREIGN KEY (recordID) REFERENCES records (recordID) ON DELETE CASCADE;
 ALTER TABLE signatures ADD CONSTRAINT fk_records_signatures_deletion
@@ -56,6 +58,7 @@ ALTER TABLE notes DROP FOREIGN KEY fk_records_notes_deletion;
 ALTER TABLE email_tracker DROP FOREIGN KEY fk_records_email_tracker_deletion;
 ALTER TABLE data_history DROP FOREIGN KEY fk_records_data_history_deletion;
 ALTER TABLE `data` DROP FOREIGN KEY fk_records_data_deletion;
+ALTER TABLE category_count DROP FOREIGN KEY fk_records_category_count_deletion;
 ALTER TABLE action_history DROP FOREIGN KEY fk_records_action_history_deletion;
 ALTER TABLE signatures DROP FOREIGN KEY fk_records_signatures_deletion;
 ALTER TABLE tags DROP FOREIGN KEY fk_records_tags_deletion;
