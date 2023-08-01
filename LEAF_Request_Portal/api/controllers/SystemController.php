@@ -40,14 +40,6 @@ class SystemController extends RESTfulResponse
             return $system->getDatabaseVersion();
         });
 
-        $this->index['GET']->register('system/getDestructionFlag', function () use ($system) {
-            return $system->getDestructionFlag();
-        });
-
-        $this->index['GET']->register('system/getMarkedDestruction', function () use ($system) {
-            return $system->getMarkedDestruction();
-        });
-
         $this->index['GET']->register('system/updateService/[digit]', function ($args) use ($system) {
             return $system->updateService($args[0]);
         });
@@ -98,14 +90,6 @@ class SystemController extends RESTfulResponse
 
             $this->index['POST']->register('system/actions', function () use ($system) {
                 return $system->addAction();
-            });
-
-            $this->index['POST']->register('system/setDestructionFlag/[digit]', function ($args) use ($system) {
-                return $system->setDestructionFlag((int)$args[0]);
-            });
-
-            $this->index['POST']->register('system/markDestruction', function () use ($system) {
-                return $system->markForDestruction();
             });
 
             $this->index['POST']->register('system/settings/heading', function () use ($system) {
@@ -164,10 +148,6 @@ class SystemController extends RESTfulResponse
         } else {
             $this->index['DELETE'] = new ControllerMap();
             $this->index['DELETE']->register('system', function () {
-            });
-
-            $this->index['DELETE']->register('system/deleteDestruction', function () use ($system) {
-                return $system->deleteMarkedDestruction();
             });
 
             $this->index['DELETE']->register('system/files/delete', function () use ($system) {
