@@ -294,6 +294,7 @@ class Group
 
         // Update on duplicate keys
         $res = $this->db->pdo_insert_query($sql, $vars);
+        $return_value = $res; // initialize return value
 
         if ($res['status']['code'] == 2) {
             $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
@@ -337,9 +338,6 @@ class Group
                     break;
                 }
             }
-        } else {
-            // If something happened just send the db json response back
-            $return_value = $res;
         }
 
         return $return_value;
