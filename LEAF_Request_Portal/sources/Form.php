@@ -2055,7 +2055,7 @@ class Form
                         }
 
                         // collaborator access
-                        if (isset($hasCategoryAccess[$dep['categoryID']])) {
+                        if (isset($dep['categoryID']) && isset($hasCategoryAccess[$dep['categoryID']])) {
                             $temp[$dep['recordID']] = 1;
                         }
                     }
