@@ -1270,7 +1270,6 @@
             }
 
             if (res.status.code == 2 && res.data.length) {
-                console.log('something to display');
                 dialog_ok.setTitle('Modify Actions');
                 dialog_ok.setContent("This Action cannot be deleted. It is currently being used in the following workflows:<br /><br />" + workflows);
                 dialog_ok.setSaveHandler(function() {
@@ -1492,7 +1491,6 @@
             url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
             success: function(res) {
                 let find_required = '';
-console.log(params);
                 if (typeof params.required === 'undefined' || params.required === '') {
                     find_required = $.parseJSON('{"required":"false"}');
                 } else {
