@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   leaf-php-8:
-    image: pelentan/leaf-swarm
+    image: pelentan/leaf-swarm:1.0
     env_file: 
       # - ./env_files/globals_swarm.env
       - ./env_files/globals_swarm_prod.env
