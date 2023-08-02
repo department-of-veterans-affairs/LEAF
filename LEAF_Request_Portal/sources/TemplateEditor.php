@@ -33,10 +33,9 @@ class TemplateEditor
         }
         $list = scandir('../templates/');
         $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
                 $out[] = $item;
             }
         }
@@ -103,6 +102,11 @@ class TemplateEditor
         {
             if (file_exists("../templates/custom_override/{$template}"))
             {
+                $this->dataActionLogger->logAction(
+                    \Leaf\DataActions::RESTORE,
+                    \Leaf\LoggableTypes::TEMPLATE_BODY,
+                    [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                );
                 return unlink("../templates/custom_override/{$template}");
             }
         }

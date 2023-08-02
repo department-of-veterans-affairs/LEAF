@@ -57,7 +57,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        LEFT JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID)
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 0
@@ -75,12 +75,14 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     }
 
     $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
+    $addDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
 
+    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$addDaysAgoTimestamp)];
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
-        LEFT JOIN services USING(serviceID) 
+        LEFT JOIN services USING(serviceID)
         WHERE records_workflow_state.stepID = :stepID
         AND lastNotified <= :lastNotified
         AND initialNotificationSent = 1

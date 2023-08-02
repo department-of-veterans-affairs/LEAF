@@ -1205,7 +1205,7 @@ class Form
      *
      * Created at: 10/3/2022, 7:40:04 AM (America/New_York)
      */
-    public function doSubmit(int $recordID): int|array
+    public function doSubmit(int $recordID): array
     {
         $recordID = (int)$recordID;
 
@@ -1214,14 +1214,14 @@ class Form
                                         WHERE recordID=:recordID', $vars);
 
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
-            $return_value = 0;
+            $return_value = array('status' => 0, 'errors' => array('Invalid Token'));
         } else if (!is_numeric($recordID)) {
-            $return_value = 0;
+            $return_value = array('status' => 0, 'errors' => array('Invalid Record'));
         } else if (!$this->hasWriteAccess($recordID)) {
-            $return_value = 0;
+            $return_value = array('status' => 0, 'errors' => array('No Write Access'));
         } else if ($res[0]['submitted'] > 0) {
             // make sure request isn't already submitted
-            $return_value = $recordID;
+            $return_value = array('status' => 0, 'errors' => array('Already Submitted'));
         } else {
             $this->db->beginTransaction();
 
@@ -1612,8 +1612,9 @@ class Form
         }
 
         // give the requestor access if the record explictly gives them write access
-        if ($resRecords[0]['isWritableUser'] == 1
-            && $this->login->getUserID() == $resRecords[0]['userID'])
+        if ($resRecords[0]['isWritableUser'] == 1 &&
+            ($this->login->getUserID() == $resRecords[0]['userID'] || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
+        )
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
             $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
@@ -4107,15 +4108,25 @@ class Form
      * @param $days
      * @throws \SmartyException
      */
-    function sendReminderEmail($recordID, $days) {
+    function sendReminderEmail(int $recordID, $days): void
+    {
+        $email_tracker = new EmailTracker($this->db);
+        $last_email = $email_tracker->getEmailsSentByRecordId($recordID);
 
-        $email = new Email();
-        $email->setSender('leaf.noreply@va.gov');
-        $email->addSmartyVariables(array(
-            "daysSince" => $days
-        ));
+        $day_last_sent = date('j', $last_email['timestamp']);
+        $current_day = date('j', time());
 
-        $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        if (time() - $last_email[0]['timestamp'] > 86400
+            || $day_last_sent !== $current_day
+        ) {
+            $email = new Email();
+            $email->setSender('leaf.noreply@va.gov');
+            $email->addSmartyVariables(array(
+                "daysSince" => $days
+            ));
+
+            $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+        }
 
     }
 

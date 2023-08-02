@@ -21,15 +21,15 @@ $login->loginUser();
 $uploadPath = '';
 $queue = array();
 clearstatcache();
-if (strpos(Orgchart\Config::$uploadDir, '.') !== 0)
+if (strpos($oc_site_paths['site_uploads'], '.') !== 0)
 {
-    $uploadPath = Orgchart\Config::$uploadDir;
-    $queue = scandir(Orgchart\Config::$uploadDir);
+    $uploadPath = $oc_site_paths['site_uploads'];
+    $queue = scandir($oc_site_paths['site_uploads']);
 }
 else
 {
-    $uploadPath = '../' . Orgchart\Config::$uploadDir;
-    $queue = scandir('../' . Orgchart\Config::$uploadDir);
+    $uploadPath = '../' . $oc_site_paths['site_uploads'];
+    $queue = scandir('../' . $oc_site_paths['site_uploads']);
 }
 
 foreach ($queue as $file)

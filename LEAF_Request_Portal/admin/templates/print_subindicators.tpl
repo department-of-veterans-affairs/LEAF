@@ -71,7 +71,7 @@
 
                     &nbsp;<img src="../dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeypress="keyPressGetForm(event, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />
                     &nbsp;<img src="../dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeypress="keyPressEditIndicatorPrivileges(event, <!--{$indicator.indicatorID}-->)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />
-                    <!--{if $indicator.format|in_array:['text','dropdown','multiselect','radio', 'checkboxes', '', 'fileupload', 'image', 'textarea']}-->
+                    <!--{if $indicator.format|in_array:['text','dropdown','multiselect','radio', 'checkboxes', '', 'fileupload', 'image', 'textarea', 'orgchart_employee', 'orgchart_group', 'orgchart_position']}-->
                         &nbsp;<img id="edit_conditions_<!--{$indicator.indicatorID}-->" src="../dynicons/?img=preferences-system.svg&amp;w=16" tabindex="0" onkeypress="updateVueData(<!--{$indicator.indicatorID}-->)" onclick="updateVueData(<!--{$indicator.indicatorID}-->,<!--{$indicator.required}-->);" alt="Edit Conditions" title="Edit conditions" style="cursor: pointer" />
                     <!--{/if}-->
                     <!--{if $indicator.has_code}-->
@@ -135,9 +135,8 @@ function onKeyPressClick(e){
         $(e.target).trigger('click');
     }
 }
-function updateVueData(indicatorID, required){
+function updateVueData(indicatorID) {
     vueData.indicatorID = parseInt(indicatorID);
-    vueData.required = required;
     document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 }
 

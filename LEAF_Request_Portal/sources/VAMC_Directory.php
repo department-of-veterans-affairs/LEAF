@@ -373,13 +373,13 @@ class VAMC_Directory
     // Looks up the last name and returns an associative array
     private function lookupLastName($lastName)
     {
-        return $this->Employee->lookupLastName($lastName);
+        return $this->Employee->lookupAllUsersLastName($lastName);
     }
 
     // Looks up the last name and returns an associative array
     private function lookupFirstName($firstName)
     {
-        return $this->Employee->lookupFirstName($firstName);
+        return $this->Employee->lookupAllUsersFirstName($firstName);
     }
 
     // Looks up phone or pager numbers

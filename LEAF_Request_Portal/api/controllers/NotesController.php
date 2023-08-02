@@ -94,13 +94,17 @@ class NotesController extends RESTfulResponse
                     $params = array();
                     parse_str($_POST['form'], $params);
 
-                    $params['recordID'] = $args[0];
-                    $params['timestamp'] = time();
+                    if (!empty($params['note'])) {
+                        $params['recordID'] = $args[0];
+                        $params['timestamp'] = time();
 
-                    $posted_note_id = $note->postNote($params);
-                    $posted_note = $note->getNotesById($posted_note_id);
-                    $posted_note['user_name'] = $_SESSION['name'];
-                    $posted_note['date'] = date('M j', $posted_note['timestamp']);
+                        $posted_note_id = $note->postNote($params);
+                        $posted_note = $note->getNotesById($posted_note_id);
+                        $posted_note['user_name'] = $_SESSION['name'];
+                        $posted_note['date'] = date('M j', $posted_note['timestamp']);
+                    } else {
+                        $posted_note = array('error' => 'Missing data, note cannot be blank.');
+                    }
 
                     return $posted_note;
                 });

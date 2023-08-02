@@ -190,46 +190,66 @@ class Group
     }
 
     /**
-     * return array of userIDs
      * @param int $groupID
+     * @param bool $searchDeleted
+     * @param bool $all
      *
-     * @return array|string
+     * @return array
+     *
+     * Created at: 7/24/2023, 2:43:20 PM (America/New_York)
      */
-    public function getMembers($groupID, bool $searchDeleted = false): array|string
+    public function getMembers(int $groupID, bool $searchDeleted = false, bool $all = false): array
     {
-        if (!is_numeric($groupID))
-        {
-            $return_value = "invalid group ID";
+        if (!is_numeric($groupID)) {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'invalid group ID'
+                )
+            );
         } else {
-            $sql_vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $sql_vars);
+            if ($all) {
+                $groupBy = '';
+            } else {
+                $groupBy = 'GROUP BY `userID`';
+            }
+
+            $vars = array(':groupID' => $groupID);
+            $sql = 'SELECT `userID`, `groupID`, `backupID`, `primary_admin`,
+                        `locallyManaged`, `active`
+                    FROM `users`
+                    WHERE `groupID` = :groupID
+                    ' . $groupBy . '
+                    ORDER BY `userID`';
+
+            $res = $this->db->pdo_select_query($sql, $vars);
 
             $members = array();
-            if (count($res) > 0)
-            {
+            if ($res['status']['code'] == 2) {
                 $dir = new VAMC_Directory();
-                foreach ($res as $member)
-                {
+
+               foreach ($res['data'] as $member) {
                     $dirRes = $dir->lookupLogin($member['userID'], false, true, $searchDeleted);
 
-                    if (isset($dirRes[0]))
-                    {
+                    if (isset($dirRes[0])) {
                         $dirRes[0]['regionallyManaged'] = false;
-                        foreach ($dirRes[0]['groups'] as $group)
-                        {
-                            if ($groupID == $group['groupID']){
+
+                        foreach ($dirRes[0]['groups'] as $group) {
+                            if ($groupID == $group['groupID']) {
                                 $dirRes[0]['regionallyManaged'] = true;
                             }
                         }
-                        if($groupID == 1)
-                        {
+
+                        if ($groupID == 1) {
                             $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
-                        if($member['locallyManaged'] == 1) {
-                            $dirRes[0]['backupID'] = null;
+
+                        if ($member['locallyManaged'] == 1) {
+                            $dirRes[0]['backupID'] = "";
                         } else {
                             $dirRes[0]['backupID'] = $member['backupID'];
                         }
+
                         $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                         $dirRes[0]['active'] = $member['active'];
 
@@ -241,7 +261,13 @@ class Group
             $col = array_column( $members, "lastName" );
             array_multisort( $col, SORT_ASC, $members );
 
-            $return_value = $members;
+            $return_value = array (
+                'status' => array (
+                    'code' => 2,
+                    'message' => ''
+                ),
+                'data' => $members
+            );
         }
 
         return $return_value;
@@ -253,20 +279,23 @@ class Group
      *
      * @return string
      */
-    public function addMember($member, $groupID): string
+    public function addMember(string $member, int $groupID): array
     {
         $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
-        if (is_numeric($groupID)) {
-            $sql_vars = array(':userID' => $member,
-                ':groupID' => $groupID,);
+        $vars = array(':userID' => $member,
+                    ':groupID' => $groupID);
+        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`,
+                    `locallyManaged`, `active`)
+                VALUES (:userID, :groupID, "", 1, 1)
+                ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID,
+                    `backupID` = "", `locallyManaged` = 1, `active` = 1';
 
-            // Update on duplicate keys
-            $res = $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID, locallyManaged, active)
-                                                    VALUES (:userID, :groupID, null, 1, 1)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=null, locallyManaged=1, active=1', $sql_vars);
+        // Update on duplicate keys
+        $res = $this->db->pdo_insert_query($sql, $vars);
 
+        if ($res['status']['code'] == 2) {
             $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
                 new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
@@ -276,31 +305,47 @@ class Group
             $emp = $employee->lookupLogin($member);
             $backups = $employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $emp[0]['userName'],);
+                $vars = array(':userID' => $backup['userName'],
+                    ':groupID' => $groupID);
+                $sql = 'SELECT `locallyManaged`
+                        FROM `users`
+                        WHERE `userID` = :userID
+                        AND `groupID` = :groupID';
 
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+                $res = $this->db->pdo_select_query($sql, $vars);
 
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 1) {
-                    $sql_vars[':backupID'] = null;
+                if ($res['status']['code'] == 2) {
+                    // Check for locallyManaged users
+                    if ($res['data'][0]['locallyManaged'] == 1) {
+                        $vars[':backupID'] = '';
+                    } else {
+                        $vars[':backupID'] = $emp[0]['userName'];
+                    }
+                    $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                            VALUES (:userID, :groupID, :backupID)
+                            ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID,
+                                `backupID` = :backupID';
+
+                    $return_value = $this->db->pdo_insert_query($sql, $vars);
                 } else {
-                    $sql_vars[':backupID'] = $emp[0]['userName'];
+                    $return_value = array (
+                        'status' => array (
+                            'code' => 4,
+                            'message' => 'Backup could not be found'
+                        )
+                    );
+                    break;
                 }
-                // Add backupID check for updates
-                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID, backupID=:backupID', $sql_vars);
             }
-
-            return $member;
+        } else {
+            // If something happened just send the db json response back
+            $return_value = $res;
         }
+
+        return $return_value;
     }
 
     /**
-     * [Description for importUser]
-     *
      * @param string $userID
      * @param int $groupID
      * @param string $backupID
@@ -309,20 +354,21 @@ class Group
      *
      * Created at: 9/15/2022, 9:30:20 AM (America/New_York)
      */
-    public function importUser(string $userID, int $groupID, string|null $backupID): array
+    public function importUser(string $userID, int $groupID, string $backupID): array
     {
         $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
             new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
             new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
         ]);
 
-        $sql_vars = array(':userID' => $userID,
+        $vars = array(':userID' => $userID,
                         ':groupID' => $groupID,
                         ':backupID' => $backupID,);
+        $sql = 'INSERT INTO users (groupID, userID, backupID)
+                VALUES (:groupID, :userID, :backupID)
+                ON DUPLICATE KEY UPDATE userID=:userID';
 
-        $result = $this->db->prepared_query('INSERT INTO users (groupID, userID, backupID)
-                                                    VALUES (:groupID, :userID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID', $sql_vars);
+        $result = $this->db->pdo_insert_query($sql, $vars);
 
         return (array) $result;
     }
@@ -377,7 +423,7 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \PORTAL_CONFIG->phonedbName);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '')
@@ -448,7 +494,7 @@ class Group
         {
             if ($group['groupID'] > 0)
             {
-                $group['members'] = $this->getMembers($group['groupID'], $searchDeleted);
+                $group['members'] = $this->getMembers($group['groupID'], $searchDeleted)['data'];
                 $list[] = $group;
             }
         }
@@ -555,7 +601,7 @@ class Group
      */
     public function getAllGroups(): array|bool
     {
-        return $this->db->prepared_query('SELECT * FROM groups WHERE groupID > 1 ORDER BY groupID', array());
+        return $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID > 1 ORDER BY groupID', array());
     }
 
     /**

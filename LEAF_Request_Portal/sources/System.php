@@ -116,8 +116,8 @@ class System
             {
                 $vars = array(':userID' => $chief['userID'],
                               ':groupID' => $quadID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-	                                   		 VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+	                                   		 VALUES (:userID, :groupID, "")', $vars);
             }
         }
 
@@ -146,100 +146,405 @@ class System
         return "groupID: {$serviceID} updated";
     }
 
-    public function updateGroup($groupID)
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:24:51 PM (America/New_York)
+     */
+    public function updateGroup(int $groupID): array
     {
-        if (!is_numeric($groupID))
-        {
-            return 'Invalid Group';
-        }
-        if ($groupID == 1)
-        {
-            return 'Cannot update admin group';
-        }
+        if (!is_numeric($groupID)) {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'Invalid Group Id.'
+                )
+            );
+        } elseif ($groupID == 1) {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'You are not authorized to update admin groups.'
+                )
+            );
+        } else {
+            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            $group = new \Orgchart\Group($oc_db, $this->login);
+            $position = new \Orgchart\Position($oc_db, $this->login);
+            $employee = new \Orgchart\Employee($oc_db, $this->login);
+            $tag = new \Orgchart\Tag($oc_db, $this->login);
 
-        // clear out old data first
-        $vars = array(':groupID' => $groupID);
-        //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
-        $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
+            // clear out old data first
+            $delete_groups = $this->clearGroups($groupID);
 
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
-        $group = new \Orgchart\Group($oc_db, $this->login);
-        $position = new \Orgchart\Position($oc_db, $this->login);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-        $tag = new \Orgchart\Tag($oc_db, $this->login);
+            if ($delete_groups['status']['code'] == 2) {
+                    // find quadrad/ELT tag name
+                $upperLevelTag = $tag->getParent('service');
+                $isQuadrad = false;
 
-        // find quadrad/ELT tag name
-        $upperLevelTag = $tag->getParent('service');
-        $isQuadrad = false;
-        if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false)
-        {
-            $isQuadrad = true;
-        }
-
-        $resGroup = $group->getGroup($groupID)[0];
-        $vars = array(':groupID' => $groupID,
-                ':parentGroupID' => ($isQuadrad == true ? -1 : null),
-                ':name' => $resGroup['groupTitle'],
-                ':groupDescription' => '', );
-
-        $this->db->prepared_query('INSERT INTO `groups` (groupID, parentGroupID, name, groupDescription)
-                    					VALUES (:groupID, :parentGroupID, :name, :groupDescription)', $vars);
-
-        // build list of member employees
-        $resEmp = array();
-        $positions = $group->listGroupPositions($groupID);
-        $resEmp = $group->listGroupEmployees($groupID);
-        foreach ($positions as $tposition)
-        {
-            $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
-        }
-
-	// clear backups in case of updates
-	$vars = array(':groupID' => $groupID);
-	$this->db->prepared_query('DELETE FROM users WHERE backupID IS NOT NULL AND groupID=:groupID', $vars);
-        foreach ($resEmp as $emp)
-        {
-            if ($emp['userName'] != '')
-            {
-                $vars = array(':userID' => $emp['userName'],
-                        ':groupID' => $groupID, );
-
-                $this->db->prepared_query('INSERT INTO users (userID, groupID, active)
-                                                    VALUES (:userID, :groupID, 0)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
-
-                // include the backups of employees
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID', $vars);
-                if ($res[0]['active'] == 1) {
-                    $backups = $employee->getBackups($emp['empUID']);
-                    foreach ($backups as $backup) {
-                        $vars = array(':userID' => $backup['userName'],
-                            ':groupID' => $groupID,
-                            ':backupID' => $emp['userName'],);
-
-                        // Add backupID check for updates
-                        $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                    VALUES (:userID, :groupID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
-                    }
+                if (array_search($upperLevelTag, $group->getAllTags($groupID)) !== false) {
+                    $isQuadrad = true;
                 }
+
+                $resGroup = $group->getGroup($groupID)[0];
+
+                $insert_group = $this->insertGroup($groupID, $isQuadrad, $resGroup['groupTitle']);
+
+                if ($insert_group['status']['code'] == 2) {
+                    $delete_user_backups = $this->deleteUserBackups($groupID);
+
+                    if ($delete_user_backups['status']['code'] == 2) {
+                        $resEmp = array();
+                        $positions = $group->listGroupPositions($groupID);
+                        $resEmp = $group->listGroupEmployees($groupID);
+
+                        if (!empty($positions) && is_array($positions)){
+                            foreach ($positions as $tposition) {
+                                $resEmp = array_merge($resEmp, $position->getEmployees($tposition['positionID']));
+                            }
+                        }
+
+                        if (!empty($resEmp) && is_array($resEmp)) {
+                            foreach ($resEmp as $emp) {
+                                $insert_user = $this->insertUser($groupID, $emp);
+
+                                if ($insert_user['status']['code'] == 2) {
+                                    // nothing to be done, all is good
+                                } else {
+                                    $return_value = array (
+                                        'status' => array (
+                                            'code' => 4,
+                                            'message' => 'Action failed to add users.'
+                                        )
+                                    );
+                                    break;
+                                }
+                            }
+                        }
+
+                        $backups = $this->addBackups($groupID);
+
+                        if ($backups['status']['code'] == 2) {
+                            $privs = $this->updateCatPrivs($groupID);
+
+                            if ($privs['status']['code'] == 2) {
+                                // at this point everything updated as expected
+                                $return_value = array (
+                                    'status' => array (
+                                        'code' => 2,
+                                        'message' => 'Everything updated as expected.'
+                                    )
+                                );
+                            } else {
+                                // something happened updating category privs
+                                $return_value = array (
+                                    'status' => array (
+                                        'code' => 4,
+                                        'message' => 'There was an error updating category privs.'
+                                    )
+                                );
+                            }
+                        } else {
+                            $return_value = array (
+                                'status' => array (
+                                    'code' => 4,
+                                    'message' => 'There was an arror adding backups.'
+                                )
+                            );
+                        }
+                    } else {
+                        // something happened deleting user backups
+                        $return_value = array (
+                            'status' => array (
+                                'code' => 4,
+                                'message' => 'There was an error deleting user backups.'
+                            )
+                        );
+                    }
+                } else {
+                    // something happened with the inserting of groups
+                    $return_value = array (
+                        'status' => array (
+                            'code' => 4,
+                            'message' => 'There was an error inserting groups.'
+                        )
+                    );
+                }
+            } else {
+                // something happened with the delete groups
+                $return_value = array (
+                    'status' => array (
+                        'code' => 4,
+                        'message' => 'There was an error when deleting groups.'
+                    )
+                );
             }
         }
 
-        //if the group is removed, also remove the category_privs
-        $vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT *
-                                            FROM category_privs
-                                            LEFT JOIN `groups` USING (groupID)
-                                            WHERE category_privs.groupID = :groupID
-                                            AND groups.groupID is null;', $vars);
-        if(count($res) > 0)
-        {
-            $this->db->prepared_query('DELETE FROM category_privs WHERE groupID=:groupID', $vars);
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:25:07 PM (America/New_York)
+     */
+    private function updateCatPrivs(int $groupID): array
+    {
+        $cat_privs = $this->getCatPrivs($groupID);
+
+        if ($cat_privs['status']['code'] == 2) {
+            $return_value = $this->deleteCatPrivs($groupID);
+        } else {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'Action failed to add backups.'
+                )
+            );
         }
 
+        return $return_value;
+    }
 
-        return "groupID: {$groupID} updated";
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:25:25 PM (America/New_York)
+     */
+    private function deleteCatPrivs(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'DELETE
+                FROM `category_privs`
+                WHERE `groupID` = :groupID';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:25:38 PM (America/New_York)
+     */
+    private function getCatPrivs(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'SELECT `categoryID`
+                FROM `category_privs`
+                LEFT JOIN `groups` USING (`groupID`)
+                WHERE `category_privs`.`groupID` = :groupID
+                AND `groups`.`groupID` IS NULL';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:25:53 PM (America/New_York)
+     */
+    private function addBackups(int $groupID): array
+    {
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
+
+        // get all users for this group
+        $group_users = $this->getGroupUsers($groupID);
+
+        // loop through group_users to add backups
+        if ($group_users['status']['code'] == 2){
+            $userNames = array();
+
+            foreach ($group_users['data'] as $user) {
+                $userNames[] = $user['userID'];
+            }
+
+            $employee_list = $employee->getEmployeeByUserName($userNames, $oc_db);
+            foreach ($employee_list['data'] as $user) {
+                // if active user, then get backups and add them
+                if ($user['deleted'] == 0) {
+                    $backups = $employee->getBackups($user['empUID']);
+
+                    if (!empty($backups)) {
+                        foreach ($backups as $backup) {
+                            $backup_added = $this->addBackup($groupID, $backup['userName'], $user['userName']);
+
+                            if ($backup_added['status']['code'] == 2) {
+                                continue;
+                            } else {
+                                $return_value = array (
+                                    'status' => array (
+                                        'code' => 4,
+                                        'message' => 'Action failed to add backups.'
+                                    )
+                                );
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            $return_value = array (
+                'status' => array (
+                    'code' => 2,
+                    'message' => ''
+                )
+            );
+        } else {
+            $return_value = $group_users;
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     * @param string $backup_user
+     * @param string $user
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:26:30 PM (America/New_York)
+     */
+    private function addBackup(int $groupID, string $backup_user, string $user): array
+    {
+        $vars = array(':userID' => $backup_user,
+                    ':groupID' => $groupID,
+                    ':backupID' => $user);
+        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                VALUES (:userID, :groupID, :backupID)
+                ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
+
+        $return_value = $this->db->pdo_insert_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:26:53 PM (America/New_York)
+     */
+    private function getGroupUsers(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'SELECT `userID`
+                FROM `users`
+                WHERE `groupID` = :groupID';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     * @param array $emp
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:27:17 PM (America/New_York)
+     */
+    private function insertUser(int $groupID, array $emp): array
+    {
+        if (!empty($emp['userName'])) {
+            $vars = array(':userID' => $emp['userName'],
+                    ':groupID' => $groupID, );
+            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`, `active`)
+                    VALUES (:userID, :groupID, "", 0)
+                    ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
+
+            $return_value = $this->db->pdo_insert_query($sql, $vars);
+        } else {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'Improperly formatted data.'
+                )
+            );
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:27:47 PM (America/New_York)
+     */
+    private function deleteUserBackups(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'DELETE
+                FROM `users`
+                WHERE `backupID` <> ""
+                AND `groupID` = :groupID';
+
+        $return_value = $this->db->pdo_delete_query($sql , $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     * @param bool $isQuadrad
+     * @param string $title
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:28:03 PM (America/New_York)
+     */
+    private function insertGroup(int $groupID, bool $isQuadrad, string $title): array
+    {
+        $vars = array(':groupID' => $groupID,
+                ':parentGroupID' => ($isQuadrad == true ? -1 : null),
+                ':name' => $title,
+                ':groupDescription' => '', );
+        $sql = 'INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`,
+                    `groupDescription`)
+                VALUES (:groupID, :parentGroupID, :name, :groupDescription)';
+
+        $return_value = $this->db->pdo_insert_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 6/30/2023, 1:28:34 PM (America/New_York)
+     */
+    private function clearGroups(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'DELETE
+                FROM `groups`
+                WHERE `groupID` = :groupID';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        return $return_value;
     }
 
     /**
@@ -297,8 +602,8 @@ class System
                     $vars = array(':userID' => $emp['userName'],
                         ':groupID' => $groupID,);
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                        VALUES (:userID, :groupID)
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                        VALUES (:userID, :groupID, "")
                                                         ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
                     // include the backups of employees
@@ -603,6 +908,26 @@ class System
     }
 
     /**
+     * Returns Employee user ID.
+     * @param string $employeeID - The id to create the display name of.
+     *
+     * @return int
+     */
+    public function getEmployeeUserID($employeeID): int
+    {
+        $dir = new VAMC_Directory();
+        $dirRes = $dir->lookupLogin($employeeID);
+        if (is_array($dirRes) && isset($dirRes[0])) {
+            $empData = $dirRes[0];
+            $empUserID = $empData["empUID"];
+        } else {
+            $empUserID = -1;
+        }
+
+        return $empUserID;
+    }
+
+    /**
      * Set primary admin.
      *
      * @return string json is string
@@ -707,19 +1032,23 @@ class System
             $serviceEmployee = $nexus_position->getEmployees($leaderGroupID);
 
             foreach($serviceEmployee as $employee){
-                $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
-                $nexus_chiefs[$chief_counter]['userID'] = $employee['userName'];
-                $nexus_chiefs[$chief_counter]['backupID'] = null;
+                if (is_numeric($service['groupID']) && !empty($employee['userName'])) {
+                    $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
+                    $nexus_chiefs[$chief_counter]['userID'] = $employee['userName'];
+                    $nexus_chiefs[$chief_counter]['backupID'] = null;
 
-                $chief_counter++;
+                    $chief_counter++;
+                }
 
                 if (count($employee['backups']) > 0) {
                     foreach ($employee['backups'] as $backup) {
-                        $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
-                        $nexus_chiefs[$chief_counter]['userID'] = $backup['userName'];
-                        $nexus_chiefs[$chief_counter]['backupID'] = $employee['userName'];
+                        if (is_numeric($service['groupID']) && !empty($backup['userName'])) {
+                            $nexus_chiefs[$chief_counter]['serviceID'] = $service['groupID'];
+                            $nexus_chiefs[$chief_counter]['userID'] = $backup['userName'];
+                            $nexus_chiefs[$chief_counter]['backupID'] = $employee['userName'];
 
-                        $chief_counter++;
+                            $chief_counter++;
+                        }
                     }
                 }
             }
@@ -972,6 +1301,10 @@ class System
                 // user does not exist add them now
                 //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
                 //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
+                if ($user['backupID'] == null) {
+                    $user['backupID'] = '';
+                }
+
                 $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
             }
         }

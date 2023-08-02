@@ -5,9 +5,9 @@
 
     /**
      * This script creates a combined inbox of multiple LEAF sites, organized by form type.
-     * 
+     *
      * You may configure the sites that will be loaded in the "sites" variable.
-     * 
+     *
      * Additionally, each site may be configured with the following custom properties:
      * - url:             Define the full url with backslash at end.
      * - name:            Title of the LEAF in the combined inbox.
@@ -18,10 +18,10 @@
      * - nonAdmin:        (Optional) Set to true if you want Admins to see only their own info and not all requests
      * - columns:         (Optional) Columns may be customized for each type of form within a site.
      *                    Columns are specified by pairing the category ID with a CSV list of columns.
-     *                    Available columns include: 'UID,service,dateInitiated,title,status,days_since_last_action'
+     *                    Available columns include: 'UID,service,dateinitiated,title,status,days_since_last_action'
      *                    Columns may also include field indicator IDs within a form. Example: 'UID,service,title,123,status'
      *				      If a field indicator ID is used, ensure the field has a Short Label defined to populate headings.
-     *   
+     *
      */
 
     let sites = [];
@@ -140,7 +140,7 @@
         },
         'days_since_last_action': function(site) {
             return {
-                name: 'Days since last action',
+                name: 'Days Since Last Action',
                 indicatorID: 'daysSinceLastAction',
                 editable: false,
                 callback: function(data, blob) {
@@ -157,7 +157,8 @@
                             daysSinceAction = "Not Submitted";
                         }
                     } else {
-                        daysSinceAction = "Not Submitted";
+                        let dateSubmitted = new Date(recordBlob.submitted * 1000);
+                        daysSinceAction = Math.round((today.getTime() - dateSubmitted.getTime()) / 86400000);
                     }
                     $('#' + data.cellContainerID).html(daysSinceAction);
                 }
@@ -182,7 +183,8 @@
                             daysSinceAction = "Not Submitted";
                         }
                     } else {
-                        daysSinceAction = "Not Submitted";
+                        let dateSubmitted = new Date(recordBlob.submitted * 1000);
+                        daysSinceAction = Math.round((today.getTime() - dateSubmitted.getTime()) / 86400000);
                     }
                     $('#' + data.cellContainerID).html('TBD');
                 }
@@ -252,6 +254,31 @@
         return icon;
     }
 
+    // waiting for element to update
+    function waitForElm(selector, subSelector = false) {
+        return new Promise(resolve => {
+            if (document.querySelector(selector)) {
+                if (subSelector == false) {
+                    return resolve(document.querySelector(selector));
+                }
+            }
+
+            const observer = new MutationObserver(mutations => {
+                if (document.querySelector(selector)) {
+                    resolve(document.querySelector(selector));
+                    observer.disconnect();
+                }
+            });
+
+            document.querySelector('.ui-dialog-titlebar-close').addEventListener("click", observer.disconnect());
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
+
     // Build forms and grids for the inbox's requests and import to html tags
     function buildDepInbox(res, categoryIDs, categoryName, recordIDs, site) {
         let hash = Sha1.hash(site.url);
@@ -269,7 +296,8 @@
                 .backgroundColor + '; border-right: 8px solid ' + site.backgroundColor +
                 '; border-bottom: 8px solid ' + site.backgroundColor + '; margin: 0px auto 1.5rem">' +
                 '<a name="' + hash + '" />' +
-                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' + site
+                '<div style="margin-bottom: 1rem; font-weight: bold; font-size: 200%; line-height: 240%; background-color: ' +
+                site
                 .backgroundColor + '; color: ' + site.fontColor + '; ">' + icon + ' ' + site.name + '</div>' +
                 '</div>');
         }
@@ -304,6 +332,16 @@
                     depDescription + '</button>');
                 $('#btn_action' + hash + '_' + depID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
+                    waitForElm('iframe').then((el) => {
+                        if (!sites.some(site => el.getAttribute('src').includes(site.url))) {
+                            el.setAttribute('src', site.url + el.getAttribute('src'));
+                            el.addEventListener('load', () => {
+                                if (!sites.some(site => el.contentWindow?.document?.querySelector('#record').getAttribute('action').includes(site.url))) {
+                                    el.contentWindow?.document?.querySelector('#record').setAttribute('action', site.url + el.contentWindow?.document?.querySelector('#record').getAttribute('action'));
+                                }
+                            });
+                        }
+                    });
                 })
             }
         }];
@@ -312,6 +350,7 @@
         if (categoryIDs != undefined) {
             categoryIDs.forEach(categoryID => {
                 if (site.columns != undefined &&
+                    Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
                     let customCols = [];
                     site.columns[categoryID].split(',').forEach(col => {
@@ -320,9 +359,9 @@
                             headerDefinitions[col] != undefined) {
                             customCols.push(headerDefinitions[col](site));
                         } else if (parseInt(col) > 0) { // assign custom data headers
-                            let label = dataDictionary[site.url]?. [col]?.description;
+                            let label = dataDictionary[site.url]?.[col]?.description;
                             if (label == undefined) {
-                                label = dataDictionary[site.url]?. [col]?.name;
+                                label = dataDictionary[site.url]?.[col]?.name;
                             }
                             customCols.push({name: label, indicatorID: parseInt(col), editable: false});
                         }
@@ -332,13 +371,21 @@
                 }
             });
         }
+        let customCols = [];
         if (customColumns == false) {
-            let customCols = [];
-            'UID,service,title,status'.split(',').forEach(col => {
-                customCols.push(headerDefinitions[col](site));
-            });
-            headers = customCols.concat(headers);
+            site.columns = site.columns ?? 'UID,service,title,status';
         }
+        site.columns.split(',').forEach(col => {
+            if (isNaN(col)) {
+                customCols.push(headerDefinitions[col](site));
+            } else {
+                customCols.push({
+                    name: (dataDictionary[site.url]?.[col]?.name ?? dataDictionary[site.url]?.[col]?.description), indicatorID: parseInt(col), editable: false
+                });
+            }
+        });
+
+        headers = customCols.concat(headers);
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + depID);
         formGrid.setRootURL(site.url);
@@ -409,33 +456,31 @@
 
         // get data for any custom fields
         let getData = [];
-        if (site.columns != undefined) {
-            for (let i in site.columns) {
-                let cols = site.columns[i].split(',');
-                for (let j in cols) {
-                    if (!isNaN(parseInt(cols[j]))) {
-                        getData.push(parseInt(cols[j]));
-                    } else {
-                        switch (cols[j].toLowerCase()) {
-                            case 'days_since_last_action':
-                            case 'email_reminder':
-                                query.join('action_history');
-                                break;
-                            default:
-                                break;
-                        }
+        if (site.columns != undefined && Array.isArray(site.columns.split(','))) {
+            let cols = site.columns.split(',');
+            for (let i in site.columns.split(',')) {
+                if (!isNaN(parseInt(cols[i]))) {
+                    getData.push(parseInt(cols[i]));
+                } else {
+                    switch (cols[i].toLowerCase()) {
+                        case 'days_since_last_action':
+                        case 'email_reminder':
+                            query.join('action_history');
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
         }
+        
         if (getData.length > 0 && offset == 0) {
             getData.forEach(id => query.getData(id));
-            let formList = Object.keys(site.columns).join(',');
             return $.ajax({
                     type: 'GET',
-                    url: site.url + `api/form/indicator/list?forms=${formList}&x-filterData=indicatorID,name,description`,
+                    url: site.url + `api/form/indicator/list?x-filterData=indicatorID,name,description`,
                     success: function(res) {
-                        let dict = {};
+                        let dict = [];
                         res.forEach(ind => {
                             dict[ind.indicatorID] = {name: ind.name, description: ind.description};
                         });
@@ -478,17 +523,20 @@
     }
 
     function loadWorkflow(recordID, prefixID, rootURL) {
-        dialog_message.setTitle('Apply Action to #' + recordID);
-        currRecordID = recordID;
-        dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
-        workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
-        workflow.setRootURL(rootURL);
-        workflow.setActionSuccessCallback(function() {
-            dialog_message.hide();
-            $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);
+        return new Promise((resolve, reject) => {
+            dialog_message.setTitle('Apply Action to #' + recordID);
+            currRecordID = recordID;
+            dialog_message.setContent('<div id="workflowcontent"></div><div id="currItem"></div>');
+            workflow = new LeafWorkflow('workflowcontent', '<!--{$CSRFToken}-->');
+            workflow.setRootURL(rootURL);
+            workflow.setActionSuccessCallback(function() {
+                dialog_message.hide();
+                $('#' + prefixID + 'tbody_tr' + recordID).fadeOut(1500);
+            });
+            workflow.getWorkflow(recordID);
+            dialog_message.show();
+            resolve(document.querySelector('#workflowcontent'));
         });
-        workflow.getWorkflow(recordID);
-        dialog_message.show();
     }
 
     const getMapSites = new Promise((resolve, reject) => {
@@ -503,12 +551,15 @@
                 let siteMap = Object.values(JSON.parse(res[0].data))[0];
                 let formattedSiteMap = siteMap.map((site) => {
                     return {
-                        url: site.target,
-                        name: site.description,
+                        url: site.target.endsWith('/') ? site.target: site.target + '/',
+                        name: site.title,
                         backgroundColor: site.color,
                         icon: site.icon,
                         fontColor: site.fontColor,
-                        nonAdmin: true
+                        cols: site.cols,
+                        nonAdmin: true,
+                        order: site.order,
+                        columns: 'UID' + (site.columns?.length > 0 ? ',' + site.columns : ''),
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
@@ -526,10 +577,10 @@
     // Script Start
     $(function() {
         getMapSites.then((value) => {
-            console.log();
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
                 'genericDialogbutton_cancelchange');
+            dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
             let progressbar = $('#progressbar').progressbar();
             $('#progressbar').progressbar('option', 'max', Object.keys(sites).length);
             let queue = new intervalQueue();
@@ -578,6 +629,9 @@
         display: none;
     }
 </style>
+
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
+
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>
         <div id="genericDialogbutton_cancelchange" style="display: none"></div>
