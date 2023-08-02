@@ -23,7 +23,6 @@ const commonConfig = {
             },
             {
                 test: /\.(s[ac]|c)ss$/i,
-                exclude: /node_modules/,
                 use: [
                     MiniCssExtractPlugin.loader,
                     'css-loader',
@@ -31,8 +30,8 @@ const commonConfig = {
                 ]
             },
             {
-                test: /\.(png|gif|woff|woff2|ttf)$/i,
-                type: "asset/resource",
+                test: /\.(png|svg|gif|woff|woff2|ttf)$/i,
+                type: "asset",
             },
         ]
     },
@@ -72,7 +71,6 @@ const siteDesignerConfig = {
         clean: true
     }
 }
-/* NOTE: keeping commented until implemented in future update
 const adminSassConfig = {
     ...commonConfig,
     entry: {
@@ -81,14 +79,24 @@ const adminSassConfig = {
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, '/app/css'),
-        publicPath: '',
-        assetModuleFilename: `assets/[name].[hash][ext][query]`,
+        assetModuleFilename: (pathData) => {
+            const fileName = pathData.filename;
+            const srcPath = 'src/common/assets/';
+            const srcLen = srcPath.length;
+            const fontPath = fileName.slice(srcLen);
+            let outPath = `assets/[name].[hash][ext][query]`;
+            //keep previous font paths, everything else that isn't inline can just go in assets
+            if(fileName.indexOf(srcPath) === 0 && /\.(woff|woff2|ttf)$/.test(fileName)) {
+                outPath = 'fonts/' + fontPath;
+            }
+            return outPath;
+          },
         clean: true
     }
-}*/
+}
 
 module.exports = [
     formEditorConfig,
     siteDesignerConfig,
-    //adminSassConfig
+    adminSassConfig
 ];
