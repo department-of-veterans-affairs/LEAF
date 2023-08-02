@@ -993,7 +993,7 @@ async function getSubordinateSites() {
             let data = JSON.parse(res.sitemap_json);
 
             data.buttons.forEach(site => {
-                if(site.target.indexOf('localhost/LEAF') != -1
+                if(site.target.indexOf('leaf.va.gov') != -1
                     && site.target.indexOf('?') == -1) {
                     sites.push(site.target);
                 }
