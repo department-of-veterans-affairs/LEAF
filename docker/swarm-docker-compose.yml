@@ -23,6 +23,8 @@ services:
       replicas: 2 
       restart_policy:
         condition: on-failure
+    sysctls:
+      net.ipv4.ip_local_port_range: "15000 64000"
     # configs:
     #   - source: entrypoint
     #     target: ./etc/init.d/ss.sh
