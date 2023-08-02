@@ -137,13 +137,16 @@ export default {
         ModFormMenu,
         ResponseMessage
     },
-    mounted() {
+    created() {
         this.getCategoryListAll().then(() => {
             if(this.$route.name === 'category' && this.$route.query.formID) {
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
-
+        this.getWorkflowRecords();
+        this.getFileManagerTextFiles();
+    },
+    mounted() {
         this.getSiteSettings().then(res => {
             this.siteSettings = res;
             if(res.siteType === 'national_subordinate') {
@@ -153,8 +156,6 @@ export default {
                 this.getSecureFormsInfo();
             }
         }).catch(err => console.log('error getting site settings', err));
-        this.getWorkflowRecords();
-        this.getFileManagerTextFiles();
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {

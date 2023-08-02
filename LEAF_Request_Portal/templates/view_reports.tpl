@@ -949,7 +949,7 @@ function createRequest(catID) {
                     recordID = recordID || 0;
                     //Type number. Sent back on success (UID column of report builder)
                     if (recordID > 0) {
-                        newRecordID = recordID;  //global
+                        newRecordID = parseInt(recordID);  //global
                         $('#generateReport').click();
                         dialog.hide();
                         //styling to hilite row for short / simple queries
