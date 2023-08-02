@@ -1249,7 +1249,8 @@ class Employee extends Data
     }
 
     private function searchDeeper($input) {
-        return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+        //return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+        return []; // temporarily disable deep searches
     }
 
     public function search($input, $indicatorID = '')
