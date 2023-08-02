@@ -1,39 +1,33 @@
 version: "3.9"
 
 services:
-  leaf-php-8:
+  leaf-php-8-noauth:
     image: pelentan/leaf-swarm:1.0
     env_file: 
       - ./env_files/globals_swarm.env
-        # - ./env_files/globals_swarm_prod.env
+      # - ./env_files/globals_swarm_prod.env
       # - ./env_files/secrets.env
     ports:
-      - 80:80
-      - 443:443
-      - 9000:9000
+      - 85:80
+      - 445:443
     volumes:
-      - /mnt/leaf/:/var/www/
+      - /mnt/leaf-noauth/:/var/www/
     command: 'source /startup.sh'
     networks:
-      - leaf
+      - leaf-noauth
     # environment:
     #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
-      replicas: 2 
+      replicas: 2
       restart_policy:
         condition: on-failure
-    sysctls:
-      net.ipv4.ip_local_port_range: "15000 64000"
     # configs:
     #   - source: entrypoint
     #     target: ./etc/init.d/ss.sh
     #     mode: 0777
     # entrypoint: ["/etc/init.d/ss.sh","/startup.sh"]
-
-    labels:
-      - "traefik.enable=true"
-
+        
     secrets:
       - source: leaf_key
         target: /etc/ssl/certs/leaf.key
@@ -50,35 +44,16 @@ services:
       - source: cdw_host
       - source: cdw_pass
       - source: cipher_key
-        # - source: db_host_ip
-
-  leaf-adminer:
-    image: adminer
-    environment:
-      ADMINER_DEFAULT_SERVER: leaf-mysql
-    ports:
-      - "8080:8080"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.leaf_adminer.loadbalancer.server.port=8080"
-      - "traefik.http.routers.leaf_adminer.rule=Host(`leaf-adminer.dev.vovina-tisa.net`)"
-      - "traefik.http.routers.leaf_adminer.entrypoints=web, web-secure"
-      - "traefik.http.routers.leaf_adminer.tls.certresolver=dev_http"
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-
+      - source: db_host_ip
 
 volumes:
-  leaf-vol:
+  leaf-vol-noauth:
     external: true
-  leaf-vol-html:
+  leaf-vol-html-noauth:
     external: true
 
 networks:
-  leaf:
+  leaf-noauth:
     external: false
 
 secrets:
@@ -104,5 +79,5 @@ secrets:
     external: true
   cipher_key:
     external: true
-      #db_host_ip:
-      # external: true
+  db_host_ip:
+    external: true
