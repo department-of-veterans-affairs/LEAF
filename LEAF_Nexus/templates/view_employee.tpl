@@ -1,7 +1,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->
-        <div onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->', '<!--{$empUID}-->');"><img src="dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
+        <div onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->');"><img src="dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
         <br />
       <!--{/if}-->
         <div onclick="assignBackup();"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="Set Backup" title="Set Backup" /> Assign Backup</div>
@@ -80,12 +80,12 @@
 <!--{include file="site_elements/genericJS_toolbarAlignment.tpl"}-->
 
 
-function refreshEmp(userName, empUID) {
+function refreshEmp(userName) {
     var CSRFToken = '<!--{$CSRFToken}-->';
 
     $.ajax({
         type: 'POST',
-        url: "./api/employee/refresh/_" + userName + "/" + empUID,
+        url: "./api/employee/refresh/_" + userName,
         dataType: "json",
         data: {CSRFToken: CSRFToken},
         success: function(res) {
