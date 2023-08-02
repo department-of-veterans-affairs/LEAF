@@ -33,6 +33,7 @@
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
@@ -769,6 +770,17 @@
         dialog.setTitle('Edit Requirement');
         dialog.setContent('Label: <input type="text" id="description"></input>');
         dialog.setSaveHandler(function() {
+            if ($('#description').val() == '') {
+                dialog_ok.setTitle('Description Validation');
+                dialog_ok.setContent('Description cannot be blank, please enter a Title or click cancel.');
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                    dialog.hide();
+                    editRequirement(dependencyID);
+                });
+                dialog_ok.show();
+            } else {
                 $.ajax({
                         type: 'POST',
                         data: {CSRFToken: CSRFToken,
@@ -782,6 +794,8 @@
                     },
                     error: (err) => console.log(err),
                 });
+            }
+
         });
         dialog.show();
     }
@@ -2903,6 +2917,7 @@
             'confirm_button_save', 'confirm_button_cancelchange');
         dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator',
             'simplebutton_save', 'simplebutton_cancelchange');
+        dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
         $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
         jsPlumb.Defaults.Container = "workflow";
