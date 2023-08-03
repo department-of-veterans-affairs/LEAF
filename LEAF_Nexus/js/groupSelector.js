@@ -174,6 +174,7 @@ groupSelector.prototype.adSearch = function () {
       dataType: "json",
       data: {q: this.q, tag: this.tag},
       success: function (response) {
+        response.map(group => ({ ...group, isAdDistro: 'true'}));
         resolve(response);
       },
       fail: function(error) {
@@ -191,6 +192,8 @@ groupSelector.prototype.leafSearch = function () {
       dataType: "json",
       data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
       success: function (response) {
+        console.log(response);
+        response.map(group => ({ ...group, isAdDistro: 'false'}));
         resolve(response);
       },
       fail: function(error) {
@@ -281,6 +284,7 @@ groupSelector.prototype.search = function () {
           t.selectionData[item.groupID] = item;
 
           linkText = item.groupTitle;
+          console.log(item);
           if (t.selectLink != null) {
             linkText =
               '<a href="' +
@@ -301,6 +305,7 @@ groupSelector.prototype.search = function () {
               item.groupID +
               '">' +
               linkText +
+              item.isAdDistro == 'true' ? `<span style="background-color: #09f; color: white;  padding: 5px 10px; border-radius: 20px; margin: 5px;">AD Distro</span>` : '' +
               "</td></tr>"
           );
           $("#" + t.prefixID + "grp" + item.groupID).addClass(
