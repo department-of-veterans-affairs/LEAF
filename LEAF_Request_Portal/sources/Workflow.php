@@ -404,7 +404,9 @@ class Workflow
         $sql = 'INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`,
                     `actionType`, `displayConditional`)
                 VALUES (:workflowID, :stepID, :nextStepID, :action,
-                    :displayConditional)';
+                    :displayConditional)
+                ON DUPLICATE KEY UPDATE `nextStepID` = :nextStepID
+                    `displayConditional` = :displayConditional';
 
         $res = $this->db->pdo_insert_query($sql, $vars);
 
