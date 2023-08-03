@@ -23,6 +23,7 @@ const commonConfig = {
             },
             {
                 test: /\.(s[ac]|c)ss$/i,
+                exclude: /node_modules/,
                 use: [
                     MiniCssExtractPlugin.loader,
                     'css-loader',
