@@ -405,7 +405,7 @@ class Workflow
                     `actionType`, `displayConditional`)
                 VALUES (:workflowID, :stepID, :nextStepID, :action,
                     :displayConditional)
-                ON DUPLICATE KEY UPDATE `nextStepID` = :nextStepID
+                ON DUPLICATE KEY UPDATE `nextStepID` = :nextStepID,
                     `displayConditional` = :displayConditional';
 
         $res = $this->db->pdo_insert_query($sql, $vars);
