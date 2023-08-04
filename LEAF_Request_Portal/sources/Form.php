@@ -570,6 +570,15 @@ class Form
             }
 
             if($parseTemplate) {
+                /* putting this here to see what this value is
+                    the error is Array to string conversion and it gives the
+                    location, so I checked the database that it is pulling this
+                    from and I don't see any arrays in their data
+                */
+                if (is_array($data[0]['html'])) {
+                    error_log(print_r($data[0]['html'], true));
+                }
+
                 $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                 [$idx, $recordID, $form[$idx]['value']],
                                                 $data[0]['html']);
