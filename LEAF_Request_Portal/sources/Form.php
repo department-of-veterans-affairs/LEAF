@@ -3933,6 +3933,14 @@ class Form
                 }
 
                 if($parseTemplate) {
+                     /* putting this here to see what this value is
+                        the error is Array to string conversion and it gives the
+                        location, so I checked the database that it is pulling this
+                        from and I don't see any arrays in their data
+                    */
+                    if (is_array($field['html'])) {
+                        error_log(print_r($field['html'], true));
+                    }
                     $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                       [$idx, $recordID, $child[$idx]['value']],
                                                       $field['html']);
