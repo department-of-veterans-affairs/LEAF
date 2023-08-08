@@ -338,6 +338,7 @@ function addHeader(column) {
             filterData['action_history.stepID'] = 1;
             filterData['action_history.actionType'] = 1;
             filterData['stepFulfillmentOnly'] = 1;
+            filterData['submitted'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
 
@@ -354,7 +355,7 @@ function addHeader(column) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
-                        let date = new Date(lastAction.time * 1000);
+                        let date = new Date(lastAction?.time * 1000);
 
                         // We want to get date of last non-comment action so let's roll
                         if (column === 'days_since_last_step_movement') {
@@ -874,7 +875,7 @@ function createRequest(catID) {
                     recordID = recordID || 0;
                     //Type number. Sent back on success (UID column of report builder)
                     if (recordID > 0) {
-                        newRecordID = recordID;  //global
+                        newRecordID = parseInt(recordID);  //global
                         $('#generateReport').click();
                         dialog.hide();
                         //styling to hilite row for short / simple queries
