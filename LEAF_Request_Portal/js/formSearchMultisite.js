@@ -4,7 +4,6 @@
  */
 
 var LeafFormSearchMultisite = function (containerID) {
-  let containerID = containerID;
   let prefixID = "LeafFormSearchMultisite" + Math.floor(Math.random() * 1000) + "_";
   let localStorageNamespace = "LeafFormSearchMultisite" + getLocalStorageHash();
   let orgchartPath = "";

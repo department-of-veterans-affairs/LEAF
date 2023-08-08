@@ -304,6 +304,7 @@ class Group
             // include the backups of employees
             $emp = $employee->lookupLogin($member);
             $backups = $employee->getBackups($emp[0]['empUID']);
+
             if (!empty($backups)) {
                 foreach ($backups as $backup) {
                     $vars = array(':userID' => $backup['userName'],
@@ -324,7 +325,7 @@ class Group
                         }
                         $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
                                 VALUES (:userID, :groupID, :backupID)
-                                ON DUPLICATE KEY UPDATE `userID = :userID, `groupID` = :groupID,
+                                ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID,
                                     `backupID` = :backupID';
 
                         $return_value = $this->db->pdo_insert_query($sql, $vars);
@@ -338,6 +339,13 @@ class Group
                         break;
                     }
                 }
+
+                $return_value = array (
+                    'status' => array (
+                        'code' => 2,
+                        'message' => ''
+                    )
+                );
             } else {
                 $return_value = array (
                     'status' => array (

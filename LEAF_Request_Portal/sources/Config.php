@@ -41,9 +41,14 @@ class Config
         self::$orgchartPath = $site_paths['orgchart_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
         self::$emailCC = $settings['emailCC'];
-        self::$emailBCC = $settings['emailBCC'];
         self::$portalDb = $site_paths['portal_database'];
         $this->phonedbName = $site_paths['orgchart_database'];
+
+        if (isset($settings['emailBCC'])) {
+            self::$emailBCC = $settings['emailBCC'];
+        } else {
+            self::$emailBCC = '';
+        }
 
         if (isset($settings['descriptionID'])) {
             $this->descriptionID = $settings['descriptionID'];

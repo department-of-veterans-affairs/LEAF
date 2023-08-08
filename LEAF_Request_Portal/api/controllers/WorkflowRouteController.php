@@ -20,7 +20,15 @@ class WorkflowRouteController extends RESTfulResponse
 
     public function get($act)
     {
+        $workflow_route = $this->workflow_route;
 
+        $this->index['GET'] = new ControllerMap();
+
+        $this->index['GET']->register('workflowRoute/action/[text]', function ($args) use ($workflow_route) {
+            return $workflow_route->getUsedAction($args[0]);
+        });
+
+        return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 
     public function post($act)

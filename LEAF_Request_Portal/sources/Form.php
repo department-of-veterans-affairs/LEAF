@@ -128,6 +128,7 @@ class Form
             {
                 $this->flattenFullFormData($item['child'], $output, $item['indicatorID']);
                 unset($item['child']);
+                $item['parentID'] = $parentID;
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
         }
@@ -298,7 +299,7 @@ class Form
         {
             return 'Error: Invalid token.';
         }
-        $title = $this->sanitizeInput($_POST['title']);
+        $title = \Leaf\XSSHelpers::sanitizeHTML($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
         $_POST['priority'] = !isset($_POST['priority']) || $_POST['priority'] == '' ? 0 : (int)$_POST['priority'];
@@ -1120,7 +1121,7 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, $this->sanitizeInput($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, \Leaf\XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
@@ -1163,7 +1164,7 @@ class Form
 
             $priority = isset($_POST['priority']) ? $_POST['priority'] : 0;
             $vars = array(':recordID' => (int)$recordID,
-                          ':title' => $this->sanitizeInput($_POST['title']),
+                          ':title' => \Leaf\XSSHelpers::sanitizeHTML($_POST['title']),
                           ':priority' => (int)$priority, );
 
             $res = $this->db->prepared_query('UPDATE records SET
@@ -2055,7 +2056,7 @@ class Form
                         }
 
                         // collaborator access
-                        if (isset($hasCategoryAccess[$dep['categoryID']])) {
+                        if (isset($dep['categoryID']) && isset($hasCategoryAccess[$dep['categoryID']])) {
                             $temp[$dep['recordID']] = 1;
                         }
                     }
@@ -2588,7 +2589,7 @@ class Form
         {
             return;
         }
-        $title = $this->sanitizeInput($title);
+        $title = \Leaf\XSSHelpers::sanitizeHTML($title);
 
         if ($this->hasWriteAccess($recordID))
         {
