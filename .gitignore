@@ -36,3 +36,4 @@ LEAF_Request_Portal/UPLOADS
 /LEAF_Request_Portal/templates_c/mailer/
 
 docker/nginx/nginx.conf
+libs/css/leaf.js

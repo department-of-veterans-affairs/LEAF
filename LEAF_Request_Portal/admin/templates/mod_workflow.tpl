@@ -21,6 +21,10 @@
         role="button" tabindex="0"><img src="../dynicons/?img=accessories-text-editor.svg&amp;w=32"
             alt="Rename Workflow" /> Rename
         Workflow</div>
+    <div id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
+        role="button" tabindex="0"><img src="../dynicons/?img=edit-copy.svg&amp;w=32"
+            alt="Duplicate Workflow" /> Duplicate
+        Workflow</div>
 </div>
 <div id="workflow"
     style="margin-left: 184px; background-color: #444444; margin-top: 16px; overflow-x: auto; overflow-y: auto; width: 72%;">
@@ -55,18 +59,11 @@
         dialog.setTitle('Create new workflow');
         dialog.setContent('<br /><label for="description">Workflow Title:</label> <input type="text" id="description"/>');
         dialog.setSaveHandler(function() {
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/new',
-                data: {
-                    description: $('#description').val(),
-                    CSRFToken: CSRFToken
-                },
-                success: (res) => {
-                    loadWorkflowList(res);
-                    dialog.hide();
-                },
-                error: (err) => console.log(err),
+            let workflowID;
+
+            postWorkflow(function(workflow_id) {
+                loadWorkflowList(workflow_id);
+                dialog.hide();
             });
         });
         dialog.show();
@@ -277,17 +274,9 @@
     function addEmailReminderDialog(stepID) {
         $('.workflowStepInfo').css('display', 'none');
         let workflowStep = null;
-        $.ajax({
-            type: 'GET',
-            data: {
-                CSRFToken: CSRFToken,
-            },
-            url: '../api/workflow/step/' + stepID,
-            async: false,
-            success: function(res) {
-                workflowStep = res
-            },
-            error: function() { console.log('Failed to gather workflow step!'); }
+
+        getStep(stepID, function (workflow_step) {
+            workflowStep = workflow_step;
         });
 
         dialog.setTitle('Email Reminder');
@@ -334,22 +323,13 @@
                 }
             }
 
-            $.ajax({
-                type: 'POST',
-                data: {
-                    CSRFToken: CSRFToken,
-                    seriesData: seriesData
-                },
-                url: '../api/workflow/stepdata/' + stepID,
-                success: function(res) {
-                    if (res == 1) {
-                        loadWorkflow(currentWorkflow);
-                        dialog.hide();
-                    } else {
-                        alert(res);
-                    }
-                },
-                error: function() { console.log('Failed to save automated email reminder data'); }
+            updateStepData(seriesData, stepID, function (res) {
+                if (res == 1) {
+                    loadWorkflow(currentWorkflow);
+                    dialog.hide();
+                } else {
+                    alert(res);
+                }
             });
         });
 
@@ -535,9 +515,8 @@
                     })
                     .trigger("change");
                 dialog.setSaveHandler(function() {
-                        let ajaxData = {eventID: $('#eventID').val(),
-                        CSRFToken: CSRFToken
-                    };
+                    let ajaxData = {eventID: $('#eventID').val(),
+                                    CSRFToken: CSRFToken};
                     if ($('#eventID').val() == 'automated_email_reminder') {
                         var formObj = {};
                         $.each($('#eventData :input').serializeArray(), function() {
@@ -546,17 +525,11 @@
                         $.extend(ajaxData, formObj);
                     }
 
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + actionType +
-                            '/events',
-                        data: ajaxData,
-                        cache: false
-                    }).done(function() {
+                    postEvent(stepID, actionType, workflowID, ajaxData, function (res) {
                         loadWorkflow(workflowID);
-                    }).fail(function(error) {
-                        alert(error);
-                    }); dialog.hide();
+                    });
+
+                    dialog.hide();
                 });
             }).fail(function(error) {
             alert(error);
@@ -772,40 +745,22 @@
         $('.workflowStepInfo').css('display', 'none');
 
         let workflowStep = null;
-        $.ajax({
-            type: 'GET',
-            data: {
-                CSRFToken: CSRFToken,
 
-            },
-            url: '../api/workflow/step/' + stepID,
-            async: false,
-            success: function(res) {
-                workflowStep = res
-            },
-            error: function() { console.log('Failed to gather workflow step!'); }
-        });
+        getStep(stepID, function(workflow_step) {
+            workflowStep = workflow_step;
+        })
 
         dialog.setTitle('Edit Step');
         dialog.setContent(`<label for="title">Title:</label> <input type="text" id="title" value="${workflowStep?.stepTitle}" />`);
         dialog.setSaveHandler(function() {
-                $.ajax({
-                    type: 'POST',
-                    data: {
-                        CSRFToken: CSRFToken,
-                        title: $('#title').val()
-                    },
-                    url: '../api/workflow/step/' + stepID,
-                    success: function(res) {
-                        if (res == 1) {
-                            loadWorkflow(currentWorkflow);
-                            dialog.hide();
-                        } else {
-                            alert(res);
-                        }
-                    },
-                    error: (err) => console.log(err),
-                });
+            updateTitle($('#title').val(), stepID, function(step_id) {
+                if (step_id == 1) {
+                    loadWorkflow(currentWorkflow);
+                    dialog.hide();
+                } else {
+                    alert(res);
+                }
+            });
         });
         dialog.show();
     }
@@ -815,6 +770,17 @@
         dialog.setTitle('Edit Requirement');
         dialog.setContent('Label: <input type="text" id="description"></input>');
         dialog.setSaveHandler(function() {
+            if ($('#description').val() == '') {
+                dialog_ok.setTitle('Description Validation');
+                dialog_ok.setContent('Description cannot be blank, please enter a Title or click cancel.');
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                    dialog.hide();
+                    editRequirement(dependencyID);
+                });
+                dialog_ok.show();
+            } else {
                 $.ajax({
                         type: 'POST',
                         data: {CSRFToken: CSRFToken,
@@ -828,6 +794,8 @@
                     },
                     error: (err) => console.log(err),
                 });
+            }
+
         });
         dialog.show();
     }
@@ -855,17 +823,9 @@
 
     function linkDependency(stepID, dependencyID) {
         dialog.indicateBusy();
-        $.ajax({
-                type: 'POST',
-                url: '../api/workflow/step/' + stepID + '/dependencies',
-                data: {dependencyID: dependencyID,
-                CSRFToken: CSRFToken
-            },
-            success: function() {
-                dialog.hide();
-                showStepInfo(stepID);
-            },
-            error: (err) => console.log(err),
+        postStepDependency(stepID, dependencyID, function(res) {
+            dialog.hide();
+            showStepInfo(stepID);
         });
     }
 
@@ -1033,63 +993,41 @@
             '<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"'
         );
         dialog.setSaveHandler(function() {
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/' + currentWorkflow + '/step',
-                data: {
-                    stepTitle: $('#stepTitle').val(),
-                    CSRFToken: CSRFToken
-                },
-                success: function(res) {
+            addStep(currentWorkflow, $('#stepTitle').val(), function(stepID) {
+                if (isNaN(stepID)) {
+                    console.log(stepID);
+                } else {
                     loadWorkflow(currentWorkflow);
-                    dialog.hide();
-                },
-                error: (err) => console.log(err),
+                }
+
+                dialog.hide();
             });
         });
         dialog.show();
     }
 
     function setInitialStep(stepID) {
-        $.ajax({
-            type: 'POST',
-            url: '../api/workflow/' + currentWorkflow + '/initialStep',
-            data: {
-                stepID: stepID,
-                CSRFToken: CSRFToken
-            },
-            success: function() {
-                // ending step
-                if (stepID == 0) {
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/' + currentWorkflow + '/action',
-                        data: {
-                            stepID: -1,
-                            nextStepID: 0,
-                            action: 'submit',
-                            CSRFToken: CSRFToken
-                        },
-                        success: function() {},
-                        error: (err) => console.log(err),
-                    });
-                }
-
-                workflows = {};
-                $.ajax({
-                    type: 'GET',
-                    url: '../api/workflow',
-                    success: function(res) {
-                        for (let i in res) {
-                            workflows[res[i].workflowID] = res[i];
-                        }
-                        loadWorkflow(currentWorkflow);
-                    },
-                    error: (err) => console.log(err),
-                    cache: false
+        updateInitialStep(currentWorkflow, stepID, function() {
+            // ending step
+            if (stepID == 0) {
+                postAction(-1, 0, 'submit', currentWorkflow, function (res) {
+                    // nothing happened here to begin with
                 });
-            },
-            error: (err) => console.log(err),
+            }
+
+            workflows = {};
+            $.ajax({
+                type: 'GET',
+                url: '../api/workflow',
+                success: function(res) {
+                    for (let i in res) {
+                        workflows[res[i].workflowID] = res[i];
+                    }
+                    loadWorkflow(currentWorkflow);
+                },
+                error: (err) => console.log(err),
+                cache: false
+            });
         });
     }
 
@@ -1384,19 +1322,8 @@
 
             // automatically select "return to requestor" if the user links a step to the requestor's step
             if (source > 0) {
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/workflow/' + currentWorkflow + '/action',
-                    data: {
-                        stepID: source,
-                        nextStepID: target,
-                        action: 'sendback',
-                        CSRFToken: CSRFToken
-                    },
-                    success: function() {
-                        loadWorkflow(currentWorkflow);
-                    },
-                    error: (err) => console.log(err),
+                postAction(source, target, 'sendback', currentWorkflow, function(res) {
+                    loadWorkflow(currentWorkflow);
                 });
                 return;
             }
@@ -1439,19 +1366,8 @@
                     loadWorkflow(currentWorkflow);
                 });*/
                 dialog.setSaveHandler(function() {
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/' + currentWorkflow + '/action',
-                        data: {
-                            stepID: source,
-                            nextStepID: target,
-                            action: $('#actionType').val(),
-                            CSRFToken: CSRFToken
-                        },
-                        success: function() {
-                            loadWorkflow(currentWorkflow);
-                        },
-                        error: (err) => console.log(err),
+                    postAction(source, target, $('#actionType').val(), currentWorkflow, function(res) {
+                        loadWorkflow(currentWorkflow);
                     });
                     dialog.hide();
                 });
@@ -1497,46 +1413,52 @@
                     find_required = $.parseJSON(params.required);
                 }
 
-                let output = '';
-                let required = '';
+        getRouteEvents(currentWorkflow, stepID, params.action, function (res) {
+            let find_required = '';
 
-                if (find_required.required == 'true') {
-                    required = 'checked=checked';
-                }
+            if (typeof params.required === 'undefined' || params.required === '') {
+                find_required = $.parseJSON('{"required":"false"}');
+            } else {
+                find_required = $.parseJSON(params.required);
+            }
 
-                stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
-                output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+            let output = '';
+            let required = '';
 
-                if (params.action == 'sendback') {
-                    output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
-                }
+            if (find_required.required == 'true') {
+                required = 'checked=checked';
+            }
 
-                output += '<br /><div>Triggers these events:<ul>';
-                // the sendback action always notifies the requestor
-                if (params.action == 'sendback') {
-                    output += '<li><b>Email - Notify the requestor</b></li>';
-                }
-                for (let i in res) {
-                    output += '<li><b title="' + res[i].eventID + '">' + res[i].eventType + ' - ' + res[i]
-                        .eventDescription +
-                        '</b> <img src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
-                        currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
-                        .eventID + '\')" alt="Remove Action" title="Remove Action" /></li>';
-                }
-                output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_' +
-                    currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</span>';
-                output += '</ul></div>';
-                output +=
-                    '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="removeAction(' +
-                    currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
-                    '\')">Remove Action</span></div>';
-                $('#stepInfo_' + stepID).html(output);
-                $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
-                    addEventDialog(currentWorkflow, stepID, params.action);
-                });
-            },
-            error: (err) => console.log(err),
-            cache: false
+            stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
+            output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+
+            if (params.action == 'sendback') {
+                output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
+            }
+
+            output += '<br /><div>Triggers these events:<ul>';
+            // the sendback action always notifies the requestor
+            if (params.action == 'sendback') {
+                output += '<li><b>Email - Notify the requestor</b></li>';
+            }
+            for (let i in res) {
+                output += '<li><b title="' + res[i].eventID + '">' + res[i].eventType + ' - ' + res[i]
+                    .eventDescription +
+                    '</b> <img src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
+                    currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
+                    .eventID + '\')" alt="Remove Action" title="Remove Action" /></li>';
+            }
+            output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_' +
+                currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</span>';
+            output += '</ul></div>';
+            output +=
+                '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="removeAction(' +
+                currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
+                '\')">Remove Action</span></div>';
+            $('#stepInfo_' + stepID).html(output);
+            $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
+                addEventDialog(currentWorkflow, stepID, params.action);
+            });
         });
 
         $('#stepInfo_' + stepID).css({
@@ -1551,19 +1473,8 @@
         let e = document.getElementById("workflows");
         let workflowID = e.value;
 
-        $.ajax({
-            type: 'POST',
-            url: '../api/workflowRoute/require',
-            data: {required: element.checked,
-            step_id: stepID[2],
-            workflow_id: workflowID,
-            CSRFToken: CSRFToken},
-            success: function (res) {
-                console.log(res);
-            },
-            error: function (err) {
-                console.log(err);
-            }
+        updateRequiredCheckbox(workflowID, stepID[2], element.checked, function(res) {
+            console.log(res);
         });
     }
 
@@ -1594,20 +1505,10 @@
             cache: false
         });
 
-
         dialog.setSaveHandler(function() {
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_empUID',
-                data: {
-                    indicatorID: $('#indicatorID').val(),
-                    CSRFToken: CSRFToken
-                },
-                success: function(res) {
-                    loadWorkflow(currentWorkflow);
-                    dialog.hide();
-                },
-                error: (err) => console.log(err),
+            updateApprover($('#indicatorID').val(), stepID, function(res) {
+                loadWorkflow(currentWorkflow);
+                dialog.hide();
             });
         });
     dialog.show();
@@ -1640,20 +1541,10 @@
             cache: false
         });
 
-
         dialog.setSaveHandler(function() {
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_groupID',
-                data: {
-                    indicatorID: $('#indicatorID').val(),
-                    CSRFToken: CSRFToken
-                },
-                success: function(res) {
-                    loadWorkflow(currentWorkflow);
-                    dialog.hide();
-                },
-                error: (err) => console.log(err),
+            updateGroupApprover($('#indicatorID').val(), stepID, function (res) {
+                loadWorkflow(currentWorkflow);
+                dialog.hide();
             });
         });
     dialog.show();
@@ -1758,14 +1649,8 @@
                     steps[stepID].stepModules[i].moduleConfig = JSON.stringify({indicatorID: $('#workflowIndicator_' + stepID).val()});
                 }
             }
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/step/' + stepID + '/inlineIndicator',
-                data: {
-                    indicatorID: $('#workflowIndicator_' + stepID).val(),
-                    CSRFToken: CSRFToken
-                }
-            });
+
+            postModule(stepID, $('#workflowIndicator_' + stepID).val());
         });
     }
 
@@ -1944,6 +1829,7 @@
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
             success: function(res) {
+                routes = res;
                 if (endPoints[-1] == undefined) {
                     endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
                     jsPlumb.draggable('step_-1');
@@ -2082,6 +1968,7 @@
         $('#btn_listEvents').css('display', 'block');
         $('#btn_viewHistory').css('display', 'block');
         $('#btn_renameWorkflow').css('display', 'block');
+        $('#btn_duplicateWorkflow').css('display', 'block');
 
         //508
         $('#btn_createStep').on('keypress', function(event) {
@@ -2164,21 +2051,8 @@
                             stop: function(stepID) {
                                 return function() {
                                     var position = $('#step_' + stepID).offset();
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: '../api/workflow/' + workflowID +
-                                            '/editorPosition',
-                                        data: {
-                                            stepID: stepID,
-                                            x: position.left,
-                                            y: position.top,
-                                            CSRFToken: CSRFToken
-                                        },
-                                        success: function() {
 
-                                        },
-                                        error: (err) => console.log(err),
-                                    });
+                                    updatePosition(workflowID, stepID, position.left, position.top);
                                 }
                             }(res[i].stepID)
                         });
@@ -2219,6 +2093,7 @@
 
     function loadWorkflowList(workflowID) {
         $.ajax({
+            async: false,
             type: 'GET',
             url: '../api/workflow',
             success: function(res) {
@@ -2310,6 +2185,578 @@
             });
         });
         dialog.show();
+    }
+
+    /**
+     * The script to duplicate the currently selected workflow
+     *
+     * Created at: 7/26/2023, 1:08:10 PM (America/New_York)
+     */
+    function duplicateWorkflow() {
+        $('.workflowStepInfo').css('display', 'none');
+
+        dialog.setTitle('Duplicate current workflow');
+        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
+        dialog.setSaveHandler(function() {
+            let old_steps = {};
+            let workflowID;
+            let title = $('#description').val();
+
+            postWorkflow(function(workflow_id) {
+                workflowID = workflow_id;
+                dialog.hide();
+            });
+
+            workflows[workflowID] = workflows[currentWorkflow];
+            workflows[workflowID]['workflowID'] = parseInt(workflowID);
+            workflows[workflowID]['description'] = title;
+
+            for(let i in steps) {
+                // add step, if successful update that step
+                addStep(workflowID, steps[i].stepTitle, function(stepID) {
+
+                    if (isNaN(stepID)) {
+                        console.log(stepID);
+                    } else {
+                        old_steps[steps[i].stepID] = stepID;
+                        updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
+
+                        updateTitle(steps[i].stepTitle, stepID, function(res) {
+                            // Alls well that ends well.
+                        });
+
+                        if (steps[i].stepData != null) {
+                            let auto = JSON.parse(steps[i].stepData);
+
+                            let seriesData = {
+                                AutomatedEmailReminders: {
+                                    'Automate Email Group': auto.AutomatedEmailReminders.AutomateEmailGroup,
+                                    'Days Selected': auto.AutomatedEmailReminders.DaysSelected,
+                                    'Additional Days Selected': auto.AutomatedEmailReminders.AdditionalDaysSelected,
+                                }
+                            };
+
+                            updateStepData(seriesData, stepID, function (res) {
+                                // Alls well that ends well.
+                            });
+                        }
+
+                        updateApprover(steps[i].indicatorID_for_assigned_empUID, stepID, function (res) {
+                            // Alls well that ends well.
+                        });
+
+                        updateGroupApprover(steps[i].indicatorID_for_assigned_groupID, stepID, function (res) {
+                            // Alls well that ends well.
+                        });
+
+                        // set requireDigitalSignature
+                        // this endpoint does not exist in this file at this time.
+
+                        updateDependencies(steps[i].stepID, old_steps);
+                    }
+                });
+
+
+            }
+
+            workflows[workflowID]['initialStepID'] = parseInt(old_steps[workflows[currentWorkflow].initialStepID]);
+
+            updateInitialStep(workflowID, workflows[workflowID]['initialStepID'], function () {
+                // nothing to do here
+            });
+
+            updateRoutes(workflowID, old_steps);
+            updateRouteEvents(currentWorkflow, workflowID, old_steps);
+            loadWorkflowList(workflowID);
+        });
+        dialog.show();
+    }
+
+    /**
+     * @param int workflowID
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:13:07 PM (America/New_York)
+     */
+    function updateInitialStep(workflowID, stepID, callback) {
+        $.ajax({
+            async: false,
+            type: 'POST',
+            url: '../api/workflow/' + workflowID + '/initialStep',
+            data: {
+                stepID: stepID,
+                CSRFToken: CSRFToken
+            },
+            success: function() {
+                callback();
+
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    /**
+     * This gets a list of dependencies to a particular step and
+     * creates a duplicate for the new workflow
+     *
+     * @param int stepID
+     * @param array old_steps
+     *
+     * Created at: 7/26/2023, 1:14:37 PM (America/New_York)
+     */
+    function updateDependencies(stepID, old_steps) {
+        let dependency;
+
+        getStepDependencies(stepID, function (res) {
+            if (res.status.code == 2) {
+                dependency = res.data;
+
+                for (let i in dependency) {
+                    postStepDependency(old_steps[dependency[i].stepID], dependency[i].dependencyID, function (res) {
+                        // nothing to do here
+                    });
+                }
+            } else {
+                console.log('no dependencies exist');
+            }
+        });
+    }
+
+    /**
+     * This gets a list of route_events to loop through and make
+     * new records for the new workflow being duplicated
+     *
+     * @param int currentWorkflow
+     * @param int workflow
+     * @param array old_steps
+     *
+     * Created at: 7/26/2023, 1:16:18 PM (America/New_York)
+     */
+    function updateRouteEvents(currentWorkflow, workflow, old_steps) {
+        let workflow_events;
+        let listAllEvents;
+
+        getWorkflowEvents(currentWorkflow, function (res ) {
+            workflow_events = res;
+        });
+
+
+        if (workflow_events.status.code == 2) {
+            listAllEvents = workflow_events.data;
+
+            for (let i in listAllEvents) {
+                let event = {eventID: listAllEvents[i].eventID,
+                            CSRFToken: CSRFToken};
+
+                postEvent(old_steps[listAllEvents[i].stepID], listAllEvents[i].actionType, workflow, event, function (res) {
+                    // nothing to do here.
+                });
+            }
+        }
+    }
+
+    /**
+     * This is taking the routes array and looping through it to create
+     * the new routes for the duplicated workflow
+     *
+     * @param int workflow
+     * @param array old_steps
+     *
+     * Created at: 7/26/2023, 1:17:21 PM (America/New_York)
+     */
+    function updateRoutes(workflow, old_steps) {
+        for (let i in routes) {
+            postAction(old_steps[routes[i].stepID], old_steps[routes[i].nextStepID], routes[i].actionType, workflow, function (res) {
+                // check to see if this is a sendback and if the requirement is true
+                if (routes[i].displayConditional) {
+                    let required = JSON.parse(routes[i].displayConditional);
+
+                    updateRequiredCheckbox(workflow, old_steps[routes[i].stepID], required.required, function (res) {
+                        // nothing to do here.
+                    })
+                }
+            });
+        }
+    }
+
+    /**
+     * Create the group approver for a duplicated workflow
+     *
+     * @param int indicatorID
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:20:42 PM (America/New_York)
+     */
+    function updateGroupApprover(indicatorID, stepID, callback) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_groupID',
+            data: {
+                indicatorID: indicatorID,
+                CSRFToken: CSRFToken
+            },
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    /**
+     * Create the approver for a duplicated workflow
+     *
+     * @param int indicatorID
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:23:08 PM (America/New_York)
+     */
+    function updateApprover(indicatorID, stepID, callback) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_empUID',
+            data: {
+                indicatorID: indicatorID,
+                CSRFToken: CSRFToken
+            },
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    /**
+     * @param array data
+     * @param int stepID
+     * @param closure callback
+     *
+     * Created at: 7/26/2023, 1:23:50 PM (America/New_York)
+     */
+    function updateStepData(data, stepID, callback) {
+        $.ajax({
+            type: 'POST',
+            data: {
+                CSRFToken: CSRFToken,
+                seriesData: data
+            },
+            url: '../api/workflow/stepdata/' + stepID,
+            success: function(res) {
+                callback(res);
+            },
+            error: function() { console.log('Failed to save automated email reminder data'); }
+        });
+    }
+
+    /**
+     * @param int workflowID
+     * @param string title
+     * @param closure callback
+     *
+     * @return [type]
+     *
+     * Created at: 7/26/2023, 1:25:08 PM (America/New_York)
+     */
+    function addStep(workflowID, title, callback) {
+        $.ajax({
+            async: false,
+            type: 'POST',
+            url: '../api/workflow/' + workflowID + '/step',
+            data: {
+                stepTitle: title,
+                CSRFToken: CSRFToken
+            },
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => callback(err),
+        });
+    }
+
+    /**
+     * This save the position of the step on the screen
+     *
+     * @param int workflowID
+     * @param int stepID
+     * @param int left
+     * @param int top
+     *
+     * Created at: 7/26/2023, 1:25:40 PM (America/New_York)
+     */
+    function updatePosition(workflowID, stepID, left, top) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/' + workflowID +
+                '/editorPosition',
+            data: {
+                stepID: stepID,
+                x: left,
+                y: top,
+                CSRFToken: CSRFToken
+            },
+            success: function() {
+
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    /**
+     * Updates the requirement label
+     *
+     * @param string title
+     * @param int stepID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:27:49 PM (America/New_York)
+     */
+    function updateTitle(title, stepID, callback) {
+        $.ajax({
+            type: 'POST',
+            data: {
+                CSRFToken: CSRFToken,
+                title: title
+            },
+            url: '../api/workflow/step/' + stepID,
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    function updateRequiredCheckbox(workflow, stepID, checkMark, callback) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflowRoute/require',
+            data: {required: checkMark,
+            step_id: stepID,
+            workflow_id: workflow,
+            CSRFToken: CSRFToken},
+            success: function (res) {
+                callback(res);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    /**
+     * @param int stepID
+     * @param int dependencyID
+     * @param closure callback
+     *
+     * @return void
+     *
+     * Created at: 7/26/2023, 1:28:44 PM (America/New_York)
+     */
+    function postStepDependency(stepID, dependencyID, callback) {
+        $.ajax({
+                type: 'POST',
+                url: '../api/workflow/step/' + stepID + '/dependencies',
+                data: {dependencyID: dependencyID,
+                CSRFToken: CSRFToken
+            },
+            success: function() {
+                callback();
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    /**
+     * Create a new workflow
+     *
+     * @param closure callback
+     *
+     * @return int
+     *
+     * Created at: 7/26/2023, 1:29:18 PM (America/New_York)
+     */
+    function postWorkflow(callback) {
+        $.ajax({
+            async: false,
+            type: 'POST',
+            url: '../api/workflow/new',
+            data: {
+                description: $('#description').val(),
+                CSRFToken: CSRFToken
+            },
+            success: function (res) {
+                callback(res);
+            },
+            error: (err) => callback(err),
+        });
+    }
+
+    /**
+     * @param int stepID
+     * @param int nextStepID
+     * @param string action
+     * @param int workflowID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:29:52 PM (America/New_York)
+     */
+    function postAction(stepID, nextStepID, action, workflowID, callback) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/' + workflowID + '/action',
+            data: {
+                stepID: stepID,
+                nextStepID: nextStepID,
+                action: action,
+                CSRFToken: CSRFToken
+            },
+            success: function(res) {
+                callback(res)
+            },
+            error: (err) => console.log(err),
+        });
+    }
+
+    /**
+     * @param int stepID
+     * @param string action
+     * @param int workflowID
+     * @param string event
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:31:07 PM (America/New_York)
+     */
+    function postEvent(stepID, action, workflowID, event, callback) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action +
+                '/events',
+            data: event,
+            success: function (res) {
+                callback(res);
+            },
+            error: function (err) {
+                alert(err);
+            },
+            cache: false
+        })
+    }
+
+    /**
+     * @param int stepID
+     * @param int indicatorID
+     *
+     * Created at: 7/26/2023, 1:31:50 PM (America/New_York)
+     */
+    function postModule(stepID, indicatorID) {
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflow/step/' + stepID + '/inlineIndicator',
+            data: {
+                indicatorID: indicatorID,
+                CSRFToken: CSRFToken
+            }
+        });
+    }
+
+    /**
+     * Get a specific step
+     *
+     * @param int stepID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:32:32 PM (America/New_York)
+     */
+    function getStep(stepID, callback) {
+        $.ajax({
+            type: 'GET',
+            data: {
+                CSRFToken: CSRFToken
+            },
+            url: '../api/workflow/step/' + stepID,
+            async: false,
+            success: function(res) {
+                console.log(res);
+                callback(res);
+            },
+            error: function(err) {
+                console.log('Failed to gather workflow step!');
+                callback(err);
+            }
+        });
+    }
+
+    /**
+     * @param int workflowID
+     * @param int stepID
+     * @param string action
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:33:15 PM (America/New_York)
+     */
+    function getRouteEvents(workflowID, stepID, action, callback) {
+        $.ajax({
+            type: 'GET',
+            url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action + '/events',
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
+            cache: false
+        });
+    }
+
+    /**
+     * @param int workflowID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:33:56 PM (America/New_York)
+     */
+    function getWorkflowEvents(workflowID, callback) {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '../api/workflow/' + workflowID + '/step/routeEvents',
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
+            cache: false
+        });
+    }
+
+    /**
+     * @param int stepID
+     * @param closure callback
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 1:34:49 PM (America/New_York)
+     */
+    function getStepDependencies(stepID, callback) {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '../api/workflow/' + stepID + '/stepDependencies',
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
+            cache: false
+        });
     }
 
     /*
@@ -2485,6 +2932,7 @@
     var dialog, dialog_confirm, dialog_simple;
     var workflows = {};
     var steps = {};
+    var routes = {};
     var endpointOptions = {
         isSource: true,
         isTarget: true,
