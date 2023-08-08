@@ -88,13 +88,29 @@
         const direction = menuDesignData?.direction || 'v';
         const directionAttr = direction === 'h' ?
             'style="display:flex; flex-wrap:wrap;" ' : 'style="display:flex; flex-direction: column;"';
+        const empMembership = JSON.parse('<!--{$empMembership['groupID']|json_encode}-->');
 
-        let menuItems = menuDesignData?.menuCards || [];
-        menuItems = menuItems.filter(item => +item?.enabled === 1);
-        menuItems = menuItems.sort((a, b) => a.order - b.order);
+        let menuCards = menuDesignData?.menuCards || [];
+        menuCards = menuCards.filter(item => +item?.enabled === 1);
+        menuCards = menuCards.sort((a, b) => a.order - b.order);
 
+        let renderCards = [];
+        menuCards.forEach(card => {
+            const groups = card?.groups || [];
+            const len = groups.length;
+            if (len === 0) {
+                renderCards.push({ ...card });
+            } else {
+                for (let i=0; i < len; i++) {
+                    if(+empMembership[groups[i]] === 1) {
+                        renderCards.push({ ...card });
+                        break;
+                    }
+                }
+            }
+        });
         let buffer = `<ul ${directionAttr} id="menu">`;
-        menuItems.forEach(item => {
+        renderCards.forEach(item => {
             const title = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.title));
             const subtitle = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.subtitle));
             const link = XSSHelpers.stripAllTags(item.link).trim();

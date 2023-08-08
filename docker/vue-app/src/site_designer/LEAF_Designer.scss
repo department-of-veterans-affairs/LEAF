@@ -29,12 +29,25 @@ body {
     button:disabled {
         background-color: gray;
     }
+    input[type="color"] {
+        padding: 0 2px;
+        height: 25px;
+    }
+    .enable_del {
+        display: flex;
+        flex-direction:column;
+        margin-left: auto;
+        width: 130px;
+    }
     .designer_inputs {
         display:flex;
         gap:1rem;
-        margin-bottom:0.5rem;
+        padding: 0.5em 0;
         &.wrap {
-            flex-wrap:wrap;
+            flex-wrap: wrap;
+        }
+        &.col {
+            flex-direction: column;
         }
     }
 
@@ -168,7 +181,7 @@ body {
         align-items: center;
         width: 300px;
         min-height: 55px;
-        padding: 6px 8px;
+        padding: 4px 6px;
         text-decoration: none;
         border: 2px solid transparent;
         box-shadow: 0 0 6px rgba(0,0,25,0.3);
@@ -201,7 +214,12 @@ body {
             color: inherit; /* prevents override of color choices and interference w other styles*/
         }
     }
-    
+    .custom_header {
+        padding: 4px 6px;
+        > * {
+            color: inherit;
+        }
+    }
     .disableClick {
         pointer-events: none;
     }

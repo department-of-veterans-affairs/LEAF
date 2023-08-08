@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
+import DesignHeaderDialog from "../components/dialog_content/DesignHeaderDialog.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
 
@@ -11,6 +12,7 @@ export default {
             menuIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
             menuItem: {},
+            header: {}
         }
     },
     created() {
@@ -44,9 +46,11 @@ export default {
             menuItemList: computed(() => this.menuItemList),
             chosenHeaders: computed(() => this.chosenHeaders),
             menuIsUpdating: computed(() => this.menuIsUpdating),
+            header: computed(() => this.header),
 
             builtInIDs: this.builtInIDs,
             setMenuItem: this.setMenuItem,
+            updateHeader: this.updateHeader,
             updateMenuItemList: this.updateMenuItemList,
             postHomeMenuSettings: this.postHomeMenuSettings,
             postSearchSettings: this.postSearchSettings
@@ -55,6 +59,7 @@ export default {
     components: {
         LeafFormDialog,
         DesignCardDialog,
+        DesignHeaderDialog,
         CustomHomeMenu,
         CustomSearch
     },
@@ -106,6 +111,11 @@ export default {
             this.setDialogContent('design-card-dialog');
             this.openDialog();
         },
+        openDesignHeaderDialog() {
+            this.setDialogTitleHTML('<h2>Header Editor</h2>');
+            this.setDialogContent('design-header-dialog');
+            this.openDialog();
+        },
         generateID() {
             let result = '';
             do {
@@ -131,6 +141,9 @@ export default {
                 }
 
             this.openDesignButtonDialog();
+        },
+        updateHeader(headerObj = {}, markedForDeletion = false) {
+            console.log('TODO: update the homepage header');
         },
         /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
@@ -198,7 +211,9 @@ export default {
             style="width: 100px; margin-bottom: 1rem;" :disabled="appIsPublishing">
             {{ enabled ? 'Disable' : 'Publish'}}
         </button>
-        <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section</div>
+        <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section
+            <button @click="openDesignHeaderDialog">TEST open header</button>
+        </div>
         <div style="display: flex; flex-wrap: wrap;">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
             <custom-search v-if="chosenHeaders!==null"></custom-search>

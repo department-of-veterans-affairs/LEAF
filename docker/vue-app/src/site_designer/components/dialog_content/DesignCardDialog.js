@@ -101,7 +101,7 @@ export default {
                 <label for="bg_color">Background</label>
                 <input type="color" id="bg_color" v-model="bgColor" />
             </div>
-            <div style="display: flex; flex-direction:column; margin-left:1.5rem;">
+            <div class="enable_del">
                 <label class="checkable leaf_check" for="button_enabled"
                      :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
                      :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
