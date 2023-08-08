@@ -1227,7 +1227,8 @@ class FormWorkflow
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
                 case (str_starts_with($format, "multiselect") != false && is_array($data)):
-                    $data = $this->buildMultiselect($data);
+                    error_log(print_r($data, true));
+                    $data = $this->buildMultiselect(unserialize($data));
                     break;
                 case (str_starts_with($format, "radio") != false):
                 case (str_starts_with($format, "checkbox") != false):
