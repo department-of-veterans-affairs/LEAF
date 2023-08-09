@@ -1,7 +1,7 @@
 import { computed } from 'vue';
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
-import DesignHeaderDialog from "../components/dialog_content/DesignHeaderDialog.js";
+import CustomHeader from "../components/CustomHeader.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
 
@@ -59,7 +59,7 @@ export default {
     components: {
         LeafFormDialog,
         DesignCardDialog,
-        DesignHeaderDialog,
+        CustomHeader,
         CustomHomeMenu,
         CustomSearch
     },
@@ -111,11 +111,6 @@ export default {
             this.setDialogContent('design-card-dialog');
             this.openDialog();
         },
-        openDesignHeaderDialog() {
-            this.setDialogTitleHTML('<h2>Header Editor</h2>');
-            this.setDialogContent('design-header-dialog');
-            this.openDialog();
-        },
         generateID() {
             let result = '';
             do {
@@ -144,6 +139,7 @@ export default {
         },
         updateHeader(headerObj = {}, markedForDeletion = false) {
             console.log('TODO: update the homepage header');
+            console.log(headerObj, markedForDeletion);
         },
         /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
@@ -201,8 +197,8 @@ export default {
         Loading... 
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
-    <div v-else id="site_designer_hompage">
-        <h3 id="designer_page_header" :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
+    <div v-else id="site_designer_homepage">
+        <h3 :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
             {{ isEditingMode ? 'Editing the Homepage' : 'Homepage Preview'}}
         </h3>
         <h4 style="margin: 0.5rem 0;">This page is {{ enabled ? '' : 'not'}} enabled</h4>
@@ -211,9 +207,7 @@ export default {
             style="width: 100px; margin-bottom: 1rem;" :disabled="appIsPublishing">
             {{ enabled ? 'Disable' : 'Publish'}}
         </button>
-        <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section
-            <button @click="openDesignHeaderDialog">TEST open header</button>
-        </div>
+        <CustomHeader />
         <div style="display: flex; flex-wrap: wrap;">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
             <custom-search v-if="chosenHeaders!==null"></custom-search>

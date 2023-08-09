@@ -7,7 +7,11 @@ body {
 #site-designer-app {
     min-height: 100vh;
     main > section {
-        margin: 1rem;
+        margin: 0;
+        padding: 1rem;
+        &:not(.editMode) {
+            background-color: #f3f3f3;
+        }
     }
 }
 
@@ -214,15 +218,59 @@ body {
             color: inherit; /* prevents override of color choices and interference w other styles*/
         }
     }
-    .custom_header {
-        padding: 4px 6px;
-        > * {
-            color: inherit;
+
+    #edit_header {
+        justify-content: center;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+        input, select {
+            height: 25px;
+            width: 100%;
         }
     }
+
+    #custom_header_wrapper {
+        margin: 1rem auto;
+        width: fit-content;
+        height: auto;
+        min-height: 100px;
+        display: flex;
+        gap: 0.5em;
+        #custom_header_image_container {
+            position: relative;
+            img {
+                display: block;
+            }
+        }
+        #custom_header_inner_text, #custom_header_outer_text {
+            > * {
+                color: inherit;
+            }
+        }
+        h1 {
+            font-size: 32px;
+        }
+        h2 {
+            font-size: 24px;
+        }
+        h3 {
+            font-size: 20.8px;
+        }
+        h4 {
+            font-size: 16px;
+        }
+    }
+
     .disableClick {
         pointer-events: none;
     }
 
 }
 
+@media screen and (max-width: 60rem) {
+    #site-designer-app #edit_header {
+        justify-content: flex-start; 
+    }
+}

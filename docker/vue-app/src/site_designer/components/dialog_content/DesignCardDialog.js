@@ -15,7 +15,7 @@ export default {
             link: XSSHelpers.stripAllTags(this.menuItem?.link || ''),
             enabled: +this.menuItem?.enabled === 1,
 
-            iconPreviewSize: '30px',
+            iconPreviewSize: '28px',
             useTitleColor: this.menuItem?.titleColor === this.menuItem?.subtitleColor,
             useAnIcon: this.menuItem?.icon !== '',
             markedForDeletion: false
@@ -153,7 +153,7 @@ export default {
         </div>
         <fieldset v-if="useAnIcon" style="padding-right: 0;">
             <legend>Icon Selections</legend>
-            <div class="designer_inputs wrap" style="height:150px; max-width: 560px; overflow:auto;" @click="setIcon($event)">
+            <div class="designer_inputs wrap" style="height:150px; max-width: 540px; overflow:auto;" @click="setIcon($event)">
                 <img v-for="icon in iconList" :key="icon.name"
                     :style="{width: iconPreviewSize, height: iconPreviewSize}" style="cursor: pointer;"
                     :id="icon.src" class="icon_choice"
