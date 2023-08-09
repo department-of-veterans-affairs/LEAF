@@ -5,9 +5,8 @@ export default {
             title: this.header?.title || '', //TODO: post, server tag method for rich html
             titleColor: this.header?.titleColor || '#000000',
             imageFile: this.header?.imageFile || '',
-            imageW: this.header?.imageW || 600,
+            imageW: this.header?.imageW || 300,
             headerType: this.header?.headerType || 4,
-
             enabled: +this.header?.enabled === 1,
 
             imageFiles: [],
@@ -42,7 +41,7 @@ export default {
                 imageW: this.imageW,
                 headerType: +this.headerType,
 
-                enabled: +this.enabled
+                enabled: +this.enabled,
             }
         },
         headerWrapperFlex() {
@@ -95,7 +94,7 @@ export default {
                 'margin': '0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-                'min-width': '320px',
+                'min-width': '325px',
                 'min-height': '60px',
                 'height': 'auto',
                 'padding': '0.5rem',
@@ -129,7 +128,7 @@ export default {
                     @input="updateTrumbowygText" v-html="header.title">
                 </div>
             </div>
-            <div style="display: flex; flex-direction: column; margin-right: 1.5rem;">
+            <div style="display: flex; flex-direction: column; margin-right: 2rem;">
                 <label for="title_color">Font Color&nbsp;</label>
                 <input type="color" id="title_color" v-model="titleColor" />
             </div>
@@ -152,6 +151,15 @@ export default {
                     </div>
                 </div>
             </div>
+            <label class="checkable leaf_check" for="button_enabled" style="width: 70px;"
+                :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
+                :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
+                <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check"/>
+                <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'enable'}}
+            </label>
+            <button type="button" @click="updateHeader(headerOBJ)"
+                style="margin-left: 1rem;">Apply Header Settings
+            </button>
         </div>
         
         <!-- NOTE: HEADER DISPLAY -->

@@ -68,7 +68,7 @@ export default {
         'menuIsUpdating',
         'updateMenuItemList',
         'postHomeMenuSettings',
-        'setMenuItem',
+        'setMenuItem'
     ],
     computed: {
         wrapperStyles() {
@@ -169,7 +169,7 @@ export default {
         }
     },
     template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
-        <div v-show="isEditingMode" style="margin-top: 2rem;">
+        <div v-show="isEditingMode">
             <p style="margin: 0.5rem 0;">Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.</p>
         </div>
         <ul v-if="menuItemListDisplay.length > 0" id="menu"

@@ -137,9 +137,10 @@ export default {
 
             this.openDesignButtonDialog();
         },
-        updateHeader(headerObj = {}, markedForDeletion = false) {
-            console.log('TODO: update the homepage header');
-            console.log(headerObj, markedForDeletion);
+        updateHeader(headerOBJ = {}) {
+            console.log('TODO: update the homepage header JSON and local data');
+            this.header = headerOBJ;
+            console.log(this.header);
         },
         /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
@@ -183,7 +184,7 @@ export default {
                     if(+res?.code !== 1) {
                         console.log('unexpected response returned:', res);
                     } else {
-                        const newJSON = JSON.stringify({menuCards, direction})
+                        const newJSON = JSON.stringify({menuCards, direction, header})
                         this.updateLocalDesignData('homepage', newJSON);
                     }
                     this.menuIsUpdating = false;
@@ -208,7 +209,7 @@ export default {
             {{ enabled ? 'Disable' : 'Publish'}}
         </button>
         <CustomHeader />
-        <div style="display: flex; flex-wrap: wrap;">
+        <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
             <custom-search v-if="chosenHeaders!==null"></custom-search>
         </div>

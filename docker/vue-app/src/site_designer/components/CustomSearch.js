@@ -390,7 +390,7 @@ export default {
         }
     },
     template: `<section style="display: flex; flex-direction: column; width: fit-content;">
-        <div v-show="isEditingMode" class="designer_inputs" style="margin-top: 2rem;">
+        <div v-show="isEditingMode" class="designer_inputs">
             <div>
                 <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
                 <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
