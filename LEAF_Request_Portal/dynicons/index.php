@@ -19,4 +19,9 @@ require_once '../globals.php';
 include_once LIB_PATH .  '/php-commons/Dynicon.php';
 include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
 
-$image = new \Leaf\Dynicon(\Leaf\XSSHelpers::scrubFilename($_GET['img']), isset($_GET['w']) ? $_GET['w'] : 0);
+if (isset($_GET['w']) && isset($_GET['img'])) {
+    $image = new \Leaf\Dynicon(\Leaf\XSSHelpers::scrubFilename($_GET['img']), $_GET['w']);
+} else {
+    // want to see what is being sent to here if anything.
+    error_log(print_r($_GET, true));
+}
