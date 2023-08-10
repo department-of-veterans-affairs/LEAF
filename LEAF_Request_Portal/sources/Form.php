@@ -128,6 +128,7 @@ class Form
             {
                 $this->flattenFullFormData($item['child'], $output, $item['indicatorID']);
                 unset($item['child']);
+                $item['parentID'] = $parentID;
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
         }

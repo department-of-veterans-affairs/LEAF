@@ -619,6 +619,7 @@ function getGroupList() {
                                                 success: function(res) {
                                                     if(!isNaN(res)) {
                                                         addMember(groupID, selectedUserName);
+                                                        updateAndGetMembers(groupID);
                                                     }
                                                     else {
                                                         alert(res);
