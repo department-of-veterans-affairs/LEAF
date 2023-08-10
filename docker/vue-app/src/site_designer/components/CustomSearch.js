@@ -126,7 +126,6 @@ export default {
         }
     },
     mounted() {
-        //console.log('search mounted, DOM available');
         if(this.chosenHeadersSelect.length === 0) {
             this.chosenHeadersSelect = ['date','title','service','status'];
             this.createChoices();

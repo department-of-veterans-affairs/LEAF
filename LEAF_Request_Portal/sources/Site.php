@@ -50,6 +50,7 @@ class Site
             $status['message'] = "Admin access required";
             return $status;
         }
+
         foreach ($menuItems as $i => $item) {
             $menuItems[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
             $menuItems[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
@@ -71,6 +72,7 @@ class Site
         $status['message'] = "success";
         return $status;
     }
+
     public function setSearchDesignJSON(array $chosenHeaders = []): array {
         $status = array();
         if (!$this->login->checkGroup(1)) {
@@ -93,6 +95,7 @@ class Site
         $status['message'] = "";
         return $status;
     }
+
     public function enableNoCodeHomepage(int $isEnabled = 0): array {
         $status = array();
         if (!$this->login->checkGroup(1)) {
@@ -112,6 +115,7 @@ class Site
         $status['message'] = "success";
         return $status;
     }
+
 	public function getSitemapJSON()
 	{
         $settings = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);

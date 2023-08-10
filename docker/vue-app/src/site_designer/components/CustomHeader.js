@@ -84,7 +84,14 @@ export default {
         useTrumbowEditor() {
             $('#header_title_trumbowyg').trumbowyg({
                 resetCss: false,
-                btns: ['formatting', 'bold', 'italic', 'underline',
+                btnsDef: {
+                    formats: {
+                        dropdown: ['p','h1','h2','h3','h4'],
+                        ico:'p'
+                    }
+                },
+                tagsToRemove: ['script', 'link'],
+                btns: [['formats'], 'bold', 'italic', 'underline',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
             });
             $('.trumbowyg-box').css({
@@ -120,7 +127,7 @@ export default {
     },
     template: `<div id="design_custom_header">
         <!-- NOTE: HEADER EDITING -->
-        <div v-show="isEditingMode" id="edit_header" class="designer_inputs">
+        <div v-show="isEditingMode" id="edit_header">
             <div>
                 <label for="header_title_trumbowyg" id="header_title_trumbowyg_label">Header Text</label>
                 <!-- can't use v-model for trumbowyg -->
@@ -128,38 +135,44 @@ export default {
                     @input="updateTrumbowygText" v-html="header.title">
                 </div>
             </div>
-            <div style="display: flex; flex-direction: column; margin-right: 2rem;">
-                <label for="title_color">Font Color&nbsp;</label>
-                <input type="color" id="title_color" v-model="titleColor" />
-            </div>
-            <div>
-                <label for="image_select">Image&nbsp;</label>
-                <select id="image_select" style="width: 100%; max-width: 200px; margin-bottom: 0.75rem;" v-model="imageFile">
-                    <option value="">none</option>
-                    <option v-for="i in imageFiles" :value="i">{{ i }}</option>
-                </select>
-                <div style="display: flex; justify-content: space-between;">
+
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; max-width: 500px;">
+                <div style="width: 100%; display: flex; gap: 1rem; justify-content:space-between;">
                     <div>
-                        <label for="image_width">Image Width</label>
-                        <input id="image_width" type="number" min="0" max="1800" v-model.number="imageW"/>
+                        <label for="title_color">Font Color</label>
+                        <input type="color" id="title_color" v-model="titleColor" />
                     </div>
                     <div>
-                        <label for="header_type_select">Layout Choices&nbsp;</label>
+                        <label for="image_select">Image</label>
+                        <select id="image_select" style="width: 100%; max-width: 180px;" v-model="imageFile">
+                            <option value="">none</option>
+                            <option v-for="i in imageFiles" :value="i">{{ i }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="image_width">Image Width</label>
+                        <input id="image_width" type="number" min="0" max="1800" step=10 v-model.number="imageW"/>
+                    </div>
+                    <div>
+                        <label for="header_type_select">Layout Choices</label>
                         <select id="header_type_select" v-model.number="headerType">
                             <option v-for="t in headerTypes" :value="t.value">{{ t.text }}</option>
                         </select>
                     </div>
                 </div>
+                <div style="display: flex; gap: 1rem; margin: auto 0 0 auto;">
+                    <label class="checkable leaf_check" for="header_enable"
+                        style="margin: 0;" :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
+                        :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
+                        <input type="checkbox" id="header_enable" v-model="enabled" class="icheck leaf_check"/>
+                        <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'check to enable'}}
+                    </label>
+                    <button type="button" class="btn-confirm" @click="updateHeader(headerOBJ)">
+                        Save Header Settings
+                    </button>
+                </div>
             </div>
-            <label class="checkable leaf_check" for="button_enabled" style="width: 70px;"
-                :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
-                :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
-                <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check"/>
-                <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'enable'}}
-            </label>
-            <button type="button" @click="updateHeader(headerOBJ)"
-                style="margin-left: 1rem;">Apply Header Settings
-            </button>
         </div>
         
         <!-- NOTE: HEADER DISPLAY -->

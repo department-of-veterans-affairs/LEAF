@@ -118,6 +118,7 @@ body {
                 margin-top: 1rem;
                 padding: 0.75rem;
                 border: 1px solid #aab;
+                border-radius: 2px;
                 background-color: white;
             }
 
@@ -220,11 +221,15 @@ body {
     }
 
     #edit_header {
-        justify-content: center;
-        align-items: flex-end;
-        flex-wrap: wrap;
+        margin: 0 auto 1.5rem;
+        padding: 0.75rem;
+        display: flex;
         gap: 1.25rem;
-        margin-bottom: 1.5rem;
+        background-color: white;
+        border: 1px solid #aaaabb;
+        border-radius: 2px;
+        width: fit-content;
+
         input, select {
             height: 25px;
             width: 100%;
@@ -232,10 +237,9 @@ body {
     }
 
     #custom_header_wrapper {
-        margin: 1rem auto;
+        margin: 1rem auto 2rem auto;
         width: fit-content;
         height: auto;
-        min-height: 100px;
         display: flex;
         gap: 0.5em;
         #custom_header_image_container {
@@ -271,6 +275,7 @@ body {
 
 @media screen and (max-width: 60rem) {
     #site-designer-app #edit_header {
-        justify-content: flex-start; 
+        //justify-content: flex-start;
+        flex-direction: column;
     }
 }

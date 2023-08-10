@@ -18,9 +18,7 @@ export default {
             appIsGettingData: true,
             appIsPublishing: false,
             isEditingMode: true,
-
             iconList: [],
-            tagsToRemove: ['script', 'img', 'a', 'link', 'br'],
 
             /* basic modal properties */
             dialogTitle: "",
@@ -46,7 +44,6 @@ export default {
             orgchartPath: this.orgchartPath,
             userID: this.userID,
             getDesignData: this.getDesignData,
-            tagsToRemove: this.tagsToRemove,
             setCustom_page_select: this.setCustom_page_select,
             toggleEnableTemplate: this.toggleEnableTemplate,
             updateLocalDesignData: this.updateLocalDesignData,
@@ -74,54 +71,59 @@ export default {
         setCustom_page_select(view = 'homepage') {
             this.custom_page_select = view;
         },
-        getIconList() {
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}iconPicker/list`,
-                success: (res) => this.iconList = res || [],
-                error: (err) => console.log(err)
-            });
+        async getIconList() {
+            try {
+                const response = await fetch(`${this.APIroot}iconPicker/list`);
+                const data = await response.json();
+                this.iconList = data || [];
+            } catch (error) {
+                console.error(`error getting icons: ${error.message}`);
+            }
         },
-        toggleEnableTemplate(templateName = '') {
+        async toggleEnableTemplate(templateName = '') {
             if(this.customizableTemplates.includes(templateName)) {
+                /*NOTE: 'enabled' will be updated to be its own design table field for each design section.
+                site settings table will keep an overall 'nocode enabled' 1/0 setting indicating whether any designs are enabled */
                 const enabled = this.designData[`${templateName}_enabled`];
                 const flag = enabled === undefined || parseInt(enabled) === 0 ? 1 : 0;
                 this.appIsPublishing = true;
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}site/settings/enable_${templateName}`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        enabled: flag
-                    },
-                    success: (res) => {
-                        if(+res?.code !== 1) {
-                            console.log('unexpected response returned:', res)
-                        } else {
-                            this.designData[`${templateName}_enabled`] = flag;
-                        }
-                        this.appIsPublishing = false;
-                    },
-                    error: (err) => console.log(err)
-                });
+
+                try {
+                    let formData = new FormData();
+                    formData.append('CSRFToken', CSRFToken);
+                    formData.append('enabled', flag);
+                    const response = await fetch(`${this.APIroot}site/settings/enable_${templateName}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if(+data?.code === 1) {
+                        this.designData[`${templateName}_enabled`] = flag;
+                    } else {
+                        console.log('unexpected response returned:', data)
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                } finally {
+                    this.appIsPublishing = false;
+                }
             }
         },
-        getDesignData() {
+        async getDesignData() {
             this.appIsGettingData = true;
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}system/settings`,
-                success: (res) => {
-                    this.designData = res;
-                    this.appIsGettingData = false;
-                },
-                error: (err) => {
-                    console.log(err);
-                }
-            });
+            try {
+                const response = await fetch(`${this.APIroot}system/settings`);
+                const data = await response.json();
+                this.designData = data;
+            } catch (error) {
+                console.error(`error getting designs: ${error.message}`);
+            } finally {
+                this.appIsGettingData = false;
+            }
         },
-        updateLocalDesignData(templateName = '', json = '{}') {
-            this.designData[`${templateName}_design_json`] = json;
+        updateLocalDesignData(section = '', json = '{}') {
+            this.designData[`${section}_design_json`] = json;
         },
 
         /** basic modal methods.  Use a component name to set the dialog's content.
