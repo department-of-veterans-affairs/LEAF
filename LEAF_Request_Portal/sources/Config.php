@@ -40,14 +40,19 @@ class Config
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
-        self::$emailCC = $settings['emailCC'];
         self::$portalDb = $site_paths['portal_database'];
         $this->phonedbName = $site_paths['orgchart_database'];
+
+        if (isset($settings['emailCC'])) {
+            self::$emailBCC = $settings['emailCC'];
+        } else {
+            self::$emailBCC = array();
+        }
 
         if (isset($settings['emailBCC'])) {
             self::$emailBCC = $settings['emailBCC'];
         } else {
-            self::$emailBCC = '';
+            self::$emailBCC = array();
         }
 
         if (isset($settings['descriptionID'])) {
