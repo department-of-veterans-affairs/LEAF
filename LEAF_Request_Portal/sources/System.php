@@ -177,9 +177,9 @@ class System
             $tag = new \Orgchart\Tag($oc_db, $this->login);
 
             // clear out old data first
-            $delete_groups = $this->clearGroups($groupID);
+            //$delete_groups = $this->clearGroups($groupID);
 
-            if ($delete_groups['status']['code'] == 2) {
+            //if ($delete_groups['status']['code'] == 2) {
                     // find quadrad/ELT tag name
                 $upperLevelTag = $tag->getParent('service');
                 $isQuadrad = false;
@@ -272,7 +272,7 @@ class System
                         )
                     );
                 }
-            } else {
+            /* } else {
                 // something happened with the delete groups
                 $return_value = array (
                     'status' => array (
@@ -280,7 +280,7 @@ class System
                         'message' => 'There was an error when deleting groups.'
                     )
                 );
-            }
+            } */
         }
 
         return $return_value;
@@ -297,13 +297,13 @@ class System
     {
         $cat_privs = $this->getCatPrivs($groupID);
 
-        if ($cat_privs['status']['code'] == 2) {
+        if ($cat_privs['status']['code'] == 2 && !empty($cat_privs['data'])) {
             $return_value = $this->deleteCatPrivs($groupID);
         } else {
             $return_value = array (
                 'status' => array (
-                    'code' => 4,
-                    'message' => 'Action failed to add backups.'
+                    'code' => 2,
+                    'message' => 'Nothing to be done with category_privs'
                 )
             );
         }
@@ -521,7 +521,9 @@ class System
                 ':groupDescription' => '', );
         $sql = 'INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`,
                     `groupDescription`)
-                VALUES (:groupID, :parentGroupID, :name, :groupDescription)';
+                VALUES (:groupID, :parentGroupID, :name, :groupDescription)
+                ON DUPLICATE KEY UPDATE `parentGroupID` = :parentGroupID, `name` = :name,
+                    `groupDescription` = :groupDescription';
 
         $return_value = $this->db->pdo_insert_query($sql, $vars);
 
