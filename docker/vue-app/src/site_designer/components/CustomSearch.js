@@ -2,7 +2,6 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            searchIsUpdating: false,
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
             adminHeaders: {
                 date: {
@@ -129,7 +128,7 @@ export default {
         if(this.chosenHeadersSelect.length === 0) {
             this.chosenHeadersSelect = ['date','title','service','status'];
             this.createChoices();
-            this.postSearchSettings();
+            this.updateHomeDesign('chosenHeaders', this.chosenHeadersSelect);
         } else {
             this.createChoices();
             this.main();
@@ -142,7 +141,9 @@ export default {
         'rootPath',
         'orgchartPath',
         'isEditingMode',
+        'homepageIsUpdating',
         'chosenHeaders',
+        'updateHomeDesign'
     ],
     methods: {
         createChoices() {
@@ -198,26 +199,7 @@ export default {
         },
         postSearchSettings() {
             if (JSON.stringify(this.chosenHeadersSelect) !== this.mostRecentHeaders) {
-                this.searchIsUpdating = true;
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}site/settings/search_design_json`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        chosen_headers: this.chosenHeadersSelect,
-                    },
-                    success: (res) => {
-                        if(+res?.code !== 1) {
-                            console.log('unexpected response returned:', res);
-                        }
-                        document.getElementById('searchContainer').innerHTML = '';
-                        setTimeout(() => {
-                            this.main();
-                            this.searchIsUpdating = false;
-                        }, 150);
-                    },
-                    error: (err) => console.log(err)
-                });
+                this.updateHomeDesign('chosenHeaders', this.chosenHeadersSelect);
             } else console.log('headers have not changed');
         },
         renderResult(leafSearch, res) {
@@ -388,17 +370,17 @@ export default {
             });
         }
     },
-    template: `<section style="display: flex; flex-direction: column; width: fit-content;">
+    template: `<section style="display: flex; flex-direction: column; margin: auto;">
         <div v-show="isEditingMode" class="designer_inputs">
             <div>
                 <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
                 <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
             </div>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="searchIsUpdating || chosenHeadersSelect.length===0">Apply Selections
+                @click="postSearchSettings" :disabled="homepageIsUpdating || chosenHeadersSelect.length===0">Apply Selections
             </button>
-        </div>
-        <div id="searchContainer" style="padding-top:2px;"></div>
+        </div> 
+        <div id="searchContainer"></div>
         <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
             Show more records
         </button>

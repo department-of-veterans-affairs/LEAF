@@ -2,8 +2,11 @@
 <div id="site-designer-app">
     <main>
         <section :class="{editMode: isEditingMode}">
-            <div style="display:flex; gap: 1rem; align-items: center;">
-                <h2 style="margin-right: auto;">Site Designer</h2>
+            <div id="page_select_area">
+                <h2 style="margin-right: auto;">
+                    <a href="../admin" class="leaf-crumb-link">Admin</a>
+                    <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer
+                </h2>
                 <label v-if="views.length > 1" for="custom_page_select" style="display:block; margin: 0;">Select a Page&nbsp;
                     <select id="custom_page_select" style="width:150px;" v-model="custom_page_select">
                         <option v-if="custom_page_select===''" value="">Select a Page</option>
@@ -14,7 +17,6 @@
                     {{isEditingMode ? 'Preview ' : 'Edit '}}this page
                 </button>
             </div>
-            <hr />
             <!-- NOTE: routes -->
             <router-view></router-view>
         </section>

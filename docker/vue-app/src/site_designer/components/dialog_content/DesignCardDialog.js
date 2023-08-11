@@ -103,7 +103,7 @@ export default {
             </div>
             <div class="enable_del">
                 <label class="checkable leaf_check" for="button_enabled"
-                     :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
+                     :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
                      :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
                     <input type="checkbox" id="button_enabled" v-model="enabled" class="icheck leaf_check"/>
                     <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'check to enable'}}

@@ -65,18 +65,25 @@ export default {
         'builtInIDs',
         'menuItemList',
         'menuDirection',
-        'menuIsUpdating',
+        'header',
+        'homepageIsUpdating',
         'updateMenuItemList',
-        'postHomeMenuSettings',
+        'updateHomeDesign',
         'setMenuItem'
     ],
     computed: {
         wrapperStyles() {
-            return this.isEditingMode ?
-            {
-                maxWidth: '500px',
-                marginRight: '3rem'
-            } : {}
+            let styles = {};
+            if(this.isEditingMode) {
+                styles.width = '430px';
+            } else {
+                if(this.menuDirection === "h") {
+                    styles.width = '100%';
+                    styles.display = 'flex';
+                    styles.justifyContent = 'center';
+                }
+            }
+            return styles;
         },
         ulStyles() {
             return this.menuDirectionSelection === 'v' || this.isEditingMode ?
@@ -115,7 +122,7 @@ export default {
                 }
             });
             if(buttonsAdded > 0) {
-                this.postHomeMenuSettings(newItems, this.menuDirection);
+                this.updateHomeDesign('menuItemList', newItems);
             }
         },
         onDragStart(event = {}) {
@@ -161,17 +168,17 @@ export default {
             }
         },
         updateDirection(event = {}) {
-            console.log('direction updated via input')
             const d = event?.target?.value || '';
             if(d !== '' && d !== this.menuDirection) {
-                this.postHomeMenuSettings(this.menuItemList, this.menuDirectionSelection);
+                this.updateHomeDesign('menuDirection', this.menuDirectionSelection);
             }
         }
     },
     template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
-        <div v-show="isEditingMode">
-            <p style="margin: 0.5rem 0;">Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.</p>
-        </div>
+        
+        <p v-show="isEditingMode" style="padding: 0.5em; font-size: 0.9rem; font-weight: bold;">
+            Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.
+        </p>
         <ul v-if="menuItemListDisplay.length > 0" id="menu"
             :class="{editMode: isEditingMode}" :style="ulStyles"
             data-effect-allowed="move"
@@ -179,7 +186,7 @@ export default {
             @dragover.prevent>
             <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
                 :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is hidden'"
-                :draggable="isEditingMode && !menuIsUpdating ? true : false"
+                :draggable="isEditingMode && !homepageIsUpdating ? true : false"
                 @dragstart.stop="onDragStart">
                 <custom-menu-item :menuItem="m"></custom-menu-item>
                 <div v-show="isEditingMode" class="edit_card">
@@ -196,13 +203,13 @@ export default {
                 </div>
             </li>
         </ul>
-        <div v-show="isEditingMode" style="display:flex; gap:1rem; margin:1rem 0 1rem 0; width:360px;">
-            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">Add Starter Cards</button>
-            <button type="button" class="btn-general" @click="setMenuItem(null)">Create New Card</button>
+        <div v-show="isEditingMode" style="display:flex; gap:1rem; padding: 0.75em; background-color:white;">
+            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
+            <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
             <label for="menu_direction_select" style="align-self: flex-end">
-            <select id="menu_direction_select" style="width: 80px;" v-model="menuDirectionSelection"
-                @change="updateDirection" :disabled="menuIsUpdating">
-                <option value="v">Columns</option>
+            <select id="menu_direction_select" style="width: 60px;" v-model="menuDirectionSelection"
+                @change="updateDirection" :disabled="homepageIsUpdating">
+                <option value="v">Cols</option>
                 <option value="h">Rows</option>
             </select>&nbsp;Menu Direction</label>
         </div>

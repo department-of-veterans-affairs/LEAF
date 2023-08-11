@@ -2,13 +2,14 @@ export default {
     name: 'custom-header',
     data() {
         return {
-            title: this.header?.title || '', //TODO: post, server tag method for rich html
+            title: this.header?.title || '',
             titleColor: this.header?.titleColor || '#000000',
             imageFile: this.header?.imageFile || '',
             imageW: this.header?.imageW || 300,
             headerType: this.header?.headerType || 4,
             enabled: +this.header?.enabled === 1,
 
+            tagsToRemove: ['script', 'link'],
             imageFiles: [],
             headerTypes: [
                 { value: 1, text: 'text left' },
@@ -27,7 +28,7 @@ export default {
     },
     inject: [
         'header',
-        'updateHeader',
+        'updateHomeDesign',
         'isEditingMode',
         'APIroot',
         'rootPath',
@@ -35,12 +36,11 @@ export default {
     computed: {
         headerOBJ() {
             return {
-                title: XSSHelpers.stripAllTags(this.title),
+                title: XSSHelpers.stripTags(this.title, this.tagsToRemove),
                 titleColor: this.titleColor,
                 imageFile: this.imageFile,
                 imageW: this.imageW,
                 headerType: +this.headerType,
-
                 enabled: +this.enabled,
             }
         },
@@ -75,7 +75,7 @@ export default {
                 top: '0',
                 padding: '0.25em 0.5em',
                 color: this.titleColor,
-                display: +this.headerType !== 5 ? 'none' : 'block',
+                display: +this.headerType === 5 ? 'block' : 'none',
                 backgroundColor: 'rgba(0,0,20,0.3)',
             }
         },
@@ -90,19 +90,19 @@ export default {
                         ico:'p'
                     }
                 },
-                tagsToRemove: ['script', 'link'],
-                btns: [['formats'], 'bold', 'italic', 'underline',
-                    'justifyLeft', 'justifyCenter', 'justifyRight']
+                tagsToRemove: this.tagsToRemove,
+                btns: [['formats'], 'bold', 'italic', 'underline']
+                   // 'justifyLeft', 'justifyCenter', 'justifyRight']
             });
             $('.trumbowyg-box').css({
-                'min-height': '60px',
+                'min-height': '70px',
                 'height': 'auto',
-                'max-width': '600px',
+                'max-width': '460px',
                 'margin': '0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-                'min-width': '325px',
-                'min-height': '60px',
+                'min-width': '400px',
+                'min-height': '70px',
                 'height': 'auto',
                 'padding': '0.5rem',
                 'background-color': 'white',
@@ -123,6 +123,9 @@ export default {
             } catch (error) {
                 console.error(`Download error: ${error.message}`);
             }
+        },
+        testChange() {
+            console.log('header property value changed')
         }
     },
     template: `<div id="design_custom_header">
@@ -136,40 +139,39 @@ export default {
                 </div>
             </div>
 
-
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap; max-width: 500px;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; width: 460px;">
                 <div style="width: 100%; display: flex; gap: 1rem; justify-content:space-between;">
                     <div>
                         <label for="title_color">Font Color</label>
-                        <input type="color" id="title_color" v-model="titleColor" />
+                        <input type="color" id="title_color" v-model="titleColor" @change="testChange" />
                     </div>
                     <div>
                         <label for="image_select">Image</label>
-                        <select id="image_select" style="width: 100%; max-width: 180px;" v-model="imageFile">
+                        <select id="image_select" style="width: 100%; max-width: 160px;" @change="testChange" v-model="imageFile">
                             <option value="">none</option>
                             <option v-for="i in imageFiles" :value="i">{{ i }}</option>
                         </select>
                     </div>
                     <div>
                         <label for="image_width">Image Width</label>
-                        <input id="image_width" type="number" min="0" max="1800" step=10 v-model.number="imageW"/>
+                        <input id="image_width" type="number" min="0" max="1800" step=10 @change="testChange" v-model.number="imageW"/>
                     </div>
                     <div>
                         <label for="header_type_select">Layout Choices</label>
-                        <select id="header_type_select" v-model.number="headerType">
+                        <select id="header_type_select" @change="testChange" v-model.number="headerType">
                             <option v-for="t in headerTypes" :value="t.value">{{ t.text }}</option>
                         </select>
                     </div>
                 </div>
                 <div style="display: flex; gap: 1rem; margin: auto 0 0 auto;">
                     <label class="checkable leaf_check" for="header_enable"
-                        style="margin: 0;" :style="{color: +enabled === 1 ? '#209060' : '#b00000'}"
-                        :title="+enabled === 1 ? 'uncheck to hide' : 'check to enable'">
-                        <input type="checkbox" id="header_enable" v-model="enabled" class="icheck leaf_check"/>
-                        <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'check to enable'}}
+                        style="margin: 0;" :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
+                        :title="+enabled === 1 ? 'uncheck to disable' : 'check to enable'">
+                        <input type="checkbox" id="header_enable" @change="testChange" v-model="enabled" class="icheck leaf_check"/>
+                        <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'disabled'}}
                     </label>
-                    <button type="button" class="btn-confirm" @click="updateHeader(headerOBJ)">
-                        Save Header Settings
+                    <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)">
+                        Save Settings
                     </button>
                 </div>
             </div>

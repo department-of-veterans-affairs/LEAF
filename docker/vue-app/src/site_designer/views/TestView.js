@@ -2,12 +2,10 @@ export default {
     name: 'testview',
     inject: [
         'appIsGettingData',
-        'getDesignData',
         'setCustom_page_select'
     ],
     created() {
         console.log('testview created');
-        this.getDesignData();
         this.setCustom_page_select('testview');
     },
     template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 

@@ -11,7 +11,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             userID: userID,
-            designData: {},
+            designData: null,
             customizableTemplates: ['homepage'],
             views: ['homepage', 'testview'], //NOTE: anticipate more templates, keeping for testing
             custom_page_select: 'homepage',
@@ -43,7 +43,6 @@ export default {
             libsPath: this.libsPath,
             orgchartPath: this.orgchartPath,
             userID: this.userID,
-            getDesignData: this.getDesignData,
             setCustom_page_select: this.setCustom_page_select,
             toggleEnableTemplate: this.toggleEnableTemplate,
             updateLocalDesignData: this.updateLocalDesignData,
@@ -63,6 +62,7 @@ export default {
     },
     created() {
         this.getIconList();
+        this.getDesignData();
     },
     methods: {
         setEditMode(isEditMode = true) {
@@ -113,15 +113,21 @@ export default {
         async getDesignData() {
             this.appIsGettingData = true;
             try {
+                //NOTE: currently in settings table, so this is getting all settings
                 const response = await fetch(`${this.APIroot}system/settings`);
                 const data = await response.json();
                 this.designData = data;
             } catch (error) {
-                console.error(`error getting designs: ${error.message}`);
+                console.error(`error getting settings: ${error.message}`);
             } finally {
                 this.appIsGettingData = false;
             }
         },
+        /**
+         * 
+         * @param {string} section template name being updated
+         * @param {string} json the new json value after successful post
+         */
         updateLocalDesignData(section = '', json = '{}') {
             this.designData[`${section}_design_json`] = json;
         },

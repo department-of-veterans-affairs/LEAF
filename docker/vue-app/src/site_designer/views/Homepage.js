@@ -9,18 +9,23 @@ export default {
     name: 'homepage',
     data() {
         return {
-            menuIsUpdating: false,
+            homepageIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
+            designs: ['header', 'menuItemList', 'menuDirection', 'chosenHeaders'],
             menuItem: {},
-            header: {}
+
+            header: this.homeData?.header || null,
+            menuDirection: this.homeData?.menuDirection || null,
+            menuItemList: this.homeData?.menuItemList || null,
+            chosenHeaders: this.homeData?.chosenHeaders || null
         }
     },
     created() {
-        console.log('homepage view created, getting design data')
-        this.getDesignData();
-    },
-    mounted() {
-        console.log('homepage mounted')
+        console.log('homepage created')
+        if(this.designData !== null) {
+            console.log('design data is available, updating homepage data');
+            this.setDesignData()
+        }
     },
     inject: [
         'CSRFToken',
@@ -29,7 +34,6 @@ export default {
         'appIsPublishing',
         'toggleEnableTemplate',
         'updateLocalDesignData',
-        'getDesignData',
         'designData',
         'isEditingMode',
 
@@ -45,15 +49,13 @@ export default {
             menuDirection: computed(() => this.menuDirection),
             menuItemList: computed(() => this.menuItemList),
             chosenHeaders: computed(() => this.chosenHeaders),
-            menuIsUpdating: computed(() => this.menuIsUpdating),
+            homepageIsUpdating: computed(() => this.homepageIsUpdating),
             header: computed(() => this.header),
 
             builtInIDs: this.builtInIDs,
             setMenuItem: this.setMenuItem,
-            updateHeader: this.updateHeader,
+            updateHomeDesign: this.updateHomeDesign,
             updateMenuItemList: this.updateMenuItemList,
-            postHomeMenuSettings: this.postHomeMenuSettings,
-            postSearchSettings: this.postSearchSettings
         }
     },
     components: {
@@ -67,45 +69,25 @@ export default {
         enabled() {
             return parseInt(this.designData?.homepage_enabled) === 1;
         },
-        menuItemList() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
-                let menuItems = homeData?.menuCards || [];
-                menuItems.map(item => {
-                    item.link = XSSHelpers.decodeHTMLEntities(item.link);
-                    item.title = XSSHelpers.decodeHTMLEntities(item.title);
-                    item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
-                });
-                returnVal = menuItems.sort((a,b) => a.order - b.order);
-            }
-            return returnVal;
-        },
-        menuDirection() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
-                returnVal = homeData?.direction || 'v';
-            }
-            return returnVal;
-        },
-        chosenHeaders() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const searchTemplateJSON = this.designData?.search_design_json || "{}";
-                const obj = JSON.parse(searchTemplateJSON);
-                returnVal = obj?.chosenHeaders || [];
-            }
-            return returnVal
-        },
+        homeData() {
+            return JSON.parse(this.designData?.homepage_design_json || "{}");
+        }
     },
     methods: {
+        setDesignData() {
+            this.header = this.homeData?.header || {};
+            this.menuDirection = this.homeData?.direction || 'v';
+
+            let menuItems = this.homeData?.menuCards || [];
+            menuItems.map(item => {
+                item.link = XSSHelpers.decodeHTMLEntities(item.link);
+                item.title = XSSHelpers.decodeHTMLEntities(item.title);
+                item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
+            });
+            this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
+
+            this.chosenHeaders = this.homeData?.chosenHeaders || [];
+        },
         openDesignButtonDialog() {
             this.setDialogTitleHTML('<h2>Menu Editor</h2>');
             this.setDialogContent('design-card-dialog');
@@ -137,10 +119,12 @@ export default {
 
             this.openDesignButtonDialog();
         },
-        updateHeader(headerOBJ = {}) {
-            console.log('TODO: update the homepage header JSON and local data');
-            this.header = headerOBJ;
-            console.log(this.header);
+        updateHomeDesign(designKey = '', designOBJ = {}) {
+            if (this.designs.includes(designKey)) {
+                this[designKey] = designOBJ;
+                this.postHomeSettings(this.menuItemList, this.menuDirection, this.header, this.chosenHeaders);
+
+            }
         },
         /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
@@ -168,56 +152,78 @@ export default {
                     newItems.push(menuItem);
                 }
             }
-            this.postHomeMenuSettings(newItems, this.menuDirection);
+            this.updateHomeDesign('menuItemList', newItems)
         },
-        postHomeMenuSettings(menuCards = this.menuItemList, direction = this.menuDirection) {
-            this.menuIsUpdating = true;
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/homepage_design_json`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    home_menu_list: menuCards,
-                    menu_direction: direction
-                },
-                success: (res) => {
-                    if(+res?.code !== 1) {
-                        console.log('unexpected response returned:', res);
-                    } else {
-                        const newJSON = JSON.stringify({menuCards, direction, header})
-                        this.updateLocalDesignData('homepage', newJSON);
-                    }
-                    this.menuIsUpdating = false;
-                },
-                error: (err) => console.log(err)
-            });
+        async postHomeSettings(menuCards = this.menuItemList, direction = this.menuDirection, header = this.header, chosenHeaders = this.chosenHeaders) {
+            this.homepageIsUpdating = true; //appIsGettingData,
+            try {
+                let formData = new FormData();
+                formData.append('CSRFToken', CSRFToken);
+                formData.append('home_menu_list', JSON.stringify(menuCards));
+                formData.append('menu_direction', direction);
+                formData.append('home_header', JSON.stringify(header));
+                formData.append('search_cols', JSON.stringify(chosenHeaders));
+                
+                const response = await fetch(`${this.APIroot}site/settings/homepage_design_json`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if(+data?.code === 1) {
+                    const newJSON = JSON.stringify({menuCards, direction, header, chosenHeaders})
+                    this.updateLocalDesignData('homepage', newJSON);
+                } else {
+                    console.log('unexpected response returned:', data)
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.homepageIsUpdating = false;
+            }
         },
+    },
+    watch: {
+        designData(newVal, oldVal) {
+            console.log('watch detected designData value change:')
+            console.log(newVal, 'was:', oldVal)
+            if(newVal !== null) {
+                this.setDesignData();
+            }
+        }
     },
     template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
         font-size: 24px; font-weight: bold; padding: 16px;">
         Loading... 
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
-    <div v-else id="site_designer_homepage">
-        <h3 :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
-            {{ isEditingMode ? 'Editing the Homepage' : 'Homepage Preview'}}
-        </h3>
-        <h4 style="margin: 0.5rem 0;">This page is {{ enabled ? '' : 'not'}} enabled</h4>
-        <button type="button" @click="toggleEnableTemplate('homepage')"
-            class="btn-confirm" :class="{enabled: enabled}" 
-            style="width: 100px; margin-bottom: 1rem;" :disabled="appIsPublishing">
-            {{ enabled ? 'Disable' : 'Publish'}}
-        </button>
-        <CustomHeader />
-        <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+    <template v-else>
+        <div id="selected_page_status">
+            <button type="button" @click="toggleEnableTemplate('homepage')"
+                class="btn-confirm" :class="{enabled: enabled}" 
+                style="width: 100px;" :disabled="appIsPublishing">
+                {{ enabled ? 'Disable' : 'Publish'}}
+            </button>
+            <h3>
+                {{ isEditingMode ? 'Editing the Homepage ' : 'Previewing the Homepage ' }}
+                (<span :style="{color: enabled ? '#008060' : '#b00000'}">{{ enabled ? 'page is active' : 'page is inactive'}}</span>)
+            </h3>
+        </div>
+
+        
+        <CustomHeader v-if="header!==null" />
+        
+
+        <div id="menu_and_search" :class="{editMode: isEditingMode}">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
             <custom-search v-if="chosenHeaders!==null"></custom-search>
         </div>
+
         <!-- HOMEPAGE DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
                 <component :is="dialogFormContent"></component>
             </template>
         </leaf-form-dialog>
-    </div>`
+    </template>`
 }
