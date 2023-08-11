@@ -468,7 +468,7 @@ class System
             $vars = array(':userID' => $emp['userName'],
                     ':groupID' => $groupID, );
             $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`, `active`)
-                    VALUES (:userID, :groupID, "", 0)
+                    VALUES (:userID, :groupID, "", 1)
                     ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
 
             $return_value = $this->db->pdo_insert_query($sql, $vars);
