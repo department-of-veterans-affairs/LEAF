@@ -25,6 +25,9 @@ body {
     h3 {
         font-size: 20px;
     }
+    p {
+        line-height: 1.4;
+    }
     .btn-confirm.enabled {
         background-color: $attention;
         border: 2px solid black;
@@ -54,16 +57,11 @@ body {
         }
     }
     #page_select_area {
+        padding: 1em;
         display:flex;
         gap: 1rem;
         align-items: center;
-    }
-    #selected_page_status {
-        padding: 1em 0;
-        margin: 1.5rem 0;
-        display: flex;
-        gap: 1em;
-        align-items: center;
+        margin-bottom: 3rem;
     }
 
     #menu_and_search {
@@ -79,7 +77,6 @@ body {
     }
 
     #searchContainer {
-        margin-top: 1rem;
         table.leaf_grid {
             border: 1px solid black;
             border-collapse: collapse;
@@ -131,16 +128,28 @@ body {
         }
     }
 
-    #custom_menu_wrapper {
+    section#custom_menu {
+        display: flex;
+        justify-content: center;
+        gap: 1em 0;
+
+        div#menu_wrapper {
+            width: 100%;
+            &.editMode {
+                padding: 1em;
+                background-color: white;
+                border-radius: 3px;
+                width: 430px;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
         ul#menu {
             display: flex;
             justify-content: center;
             gap: 1em 0;
-            
-            &.editMode {
-                padding: 0.75rem;
-                background-color: white;
-            }
 
             li {
                 display: flex;
@@ -241,12 +250,13 @@ body {
 
     #edit_header {
         margin: 0 auto 1.5rem;
-        padding: 0.5em 0.75em;
+        padding: 1em;
         display: flex;
+        flex-direction: column;
         gap: 1rem;
         background-color: white;
-        width: -moz-fit-content;
-        width: fit-content;
+        border-radius: 3px;
+        width: 500px;
 
         input, select {
             height: 25px;

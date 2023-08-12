@@ -31,8 +31,6 @@ export default {
         'CSRFToken',
         'APIroot',
         'appIsGettingData',
-        'appIsPublishing',
-        'toggleEnableTemplate',
         'updateLocalDesignData',
         'designData',
         'isEditingMode',
@@ -119,11 +117,22 @@ export default {
 
             this.openDesignButtonDialog();
         },
-        updateHomeDesign(designKey = '', designOBJ = {}) {
+        /**
+         * @param {string} designKey 
+         * @param {mixed} designVal 
+         */
+        updateHomeDesign(designKey = '', designVal = '') {
             if (this.designs.includes(designKey)) {
-                this[designKey] = designOBJ;
-                this.postHomeSettings(this.menuItemList, this.menuDirection, this.header, this.chosenHeaders);
+                this[designKey] = designVal;
 
+                this.postHomeSettings(
+                    JSON.stringify({
+                        menuItems: this.menuItemList,
+                        direction: this.menuDirection,
+                        header: this.header,
+                        chosenHeaders: this.chosenHeaders
+                    })
+                );
             }
         },
         /**
@@ -152,17 +161,15 @@ export default {
                     newItems.push(menuItem);
                 }
             }
+            this.menuItemList = newItems.sort((a,b) => a.order - b.order);
             this.updateHomeDesign('menuItemList', newItems)
         },
-        async postHomeSettings(menuCards = this.menuItemList, direction = this.menuDirection, header = this.header, chosenHeaders = this.chosenHeaders) {
-            this.homepageIsUpdating = true; //appIsGettingData,
+        async postHomeSettings(inputJSON = '') {
+            this.homepageIsUpdating = true;
             try {
                 let formData = new FormData();
                 formData.append('CSRFToken', CSRFToken);
-                formData.append('home_menu_list', JSON.stringify(menuCards));
-                formData.append('menu_direction', direction);
-                formData.append('home_header', JSON.stringify(header));
-                formData.append('search_cols', JSON.stringify(chosenHeaders));
+                formData.append('inputJSON', inputJSON);
                 
                 const response = await fetch(`${this.APIroot}site/settings/homepage_design_json`, {
                     method: 'POST',
@@ -170,8 +177,7 @@ export default {
                 });
                 const data = await response.json();
                 if(+data?.code === 1) {
-                    const newJSON = JSON.stringify({menuCards, direction, header, chosenHeaders})
-                    this.updateLocalDesignData('homepage', newJSON);
+                    this.updateLocalDesignData('homepage', inputJSON, data.data);
                 } else {
                     console.log('unexpected response returned:', data)
                 }
@@ -198,22 +204,7 @@ export default {
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
     <template v-else>
-        <div id="selected_page_status">
-            <button type="button" @click="toggleEnableTemplate('homepage')"
-                class="btn-confirm" :class="{enabled: enabled}" 
-                style="width: 100px;" :disabled="appIsPublishing">
-                {{ enabled ? 'Disable' : 'Publish'}}
-            </button>
-            <h3>
-                {{ isEditingMode ? 'Editing the Homepage ' : 'Previewing the Homepage ' }}
-                (<span :style="{color: enabled ? '#008060' : '#b00000'}">{{ enabled ? 'page is active' : 'page is inactive'}}</span>)
-            </h3>
-        </div>
-
-        
         <CustomHeader v-if="header!==null" />
-        
-
         <div id="menu_and_search" :class="{editMode: isEditingMode}">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
             <custom-search v-if="chosenHeaders!==null"></custom-search>

@@ -49,11 +49,7 @@ class SiteController extends RESTfulResponse
 			return $site->setSitemapJSON();
 		});
         $this->index['POST']->register('site/settings/homepage_design_json', function ($args) use ($site) {
-            $list = $_POST['home_menu_list'];
-            $direction = $_POST['menu_direction'];
-			$header = $_POST['home_header'];
-			$cols =  $_POST['search_cols'];
-            return $site->setHomeDesignJSON($list, $direction, $header, $cols);
+            return $site->setHomeDesignJSON($_POST['inputJSON']);
         });
 		$this->index['POST']->register('site/settings/enable_homepage', function ($args) use ($site) {
 			return $site->enableNoCodeHomepage((int)$_POST['enabled']);

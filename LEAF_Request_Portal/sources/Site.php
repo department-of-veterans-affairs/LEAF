@@ -43,7 +43,7 @@ class Site
         return 1;
     }
 
-    public function setHomeDesignJSON(string $menuJSON = '[]', string $direction = 'v', string $headerJSON = '{}', string $searchCols = '[]'): array {
+    public function setHomeDesignJSON(string $inputJSON = '{}'): array {
         $status = array();
         if (!$this->login->checkGroup(1)) {
             $status['code'] = 0;
@@ -51,31 +51,39 @@ class Site
             return $status;
         }
 
-        $menuItems = json_decode($menuJSON, true);
-        foreach ($menuItems as $i => $item) {
-            $menuItems[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
-            $menuItems[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
-            $menuItems[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link']));
-            $menuItems[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
+        $inputData = json_decode($inputJSON, true);
+
+        $menuItemsIn = $inputData['menuItems'] ?? [];
+        $menuItems = array();
+        foreach ($menuItemsIn as $i => $item) {
+            $card = array();
+            $card['id'] = \Leaf\XSSHelpers::xscrub($item['id']);
+            $card['order'] = (int) \Leaf\XSSHelpers::xscrub($item['order']);
+            $card['title'] = \Leaf\XSSHelpers::sanitizer($item['title'] ?? '');
+            $card['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle'] ?? '');
+            $card['titleColor'] = preg_match('/^#[0-9a-f]{6}$/i', $item['titleColor'] ?? '') ? $item['titleColor'] : '#000000';
+            $card['subtitleColor'] = preg_match('/^#[0-9a-f]{6}$/i', $item['subtitleColor'] ?? '') ? $item['subtitleColor'] : '#000000';
+            $card['bgColor'] = preg_match('/^#[0-9a-f]{6}$/i', $item['bgColor'] ?? '') ? $item['bgColor'] : '#000000';
+            $card['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link'] ?? ''));
+            $card['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon'] ?? '');
+            $card['enabled'] = (int) $item['enabled'] === 1 ? 1 : 0;
+            $menuItems[] = $card;
         }
 
-        $headerProperties = json_decode($headerJSON, true);
+        $headerIn = $inputData['header'] ?? array();
         $header = array();
-        $header['title'] = \Leaf\XSSHelpers::sanitizeHTMLRich($headerProperties['title'] ?? '');
-        $header['titleColor'] = preg_match('/^#[0-9a-f]{6}$/i', $headerProperties['titleColor'] ?? '') ? $headerProperties['titleColor'] : '#000000';
-        $header['headerType'] = (int) ($headerProperties['headerType'] ?? 1);
-        $header['imageFile'] = \Leaf\XSSHelpers::scrubFilename($headerProperties['imageFile'] ?? '');
-        $header['imageW'] = (int) ($headerProperties['imageW'] ?? 0);
-        $header['enabled'] = (int) ($headerProperties['enabled'] ?? 0);
-
-        $searchCols = json_decode($searchCols, true);
-        $searchCols = \Leaf\XSSHelpers::scrubObjectOrArray($searchCols);
+        $header['title'] = \Leaf\XSSHelpers::sanitizeHTMLRich($headerIn['title'] ?? '');
+        $header['titleColor'] = preg_match('/^#[0-9a-f]{6}$/i', $headerIn['titleColor'] ?? '') ? $headerIn['titleColor'] : '#000000';
+        $header['headerType'] = (int) ($headerIn['headerType'] ?? 1);
+        $header['imageFile'] = \Leaf\XSSHelpers::scrubFilename($headerIn['imageFile'] ?? '');
+        $header['imageW'] = (int) ($headerIn['imageW'] ?? 0);
+        $header['enabled'] = (int) ($headerIn['enabled'] ?? 0);
 
         $home_design_data = array();
         $home_design_data['menuCards'] = $menuItems;
-        $home_design_data['direction'] = $direction === 'v' ? 'v' : 'h';
+        $home_design_data['direction'] = $inputData['direction'] === 'v' ? 'v' : 'h';
         $home_design_data['header'] = $header;
-        $home_design_data['chosenHeaders'] = $searchCols;
+        $home_design_data['chosenHeaders'] =  \Leaf\XSSHelpers::scrubObjectOrArray($inputData['chosenHeaders']);
         $homepage_design_json = json_encode($home_design_data);
 
         $strSQL = 'INSERT INTO settings (setting, `data`)
@@ -86,6 +94,7 @@ class Site
         $this->db->prepared_query($strSQL, $vars);
         $status['code'] = 1;
         $status['message'] = "success";
+        $status['data'] = $homepage_design_json;
         return $status;
     }
 

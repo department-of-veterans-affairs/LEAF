@@ -76,7 +76,8 @@ export default {
                 padding: '0.25em 0.5em',
                 color: this.titleColor,
                 display: +this.headerType === 5 ? 'block' : 'none',
-                backgroundColor: 'rgba(0,0,20,0.3)',
+                width: '100%',
+                backgroundColor: 'rgba(0,0,20,0.4)',
             }
         },
     },
@@ -86,7 +87,7 @@ export default {
                 resetCss: false,
                 btnsDef: {
                     formats: {
-                        dropdown: ['p','h1','h2','h3','h4'],
+                        dropdown: ['p','h1','h2','h3'],
                         ico:'p'
                     }
                 },
@@ -97,7 +98,6 @@ export default {
             $('.trumbowyg-box').css({
                 'min-height': '70px',
                 'height': 'auto',
-                'max-width': '460px',
                 'margin': '0'
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
@@ -128,9 +128,11 @@ export default {
             console.log('header property value changed')
         }
     },
-    template: `<div id="design_custom_header">
+    template: `<section id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
+            <h3>Header Options</h3>
+            <!-- LEFT -->
             <div>
                 <label for="header_title_trumbowyg" id="header_title_trumbowyg_label">Header Text</label>
                 <!-- can't use v-model for trumbowyg -->
@@ -138,8 +140,9 @@ export default {
                     @input="updateTrumbowygText" v-html="header.title">
                 </div>
             </div>
-
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap; width: 460px;">
+            <!-- RIGHT -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <!-- TOP RIGHT CONTROLS -->
                 <div style="width: 100%; display: flex; gap: 1rem; justify-content:space-between;">
                     <div>
                         <label for="title_color">Font Color</label>
@@ -163,6 +166,7 @@ export default {
                         </select>
                     </div>
                 </div>
+                <!-- BTM RIGHT CONTROLS -->
                 <div style="display: flex; gap: 1rem; margin: auto 0 0 auto;">
                     <label class="checkable leaf_check" for="header_enable"
                         style="margin: 0;" :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
@@ -185,5 +189,5 @@ export default {
                 <div v-html="title" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
             </div>
         </div>
-    </div>`
+    </section>`
 }

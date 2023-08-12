@@ -65,17 +65,17 @@ export default {
         'builtInIDs',
         'menuItemList',
         'menuDirection',
-        'header',
         'homepageIsUpdating',
         'updateMenuItemList',
         'updateHomeDesign',
         'setMenuItem'
     ],
     computed: {
-        wrapperStyles() {
+        sectionStyles() {
             let styles = {};
             if(this.isEditingMode) {
-                styles.width = '430px';
+                styles.width = '100%';
+                styles.margin = '3rem 0';
             } else {
                 if(this.menuDirection === "h") {
                     styles.width = '100%';
@@ -89,7 +89,6 @@ export default {
             return this.menuDirectionSelection === 'v' || this.isEditingMode ?
                 {
                     flexDirection: 'column',
-                    maxWidth: '430px'
                 } :
                 { 
                     flexWrap: 'wrap'
@@ -174,44 +173,49 @@ export default {
             }
         }
     },
-    template: `<div id="custom_menu_wrapper" :style="wrapperStyles">
-        
-        <p v-show="isEditingMode" style="padding: 0.5em; font-size: 0.9rem; font-weight: bold;">
-            Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.
-        </p>
-        <ul v-if="menuItemListDisplay.length > 0" id="menu"
-            :class="{editMode: isEditingMode}" :style="ulStyles"
-            data-effect-allowed="move"
-            @drop.stop="onDrop"
-            @dragover.prevent>
-            <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
-                :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is hidden'"
-                :draggable="isEditingMode && !homepageIsUpdating ? true : false"
-                @dragstart.stop="onDragStart">
-                <custom-menu-item :menuItem="m"></custom-menu-item>
-                <div v-show="isEditingMode" class="edit_card">
-                    <div tabindex="0" role="button"
-                    @click="clickToMove($event, m.id, true)" @keydown.stop.enter.space="clickToMove($event, m.id, true)"
-                        aria-label="click to move card up" class="click_to_move up"></div>
-                    <button type="button" @click="setMenuItem(m)" title="edit this card" class="edit_menu_card btn-general">
-                        <span role="img" aria="">☰</span>
-                    </button>
-                    <div tabindex="0" role="button"
-                        @click="clickToMove($event, m.id, false)" @keydown.stop.enter.space="clickToMove($event, m.id, false)"
-                        aria-label="click to move card down" class="click_to_move down"></div>
-                    <div class="notify_status" :class="{hidden: +m.enabled !== 1}">{{+m.enabled === 1 ? 'enabled' : 'hidden'}}</div>
-                </div>
-            </li>
-        </ul>
-        <div v-show="isEditingMode" style="display:flex; gap:1rem; padding: 0.75em; background-color:white;">
-            <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
-            <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
-            <label for="menu_direction_select" style="align-self: flex-end">
-            <select id="menu_direction_select" style="width: 60px;" v-model="menuDirectionSelection"
-                @change="updateDirection" :disabled="homepageIsUpdating">
-                <option value="v">Cols</option>
-                <option value="h">Rows</option>
-            </select>&nbsp;Menu Direction</label>
+    template: `<section id="custom_menu" :style="sectionStyles">
+        <div id="menu_wrapper" :class="{editMode: isEditingMode}">
+            <div v-show="isEditingMode">
+                <h3>Card Controls</h3>
+                <p style="padding-top: 0.5em;">
+                    Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.
+                </p>
+            </div>
+            <ul v-if="menuItemListDisplay.length > 0" id="menu"
+                :class="{editMode: isEditingMode}" :style="ulStyles"
+                data-effect-allowed="move"
+                @drop.stop="onDrop"
+                @dragover.prevent>
+                <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
+                    :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is hidden'"
+                    :draggable="isEditingMode && !homepageIsUpdating ? true : false"
+                    @dragstart.stop="onDragStart">
+                    <custom-menu-item :menuItem="m"></custom-menu-item>
+                    <div v-show="isEditingMode" class="edit_card">
+                        <div tabindex="0" role="button"
+                        @click="clickToMove($event, m.id, true)" @keydown.stop.enter.space="clickToMove($event, m.id, true)"
+                            aria-label="click to move card up" class="click_to_move up"></div>
+                        <button type="button" @click="setMenuItem(m)" title="edit this card" class="edit_menu_card btn-general">
+                            <span role="img" aria="">☰</span>
+                        </button>
+                        <div tabindex="0" role="button"
+                            @click="clickToMove($event, m.id, false)" @keydown.stop.enter.space="clickToMove($event, m.id, false)"
+                            aria-label="click to move card down" class="click_to_move down"></div>
+                        <div class="notify_status" :class="{hidden: +m.enabled !== 1}">{{+m.enabled === 1 ? 'enabled' : 'hidden'}}</div>
+                    </div>
+                </li>
+            </ul>
+            <div v-show="isEditingMode" style="display:flex; gap: 1rem; padding-top: 1em; border-top: 2px solid #cadff0">
+                <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
+                <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
+                <label for="menu_direction_select" style="margin: 0 0 0 auto;">
+                    <select id="menu_direction_select" style="width: 60px; height: 25px;" v-model="menuDirectionSelection"
+                        @change="updateDirection" :disabled="homepageIsUpdating">
+                        <option value="v">Cols</option>
+                        <option value="h">Rows</option>
+                    </select>&nbsp;Menu Direction
+                </label>
+            </div>
         </div>
-    </div>`
+    </section>`
 }

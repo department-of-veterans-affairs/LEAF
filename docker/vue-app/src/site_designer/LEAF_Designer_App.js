@@ -32,7 +32,6 @@ export default {
         return {
             iconList: computed(() => this.iconList),
             appIsGettingData: computed(() => this.appIsGettingData),
-            appIsPublishing: computed(() => this.appIsPublishing),
             isEditingMode: computed(() => this.isEditingMode),
             designData: computed(() => this.designData),
 
@@ -44,7 +43,6 @@ export default {
             orgchartPath: this.orgchartPath,
             userID: this.userID,
             setCustom_page_select: this.setCustom_page_select,
-            toggleEnableTemplate: this.toggleEnableTemplate,
             updateLocalDesignData: this.updateLocalDesignData,
             /** dialog  */
             openDialog: this.openDialog,
@@ -63,6 +61,11 @@ export default {
     created() {
         this.getIconList();
         this.getDesignData();
+    },
+    computed: {
+        enabled() {
+            return parseInt(this.designData?.[`${this.custom_page_select}_enabled`] || 0) === 1;
+        },
     },
     methods: {
         setEditMode(isEditMode = true) {
@@ -108,6 +111,8 @@ export default {
                 } finally {
                     this.appIsPublishing = false;
                 }
+            } else {
+                console.log('this page cannot currently be published');
             }
         },
         async getDesignData() {

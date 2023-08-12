@@ -121,7 +121,8 @@ export default {
             hilite: [status === 'approved', date < #,  lastaction > #],
             hide: []*/
             //categoryName automatically included in joins because it's needed for the title
-            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
+            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"],
+            updateCounter: 0
         }
     },
     mounted() {
@@ -200,6 +201,7 @@ export default {
         postSearchSettings() {
             if (JSON.stringify(this.chosenHeadersSelect) !== this.mostRecentHeaders) {
                 this.updateHomeDesign('chosenHeaders', this.chosenHeadersSelect);
+                setTimeout(() => {this.updateCounter += 1}, 150);
             } else console.log('headers have not changed');
         },
         renderResult(leafSearch, res) {
@@ -370,6 +372,12 @@ export default {
             });
         }
     },
+    watch: {
+        updateCounter() {
+            console.log('counter changed')
+            this.main();
+        }
+    },
     template: `<section style="display: flex; flex-direction: column; margin: auto;">
         <div v-show="isEditingMode" class="designer_inputs">
             <div>
@@ -377,7 +385,7 @@ export default {
                 <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
             </div>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="homepageIsUpdating || chosenHeadersSelect.length===0">Apply Selections
+                @click="postSearchSettings" :disabled="homepageIsUpdating || chosenHeadersSelect.length===0">Save Selections
             </button>
         </div> 
         <div id="searchContainer"></div>

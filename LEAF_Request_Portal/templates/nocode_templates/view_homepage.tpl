@@ -1,12 +1,13 @@
 <style>
     main {
         min-width: 300px;
+        font-size: 14px;
     }
     main * {
         box-sizing: border-box;
     }
     #custom_header_wrapper.active {
-        margin: 1rem auto 2rem auto;
+        margin: 1.5rem auto;
         width: fit-content;
         justify-content: center;
         height: auto;
@@ -25,6 +26,8 @@
     }
     #custom_header_inner_text.active {
         display: block;
+        width: 100%;
+        background-color: rgba(0,0,20,0.4);
         position: absolute;
         top: 0;
         padding: 0.25em 0.5em;
@@ -41,7 +44,7 @@
     #custom_header_wrapper h3 {
         font-size: 20.8px;
     }
-    #custom_header_wrapper h4 {
+    #custom_header_wrapper p {
         font-size: 16px;
     }
 
@@ -54,7 +57,6 @@
         gap: 1.25rem;
     }
     #custom_menu_wrapper {
-        font-size: 14px;
         font-family: Verdana, sans-serif;
     }
     #custom_menu_wrapper.horizontal {
@@ -121,7 +123,7 @@
     <div id="custom_header_wrapper"></div>
     <div id="menu_and_search">
         <div id="custom_menu_wrapper"></div>
-        <section style="margin: auto; font-size: 14px;">
+        <section style="margin: auto;">
             <div id="searchContainer"></div>
             <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
         </section>
@@ -152,7 +154,7 @@
     }
 
     function renderHeader() {
-        const headerInfo = JSON.parse('<!--{$homeDesignJSON}-->' || '{}')?.header || null;
+        const headerInfo = JSON.parse('<!--{$homeDesignJSON|unescape|escape:'quotes'}-->' || '{}')?.header || null;
         if (headerInfo !== null && +headerInfo.enabled === 1) {
             const headerType = headerInfo?.headerType || 1;
             const flexDir = headerWrapperFlex(headerType);
