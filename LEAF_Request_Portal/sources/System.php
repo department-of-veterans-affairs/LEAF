@@ -193,7 +193,7 @@ class System
                 $insert_group = $this->insertGroup($groupID, $isQuadrad, $resGroup['groupTitle']);
 
                 if ($insert_group['status']['code'] == 2) {
-                    $delete_user_backups = $this->deleteUserBackups($groupID);
+                    $delete_user_backups = $this->deleteUsers($groupID);
 
                     if ($delete_user_backups['status']['code'] == 2) {
                         $resEmp = array();
@@ -491,13 +491,12 @@ class System
      *
      * Created at: 6/30/2023, 1:27:47 PM (America/New_York)
      */
-    private function deleteUserBackups(int $groupID): array
+    private function deleteUsers(int $groupID): array
     {
         $vars = array(':groupID' => $groupID);
         $sql = 'DELETE
                 FROM `users`
-                WHERE `backupID` <> ""
-                AND `groupID` = :groupID';
+                WHERE `groupID` = :groupID';
 
         $return_value = $this->db->pdo_delete_query($sql , $vars);
 
