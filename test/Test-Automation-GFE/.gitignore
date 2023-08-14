@@ -1,8 +1,0 @@
-bin/
-test-output/
-*.class
-*.html
-.classpath
-.gitconfig
-.project
-.settings/

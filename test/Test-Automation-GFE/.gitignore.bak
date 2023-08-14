@@ -1,7 +1,0 @@
-bin/
-test-output/
-*.class
-*.html
-.classpath
-.project
-.settings/
