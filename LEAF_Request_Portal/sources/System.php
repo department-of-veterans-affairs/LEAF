@@ -496,7 +496,8 @@ class System
         $vars = array(':groupID' => $groupID);
         $sql = 'DELETE
                 FROM `users`
-                WHERE `groupID` = :groupID';
+                WHERE `groupID` = :groupID
+                AND `locallyManaged` = 0';
 
         $return_value = $this->db->pdo_delete_query($sql , $vars);
 
