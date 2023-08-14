@@ -11,13 +11,13 @@ export default {
         return {
             homepageIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
-            designs: ['header', 'menuItemList', 'menuDirection', 'chosenHeaders'],
+            designs: ['header', 'menuItemList', 'menuDirection', 'searchHeaders'],
             menuItem: {},
 
             header: this.homeData?.header || null,
             menuDirection: this.homeData?.menuDirection || null,
             menuItemList: this.homeData?.menuItemList || null,
-            chosenHeaders: this.homeData?.chosenHeaders || null
+            searchHeaders: this.homeData?.searchHeaders || null
         }
     },
     created() {
@@ -46,7 +46,7 @@ export default {
             menuItem: computed(() => this.menuItem),
             menuDirection: computed(() => this.menuDirection),
             menuItemList: computed(() => this.menuItemList),
-            chosenHeaders: computed(() => this.chosenHeaders),
+            searchHeaders: computed(() => this.searchHeaders),
             homepageIsUpdating: computed(() => this.homepageIsUpdating),
             header: computed(() => this.header),
 
@@ -84,7 +84,7 @@ export default {
             });
             this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
 
-            this.chosenHeaders = this.homeData?.chosenHeaders || [];
+            this.searchHeaders = this.homeData?.searchHeaders || [];
         },
         openDesignButtonDialog() {
             this.setDialogTitleHTML('<h2>Menu Editor</h2>');
@@ -130,7 +130,7 @@ export default {
                         menuItems: this.menuItemList,
                         direction: this.menuDirection,
                         header: this.header,
-                        chosenHeaders: this.chosenHeaders
+                        searchHeaders: this.searchHeaders
                     })
                 );
             }
@@ -192,7 +192,6 @@ export default {
     watch: {
         designData(newVal, oldVal) {
             console.log('watch detected designData value change:')
-            console.log(newVal, 'was:', oldVal)
             if(newVal !== null) {
                 this.setDesignData();
             }
@@ -207,7 +206,7 @@ export default {
         <CustomHeader v-if="header!==null" />
         <div id="menu_and_search" :class="{editMode: isEditingMode}">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
-            <custom-search v-if="chosenHeaders!==null"></custom-search>
+            <custom-search v-if="searchHeaders!==null"></custom-search>
         </div>
 
         <!-- HOMEPAGE DIALOGS -->

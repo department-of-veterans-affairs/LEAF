@@ -54,7 +54,7 @@ export default {
                     link: "?a=newform",
                     enabled: 1
                 },
-            ],
+            ]
         }
     },
     components: {
@@ -209,9 +209,9 @@ export default {
                 <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
                 <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
                 <label for="menu_direction_select" style="margin: 0 0 0 auto;">
-                    <select id="menu_direction_select" style="width: 60px; height: 25px;" v-model="menuDirectionSelection"
+                    <select id="menu_direction_select" style="width: 80px; height: 25px;" v-model="menuDirectionSelection"
                         @change="updateDirection" :disabled="homepageIsUpdating">
-                        <option value="v">Cols</option>
+                        <option value="v">Columns</option>
                         <option value="h">Rows</option>
                     </select>&nbsp;Menu Direction
                 </label>

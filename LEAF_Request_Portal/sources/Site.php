@@ -83,7 +83,7 @@ class Site
         $home_design_data['menuCards'] = $menuItems;
         $home_design_data['direction'] = $inputData['direction'] === 'v' ? 'v' : 'h';
         $home_design_data['header'] = $header;
-        $home_design_data['chosenHeaders'] =  \Leaf\XSSHelpers::scrubObjectOrArray($inputData['chosenHeaders']);
+        $home_design_data['searchHeaders'] =  \Leaf\XSSHelpers::scrubObjectOrArray($inputData['searchHeaders']);
         $homepage_design_json = json_encode($home_design_data);
 
         $strSQL = 'INSERT INTO settings (setting, `data`)

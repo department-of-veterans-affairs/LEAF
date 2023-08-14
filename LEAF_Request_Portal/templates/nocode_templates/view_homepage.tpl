@@ -44,7 +44,7 @@
     #custom_header_wrapper h3 {
         font-size: 20.8px;
     }
-    #custom_header_wrapper p {
+    #custom_header_wrapper p, #custom_header_wrapper div {
         font-size: 16px;
     }
 
@@ -133,7 +133,7 @@
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
     const searchDesignData = JSON.parse('<!--{$homeDesignJSON}-->');
-    const chosenHeaders = searchDesignData?.chosenHeaders || [];
+    const searchHeaders = searchDesignData?.searchHeaders || [];
 
     function headerWrapperFlex(headerType) {
         let dir = 'row';
@@ -168,9 +168,12 @@
             let content = `<div id="custom_header_outer_text" style="color: ${color};" class="${headerType === 5 ? '' : 'active'}"></div>
                 <div id="custom_header_image_container" style="position: relative;">`
             if (imageFile !== '') {
-                content += `<img src="./files/${headerInfo?.imageFile}" style="display: block; width: ${headerInfo?.imageW}px;" />`
-            }  
-            content += `<div id="custom_header_inner_text" style="color: ${color}" class="${headerType === 5 ? 'active' : ''}"></div></div>`;
+                content += `<img src="./files/${headerInfo?.imageFile}" style="display: block; width: ${headerInfo?.imageW}px;" />`;
+            }
+            if (title !== '') {
+                content += `<div id="custom_header_inner_text" style="color: ${color}" class="${headerType === 5 ? 'active' : ''}"></div>`;
+            }
+            content += `</div>`;
             $('#custom_header_wrapper').html(content);
             headerType === 5 ? $('#custom_header_inner_text').html(title) : $('#custom_header_outer_text').html(title);
         }
@@ -329,12 +332,12 @@
                 }
             }
         };
-        const searchHeaders = chosenHeaders.map(h => ({ ...headers[h]}));
+        const chosenHeaders = searchHeaders.map(h => ({ ...headers[h]}));
 
         let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
         grid.hideIndex();
         grid.setDataBlob(res);
-        grid.setHeaders(searchHeaders);
+        grid.setHeaders(chosenHeaders);
         grid.setPostProcessDataFunc(function(data) {
             let data2 = [];
             for(let i in data) {
@@ -361,6 +364,24 @@
         grid.sort(sort.column, sort.direction);
         grid.renderBody();
         grid.announceResults();
+    }
+
+    function getJoins(searchCols) {
+        const potentialJoins = ["service","categoryName", "status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"];
+        let joins = [];
+        searchCols.forEach(col => {
+            switch(col) {
+                case 'title':
+                    joins.push('categoryName');
+                    break;
+                default:
+                    if(potentialJoins.includes(col)) {
+                        joins.push(col);
+                    }
+                break;
+            }
+        });
+        return joins;
     }
 
     function main() {
@@ -473,13 +494,8 @@
             }
 
             query.setLimit(batchSize);
-            query.join('categoryName');
-            const potentialJoins = ["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
-            potentialJoins.forEach(j => {
-                if (chosenHeaders.includes(j)) {
-                    query.join(j);
-                }
-            });
+            const joins = getJoins(searchHeaders);
+            joins.forEach(j => query.join(j));
 
             query.sort('date', 'DESC');
             return query.execute();

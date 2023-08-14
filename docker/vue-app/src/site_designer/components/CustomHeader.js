@@ -6,7 +6,7 @@ export default {
             titleColor: this.header?.titleColor || '#000000',
             imageFile: this.header?.imageFile || '',
             imageW: this.header?.imageW || 300,
-            headerType: this.header?.headerType || 4,
+            headerType: this.header?.headerType || 1,
             enabled: +this.header?.enabled === 1,
 
             tagsToRemove: ['script', 'link'],
@@ -17,7 +17,7 @@ export default {
                 { value: 3, text: 'text bottom' },
                 { value: 4, text: 'text top' },
                 { value: 5, text: 'text inside' },
-            ]
+            ],
         }
     },
     created() {
@@ -29,6 +29,7 @@ export default {
     inject: [
         'header',
         'updateHomeDesign',
+        'homepageIsUpdating',
         'isEditingMode',
         'APIroot',
         'rootPath',
@@ -111,7 +112,7 @@ export default {
         updateTrumbowygText() {
             const elTrumbow = document.querySelector(`#header_title_trumbowyg.trumbowyg-editor`);
             if(elTrumbow !== undefined && elTrumbow !== null) {
-                this.title = elTrumbow.innerHTML;
+                this.title = elTrumbow.innerText.trim() === '' ? '' : elTrumbow.innerHTML;
             }
         },
         async getImageFiles() {
@@ -174,7 +175,7 @@ export default {
                         <input type="checkbox" id="header_enable" @change="testChange" v-model="enabled" class="icheck leaf_check"/>
                         <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'disabled'}}
                     </label>
-                    <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)">
+                    <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)" :disabled="homepageIsUpdating">
                         Save Settings
                     </button>
                 </div>
@@ -186,7 +187,7 @@ export default {
             <div v-html="title" id="custom_header_outer_text" :style="headerOuterTextStyles"></div>
             <div id="custom_header_image_container">
                 <img v-if="imageFile!==''" :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" />
-                <div v-html="title" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
+                <div v-if="title!==''" v-html="title" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
             </div>
         </div>
     </section>`
