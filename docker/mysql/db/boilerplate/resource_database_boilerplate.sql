@@ -653,9 +653,9 @@ CREATE TABLE IF NOT EXISTS `category_privs` (
   `writable` tinyint(4) NOT NULL,
   UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
   INDEX `groupID` (`groupID`),
-  CONSTRAINT `category_privs_group`
-    FOREIGN KEY (`groupID`)
-    REFERENCES `groups` (`groupID`)
+  CONSTRAINT `category_privs_categories`
+    FOREIGN KEY (`categoryID`)
+    REFERENCES `categories` (`categoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
