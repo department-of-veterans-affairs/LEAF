@@ -84,7 +84,7 @@
 		</parameter>
 	</test>    
 
--->	
+
  
 
 	<test name="Forms Workflow Part 2">
@@ -95,8 +95,8 @@
 			</classes>
 		</parameter>
 	</test>    
+-->	
 
-<!--
 
 	<test name="Forms Workflow Part 3">
 		<parameter name="env" value="https://leaf-preprod.va.gov/Academy/Demo1/admin/?a=form#">
@@ -106,7 +106,7 @@
 			</classes>
 		</parameter>
 	</test>   
--->
+
 
 </suite>
 
