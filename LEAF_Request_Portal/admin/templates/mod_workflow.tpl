@@ -1412,6 +1412,8 @@
                 } else {
                     find_required = $.parseJSON(params.required);
                 }
+            }
+        });
 
         getRouteEvents(currentWorkflow, stepID, params.action, function (res) {
             let find_required = '';
