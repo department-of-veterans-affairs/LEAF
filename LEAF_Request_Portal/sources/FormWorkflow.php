@@ -1208,11 +1208,11 @@ class FormWorkflow
             WHERE `recordID` = :recordID';
 
         $fields = $this->db->prepared_query($strSQL, $vars);
-        
+
         $formattedFields = array();
 
-        foreach($fields as $field) 
-        {   
+        foreach($fields as $field)
+        {
             if ($field["is_sensitive"] == 1) {
                 $formattedFields[$field['indicatorID']] = "**********";
                 continue;
@@ -1227,6 +1227,7 @@ class FormWorkflow
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
                 case (str_starts_with($format, "multiselect") != false && is_array($data)):
+                    error_log(print_r($data, true));
                     $data = $this->buildMultiselect(unserialize($data));
                     break;
                 case (str_starts_with($format, "radio") != false):
@@ -1255,14 +1256,14 @@ class FormWorkflow
 
         return $formattedFields;
     }
-    
+
     // method for building grid
     private function buildGrid(array $data): string
     {
         // get the grid in the form of array
         $cells = $data['cells'];
         $headers = $data['names'];
-        
+
         // build the grid
         $grid = "<table><tr>";
 
@@ -1317,7 +1318,7 @@ class FormWorkflow
         // reference the group by id
         $group = new Group($this->db, $this->login);
         $groupName = $group->getGroupName($data);
-        
+
         return $groupName;
     }
 

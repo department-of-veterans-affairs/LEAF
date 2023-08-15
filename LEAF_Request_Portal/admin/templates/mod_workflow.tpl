@@ -1149,39 +1149,47 @@
         dialog.setTitle('Edit Action ' + actionType);
         dialog.show();
 
+        getAction(actionType, function (res) {
+            dialog.indicateIdle();
+            dialog.setContent(renderActionInputModal(res[0]));
+
+            $('#fillDependency').val(res[0].fillDependency);
+            document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
+            document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
+
+            dialog.setSaveHandler(function() {
+                let sort = parseInt($('#actionSortNumber').val());
+                sort = Number.isInteger(sort) ? sort : 0;
+                sort = sort < -128 ? -128
+                        : sort > 127 ? 127
+                        : sort;
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/editAction/_' + actionType,
+                    data: {
+                        actionText: $('#actionText').val(),
+                        actionTextPasttense: $('#actionTextPasttense').val(),
+                        actionIcon: $('#actionIcon').val(),
+                        sort: sort,
+                        fillDependency: $('#fillDependency').val(),
+                        CSRFToken: CSRFToken
+                    },
+                    success: function() {
+                        listActionType();
+                    },
+                    error: (err) => console.log(err),
+                });
+                dialog.hide();
+            });
+        });
+    }
+
+    function getAction(actionType, callback) {
         $.ajax({
             type: 'GET',
             url: '../api/workflow/action/_' + actionType,
             success: function(res) {
-                dialog.indicateIdle();
-                dialog.setContent(renderActionInputModal(res[0]));
-                $('#fillDependency').val(res[0].fillDependency);
-                document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
-                document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
-                dialog.setSaveHandler(function() {
-                    let sort = parseInt($('#actionSortNumber').val());
-                    sort = Number.isInteger(sort) ? sort : 0;
-                    sort = sort < -128 ? -128
-                         : sort > 127 ? 127
-                         : sort;
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/editAction/_' + actionType,
-                        data: {
-                            actionText: $('#actionText').val(),
-                            actionTextPasttense: $('#actionTextPasttense').val(),
-                            actionIcon: $('#actionIcon').val(),
-                            sort: sort,
-                            fillDependency: $('#fillDependency').val(),
-                            CSRFToken: CSRFToken
-                        },
-                        success: function() {
-                            listActionType();
-                        },
-                        error: (err) => console.log(err),
-                    });
-                    dialog.hide();
-                });
+                callback(res);
             },
             error: (err) => console.log(err),
             cache: false
@@ -1190,21 +1198,54 @@
 
     //deletes action type
     function deleteActionType(actionType) {
-        dialog_confirm.setTitle('Confirmation required');
-        dialog_confirm.setContent('Are you sure you want to delete this action?');
-        dialog_confirm.setSaveHandler(function() {
-            $.ajax({
-                type: 'DELETE',
-                url: '../api/workflow/action/_' + actionType + '?'
-                    + $.param({'CSRFToken': CSRFToken}),
-                success: function() {
-                    listActionType();
-                },
-                error: (err) => console.log(err),
-            });
-            dialog_confirm.hide();
+        // find out if this action is being used in a workflow currently
+        getUsedActionType(actionType, function (res) {
+            console.log(res);
+            let workflows = '';
+
+            for (let i in res.data) {
+                workflows += res.data[i].description + "<br />";
+            }
+
+            if (res.status.code == 2 && res.data.length) {
+                dialog_ok.setTitle('Modify Actions');
+                dialog_ok.setContent("This Action cannot be deleted. It is currently being used in the following workflows:<br /><br />" + workflows);
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                });
+                dialog_ok.show();
+            } else {
+                dialog_confirm.setTitle('Confirmation required');
+                dialog_confirm.setContent('Are you sure you want to delete this action?');
+                dialog_confirm.setSaveHandler(function() {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '../api/workflow/action/_' + actionType + '?'
+                            + $.param({'CSRFToken': CSRFToken}),
+                        success: function() {
+                            listActionType();
+                        },
+                        error: (err) => console.log(err),
+                    });
+                    dialog_confirm.hide();
+                });
+                dialog_confirm.show();
+            }
+        })
+
+    }
+
+    function getUsedActionType(actionType, callback) {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '../api/workflowRoute/action/_' + actionType,
+            success: function(res) {
+                callback(res);
+            },
+            error: (err) => console.log(err),
         });
-        dialog_confirm.show();
     }
 
     function actionDirectionNote() {
@@ -1230,7 +1271,7 @@
                         : sort;
                 $.ajax({
                     type: 'POST',
-                    url: '../api/system/actions',
+                    url: '../api/system/action',
                     data: {
                         actionText: $('#actionText').val(),
                         actionTextPasttense: $('#actionTextPasttense').val(),
@@ -1239,8 +1280,7 @@
                         fillDependency: $('#fillDependency').val(),
                         CSRFToken: CSRFToken
                     },
-                    success: function() {
-                        alert('Your action type has been created, and is now available as an option.');
+                    success: function(res) {
                         loadWorkflow(currentWorkflow);
                     },
                     error: (err) => console.log(err),
@@ -1362,6 +1402,18 @@
         $('#stepInfo_' + params.stepID).html('Loading...');
 
         let stepID = params.stepID;
+        $.ajax({
+            type: 'GET',
+            url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
+            success: function(res) {
+                let find_required = '';
+                if (typeof params.required === 'undefined' || params.required === '') {
+                    find_required = $.parseJSON('{"required":"false"}');
+                } else {
+                    find_required = $.parseJSON(params.required);
+                }
+            }
+        });
 
         getRouteEvents(currentWorkflow, stepID, params.action, function (res) {
             let find_required = '';
