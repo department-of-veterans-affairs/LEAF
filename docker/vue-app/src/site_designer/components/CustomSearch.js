@@ -189,8 +189,15 @@ export default {
                 });
                 elSelect.choicesjs = choices;
             }
-            document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
-                .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
+            //508 fix to set listbox and option role attrs for inner selection / deletion display
+            let innerSelect = elSelect.nextElementSibling;
+            if(innerSelect !== null) {
+                innerSelect.setAttribute('role', 'listbox');
+                let choicesOptions = innerSelect.querySelectorAll(`.choices__item.choices__item--selectable`);
+                choicesOptions.forEach(o => {
+                    o.setAttribute('role', 'option');
+                });
+            }
         },
         getLabel(option) {
             let label = '';
@@ -399,8 +406,8 @@ export default {
     template: `<section style="display: flex; flex-direction: column; margin: auto;">
         <div v-show="isEditingMode" class="designer_inputs">
             <div>
-                <label :id="choicesSelectID + '_label'">Select table headers in the order that you would like them to appear</label>
-                <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select>
+                <label :id="choicesSelectID + '_label'" style="display:block;">Select table headers in the order that you would like them to appear
+                <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select></label>
             </div>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
                 @click="postSearchSettings" :disabled="homepageIsUpdating || searchHeadersSelect.length===0">Save Settings

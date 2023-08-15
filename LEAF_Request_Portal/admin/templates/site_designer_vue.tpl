@@ -29,6 +29,7 @@
     </main>
 </div>
 
+<script src="https://unpkg.com/marked@0.3.6"></script>
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
     const orgchartPath = '<!--{$orgchartPath}-->';

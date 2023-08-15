@@ -26,6 +26,8 @@ export default {
             dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             formSaveFunction: '',
             showFormDialog: false,
+
+            marked: marked //NOTE: temp
         }
     },
     provide() {
@@ -56,6 +58,8 @@ export default {
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),
             formSaveFunction: computed(() => this.formSaveFunction),
+
+            marked: this.marked, //NOTE: temp
         }
     },
     created() {

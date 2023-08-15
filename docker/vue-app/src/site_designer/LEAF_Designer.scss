@@ -29,10 +29,10 @@ footer#footer {
         margin: 0;
     }
     h2 {
-        font-size: 26px;
+        font-size: 24px;
     }
     h3 {
-        font-size: 20px;
+        font-size: 19px;
     }
     p {
         line-height: 1.4;
@@ -69,7 +69,6 @@ footer#footer {
         padding: 1em;
         display:flex;
         gap: 1rem;
-        align-items: center;
         margin-bottom: 3rem;
     }
 
@@ -266,10 +265,20 @@ footer#footer {
         background-color: white;
         border-radius: 3px;
         width: 500px;
-
+        label:not(.leaf_check) {
+            display: block;
+        }
+        textarea, input, select {
+            margin-top: 2px;
+            display: block;
+            width: 100%;
+        }
         input, select {
             height: 25px;
-            width: 100%;
+        }
+        textarea {
+            min-height: 60px;
+            resize: none;
         }
     }
 
@@ -278,7 +287,9 @@ footer#footer {
         width: fit-content;
         height: auto;
         display: flex;
-        gap: 0.5em;
+        justify-content: center;
+        align-items: center;
+        gap: 0.25em 0.5em;
         font-family: Verdana, sans-serif;
         #custom_header_image_container {
             position: relative;

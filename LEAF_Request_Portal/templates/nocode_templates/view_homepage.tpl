@@ -10,29 +10,25 @@
         margin: 1.5rem auto;
         width: fit-content;
         justify-content: center;
+        align-items: center;
         height: auto;
         display: flex;
-        gap: 0.5em;
+        gap: 0.25em 0.5em;
     }
     #custom_header_image_container {
         overflow: hidden;
     }
-    #custom_header_outer_text, #custom_header_inner_text {
-        display: none;
-    }
-    #custom_header_outer_text.active {
-        display: block;
+    #custom_header_outer_text {
         padding: 0;
     }
-    #custom_header_inner_text.active {
-        display: block;
+    #custom_header_inner_text {
         width: 100%;
         background-color: rgba(0,0,20,0.4);
         position: absolute;
         top: 0;
         padding: 0.25em 0.5em;
     }
-    #custom_header_outer_text.active *, #custom_header_inner_text.active * {
+    #custom_header_outer_text *, #custom_header_inner_text * {
         margin: 0;
     }
     #custom_header_wrapper h1 {
@@ -55,9 +51,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 1.25rem;
-    }
-    #custom_menu_wrapper {
-        font-family: Verdana, sans-serif;
     }
     #custom_menu_wrapper.horizontal {
         width: 100%;
@@ -90,9 +83,6 @@
         box-shadow: 0 0 6px rgba(0,0,25,0.3);
         transition: all 0.35s ease;
     }
-    a.disableClick {
-        pointer-events: none;
-    }
     a.custom_menu_card:hover, a.custom_menu_card:focus, a.custom_menu_card:active {
         border: 2px solid white;
         box-shadow: 0 0 8px rgba(0,0,25,0.6);
@@ -118,7 +108,7 @@
         height: 50px;
     }
 </style>
-
+<script src="https://unpkg.com/marked@0.3.6"></script>
 <main>
     <div id="custom_header_wrapper"></div>
     <div id="menu_and_search">
@@ -132,8 +122,8 @@
 
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
-    const searchDesignData = JSON.parse('<!--{$homeDesignJSON}-->');
-    const searchHeaders = searchDesignData?.searchHeaders || [];
+    const designData = JSON.parse(<!--{$homeDesignJSON|json_encode}-->);
+    const searchHeaders = designData?.searchHeaders || [];
 
     function headerWrapperFlex(headerType) {
         let dir = 'row';
@@ -154,79 +144,77 @@
     }
 
     function renderHeader() {
-        const headerInfo = JSON.parse('<!--{$homeDesignJSON|unescape|escape:'quotes'}-->' || '{}')?.header || null;
+        const headerInfo = designData?.header || null;
         if (headerInfo !== null && +headerInfo.enabled === 1) {
+            const title = marked(headerInfo?.title || '');
+            const color = headerInfo?.titleColor || '#000000';
+            const imageFile = headerInfo?.imageFile || '';
             const headerType = headerInfo?.headerType || 1;
             const flexDir = headerWrapperFlex(headerType);
-            document.getElementById('custom_header_wrapper').style.flexDirection = flexDir;
-            document.getElementById('custom_header_wrapper').classList.add('active');
 
-            const title = headerInfo?.title || '';
-            const color = headerInfo?.titleColor || '#000';
-            const imageFile = headerInfo?.imageFile || '';
-
-            let content = `<div id="custom_header_outer_text" style="color: ${color};" class="${headerType === 5 ? '' : 'active'}"></div>
-                <div id="custom_header_image_container" style="position: relative;">`
-            if (imageFile !== '') {
-                content += `<img src="./files/${headerInfo?.imageFile}" style="display: block; width: ${headerInfo?.imageW}px;" />`;
-            }
-            if (title !== '') {
-                content += `<div id="custom_header_inner_text" style="color: ${color}" class="${headerType === 5 ? 'active' : ''}"></div>`;
-            }
+            let content = headerType === 5 ? '' : `<div id="custom_header_outer_text" style="color: ${color};">${title}</div>`;
+            content +=  `<div id="custom_header_image_container" style="position: relative;">`;
+            content += imageFile === '' ? '' : `<img src="./files/${headerInfo?.imageFile}" style="display: block; width: ${headerInfo?.imageW}px;" />`;
+            content += headerType === 5 ? `<div id="custom_header_inner_text" style="color: ${color}"}">${title}</div>` : '';
             content += `</div>`;
-            $('#custom_header_wrapper').html(content);
-            headerType === 5 ? $('#custom_header_inner_text').html(title) : $('#custom_header_outer_text').html(title);
+
+            let wrapper = document.getElementById('custom_header_wrapper');
+            if(wrapper !== null) {
+                wrapper.style.flexDirection = flexDir;
+                wrapper.classList.add('active');
+                wrapper.innerHTML = content;
+            }
         }
     }
 
     function renderMenu() {
-        const dyniconsPath = "../libs/dynicons/svg/";
-        const menuDesignData = JSON.parse('<!--{$homeDesignJSON}-->');
-        const direction = menuDesignData?.direction || 'v';
-        if (direction === 'h') {
-            document.getElementById('custom_menu_wrapper').classList.add('horizontal');
-        }
-
-        const listStyle = direction === 'h' ? 'flex-wrap: wrap;' : 'flex-direction: column;';
-
-        let menuCards = menuDesignData?.menuCards || [];
+        let menuCards = designData?.menuCards || [];
         menuCards = menuCards.filter(item => +item?.enabled === 1);
         menuCards = menuCards.sort((a, b) => a.order - b.order);
 
         const empMembership = JSON.parse('<!--{$empMembership['groupID']|json_encode}-->');
-        let renderCards = [];
+        let renderedCards = [];
         menuCards.forEach(card => {
             const groups = card?.groups || [];
             const len = groups.length;
             //NOTE: group info is not currently added, so this just adds them all. evtl can display based on group membership
             if (len === 0) {
-                renderCards.push({ ...card });
+                renderedCards.push({ ...card });
             } else {
                 for (let i=0; i < len; i++) {
                     if(+empMembership[groups[i]] === 1) {
-                        renderCards.push({ ...card });
+                        renderedCards.push({ ...card });
                         break;
                     }
                 }
             }
         });
-        let buffer = `<ul style="${listStyle}" id="menu">`;
-        renderCards.forEach(item => {
-            const title = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.title));
-            const subtitle = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.subtitle));
+
+        const dyniconsPath = "../libs/dynicons/svg/";
+        const direction = designData?.direction || 'v';
+        let content = `<ul style="${direction === 'h' ? 'flex-wrap: wrap;' : 'flex-direction: column;'}" id="menu">`;
+        renderedCards.forEach(item => {
             const link = XSSHelpers.stripAllTags(item.link).trim();
-            const disableClick = link === '' ? ' disableClick' : '';
-            buffer += `<li><a href="${link}" target="_blank" style="background-color:${item.bgColor};" class="custom_menu_card${disableClick}">`
-            if (item.icon !== '') {
-                buffer += `<img v-if="menuItem.icon" src="${dyniconsPath}${item.icon}" alt="" class="icon_choice "/>`
+            if(link !== '') {
+                const title = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.title));
+                const subtitle = XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(item.subtitle));
+                content += `<li><a href="${link}" target="_blank" class="custom_menu_card" style="background-color:${item.bgColor};">`;
+                content += item.icon === '' ? '' : `<img v-if="menuItem.icon" src="${dyniconsPath}${item.icon}" alt="" class="icon_choice "/>`;
+                content += `<div class="card_text">
+                    <h2 style="color:${item.titleColor};">${title}</h2>
+                    <div style="color:${item.subtitleColor};">${subtitle}</div>
+                </div></a></li>`;
             }
-            buffer += `<div class="card_text">
-                <h2 style="color:${item.titleColor};">${title}</h2>
-                <div style="color:${item.subtitleColor};">${subtitle}</div>
-            </div></a></li>`
         });
-        buffer += `</ul>`;
-        $('#custom_menu_wrapper').html(buffer);
+        content += `</ul>`;
+
+        let wrapper = document.getElementById('custom_menu_wrapper');
+        if(wrapper !== null) {
+            if (direction === 'h') {
+                wrapper.classList.add('horizontal');
+            }
+            wrapper.innerHTML = content;
+        }
     }
 
     function renderSearchResult(leafSearch, res) {

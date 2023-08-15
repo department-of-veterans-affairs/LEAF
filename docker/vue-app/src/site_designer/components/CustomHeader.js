@@ -9,22 +9,23 @@ export default {
             headerType: this.header?.headerType || 1,
             enabled: +this.header?.enabled === 1,
 
-            tagsToRemove: ['script', 'link'],
             imageFiles: [],
             headerTypes: [
-                { value: 1, text: 'text left' },
-                { value: 2, text: 'text right' },
-                { value: 3, text: 'text bottom' },
-                { value: 4, text: 'text top' },
-                { value: 5, text: 'text inside' },
+                { value: 1, text: 'left of image' },
+                { value: 2, text: 'right of image' },
+                { value: 3, text: 'under image' },
+                { value: 4, text: 'above image' },
+                { value: 5, text: 'overlay image' },
             ],
+            maxImageWidth: 1400,
+            minImageWidth: 0
         }
     },
     created() {
         this.getImageFiles();
     },
     mounted() {
-        this.useTrumbowEditor();
+        console.log('dom for header comp is ready')
     },
     inject: [
         'header',
@@ -33,11 +34,12 @@ export default {
         'isEditingMode',
         'APIroot',
         'rootPath',
+        'marked' //NOTE: temp
     ],
     computed: {
         headerOBJ() {
             return {
-                title: XSSHelpers.stripTags(this.title, this.tagsToRemove),
+                title: XSSHelpers.stripAllTags(this.title),
                 titleColor: this.titleColor,
                 imageFile: this.imageFile,
                 imageW: this.imageW,
@@ -62,13 +64,6 @@ export default {
             }
             return dir;
         },
-        headerOuterTextStyles() {
-            return {
-                padding: 0,
-                color: this.titleColor,
-                display: +this.headerType === 5 ? 'none' : 'block',
-            }
-        },
         headerInnerTextStyles() {
             //TODO: BG overlay calc based on text color
             return {
@@ -76,45 +71,15 @@ export default {
                 top: '0',
                 padding: '0.25em 0.5em',
                 color: this.titleColor,
-                display: +this.headerType === 5 ? 'block' : 'none',
                 width: '100%',
                 backgroundColor: 'rgba(0,0,20,0.4)',
             }
         },
+        markedTitle() {
+            return this.marked(this.title);
+        }
     },
     methods: {
-        useTrumbowEditor() {
-            $('#header_title_trumbowyg').trumbowyg({
-                resetCss: false,
-                btnsDef: {
-                    formats: {
-                        dropdown: ['p','h1','h2','h3'],
-                        ico:'p'
-                    }
-                },
-                tagsToRemove: this.tagsToRemove,
-                btns: [['formats'], 'bold', 'italic', 'underline']
-                   // 'justifyLeft', 'justifyCenter', 'justifyRight']
-            });
-            $('.trumbowyg-box').css({
-                'min-height': '70px',
-                'height': 'auto',
-                'margin': '0'
-            });
-            $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-                'min-width': '400px',
-                'min-height': '70px',
-                'height': 'auto',
-                'padding': '0.5rem',
-                'background-color': 'white',
-            });
-        },
-        updateTrumbowygText() {
-            const elTrumbow = document.querySelector(`#header_title_trumbowyg.trumbowyg-editor`);
-            if(elTrumbow !== undefined && elTrumbow !== null) {
-                this.title = elTrumbow.innerText.trim() === '' ? '' : elTrumbow.innerHTML;
-            }
-        },
         async getImageFiles() {
             const regImg = /\.(jpg|jpeg|svg|gif|png)$/i;
             try {
@@ -122,52 +87,47 @@ export default {
                 const files = await response.json();
                 this.imageFiles = files.filter(filename => regImg.test(filename));
             } catch (error) {
-                console.error(`Download error: ${error.message}`);
+                console.error(`error getting files: ${error.message}`);
             }
         },
         testChange() {
             console.log('header property value changed')
+            if(this.imageW > this.maxImageWidth) {
+                this.imageW = this.maxImageWidth;
+            }
+            if(this.imageW < this.minImageWidth) {
+                this.imageW = this.minImageWidth;
+            }
         }
     },
     template: `<section id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
             <h3>Header Options</h3>
-            <!-- LEFT -->
-            <div>
-                <label for="header_title_trumbowyg" id="header_title_trumbowyg_label">Header Text</label>
-                <!-- can't use v-model for trumbowyg -->
-                <div id="header_title_trumbowyg" aria-labelledby="header_title_trumbowyg_label"
-                    @input="updateTrumbowygText" v-html="header.title">
-                </div>
-            </div>
-            <!-- RIGHT -->
+            <label for="header_title">Header Text
+                <textarea id="header_title" v-model="title" rows="5"></textarea>
+            </label>
+            
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <!-- TOP RIGHT CONTROLS -->
                 <div style="width: 100%; display: flex; gap: 1rem; justify-content:space-between;">
-                    <div>
-                        <label for="title_color">Font Color</label>
+                    <label for="title_color">Font Color
                         <input type="color" id="title_color" v-model="titleColor" @change="testChange" />
-                    </div>
-                    <div>
-                        <label for="image_select">Image</label>
+                    </label>
+                    <label for="header_type_select">Text Position
+                        <select id="header_type_select" @change="testChange" v-model.number="headerType">
+                            <option v-for="t in headerTypes" :value="t.value">{{ t.text }}</option>
+                        </select>
+                    </label>
+                    <label for="image_select">Image
                         <select id="image_select" style="width: 100%; max-width: 160px;" @change="testChange" v-model="imageFile">
                             <option value="">none</option>
                             <option v-for="i in imageFiles" :value="i">{{ i }}</option>
                         </select>
-                    </div>
-                    <div>
-                        <label for="image_width">Image Width</label>
-                        <input id="image_width" type="number" min="0" max="1800" step=10 @change="testChange" v-model.number="imageW"/>
-                    </div>
-                    <div>
-                        <label for="header_type_select">Layout Choices</label>
-                        <select id="header_type_select" @change="testChange" v-model.number="headerType">
-                            <option v-for="t in headerTypes" :value="t.value">{{ t.text }}</option>
-                        </select>
-                    </div>
+                    </label>
+                    <label for="image_width">Image Width
+                        <input id="image_width" type="number" min="0" :max="maxImageWidth" step=10 @change="testChange" v-model.number="imageW"/>
+                    </label>
                 </div>
-                <!-- BTM RIGHT CONTROLS -->
                 <div style="display: flex; gap: 1rem; margin: auto 0 0 auto;">
                     <label class="checkable leaf_check" for="header_enable"
                         style="margin: 0;" :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
@@ -184,10 +144,10 @@ export default {
         
         <!-- NOTE: HEADER DISPLAY -->
         <div id="custom_header_wrapper" :style="{flexDirection: headerWrapperFlex}">
-            <div v-html="title" id="custom_header_outer_text" :style="headerOuterTextStyles"></div>
+            <div v-show="headerType !== 5" v-html="markedTitle" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
             <div id="custom_header_image_container">
-                <img v-if="imageFile!==''" :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" />
-                <div v-if="title!==''" v-html="title" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
+                <img v-if="imageFile!==''" :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />
+                <div v-show="headerType===5 && title!==''" v-html="markedTitle" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
             </div>
         </div>
     </section>`
