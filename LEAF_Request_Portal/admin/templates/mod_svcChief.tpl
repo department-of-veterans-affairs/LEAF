@@ -216,29 +216,26 @@ function removeUser(groupID = -1, userID = '') {
  * @param {string} selectedUserName - Username being imported
  */
 function importUser(serviceID = 0, selectedUserName = '') {
-    if (serviceID === 0) {
-        console.log('Invalid serviceID');
+    if (serviceID === 0 || selectedUserName === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                if (!isNaN(res)) {
+                    addUser(serviceID, selectedUserName); // add identified user into portal.
+                } else {
+                    alert(res);
+                }
+            },
+            fail: function(err) {
+                console.log(err);
+            },
+            cache: false
+        });
     }
-    if (selectedUserName === '') {
-        console.log('Invalid username');
-    }
-
-    $.ajax({
-        type: 'POST',
-        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-        data: {CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(res) {
-            if (!isNaN(res)) {
-                addUser(serviceID, selectedUserName); // add identified user into portal.
-            } else {
-                alert(res);
-            }
-        },
-        fail: function(err) {
-            console.log(err);
-        },
-        cache: false
-    });
 }
 
 /**
@@ -419,28 +416,36 @@ function initiateModal(serviceID = 0, serviceName = '') {
 }
 
 function pruneMember(groupID, userID) {
-    console.log('pruneMember');
-    $.ajax({
-        type: 'POST',
-        url: "../api/service/" + groupID + "/members/_" + userID + "/prune",
-        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        fail: function(err) {
-            console.log(err);
-        },
-        cache: false
-    });
+    if (groupID === 0 || userID === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: "../api/service/" + groupID + "/members/_" + userID + "/prune",
+            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+            fail: function(err) {
+                console.log(err);
+            },
+            cache: false
+        });
+    }
+
 }
 
 function reactivateMember(groupID, userID) {
-    $.ajax({
-        type: 'POST',
-        url: "../api/service/" + groupID + "/members/_" + userID + "/reactivate",
-        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        fail: function(err) {
-            console.log(err);
-        },
-        cache: false
-    });
+    if (groupID === 0 || userID === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: "../api/service/" + groupID + "/members/_" + userID + "/reactivate",
+            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+            fail: function(err) {
+                console.log(err);
+            },
+            cache: false
+        });
+    }
 }
 
 /**

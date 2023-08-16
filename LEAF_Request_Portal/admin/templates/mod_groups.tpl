@@ -395,16 +395,20 @@ function toTitleCase(str) {
 }
 
 function addAdmin(userID) {
-    $.ajax({
-        type: 'POST',
-        url: "../api/group/" + 1 + "/members",
-        data: {'userID': userID,
-               'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	getMembers(1);
-        },
-        cache: false
-    });
+    if (userID === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: "../api/group/" + 1 + "/members",
+            data: {'userID': userID,
+                'CSRFToken': '<!--{$CSRFToken}-->'},
+            success: function(response) {
+                getMembers(1);
+            },
+            cache: false
+        });
+    }
 }
 
 function removeAdmin(userID) {

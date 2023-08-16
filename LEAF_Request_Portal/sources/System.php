@@ -349,7 +349,7 @@ class System
         return $return_value;
     }
 
-    public function getServices()
+    public function getServices(): array
     {
         return $this->db->prepared_query('SELECT groupID as parentID,
         							serviceID as groupID,
@@ -364,7 +364,7 @@ class System
      *
      * @return string the current database version
      */
-    public function getDatabaseVersion()
+    public function getDatabaseVersion(): string
     {
         $version = $this->db->prepared_query('SELECT data FROM settings WHERE setting = "dbVersion"', array());
         if (count($version) > 0 && $version[0]['data'] !== null)
@@ -375,7 +375,7 @@ class System
         return 'unknown';
     }
 
-    public function getGroups()
+    public function getGroups(): array
     {
         return $this->db->prepared_query('SELECT * FROM `groups`
     								WHERE groupID > 1

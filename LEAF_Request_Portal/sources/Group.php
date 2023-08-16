@@ -359,6 +359,8 @@ class Group
      * @param int $groupID
      *
      * @return void
+     *
+     * Created at: 8/16/2023, 3:01:10 PM (America/New_York)
      */
     public function deactivateMember($member, $groupID): void
     {

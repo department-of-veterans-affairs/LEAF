@@ -449,8 +449,6 @@ class Service
     }
 
     /**
-     * [Description for removeChief]
-     *
      * @param int $serviceID
      * @param string $userID
      * @param string $backupID
