@@ -525,10 +525,9 @@ switch ($action) {
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
-        if (isset($settings['homepage_enabled']) && $settings['homepage_enabled'] == 1) {
-            $t_form->assign('homeDesignJSON', json_encode($settings['homepage_design_json']));
-            $t_form->assign('searchDesignJSON', json_encode($settings['search_design_json']));
-            $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
+
+        if (isset($design_data['homepage'][0]['designJSON'])) {
+            $t_form->assign('homeDesignJSON', json_encode($design_data['homepage'][0]['designJSON']));
             $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
             $t_form->assign('tpl_search', customTemplate('view_search.tpl'));

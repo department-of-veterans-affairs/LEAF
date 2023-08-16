@@ -3,24 +3,39 @@
 body {
     background-color: $BG_LightGray;
 }
-
+footer#footer {
+    margin: 2rem 0 0 0;
+    padding: 0.5em 1em;
+    width: 100%;
+    line-height: 1.8;
+    a {
+        color: #252f3e;
+    }
+}
 #site-designer-app {
     min-height: 100vh;
     main > section {
-        margin: 1rem;
+        margin: 0;
+        padding: 1em;
+        min-height: 100vh;
+    }
+    button:not(.choices__button) {
+        height: 28px;
     }
 }
 
 #site-designer-app, #leaf_dialog_content {
     h1, h2, h3, h4, p {
         margin: 0;
-        color: black;
     }
     h2 {
-        font-size: 26px;
+        font-size: 24px;
     }
     h3 {
-        font-size: 20px;
+        font-size: 19px;
+    }
+    p {
+        line-height: 1.4;
     }
     .btn-confirm.enabled {
         background-color: $attention;
@@ -29,18 +44,47 @@ body {
     button:disabled {
         background-color: gray;
     }
+    input[type="color"] {
+        padding: 0 2px;
+        height: 25px;
+    }
+    .enable_del {
+        display: flex;
+        flex-direction:column;
+        margin-left: auto;
+        width: 130px;
+    }
     .designer_inputs {
         display:flex;
         gap:1rem;
-        margin-bottom:0.5rem;
+        padding: 0.5em 0;
         &.wrap {
-            flex-wrap:wrap;
+            flex-wrap: wrap;
+        }
+        &.col {
+            flex-direction: column;
+        }
+    }
+    #page_select_area {
+        padding: 1em;
+        display:flex;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    #menu_and_search {
+        margin: auto;
+        width: -moz-fit-content;
+        width:fit-content;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem 3rem;
+        &.editMode {
+            justify-content: center;
         }
     }
 
-
     #searchContainer {
-        margin-top: 1rem;
         table.leaf_grid {
             border: 1px solid black;
             border-collapse: collapse;
@@ -92,20 +136,30 @@ body {
         }
     }
 
-    #custom_menu_wrapper {
-        ul#menu {
-            margin: 0.75rem 1rem 0 0;
-            display: flex;
-            
+    section#custom_menu {
+        display: flex;
+        justify-content: center;
+        gap: 1em 0;
+
+        div#menu_wrapper {
+            width: 100%;
             &.editMode {
-                margin-top: 1rem;
-                padding: 0.75rem;
-                border: 1px solid #aab;
+                padding: 0.75em 1em;
                 background-color: white;
+                border-radius: 3px;
+                width: 450px;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
             }
+        }
+
+        ul#menu {
+            display: flex;
+            justify-content: center;
+            gap: 1em 0;
 
             li {
-                margin: 0.5rem 0;
                 display: flex;
 
                 &.editMode {
@@ -113,7 +167,7 @@ body {
                 }
 
                 div.edit_card {
-                    margin-left: 0.75rem;
+                    margin-left: 1rem;
                     cursor: auto;
                     position: relative;
                     @include flexcenter;
@@ -142,7 +196,7 @@ body {
                         position: absolute;
                         top: 50%;
                         right: 0;
-                        transform: translate(calc(100% + 0.5rem), -60%);
+                        transform: translate(calc(100% + 0.75rem), -60%);
                         color: $base_navy;
                         &.hidden {
                             color: $attention;
@@ -168,7 +222,7 @@ body {
         align-items: center;
         width: 300px;
         min-height: 55px;
-        padding: 6px 8px;
+        padding: 4px 6px;
         text-decoration: none;
         border: 2px solid transparent;
         box-shadow: 0 0 6px rgba(0,0,25,0.3);
@@ -179,32 +233,102 @@ body {
             z-index: 10;
         }
 
-        .icon_choice {
+        img.icon_choice {
             cursor: auto;
             margin-right: 0.5rem;
             width: 50px;
             height: 50px;
         }
-        .card_text {
-            font-family: Verdana, sans-serif;
+        div.card_text {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-self: stretch;
             width: 100%;
             min-height: 55px;
-        }
-        div.LEAF_custom * {
-            margin: 0;
-            padding: 0;
-            font-family: inherit;
-            color: inherit; /* prevents override of color choices and interference w other styles*/
+            h2, div {
+                font-family: Verdana, sans-serif;
+                font-size: 14px;
+            }
+            h2 {
+                font-size: 20px;
+            }
         }
     }
-    
+
+    #edit_header {
+        margin: 0 auto;
+        padding: 0.75em 1em;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background-color: white;
+        border-radius: 3px;
+       // width: 480px;
+       width: min-content;
+
+        label:not(.leaf_check) {
+            display: block;
+        }
+        textarea, input, select {
+            margin-top: 2px;
+            display: block;
+            width: 100%;
+        }
+        input, select {
+            height: 25px;
+        }
+        textarea {
+            min-height: 60px;
+            resize: none;
+        }
+    }
+
+    #custom_header_wrapper {
+        margin: 1rem auto 2rem auto;
+        width: fit-content;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.25em 0.5em;
+        font-family: Verdana, sans-serif;
+        #custom_header_image_container {
+            position: relative;
+            overflow: hidden;
+            img {
+                display: block;
+            }
+        }
+        #custom_header_inner_text, #custom_header_outer_text {
+            > * {
+                margin: 0;
+                font-family: Verdana, sans-serif;
+                color: inherit;
+            }
+        }
+        #custom_header_inner_text {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            padding: 0.25em 0.5em;
+        }
+        h1 {
+            font-size: 32px;
+        }
+        h2 {
+            font-size: 24px;
+        }
+        h3 {
+            font-size: 20.8px;
+        }
+        h4 {
+            font-size: 16px;
+        }
+    }
+
     .disableClick {
         pointer-events: none;
     }
 
 }
-

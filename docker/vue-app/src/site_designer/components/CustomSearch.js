@@ -2,7 +2,6 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            searchIsUpdating: false,
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
             adminHeaders: {
                 date: {
@@ -103,7 +102,7 @@ export default {
                     name: 'Initiator',
                     indicatorID: 'initiator',
                     editable: false,
-                    callback: function(data, blob) {
+                    callback: (data, blob) => {
                         let elContainer = document.querySelector(`#${data.cellContainerID}`);
                         if(elContainer !== null) {
                             elContainer.innerHTML = blob[data.recordID].firstName + " " + blob[data.recordID].lastName;
@@ -113,7 +112,7 @@ export default {
             },
             sort: {column:'recordID', direction: 'desc'},
             headerOptions: ['date', 'title', 'service', 'status', 'initiatorName'],
-            chosenHeadersSelect: [...this.chosenHeaders],
+            searchHeadersSelect: [...this.searchHeaders],
             mostRecentHeaders: '',
             choicesSelectID: 'choices_header_select',
             /*TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
@@ -121,19 +120,18 @@ export default {
             getData: [],
             hilite: [status === 'approved', date < #,  lastaction > #],
             hide: []*/
-            //categoryName automatically included in joins because it's needed for the title
-            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
         }
     },
     mounted() {
-        //console.log('search mounted, DOM available');
-        if(this.chosenHeadersSelect.length === 0) {
-            this.chosenHeadersSelect = ['date','title','service','status'];
+        if(this.searchHeadersSelect.length === 0) {
+            this.searchHeadersSelect = ['date','title','service','status'];
             this.createChoices();
-            this.postSearchSettings();
+            this.updateHomeDesign('searchHeaders', this.searchHeadersSelect);
         } else {
             this.createChoices();
-            this.main();
+            if(this.isEditingMode === false) {
+                this.main();
+            }
         }
     },
     inject: [
@@ -143,14 +141,35 @@ export default {
         'rootPath',
         'orgchartPath',
         'isEditingMode',
-        'chosenHeaders',
+        'homepageIsUpdating',
+        'searchHeaders',
+        'updateHomeDesign'
     ],
+    computed: {
+        searchJoins() {
+            const potentialJoins = ["service","categoryName", "status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"];
+            let joins = [];
+            this.searchHeadersSelect.forEach(col => {
+                switch(col) {
+                    case 'title':
+                        joins.push('categoryName');
+                        break;
+                    default:
+                        if(potentialJoins.includes(col)) {
+                            joins.push(col);
+                        }
+                    break;
+                }
+            });
+            return joins;
+        }
+    },
     methods: {
         createChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
             if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
                 //add any saved ones first, so that the order will be retained
-                let options = [...this.chosenHeadersSelect];
+                let options = [...this.searchHeadersSelect];
                 this.headerOptions.forEach(o => {
                     if (!options.includes(o)) {
                         options.push(o);
@@ -159,7 +178,7 @@ export default {
                 options = options.map(o =>({
                     value: o,
                     label: this.getLabel(o),
-                    selected: this.chosenHeadersSelect.includes(o)
+                    selected: this.searchHeadersSelect.includes(o)
                 }));
                 const choices = new Choices(elSelect, {
                     allowHTML: false,
@@ -170,8 +189,15 @@ export default {
                 });
                 elSelect.choicesjs = choices;
             }
-            document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
-                .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
+            //508 fix to set listbox and option role attrs for inner selection / deletion display
+            let innerSelect = elSelect.nextElementSibling;
+            if(innerSelect !== null) {
+                innerSelect.setAttribute('role', 'listbox');
+                let choicesOptions = innerSelect.querySelectorAll(`.choices__item.choices__item--selectable`);
+                choicesOptions.forEach(o => {
+                    o.setAttribute('role', 'option');
+                });
+            }
         },
         getLabel(option) {
             let label = '';
@@ -198,32 +224,13 @@ export default {
             }
         },
         postSearchSettings() {
-            if (JSON.stringify(this.chosenHeadersSelect) !== this.mostRecentHeaders) {
-                this.searchIsUpdating = true;
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}site/settings/search_design_json`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        chosen_headers: this.chosenHeadersSelect,
-                    },
-                    success: (res) => {
-                        if(+res?.code !== 1) {
-                            console.log('unexpected response returned:', res);
-                        }
-                        document.getElementById('searchContainer').innerHTML = '';
-                        setTimeout(() => {
-                            this.main();
-                            this.searchIsUpdating = false;
-                        }, 150);
-                    },
-                    error: (err) => console.log(err)
-                });
+            if (JSON.stringify(this.searchHeadersSelect) !== this.mostRecentHeaders) {
+                this.updateHomeDesign('searchHeaders', this.searchHeadersSelect);
             } else console.log('headers have not changed');
         },
         renderResult(leafSearch, res) {
-            const searchHeaders = this.chosenHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
-            this.mostRecentHeaders = JSON.stringify(this.chosenHeadersSelect);
+            const searchHeaders = this.searchHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
+            this.mostRecentHeaders = JSON.stringify(this.searchHeadersSelect);
             let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
             grid.setRootURL(this.rootPath);
             grid.hideIndex();
@@ -298,7 +305,7 @@ export default {
                 this.renderResult(leafSearch, resultSet);
                 window.scrollTo(0, scrollY);
                 // UI for "show more results" button
-                document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
+                document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults && this.isEditingMode === false ? 'inline' : 'none';
             });
             leafSearch.setSearchFunc((txt) => {
                 if(txt === undefined || txt === 'undefined') {
@@ -359,12 +366,7 @@ export default {
                 }
     
                 query.setLimit(batchSize);
-                query.join('categoryName');
-                this.potentialJoins.forEach(j => {
-                    if (this.chosenHeadersSelect.includes(j)) {
-                        query.join(j);
-                    }
-                });
+                this.searchJoins.forEach(j => query.join(j));
                 query.sort('date', 'DESC');
                 return query.execute();
             });
@@ -389,17 +391,29 @@ export default {
             });
         }
     },
-    template: `<section style="display: flex; flex-direction: column; width: fit-content;">
-        <div v-show="isEditingMode" class="designer_inputs" style="margin-top: 2rem;">
+    watch: {
+        isEditingMode(newVal, oldVal) {
+            if(newVal === false) {
+                this.main();
+            } else {
+                let search = document.getElementById('searchContainer');
+                if(search !== null) {
+                    search.innerHTML = '';
+                }
+            }
+        },
+    },
+    template: `<section style="display: flex; flex-direction: column; margin: auto;">
+        <div v-show="isEditingMode" class="designer_inputs">
             <div>
-                <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
-                <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
+                <label :id="choicesSelectID + '_label'" style="display:block;">Select table headers in the order that you would like them to appear
+                <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select></label>
             </div>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="searchIsUpdating || chosenHeadersSelect.length===0">Apply Selections
+                @click="postSearchSettings" :disabled="homepageIsUpdating || searchHeadersSelect.length===0">Save Settings
             </button>
-        </div>
-        <div id="searchContainer" style="padding-top:2px;"></div>
+        </div> 
+        <div id="searchContainer"></div>
         <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
             Show more records
         </button>

@@ -35,8 +35,8 @@ export default {
     template:`<a :class="anchorClasses" :style="baseCardStyles" :href="href" target="_blank">
         <img v-if="menuItem.icon" :src="dyniconsPath + menuItem.icon" alt="" class="icon_choice "/>
         <div class="card_text">
-            <h2 :style="{color: menuItem.titleColor}" class="LEAF_custom">{{ menuItem.title }}</h2>
-            <div :style="{color: menuItem.subtitleColor}" class="LEAF_custom">{{ menuItem.subtitle }}</div>
+            <h2 :style="{color: menuItem.titleColor}">{{ menuItem.title }}</h2>
+            <div :style="{color: menuItem.subtitleColor}">{{ menuItem.subtitle }}</div>
         </div>
     </a>`
 }

@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
+import CustomHeader from "../components/CustomHeader.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
 
@@ -8,26 +9,29 @@ export default {
     name: 'homepage',
     data() {
         return {
-            menuIsUpdating: false,
+            homepageIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
+            designs: ['header', 'menuItemList', 'menuDirection', 'searchHeaders'],
             menuItem: {},
+
+            header: this.homeData?.header || null,
+            menuDirection: this.homeData?.menu?.menuDirection || null,
+            menuItemList: this.homeData?.menu?.menuItemList || null,
+            searchHeaders: this.homeData?.searchHeaders || null
         }
     },
     created() {
-        console.log('homepage view created, getting design data')
-        this.getDesignData();
-    },
-    mounted() {
-        console.log('homepage mounted')
+        console.log('homepage created')
+        if(this.designData !== null) {
+            console.log('design data is available, updating homepage data');
+            this.setDesignData()
+        }
     },
     inject: [
         'CSRFToken',
         'APIroot',
         'appIsGettingData',
-        'appIsPublishing',
-        'toggleEnableTemplate',
         'updateLocalDesignData',
-        'getDesignData',
         'designData',
         'isEditingMode',
 
@@ -42,19 +46,20 @@ export default {
             menuItem: computed(() => this.menuItem),
             menuDirection: computed(() => this.menuDirection),
             menuItemList: computed(() => this.menuItemList),
-            chosenHeaders: computed(() => this.chosenHeaders),
-            menuIsUpdating: computed(() => this.menuIsUpdating),
+            searchHeaders: computed(() => this.searchHeaders),
+            homepageIsUpdating: computed(() => this.homepageIsUpdating),
+            header: computed(() => this.header),
 
             builtInIDs: this.builtInIDs,
             setMenuItem: this.setMenuItem,
+            updateHomeDesign: this.updateHomeDesign,
             updateMenuItemList: this.updateMenuItemList,
-            postHomeMenuSettings: this.postHomeMenuSettings,
-            postSearchSettings: this.postSearchSettings
         }
     },
     components: {
         LeafFormDialog,
         DesignCardDialog,
+        CustomHeader,
         CustomHomeMenu,
         CustomSearch
     },
@@ -62,45 +67,25 @@ export default {
         enabled() {
             return parseInt(this.designData?.homepage_enabled) === 1;
         },
-        menuItemList() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
-                let menuItems = homeData?.menuCards || [];
-                menuItems.map(item => {
-                    item.link = XSSHelpers.decodeHTMLEntities(item.link);
-                    item.title = XSSHelpers.decodeHTMLEntities(item.title);
-                    item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
-                });
-                returnVal = menuItems.sort((a,b) => a.order - b.order);
-            }
-            return returnVal;
-        },
-        menuDirection() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
-                returnVal = homeData?.direction || 'v';
-            }
-            return returnVal;
-        },
-        chosenHeaders() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const searchTemplateJSON = this.designData?.search_design_json || "{}";
-                const obj = JSON.parse(searchTemplateJSON);
-                returnVal = obj?.chosenHeaders || [];
-            }
-            return returnVal
-        },
+        homeData() {
+            return JSON.parse(this.designData?.homepage_design_json || "{}");
+        }
     },
     methods: {
+        setDesignData() {
+            this.header = this.homeData?.header || {};
+            this.menuDirection = this.homeData?.menu?.direction || 'v';
+
+            let menuItems = this.homeData?.menu?.menuCards || [];
+            menuItems.map(item => {
+                item.link = XSSHelpers.decodeHTMLEntities(item.link);
+                item.title = XSSHelpers.decodeHTMLEntities(item.title);
+                item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
+            });
+            this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
+
+            this.searchHeaders = this.homeData?.searchHeaders || [];
+        },
         openDesignButtonDialog() {
             this.setDialogTitleHTML('<h2>Menu Editor</h2>');
             this.setDialogContent('design-card-dialog');
@@ -133,6 +118,26 @@ export default {
             this.openDesignButtonDialog();
         },
         /**
+         * @param {string} designKey 
+         * @param {mixed} designVal 
+         */
+        updateHomeDesign(designKey = '', designVal = '') {
+            if (this.designs.includes(designKey)) {
+                this[designKey] = designVal;
+
+                this.postHomeSettings(
+                    JSON.stringify({
+                        menu: {
+                            menuItems: this.menuItemList,
+                            direction: this.menuDirection,
+                        },
+                        header: this.header,
+                        searchHeaders: this.searchHeaders
+                    })
+                );
+            }
+        },
+        /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
          * @param {Object|null} menuItem
          * @param {boolean} markedForDeletion
@@ -158,56 +163,59 @@ export default {
                     newItems.push(menuItem);
                 }
             }
-            this.postHomeMenuSettings(newItems, this.menuDirection);
+            this.menuItemList = newItems.sort((a,b) => a.order - b.order);
+            this.updateHomeDesign('menuItemList', newItems)
         },
-        postHomeMenuSettings(menuCards = this.menuItemList, direction = this.menuDirection) {
-            this.menuIsUpdating = true;
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/homepage_design_json`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    home_menu_list: menuCards,
-                    menu_direction: direction
-                },
-                success: (res) => {
-                    if(+res?.code !== 1) {
-                        console.log('unexpected response returned:', res);
-                    } else {
-                        const newJSON = JSON.stringify({menuCards, direction})
-                        this.updateLocalDesignData('homepage', newJSON);
-                    }
-                    this.menuIsUpdating = false;
-                },
-                error: (err) => console.log(err)
-            });
+        async postHomeSettings(inputJSON = '') {
+            this.homepageIsUpdating = true;
+            try {
+                let formData = new FormData();
+                formData.append('CSRFToken', CSRFToken);
+                formData.append('inputJSON', inputJSON);
+                
+                const response = await fetch(`${this.APIroot}site/settings/homepage_design_json`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if(+data?.code === 1) {
+                    this.updateLocalDesignData('homepage', inputJSON, data.data);
+                } else {
+                    console.log('unexpected response returned:', data)
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.homepageIsUpdating = false;
+            }
         },
+    },
+    watch: {
+        designData(newVal, oldVal) {
+            console.log('watch detected designData value change:')
+            if(newVal !== null) {
+                this.setDesignData();
+            }
+        }
     },
     template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
         font-size: 24px; font-weight: bold; padding: 16px;">
         Loading... 
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
-    <div v-else id="site_designer_hompage">
-        <h3 id="designer_page_header" :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
-            {{ isEditingMode ? 'Editing the Homepage' : 'Homepage Preview'}}
-        </h3>
-        <h4 style="margin: 0.5rem 0;">This page is {{ enabled ? '' : 'not'}} enabled</h4>
-        <button type="button" @click="toggleEnableTemplate('homepage')"
-            class="btn-confirm" :class="{enabled: enabled}" 
-            style="width: 100px; margin-bottom: 1rem;" :disabled="appIsPublishing">
-            {{ enabled ? 'Disable' : 'Publish'}}
-        </button>
-        <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section</div>
-        <div style="display: flex; flex-wrap: wrap;">
+    <template v-else>
+        <CustomHeader v-if="header!==null" />
+        <div id="menu_and_search" :class="{editMode: isEditingMode}">
             <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
-            <custom-search v-if="chosenHeaders!==null"></custom-search>
+            <custom-search v-if="searchHeaders!==null"></custom-search>
         </div>
+
         <!-- HOMEPAGE DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
                 <component :is="dialogFormContent"></component>
             </template>
         </leaf-form-dialog>
-    </div>`
+    </template>`
 }
