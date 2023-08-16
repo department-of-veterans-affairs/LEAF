@@ -12,6 +12,9 @@ ALTER TABLE `service_chiefs` ADD PRIMARY KEY(`userID`, `serviceID`, `backupID`);
 
 UPDATE `settings` SET `data` = '2023082400' WHERE `settings`.`setting` = 'dbversion';
 
+/* This cannot be reverted */
+DELETE FROM `dependency_privs` WHERE `groupID` NOT IN (SELECT `groupID` FROM `groups`);
+
 COMMIT;
 
 
