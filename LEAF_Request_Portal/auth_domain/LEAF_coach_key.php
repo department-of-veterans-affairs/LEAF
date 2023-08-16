@@ -21,7 +21,7 @@ $res = $db_national->prepared_query('SELECT * FROM relation_group_employee WHERE
 if(count($res) > 0) {
     $vars = array(':groupID' => 1,
                   ':userID' => $userID);
-    $db->prepared_query('INSERT INTO users (userID, groupID) VALUES (:userID, :groupID)', $vars);
+    $db->prepared_query('INSERT INTO users (userID, groupID, backupID) VALUES (:userID, :groupID, "")', $vars);
 
     $vars = array(':groupID' => 1,
                   ':empUID' => $login->getEmpUID());

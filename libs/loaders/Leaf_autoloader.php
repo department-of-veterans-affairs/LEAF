@@ -59,9 +59,6 @@ $setting_up = new Leaf\Setting($db);
 $settings = $setting_up->getSettings();
 
 if (class_exists('Portal\Config')) {
-    if (class_exists('Portal\DbConfig')) {
-        $db_config = new Portal\DbConfig();
-    }
     $config = new Portal\Config($site_paths, $settings);
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }

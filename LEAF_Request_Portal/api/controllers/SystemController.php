@@ -88,8 +88,18 @@ class SystemController extends RESTfulResponse
             $this->index['POST']->register('system', function () {
             });
 
-            $this->index['POST']->register('system/actions', function () use ($system) {
+            $this->index['POST']->register('system/action', function () use ($system) {
                 return $system->addAction();
+            });
+
+            $this->index['POST']->register('system/actions', function () use ($system) {
+                $res = $system->addAction();
+
+                if ($res['status']['code'] == 4) {
+                    return $res['status']['message'];
+                } else {
+                    return '';
+                }
             });
 
             $this->index['POST']->register('system/settings/heading', function () use ($system) {

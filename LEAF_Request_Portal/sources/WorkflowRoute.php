@@ -31,6 +31,27 @@ class WorkflowRoute
         return $return_value;
     }
 
+    /**
+     * @param string $action
+     *
+     * @return array
+     * this db method returns a properly formatted json response
+     *
+     * Created at: 7/31/2023, 8:20:21 AM (America/New_York)
+     */
+    public function getUsedAction(string $action): array
+    {
+        $vars = array(':actionType' => $action);
+        $sql = 'SELECT `description`
+                FROM `workflow_routes`
+                LEFT JOIN `workflows` USING (`workflowID`)
+                WHERE `actionType` = :actionType';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
+    }
+
     private function postRequired(string $value, array $post_data): array
     {
         $vars = array(':displayConditional' => $value,

@@ -116,8 +116,8 @@ class System
             {
                 $vars = array(':userID' => $chief['userID'],
                               ':groupID' => $quadID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-	                                   		 VALUES (:userID, :groupID)', $vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+	                                   		 VALUES (:userID, :groupID, "")', $vars);
             }
         }
 
@@ -467,8 +467,8 @@ class System
         if (!empty($emp['userName'])) {
             $vars = array(':userID' => $emp['userName'],
                     ':groupID' => $groupID, );
-            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `active`)
-                    VALUES (:userID, :groupID, 0)
+            $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`, `active`)
+                    VALUES (:userID, :groupID, "", 0)
                     ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
 
             $return_value = $this->db->pdo_insert_query($sql, $vars);
@@ -496,7 +496,7 @@ class System
         $vars = array(':groupID' => $groupID);
         $sql = 'DELETE
                 FROM `users`
-                WHERE `backupID` IS NOT NULL
+                WHERE `backupID` <> ""
                 AND `groupID` = :groupID';
 
         $return_value = $this->db->pdo_delete_query($sql , $vars);
@@ -602,8 +602,8 @@ class System
                     $vars = array(':userID' => $emp['userName'],
                         ':groupID' => $groupID,);
 
-                    $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                        VALUES (:userID, :groupID)
+                    $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                        VALUES (:userID, :groupID, "")
                                                         ON DUPLICATE KEY UPDATE userID=:userID, groupID=:groupID', $vars);
 
                     // include the backups of employees
@@ -664,30 +664,71 @@ class System
 
 
 
-    public function addAction()
+    /**
+     * @return array
+     *
+     * Created at: 7/31/2023, 7:41:43 AM (America/New_York)
+     */
+    public function addAction(): array
     {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required';
+        if (!$this->login->checkGroup(1)) {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'Admin access required'
+                )
+            );
+        } else {
+            $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '',  strip_tags($_POST['actionText'])));
+            $sql = 'SELECT `deleted`
+                    FROM `actions`
+                    WHERE `actionType` = :actionType';
+
+            $res = $this->db->pdo_select_query($sql, $vars);
+            error_log(print_r($res, true));
+
+            if (
+                $res['status']['code'] == 2
+                && ((!empty($res['data'])
+                    && $res['data'][0]['deleted'] != 0)
+                || empty($res['data']))
+            ) {
+                $alignment = 'right';
+
+                if ($_POST['fillDependency'] < 1) {
+                    $alignment = 'left';
+                }
+
+                $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '',  strip_tags($_POST['actionText'])),
+                        ':actionText' => strip_tags($_POST['actionText']),
+                        ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
+                        ':actionIcon' => $_POST['actionIcon'],
+                        ':actionAlignment' => $alignment,
+                        ':sort' => 0,
+                        ':fillDependency' => $_POST['fillDependency'],
+                );
+
+                $sql = 'INSERT INTO `actions` (`actionType`, `actionText`,
+                            `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`)
+                        VALUES (:actionType, :actionText, :actionTextPasttense, :actionIcon, :actionAlignment, :sort, :fillDependency)
+                        ON DUPLICATE KEY UPDATE `actionText` = :actionText,
+                            `actionTextPasttense` = :actionTextPasttense,
+                            `actionIcon` = :actionIcon,
+                            `actionAlignment` = :actionAlignment, `sort` = :sort,
+                            `fillDependency` = :fillDependency, `deleted` = 0';
+
+                $return_value = $this->db->pdo_insert_query($sql, $vars);
+            } else {
+                $return_value = array(
+                    'status' => array(
+                        'code' => 3,
+                        'message' => 'This action already exists'
+                    )
+                );
+            }
         }
 
-        $alignment = 'right';
-        if ($_POST['fillDependency'] < 1)
-        {
-            $alignment = 'left';
-        }
-
-        $vars = array(':actionType' => preg_replace('/[^a-zA-Z0-9_]/', '', strip_tags($_POST['actionText'])),
-                ':actionText' => strip_tags($_POST['actionText']),
-                ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
-                ':actionIcon' => $_POST['actionIcon'],
-                ':actionAlignment' => $alignment,
-                ':sort' => 0,
-                ':fillDependency' => $_POST['fillDependency'],
-        );
-
-        $this->db->prepared_query('INSERT INTO actions (actionType, actionText, actionTextPasttense, actionIcon, actionAlignment, sort, fillDependency)
-										VALUES (:actionType, :actionText, :actionTextPasttense, :actionIcon, :actionAlignment, :sort, :fillDependency)', $vars);
+        return $return_value;
     }
 
     public function setHeading()
@@ -1247,7 +1288,8 @@ class System
         // find group records to delete on portal side
         foreach($portal_groups as $group) {
             if ($this->searchArray($nexus_groups, $group, false)) {
-                // group exists do nothing
+                // group exists check in on backups
+                $this->updateGroup($group['groupID']);
             } else {
                 // group does not exist remove from portal db
                 //echo 'The group \'' . $group['name'] . '\' has been removed<br/>';
@@ -1301,6 +1343,10 @@ class System
                 // user does not exist add them now
                 //echo 'User with userID \'' . $user['userID'] . '\' was added.<br/>';
                 //echo 'User with userID \'' . $user['groupID'] . '-' .$user['userID'] . '\' was added.<br/>';
+                if ($user['backupID'] == null) {
+                    $user['backupID'] = '';
+                }
+
                 $org_group->importUser($user['userID'], $user['groupID'], $user['backupID']);
             }
         }

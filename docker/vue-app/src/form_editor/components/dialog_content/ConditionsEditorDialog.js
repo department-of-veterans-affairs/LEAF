@@ -38,20 +38,23 @@ export default {
         'initializeOrgSelector'
     ],
     created() {
-        this.getAllIndicators();
+        this.getFormIndicators();
     },
     mounted() {
         const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
         if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
     },
     methods: {
-        getAllIndicators(){
+        getFormIndicators(){
             $.ajax({
                 type: 'GET',
                 url: `${this.APIroot}form/indicator/list/unabridged`,
                 success: (res)=> {
-                    const filteredList = res.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
+                    const filteredList = res.filter(
+                        ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0 && ele.categoryID === this.formID
+                    );
                     this.indicators = filteredList;
+
                     this.indicators.forEach(i => { 
                         if (i.parentIndicatorID !== null) {
                             this.addHeaderIDs(parseInt(i.parentIndicatorID), i);

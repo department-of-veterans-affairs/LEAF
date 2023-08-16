@@ -173,8 +173,8 @@ class Service
             {
                 $sql_vars = array(':userID' => $member,
                               ':groupID' => $groupID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID)
-                                                VALUES (:userID, :groupID)', $sql_vars);
+                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
+                                                VALUES (:userID, :groupID, "")', $sql_vars);
             }
 
             // include the backups of employees

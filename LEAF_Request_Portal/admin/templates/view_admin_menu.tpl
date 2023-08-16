@@ -168,6 +168,13 @@
         <span class="leaf-admin-btndesc">Edit portal Sitemap links</span>
     </a>
 
+    <a href="../report.php?a=LEAF_Sitemap_Search" role="button"
+        class="leaf-admin-button bg-orange-10 lf-trans-orange">
+        <i class="leaf-admin-btnicon fas fa-search text-orange-50 leaf-icn-narrow2" title="Sitemap Search"></i>
+        <span class="leaf-admin-btntitle">Sitemap Search</span>
+        <span class="leaf-admin-btndesc">Search all sites within a sitemap</span>
+    </a>
+
     <!--
     <a href="./?a=site_designer" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
         <i class="leaf-admin-btnicon fas fa-edit text-orange-50 leaf-icn-narrow2" alt="Site Designer" title="Site Designer"></i>

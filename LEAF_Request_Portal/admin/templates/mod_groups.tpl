@@ -132,7 +132,6 @@ jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
 });
 
 function searchGroups() {
-
     let srchInput = document.getElementById('userGroupSearch').value;
     $('.groupName, .groupUser').removeClass('leaf-search-hilite');
     $('.groupBlockWhite, .groupBlock, .groupName, .groupUserFirst, .groupHeaders').show();
@@ -308,7 +307,7 @@ function populateMembers(groupID, members) {
     let memberCt = -1;
     let adminCt = (members.length - 1);
     for(let i in members) {
-        if(members[i].active == 1 && members[i].backupID == null) {
+        if(members[i].active == 1 && members[i].backupID == "") {
             memberCt++;
         }
     }
@@ -316,7 +315,7 @@ function populateMembers(groupID, members) {
     let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     let countAdminTxt = (adminCt > 0) ? (' + ' + adminCt + ' others') : '';
     for(let i in members) {
-        if (members[i].active == 1 && members[i].backupID == null && groupID != 1) {
+        if (members[i].active == 1 && members[i].backupID == "" && groupID != 1) {
             if (j == 0) {
                 $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
@@ -476,165 +475,171 @@ function getGroupList() {
                     function openGroup(groupID, parentGroupID, groupName) {
                         $.ajax({
                             type: 'GET',
-                            url: '../api/group/' + groupID + '/members',
-                            success: function(res) {
-                                dialog.clear();
-                                let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
-                                dialog.setContent(
-                                    '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
-                                    '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><br /><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
+                            url: '../api/group/' + groupID + '/membersWBackups',
+                            success: function(response) {
+                                if (response.status.code == 2) {
+                                    let res = response.data;
+                                    dialog.clear();
+                                    let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
+                                    dialog.setContent(
+                                        '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
+                                        '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><br /><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
 
-                                $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
-                                let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
-                                let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
-                                let counter = 0;
-                                for(let i in res) {
-                                    if (res[i].backupID == null) {
-                                        let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
-                                        let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
-                                        let backups = `<td style="font-size: 0.8em">`;
-                                        let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                        let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                        let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
-                                        let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; margin-left: 2px !important; min-width: 4rem;" title="Add this user to Nexus group">Add to Nexus</button>`;
+                                    $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
+                                    let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
+                                    let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
+                                    let counter = 0;
+                                    for(let i in res) {
+                                        if (res[i].backupID == '') {
+                                            let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
+                                            let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
+                                            let backups = `<td style="font-size: 0.8em">`;
+                                            let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
+                                            let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; margin-left: 2px !important; min-width: 4rem;" title="Add this user to Nexus group">Add to Nexus</button>`;
 
-                                        // Check for Backups
-                                        for (let j in res) {
-                                            if (res[i].userName == res[j].backupID) {
-                                                backups += ('<div class="leaf-font0-8rem">' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + '\n');
+                                            // Check for Backups
+                                            for (let j in res) {
+                                                if (res[i].userName == res[j].backupID) {
+                                                    backups += ('<div class="leaf-font0-8rem">' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + '\n');
+                                                }
                                             }
-                                        }
-                                        // close of actions and backups column
-                                        backups += '</td>';
+                                            // close of actions and backups column
+                                            backups += '</td>';
 
-                                        if (res[i].active === 1) {
-                                            let actions = `${removeButton}`;
-                                            if (res[i].regionallyManaged === false) {
-                                                actions += `${addToNexusButton}`;
+                                            if (res[i].active === 1) {
+                                                let actions = `${removeButton}`;
+                                                if (res[i].regionallyManaged === false) {
+                                                    actions += `${addToNexusButton}`;
+                                                }
+                                                actions += '</td>';
+                                                employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
+                                            } else {
+                                                let pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
+                                                let actions = `${pruneMemberButton}`;
+                                                actions += '</td>';
+                                                inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
                                             }
-                                            actions += '</td>';
-                                            employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
-                                        } else {
-                                            let pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
-                                            let actions = `${pruneMemberButton}`;
-                                            actions += '</td>';
-                                            inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
+                                            counter++;
                                         }
-                                        counter++;
                                     }
-                                }
-                                employee_table += '</tbody></table>';
-                                inactive_table += '</tbody></table>';
-                                // generate formatted table
-                                $('#employee_table').html(employee_table);
-                                $('#inactive_table').html(inactive_table);
-                                if ($('#inactive_table > .table-bordered > tbody > tr').length === null || $('#inactive_table > .table-bordered > tbody > tr').length === 0){
-                                    $('#showInactive').hide();
+                                    employee_table += '</tbody></table>';
+                                    inactive_table += '</tbody></table>';
+                                    // generate formatted table
+                                    $('#employee_table').html(employee_table);
+                                    $('#inactive_table').html(inactive_table);
+                                    if ($('#inactive_table > .table-bordered > tbody > tr').length === null || $('#inactive_table > .table-bordered > tbody > tr').length === 0){
+                                        $('#showInactive').hide();
+                                    } else {
+                                        $('#showInactive').on('click', function () {
+                                            $('#showInactive').toggleClass("fa-angle-right fa-angle-down");
+                                            $('#inactive_table').slideToggle();
+                                        });
+                                    }
+
+                                    // add functionality to action buttons after table generation
+                                    counter = 0;
+                                    for (let i in res) {
+                                        if (res[i].backupID == "") {
+                                            if (res[i].active === 1) {
+                                                $('#removeMember_' + counter).on('click', function () {
+                                                    dialog_confirm.setContent('Are you sure you want to remove this member?');
+                                                    dialog_confirm.setSaveHandler(function () {
+                                                        removeMember(groupID, res[i].userName);
+                                                        dialog_confirm.hide();
+                                                        dialog.hide();
+                                                    });
+                                                    dialog_confirm.show();
+                                                });
+                                                $('#addNexusMember_' + counter).on('click', function () {
+                                                    dialog_confirm.setContent('Are you sure you want to add this member to Nexus group?');
+                                                    dialog_confirm.setSaveHandler(function () {
+                                                        addNexusMember(groupID, res[i].empUID);
+                                                        dialog_confirm.hide();
+                                                        dialog.hide();
+                                                    });
+                                                    dialog_confirm.show();
+                                                });
+                                            } else {
+                                                $('#pruneMember_' + counter).on('click', function () {
+                                                    dialog_confirm.setContent('Are you sure you want to prune this member?');
+                                                    dialog_confirm.setSaveHandler(function () {
+                                                        pruneMember(groupID, res[i].userName);
+                                                        dialog_confirm.hide();
+                                                        dialog.hide();
+                                                    });
+                                                    dialog_confirm.show();
+                                                });
+                                            }
+                                            counter++;
+                                        }
+                                    }
+
+                                    $('#deleteGroup_' + groupID).on('click', function() {
+                                        dialog_confirm.setContent('Are you sure you want to delete this group?');
+                                        dialog_confirm.setSaveHandler(function() {
+                                            $.ajax({
+                                                type: 'DELETE',
+                                                url: "../api/group/" + groupID + '?' +
+                                                    $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+                                                success: function(response) {
+                                                    location.reload();
+                                                },
+                                                cache: false
+                                            });
+                                            $.ajax({
+                                                type: 'DELETE',
+                                                url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
+                                                    $.param({tag: '<!--{$orgchartImportTag}-->',
+                                                            CSRFToken: '<!--{$CSRFToken}-->'}),
+                                                success: function() {
+                                                },
+                                                cache: false
+                                            });
+                                        });
+                                        dialog_confirm.show();
+                                    });
+
+                                    empSel = new nationalEmployeeSelector('employeeSelector');
+                                    empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
+                                    empSel.rootPath = '<!--{$orgchartPath}-->/';
+                                    empSel.outputStyle = 'micro';
+                                    empSel.initialize();
+                                    // Update on any action
+                                    dialog.setCancelHandler(function() {
+                                        updateAndGetMembers(groupID);
+                                    });
+                                    dialog.setSaveHandler(function() {
+                                        if(empSel.selection != '') {
+                                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                                success: function(res) {
+                                                    if(!isNaN(res)) {
+                                                        addMember(groupID, selectedUserName);
+                                                        updateAndGetMembers(groupID);
+                                                    }
+                                                    else {
+                                                        alert(res);
+                                                    }
+                                                },
+                                                cache: false
+                                            });
+                                        }
+                                        dialog.hide();
+                                    });
+                                    //508 fix
+                                    setTimeout(function () {
+                                        $("#simplebutton_cancelchange").remove();
+                                        $("#simplebutton_save").remove();
+                                        dialog.show();
+                                    }, 0);
                                 } else {
-                                    $('#showInactive').on('click', function () {
-                                        $('#showInactive').toggleClass("fa-angle-right fa-angle-down");
-                                        $('#inactive_table').slideToggle();
-                                    });
+                                    displayDialogOk(response.status['message']);
                                 }
-
-                                // add functionality to action buttons after table generation
-                                counter = 0;
-                                for (let i in res) {
-                                    if (res[i].backupID == null) {
-                                        if (res[i].active === 1) {
-                                            $('#removeMember_' + counter).on('click', function () {
-                                                dialog_confirm.setContent('Are you sure you want to remove this member?');
-                                                dialog_confirm.setSaveHandler(function () {
-                                                    removeMember(groupID, res[i].userName);
-                                                    dialog_confirm.hide();
-                                                    dialog.hide();
-                                                });
-                                                dialog_confirm.show();
-                                            });
-                                            $('#addNexusMember_' + counter).on('click', function () {
-                                                dialog_confirm.setContent('Are you sure you want to add this member to Nexus group?');
-                                                dialog_confirm.setSaveHandler(function () {
-                                                    addNexusMember(groupID, res[i].empUID);
-                                                    dialog_confirm.hide();
-                                                    dialog.hide();
-                                                });
-                                                dialog_confirm.show();
-                                            });
-                                        } else {
-                                            $('#pruneMember_' + counter).on('click', function () {
-                                                dialog_confirm.setContent('Are you sure you want to prune this member?');
-                                                dialog_confirm.setSaveHandler(function () {
-                                                    pruneMember(groupID, res[i].userName);
-                                                    dialog_confirm.hide();
-                                                    dialog.hide();
-                                                });
-                                                dialog_confirm.show();
-                                            });
-                                        }
-                                        counter++;
-                                    }
-                                }
-
-                                $('#deleteGroup_' + groupID).on('click', function() {
-                                    dialog_confirm.setContent('Are you sure you want to delete this group?');
-                                    dialog_confirm.setSaveHandler(function() {
-                                        $.ajax({
-                                            type: 'DELETE',
-                                            url: "../api/group/" + groupID + '?' +
-                                                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
-                                            success: function(response) {
-                                                location.reload();
-                                            },
-                                            cache: false
-                                        });
-                                        $.ajax({
-                                            type: 'DELETE',
-                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
-                                                $.param({tag: '<!--{$orgchartImportTag}-->',
-                                                         CSRFToken: '<!--{$CSRFToken}-->'}),
-                                            success: function() {
-                                            },
-                                            cache: false
-                                        });
-                                    });
-                                    dialog_confirm.show();
-                                });
-
-                                empSel = new nationalEmployeeSelector('employeeSelector');
-                                empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                                empSel.rootPath = '<!--{$orgchartPath}-->/';
-                                empSel.outputStyle = 'micro';
-                                empSel.initialize();
-                                // Update on any action
-                                dialog.setCancelHandler(function() {
-                                    updateAndGetMembers(groupID);
-                                });
-                                dialog.setSaveHandler(function() {
-                                    if(empSel.selection != '') {
-                                        let selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                            data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                            success: function(res) {
-                                                if(!isNaN(res)) {
-                                                    addMember(groupID, selectedUserName);
-                                                }
-                                                else {
-                                                    alert(res);
-                                                }
-                                            },
-                                            cache: false
-                                        });
-                                    }
-                                    dialog.hide();
-                                });
-                                //508 fix
-                                setTimeout(function () {
-                                    $("#simplebutton_cancelchange").remove();
-                                    $("#simplebutton_save").remove();
-                                    dialog.show();
-                                }, 0);
                             },
                             cache: false
                         });
