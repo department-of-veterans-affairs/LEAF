@@ -13,7 +13,7 @@ export default {
             userID: userID,
             designData: null,
             customizableTemplates: ['homepage'],
-            views: ['homepage', 'testview'], //NOTE: anticipate more templates, keeping for testing
+            views: ['homepage', 'testview'], //NOTE: anticipate more templates, keeping for testing of page select
             custom_page_select: 'homepage',
             appIsGettingData: true,
             appIsPublishing: false,
@@ -25,9 +25,7 @@ export default {
             dialogFormContent: "",
             dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             formSaveFunction: '',
-            showFormDialog: false,
-
-            marked: marked //NOTE: temp
+            showFormDialog: false
         }
     },
     provide() {
@@ -57,9 +55,7 @@ export default {
             dialogTitle: computed(() => this.dialogTitle),
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),
-            formSaveFunction: computed(() => this.formSaveFunction),
-
-            marked: this.marked, //NOTE: temp
+            formSaveFunction: computed(() => this.formSaveFunction)
         }
     },
     created() {

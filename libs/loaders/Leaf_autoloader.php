@@ -66,6 +66,30 @@ if (class_exists('Portal\Config')) {
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }
 
+$design_pages = Array(
+    0 => 'homepage_enabled'
+);
+$activeDesignIDs = array();
+foreach ($design_pages as $i => $page) {
+    if (isset($settings[$page]) && (int)$settings[$page] > 0) { //NOTE: id of active design or 0
+        $activeDesignIDs[] = (int)$settings[$page];
+        break;
+    }
+}
+if (count($activeDesignIDs) > 0) {
+    $sql = 'SELECT templateName, designContent AS designJSON FROM template_designs WHERE designActive=1';
+    $res = $db->prepared_query($sql, array());
+    $design_data = array();
+    foreach($res as $record) {
+        $page = $record['templateName'];
+        if(!isset($design_data[$page])) {
+            $design_data[$page] = array($record);
+        } else {
+            $design_data[$page][] = $record;
+        }
+    }
+}
+
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
         FROM sites

@@ -53,7 +53,7 @@ class Site
 
         $inputData = json_decode($inputJSON, true);
 
-        $menuItemsIn = $inputData['menuItems'] ?? [];
+        $menuItemsIn = $inputData['menu']['menuItems'] ?? [];
         $menuItems = array();
         foreach ($menuItemsIn as $i => $item) {
             $card = array();
@@ -72,16 +72,17 @@ class Site
 
         $headerIn = $inputData['header'] ?? array();
         $header = array();
-        $header['title'] = \Leaf\XSSHelpers::sanitizeHTMLRich($headerIn['title'] ?? '');
+        $header['title'] = \Leaf\XSSHelpers::xscrub($headerIn['title'] ?? '');
         $header['titleColor'] = preg_match('/^#[0-9a-f]{6}$/i', $headerIn['titleColor'] ?? '') ? $headerIn['titleColor'] : '#000000';
         $header['headerType'] = (int) ($headerIn['headerType'] ?? 1);
         $header['imageFile'] = \Leaf\XSSHelpers::scrubFilename($headerIn['imageFile'] ?? '');
         $header['imageW'] = (int) ($headerIn['imageW'] ?? 0);
         $header['enabled'] = (int) ($headerIn['enabled'] ?? 0);
 
-        $home_design_data = array();
-        $home_design_data['menuCards'] = $menuItems;
-        $home_design_data['direction'] = $inputData['direction'] === 'v' ? 'v' : 'h';
+        $home_design_data = array('menu' => array());
+        $home_design_data['menu']['menuCards'] = $menuItems;
+        $home_design_data['menu']['direction'] = $inputData['menu']['direction'] === 'v' ? 'v' : 'h';
+
         $home_design_data['header'] = $header;
         $home_design_data['searchHeaders'] =  \Leaf\XSSHelpers::scrubObjectOrArray($inputData['searchHeaders']);
         $homepage_design_json = json_encode($home_design_data);

@@ -23,7 +23,7 @@
     }
     #custom_header_inner_text {
         width: 100%;
-        background-color: rgba(0,0,20,0.4);
+        display: flex;
         position: absolute;
         top: 0;
         padding: 0.25em 0.5em;
@@ -122,7 +122,7 @@
 
 <script>
     const userID = '<!--{$userID|unescape|escape:'quotes'}-->';
-    const designData = JSON.parse(<!--{$homeDesignJSON|json_encode}-->);
+    const designData = JSON.parse(<!--{$homeDesignJSON}-->);
     const searchHeaders = designData?.searchHeaders || [];
 
     function headerWrapperFlex(headerType) {
@@ -143,19 +143,26 @@
         return dir;
     }
 
+    function overlayColor(color = '#000000') {
+        const hex = color.slice(1);
+        const codes = hex.match((/.{2}/ig));
+        return codes.every(c => parseInt(`0x${c}`, 16) < 125) ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,20,0.3)'
+    }
+
     function renderHeader() {
         const headerInfo = designData?.header || null;
         if (headerInfo !== null && +headerInfo.enabled === 1) {
             const title = marked(headerInfo?.title || '');
             const color = headerInfo?.titleColor || '#000000';
+            const overlay = overlayColor(color);
             const imageFile = headerInfo?.imageFile || '';
             const headerType = headerInfo?.headerType || 1;
             const flexDir = headerWrapperFlex(headerType);
 
-            let content = headerType === 5 ? '' : `<div id="custom_header_outer_text" style="color: ${color};">${title}</div>`;
+            let content = headerType === 5 && title !== '' ? '' : `<div id="custom_header_outer_text" style="color: ${color};">${title}</div>`;
             content +=  `<div id="custom_header_image_container" style="position: relative;">`;
-            content += imageFile === '' ? '' : `<img src="./files/${headerInfo?.imageFile}" style="display: block; width: ${headerInfo?.imageW}px;" />`;
-            content += headerType === 5 ? `<div id="custom_header_inner_text" style="color: ${color}"}">${title}</div>` : '';
+            content += imageFile === '' ? '' : `<img src="./files/${headerInfo?.imageFile}" style="display: block; width: ${headerInfo?.imageW}px;" alt="" />`;
+            content += headerType === 5 && title !== '' ? `<div id="custom_header_inner_text" style="color: ${color}; background-color: ${overlay}"}">${title}</div>` : '';
             content += `</div>`;
 
             let wrapper = document.getElementById('custom_header_wrapper');
@@ -168,7 +175,7 @@
     }
 
     function renderMenu() {
-        let menuCards = designData?.menuCards || [];
+        let menuCards = designData?.menu?.menuCards || [];
         menuCards = menuCards.filter(item => +item?.enabled === 1);
         menuCards = menuCards.sort((a, b) => a.order - b.order);
 
@@ -191,7 +198,7 @@
         });
 
         const dyniconsPath = "../libs/dynicons/svg/";
-        const direction = designData?.direction || 'v';
+        const direction = designData?.menu?.direction || 'v';
         let content = `<ul style="${direction === 'h' ? 'flex-wrap: wrap;' : 'flex-direction: column;'}" id="menu">`;
         renderedCards.forEach(item => {
             const link = XSSHelpers.stripAllTags(item.link).trim();

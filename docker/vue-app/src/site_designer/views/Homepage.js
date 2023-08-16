@@ -15,8 +15,8 @@ export default {
             menuItem: {},
 
             header: this.homeData?.header || null,
-            menuDirection: this.homeData?.menuDirection || null,
-            menuItemList: this.homeData?.menuItemList || null,
+            menuDirection: this.homeData?.menu?.menuDirection || null,
+            menuItemList: this.homeData?.menu?.menuItemList || null,
             searchHeaders: this.homeData?.searchHeaders || null
         }
     },
@@ -74,9 +74,9 @@ export default {
     methods: {
         setDesignData() {
             this.header = this.homeData?.header || {};
-            this.menuDirection = this.homeData?.direction || 'v';
+            this.menuDirection = this.homeData?.menu?.direction || 'v';
 
-            let menuItems = this.homeData?.menuCards || [];
+            let menuItems = this.homeData?.menu?.menuCards || [];
             menuItems.map(item => {
                 item.link = XSSHelpers.decodeHTMLEntities(item.link);
                 item.title = XSSHelpers.decodeHTMLEntities(item.title);
@@ -127,8 +127,10 @@ export default {
 
                 this.postHomeSettings(
                     JSON.stringify({
-                        menuItems: this.menuItemList,
-                        direction: this.menuDirection,
+                        menu: {
+                            menuItems: this.menuItemList,
+                            direction: this.menuDirection,
+                        },
                         header: this.header,
                         searchHeaders: this.searchHeaders
                     })

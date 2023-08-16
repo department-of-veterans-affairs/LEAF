@@ -144,7 +144,7 @@ footer#footer {
         div#menu_wrapper {
             width: 100%;
             &.editMode {
-                padding: 1em;
+                padding: 0.75em 1em;
                 background-color: white;
                 border-radius: 3px;
                 width: 450px;
@@ -257,14 +257,16 @@ footer#footer {
     }
 
     #edit_header {
-        margin: 0 auto 1.5rem;
-        padding: 1em;
+        margin: 0 auto;
+        padding: 0.75em 1em;
         display: flex;
         flex-direction: column;
         gap: 1rem;
         background-color: white;
         border-radius: 3px;
-        width: 500px;
+       // width: 480px;
+       width: min-content;
+
         label:not(.leaf_check) {
             display: block;
         }
@@ -300,9 +302,16 @@ footer#footer {
         }
         #custom_header_inner_text, #custom_header_outer_text {
             > * {
+                margin: 0;
                 font-family: Verdana, sans-serif;
                 color: inherit;
             }
+        }
+        #custom_header_inner_text {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            padding: 0.25em 0.5em;
         }
         h1 {
             font-size: 32px;
@@ -322,10 +331,4 @@ footer#footer {
         pointer-events: none;
     }
 
-}
-
-@media screen and (max-width: 60rem) {
-    #site-designer-app #edit_header {
-        flex-direction: column;
-    }
 }

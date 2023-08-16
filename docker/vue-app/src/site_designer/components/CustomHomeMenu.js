@@ -208,12 +208,12 @@ export default {
             <div v-show="isEditingMode" style="display:flex; gap: 1rem; padding-top: 1em; border-top: 2px solid #cadff0">
                 <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
                 <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
-                <label for="menu_direction_select" style="margin: 0 0 0 auto;">
+                <label for="menu_direction_select" style="margin: 0 0 0 auto;">Menu Direction&nbsp;
                     <select id="menu_direction_select" style="width: 80px; height: 25px;" v-model="menuDirectionSelection"
                         @change="updateDirection" :disabled="homepageIsUpdating">
                         <option value="v">Columns</option>
                         <option value="h">Rows</option>
-                    </select>&nbsp;Menu Direction
+                    </select>
                 </label>
             </div>
         </div>
