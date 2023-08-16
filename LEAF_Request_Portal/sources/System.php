@@ -114,9 +114,6 @@ class System
                             // check if this service is also an ELT
                             // if so, update groups table
                             $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
-                            error_log(print_r($serviceID, true));
-                            error_log(print_r($quadID, true));
-                            error_log(print_r($tagged, true));
 
                             if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
                                 $this->updateGroup($serviceID);
