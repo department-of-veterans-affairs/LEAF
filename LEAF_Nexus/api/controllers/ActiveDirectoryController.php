@@ -10,11 +10,10 @@ class ActiveDirectoryController extends RESTfulResponse
     private $API_VERSION = 1;
     public $index = array();
 
-    public function __construct($db, $login)
+    public function __construct()
     {
-        $this->dir = new ActiveDirectory($login);
+        $this->dir = new ActiveDirectory();
     }
-    // TODO: Connect to LDAP
 
     public function get($act)
     {
@@ -26,20 +25,20 @@ class ActiveDirectoryController extends RESTfulResponse
             return self::API_VERSION;
         });
 
-        $this->index['GET']->register('ad/[digit]/title', function ($args) use ($dir) {
-            return $dir->getTitle($args[0]);
+        $this->index['GET']->register('ad/member/[text]', function ($args) use ($dir) {
+            return $dir->searchMember($args[0]);
         });
 
-        $this->index['GET']->register('ad/[digit]', function ($args) use ($dir) {
-            return $dir->getGroup($args[0]);
+        $this->index['GET']->register('ad/group/[text]', function ($args) use ($dir) {
+            return $dir->searchGroup($args[0]);
         });
 
         $this->index['GET']->register('ad/[digit]/members', function ($args) use ($dir) {
             return $dir->listMembers($args[0]);
         });
-
-        $this->index['GET']->register('ad/search', function ($args) use ($dir) {
-            return $dir->search($_GET['q'], $$dir->sanitizeInput($_GET['tag']));
-        });
     }
+
+    public function post($act) {}
+
+    public function delete($act) {}
 }
