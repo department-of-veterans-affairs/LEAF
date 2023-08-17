@@ -15,8 +15,8 @@ const routes = [
         component: Homepage
     },
     {
-        path: '/testview',
-        name: 'testview',
+        path: '/testpage',
+        name: 'testpage',
         component: TestView
     }
 ];

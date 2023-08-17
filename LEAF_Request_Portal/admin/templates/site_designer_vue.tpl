@@ -1,28 +1,37 @@
 <!--{if true}-->
-<div id="site-designer-app">
+<div id="site-designer-app" v-cloak>
     <main>
         <section :class="{editMode: isEditingMode}">
             <div id="page_select_area">
                 <h2 style="margin-right: auto;">
                     <a href="../admin" class="leaf-crumb-link">Admin</a>
                     <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer - 
-                    {{ custom_page_select }} (<span :style="{color: enabled ? '#008060' : '#b00000'}">{{ enabled ? 'active' : 'inactive'}}</span>)
+                    {{ currentView }} (<span :style="{color: enabled ? '#008060' : '#b00000'}">{{ enabled ? 'active' : 'inactive'}}</span>)
                 </h2>
-                <label v-if="views.length > 1" for="custom_page_select" style="display:block; margin: 0;">Select a Page&nbsp;
-                    <select id="custom_page_select" style="width:120px; height: 25px;" v-model="custom_page_select">
-                        <option v-if="custom_page_select===''" value="">Select a Page</option>
+                <label v-if="views.length > 1" for="current_view_select" style="display:block; margin: 0;">Select a Page&nbsp;
+                    <select id="current_view_select" style="width:120px; height: 25px;" v-model="currentView">
+                        <option v-if="currentView===''" value="">Select a Page</option>
                         <option v-for="view in views" :key="'view_option_' + view" :value="view">{{ view }}</option>
                     </select>
                 </label>
-                <button type="button" class="btn-general" style="width: 130px; height: 1.75rem;" @click="setEditMode(!isEditingMode)">
-                    {{isEditingMode ? 'Preview ' : 'Edit '}} Page
-                </button>
-                <button type="button" @click="toggleEnableTemplate(custom_page_select)"
-                    class="btn-confirm" :class="{enabled: enabled}" 
-                    style="width: 130px; margin-left: 2rem;" :disabled="appIsPublishing">
-                    {{ enabled ? 'Disable Page' : 'Publish Page'}}
-                </button>
+                <div v-show="currentDesignID !== 0" style="display:flex;">
+                    <button type="button" class="btn-general" style="width: 130px; height: 1.75rem;" @click="setEditMode(!isEditingMode)">
+                        {{isEditingMode ? 'Preview ' : 'Edit '}} Page
+                    </button>
+                    <button type="button" @click="publishTemplate(enabled ? 0 : currentDesignID, currentView)"
+                        class="btn-confirm" :class="{enabled: enabled}" 
+                        style="width: 130px; margin-left: 2rem;" :disabled="appIsPublishing">
+                        {{ enabled ? 'Disable Page' : 'Publish Page'}}
+                    </button>
+                </div>
             </div>
+            <template v-if="allDesignData !== null && currentViewDesigns?.length > 0">
+                <label for="saved_settings_select">Saved Settings</label>
+                <select id="saved_settings_select" v-model.number="currentDesignID">
+                    <option value="0">Select an Option</option>
+                    <option v-for="d in currentViewDesigns" :value="d.designID" :key="'design_' + d.designID">{{ d.designID }}</option>
+                </select>
+            </template>
             <!-- NOTE: routes -->
             <router-view></router-view>
         </section>

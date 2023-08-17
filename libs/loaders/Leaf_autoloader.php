@@ -64,26 +64,23 @@ if (class_exists('Portal\Config')) {
 }
 
 $design_pages = Array(
-    0 => 'homepage_enabled'
+    0 => 'homepage_enabled',
+    1 => 'testpage_enabled'
 );
-$activeDesignIDs = array();
+$activeDesignIDs = '';
 foreach ($design_pages as $i => $page) {
-    if (isset($settings[$page]) && (int)$settings[$page] > 0) { //NOTE: id of active design or 0
-        $activeDesignIDs[] = (int)$settings[$page];
-        break;
+    if (isset($settings[$page]) && (int)$settings[$page] > 0) { //NOTE: design id of published design or 0
+        $activeDesignIDs .= $settings[$page].',';
     }
 }
-if (count($activeDesignIDs) > 0) {
-    $sql = 'SELECT templateName, designContent AS designJSON FROM template_designs WHERE designActive=1';
-    $res = $db->prepared_query($sql, array());
+$activeDesignIDs = trim($activeDesignIDs, ',');
+if (strlen($activeDesignIDs) > 0) {
+    $sql = "SELECT designID, templateName, designContent AS designJSON FROM template_designs WHERE designID IN ({$activeDesignIDs})";
+    $res = $db->prepared_query($sql, null);
     $design_data = array();
     foreach($res as $record) {
         $page = $record['templateName'];
-        if(!isset($design_data[$page])) {
-            $design_data[$page] = array($record);
-        } else {
-            $design_data[$page][] = $record;
-        }
+        $design_data[$page][] = $record;
     }
 }
 

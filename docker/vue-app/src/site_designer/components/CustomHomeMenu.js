@@ -65,6 +65,7 @@ export default {
         'builtInIDs',
         'menuItemList',
         'menuDirection',
+        'currentDesignID',
         'homepageIsUpdating',
         'updateMenuItemList',
         'updateHomeDesign',
@@ -171,6 +172,12 @@ export default {
             if(d !== '' && d !== this.menuDirection) {
                 this.updateHomeDesign('menuDirection', this.menuDirectionSelection);
             }
+        }
+    },
+    watch: {
+        //refresh menu data if selected design is changed
+        currentDesignID() {
+            this.menuDirectionSelection = this.menuDirection;
         }
     },
     template: `<section id="custom_menu" :style="sectionStyles">

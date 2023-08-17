@@ -61,6 +61,13 @@ $controllerMap->register('site', function () use ($p_db, $login, $action) {
     echo $siteController->handler($action);
 });
 
+$controllerMap->register('design', function () use ($p_db, $login, $action) {
+    //$setting = new LEAF\Setting($p_db);
+    $design = new Portal\Design($p_db, $login);  //, $setting
+    $designController = new Portal\DesignController($design);
+    echo $designController->handler($action);
+});
+
 // admin only
 if ($login->checkGroup(1))
 {

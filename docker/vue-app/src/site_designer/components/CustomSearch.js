@@ -143,6 +143,7 @@ export default {
         'isEditingMode',
         'homepageIsUpdating',
         'searchHeaders',
+        'currentDesignID',
         'updateHomeDesign'
     ],
     computed: {
@@ -167,7 +168,9 @@ export default {
     methods: {
         createChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
+            console.log('create choices called')
             if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
+                console.log('create options block')
                 //add any saved ones first, so that the order will be retained
                 let options = [...this.searchHeadersSelect];
                 this.headerOptions.forEach(o => {
@@ -402,6 +405,12 @@ export default {
                 }
             }
         },
+        //refresh search data and multiselect box if selected design is changed
+        currentDesignID() {
+            this.searchHeadersSelect = [...this.searchHeaders];
+            this.removeChoices();
+            this.createChoices();
+        }
     },
     template: `<section style="display: flex; flex-direction: column; margin: auto;">
         <div v-show="isEditingMode" class="designer_inputs">

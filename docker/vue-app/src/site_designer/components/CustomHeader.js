@@ -30,9 +30,10 @@ export default {
         console.log('dom for header comp is ready')
     },
     inject: [
-        'header',
         'updateHomeDesign',
         'homepageIsUpdating',
+        'header',
+        'currentDesignID',
         'isEditingMode',
         'APIroot',
         'rootPath'
@@ -95,6 +96,17 @@ export default {
             }
         }
     },
+    watch: {
+        //refresh header data if selected design is changed
+        currentDesignID() {
+            this.title = XSSHelpers.stripAllTags(this.header?.title || '').trim();
+            this.titleColor = this.header?.titleColor || '#000000';
+            this.imageFile = this.header?.imageFile || '';
+            this.imageW = this.header?.imageW || 300;
+            this.headerType = this.header?.headerType || 1;
+            this. enabled = +this.header?.enabled === 1;
+        }
+    },
     template: `<section id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
@@ -109,12 +121,12 @@ export default {
                 <label for="image_select">Image
                     <select id="image_select" style="width: 160px;" v-model="imageFile">
                         <option value="">none</option>
-                        <option v-for="i in imageFiles" :value="i">{{ i }}</option>
+                        <option v-for="i in imageFiles" :value="i" :key="i">{{ i }}</option>
                     </select>
                 </label>
                 <label for="header_type_select">Text Position
                     <select id="header_type_select" style="width: 120px;" v-model.number="headerType">
-                        <option v-for="t in headerTypes" :value="t.value">{{ t.text }}</option>
+                        <option v-for="t in headerTypes" :value="t.value" :key="'type_' + t.value">{{ t.text }}</option>
                     </select>
                 </label>
                 <label for="image_width">Image Width

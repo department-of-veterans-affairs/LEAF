@@ -11,10 +11,13 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             userID: userID,
-            designData: null,
+            allDesignData: null,
+            designSettings: null,
             customizableTemplates: ['homepage'],
-            views: ['homepage', 'testview'], //NOTE: anticipate more templates, keeping for testing of page select
-            custom_page_select: 'homepage',
+            views: ['homepage', 'testpage'], //NOTE: anticipate more templates, keeping for testing of page select
+            currentView: 'homepage',
+
+            currentDesignID: 0,
             appIsGettingData: true,
             appIsPublishing: false,
             isEditingMode: true,
@@ -33,7 +36,10 @@ export default {
             iconList: computed(() => this.iconList),
             appIsGettingData: computed(() => this.appIsGettingData),
             isEditingMode: computed(() => this.isEditingMode),
-            designData: computed(() => this.designData),
+            designSettings: computed(() => this.designSettings),
+            currentViewDesigns: computed(() => this.currentViewDesigns),
+            currentDesignID: computed(() => this.currentDesignID),
+            selectedDesign: computed(() => this.selectedDesign),
 
             //static
             CSRFToken: this.CSRFToken,
@@ -63,8 +69,15 @@ export default {
         this.getDesignData();
     },
     computed: {
+        currentViewDesigns() {
+            return (this.allDesignData || []).filter(d => d.templateName === this.currentView);
+        },
+        selectedDesign() {
+            const selected = (this.currentViewDesigns|| []).find(d => d.designID === this.currentDesignID);
+            return selected || null;
+        },
         enabled() {
-            return parseInt(this.designData?.[`${this.custom_page_select}_enabled`] || 0) === 1;
+            return this.currentDesignID !== 0 && parseInt(this.designSettings?.[`${this.currentView}_enabled`] || 0) === this.currentDesignID;
         },
     },
     methods: {
@@ -72,7 +85,7 @@ export default {
             this.isEditingMode = isEditMode;
         },
         setCustom_page_select(view = 'homepage') {
-            this.custom_page_select = view;
+            this.currentView = view;
         },
         async getIconList() {
             try {
@@ -83,25 +96,24 @@ export default {
                 console.error(`error getting icons: ${error.message}`);
             }
         },
-        async toggleEnableTemplate(templateName = '') {
+        async publishTemplate(designID = 0, templateName = '') {
             if(this.customizableTemplates.includes(templateName)) {
-                /*NOTE: 'enabled' will be updated to be its own design table field for each design section.
-                site settings table will keep an overall 'nocode enabled' 1/0 setting indicating whether any designs are enabled */
-                const enabled = this.designData[`${templateName}_enabled`];
-                const flag = enabled === undefined || parseInt(enabled) === 0 ? 1 : 0;
                 this.appIsPublishing = true;
 
                 try {
                     let formData = new FormData();
                     formData.append('CSRFToken', CSRFToken);
-                    formData.append('enabled', flag);
-                    const response = await fetch(`${this.APIroot}site/settings/enable_${templateName}`, {
+                    formData.append('designID', designID);
+                    formData.append('templateName', templateName);
+
+                    const response = await fetch(`${this.APIroot}design/publish`, {
                         method: 'POST',
                         body: formData
                     });
                     const data = await response.json();
-                    if(+data?.code === 1) {
-                        this.designData[`${templateName}_enabled`] = flag;
+                    if(+data?.status?.code === 2) {
+                        this.designSettings[`${templateName}_enabled`] = designID;
+                        console.log(data)
                     } else {
                         console.log('unexpected response returned:', data)
                     }
@@ -112,16 +124,22 @@ export default {
                     this.appIsPublishing = false;
                 }
             } else {
-                console.log('this page cannot currently be published');
+                console.log('this page cannot be published');
             }
         },
         async getDesignData() {
             this.appIsGettingData = true;
             try {
-                //NOTE: currently in settings table, so this is getting all settings
-                const response = await fetch(`${this.APIroot}system/settings`);
-                const data = await response.json();
-                this.designData = data;
+                const settingResponse = await fetch(`${this.APIroot}system/settings`);
+                const settings = await settingResponse.json();
+                this.designSettings = {};
+                this.customizableTemplates.forEach(t => {
+                    this.designSettings[`${t}_enabled`] = settings[`${t}_enabled`] || 0;
+                })
+
+                const designResponse = await fetch(`${this.APIroot}design/designList`);
+                this.allDesignData = await designResponse.json();
+
             } catch (error) {
                 console.error(`error getting settings: ${error.message}`);
             } finally {
@@ -129,12 +147,15 @@ export default {
             }
         },
         /**
-         * 
-         * @param {string} section template name being updated
-         * @param {string} json the new json value after successful post
+         * @param {number} designID of record to update
+         * @param {string} json the new json value
          */
-        updateLocalDesignData(section = '', json = '{}') {
-            this.designData[`${section}_design_json`] = json;
+        updateLocalDesignData(designID = 0, json = '{}') {
+            let record = this.allDesignData.find(rec => +rec.designID === +designID);
+            record.designContent = json;
+
+            let remainingDesigns = this.allDesignData.filter(rec => +rec.designID !== +designID);
+            this.allDesignData = [...remainingDesigns, record];
         },
 
         /** basic modal methods.  Use a component name to set the dialog's content.
@@ -164,9 +185,10 @@ export default {
         },
     },
     watch: {
-        custom_page_select(newVal, oldVal) {
+        currentView(newVal, oldVal) {
             if(this.views.includes(newVal)) {
-                this.$router.push({name: this.custom_page_select});
+                this.$router.push({name: this.currentView});
+                this.currentDesignID = 0;
             }
         }
     }
