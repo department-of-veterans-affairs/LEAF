@@ -116,7 +116,7 @@ class System
                             $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
 
                             if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
-                                $this->updateGroup($serviceID);
+                                $this->updateGroup($serviceID, $oc_db);
                             } else {
                                 // make sure this is not in the groups table?
                                 $this->removeGroup($serviceID);
@@ -143,7 +143,7 @@ class System
      *
      * Created at: 6/30/2023, 1:24:51 PM (America/New_York)
      */
-    public function updateGroup(int $groupID): array
+    public function updateGroup(int $groupID, ?\Leaf\Db $oc_db = null): array
     {
         if (!is_numeric($groupID)) {
             $return_value = array(
@@ -160,7 +160,10 @@ class System
                 )
             );
         } else {
-            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            if ($oc_db === null) {
+                $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            }
+
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $tag = new \Orgchart\Tag($oc_db, $this->login);
@@ -765,9 +768,10 @@ class System
         }
 
         $groups = $this->getOrgchartImportTags($nexus_group);
+        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
 
         foreach ($groups as $group) {
-            $this->updateGroup($group['groupID']);
+            $this->updateGroup($group['groupID'], $oc_db);
         }
 
         return 'Syncing has finished. You are set to go.';
