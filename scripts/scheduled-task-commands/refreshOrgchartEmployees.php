@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors',1);
-require_once '../../html/LEAF_Request_Portal/globals.php';
+// this file will need to be added, Pete's destruction ticket has it already.
+require_once 'globals.php';
 require_once LIB_PATH . '/php-commons/Db.php';
 
 $startTime = microtime(true);
