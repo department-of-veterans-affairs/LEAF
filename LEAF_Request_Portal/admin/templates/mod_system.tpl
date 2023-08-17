@@ -182,16 +182,26 @@ function renderSettings(res) {
                 query.addTerm('stepID', '=', 'resolved');
                 query.join('recordResolutionData');
                 query.onSuccess(function(data) {
-                    var mostRecentID = null;
-                    var mostRecentDate = 0;
-                    for(var i in data) {
-                        if(data[i].recordResolutionData.lastStatus == 'Approved'
-                            && data[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
-                            mostRecentDate = data[i].recordResolutionData.fulfillmentTime;
-                            mostRecentID = i;
-                        }
+                    if(Object.keys(data).length == 0) {
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '../api/system/settings/leaf-secure',
+                            data: {CSRFToken: CSRFToken}
+                        });
                     }
-                    $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ mostRecentID +'">View details</a>');
+                    else {
+                        let mostRecentID = null;
+                        let mostRecentDate = 0;
+                        for(let i in data) {
+                            if(data[i].recordResolutionData.lastStatus == 'Approved'
+                                && data[i].recordResolutionData.fulfillmentTime > mostRecentDate) {
+                                mostRecentDate = data[i].recordResolutionData.fulfillmentTime;
+                                mostRecentID = i;
+                            }
+                        }
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: green; color: white; font-weight: bold">Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ mostRecentID +'">View details</a>');
+                    }
                 });
                 query.execute();
             }
@@ -203,7 +213,7 @@ function renderSettings(res) {
                     }
                     else {
                         var recordID = data[Object.keys(data)[0]].recordID;
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID='+ recordID +'">Check Certification Progress</a>');
+                        $('#leafSecureStatus').html(`<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID=${recordID}&masquerade=nonAdmin">Check Certification Progress</a>`);
                     }
                 });
                 query.execute();

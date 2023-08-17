@@ -1451,4 +1451,10 @@ class System
         }
 
     }
+
+    // removeLeafSecure removes the LEAF secure status of the current site
+    public function removeLeafSecure()
+    {
+        $this->db->prepared_query("UPDATE settings SET data = 0 WHERE setting = 'leafSecure'", []);
+    }
 }
