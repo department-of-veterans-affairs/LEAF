@@ -139,33 +139,23 @@ class Group
      *
      * Created at: 9/15/2022, 8:51:59 AM (America/New_York)
      */
-    public function removeUser(string $userID, int $groupID, string|null $backupID): array
+    public function removeUser(string $userID, int $groupID, string $backupID = ""): array
     {
         $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
                 new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
                 new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-        if ($backupID == null) {
-            $sql_vars = array(':userID' => $userID,
-                            ':groupID' => $groupID,);
+        $vars = array(':userID' => $userID,
+                    ':groupID' => $groupID,
+                    ':backupID' => $backupID);
+        $sql = 'DELETE
+                FROM `users`
+                WHERE `userID` = :userID
+                AND `groupID` = :groupID
+                AND `backupID` = :backupID';
 
-            $result = $this->db->prepared_query('DELETE FROM users
-                                WHERE userID=:userID
-                                AND groupID=:groupID
-                                AND backupID IS NULL',
-                                $sql_vars);
-        } else {
-            $sql_vars = array(':userID' => $userID,
-                            ':groupID' => $groupID,
-                            ':backupID' => $backupID, );
-
-            $result = $this->db->prepared_query('DELETE FROM users
-                                WHERE userID=:userID
-                                AND groupID=:groupID
-                                AND backupID=:backupID',
-                                $sql_vars);
-        }
+        $result = $this->db->prepared_query($sql, $vars);
 
         return (array) $result;
     }

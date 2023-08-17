@@ -501,7 +501,11 @@ class Form
                 && !empty($data[0]['data']))
             {
                 $empRes = $this->employee->lookupEmpUID($data[0]['data']);
-                $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                if (!empty($empRes)) {
+                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                } else {
+                    $form[$idx]['displayedValue'] = '';
+                }
             }
             if ($data[0]['format'] == 'orgchart_position'
                 && isset($data[0]['data']))
@@ -806,7 +810,7 @@ class Form
 
             $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
-            if (isset($value[$index])) {
+            if (is_array($value) && isset($value[$index])) {
                 $_POST['overwrite'] = true;
                 $_POST['series'] = 1;
                 $_POST[$indicatorID] = '';
@@ -2083,7 +2087,7 @@ class Form
                     }
                 }
 
-                if($countPurged > 0) {
+                if($countPurged > 0 && !headers_sent()) {
                     header('LEAF-Query: continue');
                 }
 

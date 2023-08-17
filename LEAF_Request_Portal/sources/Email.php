@@ -41,6 +41,8 @@ class Email
 
     private object $nexus_db;
 
+    private object $login;
+
     private bool $orgchartInitialized = false;
 
     private int $recordID;
@@ -370,12 +372,12 @@ class Email
     private function initOrgchart(): void
     {
         // set up org chart assets
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
-        $oc_login = new \Orgchart\Login($oc_db, $oc_db);
+        $oc_login = new \Orgchart\Login($this->nexus_db, $this->nexus_db);
         $oc_login->loginUser();
-        $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
-        $this->position = new \Orgchart\Position($oc_db, $oc_login);
-        $this->group = new \Orgchart\Group($oc_db, $oc_login);
+        $this->login = $oc_login;
+        $this->employee = new \Orgchart\Employee($this->nexus_db, $oc_login);
+        $this->position = new \Orgchart\Position($this->nexus_db, $oc_login);
+        $this->group = new \Orgchart\Group($this->nexus_db, $oc_login);
         $this->orgchartInitialized = true;
     }
 
@@ -457,14 +459,15 @@ class Email
     function setTemplateByID(int $emailTemplateID): void
     {
         $vars = array(':emailTemplateID' => $emailTemplateID);
-        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body` FROM `email_templates` ".
-            "WHERE emailTemplateID = :emailTemplateID;";
+        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body`
+                FROM `email_templates`
+                WHERE `emailTemplateID` = :emailTemplateID";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
+        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
     }
 
     /**
@@ -578,12 +581,12 @@ class Email
             JOIN `indicators` USING (`indicatorID`)
             WHERE `recordID` = :recordID';
 
-        $fields = $this->db->prepared_query($strSQL, $vars);
-        
+        $fields = $this->portal_db->prepared_query($strSQL, $vars);
+
         $formattedFields = array();
 
-        foreach($fields as $field) 
-        {   
+        foreach($fields as $field)
+        {
             if ($field["is_sensitive"] == 1) {
                 $formattedFields[$field['indicatorID']] = "**********";
                 continue;
@@ -626,14 +629,14 @@ class Email
 
         return $formattedFields;
     }
-    
+
     // method for building grid
     private function buildGrid(array $data): string
     {
         // get the grid in the form of array
         $cells = $data['cells'];
         $headers = $data['names'];
-        
+
         // build the grid
         $grid = "<table><tr>";
 
@@ -682,19 +685,27 @@ class Email
         return $formattedData;
     }
 
+    private function getOrgchartEmployee(int $data): string
+    {
+        $employeeData = $this->employee->lookupEmpUID($data)[0];
+        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
+
+        return $employeeName;
+    }
+
     // method for building orgchart group, position, employee
     private function getOrgchartGroup(int $data): string
     {
         // reference the group by id
-        $group = new Group($this->db, $this->login);
+        $group = new Group($this->portal_db, $this->login);
         $groupName = $group->getGroupName($data);
-        
+
         return $groupName;
     }
 
     private function getOrgchartPosition(int $data): string
     {
-        $position = new \Orgchart\Position($this->oc_db, $this->login);
+        $position = new \Orgchart\Position($this->nexus_db, $this->login);
         $positionName = $position->getTitle($data);
 
         return $positionName;
