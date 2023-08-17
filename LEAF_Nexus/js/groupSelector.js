@@ -23,8 +23,8 @@ function groupSelector(containerID) {
   this.selectionData = new Object();
   this.inputID = "#" + this.prefixID + "input";
   this.optionNoLimit = 0;
-  this.leafRequest = null;
-  this.adRequest = null;
+  // this.leafRequest = null;
+  // this.adRequest = null;
   this.currRequest = null;
   this.jsonResponse = null;
 
@@ -348,7 +348,6 @@ groupSelector.prototype.search = function () {
     }
   }
 };
-
 
 groupSelector.prototype.disableSearch = function () {
   $("#" + this.containerID).css("display", "none");
