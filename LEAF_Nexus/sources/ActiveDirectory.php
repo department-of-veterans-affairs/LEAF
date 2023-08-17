@@ -7,13 +7,13 @@ namespace Orgchart;
 
 class ActiveDirectory
 {
-   private $server = "va.gov";
-   private $rdn = "VA\\valeafsvc"; // Use the LEAF service account.
+   private $server = AD_SRV;
+   private $rdn = LEAF_SVC; // Use the LEAF service account.
    private $dataTable;
    private $conn;
    private $bind;
-   private $base = "dc=med, dc=va, dc=gov";
-   private $PORT = 3268;
+   private $base = LDAP_BASE;
+   private $PORT = LDAP_PORT;
 
    public function __construct() {
       $this->conn = ldap_connect($this->server, $this->PORT);
