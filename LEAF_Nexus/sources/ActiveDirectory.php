@@ -5,17 +5,17 @@
 
 namespace Orgchart;
 
-class ActiveDirectory extends Data
+class ActiveDirectory
 {
-   private $server;
+   private $server = "va.gov";
    private $rdn = "VA\\valeafsvc"; // Use the LEAF service account.
-   protected $dataTable;
-   protected $conn;
-   protected $bind;
-   protected $base = "dc=med, dc=va, dc=gov";
-   protected $PORT = 3268;
+   private $dataTable;
+   private $conn;
+   private $bind;
+   private $base = "dc=med, dc=va, dc=gov";
+   private $PORT = 3268;
 
-   public function initialize() {
+   public function __construct() {
       $this->conn = ldap_connect($this->server, $this->PORT);
 
       ldap_set_option($this->conn, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -52,7 +52,7 @@ class ActiveDirectory extends Data
    {
       $info = [];
       $fmtMembers = implode(")(", $members);
-      $filter = "(&(objectCategory=Person)(objectClass=User)($fmtMembers))"; /// search only for users classified as persons (i.e. not service accounts)
+      $filter = "(/($fmtMembers))"; /// search only for users classified as persons (i.e. not service accounts)
       $attr = ["objectClass", "sn", "givenName","initials","title","description","telephoneNumber","mail","sAMAccountName","objectGUID","mobile","physicalDeliveryOfficeName"]; // fields for each result to return
       if ($this->bind) {
          $results = ldap_search($this->conn, $this->base, $filter, $attr);

@@ -10,6 +10,8 @@ class ActiveDirectoryController extends RESTfulResponse
     private $API_VERSION = 1;
     public $index = array();
 
+    public $dir;
+
     public function __construct()
     {
         $this->dir = new ActiveDirectory();

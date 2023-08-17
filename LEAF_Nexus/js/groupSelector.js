@@ -167,42 +167,42 @@ groupSelector.prototype.configInputID = function (inputID) {
   this.inputID = inputID;
 };
 
-groupSelector.prototype.adSearch = function () {
-  const ret = new Promise((resolve, reject) => {
-    $.ajax({
-      url: this.apiPath + "ad/search",
-      dataType: "json",
-      data: {q: this.q, tag: this.tag},
-      success: function (response) {
-        response.map(group => ({ ...group, isAdDistro: 'true'}));
-        resolve(response);
-      },
-      fail: function(error) {
-        reject(error);
-      }
-    })
-  });
-  return ret;
-};
+// groupSelector.prototype.adSearch = function () {
+//   const ret = new Promise((resolve, reject) => {
+//     $.ajax({
+//       url: this.apiPath + "ad/search",
+//       dataType: "json",
+//       data: {q: this.q, tag: this.tag},
+//       success: function (response) {
+//         response.map(group => ({ ...group, isAdDistro: 'true'}));
+//         resolve(response);
+//       },
+//       fail: function(error) {
+//         reject(error);
+//       }
+//     })
+//   });
+//   return ret;
+// };
 
-groupSelector.prototype.leafSearch = function () {
-  const ret = new Promise((resolve, reject) => {
-    $.ajax({
-      url: this.apiPath + "group/search",
-      dataType: "json",
-      data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
-      success: function (response) {
-        console.log(response);
-        response.map(group => ({ ...group, isAdDistro: 'false'}));
-        resolve(response);
-      },
-      fail: function(error) {
-        reject(error);
-      }
-    });
-  });
-  return ret;
-};
+// groupSelector.prototype.leafSearch = function () {
+//   const ret = new Promise((resolve, reject) => {
+//     $.ajax({
+//       url: this.apiPath + "group/search",
+//       dataType: "json",
+//       data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
+//       success: function (response) {
+//         console.log(response);
+//         response.map(group => ({ ...group, isAdDistro: 'false'}));
+//         resolve(response);
+//       },
+//       fail: function(error) {
+//         reject(error);
+//       }
+//     });
+//   });
+//   return ret;
+// };
 
 groupSelector.prototype.search = function () {
   if (
