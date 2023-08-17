@@ -170,11 +170,10 @@ groupSelector.prototype.configInputID = function (inputID) {
 // groupSelector.prototype.adSearch = function () {
 //   const ret = new Promise((resolve, reject) => {
 //     $.ajax({
-//       url: this.apiPath + "ad/search",
+//       url: this.apiPath + "ad/group/" + this.q,
 //       dataType: "json",
-//       data: {q: this.q, tag: this.tag},
 //       success: function (response) {
-//         response.map(group => ({ ...group, isAdDistro: 'true'}));
+//         response.map(group => ({ ...group, isAdDistro: true}));
 //         resolve(response);
 //       },
 //       fail: function(error) {
@@ -192,8 +191,7 @@ groupSelector.prototype.configInputID = function (inputID) {
 //       dataType: "json",
 //       data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
 //       success: function (response) {
-//         console.log(response);
-//         response.map(group => ({ ...group, isAdDistro: 'false'}));
+//         response.map(group => ({ ...group, isAdDistro: false}));
 //         resolve(response);
 //       },
 //       fail: function(error) {
