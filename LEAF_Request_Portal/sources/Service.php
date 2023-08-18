@@ -258,8 +258,8 @@ class Service
     {
         if (is_numeric($groupID) && $member != '') {
             $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getServiceName($groupID))
+                new \Leaf\LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID))
             ]);
 
             $vars = array(':userID' => $member,
@@ -309,8 +309,8 @@ class Service
     public function pruneChief(int $serviceID, string $userName): array
     {
         $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-            new \Leaf\LogItem("users", "userID", $userName, $this->getEmployeeDisplay($userName)),
-            new \Leaf\LogItem("users", "groupID", $serviceID, $this->getServiceName($serviceID))
+            new \Leaf\LogItem("service_chiefs", "userID", $userName, $this->getEmployeeDisplay($userName)),
+            new \Leaf\LogItem("service_chiefs", "serviceID", $serviceID, $this->getServiceName($serviceID))
         ]);
 
         $vars = array(':serviceID' => $serviceID,
