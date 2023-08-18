@@ -31,7 +31,8 @@ export default {
     },
     inject: [
         'updateHomeDesign',
-        'homepageIsUpdating',
+        'appIsGettingData',
+        'appIsUpdating',
         'header',
         'currentDesignID',
         'isEditingMode',
@@ -107,7 +108,7 @@ export default {
             this. enabled = +this.header?.enabled === 1;
         }
     },
-    template: `<section id="custom_header">
+    template: `<section v-if="!appIsGettingData" id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
             <h3>Header Controls</h3>
@@ -118,7 +119,7 @@ export default {
                 <label for="title_color">Font Color
                     <input type="color" id="title_color" v-model="titleColor" />
                 </label>
-                <label for="image_select">Image
+                <label for="image_select">Main Image
                     <select id="image_select" style="width: 160px;" v-model="imageFile">
                         <option value="">none</option>
                         <option v-for="i in imageFiles" :value="i" :key="i">{{ i }}</option>
@@ -140,7 +141,7 @@ export default {
                     <input type="checkbox" id="header_enable" v-model="enabled" class="icheck leaf_check"/>
                     <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'disabled'}}
                 </label>
-                <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)" :disabled="homepageIsUpdating">
+                <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)" :disabled="appIsUpdating">
                     Save Settings
                 </button>
             </div>

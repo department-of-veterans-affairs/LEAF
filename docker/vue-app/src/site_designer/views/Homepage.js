@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
+import ConfirmPublishDialog from "../components/dialog_content/ConfirmPublishDialog.js";
 import CustomHeader from "../components/CustomHeader.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
@@ -9,21 +10,18 @@ export default {
     name: 'homepage',
     data() {
         return {
-            homepageIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
             pageSections: ['header', 'menuItemList', 'menuDirection', 'searchHeaders'],
             menuItem: {},
 
             header: this.selectedDesign?.header || null,
             menuDirection: this.selectedDesign?.menu?.menuDirection || null,
-            menuItemList: this.selectedDesign?.menu?.menuItemList || null,
+            menuItemList: this.selectedDesign?.menu?.menuCards || null,
             searchHeaders: this.selectedDesign?.searchHeaders || null
         }
     },
     created() {
-        console.log('homepage created', 'selectedDesign at create is:', this.selectedDesign)
         if(this.selectedDesign !== null) {
-            console.log('design data is available, updating homepage section data');
             this.setSectionData()
         }
     },
@@ -31,7 +29,8 @@ export default {
         'CSRFToken',
         'APIroot',
         'appIsGettingData',
-        'updateLocalDesignData',
+        'appIsUpdating',
+        'postDesignContent',
         'selectedDesign',
         'currentDesignID',
         'isEditingMode',
@@ -48,7 +47,6 @@ export default {
             menuDirection: computed(() => this.menuDirection),
             menuItemList: computed(() => this.menuItemList),
             searchHeaders: computed(() => this.searchHeaders),
-            homepageIsUpdating: computed(() => this.homepageIsUpdating),
             header: computed(() => this.header),
 
             builtInIDs: this.builtInIDs,
@@ -60,6 +58,7 @@ export default {
     components: {
         LeafFormDialog,
         DesignCardDialog,
+        ConfirmPublishDialog,
         CustomHeader,
         CustomHomeMenu,
         CustomSearch
@@ -79,7 +78,7 @@ export default {
 
             this.searchHeaders = content?.searchHeaders || [];
         },
-        openDesignButtonDialog() {
+        openDesignCardDialog() {
             this.setDialogTitleHTML('<h2>Menu Editor</h2>');
             this.setDialogContent('design-card-dialog');
             this.openDialog();
@@ -108,7 +107,7 @@ export default {
                     enabled: 0
                 }
 
-            this.openDesignButtonDialog();
+            this.openDesignCardDialog();
         },
         /**
          * @param {string} designKey 
@@ -117,11 +116,11 @@ export default {
         updateHomeDesign(designKey = '', designVal = '') {
             if (this.pageSections.includes(designKey)) {
                 this[designKey] = designVal;
-                //console.log(this.menuDirection, this.menuItemList, this.header, this.searchHeaders);
-                this.postHomeSettings(
+
+                this.postDesignContent(
                     JSON.stringify({
                         menu: {
-                            menuItems: this.menuItemList,
+                            menuCards: this.menuItemList,
                             direction: this.menuDirection,
                         },
                         header: this.header,
@@ -159,36 +158,9 @@ export default {
             this.menuItemList = newItems.sort((a,b) => a.order - b.order);
             this.updateHomeDesign('menuItemList', newItems)
         },
-        async postHomeSettings(inputJSON = '{}') {
-            this.homepageIsUpdating = true;
-            try {
-                const designID = this.currentDesignID;
-                let formData = new FormData();
-                formData.append('CSRFToken', CSRFToken);
-                formData.append('inputJSON', inputJSON);
-                formData.append('templateName', 'homepage');
-
-                const response = await fetch(`${this.APIroot}design/${designID}/content`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if(+data?.status?.code === 2) {
-                    this.updateLocalDesignData(designID, inputJSON);
-                } else {
-                    console.log('unexpected response returned:', data)
-                }
-
-            } catch (error) {
-                console.log(error);
-            } finally {
-                this.homepageIsUpdating = false;
-            }
-        },
     },
     watch: {
         currentDesignID(newVal, oldVal) {
-            console.log('homepage watch detected currentDesignID value change')
             if(newVal !== 0) {
                 const content = JSON.parse(this.selectedDesign?.designContent || '{}');
                 this.setSectionData(content);

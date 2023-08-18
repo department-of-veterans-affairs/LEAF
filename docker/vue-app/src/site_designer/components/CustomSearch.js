@@ -141,7 +141,8 @@ export default {
         'rootPath',
         'orgchartPath',
         'isEditingMode',
-        'homepageIsUpdating',
+        'appIsGettingData',
+        'appIsUpdating',
         'searchHeaders',
         'currentDesignID',
         'updateHomeDesign'
@@ -412,14 +413,14 @@ export default {
             this.createChoices();
         }
     },
-    template: `<section style="display: flex; flex-direction: column; margin: auto;">
+    template: `<section v-if="!appIsGettingData" style="display: flex; flex-direction: column; margin: auto;">
         <div v-show="isEditingMode" class="designer_inputs">
             <div>
                 <label :id="choicesSelectID + '_label'" style="display:block;">Select table headers in the order that you would like them to appear
                 <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select></label>
             </div>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="homepageIsUpdating || searchHeadersSelect.length===0">Save Settings
+                @click="postSearchSettings" :disabled="appIsUpdating || searchHeadersSelect.length===0">Save Settings
             </button>
         </div> 
         <div id="searchContainer"></div>

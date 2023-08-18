@@ -66,7 +66,8 @@ export default {
         'menuItemList',
         'menuDirection',
         'currentDesignID',
-        'homepageIsUpdating',
+        'appIsGettingData',
+        'appIsUpdating',
         'updateMenuItemList',
         'updateHomeDesign',
         'setMenuItem'
@@ -97,7 +98,7 @@ export default {
         },
         menuItemListDisplay() {
             return this.isEditingMode ?
-                this.menuItemList : this.menuItemList.filter(item => +item.enabled === 1);
+                this.menuItemList : this.menuItemList.filter(item => +item.enabled === 1 && item.link !== '');
         },
         allBuiltinsPresent() {
             let result = true;
@@ -180,7 +181,7 @@ export default {
             this.menuDirectionSelection = this.menuDirection;
         }
     },
-    template: `<section id="custom_menu" :style="sectionStyles">
+    template: `<section v-if="!appIsGettingData" id="custom_menu" :style="sectionStyles">
         <div id="menu_wrapper" :class="{editMode: isEditingMode}">
             <div v-show="isEditingMode">
                 <h3>Card Controls</h3>
@@ -195,7 +196,7 @@ export default {
                 @dragover.prevent>
                 <li v-for="m in menuItemListDisplay" :key="m.id" :id="m.id" :class="{editMode: isEditingMode}"
                     :aria-label="+m.enabled === 1 ? 'This card is enabled' : 'This card is hidden'"
-                    :draggable="isEditingMode && !homepageIsUpdating ? true : false"
+                    :draggable="isEditingMode && !appIsUpdating ? true : false"
                     @dragstart.stop="onDragStart">
                     <custom-menu-item :menuItem="m"></custom-menu-item>
                     <div v-show="isEditingMode" class="edit_card">
@@ -217,7 +218,7 @@ export default {
                 <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
                 <label for="menu_direction_select" style="margin: 0 0 0 auto;">Menu Direction&nbsp;
                     <select id="menu_direction_select" style="width: 80px; height: 25px;" v-model="menuDirectionSelection"
-                        @change="updateDirection" :disabled="homepageIsUpdating">
+                        @change="updateDirection" :disabled="appIsUpdating">
                         <option value="v">Columns</option>
                         <option value="h">Rows</option>
                     </select>

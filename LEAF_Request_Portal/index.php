@@ -526,8 +526,8 @@ switch ($action) {
 
         $t_form->assign('inbox_status', 1);
 
-        if (isset($design_data['homepage'][0]['designJSON'])) {
-            $t_form->assign('homeDesignJSON', json_encode($design_data['homepage'][0]['designJSON']));
+        if (isset($design_data['homepage'][0]['designContent'])) {
+            $t_form->assign('homeDesignJSON', json_encode($design_data['homepage'][0]['designContent']));
             $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
             $t_form->assign('tpl_search', customTemplate('view_search.tpl'));

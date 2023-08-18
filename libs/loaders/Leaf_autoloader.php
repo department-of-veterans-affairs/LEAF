@@ -75,9 +75,8 @@ foreach ($design_pages as $i => $page) {
 }
 $activeDesignIDs = trim($activeDesignIDs, ',');
 if (strlen($activeDesignIDs) > 0) {
-    $sql = "SELECT designID, templateName, designContent AS designJSON FROM template_designs WHERE designID IN ({$activeDesignIDs})";
+    $sql = "SELECT designID, templateName, designContent FROM template_designs WHERE designID IN ({$activeDesignIDs})";
     $res = $db->prepared_query($sql, null);
-    $design_data = array();
     foreach($res as $record) {
         $page = $record['templateName'];
         $design_data[$page][] = $record;
