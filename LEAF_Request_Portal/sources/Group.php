@@ -398,36 +398,23 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \PORTAL_CONFIG->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
-        if (is_numeric($groupID) && $member != '')
-        {
-            $sql_vars = array(':userID' => $member,
-                          ':groupID' => $groupID, );
-
+        if (is_numeric($groupID) && $member != '') {
             $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
                 new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+            $vars = array(':userID' => $member,
+                          ':groupID' => $groupID);
+            $sql = 'DELETE
+                    FROM `users`
+                    WHERE (`userID` = :userID
+                        AND `groupID` = :groupID
+                        AND `backupID` = "")
+                    OR (`groupID` = :groupID
+                        AND `backupID` = :userID)';
 
-            // include the backups of employee
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $member,);
-
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 0) {
-                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-                }
-            }
+            $this->db->prepared_query($sql, $vars);
         }
     }
 

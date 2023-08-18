@@ -257,7 +257,7 @@ class Service
     public function deactivateChief(int $groupID, string $member): array
     {
         if (is_numeric($groupID) && $member != '') {
-            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::EMPLOYEE, [
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::SERVICE_CHIEF, [
                 new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new \Leaf\LogItem("users", "groupID", $groupID, $this->getServiceName($groupID))
             ]);
@@ -308,7 +308,7 @@ class Service
      */
     public function pruneChief(int $serviceID, string $userName): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::SERVICE_CHIEF, [
             new \Leaf\LogItem("users", "userID", $userName, $this->getEmployeeDisplay($userName)),
             new \Leaf\LogItem("users", "groupID", $serviceID, $this->getServiceName($serviceID))
         ]);
@@ -318,7 +318,8 @@ class Service
         $sql = 'DELETE
                 FROM `service_chiefs`
                 WHERE `serviceID` = :serviceID
-                AND (`userID` = :userID
+                AND ((`userID` = :userID
+                    AND `backupID` = "")
                     OR `backupID` = :userID)';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
@@ -326,7 +327,8 @@ class Service
         $sql = 'DELETE
                 FROM `users`
                 WHERE `groupID` = :serviceID
-                AND (`userID` = :userID
+                AND ((`userID` = :userID
+                    AND `backupID` = "")
                     OR `backupID` = :userID)';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);

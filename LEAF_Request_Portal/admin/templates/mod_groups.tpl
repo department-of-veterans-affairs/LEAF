@@ -413,11 +413,9 @@ function addAdmin(userID) {
 
 function removeAdmin(userID) {
     $.ajax({
-    	type: 'POST',
-        url: "ajaxIndex.php?a=remove_user",
-        data: {'userID': userID,
-        	   'groupID': 1,
-        	   'CSRFToken': '<!--{$CSRFToken}-->'},
+    	type: 'DELETE',
+        url: "../api/group/1/members/" + userID,
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
         success: function(response) {
         	getMembers(1);
         },
