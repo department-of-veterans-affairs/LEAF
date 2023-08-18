@@ -40,7 +40,7 @@ class Design
             case 'homepage':
                 $inputData = json_decode($inputJSON, true);
 
-                $menuItemsIn = $inputData['menu']['menuItems'] ?? [];
+                $menuItemsIn = $inputData['menu']['menuCards'] ?? [];
                 foreach ($menuItemsIn as $i => $item) {
                     $card = array();
                     $card['id'] = \Leaf\XSSHelpers::xscrub($item['id']);
@@ -53,7 +53,7 @@ class Design
                     $card['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link'] ?? ''));
                     $card['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon'] ?? '');
                     $card['enabled'] = (int) $item['enabled'] === 1 ? 1 : 0;
-                    $menuItems[] = $card;
+                    $menuCards[] = $card;
                 }
         
                 $headerIn = $inputData['header'] ?? array();
@@ -64,7 +64,7 @@ class Design
                 $header['imageW'] = (int) ($headerIn['imageW'] ?? 0);
                 $header['enabled'] = (int) ($headerIn['enabled'] ?? 0);
         
-                $home_design_data['menu']['menuCards'] = $menuItems;
+                $home_design_data['menu']['menuCards'] = $menuCards;
                 $home_design_data['menu']['direction'] = $inputData['menu']['direction'] === 'v' ? 'v' : 'h';
                 $home_design_data['header'] = $header;
                 $home_design_data['searchHeaders'] =  \Leaf\XSSHelpers::scrubObjectOrArray($inputData['searchHeaders']);

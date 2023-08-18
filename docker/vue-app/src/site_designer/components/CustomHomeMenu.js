@@ -57,16 +57,18 @@ export default {
             ]
         }
     },
+    mounted() {
+        console.log('menu section mounted')
+    },
     components: {
         CustomMenuItem
     },
     inject: [
         'isEditingMode',
         'builtInIDs',
-        'menuItemList',
+        'menuCardList',
         'menuDirection',
         'currentDesignID',
-        'appIsGettingData',
         'appIsUpdating',
         'updateMenuItemList',
         'updateHomeDesign',
@@ -98,12 +100,12 @@ export default {
         },
         menuItemListDisplay() {
             return this.isEditingMode ?
-                this.menuItemList : this.menuItemList.filter(item => +item.enabled === 1 && item.link !== '');
+                this.menuCardList : this.menuCardList.filter(item => +item.enabled === 1 && item.link !== '');
         },
         allBuiltinsPresent() {
             let result = true;
             this.builtInIDs.forEach(id => {
-                if (result === true && !this.menuItemList.some(item => item.id === id)) {
+                if (result === true && !this.menuCardList.some(item => item.id === id)) {
                     result = false;
                 }
             });
@@ -113,17 +115,17 @@ export default {
     methods: {
         addStarterCards() {
             let buttonsAdded = 0;
-            let newItems = this.menuItemList.map(item => ({...item}));
+            let newItems = this.menuCardList.map(item => ({...item}));
 
             this.builtInButtons.forEach(b => {
-                const doNotHaveID = !this.menuItemList.some(item => item.id === b.id);
+                const doNotHaveID = !this.menuCardList.some(item => item.id === b.id);
                 if (doNotHaveID) {
                     newItems.unshift({...b});
                     buttonsAdded += 1;
                 }
             });
             if(buttonsAdded > 0) {
-                this.updateHomeDesign('menuItemList', newItems);
+                this.updateHomeDesign('menuCardList', newItems);
             }
         },
         onDragStart(event = {}) {
@@ -181,7 +183,7 @@ export default {
             this.menuDirectionSelection = this.menuDirection;
         }
     },
-    template: `<section v-if="!appIsGettingData" id="custom_menu" :style="sectionStyles">
+    template: `<section id="custom_menu" :style="sectionStyles">
         <div id="menu_wrapper" :class="{editMode: isEditingMode}">
             <div v-show="isEditingMode">
                 <h3>Card Controls</h3>
@@ -216,7 +218,7 @@ export default {
             <div v-show="isEditingMode" style="display:flex; gap: 1rem; padding-top: 1em; border-top: 2px solid #cadff0">
                 <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
                 <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
-                <label for="menu_direction_select" style="margin: 0 0 0 auto;">Menu Direction&nbsp;
+                <label for="menu_direction_select" style="margin: 0 0 0 auto; display: flex;">Menu Direction&nbsp;
                     <select id="menu_direction_select" style="width: 80px; height: 25px;" v-model="menuDirectionSelection"
                         @change="updateDirection" :disabled="appIsUpdating">
                         <option value="v">Columns</option>

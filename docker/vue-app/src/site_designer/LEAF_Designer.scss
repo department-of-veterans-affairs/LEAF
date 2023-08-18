@@ -22,6 +22,14 @@ footer#footer {
     button:not(.choices__button) {
         height: 28px;
     }
+    .loading {
+        border: 2px solid black;
+        text-align: center; 
+        font-size: 24px;
+        font-weight: bold;
+        padding: 16px;
+        background-color: white;
+    }
 }
 
 #site-designer-app, #leaf_dialog_content {
@@ -44,16 +52,27 @@ footer#footer {
     button:disabled {
         background-color: gray;
     }
-    input[type="color"] {
-        padding: 0 2px;
+
+    label:not(.leaf_check) {
+        display: block;
+    }
+    textarea, input, select {
+        margin-top: 2px;
+        display: block;
+        width: 100%;
+    }
+    input, select {
         height: 25px;
     }
-    .enable_del {
-        display: flex;
-        flex-direction:column;
-        margin-left: auto;
-        width: 130px;
+    input[type="color"] {
+        padding: 0 2px;
     }
+    textarea {
+        min-height: 60px;
+        resize: none;
+    }
+
+
     .designer_inputs {
         display:flex;
         gap:1rem;
@@ -68,8 +87,13 @@ footer#footer {
     #page_select_area {
         padding: 1em;
         display:flex;
+        flex-direction: column;
         gap: 1rem;
         margin-bottom: 3rem;
+        > div {
+            display: flex;
+            gap: 1rem;
+        }
     }
 
     #menu_and_search {
@@ -78,13 +102,14 @@ footer#footer {
         width:fit-content;
         display: flex;
         flex-wrap: wrap;
-        gap: 2rem 3rem;
+        gap: 2rem;
         &.editMode {
             justify-content: center;
         }
     }
 
     #searchContainer {
+        margin-top: -2px;
         table.leaf_grid {
             border: 1px solid black;
             border-collapse: collapse;
@@ -128,9 +153,11 @@ footer#footer {
         margin: 2px;
         cursor: pointer;
         font-size: 14px;
-        padding: 4px;
+        padding: 0px 4px;
+        border-radius: 2px;
         white-space: nowrap;
         font-weight: normal;
+        overflow: visible;
         &:hover, &:focus, &:active {
             background-color: $LtNavy;
         }
@@ -215,6 +242,15 @@ footer#footer {
             height: 60px;
             resize: none;
         }
+        .enable_del {
+            display: flex;
+            flex-direction:column;
+            margin-left: auto;
+            width: 130px;
+        }
+        input[type="color"] {
+            width: 50px;
+        }
     }
     
     a.custom_menu_card {
@@ -256,7 +292,7 @@ footer#footer {
         }
     }
 
-    #edit_header {
+    #edit_header, #edit_search {
         margin: 0 auto;
         padding: 0.75em 1em;
         display: flex;
@@ -264,27 +300,10 @@ footer#footer {
         gap: 1rem;
         background-color: white;
         border-radius: 3px;
-       // width: 480px;
-       width: min-content;
-
-        label:not(.leaf_check) {
-            display: block;
-        }
-        textarea, input, select {
-            margin-top: 2px;
-            display: block;
-            width: 100%;
-        }
-        input, select {
-            height: 25px;
-        }
-        textarea {
-            min-height: 60px;
-            resize: none;
-        }
+        width: min-content;
     }
 
-    #custom_header_wrapper {
+    #custom_header_wrapper { //display area
         margin: 1rem auto 2rem auto;
         width: fit-content;
         height: auto;
@@ -326,6 +345,11 @@ footer#footer {
             font-size: 16px;
         }
     }
+
+    #edit_search {
+        width: 450px;
+    }
+
 
     .disableClick {
         pointer-events: none;

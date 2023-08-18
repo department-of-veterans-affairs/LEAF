@@ -27,14 +27,14 @@ export default {
         this.getImageFiles();
     },
     mounted() {
-        console.log('dom for header comp is ready')
+        console.log('custom header mounted')
     },
     inject: [
         'updateHomeDesign',
-        'appIsGettingData',
         'appIsUpdating',
         'header',
         'currentDesignID',
+        'selectedDesign',
         'isEditingMode',
         'APIroot',
         'rootPath'
@@ -105,10 +105,10 @@ export default {
             this.imageFile = this.header?.imageFile || '';
             this.imageW = this.header?.imageW || 300;
             this.headerType = this.header?.headerType || 1;
-            this. enabled = +this.header?.enabled === 1;
+            this.enabled = +this.header?.enabled === 1;
         }
     },
-    template: `<section v-if="!appIsGettingData" id="custom_header">
+    template: `<section id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
             <h3>Header Controls</h3>

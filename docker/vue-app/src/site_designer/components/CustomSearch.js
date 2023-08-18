@@ -123,15 +123,10 @@ export default {
         }
     },
     mounted() {
-        if(this.searchHeadersSelect.length === 0) {
-            this.searchHeadersSelect = ['date','title','service','status'];
-            this.createChoices();
-            this.updateHomeDesign('searchHeaders', this.searchHeadersSelect);
-        } else {
-            this.createChoices();
-            if(this.isEditingMode === false) {
-                this.main();
-            }
+        console.log('search mounted', this.searchHeaders);
+        this.createChoices();
+        if(this.isEditingMode === false && this.searchHeadersSelect?.length > 0) {
+            this.main();
         }
     },
     inject: [
@@ -141,7 +136,6 @@ export default {
         'rootPath',
         'orgchartPath',
         'isEditingMode',
-        'appIsGettingData',
         'appIsUpdating',
         'searchHeaders',
         'currentDesignID',
@@ -169,9 +163,7 @@ export default {
     methods: {
         createChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
-            console.log('create choices called')
             if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
-                console.log('create options block')
                 //add any saved ones first, so that the order will be retained
                 let options = [...this.searchHeadersSelect];
                 this.headerOptions.forEach(o => {
@@ -397,7 +389,7 @@ export default {
     },
     watch: {
         isEditingMode(newVal, oldVal) {
-            if(newVal === false) {
+            if(newVal === false && this.searchHeadersSelect?.length > 0) {
                 this.main();
             } else {
                 let search = document.getElementById('searchContainer');
@@ -413,16 +405,18 @@ export default {
             this.createChoices();
         }
     },
-    template: `<section v-if="!appIsGettingData" style="display: flex; flex-direction: column; margin: auto;">
-        <div v-show="isEditingMode" class="designer_inputs">
-            <div>
-                <label :id="choicesSelectID + '_label'" style="display:block;">Select table headers in the order that you would like them to appear
-                <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select></label>
-            </div>
+    template: `<section style="display: flex; flex-direction: column; margin: auto;">
+        <div v-show="isEditingMode" id="edit_search">
+            <h3>Search Controls</h3>
+            <p>Select table headers in the order that you would like them to appear 
+            (Choose no headers for no search section).</p>
+            <label :id="choicesSelectID + '_label'" style="display:block;">Selected headers
+                <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select>
+            </label>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="appIsUpdating || searchHeadersSelect.length===0">Save Settings
+                @click="postSearchSettings" :disabled="appIsUpdating">Save Settings
             </button>
-        </div> 
+        </div>
         <div id="searchContainer"></div>
         <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
             Show more records

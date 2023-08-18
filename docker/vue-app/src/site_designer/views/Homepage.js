@@ -11,18 +11,18 @@ export default {
     data() {
         return {
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
-            pageSections: ['header', 'menuItemList', 'menuDirection', 'searchHeaders'],
+            pageSections: ['header', 'menuCardList', 'menuDirection', 'searchHeaders'],
             menuItem: {},
 
-            header: this.selectedDesign?.header || null,
-            menuDirection: this.selectedDesign?.menu?.menuDirection || null,
-            menuItemList: this.selectedDesign?.menu?.menuCards || null,
-            searchHeaders: this.selectedDesign?.searchHeaders || null
+            header: null,
+            menuDirection: null,
+            menuCardList: null,
+            searchHeaders: null
         }
     },
-    created() {
-        if(this.selectedDesign !== null) {
-            this.setSectionData()
+    mounted() {
+        if(this.selectedDesignContent !== null) {
+            this.setSectionData(this.selectedDesignContent);
         }
     },
     inject: [
@@ -32,8 +32,8 @@ export default {
         'appIsUpdating',
         'postDesignContent',
         'selectedDesign',
-        'currentDesignID',
         'isEditingMode',
+        'idExistsInList',
 
         'showFormDialog',
         'dialogFormContent',
@@ -45,7 +45,7 @@ export default {
         return {
             menuItem: computed(() => this.menuItem),
             menuDirection: computed(() => this.menuDirection),
-            menuItemList: computed(() => this.menuItemList),
+            menuCardList: computed(() => this.menuCardList),
             searchHeaders: computed(() => this.searchHeaders),
             header: computed(() => this.header),
 
@@ -63,6 +63,14 @@ export default {
         CustomHomeMenu,
         CustomSearch
     },
+    computed: {
+        selectedDesignContent() {
+            return this.selectedDesign === null ? null : JSON.parse(this.selectedDesign?.designContent || '{}');
+        },
+        showSearch() {
+            return this.isEditingMode || (!this.isEditingMode && this.searchHeaders?.length > 0);
+        }
+    },
     methods: {
         setSectionData(content) {
             this.header = content?.header || {};
@@ -74,7 +82,7 @@ export default {
                 item.title = XSSHelpers.decodeHTMLEntities(item.title);
                 item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
             });
-            this.menuItemList = menuItems.sort((a,b) => a.order - b.order);
+            this.menuCardList = menuItems.sort((a,b) => a.order - b.order);
 
             this.searchHeaders = content?.searchHeaders || [];
         },
@@ -90,11 +98,8 @@ export default {
                 for (let i = 0; i < 5; i++ ) {
                    result += characters.charAt(Math.floor(Math.random() * characters.length));
                 }
-            } while (this.buttonIDExists(result));
+            } while (this.idExistsInList(this.menuCardList, 'id', result));
             return result;
-        },
-        buttonIDExists(ID = '') {
-            return this.menuItemList.some(button => button?.id === ID);
         },
         /**
          * @param {object|null} menuItem set menuitem for editing
@@ -103,7 +108,7 @@ export default {
             this.menuItem = menuItem !== null ? menuItem :
                 {
                     id: this.generateID(),
-                    order: this.menuItemList.length,
+                    order: this.menuCardList.length,
                     enabled: 0
                 }
 
@@ -120,7 +125,7 @@ export default {
                 this.postDesignContent(
                     JSON.stringify({
                         menu: {
-                            menuCards: this.menuItemList,
+                            menuCards: this.menuCardList,
                             direction: this.menuDirection,
                         },
                         header: this.header,
@@ -135,7 +140,7 @@ export default {
          * @param {boolean} markedForDeletion
          */
         updateMenuItemList(menuItem = null, markedForDeletion = false) {
-            let newItems = this.menuItemList.map(item => ({...item}));
+            let newItems = this.menuCardList.map(item => ({...item}));
 
             if (menuItem === null) { //if null, update the order after drag drop or clickToMove
                 let itemIDs = []
@@ -155,34 +160,33 @@ export default {
                     newItems.push(menuItem);
                 }
             }
-            this.menuItemList = newItems.sort((a,b) => a.order - b.order);
-            this.updateHomeDesign('menuItemList', newItems)
+            this.menuCardList = newItems.sort((a,b) => a.order - b.order);
+            this.updateHomeDesign('menuCardList', newItems)
         },
     },
     watch: {
-        currentDesignID(newVal, oldVal) {
-            if(newVal !== 0) {
+        selectedDesignContent(newVal, oldVal) {
+            if(newVal !== null) {
                 const content = JSON.parse(this.selectedDesign?.designContent || '{}');
                 this.setSectionData(content);
             } else {
                 this.header = null;
                 this.searchHeaders = null;
-                this.menuItemList = null;
+                this.menuCardList = null;
                 this.menuDirection = null;
                 this.menuItem = {};
             }
         }
     },
-    template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
-        font-size: 24px; font-weight: bold; padding: 16px;">
+    template: `<div v-if="appIsGettingData" class="loading">
         Loading... 
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
-    <template v-else>
+    <div>
         <CustomHeader v-if="header!==null" />
         <div id="menu_and_search" :class="{editMode: isEditingMode}">
-            <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
-            <custom-search v-if="searchHeaders!==null"></custom-search>
+            <customHomeMenu v-if="menuCardList!==null" />
+            <customSearch v-if="searchHeaders!==null && showSearch" />
         </div>
 
         <!-- HOMEPAGE DIALOGS -->
@@ -191,5 +195,5 @@ export default {
                 <component :is="dialogFormContent"></component>
             </template>
         </leaf-form-dialog>
-    </template>`
+    </div>`
 }

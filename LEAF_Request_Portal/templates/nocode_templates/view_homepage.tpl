@@ -2,6 +2,7 @@
     main {
         min-width: 300px;
         font-size: 14px;
+        min-height: 100vh;
     }
     main * {
         box-sizing: border-box;
@@ -50,7 +51,7 @@
         padding: 1em 1.5em;
         display: flex;
         flex-wrap: wrap;
-        gap: 1.25rem;
+        gap: 2rem;
     }
     #custom_menu_wrapper.horizontal {
         width: 100%;
@@ -113,7 +114,7 @@
     <div id="custom_header_wrapper"></div>
     <div id="menu_and_search">
         <div id="custom_menu_wrapper"></div>
-        <section style="margin: auto;">
+        <section id="searchSection" style="margin: -2px auto auto auto;">
             <div id="searchContainer"></div>
             <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
         </section>
@@ -383,137 +384,144 @@
         renderHeader();
         renderMenu();
 
-        let query = new LeafFormQuery();
-        let leafSearch = new LeafFormSearch('searchContainer');
-        leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
+        if (searchHeaders.length > 0) {
+            let query = new LeafFormQuery();
+            let leafSearch = new LeafFormSearch('searchContainer');
+            leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
 
-        let extendedQueryState = 0; // 0 = not run, 1 = completed extra query for records created by current user
-        let loadAllResults = false;
-        let foundOwnRequest = false;
-        let resultSet = {}; // current results
-        let offset = 0; // current database offset index
-        let batchSize = 50;
-        let abortSearch = false;
-        let scrollY = 0; // track scroll position for more seamless UX when loading more records
+            let extendedQueryState = 0; // 0 = not run, 1 = completed extra query for records created by current user
+            let loadAllResults = false;
+            let foundOwnRequest = false;
+            let resultSet = {}; // current results
+            let offset = 0; // current database offset index
+            let batchSize = 50;
+            let abortSearch = false;
+            let scrollY = 0; // track scroll position for more seamless UX when loading more records
 
-        // On the first visit, if no results are owned by the user, append their results
-        query.onSuccess(function(res, resStatus, resJqXHR) {
-            resultSet = Object.assign(resultSet, res);
-            // find records owned by user
-            if(extendedQueryState == 0) {
-                for(let i in res) {
-                    if(res[i].userID == userID) {
-                        foundOwnRequest = true;
+            // On the first visit, if no results are owned by the user, append their results
+            query.onSuccess(function(res, resStatus, resJqXHR) {
+                resultSet = Object.assign(resultSet, res);
+                // find records owned by user
+                if(extendedQueryState == 0) {
+                    for(let i in res) {
+                        if(res[i].userID == userID) {
+                            foundOwnRequest = true;
+                            break;
+                        }
+                    }
+                }
+                // append user's records if none were found earlier
+                if(extendedQueryState == 0
+                    && foundOwnRequest == false
+                    && leafSearch.getSearchInput() == '') {
+                    extendedQueryState = 1;
+                    query.addTerm('userID', '=', userID);
+                    query.execute();
+                    return false;
+                }
+                // incrementally load records
+                if((Object.keys(res).length == batchSize || resJqXHR.getResponseHeader('leaf-query') == 'continue')
+                    && loadAllResults
+                    && !abortSearch) {
+
+                    document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p><button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button></p>`;
+                    document.querySelector('#btn_abortSearch').addEventListener('click', function() {
+                        abortSearch = true;
+                    });
+                    offset += batchSize;
+                    query.setLimit(offset, batchSize);
+                    query.execute();
+                    return;
+                }
+
+                renderSearchResult(leafSearch, resultSet);
+                window.scrollTo(0, scrollY);
+                // UI for "show more results" button
+                document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
+            });
+            leafSearch.setSearchFunc(function(txt) {
+                // prep new search
+                query.clearTerms();
+                resultSet = {};
+                offset = 0;
+                loadAllResults = false;
+                scrollY = 0;
+                abortSearch = false;
+
+                let isJSON = true;
+                let advSearch = {};
+                try {
+                    advSearch = JSON.parse(txt);
+                } catch(err) {
+                    isJSON = false;
+                }
+
+                txt = txt.trim();
+                if(txt == '') {
+                    query.addTerm('title', 'LIKE', '*');
+                } else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
+                    query.addTerm('recordID', '=', txt);
+                } else if(isJSON) {
+                    for(let i in advSearch) {
+                        if(advSearch[i].id != 'data'
+                            && advSearch[i].id != 'dependencyID') {
+                            query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                        }
+                        else {
+                            query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                        }
+                    }
+                } else {
+                    query.addTerm('title', 'LIKE', '*' + txt + '*');
+                }
+
+                // check if the user wants to search for cancelled requests
+                let hasDeleteQuery = false;
+                for(let i in query.getQuery().terms) {
+                    if(query.getQuery().terms[i].id == 'stepID'
+                        && query.getQuery().terms[i].operator == '='
+                        && query.getQuery().terms[i].match == 'deleted') {
+                        hasDeleteQuery = true;
                         break;
                     }
                 }
-            }
-            // append user's records if none were found earlier
-            if(extendedQueryState == 0
-                && foundOwnRequest == false
-                && leafSearch.getSearchInput() == '') {
-                extendedQueryState = 1;
-                query.addTerm('userID', '=', userID);
-                query.execute();
-                return false;
-            }
-            // incrementally load records
-            if((Object.keys(res).length == batchSize || resJqXHR.getResponseHeader('leaf-query') == 'continue')
-                && loadAllResults
-                && !abortSearch) {
+                // hide cancelled requests by default
+                if(!hasDeleteQuery) {
+                    query.addTerm('deleted', '=', 0);
+                }
 
-                document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p><button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button></p>`;
-                document.querySelector('#btn_abortSearch').addEventListener('click', function() {
-                    abortSearch = true;
-                });
+                query.setLimit(batchSize);
+                const joins = getJoins(searchHeaders);
+                joins.forEach(j => query.join(j));
+
+                query.sort('date', 'DESC');
+                return query.execute();
+            });
+            leafSearch.init();
+            document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = '<h3>Searching for records...</h3>';
+
+            document.querySelector('#searchContainer_getMoreResults').addEventListener('click', function() {
+                loadAllResults = true;
+                scrollY = window.scrollY;
+                if(leafSearch.getSearchInput() == '') {
+                    let tQuery = query.getQuery();
+                    for(let i in tQuery.terms) {
+                        if(tQuery.terms[i].id == 'userID') {
+                            tQuery.terms.splice(i, 1);
+                        }
+                    }
+                    query.setQuery(tQuery);
+                }
                 offset += batchSize;
                 query.setLimit(offset, batchSize);
-                query.execute();
-                return;
+                query.execute()
+            });
+        } else {
+            let searchSection = document.getElementById('searchSection');
+            if(searchSection !== null) {
+                searchSection.style.display = 'none';
             }
-
-            renderSearchResult(leafSearch, resultSet);
-            window.scrollTo(0, scrollY);
-            // UI for "show more results" button
-            document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
-        });
-        leafSearch.setSearchFunc(function(txt) {
-            // prep new search
-            query.clearTerms();
-            resultSet = {};
-            offset = 0;
-            loadAllResults = false;
-            scrollY = 0;
-            abortSearch = false;
-
-            let isJSON = true;
-            let advSearch = {};
-            try {
-                advSearch = JSON.parse(txt);
-            } catch(err) {
-                isJSON = false;
-            }
-
-            txt = txt.trim();
-            if(txt == '') {
-                query.addTerm('title', 'LIKE', '*');
-            } else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
-                query.addTerm('recordID', '=', txt);
-            } else if(isJSON) {
-                for(let i in advSearch) {
-                    if(advSearch[i].id != 'data'
-                        && advSearch[i].id != 'dependencyID') {
-                        query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
-                    }
-                    else {
-                        query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
-                    }
-                }
-            } else {
-                query.addTerm('title', 'LIKE', '*' + txt + '*');
-            }
-
-            // check if the user wants to search for cancelled requests
-            let hasDeleteQuery = false;
-            for(let i in query.getQuery().terms) {
-                if(query.getQuery().terms[i].id == 'stepID'
-                    && query.getQuery().terms[i].operator == '='
-                    && query.getQuery().terms[i].match == 'deleted') {
-                    hasDeleteQuery = true;
-                    break;
-                }
-            }
-            // hide cancelled requests by default
-            if(!hasDeleteQuery) {
-                query.addTerm('deleted', '=', 0);
-            }
-
-            query.setLimit(batchSize);
-            const joins = getJoins(searchHeaders);
-            joins.forEach(j => query.join(j));
-
-            query.sort('date', 'DESC');
-            return query.execute();
-        });
-        leafSearch.init();
-        document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = '<h3>Searching for records...</h3>';
-
-        document.querySelector('#searchContainer_getMoreResults').addEventListener('click', function() {
-            loadAllResults = true;
-            scrollY = window.scrollY;
-            if(leafSearch.getSearchInput() == '') {
-                let tQuery = query.getQuery();
-                for(let i in tQuery.terms) {
-                    if(tQuery.terms[i].id == 'userID') {
-                        tQuery.terms.splice(i, 1);
-                    }
-                }
-                query.setQuery(tQuery);
-            }
-            offset += batchSize;
-            query.setLimit(offset, batchSize);
-            query.execute()
-        });
+        }
     }
 
     document.addEventListener('DOMContentLoaded', main);

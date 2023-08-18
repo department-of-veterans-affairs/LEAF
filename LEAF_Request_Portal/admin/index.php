@@ -552,11 +552,10 @@ switch ($action) {
 
         $main->assign('javascripts', array(
             '../js/form.js', '../js/formGrid.js', '../js/formQuery.js', '../js/formSearch.js',
-            $libsPath.'js/jquery/chosen/chosen.jquery.min.js',
+            $libsPath.'js/jquery/chosen/chosen.jquery.min.js', //jq and chosen are needed for formSearch preview
             $libsPath.'js/choicesjs/choices.min.js',
             $libsPath.'js/LEAF/XSSHelpers.js',
-            $libsPath.'js/jquery/jquery-ui.custom.min.js',
-            $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
+            $libsPath.'js/jquery/jquery-ui.custom.min.js'
         ));
         $main->assign('stylesheets', array(
             $libsPath.'js/jquery/chosen/chosen.min.css',

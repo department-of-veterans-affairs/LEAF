@@ -15,8 +15,7 @@ export default {
             designSettings: null,
             customizablePages: ['homepage', 'testpage'], //each is a router view
             currentView: 'homepage',
-
-            currentDesignID: 0,
+            currentDesignID: null,
 
             appIsGettingData: true,
             appIsUpdating: false,
@@ -53,6 +52,7 @@ export default {
             setCustom_page_select: this.setCustom_page_select,
             publishTemplate: this.publishTemplate,
             postDesignContent: this.postDesignContent,
+            idExistsInList: this.idExistsInList,
 
             /** dialog  */
             openDialog: this.openDialog,
@@ -84,10 +84,13 @@ export default {
             return this.currentDesignID !== 0 && parseInt(this.designSettings?.[`${this.currentView}_enabled`] || 0) === this.currentDesignID;
         },
         currentViewEnabledDesignID() {
-            return +this.designSettings[`${this.currentView}_enabled`];
+            return this.designSettings === null ? null : +this.designSettings[`${this.currentView}_enabled`];
         }
     },
     methods: {
+        idExistsInList(arrItems = [], keyName = 'id', ID = '') {
+            return arrItems.some(i => i?.[keyName] === ID);
+        },
         setEditMode(isEditMode = true) {
             this.isEditingMode = isEditMode;
         },
@@ -149,7 +152,6 @@ export default {
                         const data = await response.json();
                         if(+data?.status?.code === 2) {
                             this.designSettings[`${templateName}_enabled`] = designID;
-                            //console.log(data);
                         } else {
                             console.log('unexpected response returned:', data);
                         }
@@ -232,7 +234,12 @@ export default {
         currentView(newVal, oldVal) {
             if(this.customizablePages.includes(newVal)) {
                 this.$router.push({name: this.currentView});
-                this.currentDesignID = 0;
+                this.currentDesignID = this.currentViewEnabledDesignID || 0;
+            }
+        },
+        designSettings(newVal, oldVal) {
+            if(oldVal === null) {
+                this.currentDesignID = this.currentViewEnabledDesignID || 0;
             }
         }
     }
