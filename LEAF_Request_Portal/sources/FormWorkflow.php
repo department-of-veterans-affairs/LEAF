@@ -1071,7 +1071,7 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupLogin($approvers[0]['userID']);
                     $email->setSender($author[0]['Email']);
 
                     // Get backups to requester so they can be notified as well
@@ -1123,7 +1123,7 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupLogin($approvers[0]['userID']);
                     $email->setSender($author[0]['Email']);
 
                     $eventData = json_decode($event['eventData']);
