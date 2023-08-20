@@ -68,7 +68,6 @@ export default {
         'builtInIDs',
         'menuCardList',
         'menuDirection',
-        'currentDesignID',
         'appIsUpdating',
         'updateMenuItemList',
         'updateHomeDesign',
@@ -77,15 +76,10 @@ export default {
     computed: {
         sectionStyles() {
             let styles = {};
-            if(this.isEditingMode) {
+            if(!this.isEditingMode && this.menuDirection === "h") {
                 styles.width = '100%';
-                styles.margin = '3rem 0';
-            } else {
-                if(this.menuDirection === "h") {
-                    styles.width = '100%';
-                    styles.display = 'flex';
-                    styles.justifyContent = 'center';
-                }
+                styles.display = 'flex';
+                styles.justifyContent = 'center';
             }
             return styles;
         },
@@ -175,12 +169,6 @@ export default {
             if(d !== '' && d !== this.menuDirection) {
                 this.updateHomeDesign('menuDirection', this.menuDirectionSelection);
             }
-        }
-    },
-    watch: {
-        //refresh menu data if selected design is changed
-        currentDesignID() {
-            this.menuDirectionSelection = this.menuDirection;
         }
     },
     template: `<section id="custom_menu" :style="sectionStyles">

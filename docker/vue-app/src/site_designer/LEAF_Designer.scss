@@ -15,6 +15,10 @@ footer#footer {
         margin: 0;
         padding: 1em;
         min-height: 100vh;
+        background-color: #f3f3f3;
+        &.editMode {
+            background-color: #dcdee0;
+        }
     }
     button:not(.choices__button) {
         height: 28px;
@@ -102,7 +106,10 @@ footer#footer {
         flex-wrap: wrap;
         gap: 2rem;
         &.editMode {
+            margin: 2rem 0;
+            width: 100%;
             justify-content: center;
+            align-items: flex-start;
         }
     }
 

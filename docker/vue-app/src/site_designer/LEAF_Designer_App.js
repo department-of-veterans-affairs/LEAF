@@ -182,7 +182,7 @@ export default {
                 console.log('this page cannot be published');
             }
         },
-        async getDesignData() {
+        async getDesignData(selectNew = false) {
             this.appIsGettingData = true;
             try {
                 const settingResponse = await fetch(`${this.APIroot}system/settings`);
@@ -194,6 +194,10 @@ export default {
 
                 const designResponse = await fetch(`${this.APIroot}design/designList`);
                 this.allDesignData = await designResponse.json();
+                if(selectNew === true) {
+                    const ids = this.allDesignData.map(d => +d.designID);
+                    this.currentDesignID = Math.max(...ids);
+                }
 
             } catch (error) {
                 console.error(`error getting settings: ${error.message}`);
@@ -216,7 +220,7 @@ export default {
                 });
                 const data = await response.json();
                 if(+data?.status?.code === 2) {
-                    console.log(data);
+                    this.getDesignData(true);
                 } else {
                     console.log('unexpected response returned:', data);
                 }

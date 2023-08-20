@@ -33,8 +33,7 @@ export default {
         'updateHomeDesign',
         'appIsUpdating',
         'header',
-        'currentDesignID',
-        'selectedDesign',
+
         'isEditingMode',
         'APIroot',
         'rootPath'
@@ -95,17 +94,6 @@ export default {
             } catch (error) {
                 console.error(`error getting files: ${error.message}`);
             }
-        }
-    },
-    watch: {
-        //refresh header data if selected design is changed
-        currentDesignID() {
-            this.title = XSSHelpers.stripAllTags(this.header?.title || '').trim();
-            this.titleColor = this.header?.titleColor || '#000000';
-            this.imageFile = this.header?.imageFile || '';
-            this.imageW = this.header?.imageW || 300;
-            this.headerType = this.header?.headerType || 1;
-            this.enabled = +this.header?.enabled === 1;
         }
     },
     template: `<section id="custom_header">

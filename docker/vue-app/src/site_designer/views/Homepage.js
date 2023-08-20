@@ -154,8 +154,7 @@ export default {
     watch: {
         selectedDesignContent(newVal, oldVal) {
             if(newVal !== null) {
-                const content = JSON.parse(this.selectedDesign?.designContent || '{}');
-                this.setSectionData(content);
+                this.setSectionData(newVal);
             } else {
                 this.header = null;
                 this.searchHeaders = null;
@@ -170,10 +169,10 @@ export default {
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
     <div>
-        <CustomHeader v-if="header!==null" />
+        <CustomHeader v-if="header!==null" :key="'header_' + currentDesignID" />
         <div id="menu_and_search" :class="{editMode: isEditingMode}">
-            <customHomeMenu v-if="menuCardList!==null" />
-            <customSearch v-if="searchHeaders!==null && showSearch" />
+            <customHomeMenu v-if="menuCardList!==null" :key="'menu_' + currentDesignID" />
+            <customSearch v-if="searchHeaders!==null && showSearch" :key="'search_' + currentDesignID" />
         </div>
 
         <!-- DIALOGS -->
