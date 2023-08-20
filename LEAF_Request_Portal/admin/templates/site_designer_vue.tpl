@@ -26,10 +26,10 @@
                 </div>
                 <!-- section for saved designs for the current view -->
                 <div>
-                    <label v-if="customizablePages.length > 1" for="current_view_select" style="display:block; margin: 0;">Select a Page&nbsp;
-                        <select id="current_view_select" style="width:120px; height: 25px;" v-model="currentView">
+                    <label v-if="customizableViews.length > 1" for="current_view_select" style="display:block; margin: 0;">Select a Page&nbsp;
+                        <select id="current_view_select" style="width:120px; height: 25px;" @change="setView">
                             <option v-if="currentView===''" value="">Select a Page</option>
-                            <option v-for="view in customizablePages" :key="'view_option_' + view" :value="view">{{ view }}</option>
+                            <option v-for="view in customizableViews" :key="'view_option_' + view" :value="view" :selected="currentView===view">{{ view }}</option>
                         </select>
                     </label>
                     <label v-if="currentViewDesigns?.length > 0" for="saved_settings_select">Saved Settings&nbsp;
@@ -40,6 +40,7 @@
                             </option>
                         </select>
                     </label>
+                    <button type="button" class="btn-general" @click="openNewDesignDialog" style="margin-top:auto;">+ New Design</button>
                 </div>
             </div>
 

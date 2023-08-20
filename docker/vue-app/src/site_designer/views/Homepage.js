@@ -2,6 +2,7 @@ import { computed } from 'vue';
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
 import ConfirmPublishDialog from "../components/dialog_content/ConfirmPublishDialog.js";
+import NewDesignDialog from "../components/dialog_content/NewDesignDialog.js";
 import CustomHeader from "../components/CustomHeader.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
@@ -25,21 +26,21 @@ export default {
             this.setSectionData(this.selectedDesignContent);
         }
     },
+    unmounted() {
+        console.log('search unmounted')
+    },
     inject: [
-        'CSRFToken',
-        'APIroot',
         'appIsGettingData',
         'appIsUpdating',
         'postDesignContent',
         'selectedDesign',
+        'currentDesignID',
         'isEditingMode',
-        'idExistsInList',
+        'generateID',
 
+        'openDesignCardDialog',
         'showFormDialog',
-        'dialogFormContent',
-        'setDialogTitleHTML',
-        'setDialogContent',
-        'openDialog'
+        'dialogFormContent'
     ],
     provide() {
         return {
@@ -59,6 +60,7 @@ export default {
         LeafFormDialog,
         DesignCardDialog,
         ConfirmPublishDialog,
+        NewDesignDialog,
         CustomHeader,
         CustomHomeMenu,
         CustomSearch
@@ -72,7 +74,7 @@ export default {
         }
     },
     methods: {
-        setSectionData(content) {
+        setSectionData(content = {}) {
             this.header = content?.header || {};
             this.menuDirection = content?.menu?.direction || 'v';
 
@@ -86,28 +88,13 @@ export default {
 
             this.searchHeaders = content?.searchHeaders || [];
         },
-        openDesignCardDialog() {
-            this.setDialogTitleHTML('<h2>Menu Editor</h2>');
-            this.setDialogContent('design-card-dialog');
-            this.openDialog();
-        },
-        generateID() {
-            let result = '';
-            do {
-                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                for (let i = 0; i < 5; i++ ) {
-                   result += characters.charAt(Math.floor(Math.random() * characters.length));
-                }
-            } while (this.idExistsInList(this.menuCardList, 'id', result));
-            return result;
-        },
         /**
          * @param {object|null} menuItem set menuitem for editing
          */
         setMenuItem(menuItem = null) {
             this.menuItem = menuItem !== null ? menuItem :
                 {
-                    id: this.generateID(),
+                    id: this.generateID(this.menuCardList, 'id'),
                     order: this.menuCardList.length,
                     enabled: 0
                 }
@@ -189,7 +176,7 @@ export default {
             <customSearch v-if="searchHeaders!==null && showSearch" />
         </div>
 
-        <!-- HOMEPAGE DIALOGS -->
+        <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
                 <component :is="dialogFormContent"></component>

@@ -13,8 +13,7 @@ export default {
             userID: userID,
             allDesignData: null,
             designSettings: null,
-            customizablePages: ['homepage', 'testpage'], //each is a router view
-            currentView: 'homepage',
+            customizableViews: ['homepage', 'testpage'], //each is a router view
             currentDesignID: null,
 
             appIsGettingData: true,
@@ -49,10 +48,12 @@ export default {
             libsPath: this.libsPath,
             orgchartPath: this.orgchartPath,
             userID: this.userID,
-            setCustom_page_select: this.setCustom_page_select,
             publishTemplate: this.publishTemplate,
+            newDesign: this.newDesign,
             postDesignContent: this.postDesignContent,
-            idExistsInList: this.idExistsInList,
+            generateID: this.generateID,
+
+            openDesignCardDialog: this.openDesignCardDialog,
 
             /** dialog  */
             openDialog: this.openDialog,
@@ -73,12 +74,15 @@ export default {
         this.getDesignData();
     },
     computed: {
+        currentView() {
+            return this.$route.name;
+        },
         currentViewDesigns() {
             let viewDesigns = (this.allDesignData || []).filter(d => d.templateName === this.currentView);
             return viewDesigns.sort((a,b) => a.designID - b.designID);
         },
         selectedDesign() {
-            return (this.currentViewDesigns|| []).find(d => d.designID === this.currentDesignID) || null;
+            return (this.currentViewDesigns|| []).find(d => +d.designID === +this.currentDesignID) || null;
         },
         enabled() {
             return this.currentDesignID !== 0 && parseInt(this.designSettings?.[`${this.currentView}_enabled`] || 0) === this.currentDesignID;
@@ -88,14 +92,25 @@ export default {
         }
     },
     methods: {
+        setView(event) {
+            console.log(event.target.value);
+            this.$router.push({ name: event.target.value });
+        },
+        generateID(arrList = [], keyName = 'id') {
+            let result = '';
+            do {
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                for (let i = 0; i < 5; i++ ) {
+                   result += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+            } while (this.idExistsInList(arrList, keyName, result));
+            return result;
+        },
         idExistsInList(arrItems = [], keyName = 'id', ID = '') {
             return arrItems.some(i => i?.[keyName] === ID);
         },
         setEditMode(isEditMode = true) {
             this.isEditingMode = isEditMode;
-        },
-        setCustom_page_select(view = 'homepage') {
-            this.currentView = view;
         },
         async getIconList() {
             try {
@@ -133,7 +148,7 @@ export default {
             }
         },
         async publishTemplate(designID = 0, templateName = '', confirmed = false) {
-            if(this.customizablePages.includes(templateName)) {
+            if(this.customizableViews.includes(templateName)) {
                 if (confirmed === false) {
                     this.openConfirmPublishDialog();
 
@@ -173,8 +188,8 @@ export default {
                 const settingResponse = await fetch(`${this.APIroot}system/settings`);
                 const settings = await settingResponse.json();
                 this.designSettings = {};
-                this.customizablePages.forEach(t => {
-                    this.designSettings[`${t}_enabled`] = settings[`${t}_enabled`] || 0;
+                this.customizableViews.forEach(t => {
+                    this.designSettings[`${t}_enabled`] = +settings[`${t}_enabled`] || 0;
                 })
 
                 const designResponse = await fetch(`${this.APIroot}design/designList`);
@@ -184,6 +199,32 @@ export default {
                 console.error(`error getting settings: ${error.message}`);
             } finally {
                 this.appIsGettingData = false;
+            }
+        },
+        async newDesign(designName = '', designDescription = '') {
+            this.appIsUpdating = true;
+            try {
+                let formData = new FormData();
+                formData.append('CSRFToken', CSRFToken);
+                formData.append('templateName', this.currentView);
+                formData.append('designName', designName);
+                formData.append('designDescription', designDescription);
+
+                const response = await fetch(`${this.APIroot}design/new`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if(+data?.status?.code === 2) {
+                    console.log(data);
+                } else {
+                    console.log('unexpected response returned:', data);
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.appIsUpdating = false;
             }
         },
         /**
@@ -197,10 +238,20 @@ export default {
             let remainingDesigns = this.allDesignData.filter(rec => +rec.designID !== +designID);
             this.allDesignData = [...remainingDesigns, record];
         },
+        openNewDesignDialog() {
+            this.setDialogTitleHTML(`<h2>Creating a new item for the ${this.currentView}</h2>`);
+            this.setDialogContent('new-design-dialog');
+            this.openDialog();
+        },
         openConfirmPublishDialog() {
             this.setDialogTitleHTML('<h2>Please Confirm</h2>');
-            this.setDialogButtonText({confirm: 'Confirm', cancel: 'Cancel'});
+            this.dialogButtonText = { confirm: 'Confirm', cancel: 'Cancel'};
             this.setDialogContent('confirm-publish-dialog');
+            this.openDialog();
+        },
+        openDesignCardDialog() {
+            this.setDialogTitleHTML('<h2>Menu Editor</h2>');
+            this.setDialogContent('design-card-dialog');
             this.openDialog();
         },
 
@@ -231,9 +282,9 @@ export default {
         },
     },
     watch: {
+        //if the view is changed, or on initial data retrieval, set the designID to the one published for the view or 0 if there isn't one
         currentView(newVal, oldVal) {
-            if(this.customizablePages.includes(newVal)) {
-                this.$router.push({name: this.currentView});
+            if(this.customizableViews.includes(newVal)) {
                 this.currentDesignID = this.currentViewEnabledDesignID || 0;
             }
         },

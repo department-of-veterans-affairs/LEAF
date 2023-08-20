@@ -47,7 +47,9 @@
 
     #menu_and_search {
         margin: auto;
+        width: -moz-fit-content;
         width: fit-content;
+        max-width: 1800px;
         padding: 1em 1.5em;
         display: flex;
         flex-wrap: wrap;

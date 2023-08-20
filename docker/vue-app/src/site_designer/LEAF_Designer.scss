@@ -1,13 +1,10 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
-body {
-    background-color: $BG_LightGray;
-}
 footer#footer {
     margin: 2rem 0 0 0;
     padding: 0.5em 1em;
     width: 100%;
-    line-height: 1.8;
+    line-height: 1.6;
     a {
         color: #252f3e;
     }
@@ -100,6 +97,7 @@ footer#footer {
         margin: auto;
         width: -moz-fit-content;
         width:fit-content;
+        max-width: 1800px;
         display: flex;
         flex-wrap: wrap;
         gap: 2rem;

@@ -28,7 +28,7 @@ class Design
 
     public function getAllDesigns(): array
     {
-        $strSQL = 'SELECT designID, templateName, designContent FROM template_designs';
+        $strSQL = 'SELECT designID, templateName, designName, designDescription, designContent FROM template_designs';
         return $this->db->prepared_query($strSQL, null) ?? [];
     }
 
@@ -81,7 +81,7 @@ class Design
         return $return_value;
     }
 
-    public function newDesign(string $templateName = ''): array
+    public function newDesign(string $templateName = '', string $designName = '', string $designDescription = ''): array
     {
         if (!$this->login->checkGroup(1)) {
             $return_value['status']['code'] = 4;
@@ -89,10 +89,12 @@ class Design
 
         } elseif (in_array($templateName, $this->template_options)) {
 
-            $strSQL = "INSERT INTO template_designs (templateName, designContent)
-                VALUES (:templateName, '{}')";
+            $strSQL = "INSERT INTO template_designs (templateName, designName, designDescription, designContent)
+                VALUES (:templateName, :designName, :designDescription, '{}')";
             $vars = array(
-                ':templateName' => $templateName
+                ':templateName' => $templateName,
+                ':designName' => $designName,
+                ':designDescription' => $designDescription
             );
 
             $return_value = $this->db->pdo_insert_query($strSQL, $vars);

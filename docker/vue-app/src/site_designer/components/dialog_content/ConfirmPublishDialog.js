@@ -24,13 +24,12 @@ export default {
     template:`<div style="min-height: 60px; max-width: 500px;">
         <div v-if="currentViewEnabledDesignID !== 0 && currentViewEnabledDesignID !== currentDesignID">
             <div role="img" aria="" style="display: flex; justify-content: center; margin-bottom: 0.5rem;">⚠️</div>
-            Another setting is active. &nbsp;Choosing confirm will replace it.
+            Another setting is active. &nbsp;Choose confirm to replace it.
         </div>
         <div v-else-if="currentViewEnabledDesignID === currentDesignID">
             <div role="img" aria="" style="display: flex; justify-content: center; margin-bottom: 0.5rem;">⚠️</div>
-            <p>Choose confirm to deactivate this page and show the normal LEAF page.</p>
-            <p>Inactive pages remain in the draft collection and can be edited or re-published at any time.</p>
+            <p>Choose confirm to deactivate this page and show the normal LEAF {{ currentView }}.</p>
         </div>
-        <div v-else>Choose confirm to publish this page</div>
+        <div v-else>Choose confirm to publish this page.</div>
     </div>`
 }
