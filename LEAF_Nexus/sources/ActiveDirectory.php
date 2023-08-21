@@ -29,11 +29,26 @@ class ActiveDirectory
       $info = [];
       $filter = "(&(objectCategory=Person)(objectClass=User)(anr=$uid))"; // search only for users classified as persons (i.e. not service accounts)
       $attr = ["objectClass", "sn", "givenName","initials","title","description","telephoneNumber","mail","sAMAccountName","objectGUID","mobile","physicalDeliveryOfficeName"]; // fields for each result to return
-      if ($this->bind) {
-         $results = ldap_search($this->conn, $this->base, $filter, $attr);
-         $info = ldap_get_entries($this->conn, $results);
+      if ($this->bind === false) {
+         $return_value = array(
+            "status" => array(
+               "code" => 4,
+               "message" => "The connection to the LDAP server failed."
+            )
+         );
+         return $return_value;
       }
-      return $info;
+
+      $results = ldap_search($this->conn, $this->base, $filter, $attr);
+      $info = ldap_get_entries($this->conn, $results);
+
+      $return_value = array(
+         "status" => array(
+            "code" => 2,
+         ),
+         "data" => $info
+      );
+      return $return_value;
    }
 
    public function searchGroup(string $input = "") : array
@@ -41,11 +56,26 @@ class ActiveDirectory
       $info = [];
       $filter = "(&(objectClass=Group)(anr=$input))"; // search only for groups
       $attr = ["objectClass", "cn", "title", "sAMAccountName", "managedBy", "member", "description", "objectGUID"]; // fields for each result to return
-      if ($this->bind) {
-         $results = ldap_search($this->conn, $this->base, $filter, $attr);
-         $info = ldap_get_entries($this->conn, $results);
+      if ($this->bind === false) {
+         $return_value = array(
+            "status" => array(
+               "code" => 4,
+               "message" => "The connection to the LDAP server failed."
+            )
+         );
+         return $return_value;
       }
-      return $info;
+
+      $results = ldap_search($this->conn, $this->base, $filter, $attr);
+      $info = ldap_get_entries($this->conn, $results);
+      
+      $return_value = array(
+         "status" => array(
+            "code" => 2,
+         ),
+         "data" => $info
+      );
+      return $return_value;
    }
 
    public function listMembers(array $members = []) : array
@@ -54,10 +84,25 @@ class ActiveDirectory
       $fmtMembers = implode(")(", $members);
       $filter = "(/($fmtMembers))"; /// search only for users classified as persons (i.e. not service accounts)
       $attr = ["objectClass", "sn", "givenName","initials","title","description","telephoneNumber","mail","sAMAccountName","objectGUID","mobile","physicalDeliveryOfficeName"]; // fields for each result to return
-      if ($this->bind) {
-         $results = ldap_search($this->conn, $this->base, $filter, $attr);
-         $info = ldap_get_entries($this->conn, $results);
+      if ($this->bind === false) {
+         $return_value = array(
+            "status" => array(
+               "code" => 4,
+               "message" => "The connection to the LDAP server failed."
+            )
+         );
+         return $return_value;
       }
-      return $info;
+
+      $results = ldap_search($this->conn, $this->base, $filter, $attr);
+      $info = ldap_get_entries($this->conn, $results);
+      
+      $return_value = array(
+         "status" => array(
+            "code" => 2,
+         ),
+         "data" => $info
+      );
+      return $return_value;
    }
 }
