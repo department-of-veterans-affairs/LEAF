@@ -1223,8 +1223,8 @@ class FormWorkflow
 
             switch(true) {
                 case (str_starts_with($format, "grid") != false):
-                    if ($this->isJsonString($data) && is_array(json_decode($data))) {
-                        $data = $this->buildGrid(json_decode($data));
+                    if(!empty($data) && is_array(unserialize($data))){
+                        $data = $this->buildGrid(unserialize($data));
                     }
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
