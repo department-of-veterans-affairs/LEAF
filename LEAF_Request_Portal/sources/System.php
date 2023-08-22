@@ -177,9 +177,9 @@ class System
             $tag = new \Orgchart\Tag($oc_db, $this->login);
 
             // clear out old data first
-            $delete_groups = $this->clearGroups($groupID);
+            //$delete_groups = $this->clearGroups($groupID);
 
-            if ($delete_groups['status']['code'] == 2) {
+            //if ($delete_groups['status']['code'] == 2) {
                     // find quadrad/ELT tag name
                 $upperLevelTag = $tag->getParent('service');
                 $isQuadrad = false;
@@ -193,7 +193,7 @@ class System
                 $insert_group = $this->insertGroup($groupID, $isQuadrad, $resGroup['groupTitle']);
 
                 if ($insert_group['status']['code'] == 2) {
-                    $delete_user_backups = $this->deleteUserBackups($groupID);
+                    $delete_user_backups = $this->deleteUsers($groupID);
 
                     if ($delete_user_backups['status']['code'] == 2) {
                         $resEmp = array();
@@ -272,7 +272,7 @@ class System
                         )
                     );
                 }
-            } else {
+            /* } else {
                 // something happened with the delete groups
                 $return_value = array (
                     'status' => array (
@@ -280,7 +280,7 @@ class System
                         'message' => 'There was an error when deleting groups.'
                     )
                 );
-            }
+            } */
         }
 
         return $return_value;
@@ -297,13 +297,13 @@ class System
     {
         $cat_privs = $this->getCatPrivs($groupID);
 
-        if ($cat_privs['status']['code'] == 2) {
+        if ($cat_privs['status']['code'] == 2 && !empty($cat_privs['data'])) {
             $return_value = $this->deleteCatPrivs($groupID);
         } else {
             $return_value = array (
                 'status' => array (
-                    'code' => 4,
-                    'message' => 'Action failed to add backups.'
+                    'code' => 2,
+                    'message' => 'Nothing to be done with category_privs'
                 )
             );
         }
@@ -468,7 +468,7 @@ class System
             $vars = array(':userID' => $emp['userName'],
                     ':groupID' => $groupID, );
             $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`, `active`)
-                    VALUES (:userID, :groupID, "", 0)
+                    VALUES (:userID, :groupID, "", 1)
                     ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID';
 
             $return_value = $this->db->pdo_insert_query($sql, $vars);
@@ -491,13 +491,13 @@ class System
      *
      * Created at: 6/30/2023, 1:27:47 PM (America/New_York)
      */
-    private function deleteUserBackups(int $groupID): array
+    private function deleteUsers(int $groupID): array
     {
         $vars = array(':groupID' => $groupID);
         $sql = 'DELETE
                 FROM `users`
-                WHERE `backupID` <> ""
-                AND `groupID` = :groupID';
+                WHERE `groupID` = :groupID
+                AND `locallyManaged` = 0';
 
         $return_value = $this->db->pdo_delete_query($sql , $vars);
 
@@ -521,7 +521,9 @@ class System
                 ':groupDescription' => '', );
         $sql = 'INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`,
                     `groupDescription`)
-                VALUES (:groupID, :parentGroupID, :name, :groupDescription)';
+                VALUES (:groupID, :parentGroupID, :name, :groupDescription)
+                ON DUPLICATE KEY UPDATE `parentGroupID` = :parentGroupID, `name` = :name,
+                    `groupDescription` = :groupDescription';
 
         $return_value = $this->db->pdo_insert_query($sql, $vars);
 

@@ -173,6 +173,7 @@ class Login
 //        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? true : false;
         $https = true;
         setcookie('PHPSESSID', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
+        setcookie('REMOTE_USER', '', time() - 3600, $cookie['path'], $cookie['domain'], $https, true);
     }
 
     public function isLogin()

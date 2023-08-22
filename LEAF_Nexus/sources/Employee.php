@@ -562,7 +562,7 @@ class Employee extends Data
     private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): array
     {
         $vars = array(
-            ':userName' => $national_user['user_name'],
+            ':userName' => $national_user['userName'],
             ':lastName' => $national_user['lastName'],
             ':firstName' => $national_user['firstName'],
             ':midInit' => $national_user['middleName'],
