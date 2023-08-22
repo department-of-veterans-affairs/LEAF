@@ -41,14 +41,13 @@ class DesignController extends RESTfulResponse
 
         $this->index['POST'] = new ControllerMap();
 
-        $this->index['POST']->register('design/new', function ($args) use ($design) {
+        $this->index['POST']->register('design/new', function () use ($design) {
             $templateName = \Leaf\XSSHelpers::xscrub($_POST['templateName']);
             $designName = \Leaf\XSSHelpers::xscrub($_POST['designName']);
-            $designDescription = \Leaf\XSSHelpers::xscrub($_POST['designDescription']);
-            return $design->newDesign($templateName, $designName, $designDescription);
+            return $design->newDesign($templateName, $designName);
         });
 
-        $this->index['POST']->register('design/publish', function ($args) use ($design) {
+        $this->index['POST']->register('design/publish', function () use ($design) {
             $designID = \Leaf\XSSHelpers::xscrub($_POST['designID']);
             $templateName = \Leaf\XSSHelpers::xscrub($_POST['templateName']);
             return $design->publishTemplate((int)$designID, $templateName);
@@ -68,19 +67,14 @@ class DesignController extends RESTfulResponse
     public function delete($act)
     {
         $design = $this->design;
-        $verified = $this->verifyAdminReferrer(); //TODO: feedback
 
-        if ($verified) {
-            echo $verified;
-        } else {
-            $this->index['DELETE'] = new ControllerMap();
+        $this->index['DELETE'] = new ControllerMap();
 
-            $this->index['DELETE']->register('design/delete/[digit]', function ($args) use ($design) {
-                return $design->deleteDesign($args[0]);
-            });
+        $this->index['DELETE']->register('design/delete/[digit]', function ($args) use ($design) {
+            return $design->deleteDesign($args[0]);
+        });
 
-            return $this->index['DELETE']->runControl($act['key'], $act['args']);
-        }
+        return $this->index['DELETE']->runControl($act['key'], $act['args']);
     }
 
 }

@@ -3,6 +3,7 @@ import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
 import ConfirmPublishDialog from "../components/dialog_content/ConfirmPublishDialog.js";
 import NewDesignDialog from "../components/dialog_content/NewDesignDialog.js";
+import HistoryDialog from "../components/dialog_content/HistoryDialog.js";
 import CustomHeader from "../components/CustomHeader.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
@@ -24,6 +25,7 @@ export default {
     mounted() {
         if(this.selectedDesignContent !== null) {
             this.setSectionData(this.selectedDesignContent);
+            this.setBasicDesignInfo();
         }
     },
     unmounted() {
@@ -37,6 +39,7 @@ export default {
         'currentDesignID',
         'isEditingMode',
         'generateID',
+        'setBasicDesignInfo',
 
         'openDesignCardDialog',
         'showFormDialog',
@@ -61,6 +64,7 @@ export default {
         DesignCardDialog,
         ConfirmPublishDialog,
         NewDesignDialog,
+        HistoryDialog,
         CustomHeader,
         CustomHomeMenu,
         CustomSearch
@@ -152,9 +156,9 @@ export default {
         },
     },
     watch: {
-        selectedDesignContent(newVal, oldVal) {
+        selectedDesign(newVal, oldVal) {
             if(newVal !== null) {
-                this.setSectionData(newVal);
+                this.setSectionData(this.selectedDesignContent);
             } else {
                 this.header = null;
                 this.searchHeaders = null;
@@ -162,6 +166,7 @@ export default {
                 this.menuDirection = null;
                 this.menuItem = {};
             }
+            this.setBasicDesignInfo();
         }
     },
     template: `<div v-if="appIsGettingData" class="loading">
@@ -178,7 +183,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent"></component>
+                <component :is="dialogFormContent" historyType="design" :historyID="currentDesignID"></component>
             </template>
         </leaf-form-dialog>
     </div>`

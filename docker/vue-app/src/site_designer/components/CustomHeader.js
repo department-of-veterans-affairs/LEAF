@@ -13,11 +13,11 @@ export default {
 
             imageFiles: [],
             headerTypes: [
-                { value: 1, text: 'left of image' },
-                { value: 2, text: 'right of image' },
-                { value: 3, text: 'below image' },
-                { value: 4, text: 'above image' },
-                { value: 5, text: 'over image' },
+                { value: 1, text: 'left of image area' },
+                { value: 2, text: 'right of image area' },
+                { value: 3, text: 'below image area' },
+                { value: 4, text: 'above image area' },
+                { value: 5, text: 'within image area' },
             ],
             maxImageWidth: 1400,
             minImageWidth: 0
@@ -33,6 +33,7 @@ export default {
         'updateHomeDesign',
         'appIsUpdating',
         'header',
+        'truncateText',
 
         'isEditingMode',
         'APIroot',
@@ -107,14 +108,14 @@ export default {
                 <label for="title_color">Font Color
                     <input type="color" id="title_color" v-model="titleColor" />
                 </label>
-                <label for="image_select">Main Image
+                <label for="image_select">Image File
                     <select id="image_select" style="width: 160px;" v-model="imageFile">
                         <option value="">none</option>
-                        <option v-for="i in imageFiles" :value="i" :key="i">{{ i }}</option>
+                        <option v-for="i in imageFiles" :value="i" :key="i">{{ truncateText(i) }}</option>
                     </select>
                 </label>
                 <label for="header_type_select">Text Position
-                    <select id="header_type_select" style="width: 120px;" v-model.number="headerType">
+                    <select id="header_type_select" style="width: 130px;" v-model.number="headerType">
                         <option v-for="t in headerTypes" :value="t.value" :key="'type_' + t.value">{{ t.text }}</option>
                     </select>
                 </label>
@@ -127,7 +128,7 @@ export default {
                     style="margin: 0 0 0 auto;" :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
                     :title="+enabled === 1 ? 'uncheck to disable' : 'check to enable'">
                     <input type="checkbox" id="header_enable" v-model="enabled" class="icheck leaf_check"/>
-                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'disabled'}}
+                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
                 </label>
                 <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)" :disabled="appIsUpdating">
                     Save Settings

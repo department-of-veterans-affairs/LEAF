@@ -287,6 +287,11 @@ switch ($action) {
                 $type = new Portal\Applet($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
+            case 'design':
+                $logger  = new \Leaf\DataActionLogger($db, $login);
+                $type = new Portal\Design($db, $login, $logger);
+                $t_form->assign('titleOverride', ' ');
+                break;
         }
 
 

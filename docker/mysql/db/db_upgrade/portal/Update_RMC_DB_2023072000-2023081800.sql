@@ -2,9 +2,8 @@ START TRANSACTION;
 
 CREATE TABLE `template_designs` (
   `designID` int(11) NOT NULL AUTO_INCREMENT,
-  `templateName` varchar(100) NOT NULL,
-  `designName` varchar(100) NOT NULL,
-  `designDescription` varchar(255) NOT NULL,
+  `templateName` varchar(50) NOT NULL,
+  `designName` varchar(50) NOT NULL,
   `designContent` text NOT NULL,
   PRIMARY KEY (`designID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

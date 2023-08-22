@@ -46,12 +46,13 @@ footer#footer {
     p {
         line-height: 1.4;
     }
-    .btn-confirm.enabled {
+    .btn-confirm.delete:not(:disabled) {
         background-color: $attention;
         border: 2px solid black;
     }
     button:disabled {
         background-color: gray;
+        border: 2px solid black;
     }
 
     label:not(.leaf_check) {
@@ -61,6 +62,9 @@ footer#footer {
         margin-top: 2px;
         display: block;
         width: 100%;
+        &.employeeSelectorInput, &.positionSelectorInput, &.groupSelectorInput {
+            width: 90%;
+        } 
     }
     input, select {
         height: 25px;
@@ -85,15 +89,41 @@ footer#footer {
             flex-direction: column;
         }
     }
-    #page_select_area {
-        padding: 1em;
+    #page_info_area {
         display:flex;
-        flex-direction: column;
         gap: 1rem;
-        margin-bottom: 3rem;
-        > div {
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        > * {
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            flex: 1;
+        }
+        button {
+            width: 120px;
+        }
+        input {
+            width:250px;
+            display:inline-block;
+            margin: 0;
+            font-size: 0.9rem;
+            padding: 0.25rem;
+        }
+    }
+    #design_menu {
+        display:flex;
+        gap: 1rem;
+        width:180px;
+        align-items: flex-end;
+        margin-bottom: 2rem;
+        label {
+            margin: 0;
+        }
+        button {
+            height: 25px;
+            padding: 0 0.5em;
+            width: 80px;
         }
     }
 
@@ -115,18 +145,22 @@ footer#footer {
 
     #searchContainer {
         margin-top: -2px;
+        font-family: Verdana, sans-serif;
         table.leaf_grid {
             border: 1px solid black;
             border-collapse: collapse;
             margin: 2px;
             width: auto;
+            font-size: 14px;
+        }
+        tr[id^="LeafFormGrid"] {
+            background-color: white;
         }
         td {
             width: auto;
             vertical-align: middle;
             word-break: break-word;
             white-space: normal;
-            background-color: white;
             &[data-clickable=true]:hover, &[data-clickable=true]:focus, &[data-clickable=true]:active {
                 background-color: $LtNavy;
                 > a {
@@ -176,7 +210,7 @@ footer#footer {
         div#menu_wrapper {
             width: 100%;
             &.editMode {
-                padding: 0.75em 1em;
+                padding: 0.5em 0.75em;
                 background-color: white;
                 border-radius: 3px;
                 width: 450px;
@@ -299,7 +333,7 @@ footer#footer {
 
     #edit_header, #edit_search {
         margin: 0 auto;
-        padding: 0.75em 1em;
+        padding: 0.5em 0.75em;
         display: flex;
         flex-direction: column;
         gap: 1rem;

@@ -7,6 +7,8 @@ export default {
     inject: [
         'appIsGettingData',
         'showFormDialog',
+        'selectedDesign',
+        'setBasicDesignInfo',
         'dialogFormContent'
     ],
     created() {
@@ -16,6 +18,16 @@ export default {
         LeafFormDialog,
         ConfirmPublishDialog,
         NewDesignDialog
+    },
+    watch: {
+        selectedDesign(newVal, oldVal) {
+            if(newVal !== null) {
+                console.log('not null')
+            } else {
+                console.log('null')
+            }
+            this.setBasicDesignInfo();
+        }
     },
     template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
         font-size: 24px; font-weight: bold; padding: 16px;">
