@@ -36,18 +36,18 @@ class ActiveDirectory
                "message" => "The connection to the LDAP server failed."
             )
          );
-         return $return_value;
+      } else {
+         $results = ldap_search($this->conn, $this->base, $filter, $attr);
+         $info = ldap_get_entries($this->conn, $results);
+
+         $return_value = array(
+            "status" => array(
+               "code" => 2,
+            ),
+            "data" => $info
+         );
       }
 
-      $results = ldap_search($this->conn, $this->base, $filter, $attr);
-      $info = ldap_get_entries($this->conn, $results);
-
-      $return_value = array(
-         "status" => array(
-            "code" => 2,
-         ),
-         "data" => $info
-      );
       return $return_value;
    }
 
@@ -63,18 +63,18 @@ class ActiveDirectory
                "message" => "The connection to the LDAP server failed."
             )
          );
-         return $return_value;
+      } else {
+         $results = ldap_search($this->conn, $this->base, $filter, $attr);
+         $info = ldap_get_entries($this->conn, $results);
+
+         $return_value = array(
+            "status" => array(
+               "code" => 2,
+            ),
+            "data" => $info
+         );
       }
 
-      $results = ldap_search($this->conn, $this->base, $filter, $attr);
-      $info = ldap_get_entries($this->conn, $results);
-      
-      $return_value = array(
-         "status" => array(
-            "code" => 2,
-         ),
-         "data" => $info
-      );
       return $return_value;
    }
 
@@ -91,18 +91,18 @@ class ActiveDirectory
                "message" => "The connection to the LDAP server failed."
             )
          );
-         return $return_value;
+      } else {
+         $results = ldap_search($this->conn, $this->base, $filter, $attr);
+         $info = ldap_get_entries($this->conn, $results);
+
+         $return_value = array(
+            "status" => array(
+               "code" => 2,
+            ),
+            "data" => $info
+         );
       }
 
-      $results = ldap_search($this->conn, $this->base, $filter, $attr);
-      $info = ldap_get_entries($this->conn, $results);
-      
-      $return_value = array(
-         "status" => array(
-            "code" => 2,
-         ),
-         "data" => $info
-      );
       return $return_value;
    }
 }
