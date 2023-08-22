@@ -234,11 +234,7 @@ class Group
                             $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
 
-                        if ($member['locallyManaged'] == 1) {
-                            $dirRes[0]['backupID'] = "";
-                        } else {
-                            $dirRes[0]['backupID'] = $member['backupID'];
-                        }
+                        $dirRes[0]['backupID'] = $member['backupID'];
 
                         $dirRes[0]['locallyManaged'] = $member['locallyManaged'];
                         $dirRes[0]['active'] = $member['active'];
@@ -298,36 +294,14 @@ class Group
             if (!empty($backups)) {
                 foreach ($backups as $backup) {
                     $vars = array(':userID' => $backup['userName'],
-                        ':groupID' => $groupID);
-                    $sql = 'SELECT `locallyManaged`
-                            FROM `users`
-                            WHERE `userID` = :userID
-                            AND `groupID` = :groupID';
+                        ':groupID' => $groupID,
+                        ':backupID' => $emp[0]['userName']);
+                    $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                            VALUES (:userID, :groupID, :backupID)
+                            ON DUPLICATE KEY UPDATE `userID` = :userID,
+                                `groupID` = :groupID, `backupID` = :backupID';
 
-                    $res = $this->db->pdo_select_query($sql, $vars);
-
-                    if ($res['status']['code'] == 2) {
-                        // Check for locallyManaged users
-                        if ($res['data'][0]['locallyManaged'] == 1) {
-                            $vars[':backupID'] = '';
-                        } else {
-                            $vars[':backupID'] = $emp[0]['userName'];
-                        }
-                        $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
-                                VALUES (:userID, :groupID, :backupID)
-                                ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :groupID,
-                                    `backupID` = :backupID';
-
-                        $return_value = $this->db->pdo_insert_query($sql, $vars);
-                    } else {
-                        $return_value = array (
-                            'status' => array (
-                                'code' => 4,
-                                'message' => 'Backup could not be found'
-                            )
-                        );
-                        break;
-                    }
+                    $return_value = $this->db->pdo_insert_query($sql, $vars);
                 }
 
                 $return_value = array (
@@ -385,15 +359,14 @@ class Group
      * @param int $groupID
      *
      * @return void
+     *
+     * Created at: 8/16/2023, 3:01:10 PM (America/New_York)
      */
     public function deactivateMember($member, $groupID): void
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
         if (is_numeric($groupID) && $member != '')
         {
-            $sql_vars = array(':userID' => $member,
+            $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
             $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::EMPLOYEE, [
@@ -401,24 +374,19 @@ class Group
                 new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-            $this->db->prepared_query('UPDATE users SET active = 0, locallyManaged = 1 WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+            $sql = 'UPDATE `users`
+                    SET `active` = 0
+                    WHERE `userID` = :userID
+                    AND `groupID` = :groupID';
 
-            // include the backups of employee
+            $this->db->prepared_query($sql, $vars);
 
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $member,);
+            $sql = 'UPDATE `users`
+                    SET `active` = 0
+                    WHERE `backupID` = :userID
+                    AND `groupID` = :groupID';
 
-                $res = $this->db->prepared_query('SELECT locallyManaged FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 0) {
-                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-                }
-            }
+            $this->db->prepared_query($sql, $vars);
         }
     }
 
@@ -430,37 +398,61 @@ class Group
      */
     public function removeMember($member, $groupID): void
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \PORTAL_CONFIG->phonedbName);
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
-        if (is_numeric($groupID) && $member != '')
-        {
-            $sql_vars = array(':userID' => $member,
-                          ':groupID' => $groupID, );
-
+        if (is_numeric($groupID) && $member != '') {
             $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
                 new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-            $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID', $sql_vars);
+            $vars = array(':userID' => $member,
+                          ':groupID' => $groupID);
+            $sql = 'DELETE
+                    FROM `users`
+                    WHERE (`userID` = :userID
+                        AND `groupID` = :groupID
+                        AND `backupID` = "")
+                    OR (`groupID` = :groupID
+                        AND `backupID` = :userID)';
 
-            // include the backups of employee
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':groupID' => $groupID,
-                    ':backupID' => $member,);
-
-                $res = $this->db->prepared_query('SELECT * FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 0) {
-                    $this->db->prepared_query('DELETE FROM users WHERE userID=:userID AND groupID=:groupID AND backupID=:backupID', $sql_vars);
-                }
-            }
+            $this->db->prepared_query($sql, $vars);
         }
+    }
+
+    /**
+     * @param string $member
+     * @param int $groupID
+     *
+     * @return array
+     *
+     * Created at: 8/16/2023, 8:55:54 AM (America/New_York)
+     */
+    public function reActivateMember(string $member, int $groupID): array
+    {
+        if (is_numeric($groupID) && $member != '') {
+            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
+                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            ]);
+
+            $sql_vars = array(':userID' => $member,
+                          ':groupID' => $groupID);
+            $sql = 'UPDATE `users`
+                    SET `active` = 1
+                    WHERE `groupID` = :groupID
+                    AND (`userID` = :userID
+                        OR `backupID` = :userID)';
+
+            $return_value = $this->db->pdo_update_query($sql, $sql_vars);
+        } else {
+            $return_value = array (
+                'status' => array (
+                    'code' => 4,
+                    'message' => 'Improperly formatted data'
+                )
+            );
+        }
+
+        return $return_value;
     }
 
     /**

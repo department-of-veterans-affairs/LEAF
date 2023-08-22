@@ -10,6 +10,10 @@ class ServiceChiefFormatter
             "variables"=>"userID"
         ],
         DataActions::DELETE.'-'.LoggableTypes::SERVICE_CHIEF=> [
+            "message"=>"pruned <strong>user:</strong> %s",
+            "variables"=>"userID"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::SERVICE_CHIEF=> [
             "message"=>"removed <strong>user:</strong> %s",
             "variables"=>"userID"
         ],
