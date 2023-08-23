@@ -662,14 +662,17 @@ function doSubmit(recordID) {
 
     function cancelRequest() {
         dialog_confirm.setContent(
-            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?'
+            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Enter Comment"></textarea>'
         );
 
         dialog_confirm.setSaveHandler(function() {
+            let comment = $('#cancel_comment').val();
+
             $.ajax({
                 type: 'POST',
                 url: 'api/form/<!--{$recordID|strip_tags|escape}-->/cancel',
-                data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {CSRFToken: '<!--{$CSRFToken}-->',
+                    comment: comment},
                 success: function(response) {
                     if (response == 1) {
                         window.location.href="index.php?a=cancelled_request&cancelled=<!--{$recordID|strip_tags}-->";
