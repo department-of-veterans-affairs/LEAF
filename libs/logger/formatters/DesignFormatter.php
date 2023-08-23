@@ -5,8 +5,8 @@ namespace Leaf;
 class DesignFormatter
 {
     const TEMPLATES = [
-        DataActions::CREATE.'-'.LoggableTypes::TEMPLATE_DESIGN => [
-            "message" => "created design <strong>%s</strong>",
+        DataActions::ADD.'-'.LoggableTypes::TEMPLATE_DESIGN => [
+            "message" => "added design <strong>%s</strong>",
             "variables" => "designID"
         ],
         DataActions::MODIFY.'-'.LoggableTypes::TEMPLATE_DESIGN => [
@@ -16,7 +16,15 @@ class DesignFormatter
         DataActions::DELETE.'-'.LoggableTypes::TEMPLATE_DESIGN => [
             "message" => "deleted design <strong>%s</strong>",
             "variables" => "designID"
-        ]
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::PUBLISH => [
+            "message" => "published design <strong>%s</strong>",
+            "variables" => "designID,templateName"
+        ],
+        DataActions::MODIFY.'-'.LoggableTypes::UNPUBLISH => [
+            "message" => "changed design <strong>%s</strong> to draft",
+            "variables" => "designID,templateName"
+        ],
     ];
 
     const TABLE = 'template_designs';

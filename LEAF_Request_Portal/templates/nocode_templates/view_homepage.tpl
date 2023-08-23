@@ -155,7 +155,9 @@
     function renderHeader() {
         const headerInfo = designData?.header || null;
         if (headerInfo !== null && +headerInfo.enabled === 1) {
-            const title = marked(headerInfo?.title || '');
+            const title = marked(
+                XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(headerInfo?.title || ''))
+            );
             const color = headerInfo?.titleColor || '#000000';
             const overlay = overlayColor(color);
             const imageFile = headerInfo?.imageFile || '';

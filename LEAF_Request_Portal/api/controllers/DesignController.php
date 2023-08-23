@@ -49,8 +49,9 @@ class DesignController extends RESTfulResponse
 
         $this->index['POST']->register('design/publish', function () use ($design) {
             $designID = \Leaf\XSSHelpers::xscrub($_POST['designID']);
+            $currentID = \Leaf\XSSHelpers::xscrub($_POST['currentEnabledID']);
             $templateName = \Leaf\XSSHelpers::xscrub($_POST['templateName']);
-            return $design->publishTemplate((int)$designID, $templateName);
+            return $design->publishTemplate((int)$designID, (int)$currentID, $templateName);
         });
 
         $this->index['POST']->register('design/[digit]/content', function ($args) use ($design) {

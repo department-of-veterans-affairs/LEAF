@@ -1,35 +1,43 @@
 <!--{if true}-->
 <div id="site-designer-app" v-cloak>
+    <nav id="general_options" style="display: flex;">
+        <button @click="openHistoryDialog">{{ currentView }} history<span role="img" aria="">🕒</span></button>
+        <button type="button" 
+            :title="'create a new design for the '+ currentView"
+            @click="openNewDesignDialog">New Design<span role="img" aria="">➕</span>
+        </button>
+        <button v-if="currentDesignID > 0" type="button"
+            class="delete" :title="currentDesignID===currentViewEnabledDesignID ?
+                'This page must be unpublished before it can be deleted' : 'Delete this design'"
+            :disabled="currentDesignID===currentViewEnabledDesignID"
+            @click="openDeleteDesignDialog">Delete Design<span role="img" aria="">❌</span>
+        </button>
+        <button v-show="currentDesignID > 0" type="button"
+            @click="setEditMode(!isEditingMode)">
+            {{isEditingMode ? 'Preview ' : 'Edit '}} Page <span role="img" aria="">{{isEditingMode ? '👁️‍🗨️' : '📝'}}</span>
+        </button>
+        <button v-show="currentDesignID > 0" type="button"
+            style="color: white; margin-left: auto;" :style="{backgroundColor: enabled ? '#A02020' : '#005EA2'}" @click="publishTemplate"
+            :disabled="appIsUpdating || selectedDesign?.designContent==='{}'">
+            {{ enabled ? 'Disable Page' : 'Publish Page'}}<span role="img" aria="">{{ enabled ? '⚠' : '▶'}}</span>
+        </button>
+    </nav>
     <main>
         <section :class="{editMode: isEditingMode}">
             <div id="page_info_area">
-                <!-- admin nav, page and name info, preview and publication options -->
-                <div v-show="isEditingMode">
-                    <h2 style="min-width: 250px;">
-                        <a href="../admin" class="leaf-crumb-link">Admin</a>
-                        <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer
-                    </h2>
-                </div>
-                <div>
-                    <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input"
-                        style="margin: 0 0 0 auto; font-size: 1.25rem;">title&nbsp;
-                        <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
-                        &nbsp;(<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? 'active' : 'draft'}}</span>)
-                    </label>
-                </div>
-                <div v-show="currentDesignID > 0" style="gap: 1rem;">
-                    <button type="button" class="btn-general" style="margin-left:auto;" @click="setEditMode(!isEditingMode)">
-                        {{isEditingMode ? 'Preview ' : 'Edit '}} Page
-                    </button>
-                    <button type="button" @click="publishTemplate(enabled ? 0 : currentDesignID, currentView)"
-                        class="btn-confirm" :class="{delete: enabled}" :disabled="appIsUpdating || selectedDesign?.designContent==='{}'">
-                        {{ enabled ? 'Disable Page' : 'Publish Page'}}
-                    </button>
-                </div>
+                <!-- admin home link, page and name info -->
+                <h2 v-show="isEditingMode" style="min-width: 250px;">
+                    <a href="../admin" class="leaf-crumb-link">Admin</a>
+                    <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer
+                </h2>
+                <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input">design&nbsp;
+                    <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
+                    &nbsp;<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? '(active)' : '(draft)'}}</span>
+                </label>
             </div>
-            <!-- menu for saved designs for the current view, edit, new, delete design options -->
-            <div v-show="isEditingMode" id="design_menu">
-                <label v-if="customizableViews.length > 1" for="current_view_select">Select a Page
+            <!-- view selection (if/when there's more than one view), saved designs for the current view -->
+            <div v-show="isEditingMode" id="current_view_design_menu">
+                <label v-if="customizableViews.length > 1" for="current_view_select">Page Selection
                     <select id="current_view_select" style="width:100px;" @change="setView">
                         <option v-if="currentView===''" value="">Select a Page</option>
                         <option v-for="view in customizableViews" :key="'view_option_' + view"
@@ -37,20 +45,13 @@
                     </select>
                 </label>
                 <label v-if="currentViewDesigns?.length > 0" for="saved_settings_select">Saved Settings
-                    <select id="saved_settings_select" style="width:180px;" v-model.number="currentDesignID">
+                    <select id="saved_settings_select" style="width:160px;" v-model.number="currentDesignID">
                         <option value="0">Select an Option</option>
                         <option v-for="d in currentViewDesigns" :value="d.designID" :key="'design_' + d.designID" style="max-width:200px;" >
                             #{{ d.designID }} {{ truncateText(d.designName, 30) }} {{ d.designID === currentViewEnabledDesignID ? '(active)' : '(draft)'}}
                         </option>
                     </select>
                 </label>
-                <button type="button" class="btn-general" @click="openNewDesignDialog"
-                    :title="'create a new setting for the '+ currentView">+ New
-                </button>
-                <button v-if="currentDesignID > 0 && currentDesignID!==currentViewEnabledDesignID" type="button"
-                    class="btn-confirm delete" title="Delete this design"
-                    @click="openDeleteDesignDialog">Delete
-                </button>
             </div>
 
             <!-- NOTE: routes -->

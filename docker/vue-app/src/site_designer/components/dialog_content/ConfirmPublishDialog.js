@@ -14,8 +14,7 @@ export default {
     ],
     methods:{
         onSave() {
-            const id = this.currentDesignID === this.currentViewEnabledDesignID ? 0 : this.currentDesignID;
-            this.publishTemplate(id, this.currentView, true);
+            this.publishTemplate(true);
             this.closeFormDialog();
         }
     },

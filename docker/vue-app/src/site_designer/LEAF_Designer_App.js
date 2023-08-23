@@ -1,4 +1,5 @@
 import { computed } from 'vue';
+import { marked } from 'marked';
 
 import './LEAF_Designer.scss';
 
@@ -13,7 +14,7 @@ export default {
             userID: userID,
             allDesignData: null,
             designSettings: null,
-            customizableViews: ['homepage', 'testpage'], //each is a router view  'testpage'
+            customizableViews: ['homepage'], //each is a router view  'testpage'
             currentDesignID: null,
             currentDesignName: null,
 
@@ -137,6 +138,11 @@ export default {
                 console.error(`error getting icons: ${error.message}`);
             }
         },
+        /**
+         * 
+         * @param {string} inputJSON
+         * @param {string} section of page being updated
+         */
         async postDesignContent(inputJSON = '{}', section = '') {
             this.appIsUpdating = true;
             try {
@@ -176,17 +182,24 @@ export default {
                 this.appIsUpdating = false;
             }
         },
-        async publishTemplate(designID = 0, templateName = '', confirmed = false) {
-            if(this.customizableViews.includes(templateName)) {
-                if (confirmed === false) {
-                    this.openConfirmPublishDialog();
-
-                } else {
+        /**
+         * 
+         * @param {boolean} confirmed
+         */
+        async publishTemplate(confirmed = false) {
+            const templateName = this.currentView;
+            if(this.customizableViews.includes(templateName) && this.currentDesignID > 0) {
+                if (confirmed === true) {
                     this.appIsUpdating = true;
                     try {
+                        const newID = this.currentDesignID === this.currentViewEnabledDesignID ?
+                            0 : this.currentDesignID;
+                        const curID = this.currentViewEnabledDesignID || 0;
+
                         let formData = new FormData();
                         formData.append('CSRFToken', this.CSRFToken);
-                        formData.append('designID', designID);
+                        formData.append('designID', newID);
+                        formData.append('currentEnabledID', curID);
                         formData.append('templateName', templateName);
 
                         const response = await fetch(`${this.APIroot}design/publish`, {
@@ -195,7 +208,7 @@ export default {
                         });
                         const data = await response.json();
                         if(+data?.status?.code === 2) {
-                            this.designSettings[`${templateName}_enabled`] = designID;
+                            this.designSettings[`${templateName}_enabled`] = newID;
                         } else {
                             console.log('unexpected response returned:', data);
                         }
@@ -205,6 +218,9 @@ export default {
                     } finally {
                         this.appIsUpdating = false;
                     }
+
+                } else {
+                    this.openConfirmPublishDialog();
                 }
 
             } else {

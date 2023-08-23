@@ -108,8 +108,8 @@ class Design
             $return_value = $this->db->pdo_insert_query($strSQL, $vars);
             $newDesignID = $this->db->getLastInsertID();
             $return_value['data'] = (int)$newDesignID;
-            //using CREATE for newDesign.
-            $this->dataActionLogger->logAction(\Leaf\DataActions::CREATE, \Leaf\LoggableTypes::TEMPLATE_DESIGN, [
+
+            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::TEMPLATE_DESIGN, [
                 new \Leaf\LogItem("template_designs", "designID", $newDesignID),
                 new \Leaf\LogItem("template_designs", "templateName", $templateName)
             ]);
@@ -179,7 +179,7 @@ class Design
         return $return_value;
     }
 
-    public function publishTemplate(int $designID = 0, string $templateName = ''): array {
+    public function publishTemplate(int $designID = 0, int $currentID = 0, string $templateName = ''): array {
         if (!$this->login->checkGroup(1)) {
             $return_value['status']['code'] = 4;
             $return_value['status']['message'] = "Admin access required";
@@ -200,7 +200,25 @@ class Design
                 'setting' => $settings_key,
                 'published' => $designID
             );
-            //TODO: feedback. add loggable types PUBLISH / UNPUBLISH ?
+
+            if($designID > 0) {
+                if($currentID > 0) {
+                    $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::UNPUBLISH, [
+                        new \Leaf\LogItem("template_designs", "designID", $currentID),
+                        new \Leaf\LogItem("template_designs", "templateName", $templateName)
+                    ]);
+                }
+                $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::PUBLISH, [
+                    new \Leaf\LogItem("template_designs", "designID", $designID),
+                    new \Leaf\LogItem("template_designs", "templateName", $templateName)
+                ]);
+
+            } else {
+                $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::UNPUBLISH, [
+                    new \Leaf\LogItem("template_designs", "designID", $currentID),
+                    new \Leaf\LogItem("template_designs", "templateName", $templateName)
+                ]);
+            }
             
         } else {
             $return_value['status']['code'] = 4;
